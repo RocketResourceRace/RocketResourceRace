@@ -50,7 +50,7 @@ int[][] generateMap(int mapWidth, int mapHeight, int numOfGroundTypes, int numOf
     if (type==1){
       for (int y1=y-waterLevel+1;y1<y+waterLevel;y1++){
        for (int x1 = x-waterLevel+1; x1<x+waterLevel;x1++){
-         if (y1 < height && y1 >= 0 && x1 < width && x1 >= 0)
+         if (y1 < mapHeight && y1 >= 0 && x1 < mapWidth && x1 >= 0)
            map[y1][x1] = type;
        }
       }
