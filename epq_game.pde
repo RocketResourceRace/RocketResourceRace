@@ -7,7 +7,7 @@ void setup(){
   activeState = "menu";
    fullScreen();
    noStroke();
-   map = generateMap(width, height, 5, width);
+   map = generateMap(width, height, 5, 50, 20);
    
 }
 

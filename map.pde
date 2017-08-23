@@ -11,7 +11,7 @@ int[][] smoothMap(int[][] map, int mapWidth, int mapHeight, int numOfGroundTypes
   Collections.shuffle(order);
   int[][] newMap = new int[mapHeight][mapWidth];
   for (int[] coord: order){
-    int[] counts = new int[numOfGroundTypes];
+    int[] counts = new int[numOfGroundTypes+1];
     for (int y1=coord[1]-2;y1<coord[1]+3;y1++){
      for (int x1 = coord[0]-2; x1<coord[0]+3;x1++){
        if (y1<mapHeight&&y1>=0&&x1<mapWidth&&x1>=0){
@@ -20,7 +20,7 @@ int[][] smoothMap(int[][] map, int mapWidth, int mapHeight, int numOfGroundTypes
      }
     }
     int highest = map[coord[1]][coord[0]];
-    for (int i=0; i<numOfGroundTypes;i++){
+    for (int i=1; i<=numOfGroundTypes;i++){
       if (counts[i] > counts[highest]){
         highest = i;
       }
@@ -31,10 +31,22 @@ int[][] smoothMap(int[][] map, int mapWidth, int mapHeight, int numOfGroundTypes
 }
 
 
-int[][] generateMap(int mapWidth, int mapHeight, int numOfGroundTypes, int numOfGroundSpawns){
+int[][] generateMap(int mapWidth, int mapHeight, int numOfGroundTypes, int numOfGroundSpawns, int waterLevel){
   int[][] map = new int[mapHeight][mapWidth];
   for(int i=0;i<numOfGroundSpawns;i++){
-    map[(int)random(mapHeight)][(int)random(mapWidth)] = (int)random(numOfGroundTypes-1)+1;
+    int type = (int)random(numOfGroundTypes)+1;
+    int x = (int)random(mapWidth);
+    int y = (int)random(mapHeight);
+    map[y][x] = type;
+    // Water will be type 1
+    if (type==1){
+      for (int y1=y-waterLevel+1;y1<y+waterLevel;y1++){
+       for (int x1 = x-waterLevel+1; x1<x+waterLevel;x1++){
+         if (y1 < height && y1 >= 0 && x1 < width && x1 >= 0)
+           map[y1][x1] = type;
+       }
+      }
+    }
   }
   ArrayList<int[]> order = new ArrayList<int[]>();
   for (int y=0; y<mapHeight;y++){
@@ -82,7 +94,6 @@ int[][] generateMap(int mapWidth, int mapHeight, int numOfGroundTypes, int numOf
     map[coord[1]][coord[0]] = map[y][x];
   }
   map = smoothMap(map, mapWidth, mapHeight, numOfGroundTypes);
-  map = smoothMap(map, mapWidth, mapHeight, numOfGroundTypes);
   return map;
 }
 
@@ -90,7 +101,11 @@ int[][] generateMap(int mapWidth, int mapHeight, int numOfGroundTypes, int numOf
 void drawMap(int[][] map, int blockSize, int numOfGroundTypes, int mapWidth, int mapHeight){
   for(int y=0;y<mapHeight;y++){
    for (int x=0; x<mapWidth; x++){
-     fill((map[y][x]*255)/numOfGroundTypes);
+     if(map[y][x] == 1){
+       fill(0, 0, 255);
+     } else {
+       fill((map[y][x]*255)/numOfGroundTypes);
+     }
      rect(x*blockSize, y*blockSize, blockSize, blockSize);
    }
   }
