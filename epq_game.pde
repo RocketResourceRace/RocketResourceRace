@@ -12,15 +12,17 @@ void setup(){
   map = generateMap(width/2, height/2, 5, 50, 3);
 }
 boolean smoothed = false;
-int SMOOTHING = 14;
-int COUNTER = 3;
+int SMOOTHING1 = 10;
+int SMOOTHING2 = 5;
+int COUNTER = 1;
 void draw(){
   if (millis() > 2000 && !smoothed){
-    save("smoothing/Smoothing "+SMOOTHING+": before "+COUNTER);
-    map = smoothMap(map, width/2, height/2, 5, SMOOTHING);
+    save("smoothing3/Smoothing "+SMOOTHING1+" "+SMOOTHING2+": "+COUNTER+"before");
+    map = smoothMap(map, width/2, height/2, 5, SMOOTHING1, 2);
+    map = smoothMap(map, width/2, height/2, 5, SMOOTHING2, 1);
     smoothed = true;
     drawMap(map, 2, 5, width/2, height/2);
-    save("smoothing/Smoothing "+SMOOTHING+": after "+COUNTER);
+    save("smoothing3/Smoothing "+SMOOTHING2+" "+SMOOTHING2+": "+COUNTER+"after");
   }
   drawMap(map, 2, 5, width/2, height/2);
   drawElements();

@@ -1,7 +1,7 @@
 import java.util.Collections;
 
 
-int[][] smoothMap(int[][] map, int mapWidth, int mapHeight, int numOfGroundTypes, int distance){
+int[][] smoothMap(int[][] map, int mapWidth, int mapHeight, int numOfGroundTypes, int distance, int firstType){
   ArrayList<int[]> order = new ArrayList<int[]>();
   for (int y=0; y<mapHeight;y++){
     for (int x=0; x<mapWidth;x++){
@@ -20,7 +20,7 @@ int[][] smoothMap(int[][] map, int mapWidth, int mapHeight, int numOfGroundTypes
      }
     }
     int highest = map[coord[1]][coord[0]];
-    for (int i=1; i<=numOfGroundTypes;i++){
+    for (int i=firstType; i<=numOfGroundTypes;i++){
       if (counts[i] > counts[highest]){
         highest = i;
       }
