@@ -1,4 +1,3 @@
-
 int[][] map;
 String activeState;
 HashMap<String, State> states;
@@ -10,12 +9,15 @@ void setup(){
   
   fullScreen();
   noStroke();
-  map = generateMap(width, height, 5, 50, 20);
-  
+  map = generateMap(width/2, height/2, 5, 50, 3);
 }
-
+boolean smoothed = false;
 void draw(){
-  drawMap(map, 1, 5, width, height);
+  if (millis() > 2000 && !smoothed){
+    map = smoothMap(map, width/2, height/2, 5, 20);
+    smoothed = true;
+  }
+  drawMap(map, 2, 5, width/2, height/2);
   drawElements();
 }
 

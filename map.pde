@@ -1,7 +1,7 @@
 import java.util.Collections;
 
 
-int[][] smoothMap(int[][] map, int mapWidth, int mapHeight, int numOfGroundTypes){
+int[][] smoothMap(int[][] map, int mapWidth, int mapHeight, int numOfGroundTypes, int distance){
   ArrayList<int[]> order = new ArrayList<int[]>();
   for (int y=0; y<mapHeight;y++){
     for (int x=0; x<mapWidth;x++){
@@ -12,8 +12,8 @@ int[][] smoothMap(int[][] map, int mapWidth, int mapHeight, int numOfGroundTypes
   int[][] newMap = new int[mapHeight][mapWidth];
   for (int[] coord: order){
     int[] counts = new int[numOfGroundTypes+1];
-    for (int y1=coord[1]-2;y1<coord[1]+3;y1++){
-     for (int x1 = coord[0]-2; x1<coord[0]+3;x1++){
+    for (int y1=coord[1]-distance+1;y1<coord[1]+distance;y1++){
+     for (int x1 = coord[0]-distance+1; x1<coord[0]+distance;x1++){
        if (y1<mapHeight&&y1>=0&&x1<mapWidth&&x1>=0){
          counts[map[y1][x1]]+=1;
        }
@@ -33,10 +33,18 @@ int[][] smoothMap(int[][] map, int mapWidth, int mapHeight, int numOfGroundTypes
 
 int[][] generateMap(int mapWidth, int mapHeight, int numOfGroundTypes, int numOfGroundSpawns, int waterLevel){
   int[][] map = new int[mapHeight][mapWidth];
+  for(int y=0; y<mapHeight; y++){
+    map[y][0] = 1;
+    map[y][mapWidth-1] = 1;
+  }
+  for(int x=1; x<mapWidth-1; x++){
+    map[0][x] = 1;
+    map[mapHeight-1][x] = 1;
+  }
   for(int i=0;i<numOfGroundSpawns;i++){
     int type = (int)random(numOfGroundTypes)+1;
-    int x = (int)random(mapWidth);
-    int y = (int)random(mapHeight);
+    int x = (int)random(mapWidth-2)+1;
+    int y = (int)random(mapHeight-2)+1;
     map[y][x] = type;
     // Water will be type 1
     if (type==1){
@@ -49,8 +57,8 @@ int[][] generateMap(int mapWidth, int mapHeight, int numOfGroundTypes, int numOf
     }
   }
   ArrayList<int[]> order = new ArrayList<int[]>();
-  for (int y=0; y<mapHeight;y++){
-    for (int x=0; x<mapWidth;x++){
+  for (int y=1; y<mapHeight-1;y++){
+    for (int x=1; x<mapWidth-1;x++){
       order.add(new int[] {x, y});
     }
   }
@@ -93,7 +101,6 @@ int[][] generateMap(int mapWidth, int mapHeight, int numOfGroundTypes, int numOf
     }
     map[coord[1]][coord[0]] = map[y][x];
   }
-  map = smoothMap(map, mapWidth, mapHeight, numOfGroundTypes);
   return map;
 }
 
