@@ -12,7 +12,7 @@ void setup(){
   map = generateMap(width/2, height/2, 5, 50, 3);
 }
 boolean smoothed = false;
-int SMOOTHING1 = 10;
+int SMOOTHING1 = 7;
 int SMOOTHING2 = 5;
 int COUNTER = 1;
 void draw(){
@@ -22,7 +22,7 @@ void draw(){
     map = smoothMap(map, width/2, height/2, 5, SMOOTHING2, 1);
     smoothed = true;
     drawMap(map, 2, 5, width/2, height/2);
-    save("smoothing3/Smoothing "+SMOOTHING2+" "+SMOOTHING2+": "+COUNTER+"after");
+    save("smoothing3/Smoothing "+SMOOTHING1+" "+SMOOTHING2+": "+COUNTER+"after");
   }
   drawMap(map, 2, 5, width/2, height/2);
   drawElements();
