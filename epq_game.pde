@@ -4,10 +4,11 @@ String activeState;
 HashMap<String, State> states;
 
 void setup(){
+  states = new HashMap<String, State>();
   activeState = "menu";
-   fullScreen();
-   noStroke();
-   map = generateMap(width, height, 5, 50, 20);
+  fullScreen();
+  noStroke();
+  map = generateMap(width, height, 5, 50, 20);
    
 }
 
