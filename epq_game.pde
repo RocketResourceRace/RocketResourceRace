@@ -5,11 +5,13 @@ HashMap<String, State> states;
 
 void setup(){
   states = new HashMap<String, State>();
+  addState("menu", new Menu());
   activeState = "menu";
+  
   fullScreen();
   noStroke();
   map = generateMap(width, height, 5, 50, 20);
-   
+  
 }
 
 void draw(){
@@ -24,6 +26,6 @@ void addState(String name, State state){
 
 void drawElements(){
   for(Element el : states.get(activeState).elements){
-    
+    el.draw();
   }
 }
