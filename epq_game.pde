@@ -20,18 +20,28 @@ void keyboardEvent(String eventType, int _key){
   getActiveState()._keyboardEvent(eventType, _key);
 }
 
+int NUMOFGROUNDTYPES = 5;
+int NUMOFGROUNDSPAWNS = 100;
+int WATERLEVEL = 3;
+int TILESIZE = 2;
+int MAPWIDTH = 500;
+int MAPHEIGHT = 500;
+
+int INITIALSMOOTH = 7;
+int COMPLETESMOOTH = 5;
+
 void setup(){
   states = new HashMap<String, State>();
   addState("menu", new Menu());
   activeState = "menu";
   fullScreen();
   noStroke();
-  map = generateMap(width/2, height/2, 5, 50, 3);
+  map = generateMap(MAPWIDTH, MAPHEIGHT, NUMOFGROUNDTYPES, NUMOFGROUNDSPAWNS, WATERLEVEL);
 }
 boolean smoothed = false;
 int SMOOTHING1 = 7;
 int SMOOTHING2 = 5;
-int COUNTER = 1;
+int COUNTER = 3;
 void draw(){
   //TO KEEP
   background(255);
@@ -39,17 +49,7 @@ void draw(){
   if (!newState.equals("")){
     activeState = newState;
   }
-  
-  //TEMP
-  if (millis() > 2000 && !smoothed){
-    save("smoothing3/Smoothing "+SMOOTHING1+" "+SMOOTHING2+": "+COUNTER+"before");
-    map = smoothMap(map, width/2, height/2, 5, SMOOTHING1, 2);
-    map = smoothMap(map, width/2, height/2, 5, SMOOTHING2, 1);
-    smoothed = true;
-    drawMap(map, 2, 5, width/2, height/2);
-    save("smoothing3/Smoothing "+SMOOTHING1+" "+SMOOTHING2+": "+COUNTER+"after");
-  }
-  drawMap(map, 2, 5, width/2, height/2);
+  drawMap(map, TILESIZE, NUMOFGROUNDTYPES, MAPWIDTH,MAPHEIGHT);
   
 }
 

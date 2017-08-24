@@ -101,6 +101,8 @@ int[][] generateMap(int mapWidth, int mapHeight, int numOfGroundTypes, int numOf
     }
     map[coord[1]][coord[0]] = map[y][x];
   }
+  map = smoothMap(map, mapWidth, mapHeight, numOfGroundTypes, INITIALSMOOTH, 2);
+  map = smoothMap(map, mapWidth, mapHeight, numOfGroundTypes, COMPLETESMOOTH, 1);
   return map;
 }
 
