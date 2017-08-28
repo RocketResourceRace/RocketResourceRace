@@ -1,15 +1,8 @@
 
 class Element{
-  Element(){
-    
-  }
-  void draw(int xOffset, int yOffset){
-    // To be overriden by child
-  }
+  void draw(int xOffset, int yOffset){}
   void mouseEvent(String eventType, int button){}
   void keyboardEvent(String eventType, int _key){}
-  
-  
   void _mouseEvent(String eventType, int button){
     mouseEvent(eventType, button);
   } 
