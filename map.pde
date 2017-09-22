@@ -107,15 +107,17 @@ int[][] generateMap(int mapWidth, int mapHeight, int numOfGroundTypes, int numOf
 }
 
 
+
 void drawMap(int[][] map, int blockSize, int numOfGroundTypes, int mapWidth, int mapHeight){
   for(int y=0;y<mapHeight;y++){
    for (int x=0; x<mapWidth; x++){
-     if(map[y][x] == 1){
-       fill(0, 0, 255);
-     } else {
-       fill((map[y][x]*255)/numOfGroundTypes);
-     }
-     rect(x*blockSize, y*blockSize, blockSize, blockSize);
+     //if(map[y][x] == 1){
+     //  fill(0, 0, 255);
+     //} else {
+     //  fill((map[y][x]*255)/numOfGroundTypes);
+     //}
+     image(tileImages[map[y][x]-1], x*blockSize, y*blockSize, blockSize, blockSize);
+     //rect(x*blockSize, y*blockSize, blockSize, blockSize);
    }
   }
 }
