@@ -54,18 +54,29 @@ class State{
   // Empty method for use by children
   void mouseEvent(String eventType, int button){}
   void keyboardEvent(String eventType, int _key){}
+  void elementEvent(String id, String eventType){}
+  
+  void elementEvent(ArrayList<Event> events){
+    for (Event event : events){
+      println(event.info());
+    }
+  }
   
   
   void _mouseEvent(String eventType, int button){
+    ArrayList<Event> events = new ArrayList<Event>();
     mouseEvent(eventType, button);
     for (Panel panel : panels){
       if(panel.mouseOver()){
-        for (Element elem : panel.elements.values()){
-          elem._mouseEvent(eventType, button);
+        for (String id : panel.elements.keySet()){
+          for (String eventName : panel.elements.get(id)._mouseEvent(eventType, button)){
+            events.add(new Event(id, eventName));
+          }
         }
         break;
       }
     }
+    elementEvent(events);
   }
   void _keyboardEvent(String eventType, int _key){
     keyboardEvent(eventType, _key);
