@@ -5,7 +5,7 @@ class Element{
   void keyboardEvent(String eventType, int _key){}
   ArrayList<String> _mouseEvent(String eventType, int button){
     mouseEvent(eventType, button);
-    return null;
+    return new ArrayList<String>();
   } 
   void _keyboardEvent(String eventType, int _key){
     mouseEvent(eventType, _key);
