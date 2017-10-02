@@ -52,11 +52,12 @@ class Button extends Element{
     textAlign(textAlign);
     textSize(textSize);
     if (lines.size() == 1){
-      padding = (h/6);
+      padding = h/10;
     }
+    padding = (lines.size()*textSize-h/2)/2;
     for (int i=0; i<lines.size(); i++){
       if (textAlign == CENTER){
-        text(lines.get(i), cx, cy+i*textSize+padding);
+        text(lines.get(i), cx, cy-padding+(i+0.25)*textSize);
       }
       else{
         text(lines.get(i), x, y + i*textSize);
