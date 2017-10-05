@@ -78,7 +78,7 @@ class State{
     }
     elementEvent(events);
   }
-  void _keyboardEvent(String eventType, int _key){
+  void _keyboardEvent(String eventType, char _key){
     keyboardEvent(eventType, _key);
     for (Panel panel : panels){
       for (Element elem : panel.elements.values()){

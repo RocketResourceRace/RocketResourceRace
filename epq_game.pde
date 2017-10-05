@@ -16,7 +16,7 @@ void keyTyped(){keyboardEvent("keyTyped", key);}
 void mouseEvent(String eventType, int button){
   getActiveState()._mouseEvent(eventType, button);
 }
-void keyboardEvent(String eventType, int _key){
+void keyboardEvent(String eventType, char _key){
   getActiveState()._keyboardEvent(eventType, _key);
 }
 

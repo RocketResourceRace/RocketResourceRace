@@ -42,12 +42,14 @@ class Slider extends Element{
       if (mouseOver() && eventType == "mousePressed"){
           pressed = true;
           setValue((float)(mouseX-x)/w*(float)(upper-lower)+lower);
+          events.add("valueChanged");
       }
       else if (eventType == "mouseReleased"){
         pressed = false;
       }
       if (eventType == "mouseDragged" && pressed){
         setValue((float)(mouseX-x)/w*(float)(upper-lower)+lower);
+        events.add("valueChanged");
       }
     }
     return events;
