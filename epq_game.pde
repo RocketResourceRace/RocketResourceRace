@@ -21,6 +21,9 @@ void keyboardEvent(String eventType, int _key){
 
 PImage[] tileImages;
 
+float halfScreenWidth;
+float halfScreenHeight;
+
 void setup(){
   states = new HashMap<String, State>();
   addState("menu", new Menu());
@@ -34,11 +37,11 @@ void setup(){
     loadImage("res/sand.png"),
     loadImage("res/grass.png")
   };
+  halfScreenWidth = width/2;
+  halfScreenHeight= height/2;
 }
 boolean smoothed = false;
-int SMOOTHING1 = 7;
-int SMOOTHING2 = 5;
-int COUNTER = 3;
+
 void draw(){
   //TO KEEP
   background(255);

@@ -12,12 +12,14 @@ class Map extends Element{
   int[][] map;
   int mapWidth;
   int mapHeight;
-  int blockSize;
+  float blockSize;
   int numOfGroundTypes;
   int numOfGroundSpawns;
   int waterLevel;
   int initialSmooth;
   int completeSmooth;
+  int mapXOffset;
+  int mapYOffset;
 
   Map(){
     mapWidth = 500;
@@ -29,8 +31,19 @@ class Map extends Element{
     initialSmooth = 7;
     completeSmooth = 5;
     generateMap();
+    mapXOffset = 200;
+    mapYOffset = 200;
   }
-  void mouseEvent(String eventType, int button){}
+  void mouseEvent(String eventType, int button){
+    if (eventType == "mouseClicked"){
+      if (button == LEFT){
+        blockSize *= 1.25;
+      }
+      if (button == RIGHT){
+        blockSize *= 0.8;
+      }
+    }
+  }
   void keyboardEvent(String eventType, int _key){}
   ArrayList<String> _mouseEvent(String eventType, int button){
     mouseEvent(eventType, button);
@@ -146,16 +159,25 @@ class Map extends Element{
   
   
   void draw(int xOffset, int yOffset){
+    int start = millis();
+    PImage[] tempImages = new PImage[numOfGroundTypes];
+    for (int i=0; i<3; i++){
+      tempImages[i] = tileImages[i].copy();
+      tempImages[i].resize(ceil(blockSize), 0);
+    }
     for(int y=0;y<mapHeight;y++){
      for (int x=0; x<mapWidth; x++){
-       //if(map[y][x] == 1){
-       //  fill(0, 0, 255);
-       //} else {
-       //  fill((map[y][x]*255)/numOfGroundTypes);
-       //}
-       image(tileImages[map[y][x]-1], x*blockSize, y*blockSize, blockSize, blockSize);
-       //rect(x*blockSize, y*blockSize, blockSize, blockSize);
+       float x2 = scaleX(x);
+       float y2 = scaleY(y);
+       image(tempImages[map[y][x]-1], x2, y2);
      }
     }
+    println(frameRate, millis()-start);
+  }
+  float scaleX(int x){
+    return (x-mapXOffset)*blockSize + halfScreenWidth;
+  }
+  float scaleY(int y){
+    return (y-mapYOffset)*blockSize + halfScreenHeight;
   }
 }
