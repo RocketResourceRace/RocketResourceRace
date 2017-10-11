@@ -1,8 +1,9 @@
 
 class TextField extends Element{
-  private int x, y, w, h, textSize, textAlign, cursor, active;
+  private int x, y, w, h, textSize, textAlign, cursorX, cursorY, active;
   private color textColour, boxColour;
-  private StringBuilder text;
+  private ArrayList<StringBuilder> text;
+  private boolean drawCursor = false;
   
   TextField(int x, int y, int w, int h, color textColour, int textSize, int textAlign, color boxColour){
     this.x = x;
@@ -13,7 +14,8 @@ class TextField extends Element{
     this.textColour = textColour;
     this.textAlign = textAlign;
     this.boxColour = boxColour;
-    text = new StringBuilder();
+    text = new ArrayList<StringBuilder>();
+    text.add(new StringBuilder());
   }
 
   ArrayList<String> getLines(StringBuilder s){
@@ -22,7 +24,7 @@ class TextField extends Element{
     for (; i < s.length(); i++){
       if (s.charAt(i) == '\n'){
         lines.add(s.substring(j, i));
-        j=i;
+        j=i+1;
       }
     }
     lines.add(s.substring(j, i));
@@ -30,40 +32,66 @@ class TextField extends Element{
   }
   
   void draw(int xOffset, int yOffest){
+    pushStyle();
+    textSize(textSize);
     int time = millis();
-    if ((time/500)%2==0){
-      text.insert(cursor, "|");
-    }
-    ArrayList<String> lines = getLines(text);
+    drawCursor = (time/500)%2==0;
     fill(textColour);
     if (textAlign == LEFT){
-      for (int i=0; i < lines.size(); i++){
-        text(lines.get(i), x, y+textSize*i);
+      for (int i=0; i < text.size(); i++){
+        text(""+text.get(i), x, y+textSize*i);
       }
     }
-    if ((time/500)%2==0){
-      text.deleteCharAt(cursor);
+    if (drawCursor){
+      fill(0);
+      rect(x+textWidth(text.get(cursorY).substring(0, cursorX)), y+textSize*(cursorY-1), 1, textSize*1.2);
     }
+    //fill(0);
+    //println(cursorToX(cursor), cursorToY(cursor));
+    //line(0, 0, 100, 100);
+    //line(cursorToX(cursor), cursorToY(cursor), cursorToX(cursor), cursorToY(cursor)+textSize);
+    popStyle();
   }
   ArrayList<String> _keyboardEvent(String eventType, char _key){
     keyboardEvent(eventType, _key);
     if (eventType == "keyTyped"){
       if (_key == BACKSPACE){
-        if (text.length() > 0)
-          text.deleteCharAt(--cursor);
+        if (cursorX > 0){
+          text.get(cursorY).deleteCharAt(--cursorX);
+        }
+        else if (cursorY > 0){
+          cursorX = text.get(cursorY-1).length();
+          text.get(cursorY-1).append(text.get(cursorY));
+          text.remove(cursorY);
+          cursorY--;
+        }
+      }
+      else if (_key == '\n'){
+        text.add(cursorY+1, new StringBuilder(text.get(cursorY).substring(cursorX, text.get(cursorY).length())));
+        text.get(cursorY).replace(cursorX, text.get(cursorY).length(), "");
+        cursorY++;
+        cursorX=0;
       }
       else{
-        text.insert(cursor, _key);
-        cursor++;
+        text.get(cursorY).insert(cursorX, _key);
+        cursorX++;
       }
     }
     if(eventType == "keyPressed"){
       if (key == CODED){
         if (keyCode == LEFT){
-          cursor = max(cursor-1, 0);
+          cursorX = max(cursorX-1, 0);
         }
         if (keyCode == RIGHT){
-          cursor = min(cursor+1, text.length());
+          cursorX = min(cursorX+1, text.get(cursorY).length());
+        }
+        if (keyCode == UP){
+          cursorY = max(cursorY-1, 0);
+          cursorX = min(cursorX, text.get(cursorY).length());
+        }
+        if(keyCode == DOWN){
+          cursorY = min(cursorY+1, text.size()-1);
+          cursorX = min(cursorX, text.get(cursorY).length());
         }
       }
     }
