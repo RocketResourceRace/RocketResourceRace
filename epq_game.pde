@@ -8,13 +8,16 @@ void mouseDragged(){mouseEvent("mouseDragged", mouseButton);}
 void mouseMoved(){mouseEvent("mouseMoved", mouseButton);}
 void mousePressed(){mouseEvent("mousePressed", mouseButton);}
 void mouseReleased(){mouseEvent("mouseReleased", mouseButton);}
-void mouseWheel(){mouseEvent("mouseWheel", mouseButton);}
+void mouseWheel(MouseEvent event){mouseEvent("mouseWheel", mouseButton);}
 void keyPressed(){keyboardEvent("keyPressed", key);}
 void keyReleased(){keyboardEvent("keyReleased", key);}
 void keyTyped(){keyboardEvent("keyTyped", key);}
 
 void mouseEvent(String eventType, int button){
   getActiveState()._mouseEvent(eventType, button);
+}
+void mouseEvent(String eventType, int button, MouseEvent event){
+  getActiveState()._mouseEvent(eventType, button, event);
 }
 void keyboardEvent(String eventType, char _key){
   getActiveState()._keyboardEvent(eventType, _key);

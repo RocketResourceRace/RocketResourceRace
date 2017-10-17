@@ -53,6 +53,7 @@ class State{
   }
   // Empty method for use by children
   void mouseEvent(String eventType, int button){}
+  void mouseEvent(String eventType, int button, MouseEvent event){}
   void keyboardEvent(String eventType, int _key){}
   void elementEvent(String id, String eventType){}
   
@@ -70,6 +71,21 @@ class State{
       if(panel.mouseOver()){
         for (String id : panel.elements.keySet()){
           for (String eventName : panel.elements.get(id)._mouseEvent(eventType, button)){
+            events.add(new Event(id, eventName));
+          }
+        }
+        break;
+      }
+    }
+    elementEvent(events);
+  }
+  void _mouseEvent(String eventType, int button, MouseEvent event){
+    ArrayList<Event> events = new ArrayList<Event>();
+    mouseEvent(eventType, button, event);
+    for (Panel panel : panels){
+      if(panel.mouseOver()){
+        for (String id : panel.elements.keySet()){
+          for (String eventName : panel.elements.get(id)._mouseEvent(eventType, button, event)){
             events.add(new Event(id, eventName));
           }
         }
