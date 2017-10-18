@@ -21,7 +21,7 @@ class TextEntry extends Element{
   }
   
   void draw(int xOffset, int yOffest){
-    boolean showCursor = (millis()/BLINKTIME)%2==0 || keyPressed;
+    boolean showCursor = ((millis()/BLINKTIME)%2==0 || keyPressed) && active;
     pushStyle();
     
     // Draw a box behind the text
@@ -48,6 +48,34 @@ class TextEntry extends Element{
     selected = cursor;
   }
   
+  int getCursorPos(int mx, int my){
+    int i=0;
+    for(; i<text.length(); i++){
+      if (textWidth(text.substring(0, i)) + x > mx)
+        break;
+    }
+    if (0 <= i && i <= text.length() && y <= my && my <= y+textSize){
+      return i;
+    }
+    return cursor;
+  }
+  
+  ArrayList<String> _mouseEvent(String eventType, int button){
+    ArrayList<String> events = new ArrayList<String>();
+    if (eventType == "mouseClicked"){
+      if (button == LEFT){
+        if (mouseOver()){
+          activate();
+        }
+      }
+    }
+    else if (eventType == "mousePressed"){
+      cursor = getCursorPos(mouseX, mouseY);
+      print(cursor);
+    }
+    return events;
+  }
+  
   ArrayList<String> _keyboardEvent(String eventType, char _key){
     keyboardEvent(eventType, _key);
     ArrayList<String> events = new ArrayList<String>();
@@ -62,6 +90,10 @@ class TextEntry extends Element{
         else{
           text = new StringBuilder(text.substring(min(cursor, selected)) + text.substring(max(cursor, selected)));
         }
+      }
+      else if (_key == '\n'){
+        events.add("enterPressed");
+        deactivate();
       }
       else if (allowedChars.equals("") || allowedChars.contains(""+_key)){
         text.insert(cursor++, _key);
@@ -81,5 +113,9 @@ class TextEntry extends Element{
       }
     }
     return events;
+  }
+  
+  Boolean mouseOver(){
+    return mouseX >= x && mouseX <= x+w && mouseY >= y && mouseY <= y+h;
   }
 }

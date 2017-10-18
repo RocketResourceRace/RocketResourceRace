@@ -99,7 +99,9 @@ class State{
     for (Panel panel : panels){
       for (Element elem : panel.elements.values()){
         // TODO decide whether all or just active panel
-        elem._keyboardEvent(eventType, _key);
+        if (elem.active){
+          elem._keyboardEvent(eventType, _key);
+        }
       }
     }
   }
