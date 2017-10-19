@@ -23,6 +23,11 @@ void keyboardEvent(String eventType, char _key){
   getActiveState()._keyboardEvent(eventType, _key);
 }
 
+color brighten(color c, int offset){
+  float r = red(c), g = green(c), b = blue(c);
+  return color(min(r+offset, 255), min(g+offset, 255), min(b+offset, 255));
+}
+
 int NUMOFGROUNDTYPES = 3;
 int NUMOFGROUNDSPAWNS = 100;
 int WATERLEVEL = 3;

@@ -2,7 +2,7 @@
 class TextEntry extends Element{
   StringBuilder text;
   int x, y, w, h, textSize, textAlign, cursor, selected;
-  color textColour, boxColour, borderColour;
+  color textColour, boxColour, borderColour, selectionColour;
   String allowedChars;
   final int BLINKTIME = 500;
   
@@ -18,6 +18,7 @@ class TextEntry extends Element{
     this.borderColour = borderColour;
     this.allowedChars = allowedChars;
     text = new StringBuilder();
+    selectionColour = brighten(selectionColour, 150);
   }
   
   void draw(int xOffset, int yOffest){
@@ -28,6 +29,12 @@ class TextEntry extends Element{
     fill(boxColour);
     stroke(borderColour);
     rect(x, y, w, h);
+    
+    // Draw selection box
+    if (selected != cursor){
+      fill(selectionColour);
+      rect(x+textWidth(text.substring(0, min(cursor, selected))), y, textWidth(text.substring(min(cursor, selected), max(cursor, selected))), textSize);
+    }
     
     // Draw the text
     textSize(textSize);
@@ -70,8 +77,15 @@ class TextEntry extends Element{
       }
     }
     else if (eventType == "mousePressed"){
-      cursor = getCursorPos(mouseX, mouseY);
-      print(cursor);
+      if (button == LEFT){
+        cursor = getCursorPos(mouseX, mouseY);
+        selected = getCursorPos(mouseX, mouseY);
+      }
+    }
+    else if (eventType == "mouseDragged"){
+      if (button == LEFT){
+        selected = getCursorPos(mouseX, mouseY);
+      }
     }
     return events;
   }
@@ -88,7 +102,9 @@ class TextEntry extends Element{
           }
         }
         else{
-          text = new StringBuilder(text.substring(min(cursor, selected)) + text.substring(max(cursor, selected)));
+          text = new StringBuilder(text.substring(0, min(cursor, selected)) + text.substring(max(cursor, selected), text.length()));
+          cursor = min(cursor, selected);
+          resetSelection();
         }
       }
       else if (_key == '\n'){
