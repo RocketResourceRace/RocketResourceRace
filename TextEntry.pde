@@ -67,6 +67,27 @@ class TextEntry extends Element{
     return cursor;
   }
   
+  void doubleSelectWord(){
+    if (y + textSize <= mouseY && mouseY <= y+textSize*2){
+      return;
+    }
+    int c = getCursorPos(mouseX, mouseY);
+    int i;
+    for (i=min(c, text.length()-1); i>0; i--){
+      if (text.charAt(i) == ' '){
+        i++;
+        break;
+      }
+    }
+    cursor = i;
+    for (i=c; i<text.length(); i++){
+      if (text.charAt(i) == ' '){
+        break;
+      }
+    }
+    selected = i;
+  }
+  
   ArrayList<String> _mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
     if (eventType == "mouseClicked"){
@@ -86,6 +107,9 @@ class TextEntry extends Element{
       if (button == LEFT){
         selected = getCursorPos(mouseX, mouseY);
       }
+    }
+    else if (eventType == "mouseDoubleClicked"){
+      doubleSelectWord();
     }
     return events;
   }

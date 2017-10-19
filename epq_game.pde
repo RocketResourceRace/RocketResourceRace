@@ -1,9 +1,11 @@
 int[][] map;
 String activeState;
 HashMap<String, State> states;
+int lastClickTime = 0;
+final int DOUBLECLICKWAIT = 300;
 
 // Event-driven methods
-void mouseClicked(){mouseEvent("mouseClicked", mouseButton);}
+void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}
 void mouseDragged(){mouseEvent("mouseDragged", mouseButton);}
 void mouseMoved(){mouseEvent("mouseMoved", mouseButton);}
 void mousePressed(){mouseEvent("mousePressed", mouseButton);}
@@ -12,6 +14,16 @@ void mouseWheel(MouseEvent event){mouseEvent("mouseWheel", mouseButton);}
 void keyPressed(){keyboardEvent("keyPressed", key);}
 void keyReleased(){keyboardEvent("keyReleased", key);}
 void keyTyped(){keyboardEvent("keyTyped", key);}
+
+void doubleClick(){
+  if (millis() - lastClickTime < DOUBLECLICKWAIT){
+    mouseEvent("mouseDoubleClicked", mouseButton);
+    lastClickTime = 0;
+  }
+  else{
+    lastClickTime = millis();
+  }
+}
 
 void mouseEvent(String eventType, int button){
   getActiveState()._mouseEvent(eventType, button);
