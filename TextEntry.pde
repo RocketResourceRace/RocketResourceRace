@@ -6,19 +6,20 @@ class TextEntry extends Element{
   String allowedChars;
   final int BLINKTIME = 500;
   
-  TextEntry(int x, int y, int w, int h, int textSize, int textAlign, color textColour, color boxColour, color borderColour, String allowedChars){
+  TextEntry(int x, int y, int w, int h, int textAlign, color textColour, color boxColour, color borderColour, String allowedChars){
     this.x = x;
     this.y = y;
     this.h = h;
     this.w = w;
     this.textColour = textColour;
-    this.textSize = textSize;
+    this.textSize = (int)(h*0.8);
     this.textAlign = textAlign;
     this.boxColour = boxColour;
     this.borderColour = borderColour;
     this.allowedChars = allowedChars;
     text = new StringBuilder();
     selectionColour = brighten(selectionColour, 150);
+    deactivate();
   }
   
   void draw(int xOffset, int yOffest){
@@ -31,9 +32,9 @@ class TextEntry extends Element{
     rect(x, y, w, h);
     
     // Draw selection box
-    if (selected != cursor){
+    if (selected != cursor && active){
       fill(selectionColour);
-      rect(x+textWidth(text.substring(0, min(cursor, selected))), y, textWidth(text.substring(min(cursor, selected), max(cursor, selected))), textSize);
+      rect(x+textWidth(text.substring(0, min(cursor, selected))), y+2, textWidth(text.substring(min(cursor, selected), max(cursor, selected))), h-4);
     }
     
     // Draw the text
@@ -45,7 +46,8 @@ class TextEntry extends Element{
     // Draw cursor
     if (showCursor){
       fill(0);
-      rect(x+textWidth(text.toString().substring(0,cursor)), y, 1, textSize);
+      noStroke();
+      rect(x+textWidth(text.toString().substring(0,cursor)), y, 1, h);
     }
     
     popStyle();
@@ -68,7 +70,7 @@ class TextEntry extends Element{
   }
   
   void doubleSelectWord(){
-    if (y + textSize <= mouseY && mouseY <= y+textSize*2){
+    if (!(y <= mouseY && mouseY <= y+textSize)){
       return;
     }
     int c = getCursorPos(mouseX, mouseY);
@@ -136,6 +138,11 @@ class TextEntry extends Element{
         deactivate();
       }
       else if (allowedChars.equals("") || allowedChars.contains(""+_key)){
+        if (cursor != selected){
+          text = new StringBuilder(text.substring(0, min(cursor, selected)) + text.substring(max(cursor, selected), text.length()));
+          cursor = min(cursor, selected);
+          resetSelection();
+        }
         text.insert(cursor++, _key);
         resetSelection();
       }
