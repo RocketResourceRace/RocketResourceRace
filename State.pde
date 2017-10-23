@@ -31,6 +31,14 @@ class State{
     panels.remove(findPanel(id));
   }
   
+  void panelToTop(String id){
+    Panel tempPanel = getPanel(id);
+    panels.add(panels.get(panels.size()-1));
+    for (int i=0; i<panels.size(); i++){
+      panels.ap
+    }
+  }
+  
   int findPanel(String id){
     for (int i=0; i<panels.size(); i++){
       if (panels.get(i).id.equals(id)){

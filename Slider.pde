@@ -59,7 +59,7 @@ class Slider extends Element{
     return mouseX >= x && mouseX <= x+w && mouseY >= y && mouseY <= y+h;
   }
   
-  void draw(int xOffset, int yOffset){
+  void draw(){
     float j = lower, range = upper-lower;
     float r = red(bgColour), g = green(bgColour), b = blue(bgColour);
     pushStyle();
@@ -76,7 +76,7 @@ class Slider extends Element{
       fill(scaleColour);
       textSize(10);
       textAlign(CENTER);
-      text(""+j, j/range*w+x, y);
+      text(""+j, j/range*w+x+xOffset, y+yOffset);
       fill(bgColour);
       line(j/range*w+x, y, j/range*w+x, y+h);
       j += range/major;
@@ -89,13 +89,13 @@ class Slider extends Element{
       fill(bgColour);
     }
     
-    rect(x+(float)value/(upper-lower)*w-boxWidth/2, y+h/2-boxHeight/2, boxWidth, boxHeight);
+    rect(x+(float)value/(upper-lower)*w-boxWidth/2+xOffset, y+h/2-boxHeight/2+yOffset, boxWidth, boxHeight);
     textSize(15);
     textAlign(CENTER);
     fill(scaleColour);
-    text(""+Float.parseFloat((""+value).substring(0, min((""+value).length(), 5))), x+(float)value/(upper-lower)*w, y+h/2+boxHeight/4);
+    text(""+Float.parseFloat((""+value).substring(0, min((""+value).length(), 5))), x+(float)value/(upper-lower)*w+xOffset, y+h/2+boxHeight/4+yOffset);
     stroke(0);
-    line(x+(float)value/(upper-lower)*w, y+h/2-boxHeight/2, x+(float)value/(upper-lower)*w, y+h/2-boxHeight);
+    line(x+(float)value/(upper-lower)*w+xOffset, y+h/2-boxHeight/2+yOffset, x+(float)value/(upper-lower)*w+xOffset, y+h/2-boxHeight+yOffset);
     popStyle();
   }
 }

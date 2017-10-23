@@ -22,32 +22,32 @@ class TextEntry extends Element{
     deactivate();
   }
   
-  void draw(int xOffset, int yOffest){
+  void draw(){
     boolean showCursor = ((millis()/BLINKTIME)%2==0 || keyPressed) && active;
     pushStyle();
     
     // Draw a box behind the text
     fill(boxColour);
     stroke(borderColour);
-    rect(x, y, w, h);
+    rect(x+xOffset, y+yOffset, w, h);
     
     // Draw selection box
     if (selected != cursor && active){
       fill(selectionColour);
-      rect(x+textWidth(text.substring(0, min(cursor, selected))), y+2, textWidth(text.substring(min(cursor, selected), max(cursor, selected))), h-4);
+      rect(x+textWidth(text.substring(0, min(cursor, selected)))+xOffset, y+2, textWidth(text.substring(min(cursor, selected)+yOffset, max(cursor, selected))), h-4);
     }
     
     // Draw the text
     textSize(textSize);
     textAlign(textAlign);
     fill(textColour);
-    text(text.toString(), x, y+textSize);
+    text(text.toString(), x+xOffset, y+textSize+yOffset);
     
     // Draw cursor
     if (showCursor){
       fill(0);
       noStroke();
-      rect(x+textWidth(text.toString().substring(0,cursor)), y, 1, h);
+      rect(x+textWidth(text.toString().substring(0,cursor))+xOffset, y+yOffset, 1, h);
     }
     
     popStyle();

@@ -30,7 +30,8 @@ class Button extends Element{
     this.text = text;
     setLines(text);
   }
-  void draw(int xOffset, int yOffset){
+  void draw(){
+    println(x+xOffset, y+yOffset, w, h);
     int padding=0;
     float r = red(bgColour), g = green(bgColour), b = blue(bgColour);
     pushStyle();
@@ -46,7 +47,7 @@ class Button extends Element{
     }
     stroke(strokeColour);
     strokeWeight(3);
-    rect(x, y, w, h);
+    rect(x+xOffset, y+yOffset, w, h);
     noTint();
     fill(textColour);
     textAlign(textAlign);
@@ -57,10 +58,10 @@ class Button extends Element{
     padding = (lines.size()*textSize-h/2)/2;
     for (int i=0; i<lines.size(); i++){
       if (textAlign == CENTER){
-        text(lines.get(i), cx, cy-padding+(i+0.25)*textSize);
+        text(lines.get(i), cx+xOffset, cy-padding+(i+0.25)*textSize+yOffset);
       }
       else{
-        text(lines.get(i), x, y + i*textSize);
+        text(lines.get(i), x+xOffset, y + i*textSize+yOffset);
       }
     }
     popStyle();

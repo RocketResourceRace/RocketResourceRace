@@ -18,6 +18,12 @@ class Panel{
     elements = new HashMap<String, Element>();
   }
   
+  void setOffset(){
+    for (Element elem : elements.values()){
+      elem.setOffset(x, y);
+    }
+  }
+  
   void draw(){
     pushStyle();
     fill(bgColour);
@@ -26,7 +32,7 @@ class Panel{
     popStyle();
     
     for (Element elem : elements.values()){
-      elem.draw(x, y);
+      elem.draw();
     }
   }
   
