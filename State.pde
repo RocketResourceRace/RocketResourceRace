@@ -5,7 +5,7 @@ class State{
   
   State(){
     panels = new ArrayList<Panel>();
-    addPanel("default", 0, 0, width, height, true, color(255), color(0));
+    addPanel("default", 0, 0, width, height, true, color(255, 255), color(0));
     newState = "";
   }
   
@@ -13,9 +13,20 @@ class State{
     drawPanels();
     return newState;
   }
+  void hidePanels(){
+    for (Panel panel:panels){
+      panel.visible = false;
+    }
+  }
   void addPanel(String id, int x, int y, int w, int h, Boolean visible, color bgColour, color strokeColour){
     // Adds new panel to front
     panels.add(new Panel(id, x, y, w, h, visible, bgColour, strokeColour));
+    panelToTop(id);
+  }
+  void addPanel(String id, int x, int y, int w, int h, Boolean visible, String fileName, color strokeColour){
+    // Adds new panel to front
+    panels.add(new Panel(id, x, y, w, h, visible, fileName, strokeColour));
+    panelToTop(id);
   }
   void addElement(String id, Element elem){
     getPanel("default").elements.put(id, elem);
@@ -33,10 +44,17 @@ class State{
   
   void panelToTop(String id){
     Panel tempPanel = getPanel(id);
-    panels.add(panels.get(panels.size()-1));
-    for (int i=0; i<panels.size(); i++){
-      panels.ap
+    for (int i=findPanel(id); i>0; i--){
+      panels.set(i, panels.get(i-1));
     }
+    panels.set(0, tempPanel);
+  }
+  
+  void printPanels(){
+    for(Panel panel:panels){
+      print(panel.id);
+    }
+    println();
   }
   
   int findPanel(String id){
@@ -75,14 +93,19 @@ class State{
   void _mouseEvent(String eventType, int button){
     ArrayList<Event> events = new ArrayList<Event>();
     mouseEvent(eventType, button);
+    //for (int i=panels.size()-1; i>=0; i++){
+    //  if (panels.get(i).mouseOver()){
+    //    panelToTop(panels.get(i).id);
+    //    break;
+    //  }
+    //}
     for (Panel panel : panels){
-      if(panel.mouseOver()){
+      if(panel.mouseOver() && panel.visible){
         for (String id : panel.elements.keySet()){
           for (String eventName : panel.elements.get(id)._mouseEvent(eventType, button)){
-            events.add(new Event(id, eventName));
+            events.add(new Event(id, panel.id, eventName));
           }
         }
-        break;
       }
     }
     elementEvent(events);
@@ -91,13 +114,12 @@ class State{
     ArrayList<Event> events = new ArrayList<Event>();
     mouseEvent(eventType, button, event);
     for (Panel panel : panels){
-      if(panel.mouseOver()){
+      if(panel.visible){
         for (String id : panel.elements.keySet()){
           for (String eventName : panel.elements.get(id)._mouseEvent(eventType, button, event)){
-            events.add(new Event(id, eventName));
+            events.add(new Event(id, panel.id, eventName));
           }
         }
-        break;
       }
     }
     elementEvent(events);

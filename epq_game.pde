@@ -3,6 +3,7 @@ String activeState;
 HashMap<String, State> states;
 int lastClickTime = 0;
 final int DOUBLECLICKWAIT = 300;
+float GUIScale = 1.0;
 
 // Event-driven methods
 void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}

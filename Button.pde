@@ -31,7 +31,6 @@ class Button extends Element{
     setLines(text);
   }
   void draw(){
-    println(x+xOffset, y+yOffset, w, h);
     int padding=0;
     float r = red(bgColour), g = green(bgColour), b = blue(bgColour);
     pushStyle();
@@ -93,6 +92,8 @@ class Button extends Element{
       }
       if (eventType == "mousePressed"){
         state = "on";
+      }
+      if (eventType == "mouseClicked"){
         events.add("clicked");
       }
     }

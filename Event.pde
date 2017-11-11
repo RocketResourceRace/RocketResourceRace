@@ -1,7 +1,7 @@
 
 class Event{
-  String id, type;
-  Event(String id, String type){
+  String id, type, panel;
+  Event(String id, String panel, String type){
     this.id = id;
     this.type = type;
   }
