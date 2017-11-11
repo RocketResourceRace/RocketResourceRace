@@ -26,9 +26,9 @@ float halfScreenHeight;
 
 void setup(){
   tileImages = new PImage[]{
-    loadImage("res/water.png"),
-    loadImage("res/sand.png"),
-    loadImage("res/grass.png")
+    loadImage("data/water.png"),
+    loadImage("data/sand.png"),
+    loadImage("data/grass.png")
   };
   states = new HashMap<String, State>();
   addState("menu", new Menu());

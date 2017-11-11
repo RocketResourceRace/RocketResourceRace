@@ -21,6 +21,8 @@ class Map extends Element{
   int mapXOffset;
   int mapYOffset;
   PImage buffer;
+  int elementWidth;
+  int elementHeight;
 
   Map(){
     mapWidth = 500;
@@ -31,9 +33,12 @@ class Map extends Element{
     waterLevel = 3;
     initialSmooth = 7;
     completeSmooth = 5;
+    elementWidth = 500;
+    elementHeight = 500;
+    mapXOffset = 250;
+    mapYOffset = 250;
+    buffer = createImage(elementWidth, elementHeight, RGB);
     generateMap();
-    mapXOffset = 200;
-    mapYOffset = 200;
   }
   void mouseEvent(String eventType, int button){
     if (eventType == "mouseClicked"){
@@ -43,6 +48,7 @@ class Map extends Element{
       if (button == RIGHT){
         blockSize *= 0.8;
       }
+      updateBuffer();
     }
   }
   void keyboardEvent(String eventType, int _key){}
@@ -159,37 +165,29 @@ class Map extends Element{
   }
   
   void updateBuffer(){
-    buffer = createImage(round(mapWidth*blockSize), round(mapHeight*blockSize), RGB);
+    buffer = createImage(elementWidth, elementHeight, RGB);
     PImage[] tempImages = new PImage[numOfGroundTypes];
     for (int i=0; i<3; i++){
       tempImages[i] = tileImages[i].copy();
-      tempImages[i].resize(ceil(blockSize), 0);
+      tempImages[i].resize(min(ceil(blockSize), tileImages[i].width), 0);
     }
     for(int y=0;y<mapHeight;y++){
       for (int x=0; x<mapWidth; x++){
         float x2 = scaleX(x);
         float y2 = scaleY(y);
-        buffer.copy(tempImages[map[y][x]-1], 0, 0, tempImages[map[y][x]-1].width, tempImages[map[y][x]-1].height, round(x2), round(y2), round(blockSize), round(blockSize));
+        buffer.copy(tempImages[map[y][x]-1], 0, 0, tempImages[map[y][x]-1].width, tempImages[map[y][x]-1].height, ceil(x2), ceil(y2), ceil(blockSize), ceil(blockSize));
       }
     }
   }
   
   
   void draw(int xOffset, int yOffset){
-    int start = millis();
-    for(int y=0;y<mapHeight;y++){
-     for (int x=0; x<mapWidth; x++){
-       float x2 = scaleX(x);
-       float y2 = scaleY(y);
-       image(buffer, x2, y2, blockSize, blockSize);
-     }
-    }
-    println(frameRate, millis()-start);
+    image(buffer, xOffset, yOffset, elementWidth, elementHeight);
   }
   float scaleX(int x){
-    return (x-mapXOffset)*blockSize + halfScreenWidth;
+    return (x-mapXOffset)*blockSize + elementWidth/2;
   }
   float scaleY(int y){
-    return (y-mapYOffset)*blockSize + halfScreenHeight;
+    return (y-mapYOffset)*blockSize + elementHeight/2;
   }
 }
