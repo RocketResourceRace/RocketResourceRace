@@ -25,6 +25,11 @@ float halfScreenWidth;
 float halfScreenHeight;
 
 void setup(){
+  tileImages = new PImage[]{
+    loadImage("res/water.png"),
+    loadImage("res/sand.png"),
+    loadImage("res/grass.png")
+  };
   states = new HashMap<String, State>();
   addState("menu", new Menu());
   addState("map", new TestMap());
@@ -32,11 +37,6 @@ void setup(){
   fullScreen();
   noStroke();
   //map = generateMap(MAPWIDTH, MAPHEIGHT, NUMOFGROUNDTYPES, NUMOFGROUNDSPAWNS, WATERLEVEL);
-  tileImages = new PImage[]{
-    loadImage("res/water.png"),
-    loadImage("res/sand.png"),
-    loadImage("res/grass.png")
-  };
   halfScreenWidth = width/2;
   halfScreenHeight= height/2;
 }

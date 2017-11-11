@@ -20,6 +20,7 @@ class Map extends Element{
   int completeSmooth;
   int mapXOffset;
   int mapYOffset;
+  PImage buffer;
 
   Map(){
     mapWidth = 500;
@@ -154,22 +155,33 @@ class Map extends Element{
     }
     map = smoothMap(initialSmooth, 2);
     map = smoothMap(completeSmooth, 1);
+    updateBuffer();
   }
   
-  
-  
-  void draw(int xOffset, int yOffset){
-    int start = millis();
+  void updateBuffer(){
+    buffer = createImage(round(mapWidth*blockSize), round(mapHeight*blockSize), RGB);
     PImage[] tempImages = new PImage[numOfGroundTypes];
     for (int i=0; i<3; i++){
       tempImages[i] = tileImages[i].copy();
       tempImages[i].resize(ceil(blockSize), 0);
     }
     for(int y=0;y<mapHeight;y++){
+      for (int x=0; x<mapWidth; x++){
+        float x2 = scaleX(x);
+        float y2 = scaleY(y);
+        buffer.copy(tempImages[map[y][x]-1], 0, 0, tempImages[map[y][x]-1].width, tempImages[map[y][x]-1].height, round(x2), round(y2), round(blockSize), round(blockSize));
+      }
+    }
+  }
+  
+  
+  void draw(int xOffset, int yOffset){
+    int start = millis();
+    for(int y=0;y<mapHeight;y++){
      for (int x=0; x<mapWidth; x++){
        float x2 = scaleX(x);
        float y2 = scaleY(y);
-       image(tempImages[map[y][x]-1], x2, y2);
+       image(buffer, x2, y2, blockSize, blockSize);
      }
     }
     println(frameRate, millis()-start);
