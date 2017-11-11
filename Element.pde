@@ -7,7 +7,8 @@ class Element{
     mouseEvent(eventType, button);
     return new ArrayList<String>();
   } 
-  void _keyboardEvent(String eventType, int _key){
-    mouseEvent(eventType, _key);
+  ArrayList<String> _keyboardEvent(String eventType, char _key){
+    keyboardEvent(eventType, _key);
+    return new ArrayList<String>();
   }
 }
