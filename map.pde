@@ -204,7 +204,7 @@ class Map extends Element{
   }
   
   
-  void draw(int xOffset, int yOffset){
+  void draw(){
     if (mapSpeed[0]!=0||mapSpeed[1]!=0){
       mapXOffset += mapSpeed[0];
       mapYOffset += mapSpeed[1];
