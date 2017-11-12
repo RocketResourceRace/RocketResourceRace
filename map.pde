@@ -53,7 +53,6 @@ class Map extends Element{
     }
   }
   void keyboardEvent(String eventType, int _key){
-    println(key, _key);
     if (eventType == "keyPressed"){
       if (_key == 'a'&&mapSpeed[0]>-1){
         mapSpeed[0] -= 1;
