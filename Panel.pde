@@ -2,6 +2,7 @@
 class Panel{
   HashMap<String, Element> elements;
   String id;
+  PImage img;
   Boolean visible;
   private int x, y, w, h;
   private color bgColour, strokeColour;
@@ -18,15 +19,41 @@ class Panel{
     elements = new HashMap<String, Element>();
   }
   
+  Panel(String id, int x, int y, int w, int h, Boolean visible, String fileName, color strokeColour){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.visible = visible;
+    this.id = id;
+    this.img = loadImage(fileName);
+    this.strokeColour = strokeColour;
+    elements = new HashMap<String, Element>();
+  }
+  
+  void setOffset(){
+    for (Element elem : elements.values()){
+      elem.setOffset(x, y);
+    }
+  }
+  
   void draw(){
     pushStyle();
-    fill(bgColour);
-    stroke(strokeColour);
-    rect(x, y, w, h);
+    if (img == null){
+      if (bgColour != color(255, 255)){
+        fill(bgColour);
+        stroke(strokeColour);
+        rect(x, y, w, h);
+      }
+    }
+    else{
+      //imageMode(CENTER);
+      image(img, x, y, w, h);
+    }
     popStyle();
     
     for (Element elem : elements.values()){
-      elem.draw(x, y);
+      elem.draw();
     }
   }
   

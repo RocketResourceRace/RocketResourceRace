@@ -1,22 +1,43 @@
 String activeState;
 HashMap<String, State> states;
+int lastClickTime = 0;
+final int DOUBLECLICKWAIT = 300;
+float GUIScale = 1.0;
 
 // Event-driven methods
-void mouseClicked(){mouseEvent("mouseClicked", mouseButton);}
+void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}
 void mouseDragged(){mouseEvent("mouseDragged", mouseButton);}
 void mouseMoved(){mouseEvent("mouseMoved", mouseButton);}
 void mousePressed(){mouseEvent("mousePressed", mouseButton);}
 void mouseReleased(){mouseEvent("mouseReleased", mouseButton);}
-void mouseWheel(){mouseEvent("mouseWheel", mouseButton);}
+void mouseWheel(MouseEvent event){mouseEvent("mouseWheel", mouseButton);}
 void keyPressed(){keyboardEvent("keyPressed", key);}
 void keyReleased(){keyboardEvent("keyReleased", key);}
 void keyTyped(){keyboardEvent("keyTyped", key);}
 
+void doubleClick(){
+  if (millis() - lastClickTime < DOUBLECLICKWAIT){
+    mouseEvent("mouseDoubleClicked", mouseButton);
+    lastClickTime = 0;
+  }
+  else{
+    lastClickTime = millis();
+  }
+}
+
 void mouseEvent(String eventType, int button){
   getActiveState()._mouseEvent(eventType, button);
 }
+void mouseEvent(String eventType, int button, MouseEvent event){
+  getActiveState()._mouseEvent(eventType, button, event);
+}
 void keyboardEvent(String eventType, char _key){
   getActiveState()._keyboardEvent(eventType, _key);
+}
+
+color brighten(color c, int offset){
+  float r = red(c), g = green(c), b = blue(c);
+  return color(min(r+offset, 255), min(g+offset, 255), min(b+offset, 255));
 }
 
 PImage[] tileImages;
