@@ -6,6 +6,7 @@ class State{
   State(){
     panels = new ArrayList<Panel>();
     addPanel("default", 0, 0, width, height, true, color(255, 255), color(0));
+    findPanel("default").visible = true;
     newState = "";
   }
   
