@@ -3,7 +3,7 @@ class Panel{
   HashMap<String, Element> elements;
   String id;
   PImage img;
-  Boolean visible;
+  Boolean visible = true;
   private int x, y, w, h;
   private color bgColour, strokeColour;
   
