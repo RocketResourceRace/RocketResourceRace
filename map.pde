@@ -23,6 +23,7 @@ class Map extends Element{
   PImage buffer;
   int elementWidth;
   int elementHeight;
+  int[] mapSpeed = {0,0};
 
   Map(){
     mapWidth = 500;
@@ -51,13 +52,36 @@ class Map extends Element{
       updateBuffer();
     }
   }
-  void keyboardEvent(String eventType, int _key){}
-  ArrayList<String> _mouseEvent(String eventType, int button){
-    mouseEvent(eventType, button);
-    return new ArrayList<String>();
-  } 
-  void _keyboardEvent(String eventType, int _key){
-    mouseEvent(eventType, _key);
+  void keyboardEvent(String eventType, int _key){
+    println(key, _key);
+    if (eventType == "keyPressed"){
+      if (_key == 'a'&&mapSpeed[0]>-1){
+        mapSpeed[0] -= 1;
+      }
+      if (_key == 's'&&mapSpeed[1]>-1){
+        mapSpeed[1] -= 1;
+      }
+      if (_key == 'd'&&mapSpeed[0]<1){
+        mapSpeed[0] += 1;
+      }
+      if (_key == 'w'&&mapSpeed[1]<1){
+        mapSpeed[1] += 1;
+      }
+    }
+    if (eventType == "keyReleased"){
+      if (_key == 'a'){
+        mapSpeed[0] += 1;
+      }
+      if (_key == 's'){
+        mapSpeed[1] += 1;
+      }
+      if (_key == 'd'){
+        mapSpeed[0] -= 1;
+      }
+      if (_key == 'w'){
+        mapSpeed[1] -= 1;
+      }
+    }
   }
   int[][] smoothMap(int distance, int firstType){
     ArrayList<int[]> order = new ArrayList<int[]>();
@@ -182,6 +206,11 @@ class Map extends Element{
   
   
   void draw(int xOffset, int yOffset){
+    if (mapSpeed[0]!=0||mapSpeed[1]!=0){
+      mapXOffset += mapSpeed[0];
+      mapYOffset += mapSpeed[1];
+      updateBuffer();
+    }
     image(buffer, xOffset, yOffset, elementWidth, elementHeight);
   }
   float scaleX(int x){
