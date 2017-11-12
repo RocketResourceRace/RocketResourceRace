@@ -57,28 +57,28 @@ class Map extends Element{
       if (_key == 'a'&&mapSpeed[0]>-1){
         mapSpeed[0] -= 1;
       }
-      if (_key == 's'&&mapSpeed[1]>-1){
-        mapSpeed[1] -= 1;
+      if (_key == 's'&&mapSpeed[1]<1){
+        mapSpeed[1] += 1;
       }
       if (_key == 'd'&&mapSpeed[0]<1){
         mapSpeed[0] += 1;
       }
-      if (_key == 'w'&&mapSpeed[1]<1){
-        mapSpeed[1] += 1;
+      if (_key == 'w'&&mapSpeed[1]>-1){
+        mapSpeed[1] -= 1;
       }
     }
     if (eventType == "keyReleased"){
-      if (_key == 'a'){
+      if (_key == 'a'&&mapSpeed[0]<0){
         mapSpeed[0] += 1;
       }
-      if (_key == 's'){
-        mapSpeed[1] += 1;
+      if (_key == 's'&&mapSpeed[1]>0){
+        mapSpeed[1] -= 1;
       }
-      if (_key == 'd'){
+      if (_key == 'd'&&mapSpeed[0]>0){
         mapSpeed[0] -= 1;
       }
-      if (_key == 'w'){
-        mapSpeed[1] -= 1;
+      if (_key == 'w'&&mapSpeed[1]<0){
+        mapSpeed[1] += 1;
       }
     }
   }
