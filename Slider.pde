@@ -1,13 +1,14 @@
 
 class Slider extends Element{
   private int x, y, w, h, cx, cy;
-  private float  major, minor, upper, lower, step, value;
+  private float  major, minor, upper, lower, step, value, knobSize;
   private color bgColour, strokeColour, scaleColour;
   private boolean horizontal, pressed=false;
-  final int boxHeight = 20, boxWidth = 30;
+  final int boxHeight = 20, boxWidth = 10;
   private final int PRESSEDOFFSET = 50;
+  private String text;
   
-  Slider(int x, int y, int w, int h, color bgColour, color strokeColour, color scaleColour, float lower, float upper, float major, float minor, float step, boolean horizontal){
+  Slider(int x, int y, int w, int h, color bgColour, color strokeColour, color scaleColour, float lower, float upper, float major, float minor, float step, boolean horizontal, String text){
     this.x = x;
     this.y = y;
     this.w = w;
@@ -21,6 +22,7 @@ class Slider extends Element{
     this.lower = lower;
     this.horizontal = horizontal;
     this.step = step;
+    this.text = text;
   }
   
   void setValue(float value){
@@ -59,6 +61,15 @@ class Slider extends Element{
     return mouseX >= x && mouseX <= x+w && mouseY >= y && mouseY <= y+h;
   }
   
+  float getInc(float x){
+    float a = ((int)(x/step))*step;
+    String b = ""+a;
+    int c = min((""+step).length(), b.length());
+    b = b.substring(0, c);
+    a = Float.parseFloat(b);
+    return a;
+  }
+  
   void draw(){
     float j = lower, range = upper-lower;
     float r = red(bgColour), g = green(bgColour), b = blue(bgColour);
@@ -76,10 +87,10 @@ class Slider extends Element{
       fill(scaleColour);
       textSize(10);
       textAlign(CENTER);
-      text(""+j, j/range*w+x+xOffset, y+yOffset);
+      text(""+getInc(j), j/range*w+x+xOffset, y+yOffset);
       fill(bgColour);
       line(j/range*w+x, y, j/range*w+x, y+h);
-      j += range/major;
+      j = getInc(j+((float)range)/((float)major));
     }
     
     if (pressed){
@@ -89,13 +100,21 @@ class Slider extends Element{
       fill(bgColour);
     }
     
-    rect(x+(float)value/(upper-lower)*w-boxWidth/2+xOffset, y+h/2-boxHeight/2+yOffset, boxWidth, boxHeight);
+    
     textSize(15);
     textAlign(CENTER);
+    this.knobSize = textWidth(""+getInc(value));
+    rectMode(CENTER);
+    rect(x+(float)value/(upper-lower)*w+xOffset, y+h/2+yOffset, knobSize, boxHeight);
+    rectMode(CORNER);
     fill(scaleColour);
-    text(""+Float.parseFloat((""+value).substring(0, min((""+value).length(), 5))), x+(float)value/(upper-lower)*w+xOffset, y+h/2+boxHeight/4+yOffset);
+    text(""+getInc(value), x+(float)value/(upper-lower)*w+xOffset, y+h/2+boxHeight/4+yOffset);
     stroke(0);
+    textAlign(CENTER);
     line(x+(float)value/(upper-lower)*w+xOffset, y+h/2-boxHeight/2+yOffset, x+(float)value/(upper-lower)*w+xOffset, y+h/2-boxHeight+yOffset);
+    fill(0);
+    textSize(10);
+    text(text, x, y-12);
     popStyle();
   }
 }
