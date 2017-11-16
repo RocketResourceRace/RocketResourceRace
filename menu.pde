@@ -7,7 +7,7 @@ class Menu extends State{
   
   Menu(){
     
-    BGimg = loadImage("res/menu_background.png");
+    BGimg = loadImage("res/menu_background.jpeg");
     BGimg.resize(width, height);
     
     int buttonW = (int)(300*GUIScale);
