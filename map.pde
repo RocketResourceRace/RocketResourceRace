@@ -24,6 +24,8 @@ class Map extends Element{
   int elementWidth;
   int elementHeight;
   int[] mapSpeed = {0,0};
+  int startX;
+  int startY;
 
   Map(){
     mapWidth = 500;
@@ -50,6 +52,21 @@ class Map extends Element{
         blockSize *= 0.8;
       }
       updateBuffer();
+    }
+    else {
+      if (eventType=="mouseDragged"){
+        mapXOffset += mouseX-startX;
+        mapYOffset += mouseY-startY;
+        mapXOffset = min(max(mapXOffset, 0), elementWidth/2);
+        mapYOffset = min(max(mapYOffset, 0), elementHeight/2);
+        startX = mouseX;
+        startY = mouseY;
+        updateBuffer();
+      }
+      if (eventType == "mousePressed"){
+        startX = mouseX;
+        startY = mouseY;
+      }
     }
   }
   void keyboardEvent(String eventType, int _key){
