@@ -91,6 +91,9 @@ class Button extends Element{
     ArrayList<String> events = new ArrayList<String>();
     mouseEvent(eventType, button);
     if(eventType == "mouseReleased"){
+      if (state == "on"){
+        events.add("clicked");
+      }
       state = "off";
     }
     if (mouseOver()){

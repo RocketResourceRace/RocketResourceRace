@@ -3,7 +3,7 @@
 
 class Menu extends State{
   PImage BGimg;
-  String currentPanel;
+  String currentPanel, newPanel;
   
   Menu(){
     
@@ -20,6 +20,7 @@ class Menu extends State{
     hidePanels();
     getPanel("startup").visible = true;
     currentPanel = "startup";
+    newPanel = currentPanel;
     
     addElement("new game", new Button(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, color(100, 100, 100), color(150, 150, 150), color(255), 25, CENTER, "New Game"), "startup");
     addElement("load game", new Button(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, color(100, 100, 100), color(150, 150, 150), color(255), 25, CENTER, "Load Game"), "startup");
@@ -38,6 +39,9 @@ class Menu extends State{
   
   String update(){
     background(BGimg);
+    if (!currentPanel.equals(newPanel)){
+      changeMenuPanel();
+    }
     drawPanels();
     return newState;
   }
@@ -62,11 +66,14 @@ class Menu extends State{
     getElement("back", "new game").transform(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH);
   }
   
-  void changeMenuPanel(String newPanel){
+  void changeMenuPanel(){
     panelToTop(newPanel);
     getPanel(newPanel).setVisible(true);
     getPanel(currentPanel).setVisible(false);
     currentPanel = new String(newPanel);
+    for (String id : getPanel(newPanel).elements.keySet()){
+      getPanel(newPanel).elements.get(id)._mouseEvent("mouseMoved", LEFT);
+    }
   }
   
   void elementEvent(ArrayList<Event> events){
@@ -86,17 +93,17 @@ class Menu extends State{
                 exit();
                 break;
               case "settings":
-                changeMenuPanel("settings");
+                newPanel = "settings";
                 break;
               case "new game":
-                changeMenuPanel("new game");
+                newPanel = "new game";
                 break;
             }
             break;
           case "settings":
             switch (event.id){
               case "back":
-                changeMenuPanel("startup");
+                newPanel = "startup";
                 scaleGUI();
                 break;
             }
@@ -104,7 +111,7 @@ class Menu extends State{
           case "new game":
             switch (event.id){
               case "back":
-                changeMenuPanel("startup");
+                newPanel = "startup";
                 break;
             }
             break;
