@@ -2,6 +2,7 @@
 class Element{
   boolean active = true;
   int xOffset, yOffset;
+  int x, y, w, h;
   void draw(){}
   void mouseEvent(String eventType, int button){}
   void mouseEvent(String eventType, int button, MouseEvent event){}
@@ -9,6 +10,12 @@ class Element{
   void setOffset(int xOffset, int yOffset){
     this.xOffset = xOffset;
     this.yOffset = yOffset;
+  }
+  void transform(int x, int y, int w, int h){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
   }
   ArrayList<String> _mouseEvent(String eventType, int button){
     mouseEvent(eventType, button);

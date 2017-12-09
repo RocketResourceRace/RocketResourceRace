@@ -22,6 +22,13 @@ class Button extends Element{
     
     setLines(text);
   }
+  void transform(int x, int y, int w, int h){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    centerCoords();
+  }
   void centerCoords(){
     cx = x+w/2;
     cy = y+h/2;

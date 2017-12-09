@@ -35,6 +35,10 @@ class State{
     getPanel(panel).elements.put(id, elem);
   }
   
+  Element getElement(String id, String panel){
+    return  getPanel(panel).elements.get(id);
+  }
+  
   void removeElement(String elementID, String panelID){
     getPanel(panelID).elements.remove(elementID);
   }

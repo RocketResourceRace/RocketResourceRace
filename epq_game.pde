@@ -4,6 +4,9 @@ HashMap<String, State> states;
 int lastClickTime = 0;
 final int DOUBLECLICKWAIT = 300;
 float GUIScale = 1.0;
+PrintWriter settingsWriteFile; 
+BufferedReader settingsReadFile;
+StringDict settings;
 
 // Event-driven methods
 void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}
@@ -53,7 +56,38 @@ int COMPLETESMOOTH = 5;
 
 PImage[] tileImages;
 
+void changeSetting(String id, String newValue){
+  settings.set(id, newValue);
+}
+
+void writeSettings(){
+  settingsWriteFile = createWriter("settings.txt"); 
+  for(String s: settings.keyArray()){
+    settingsWriteFile.println(s+" "+settings.get(s));
+  }
+  settingsWriteFile.flush();  // Writes the remaining data to the file
+  settingsWriteFile.close();  // Finishes the file
+}
+
+void loadSettings(){
+  String line;
+  String[] args;
+  try{
+    while ((line = settingsReadFile.readLine()) != null) {
+      args = line.split(" ");
+      settings.set(args[0], args[1]);
+    }
+  }
+  catch (IOException e) {
+    e.printStackTrace();
+  }
+}
+
 void setup(){
+  settings = new StringDict();
+  settingsReadFile = createReader("settings.txt");
+  loadSettings();
+  GUIScale = float(settings.get("gui_scale"));
   states = new HashMap<String, State>();
   addState("menu", new Menu());
   activeState = "menu";
