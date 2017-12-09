@@ -7,6 +7,7 @@ float GUIScale = 1.0;
 PrintWriter settingsWriteFile; 
 BufferedReader settingsReadFile;
 StringDict settings;
+final String LETTERSNUMBERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890/\\_ ";
 
 // Event-driven methods
 void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}

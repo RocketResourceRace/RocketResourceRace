@@ -16,6 +16,7 @@ class Menu extends State{
     
     addPanel("settings", 0, 0, width, height, true, color(255, 255, 255, 255), color(0));
     addPanel("startup", 0, 0, width, height, true, color(255, 255, 255, 255), color(0));
+    addPanel("new game", 0, 0, width, height, true, color(255, 255, 255, 255), color(0));
     hidePanels();
     getPanel("startup").visible = true;
     currentPanel = "startup";
@@ -28,6 +29,11 @@ class Menu extends State{
     addElement("gui scale", new Slider(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, color(0, 255, 0), color(150, 150, 150), color(0), 0.5, GUIScale, 1.5, 10, 50, 0.05, true, "GUI Scale"), "settings");
     addElement("volume", new Slider(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, color(0, 255, 0), color(150, 150, 150), color(0), 0, 0.5, 1, 10, 50, 0.05, true, "Volume"), "settings");
     addElement("back", new Button(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH, color(100, 100, 100), color(150, 150, 150), color(255), 25, CENTER, "Back"), "settings");
+  
+    addElement("start", new Button(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, color(100, 100, 100), color(150, 150, 150), color(255), 25, CENTER, "Start"), "new game");
+    addElement("save name", new TextEntry(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, LEFT, color(0), color(100, 100, 100), color(150, 150, 150), LETTERSNUMBERS, "Save Name"), "new game");
+    addElement("map size", new Slider(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), color(150, 150, 150), color(0), 100, 500, 1000, 9, 45, 10, true, "Map Size"), "new game");
+    addElement("back", new Button(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH, color(100, 100, 100), color(150, 150, 150), color(255), 25, CENTER, "Back"), "new game");
   }
   
   String update(){
@@ -49,6 +55,11 @@ class Menu extends State{
     getElement("gui scale", "settings").transform(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH);
     getElement("volume", "settings").transform(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH);
     getElement("back", "settings").transform(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH);
+    
+    getElement("start", "new game").transform(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH);
+    getElement("save name", "new game").transform(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH);
+    getElement("map size", "new game").transform(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH);
+    getElement("back", "new game").transform(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH);
   }
   
   void changeMenuPanel(String newPanel){
@@ -73,15 +84,30 @@ class Menu extends State{
             switch (event.id){
               case "exit":
                 exit();
+                break;
               case "settings":
                 changeMenuPanel("settings");
+                break;
+              case "new game":
+                changeMenuPanel("new game");
+                break;
             }
+            break;
           case "settings":
             switch (event.id){
               case "back":
                 changeMenuPanel("startup");
                 scaleGUI();
+                break;
             }
+            break;
+          case "new game":
+            switch (event.id){
+              case "back":
+                changeMenuPanel("startup");
+                break;
+            }
+            break;
         }
         
       }
