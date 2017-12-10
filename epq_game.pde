@@ -1,3 +1,5 @@
+import java.math.BigDecimal;
+
 int[][] map;
 String activeState;
 HashMap<String, State> states;

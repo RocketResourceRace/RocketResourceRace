@@ -1,7 +1,8 @@
 
 class Slider extends Element{
   private int x, y, w, h, cx, cy;
-  private float  major, minor, upper, lower, step, value, knobSize;
+  private BigDecimal value, step;
+  private float  major, minor, upper, lower, knobSize;
   private color bgColour, strokeColour, scaleColour;
   private boolean horizontal, pressed=false;
   final int boxHeight = 20, boxWidth = 10;
@@ -21,9 +22,9 @@ class Slider extends Element{
     this.upper = upper;
     this.lower = lower;
     this.horizontal = horizontal;
-    this.step = step;
+    this.step = new BigDecimal(""+step);
+    this.value = new BigDecimal(""+value);
     this.name = name;
-    this.value = def;
   }
   void transform(int x, int y, int w, int h){
     this.x = x;
@@ -32,7 +33,7 @@ class Slider extends Element{
     this.h = h;
   }
   
-  void setValue(float value){
+  void setValue(BigDecimal value){
     if (value < lower){
       this.value = lower;
     }
@@ -40,7 +41,7 @@ class Slider extends Element{
       this.value = upper;
     }
     else{
-      this.value = int(value/step)*step;
+      this.value = value.divideToIntegralValue(step).multiply(step);
     }
   }
   
