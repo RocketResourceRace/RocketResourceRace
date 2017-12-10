@@ -1,1 +1,1 @@
-gui_scale 1.4
+gui_scale 1.3399999

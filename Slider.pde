@@ -72,12 +72,13 @@ class Slider extends Element{
     return mouseX >= x && mouseX <= x+w && mouseY >= y && mouseY <= y+h;
   }
   
-  float getInc(float x){
-    float a = (round(x/step))*step;
-    String b = ""+a;
-    int c = min((""+step).length(), b.length());
-    b = b.substring(0, c);
-    a = Float.parseFloat(b);
+  float getInc(float i){
+    float a = round(i/step)*step;
+    
+    //String b = ""+a;
+    //int c = min((""+step).length()+1, b.length());
+    //b = b.substring(0, c);
+    //a = Float.parseFloat(b);
     return a;
   }
   
@@ -88,21 +89,34 @@ class Slider extends Element{
     stroke(strokeColour);
     //rect(x, y, w, h);
     
-    while(j<=upper){
-      if (j != 0)
-        line(j/range*w+x-lower*w/(upper-lower), y+h/4, j/range*w+x-lower*w/(upper-lower), y+h-h/4);
-      j += range/minor;
+    for(int i=0; i<=minor; i++){
+      fill(scaleColour);
+      line(xOffset+x+w/minor*i, y+yOffset+h/4, xOffset+x+w/minor*i, y+yOffset+3*h/4);
     }
-    j=lower;
-    while(j<=upper){
+    for(int i=0; i<=major; i++){
       fill(scaleColour);
       textSize(10);
       textAlign(CENTER);
-      text(""+getInc(j), j/range*w+x+xOffset-lower*w/(upper-lower), y+yOffset);
-      fill(bgColour);
-      line(j/range*w+x-lower*w/(upper-lower), y, j/range*w+x-lower*w/(upper-lower), y+h);
-      j = getInc(j+((float)range)/((float)major));
+      println(int(i*major), step, int(i*major)*step);
+      text(""+(i*major*step+lower), xOffset+x+w/major*i, y+yOffset);
+      line(xOffset+x+w/major*i, y+yOffset, xOffset+x+w/major*i, y+yOffset+h);
     }
+    
+    //while(j<=upper){
+    //  if (j != 0)
+    //    line(j/range*w+x-lower*w/(upper-lower), y+h/4, j/range*w+x-lower*w/(upper-lower), y+h-h/4);
+    //  j += range/minor;
+    //}
+    //j=lower;
+    //while(j<=upper){
+    //  fill(scaleColour);
+    //  textSize(10);
+    //  textAlign(CENTER);
+    //  text(""+getInc(j), j/range*w+x+xOffset-lower*w/(upper-lower), y+yOffset);
+    //  fill(bgColour);
+    //  line(j/range*w+x-lower*w/(upper-lower), y, j/range*w+x-lower*w/(upper-lower), y+h);
+    //  j = getInc(j+((float)range)/((float)major));
+    //}
     
     if (pressed){
       fill(min(r-PRESSEDOFFSET, 255), min(g-PRESSEDOFFSET, 255), min(b+PRESSEDOFFSET, 255));
@@ -113,8 +127,8 @@ class Slider extends Element{
     
     textSize(15);
     textAlign(CENTER);
-    this.knobSize = textWidth(""+getInc(value));
     rectMode(CENTER);
+    this.knobSize = max(this.knobSize, textWidth(""+getInc(value)));
     rect(x+(float)value/(upper-lower)*w+xOffset-lower*w/(upper-lower), y+h/2+yOffset, knobSize, boxHeight);
     rectMode(CORNER);
     fill(scaleColour);

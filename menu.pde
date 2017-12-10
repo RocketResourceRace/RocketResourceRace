@@ -27,7 +27,7 @@ class Menu extends State{
     addElement("settings", new Button(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, color(100, 100, 100), color(150, 150, 150), color(255), 25, CENTER, "Settings"), "startup");
     addElement("exit", new Button(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH, color(100, 100, 100), color(150, 150, 150), color(255), 25, CENTER, "Exit"), "startup");
     
-    addElement("gui scale", new Slider(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, color(0, 255, 0), color(150, 150, 150), color(0), 0.5, GUIScale, 1.5, 10, 50, 0.05, true, "GUI Scale"), "settings");
+    addElement("gui scale", new Slider(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, color(0, 255, 0), color(150, 150, 150), color(0), 0.5, GUIScale, 1.5, 10, 50, 0.01, true, "GUI Scale"), "settings");
     addElement("volume", new Slider(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, color(0, 255, 0), color(150, 150, 150), color(0), 0, 0.5, 1, 10, 50, 0.05, true, "Volume"), "settings");
     addElement("back", new Button(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH, color(100, 100, 100), color(150, 150, 150), color(255), 25, CENTER, "Back"), "settings");
   
