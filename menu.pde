@@ -37,8 +37,20 @@ class Menu extends State{
     addElement("back", new Button(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH, color(100, 100, 100), color(150, 150, 150), color(255), 25, CENTER, "Back"), "new game");
   }
   
+  color currentColour(){
+    float c = abs(((float)(hour()-12)+(float)minute()/60)/24);
+    println(c);
+    color day = color(255, 255, 255, 0);
+    color night = color(2, 2, 15, 200);
+    return lerpColor(day, night, c);
+  }
+  
   String update(){
+    pushStyle();
     background(BGimg);
+    fill(currentColour());
+    rect(0, 0, width, height/2);
+    popStyle();
     if (!currentPanel.equals(newPanel)){
       changeMenuPanel();
     }

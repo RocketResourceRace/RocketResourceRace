@@ -3,18 +3,18 @@ class Slider extends Element{
   private int x, y, w, h, cx, cy, major, minor;
   private BigDecimal value, step, upper, lower;
   private float knobSize;
-  private color bgColour, strokeColour, scaleColour;
+  private color KnobColour, strokeColour, scaleColour;
   private boolean horizontal, pressed=false;
   final int boxHeight = 20, boxWidth = 10;
   private final int PRESSEDOFFSET = 50;
   private String name;
   
-  Slider(int x, int y, int w, int h, color bgColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name){
+  Slider(int x, int y, int w, int h, color KnobColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name){
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
-    this.bgColour = bgColour;
+    this.KnobColour = KnobColour;
     this.strokeColour = strokeColour;
     this.scaleColour = scaleColour;
     this.major = major;
@@ -82,10 +82,11 @@ class Slider extends Element{
   
   void draw(){
     BigDecimal range = upper.subtract(lower);
-    float r = red(bgColour), g = green(bgColour), b = blue(bgColour);
+    float r = red(KnobColour), g = green(KnobColour), b = blue(KnobColour);
     pushStyle();
     stroke(strokeColour);
     //rect(x, y, w, h);
+    
     
     for(int i=0; i<=minor; i++){
       fill(scaleColour);
@@ -103,7 +104,7 @@ class Slider extends Element{
       fill(min(r-PRESSEDOFFSET, 255), min(g-PRESSEDOFFSET, 255), min(b+PRESSEDOFFSET, 255));
     }
     else{
-      fill(bgColour);
+      fill(KnobColour);
     }
     
     textSize(15);
