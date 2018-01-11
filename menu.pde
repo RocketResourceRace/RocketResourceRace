@@ -13,6 +13,8 @@ class Menu extends State{
     int buttonW = (int)(300.0*GUIScale);
     int buttonH = (int)(70.0*GUIScale);
     int buttonP = (int)(50.0*GUIScale);
+    color bColour = color(100, 100, 100);
+    color sColour = color(150, 150, 150);
     
     addPanel("settings", 0, 0, width, height, true, color(255, 255, 255, 255), color(0));
     addPanel("startup", 0, 0, width, height, true, color(255, 255, 255, 255), color(0));
@@ -22,24 +24,23 @@ class Menu extends State{
     currentPanel = "startup";
     newPanel = currentPanel;
     
-    addElement("new game", new Button(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, color(100, 100, 100), color(150, 150, 150), color(255), 25, CENTER, "New Game"), "startup");
-    addElement("load game", new Button(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, color(100, 100, 100), color(150, 150, 150), color(255), 25, CENTER, "Load Game"), "startup");
-    addElement("settings", new Button(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, color(100, 100, 100), color(150, 150, 150), color(255), 25, CENTER, "Settings"), "startup");
-    addElement("exit", new Button(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH, color(100, 100, 100), color(150, 150, 150), color(255), 25, CENTER, "Exit"), "startup");
+    addElement("new game", new Button(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "New Game"), "startup");
+    addElement("load game", new Button(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Load Game"), "startup");
+    addElement("settings", new Button(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Settings"), "startup");
+    addElement("exit", new Button(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Exit"), "startup");
     
-    addElement("gui scale", new Slider(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, color(0, 255, 0), color(150, 150, 150), color(0), 0.5, GUIScale, 1.5, 10, 50, 0.01, true, "GUI Scale"), "settings");
-    addElement("volume", new Slider(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, color(0, 255, 0), color(150, 150, 150), color(0), 0, 0.5, 1, 10, 50, 0.05, true, "Volume"), "settings");
-    addElement("back", new Button(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH, color(100, 100, 100), color(150, 150, 150), color(255), 25, CENTER, "Back"), "settings");
+    addElement("gui scale", new Slider(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0.5, GUIScale, 1.5, 10, 50, 0.01, true, "GUI Scale"), "settings");
+    addElement("volume", new Slider(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0, 0.5, 1, 10, 50, 0.05, true, "Volume"), "settings");
+    addElement("back", new Button(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Back"), "settings");
   
-    addElement("start", new Button(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, color(100, 100, 100), color(150, 150, 150), color(255), 25, CENTER, "Start"), "new game");
+    addElement("start", new Button(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Start"), "new game");
     addElement("save name", new TextEntry(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, LEFT, color(0), color(100, 100, 100), color(150, 150, 150), LETTERSNUMBERS, "Save Name"), "new game");
-    addElement("map size", new Slider(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), color(150, 150, 150), color(0), 100, 500, 1000, 9, 45, 10, true, "Map Size"), "new game");
-    addElement("back", new Button(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH, color(100, 100, 100), color(150, 150, 150), color(255), 25, CENTER, "Back"), "new game");
+    addElement("map size", new Slider(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(255, 255, 255), color(0), 100, 500, 1000, 9, 45, 10, true, "Map Size"), "new game");
+    addElement("back", new Button(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Back"), "new game");
   }
   
   color currentColour(){
     float c = abs(((float)(hour()-12)+(float)minute()/60)/24);
-    println(c);
     color day = color(255, 255, 255, 0);
     color night = color(2, 2, 15, 200);
     return lerpColor(day, night, c);

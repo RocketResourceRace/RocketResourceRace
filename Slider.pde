@@ -1,20 +1,24 @@
 
 class Slider extends Element{
-  private int x, y, w, h, cx, cy, major, minor;
+  private int x, y, w, h, cx, cy, major, minor, lw, lx;
+  private int padding = 20;
   private BigDecimal value, step, upper, lower;
   private float knobSize;
-  private color KnobColour, strokeColour, scaleColour;
+  private color KnobColour, bgColour, strokeColour, scaleColour;
   private boolean horizontal, pressed=false;
   final int boxHeight = 20, boxWidth = 10;
   private final int PRESSEDOFFSET = 50;
   private String name;
   
-  Slider(int x, int y, int w, int h, color KnobColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name){
-    this.x = x;
+  Slider(int x, int y, int w, int h, color KnobColour, color bgColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name){
+    this.lx = x;
+    this.x = x+w*1/10;
     this.y = y;
-    this.w = w;
+    this.lw = w;
+    this.w = w*4/5;
     this.h = h;
     this.KnobColour = KnobColour;
+    this.bgColour = bgColour;
     this.strokeColour = strokeColour;
     this.scaleColour = scaleColour;
     this.major = major;
@@ -27,9 +31,11 @@ class Slider extends Element{
     this.name = name;
   }
   void transform(int x, int y, int w, int h){
-    this.x = x;
+    this.lx = x;
+    this.x = x+w*1/10;
+    this.lw = w;
+    this.w = w*4/5; 
     this.y = y;
-    this.w = w;
     this.h = h;
   }
   
@@ -85,19 +91,20 @@ class Slider extends Element{
     float r = red(KnobColour), g = green(KnobColour), b = blue(KnobColour);
     pushStyle();
     stroke(strokeColour);
-    //rect(x, y, w, h);
+    fill(bgColour);
+    rect(lx, y, lw, h);
     
     
     for(int i=0; i<=minor; i++){
       fill(scaleColour);
-      line(xOffset+x+w*i/minor, y+yOffset+h/4, xOffset+x+w*i/minor, y+yOffset+3*h/4);
+      line(xOffset+x+w*i/minor, y+yOffset+padding+(h-padding)/4, xOffset+x+w*i/minor, y+yOffset+3*(h-padding)/4+padding);
     }
     for(int i=0; i<=major; i++){
       fill(scaleColour);
       textSize(10);
       textAlign(CENTER);
-      text(getInc((new BigDecimal(""+i).multiply(range).divide(new BigDecimal(""+major), 15, BigDecimal.ROUND_HALF_EVEN).add(lower))).toPlainString(), xOffset+x+w*i/major, y+yOffset);
-      line(xOffset+x+w*i/major, y+yOffset, xOffset+x+w*i/major, y+yOffset+h);
+      text(getInc((new BigDecimal(""+i).multiply(range).divide(new BigDecimal(""+major), 15, BigDecimal.ROUND_HALF_EVEN).add(lower))).toPlainString(), xOffset+x+w*i/major, y+yOffset+padding);
+      line(xOffset+x+w*i/major, y+yOffset+padding, xOffset+x+w*i/major, y+yOffset+h);
     }
     
     if (pressed){
@@ -111,17 +118,17 @@ class Slider extends Element{
     textAlign(CENTER);
     rectMode(CENTER);
     this.knobSize = max(this.knobSize, textWidth(""+getInc(value)));
-    rect(x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2+yOffset, knobSize, boxHeight);
+    rect(x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2+yOffset+padding/2, knobSize, boxHeight);
     rectMode(CORNER);
     fill(scaleColour);
-    text(getInc(value).toPlainString(), x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2+boxHeight/4+yOffset);
+    text(getInc(value).toPlainString(), x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2+boxHeight/4+yOffset+padding/2);
     stroke(0);
     textAlign(CENTER);
-    line(x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight/2+yOffset, x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight+yOffset);
+    line(x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight/2+yOffset+padding/2, x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight+yOffset+padding/2);
     fill(0);
     textAlign(LEFT);
     textSize(10);
-    text(name, x, y-12);
+    text(name, x, y+10);
     popStyle();
   }
 }
