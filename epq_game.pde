@@ -6,6 +6,7 @@ HashMap<String, State> states;
 int lastClickTime = 0;
 final int DOUBLECLICKWAIT = 300;
 float GUIScale = 1.0;
+float TextScale = 1.0;
 PrintWriter settingsWriteFile; 
 BufferedReader settingsReadFile;
 StringDict settings;
@@ -51,8 +52,8 @@ int NUMOFGROUNDTYPES = 3;
 int NUMOFGROUNDSPAWNS = 100;
 int WATERLEVEL = 3;
 int TILESIZE = 1;
-int MAPWIDTH = 500;
-int MAPHEIGHT = 500;
+int MAPWIDTH = 100;
+int MAPHEIGHT = 100;
 
 int INITIALSMOOTH = 7;
 int COMPLETESMOOTH = 5;
@@ -90,7 +91,9 @@ void setup(){
   settings = new StringDict();
   settingsReadFile = createReader("settings.txt");
   loadSettings();
+  textFont(createFont("GillSans", 32));
   GUIScale = float(settings.get("gui_scale"));
+  TextScale = float(settings.get("text_scale"));
   states = new HashMap<String, State>();
   addState("menu", new Menu());
   activeState = "menu";
@@ -102,6 +105,7 @@ void setup(){
     loadImage("res/sand.png"),
     loadImage("res/grass.png")
   };
+  
 }
 boolean smoothed = false;
 int SMOOTHING1 = 7;
@@ -114,7 +118,7 @@ void draw(){
   if (!newState.equals("")){
     activeState = newState;
   }
-  //drawMap(map, TILESIZE, NUMOFGROUNDTYPES, MAPWIDTH,MAPHEIGHT);
+  drawMap(map, TILESIZE, NUMOFGROUNDTYPES, MAPWIDTH,MAPHEIGHT);
   
 }
 

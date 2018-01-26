@@ -12,7 +12,7 @@ class TextEntry extends Element{
     this.h = h;
     this.w = w;
     this.textColour = textColour;
-    this.textSize = (int)(h*0.5);
+    this.textSize = 10;
     this.textAlign = textAlign;
     this.boxColour = boxColour;
     this.borderColour = borderColour;
@@ -27,7 +27,7 @@ class TextEntry extends Element{
     this.h = h;
     this.w = w;
     this.textColour = textColour;
-    this.textSize = (int)(h*0.5);
+    this.textSize = 20;
     this.textAlign = textAlign;
     this.boxColour = boxColour;
     this.borderColour = borderColour;
@@ -54,16 +54,16 @@ class TextEntry extends Element{
     }
     
     // Draw the text
-    textSize(textSize);
+    textSize(textSize*TextScale);
     textAlign(textAlign);
     fill(textColour);
-    text(text.toString(), x+xOffset+5, y+yOffset+(h-textSize)/2, w, h);
+    text(text.toString(), x+xOffset+5, y+yOffset+(h-textSize*TextScale)/2, w, h);
     
     // Draw cursor
     if (showCursor){
       fill(0);
       noStroke();
-      rect(x+textWidth(text.toString().substring(0,cursor))+xOffset+5, y+yOffset+(h-textSize)/2, 1, textSize);
+      rect(x+textWidth(text.toString().substring(0,cursor))+xOffset+5, y+yOffset+(h-textSize*TextScale)/2, 1, textSize*TextScale);
     }
     if (name != null){
       fill(0);
@@ -88,11 +88,11 @@ class TextEntry extends Element{
   int getCursorPos(int mx, int my){
     int i=0;
     for(; i<text.length(); i++){
-      textSize(textSize);
+      textSize(textSize*TextScale);
       if (textWidth(text.substring(0, i)) + x > mx)
         break;
     }
-    if (0 <= i && i <= text.length() && y+yOffset+(h-textSize)/2<= my && my <= y+yOffset+(h-textSize)/2+textSize){
+    if (0 <= i && i <= text.length() && y+yOffset+(h-textSize*TextScale)/2<= my && my <= y+yOffset+(h-textSize*TextScale)/2+textSize*TextScale){
       return i;
     }
     return cursor;

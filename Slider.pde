@@ -12,10 +12,10 @@ class Slider extends Element{
   
   Slider(int x, int y, int w, int h, color KnobColour, color bgColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name){
     this.lx = x;
-    this.x = x+w*1/10;
+    this.x = x;
     this.y = y;
     this.lw = w;
-    this.w = w*4/5;
+    this.w = w;
     this.h = h;
     this.KnobColour = KnobColour;
     this.bgColour = bgColour;
@@ -32,9 +32,9 @@ class Slider extends Element{
   }
   void transform(int x, int y, int w, int h){
     this.lx = x;
-    this.x = x+w*1/10;
+    this.x = x;
     this.lw = w;
-    this.w = w*4/5; 
+    this.w = w; 
     this.y = y;
     this.h = h;
   }
@@ -91,8 +91,8 @@ class Slider extends Element{
     float r = red(KnobColour), g = green(KnobColour), b = blue(KnobColour);
     pushStyle();
     stroke(strokeColour);
-    fill(bgColour);
-    rect(lx, y, lw, h);
+    //fill(bgColour);
+    //rect(lx, y, lw, h);
     
     
     for(int i=0; i<=minor; i++){
@@ -101,7 +101,7 @@ class Slider extends Element{
     }
     for(int i=0; i<=major; i++){
       fill(scaleColour);
-      textSize(10);
+      textSize(10*TextScale);
       textAlign(CENTER);
       text(getInc((new BigDecimal(""+i).multiply(range).divide(new BigDecimal(""+major), 15, BigDecimal.ROUND_HALF_EVEN).add(lower))).toPlainString(), xOffset+x+w*i/major, y+yOffset+padding);
       line(xOffset+x+w*i/major, y+yOffset+padding, xOffset+x+w*i/major, y+yOffset+h);
@@ -126,9 +126,9 @@ class Slider extends Element{
     textAlign(CENTER);
     line(x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight/2+yOffset+padding/2, x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight+yOffset+padding/2);
     fill(0);
-    textAlign(LEFT);
-    textSize(10);
-    text(name, x, y+10);
+    textSize(12*TextScale);
+    textAlign(LEFT, BOTTOM);
+    text(name, x, y);
     popStyle();
   }
 }
