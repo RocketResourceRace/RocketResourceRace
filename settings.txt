@@ -1,2 +1,3 @@
-gui_scale 1.0
-text_scale 0.95
+gui_scale 1.2
+text_scale 1.6
+volume 1.0

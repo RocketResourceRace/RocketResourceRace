@@ -1,16 +1,19 @@
 import java.math.BigDecimal;
+import processing.sound.*;
 
 int[][] map;
 String activeState;
 HashMap<String, State> states;
 int lastClickTime = 0;
-final int DOUBLECLICKWAIT = 300;
+final int DOUBLECLICKWAIT = 500;  
 float GUIScale = 1.0;
 float TextScale = 1.0;
 PrintWriter settingsWriteFile; 
 BufferedReader settingsReadFile;
 StringDict settings;
 final String LETTERSNUMBERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890/\\_ ";
+HashMap<String, SoundFile> sfx;
+float volume;
 
 // Event-driven methods
 void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}
@@ -46,6 +49,16 @@ void keyboardEvent(String eventType, char _key){
 color brighten(color c, int offset){
   float r = red(c), g = green(c), b = blue(c);
   return color(min(r+offset, 255), min(g+offset, 255), min(b+offset, 255));
+}
+void setVolume(float x){
+  if (0<=x && x<=1){
+    volume = x;
+    for (SoundFile fect:sfx.values()){
+      fect.amp(volume);
+    }
+    return;
+  }
+  print("invalid volume");
 }
 
 int NUMOFGROUNDTYPES = 3;
@@ -86,14 +99,20 @@ void loadSettings(){
     e.printStackTrace();
   }
 }
+void loadSounds(){
+  sfx = new HashMap<String, SoundFile>();
+  sfx.put("click3", new SoundFile(this, "click3.wav"));
+}
 
 void setup(){
   settings = new StringDict();
   settingsReadFile = createReader("settings.txt");
   loadSettings();
+  loadSounds();
   textFont(createFont("GillSans", 32));
   GUIScale = float(settings.get("gui_scale"));
   TextScale = float(settings.get("text_scale"));
+  volume = float(settings.get("volume"));
   states = new HashMap<String, State>();
   addState("menu", new Menu());
   activeState = "menu";

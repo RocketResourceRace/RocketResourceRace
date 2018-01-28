@@ -102,6 +102,7 @@ class Button extends Element{
       }
       if (eventType == "mousePressed"){
         state = "on";
+        sfx.get("click3").play();
       }
       if (eventType == "mouseClicked"){
         events.add("clicked");

@@ -104,6 +104,11 @@ class Menu extends State{
           changeSetting("text_scale", ""+TextScale);
           writeSettings();
         }
+        if (event.id.equals("volume")){
+          setVolume(((Slider)getElement("volume", "settings")).getValue());
+          changeSetting("volume", ""+volume);
+          writeSettings();
+        }
       }
       if (event.type.equals("clicked")){
         switch (currentPanel){
