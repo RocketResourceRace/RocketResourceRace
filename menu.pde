@@ -42,16 +42,16 @@ class Menu extends State{
   
   color currentColour(){
     float c = abs(((float)(hour()-12)+(float)minute()/60)/24);
-    color day = color(255, 255, 255, 0);
-    color night = color(2, 2, 15, 200);
-    return lerpColor(day, night, c);
+    color day = color(255, 255, 255, 50);
+    color night = color(0, 0, 50, 255);
+    return lerpColor(day, night, c*2);
   }
   
   String update(){
     pushStyle();
     background(BGimg);
     fill(currentColour());
-    rect(0, 0, width, height/2);
+    rect(0, 0, width, height);
     popStyle();
     if (!currentPanel.equals(newPanel)){
       changeMenuPanel();

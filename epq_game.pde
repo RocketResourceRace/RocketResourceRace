@@ -137,7 +137,7 @@ void draw(){
   if (!newState.equals("")){
     activeState = newState;
   }
-  drawMap(map, TILESIZE, NUMOFGROUNDTYPES, MAPWIDTH,MAPHEIGHT);
+  //drawMap(map, TILESIZE, NUMOFGROUNDTYPES, MAPWIDTH,MAPHEIGHT);
   
 }
 
