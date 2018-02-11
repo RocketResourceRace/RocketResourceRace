@@ -45,7 +45,7 @@ void mouseEvent(String eventType, int button, MouseEvent event){
 }
 void keyboardEvent(String eventType, char _key){
   if (key==ESC){
-    key = 25;
+    key = 0;
   }
   getActiveState()._keyboardEvent(eventType, _key);
 }

@@ -5,8 +5,8 @@ class TestMap extends State{
   TestMap(){
     addElement("map", new Map(0, 0, 500, 500, mapSize));
   }
-  void mouseEvent(String eventType, int button){
-    if (key == 25){
+  void keyboardEvent(String eventType, int _key){
+    if (_key == ESC){
       newState = "menu";
     }
   }
