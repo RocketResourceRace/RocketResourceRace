@@ -6,8 +6,7 @@ class Menu extends State{
   String currentPanel, newPanel;
   
   Menu(){
-    
-    BGimg = loadImage("res/menu_background.jpeg");
+    BGimg = loadImage("data/menu_background.png");
     BGimg.resize(width, height);
     
     int buttonW = (int)(300.0*GUIScale);

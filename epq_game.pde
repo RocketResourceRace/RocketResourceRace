@@ -104,6 +104,9 @@ void loadSounds(){
   sfx.put("click3", new SoundFile(this, "click3.wav"));
 }
 
+
+float halfScreenWidth;
+float halfScreenHeight;
 void setup(){
   settings = new StringDict();
   settingsReadFile = createReader("settings.txt");
@@ -113,23 +116,22 @@ void setup(){
   GUIScale = float(settings.get("gui_scale"));
   TextScale = float(settings.get("text_scale"));
   volume = float(settings.get("volume"));
+  tileImages = new PImage[]{
+    loadImage("data/water.png"),
+    loadImage("data/sand.png"),
+    loadImage("data/grass.png")
+  };
   states = new HashMap<String, State>();
   addState("menu", new Menu());
-  activeState = "menu";
+  addState("map", new TestMap());
+  activeState = "map";
   fullScreen();
   noStroke();
-  map = generateMap(MAPWIDTH, MAPHEIGHT, NUMOFGROUNDTYPES, NUMOFGROUNDSPAWNS, WATERLEVEL);
-  tileImages = new PImage[]{
-    loadImage("res/water.png"),
-    loadImage("res/sand.png"),
-    loadImage("res/grass.png")
-  };
-  
+  halfScreenWidth = width/2;
+  halfScreenHeight= height/2;
 }
 boolean smoothed = false;
-int SMOOTHING1 = 7;
-int SMOOTHING2 = 5;
-int COUNTER = 3;
+
 void draw(){
   //TO KEEP
   background(255);
