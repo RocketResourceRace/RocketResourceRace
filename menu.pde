@@ -56,7 +56,7 @@ class Menu extends State{
       changeMenuPanel();
     }
     drawPanels();
-    return newState;
+    return getNewState();
   }
   
   void scaleGUI(){
@@ -136,6 +136,9 @@ class Menu extends State{
             switch (event.id){
               case "back":
                 newPanel = "startup";
+                break;
+              case "start":
+                newState = "map";
                 break;
             }
             break;

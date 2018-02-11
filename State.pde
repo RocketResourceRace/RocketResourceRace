@@ -9,9 +9,15 @@ class State{
     newState = "";
   }
   
+  String getNewState(){
+    String t = newState;
+    newState = "";
+    return t;
+  }
+  
   String update(){
     drawPanels();
-    return newState;
+    return getNewState();
   }
   void hidePanels(){
     for (Panel panel:panels){
