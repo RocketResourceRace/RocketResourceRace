@@ -146,6 +146,8 @@ void draw(){
         panel.elements.get(id).mouseEvent("mouseMoved", LEFT);
       }
     }
+    states.get(activeState).leaveState();
+    states.get(newState).enterState();
     activeState = newState;
   }
 }
