@@ -3,7 +3,7 @@ import java.util.Collections;
 
 class TestMap extends State{
   TestMap(){
-    addElement("map", new Map(0, 0, 1000, 700, mapSize));
+    addElement("map", new Map(100, 100, 1000, 700, mapSize));
   }
   ArrayList<String> keyboardEvent(String eventType, char _key){
     if (_key == ESC){
@@ -32,9 +32,12 @@ class Map extends Element{
   int[] mapSpeed = {0,0};
   int startX;
   int startY;
+  int xPos, yPos;
   boolean zoomChanged;
 
   Map(int x, int y, int w, int h, int mapSize){
+    xPos = x;
+    yPos = y;
     elementWidth = w;
     elementHeight = h;
     mapWidth = mapSize;
@@ -215,21 +218,40 @@ class Map extends Element{
       tempImages[i] = tileImages[i].copy();
       tempImages[i].resize(ceil(blockSize), 0);
     }
-    for(int y=0;y<mapHeight;y++){
-     for (int x=0; x<mapWidth; x++){
-       float x2 = scaleX(x);
-       float y2 = scaleY(y);
-       if(x2>=0&&x2<=elementWidth-blockSize&&y2>=0&&y2<=elementHeight-blockSize)
-         image(tempImages[map[y][x]-1], x2, y2);
-       else if (-blockSize<x2&&x2<0||elementWidth-blockSize<x2&&x2<elementWidth||-blockSize<y2&&y2<0||elementHeight-blockSize<y2&&y2<elementHeight)
-         image(tempImages[map[y][x]-1].get(int(max(0, -x2)), int(max(0, -y2)), ceil(min(blockSize, elementWidth-x2)), ceil(min(blockSize, elementHeight-y2))), x2, y2);
+    int lx = max(0, -floor((mapXOffset)/blockSize+1));
+    int ly = max(0, -floor((mapYOffset)/blockSize+1));
+    int hx = min(floor((elementWidth-mapXOffset-xPos)/blockSize-1), mapWidth);
+    int hy = min(floor((elementHeight-mapYOffset-yPos)/blockSize-1), mapHeight);
+    for(int y=ly+1;y<hy-1;y++){
+      for (int x=lx+1; x<hx-1; x++){
+       float x2 = round(scaleX(x));
+       float y2 = round(scaleY(y));
+       image(tempImages[map[y][x]-1], x2, y2);
+       }
      }
-    }
+     int x3 = round(scaleX(hx-1));
+     int y3 = round(scaleY(hy-1));
+     int topW = round(scaleY(ly+1)-yPos);
+     int bottomW = round(elementHeight-scaleY(hy+1));
+     int leftW = round(scaleX(lx+1)-xPos);
+     int rightW = round(elementWidth-scaleX(hx+1));
+     for(int y=ly+1;y<hy-1;y++){
+       image(tempImages[map[y][hx-1]-1].get(0, 0, rightW, ceil(blockSize)), x3,round(scaleY(y)));
+       image(tempImages[map[y][lx]-1].get(0, 0, leftW, ceil(blockSize)), xPos, round(scaleY(y)));
+     }
+     for(int x=lx+1;x<hx-1;x++){
+       image(tempImages[map[hy-1][x]-1].get(0, 0, ceil(blockSize), bottomW), round(scaleX(x)), y3);
+       image(tempImages[map[ly][x]-1].get(0, 0, ceil(blockSize), topW), round(scaleX(x)), yPos);
+     }
+     image(tempImages[map[ly][lx]-1].get(0, 0, leftW, topW), xPos, yPos);
+     image(tempImages[map[hy-1][hx-1]-1].get(0, 0, rightW, bottomW), x3, y3);
+     image(tempImages[map[hy-1][lx]-1].get(0, 0, leftW, bottomW), xPos, y3);
+     image(tempImages[map[ly][hx-1]-1].get(0, 0, rightW, topW), x3, yPos);
   }
   float scaleX(int x){
-    return x*blockSize + mapXOffset;
+    return x*blockSize + mapXOffset + xPos;
   }
   float scaleY(int y){
-    return y*blockSize + mapYOffset;
+    return y*blockSize + mapYOffset + yPos;
   }
 }
