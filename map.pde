@@ -219,7 +219,8 @@ class Map extends Element{
      for (int x=0; x<mapWidth; x++){
        float x2 = scaleX(x);
        float y2 = scaleY(y);
-       image(tempImages[map[y][x]-1], x2, y2);
+       if(x2>0&&x2<elementWidth&&y2>0&&y2<elementHeight)
+         image(tempImages[map[y][x]-1], x2, y2);
      }
     }
   }
