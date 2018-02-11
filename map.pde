@@ -237,16 +237,16 @@ class Map extends Element{
      int rightW = round(elementWidth-scaleX(hx+1));
      for(int y=ly+1;y<hy-1;y++){
        image(tempImages[map[y][hx-1]-1].get(0, 0, rightW, ceil(blockSize)), x3,round(scaleY(y)));
-       image(tempImages[map[y][lx]-1].get(0, 0, leftW, ceil(blockSize)), xPos, round(scaleY(y)));
+       image(tempImages[map[y][lx]-1].get(ceil(blockSize)-leftW, 0, leftW, ceil(blockSize)), xPos, round(scaleY(y)));
      }
      for(int x=lx+1;x<hx-1;x++){
        image(tempImages[map[hy-1][x]-1].get(0, 0, ceil(blockSize), bottomW), round(scaleX(x)), y3);
-       image(tempImages[map[ly][x]-1].get(0, 0, ceil(blockSize), topW), round(scaleX(x)), yPos);
+       image(tempImages[map[ly][x]-1].get(0, ceil(blockSize)-topW, ceil(blockSize), topW), round(scaleX(x)), yPos);
      }
-     image(tempImages[map[ly][lx]-1].get(0, 0, leftW, topW), xPos, yPos);
+     image(tempImages[map[ly][lx]-1].get(ceil(blockSize)-leftW, 0, leftW, topW), xPos, yPos);
      image(tempImages[map[hy-1][hx-1]-1].get(0, 0, rightW, bottomW), x3, y3);
      image(tempImages[map[hy-1][lx]-1].get(0, 0, leftW, bottomW), xPos, y3);
-     image(tempImages[map[ly][hx-1]-1].get(0, 0, rightW, topW), x3, yPos);
+     image(tempImages[map[ly][hx-1]-1].get(0, ceil(blockSize)-topW, rightW, topW), x3, yPos);
   }
   float scaleX(int x){
     return x*blockSize + mapXOffset + xPos;
