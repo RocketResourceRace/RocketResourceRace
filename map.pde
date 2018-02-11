@@ -45,10 +45,8 @@ class Map extends Element{
     waterLevel = 3;
     initialSmooth = 7;
     completeSmooth = 5;
-    mapXOffset = x;
-    mapYOffset = y;
-    zoomChanged = false;
-    buffer = createImage(elementWidth, elementHeight, RGB);
+    mapXOffset = mapSize/2;
+    mapYOffset = mapSize/2;
     generateMap();
   }
   ArrayList<String> mouseEvent(String eventType, int button){
@@ -59,8 +57,6 @@ class Map extends Element{
       if (button == RIGHT){
         blockSize *= 0.8;
       }
-      zoomChanged = true;
-      updateBuffer();
     }
     else {
       if (eventType=="mouseDragged"){
@@ -70,7 +66,6 @@ class Map extends Element{
         mapYOffset = min(max(mapYOffset, 0), elementHeight/2);
         startX = mouseX;
         startY = mouseY;
-        updateBuffer();
       }
       if (eventType == "mousePressed"){
         startX = mouseX;
@@ -212,38 +207,26 @@ class Map extends Element{
     }
     map = smoothMap(initialSmooth, 2);
     map = smoothMap(completeSmooth, 1);
-    updateBuffer();
   }
   
-  void updateBuffer(){
-    buffer = createImage((int)blockSize*mapWidth, (int)blockSize*mapHeight, RGB);
+  void draw(){
     PImage[] tempImages = new PImage[numOfGroundTypes];
     for (int i=0; i<3; i++){
       tempImages[i] = tileImages[i].copy();
-      tempImages[i].resize(min(ceil(blockSize), tileImages[i].width), 0);
+      tempImages[i].resize(ceil(blockSize), 0);
     }
     for(int y=0;y<mapHeight;y++){
-      for (int x=0; x<mapWidth; x++){
-        float x2 = scaleX(x);
-        float y2 = scaleY(y);
-        buffer.copy(tempImages[map[y][x]-1], 0, 0, tempImages[map[y][x]-1].width, tempImages[map[y][x]-1].height, ceil(x2), ceil(y2), ceil(blockSize), ceil(blockSize));
-      }
+     for (int x=0; x<mapWidth; x++){
+       float x2 = scaleX(x);
+       float y2 = scaleY(y);
+       image(tempImages[map[y][x]-1], x2, y2);
+     }
     }
-  }
-  
-  
-  void draw(){
-    if (mapSpeed[0]!=0||mapSpeed[1]!=0){
-      mapXOffset += mapSpeed[0];
-      mapYOffset += mapSpeed[1];
-      updateBuffer();
-    }
-    image(buffer, xOffset-mapXOffset, yOffset-mapYOffset, elementWidth, elementHeight);
   }
   float scaleX(int x){
-    return x*blockSize + elementWidth/2;
+    return (x-mapXOffset)*blockSize + halfScreenWidth;
   }
   float scaleY(int y){
-    return x*blockSize + elementHeight/2;
+    return (y-mapYOffset)*blockSize + halfScreenHeight;
   }
 }
