@@ -3,7 +3,12 @@ import java.util.Collections;
 
 class TestMap extends State{
   TestMap(){
-    addElement("map", new Map());
+    addElement("map", new Map(0, 0, 500, 500, mapSize));
+  }
+  void mouseEvent(String eventType, int button){
+    if (key == 25){
+      newState = "menu";
+    }
   }
 }
 
@@ -27,19 +32,19 @@ class Map extends Element{
   int startX;
   int startY;
 
-  Map(){
-    mapWidth = 500;
-    mapHeight = 500;
-    blockSize = 1;
+  Map(int x, int y, int w, int h, int mapSize){
+    elementWidth = w;
+    elementHeight = h;
+    mapWidth = mapSize;
+    mapHeight = mapSize;
+    blockSize = elementHeight/mapSize;
     numOfGroundTypes = 3;
     numOfGroundSpawns = 100;
     waterLevel = 3;
     initialSmooth = 7;
     completeSmooth = 5;
-    elementWidth = 500;
-    elementHeight = 500;
-    mapXOffset = 250;
-    mapYOffset = 250;
+    mapXOffset = x;
+    mapYOffset = y;
     buffer = createImage(elementWidth, elementHeight, RGB);
     generateMap();
   }

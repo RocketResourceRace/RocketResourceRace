@@ -35,7 +35,7 @@ class Menu extends State{
   
     addElement("start", new Button(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Start"), "new game");
     addElement("save name", new TextEntry(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, LEFT, color(0), color(100, 100, 100), color(150, 150, 150), LETTERSNUMBERS, "Save Name"), "new game");
-    addElement("map size", new Slider(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(255, 255, 255), color(0), 100, 500, 1000, 9, 45, 10, true, "Map Size"), "new game");
+    addElement("map size", new Slider(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(255, 255, 255), color(0), 50, 100, 150, 10, 20, 5, true, "Map Size"), "new game");
     addElement("back", new Button(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Back"), "new game");
   }
   
@@ -106,6 +106,11 @@ class Menu extends State{
         if (event.id.equals("volume")){
           setVolume(((Slider)getElement("volume", "settings")).getValue());
           changeSetting("volume", ""+volume);
+          writeSettings();
+        }
+        if (event.id.equals("map size")){
+          mapSize = (int)((Slider)getElement("map size", "new game")).getValue();
+          changeSetting("mapSize", ""+mapSize);
           writeSettings();
         }
       }

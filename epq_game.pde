@@ -2,6 +2,7 @@ import java.math.BigDecimal;
 import processing.sound.*;
 
 int[][] map;
+int mapSize;
 String activeState;
 HashMap<String, State> states;
 int lastClickTime = 0;
@@ -43,6 +44,9 @@ void mouseEvent(String eventType, int button, MouseEvent event){
   getActiveState()._mouseEvent(eventType, button, event);
 }
 void keyboardEvent(String eventType, char _key){
+  if (key==ESC){
+    key = 25;
+  }
   getActiveState()._keyboardEvent(eventType, _key);
 }
 
@@ -115,6 +119,7 @@ void setup(){
   textFont(createFont("GillSans", 32));
   GUIScale = float(settings.get("gui_scale"));
   TextScale = float(settings.get("text_scale"));
+  mapSize = int(settings.get("mapSize"));
   volume = float(settings.get("volume"));
   tileImages = new PImage[]{
     loadImage("data/water.png"),
