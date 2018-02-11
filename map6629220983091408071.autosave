@@ -1,15 +1,10 @@
 import java.util.Collections;
+import java.lang.Runnable;
 
 
 class TestMap extends State{
   TestMap(){
-    addElement("map", new Map(0, 0, 500, 500, mapSize));
-  }
-  ArrayList<String> keyboardEvent(String eventType, char _key){
-    if (_key == ESC){
-      newState = "menu";
-    }
-    return new ArrayList<String>();
+    addElement("map", new Map());
   }
 }
 
@@ -18,7 +13,6 @@ class Map extends Element{
   int[][] map;
   int mapWidth;
   int mapHeight;
-  float blockSize;
   int numOfGroundTypes;
   int numOfGroundSpawns;
   int waterLevel;
@@ -26,86 +20,144 @@ class Map extends Element{
   int completeSmooth;
   int mapXOffset;
   int mapYOffset;
-  PImage buffer;
   int elementWidth;
   int elementHeight;
   int[] mapSpeed = {0,0};
+  PImage buffer;
+  PImage secondBuffer;
   int startX;
   int startY;
-
-  Map(int x, int y, int w, int h, int mapSize){
-    elementWidth = w;
-    elementHeight = h;
-    mapWidth = mapSize;
-    mapHeight = mapSize;
-    blockSize = elementHeight/mapSize;
+  int bufferX;
+  int bufferY;
+  float scale;
+  int moveSpeed;
+  boolean handlingBuffer = false;
+  
+  Map(){
+    mapWidth = 250;
+    mapHeight = 250;
     numOfGroundTypes = 3;
-    numOfGroundSpawns = 100;
-    waterLevel = 3;
+    numOfGroundSpawns = 15;
+    waterLevel = 1;
     initialSmooth = 7;
     completeSmooth = 5;
-    mapXOffset = x;
-    mapYOffset = y;
-    buffer = createImage(elementWidth, elementHeight, RGB);
+    elementWidth = width/2;
+    elementHeight = height/2;
+    mapXOffset = 0;
+    mapYOffset = 0;
+    moveSpeed = 64;
+    scale = 64; // pixels per block
+    buffer = createImage(elementWidth*5, elementHeight*5, RGB);
+    secondBuffer = createImage(elementWidth*5, elementHeight*5, RGB);
     generateMap();
   }
-  ArrayList<String> mouseEvent(String eventType, int button){
+  void zoom(){
+    
+  }
+  class MapBufferUpdater implements Runnable {
+    private Thread t;
+    int tempMapXOffset;
+    int tempMapYOffset;
+    float tempScale;
+    int startX;
+    int startY;
+    PImage secondBuffer;
+    MapBufferUpdater (){
+      tempMapXOffset = mapXOffset;
+      tempMapYOffset = mapYOffset;
+      tempScale = scale;
+      secondBuffer = buffer.copy();
+    }
+    public void run() {
+      startX = (tempMapXOffset/elementWidth - 1) * elementWidth;
+      startY = (tempMapYOffset/elementHeight - 1) * elementHeight;
+      PImage[] tempImages = new PImage[numOfGroundTypes];
+      for (int i=0; i<3; i++){
+        tempImages[i] = tileImages[i].copy();
+        tempImages[i].resize(ceil(tempScale), ceil(tempScale));
+      }
+      for (int y = int(startY/tempScale); y<int((startY+elementHeight*5)/tempScale);y++){
+        for (int x = int(startX/tempScale); x<int((startX+elementWidth*5)/tempScale);x++){
+          if(x>=0&&y>=0&&x<mapWidth&&y<mapHeight){
+              secondBuffer.copy(tempImages[map[y][x]-1], 0, 0, int(tempScale), int(tempScale), int(x*tempScale-(startX)), int(y*tempScale-(startY)), int(tempScale), int(tempScale));
+          }
+        }
+      }
+      buffer = secondBuffer.copy();
+      bufferX = int(tempMapXOffset/elementWidth-1)*elementWidth;
+      bufferY = int(tempMapYOffset/elementHeight-1)*elementHeight;
+      handlingBuffer = false;  
+    }
+    public void start () {
+      if (t == null) {
+         t = new Thread (this);
+         t.start ();
+      }
+   }
+  }
+  void handleBufferIfNeeded(int lastX, int lastY){
+    handlingBuffer = true;
+    if(int(mapXOffset/elementWidth)!=int(lastX/elementWidth)||int(mapYOffset/elementHeight)!=int(lastY/elementHeight)){
+      new MapBufferUpdater().start();
+    } 
+  }
+  
+  void mouseEvent(String eventType, int button){
     if (eventType == "mouseClicked"){
       if (button == LEFT){
-        blockSize *= 1.25;
+        scale *= 1.25;
       }
       if (button == RIGHT){
-        blockSize *= 0.8;
+        scale *= 0.8;
       }
-      updateBuffer();
+      zoom();
     }
     else {
       if (eventType=="mouseDragged"){
-        mapXOffset += mouseX-startX;
-        mapYOffset += mouseY-startY;
-        mapXOffset = min(max(mapXOffset, 0), elementWidth/2);
-        mapYOffset = min(max(mapYOffset, 0), elementHeight/2);
+        int tempX = mapXOffset;
+        int tempY = mapYOffset;
+        mapXOffset -= mouseX-startX;
+        mapYOffset -= mouseY-startY;
+        putInBounds();
+        handleBufferIfNeeded(tempX, tempY);
         startX = mouseX;
         startY = mouseY;
-        updateBuffer();
       }
       if (eventType == "mousePressed"){
         startX = mouseX;
         startY = mouseY;
       }
     }
-    return new ArrayList<String>();
   }
-  ArrayList<String> keyboardEvent(String eventType, int _key){
+  void keyboardEvent(String eventType, int _key){
     if (eventType == "keyPressed"){
       if (_key == 'a'&&mapSpeed[0]>-1){
-        mapSpeed[0] -= 1;
+        mapSpeed[0] -= moveSpeed;
       }
       if (_key == 's'&&mapSpeed[1]<1){
-        mapSpeed[1] += 1;
+        mapSpeed[1] += moveSpeed;
       }
       if (_key == 'd'&&mapSpeed[0]<1){
-        mapSpeed[0] += 1;
+        mapSpeed[0] += moveSpeed;
       }
       if (_key == 'w'&&mapSpeed[1]>-1){
-        mapSpeed[1] -= 1;
+        mapSpeed[1] -= moveSpeed;
       }
     }
     if (eventType == "keyReleased"){
       if (_key == 'a'&&mapSpeed[0]<0){
-        mapSpeed[0] += 1;
+        mapSpeed[0] += moveSpeed;
       }
       if (_key == 's'&&mapSpeed[1]>0){
-        mapSpeed[1] -= 1;
+        mapSpeed[1] -= moveSpeed;
       }
       if (_key == 'd'&&mapSpeed[0]>0){
-        mapSpeed[0] -= 1;
+        mapSpeed[0] -= moveSpeed;
       }
       if (_key == 'w'&&mapSpeed[1]<0){
-        mapSpeed[1] += 1;
+        mapSpeed[1] += moveSpeed;
       }
     }
-    return new ArrayList<String>();
   }
   int[][] smoothMap(int distance, int firstType){
     ArrayList<int[]> order = new ArrayList<int[]>();
@@ -209,38 +261,30 @@ class Map extends Element{
     }
     map = smoothMap(initialSmooth, 2);
     map = smoothMap(completeSmooth, 1);
-    updateBuffer();
+    handleBufferIfNeeded(elementWidth*5, 0);
   }
   
-  void updateBuffer(){
-    buffer = createImage(elementWidth, elementHeight, RGB);
-    PImage[] tempImages = new PImage[numOfGroundTypes];
-    for (int i=0; i<3; i++){
-      tempImages[i] = tileImages[i].copy();
-      tempImages[i].resize(min(ceil(blockSize), tileImages[i].width), 0);
-    }
-    for(int y=0;y<mapHeight;y++){
-      for (int x=0; x<mapWidth; x++){
-        float x2 = scaleX(x);
-        float y2 = scaleY(y);
-        buffer.copy(tempImages[map[y][x]-1], 0, 0, tempImages[map[y][x]-1].width, tempImages[map[y][x]-1].height, ceil(x2), ceil(y2), ceil(blockSize), ceil(blockSize));
-      }
-    }
+  void putInBounds(){
+    mapXOffset = min(max(mapXOffset, 0), ceil(mapWidth*scale-elementWidth));
+    mapYOffset = min(max(mapYOffset, 0), ceil(mapHeight*scale-elementHeight));
   }
-  
   
   void draw(){
+    println("4:"+deltatime());
     if (mapSpeed[0]!=0||mapSpeed[1]!=0){
+      int tempX = mapXOffset;
+      int tempY = mapYOffset;
       mapXOffset += mapSpeed[0];
       mapYOffset += mapSpeed[1];
-      updateBuffer();
+      putInBounds();
+      if(!handlingBuffer){
+        handleBufferIfNeeded(tempX, tempY);
+      }
     }
-    image(buffer, xOffset, yOffset, elementWidth, elementHeight);
-  }
-  float scaleX(int x){
-    return (x-mapXOffset)*blockSize + elementWidth/2;
-  }
-  float scaleY(int y){
-    return (y-mapYOffset)*blockSize + elementHeight/2;
+    println("1:"+deltatime());
+    image(buffer.get(0, 0, mapXOffset-bufferX+elementWidth, mapYOffset-bufferY+elementHeight), xOffset-mapXOffset+bufferX, yOffset-mapYOffset+bufferY, mapXOffset-bufferX+elementWidth, mapYOffset-bufferY+elementHeight);
+    println("2:"+deltatime());
+    //image(buffer, width/2, 0, width/2, width/2);
+    println("3:"+deltatime());
   }
 }

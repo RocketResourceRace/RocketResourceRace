@@ -22,6 +22,13 @@ class Button extends Element{
     
     setLines(text);
   }
+  void transform(int x, int y, int w, int h){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    centerCoords();
+  }
   void centerCoords(){
     cx = x+w/2;
     cy = y+h/2;
@@ -49,18 +56,18 @@ class Button extends Element{
     rect(x+xOffset, y+yOffset, w, h);
     noTint();
     fill(textColour);
-    textAlign(textAlign);
-    textSize(textSize);
+    textAlign(textAlign, TOP);
+    textSize(textSize*TextScale);
     if (lines.size() == 1){
       padding = h/10;
     }
-    padding = (lines.size()*textSize-h/2)/2;
+    padding = (lines.size()*(int)(textSize*TextScale)-h/2)/2;
     for (int i=0; i<lines.size(); i++){
       if (textAlign == CENTER){
-        text(lines.get(i), cx+xOffset, cy-padding+(i+0.25)*textSize+yOffset);
+        text(lines.get(i), cx+xOffset, y+(h*0.9-textSize*TextScale)/2+yOffset);
       }
       else{
-        text(lines.get(i), x+xOffset, y + i*textSize+yOffset);
+        text(lines.get(i), x+xOffset, y + yOffset);
       }
     }
     popStyle();
@@ -80,10 +87,12 @@ class Button extends Element{
     return lines;
   }
   
-  ArrayList<String> _mouseEvent(String eventType, int button){
+  ArrayList<String> mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
-    mouseEvent(eventType, button);
     if(eventType == "mouseReleased"){
+      if (state == "on"){
+        events.add("clicked");
+      }
       state = "off";
     }
     if (mouseOver()){
@@ -92,6 +101,7 @@ class Button extends Element{
       }
       if (eventType == "mousePressed"){
         state = "on";
+        sfx.get("click3").play();
       }
       if (eventType == "mouseClicked"){
         events.add("clicked");

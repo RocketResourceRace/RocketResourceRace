@@ -37,6 +37,13 @@ class Panel{
     }
   }
   
+  void setVisible(boolean a){
+    visible = a;
+    for (Element elem:elements.values()){
+      elem.mouseEvent("mouseMoved", mouseButton);
+    }
+  }
+  
   void draw(){
     pushStyle();
     if (img == null){

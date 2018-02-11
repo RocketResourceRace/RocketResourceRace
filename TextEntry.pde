@@ -3,7 +3,7 @@ class TextEntry extends Element{
   StringBuilder text;
   int x, y, w, h, textSize, textAlign, cursor, selected;
   color textColour, boxColour, borderColour, selectionColour;
-  String allowedChars;
+  String allowedChars, name;
   final int BLINKTIME = 500;
   
   TextEntry(int x, int y, int w, int h, int textAlign, color textColour, color boxColour, color borderColour, String allowedChars){
@@ -12,11 +12,27 @@ class TextEntry extends Element{
     this.h = h;
     this.w = w;
     this.textColour = textColour;
-    this.textSize = (int)(h*0.8);
+    this.textSize = 10;
     this.textAlign = textAlign;
     this.boxColour = boxColour;
     this.borderColour = borderColour;
     this.allowedChars = allowedChars;
+    text = new StringBuilder();
+    selectionColour = brighten(selectionColour, 150);
+    deactivate();
+  }
+  TextEntry(int x, int y, int w, int h, int textAlign, color textColour, color boxColour, color borderColour, String allowedChars, String name){
+    this.x = x;
+    this.y = y;
+    this.h = h;
+    this.w = w;
+    this.textColour = textColour;
+    this.textSize = 20;
+    this.textAlign = textAlign;
+    this.boxColour = boxColour;
+    this.borderColour = borderColour;
+    this.allowedChars = allowedChars;
+    this.name = name;
     text = new StringBuilder();
     selectionColour = brighten(selectionColour, 150);
     deactivate();
@@ -30,24 +46,29 @@ class TextEntry extends Element{
     fill(boxColour);
     stroke(borderColour);
     rect(x+xOffset, y+yOffset, w, h);
-    
     // Draw selection box
-    if (selected != cursor && active){
+    if (selected != cursor && active && cursor >= 0 ){
       fill(selectionColour);
-      rect(x+textWidth(text.substring(0, min(cursor, selected)))+xOffset, y+2, textWidth(text.substring(min(cursor, selected)+yOffset, max(cursor, selected))), h-4);
+      rect(x+textWidth(text.substring(0, min(cursor, selected)))+xOffset+5, y+2, textWidth(text.substring(min(cursor, selected)+yOffset, max(cursor, selected))), h-4);
     }
     
     // Draw the text
-    textSize(textSize);
+    textSize(textSize*TextScale);
     textAlign(textAlign);
     fill(textColour);
-    text(text.toString(), x+xOffset, y+textSize+yOffset);
+    text(text.toString(), x+xOffset+5, y+yOffset+(h-textSize*TextScale)/2, w, h);
     
     // Draw cursor
     if (showCursor){
       fill(0);
       noStroke();
-      rect(x+textWidth(text.toString().substring(0,cursor))+xOffset, y+yOffset, 1, h);
+      rect(x+textWidth(text.toString().substring(0,cursor))+xOffset+5, y+yOffset+(h-textSize*TextScale)/2, 1, textSize*TextScale);
+    }
+    if (name != null){
+      fill(0);
+      textSize(10);
+      textAlign(LEFT);
+      text(name, x, y-12);
     }
     
     popStyle();
@@ -56,21 +77,28 @@ class TextEntry extends Element{
   void resetSelection(){
     selected = cursor;
   }
+  void transform(int x, int y, int w, int h){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+  }
   
   int getCursorPos(int mx, int my){
     int i=0;
     for(; i<text.length(); i++){
+      textSize(textSize*TextScale);
       if (textWidth(text.substring(0, i)) + x > mx)
         break;
     }
-    if (0 <= i && i <= text.length() && y <= my && my <= y+textSize){
+    if (0 <= i && i <= text.length() && y+yOffset+(h-textSize*TextScale)/2<= my && my <= y+yOffset+(h-textSize*TextScale)/2+textSize*TextScale){
       return i;
     }
     return cursor;
   }
   
   void doubleSelectWord(){
-    if (!(y <= mouseY && mouseY <= y+textSize)){
+    if (!(y <= mouseY && mouseY <= y+h)){
       return;
     }
     int c = getCursorPos(mouseX, mouseY);
@@ -90,7 +118,7 @@ class TextEntry extends Element{
     selected = i;
   }
   
-  ArrayList<String> _mouseEvent(String eventType, int button){
+  ArrayList<String> mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
     if (eventType == "mouseClicked"){
       if (button == LEFT){
@@ -104,6 +132,9 @@ class TextEntry extends Element{
         cursor = getCursorPos(mouseX, mouseY);
         selected = getCursorPos(mouseX, mouseY);
       }
+      if(!mouseOver()){
+        deactivate();
+      }
     }
     else if (eventType == "mouseDragged"){
       if (button == LEFT){
@@ -116,8 +147,7 @@ class TextEntry extends Element{
     return events;
   }
   
-  ArrayList<String> _keyboardEvent(String eventType, char _key){
-    keyboardEvent(eventType, _key);
+  ArrayList<String> keyboardEvent(String eventType, char _key){
     ArrayList<String> events = new ArrayList<String>();
     if (eventType == "keyTyped"){
       if (_key == BACKSPACE){

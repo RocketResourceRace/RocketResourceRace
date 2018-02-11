@@ -1,54 +1,76 @@
 
 class Slider extends Element{
-  private int x, y, w, h, cx, cy;
-  private float  major, minor, upper, lower, step, value;
-  private color bgColour, strokeColour, scaleColour;
+  private int x, y, w, h, cx, cy, major, minor, lw, lx;
+  private int padding = 20;
+  private BigDecimal value, step, upper, lower;
+  private float knobSize;
+  private color KnobColour, bgColour, strokeColour, scaleColour;
   private boolean horizontal, pressed=false;
-  final int boxHeight = 20, boxWidth = 30;
+  final int boxHeight = 20, boxWidth = 10;
   private final int PRESSEDOFFSET = 50;
+  private String name;
   
-  Slider(int x, int y, int w, int h, color bgColour, color strokeColour, color scaleColour, float lower, float upper, float major, float minor, float step, boolean horizontal){
+  Slider(int x, int y, int w, int h, color KnobColour, color bgColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name){
+    this.lx = x;
     this.x = x;
     this.y = y;
+    this.lw = w;
     this.w = w;
     this.h = h;
+    this.KnobColour = KnobColour;
     this.bgColour = bgColour;
     this.strokeColour = strokeColour;
     this.scaleColour = scaleColour;
     this.major = major;
     this.minor = minor;
-    this.upper = upper;
-    this.lower = lower;
+    this.upper = new BigDecimal(""+upper);
+    this.lower = new BigDecimal(""+lower);
     this.horizontal = horizontal;
-    this.step = step;
+    this.step = new BigDecimal(""+step);
+    this.value = new BigDecimal(""+value);
+    this.name = name;
+  }
+  void transform(int x, int y, int w, int h){
+    this.lx = x;
+    this.x = x;
+    this.lw = w;
+    this.w = w; 
+    this.y = y;
+    this.h = h;
   }
   
-  void setValue(float value){
-    if (value < lower){
+  void setValue(BigDecimal value){
+    if (value.compareTo(lower) < 0){
       this.value = lower;
     }
-    else if (value > upper){
-      this.value = upper;
+    else if (value.compareTo(upper)>0){
+      this.value = new BigDecimal(""+upper);
     }
     else{
-      this.value = int(value/step)*step;
+      this.value = value.divideToIntegralValue(step).multiply(step);
     }
   }
   
-  ArrayList<String> _mouseEvent(String eventType, int button){
+  float getValue(){
+    return value.floatValue();
+  }
+  BigDecimal getPreciseValue(){
+    return value;
+  }
+  
+  ArrayList<String> mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
-    mouseEvent(eventType, button);
     if (button == LEFT){
       if (mouseOver() && eventType == "mousePressed"){
           pressed = true;
-          setValue((float)(mouseX-x)/w*(float)(upper-lower)+lower);
+          setValue((new BigDecimal(mouseX-x)).divide(new BigDecimal(w), 15, BigDecimal.ROUND_HALF_EVEN).multiply(upper.subtract(lower)).add(lower));
           events.add("valueChanged");
       }
       else if (eventType == "mouseReleased"){
         pressed = false;
       }
       if (eventType == "mouseDragged" && pressed){
-        setValue((float)(mouseX-x)/w*(float)(upper-lower)+lower);
+        setValue((new BigDecimal(mouseX-x)).divide(new BigDecimal(w), 15, BigDecimal.ROUND_HALF_EVEN).multiply(upper.subtract(lower)).add(lower));
         events.add("valueChanged");
       }
     }
@@ -59,43 +81,53 @@ class Slider extends Element{
     return mouseX >= x && mouseX <= x+w && mouseY >= y && mouseY <= y+h;
   }
   
+  BigDecimal getInc(BigDecimal i){
+    return i.stripTrailingZeros();
+  }
+  
   void draw(){
-    float j = lower, range = upper-lower;
-    float r = red(bgColour), g = green(bgColour), b = blue(bgColour);
+    BigDecimal range = upper.subtract(lower);
+    float r = red(KnobColour), g = green(KnobColour), b = blue(KnobColour);
     pushStyle();
     stroke(strokeColour);
-    //rect(x, y, w, h);
+    //fill(bgColour);
+    //rect(lx, y, lw, h);
     
-    while(j<=upper){
-      if (j != 0)
-        line(j/range*w+x, y+h/4, j/range*w+x, y+h-h/4);
-      j += range/minor;
-    }
-    j=lower;
-    while(j<=upper){
+    
+    for(int i=0; i<=minor; i++){
       fill(scaleColour);
-      textSize(10);
+      line(xOffset+x+w*i/minor, y+yOffset+padding+(h-padding)/4, xOffset+x+w*i/minor, y+yOffset+3*(h-padding)/4+padding);
+    }
+    for(int i=0; i<=major; i++){
+      fill(scaleColour);
+      textSize(10*TextScale);
       textAlign(CENTER);
-      text(""+j, j/range*w+x+xOffset, y+yOffset);
-      fill(bgColour);
-      line(j/range*w+x, y, j/range*w+x, y+h);
-      j += range/major;
+      text(getInc((new BigDecimal(""+i).multiply(range).divide(new BigDecimal(""+major), 15, BigDecimal.ROUND_HALF_EVEN).add(lower))).toPlainString(), xOffset+x+w*i/major, y+yOffset+padding);
+      line(xOffset+x+w*i/major, y+yOffset+padding, xOffset+x+w*i/major, y+yOffset+h);
     }
     
     if (pressed){
       fill(min(r-PRESSEDOFFSET, 255), min(g-PRESSEDOFFSET, 255), min(b+PRESSEDOFFSET, 255));
     }
     else{
-      fill(bgColour);
+      fill(KnobColour);
     }
     
-    rect(x+(float)value/(upper-lower)*w-boxWidth/2+xOffset, y+h/2-boxHeight/2+yOffset, boxWidth, boxHeight);
     textSize(15);
     textAlign(CENTER);
+    rectMode(CENTER);
+    this.knobSize = max(this.knobSize, textWidth(""+getInc(value)));
+    rect(x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2+yOffset+padding/2, knobSize, boxHeight);
+    rectMode(CORNER);
     fill(scaleColour);
-    text(""+Float.parseFloat((""+value).substring(0, min((""+value).length(), 5))), x+(float)value/(upper-lower)*w+xOffset, y+h/2+boxHeight/4+yOffset);
+    text(getInc(value).toPlainString(), x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2+boxHeight/4+yOffset+padding/2);
     stroke(0);
-    line(x+(float)value/(upper-lower)*w+xOffset, y+h/2-boxHeight/2+yOffset, x+(float)value/(upper-lower)*w+xOffset, y+h/2-boxHeight+yOffset);
+    textAlign(CENTER);
+    line(x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight/2+yOffset+padding/2, x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight+yOffset+padding/2);
+    fill(0);
+    textSize(12*TextScale);
+    textAlign(LEFT, BOTTOM);
+    text(name, x, y);
     popStyle();
   }
 }
