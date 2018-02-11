@@ -39,14 +39,14 @@ class Map extends Element{
     elementHeight = h;
     mapWidth = mapSize;
     mapHeight = mapSize;
-    blockSize = elementHeight/mapSize;
+    blockSize = elementWidth/mapSize;
     numOfGroundTypes = 3;
     numOfGroundSpawns = 100;
     waterLevel = 3;
     initialSmooth = 7;
     completeSmooth = 5;
-    mapXOffset = -blockSize*mapSize/2;
-    mapYOffset = -blockSize*mapSize/2;
+    mapXOffset = 0;
+    mapYOffset = 0;
     generateMap();
   }
   ArrayList<String> mouseEvent(String eventType, int button){
@@ -62,8 +62,8 @@ class Map extends Element{
       if (eventType=="mouseDragged"){
         mapXOffset += (mouseX-startX);
         mapYOffset += (mouseY-startY);
-        mapXOffset = min(max(mapXOffset, -elementWidth/2), -(mapWidth-elementWidth));
-        mapYOffset = min(max(mapYOffset, -elementHeight/2), -mapHeight);
+        mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth), 0);
+        mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight), 0);
         startX = mouseX;
         startY = mouseY;
       }
@@ -219,15 +219,15 @@ class Map extends Element{
      for (int x=0; x<mapWidth; x++){
        float x2 = scaleX(x);
        float y2 = scaleY(y);
-       if(x2>-blockSize&&x2<elementWidth&&y2>-blockSize&&y2<elementHeight)
+       if(x2>-blockSize&&x2<=elementWidth+blockSize&&y2>-blockSize&&y2<=elementHeight+blockSize)
          image(tempImages[map[y][x]-1], x2, y2);
      }
     }
   }
   float scaleX(int x){
-    return x*blockSize + mapXOffset + elementWidth/2;
+    return x*blockSize + mapXOffset;
   }
   float scaleY(int y){
-    return y*blockSize + mapYOffset + elementHeight/2;
+    return y*blockSize + mapYOffset;
   }
 }
