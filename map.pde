@@ -219,8 +219,10 @@ class Map extends Element{
      for (int x=0; x<mapWidth; x++){
        float x2 = scaleX(x);
        float y2 = scaleY(y);
-       if(x2>-blockSize&&x2<=elementWidth+blockSize&&y2>-blockSize&&y2<=elementHeight+blockSize)
+       if(x2>=0&&x2<=elementWidth-blockSize&&y2>=0&&y2<=elementHeight-blockSize)
          image(tempImages[map[y][x]-1], x2, y2);
+       else if (-blockSize<x2&&x2<0||elementWidth-blockSize<x2&&x2<elementWidth||-blockSize<y2&&y2<0||elementHeight-blockSize<y2&&y2<elementHeight)
+         image(tempImages[map[y][x]-1].get(int(max(0, -x2)), int(max(0, -y2)), ceil(min(blockSize, elementWidth-x2)), ceil(min(blockSize, elementHeight-y2))), x2, y2);
      }
     }
   }
