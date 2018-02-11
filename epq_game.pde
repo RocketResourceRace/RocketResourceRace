@@ -124,7 +124,7 @@ void setup(){
   states = new HashMap<String, State>();
   addState("menu", new Menu());
   addState("map", new TestMap());
-  activeState = "map";
+  activeState = "menu";
   fullScreen();
   noStroke();
   halfScreenWidth = width/2;

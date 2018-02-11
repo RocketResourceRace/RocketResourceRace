@@ -48,7 +48,7 @@ class TextEntry extends Element{
     rect(x+xOffset, y+yOffset, w, h);
     
     // Draw selection box
-    if (selected != cursor && active){
+    if (selected != cursor && active && cursor >= 0 ){
       fill(selectionColour);
       rect(x+textWidth(text.substring(0, min(cursor, selected)))+xOffset+5, y+2, textWidth(text.substring(min(cursor, selected)+yOffset, max(cursor, selected))), h-4);
     }
