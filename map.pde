@@ -32,6 +32,7 @@ class Map extends Element{
   int[] mapSpeed = {0,0};
   int startX;
   int startY;
+  boolean zoomChanged;
 
   Map(int x, int y, int w, int h, int mapSize){
     elementWidth = w;
@@ -46,6 +47,7 @@ class Map extends Element{
     completeSmooth = 5;
     mapXOffset = x;
     mapYOffset = y;
+    zoomChanged = false;
     buffer = createImage(elementWidth, elementHeight, RGB);
     generateMap();
   }
@@ -57,12 +59,13 @@ class Map extends Element{
       if (button == RIGHT){
         blockSize *= 0.8;
       }
+      zoomChanged = true;
       updateBuffer();
     }
     else {
       if (eventType=="mouseDragged"){
-        mapXOffset += mouseX-startX;
-        mapYOffset += mouseY-startY;
+        mapXOffset -= mouseX-startX;
+        mapYOffset -= mouseY-startY;
         mapXOffset = min(max(mapXOffset, 0), elementWidth/2);
         mapYOffset = min(max(mapYOffset, 0), elementHeight/2);
         startX = mouseX;
@@ -213,7 +216,7 @@ class Map extends Element{
   }
   
   void updateBuffer(){
-    buffer = createImage(elementWidth, elementHeight, RGB);
+    buffer = createImage((int)blockSize*mapWidth, (int)blockSize*mapHeight, RGB);
     PImage[] tempImages = new PImage[numOfGroundTypes];
     for (int i=0; i<3; i++){
       tempImages[i] = tileImages[i].copy();
@@ -235,12 +238,12 @@ class Map extends Element{
       mapYOffset += mapSpeed[1];
       updateBuffer();
     }
-    image(buffer, xOffset, yOffset, elementWidth, elementHeight);
+    image(buffer, xOffset-mapXOffset, yOffset-mapYOffset, elementWidth, elementHeight);
   }
   float scaleX(int x){
-    return (x-mapXOffset)*blockSize + elementWidth/2;
+    return x*blockSize + elementWidth/2;
   }
   float scaleY(int y){
-    return (y-mapYOffset)*blockSize + elementHeight/2;
+    return x*blockSize + elementHeight/2;
   }
 }
