@@ -5,10 +5,11 @@ class TestMap extends State{
   TestMap(){
     addElement("map", new Map(0, 0, 500, 500, mapSize));
   }
-  void keyboardEvent(String eventType, int _key){
+  ArrayList<String> keyboardEvent(String eventType, char _key){
     if (_key == ESC){
       newState = "menu";
     }
+    return new ArrayList<String>();
   }
 }
 
@@ -48,7 +49,7 @@ class Map extends Element{
     buffer = createImage(elementWidth, elementHeight, RGB);
     generateMap();
   }
-  void mouseEvent(String eventType, int button){
+  ArrayList<String> mouseEvent(String eventType, int button){
     if (eventType == "mouseClicked"){
       if (button == LEFT){
         blockSize *= 1.25;
@@ -73,8 +74,9 @@ class Map extends Element{
         startY = mouseY;
       }
     }
+    return new ArrayList<String>();
   }
-  void keyboardEvent(String eventType, int _key){
+  ArrayList<String> keyboardEvent(String eventType, int _key){
     if (eventType == "keyPressed"){
       if (_key == 'a'&&mapSpeed[0]>-1){
         mapSpeed[0] -= 1;
@@ -103,6 +105,7 @@ class Map extends Element{
         mapSpeed[1] += 1;
       }
     }
+    return new ArrayList<String>();
   }
   int[][] smoothMap(int distance, int firstType){
     ArrayList<int[]> order = new ArrayList<int[]>();

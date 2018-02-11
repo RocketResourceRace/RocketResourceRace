@@ -88,9 +88,9 @@ class State{
     }
   }
   // Empty method for use by children
-  void mouseEvent(String eventType, int button){}
-  void mouseEvent(String eventType, int button, MouseEvent event){}
-  void keyboardEvent(String eventType, int _key){}
+  ArrayList<String> mouseEvent(String eventType, int button){return new ArrayList<String>();}
+  ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){return new ArrayList<String>();}
+  ArrayList<String> keyboardEvent(String eventType, char _key){return new ArrayList<String>();}
   void elementEvent(String id, String eventType){}
   
   void elementEvent(ArrayList<Event> events){
@@ -140,7 +140,7 @@ class State{
       for (Element elem : panel.elements.values()){
         // TODO decide whether all or just active panel
         if (elem.active){
-          elem._keyboardEvent(eventType, _key);
+          elem.keyboardEvent(eventType, _key);
         }
       }
     }

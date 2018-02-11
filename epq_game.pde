@@ -138,14 +138,16 @@ void setup(){
 boolean smoothed = false;
 
 void draw(){
-  //TO KEEP
   background(255);
   String newState = getActiveState().update();
   if (!newState.equals("")){
+    for (Panel panel : states.get(newState).panels){
+      for (String id : panel.elements.keySet()){
+        panel.elements.get(id).mouseEvent("mouseMoved", LEFT);
+      }
+    }
     activeState = newState;
   }
-  //drawMap(map, TILESIZE, NUMOFGROUNDTYPES, MAPWIDTH,MAPHEIGHT);
-  
 }
 
 State getActiveState(){

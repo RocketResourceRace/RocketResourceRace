@@ -4,9 +4,9 @@ class Element{
   int xOffset, yOffset;
   int x, y, w, h;
   void draw(){}
-  void mouseEvent(String eventType, int button){}
-  void mouseEvent(String eventType, int button, MouseEvent event){}
-  void keyboardEvent(String eventType, int _key){}
+  ArrayList<String> mouseEvent(String eventType, int button){return new ArrayList<String>();}
+  ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){return new ArrayList<String>();}
+  ArrayList<String> keyboardEvent(String eventType, char _key){return new ArrayList<String>();}
   void setOffset(int xOffset, int yOffset){
     this.xOffset = xOffset;
     this.yOffset = yOffset;
@@ -18,16 +18,13 @@ class Element{
     this.h = h;
   }
   ArrayList<String> _mouseEvent(String eventType, int button){
-    mouseEvent(eventType, button);
-    return new ArrayList<String>();
+    return mouseEvent(eventType, button);
   } 
   ArrayList<String> _mouseEvent(String eventType, int button, MouseEvent event){
-    mouseEvent(eventType, button);
-    return new ArrayList<String>();
+    return mouseEvent(eventType, button);
   } 
   ArrayList<String> _keyboardEvent(String eventType, char _key){
-    keyboardEvent(eventType, _key);
-    return new ArrayList<String>();
+    return keyboardEvent(eventType, _key);
   }
   void activate(){
     active = true;

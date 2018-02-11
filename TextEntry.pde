@@ -46,7 +46,6 @@ class TextEntry extends Element{
     fill(boxColour);
     stroke(borderColour);
     rect(x+xOffset, y+yOffset, w, h);
-    
     // Draw selection box
     if (selected != cursor && active && cursor >= 0 ){
       fill(selectionColour);
@@ -119,7 +118,7 @@ class TextEntry extends Element{
     selected = i;
   }
   
-  ArrayList<String> _mouseEvent(String eventType, int button){
+  ArrayList<String> mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
     if (eventType == "mouseClicked"){
       if (button == LEFT){
@@ -148,8 +147,7 @@ class TextEntry extends Element{
     return events;
   }
   
-  ArrayList<String> _keyboardEvent(String eventType, char _key){
-    keyboardEvent(eventType, _key);
+  ArrayList<String> keyboardEvent(String eventType, char _key){
     ArrayList<String> events = new ArrayList<String>();
     if (eventType == "keyTyped"){
       if (_key == BACKSPACE){

@@ -87,9 +87,8 @@ class Button extends Element{
     return lines;
   }
   
-  ArrayList<String> _mouseEvent(String eventType, int button){
+  ArrayList<String> mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
-    mouseEvent(eventType, button);
     if(eventType == "mouseReleased"){
       if (state == "on"){
         events.add("clicked");

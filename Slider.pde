@@ -58,9 +58,8 @@ class Slider extends Element{
     return value;
   }
   
-  ArrayList<String> _mouseEvent(String eventType, int button){
+  ArrayList<String> mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
-    mouseEvent(eventType, button);
     if (button == LEFT){
       if (mouseOver() && eventType == "mousePressed"){
           pressed = true;

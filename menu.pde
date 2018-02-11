@@ -86,7 +86,7 @@ class Menu extends State{
     getPanel(currentPanel).setVisible(false);
     currentPanel = new String(newPanel);
     for (String id : getPanel(newPanel).elements.keySet()){
-      getPanel(newPanel).elements.get(id)._mouseEvent("mouseMoved", LEFT);
+      getPanel(newPanel).elements.get(id).mouseEvent("mouseMoved", LEFT);
     }
   }
   
