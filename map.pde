@@ -3,7 +3,7 @@ import java.util.Collections;
 
 class TestMap extends State{
   TestMap(){
-    addElement("map", new Map(0, 0, 500, 500, mapSize));
+    addElement("map", new Map(0, 0, 1000, 700, mapSize));
   }
   ArrayList<String> keyboardEvent(String eventType, char _key){
     if (_key == ESC){
@@ -24,8 +24,8 @@ class Map extends Element{
   int waterLevel;
   int initialSmooth;
   int completeSmooth;
-  int mapXOffset;
-  int mapYOffset;
+  float mapXOffset;
+  float mapYOffset;
   PImage buffer;
   int elementWidth;
   int elementHeight;
@@ -45,8 +45,8 @@ class Map extends Element{
     waterLevel = 3;
     initialSmooth = 7;
     completeSmooth = 5;
-    mapXOffset = mapSize/2;
-    mapYOffset = mapSize/2;
+    mapXOffset = -blockSize*mapSize/2;
+    mapYOffset = -blockSize*mapSize/2;
     generateMap();
   }
   ArrayList<String> mouseEvent(String eventType, int button){
@@ -60,10 +60,10 @@ class Map extends Element{
     }
     else {
       if (eventType=="mouseDragged"){
-        mapXOffset -= mouseX-startX;
-        mapYOffset -= mouseY-startY;
-        mapXOffset = min(max(mapXOffset, 0), elementWidth/2);
-        mapYOffset = min(max(mapYOffset, 0), elementHeight/2);
+        mapXOffset += (mouseX-startX);
+        mapYOffset += (mouseY-startY);
+        mapXOffset = min(max(mapXOffset, -elementWidth/2), -(mapWidth-elementWidth));
+        mapYOffset = min(max(mapYOffset, -elementHeight/2), -mapHeight);
         startX = mouseX;
         startY = mouseY;
       }
@@ -219,15 +219,15 @@ class Map extends Element{
      for (int x=0; x<mapWidth; x++){
        float x2 = scaleX(x);
        float y2 = scaleY(y);
-       if(x2>0&&x2<elementWidth&&y2>0&&y2<elementHeight)
+       if(x2>-blockSize&&x2<elementWidth&&y2>-blockSize&&y2<elementHeight)
          image(tempImages[map[y][x]-1], x2, y2);
      }
     }
   }
   float scaleX(int x){
-    return (x-mapXOffset)*blockSize + halfScreenWidth;
+    return x*blockSize + mapXOffset + elementWidth/2;
   }
   float scaleY(int y){
-    return (y-mapYOffset)*blockSize + halfScreenHeight;
+    return y*blockSize + mapYOffset + elementHeight/2;
   }
 }
