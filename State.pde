@@ -19,6 +19,12 @@ class State{
     drawPanels();
     return getNewState();
   }
+  void enterState(){
+    
+  }
+  void leaveState(){
+    
+  }
   void hidePanels(){
     for (Panel panel:panels){
       panel.visible = false;
