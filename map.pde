@@ -52,7 +52,7 @@ class Map extends Element{
     completeSmooth = 5;
     mapXOffset = 0;
     mapYOffset = 0;
-    mapMaxSpeed = 2;
+    mapMaxSpeed = 5;
     generateMap();
   }
   
@@ -233,9 +233,10 @@ class Map extends Element{
   }
   
   void draw(){
+    
     PImage[] tempImages = new PImage[numOfGroundTypes];
-    mapXOffset += mapVelocity[0];
-    mapYOffset += mapVelocity[1];
+    mapXOffset -= mapVelocity[0];
+    mapYOffset -= mapVelocity[1];
     limitCoords();
     for (int i=0; i<3; i++){
       tempImages[i] = tileImages[i].copy();
