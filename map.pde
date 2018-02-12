@@ -42,7 +42,7 @@ class Map extends Element{
     elementHeight = h;
     mapWidth = mapSize;
     mapHeight = mapSize;
-    blockSize = elementWidth/mapSize;
+    blockSize = elementWidth/(float)mapSize;
     numOfGroundTypes = 3;
     numOfGroundSpawns = 100;
     waterLevel = 3;
@@ -55,10 +55,24 @@ class Map extends Element{
   ArrayList<String> mouseEvent(String eventType, int button){
     if (eventType == "mouseClicked"){
       if (button == LEFT){
-        blockSize *= 1.25;
+        float newBlockSize = min(blockSize*1.20, (float)elementWidth/10);
+        if (blockSize != newBlockSize){
+          mapXOffset = scaleX(round((mouseX-mapXOffset-xPos)/blockSize))-xPos-round((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
+          mapYOffset = scaleY(round((mouseY-mapYOffset-yPos)/blockSize))-yPos-round((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
+          blockSize = newBlockSize;
+          mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth-xPos), 0);
+          mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight-yPos), 0);
+        }
       }
       if (button == RIGHT){
-        blockSize *= 0.8;
+        float newBlockSize = max(blockSize*0.8, (float)elementWidth/(float)mapSize);
+        if (blockSize != newBlockSize){
+          mapXOffset = scaleX(round((mouseX-mapXOffset-xPos)/blockSize))-xPos-round((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
+          mapYOffset = scaleY(round((mouseY-mapYOffset-yPos)/blockSize))-yPos-round((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
+          blockSize =newBlockSize;
+          mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth), 0);
+          mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight), 0);
+        }
       }
     }
     else {
@@ -66,7 +80,7 @@ class Map extends Element{
         mapXOffset += (mouseX-startX);
         mapYOffset += (mouseY-startY);
         mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth), 0);
-        mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight), 0);
+        mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight),0);
         startX = mouseX;
         startY = mouseY;
       }
@@ -218,40 +232,43 @@ class Map extends Element{
       tempImages[i] = tileImages[i].copy();
       tempImages[i].resize(ceil(blockSize), 0);
     }
-    int lx = max(0, -floor((mapXOffset)/blockSize+1));
-    int ly = max(0, -floor((mapYOffset)/blockSize+1));
-    int hx = min(floor((elementWidth-mapXOffset-xPos)/blockSize-1), mapWidth);
-    int hy = min(floor((elementHeight-mapYOffset-yPos)/blockSize-1), mapHeight);
-    for(int y=ly+1;y<hy-1;y++){
-      for (int x=lx+1; x<hx-1; x++){
+    int lx = max(0, -ceil((mapXOffset)/blockSize)+1);
+    int ly = max(0, -ceil((mapYOffset)/blockSize)+1);
+    int hx = min(floor((elementWidth-mapXOffset)/blockSize), mapWidth-1);
+    int hy = min(floor((elementHeight-mapYOffset)/blockSize), mapHeight-1);
+    for(int y=ly;y<hy;y++){
+      for (int x=lx; x<hx; x++){
        float x2 = round(scaleX(x));
        float y2 = round(scaleY(y));
        image(tempImages[map[y][x]-1], x2, y2);
        }
      }
-     int x3 = round(scaleX(hx-1));
-     int y3 = round(scaleY(hy-1));
-     int topW = round(scaleY(ly+1)-yPos);
-     int bottomW = round(elementHeight-scaleY(hy+1));
-     int leftW = round(scaleX(lx+1)-xPos);
-     int rightW = round(elementWidth-scaleX(hx+1));
-     for(int y=ly+1;y<hy-1;y++){
-       image(tempImages[map[y][hx-1]-1].get(0, 0, rightW, ceil(blockSize)), x3,round(scaleY(y)));
-       image(tempImages[map[y][lx]-1].get(ceil(blockSize)-leftW, 0, leftW, ceil(blockSize)), xPos, round(scaleY(y)));
+     int x3 = round(scaleX(hx));
+     int y3 = round(scaleY(hy));
+     int topW = round(scaleY(ly)-yPos);
+     int bottomW = round(yPos+elementHeight-scaleY(hy));
+     int leftW = round(scaleX(lx)-xPos);
+     int rightW = round(xPos+elementWidth-scaleX(hx));
+     for(int y=ly;y<hy;y++){
+       image(tempImages[map[y][hx]-1].get(0, 0, rightW, ceil(blockSize)), x3,round(scaleY(y)));
+       image(tempImages[map[y][lx-1]-1].get(ceil(blockSize)-leftW, 0, leftW, ceil(blockSize)), xPos, round(scaleY(y)));
      }
-     for(int x=lx+1;x<hx-1;x++){
-       image(tempImages[map[hy-1][x]-1].get(0, 0, ceil(blockSize), bottomW), round(scaleX(x)), y3);
-       image(tempImages[map[ly][x]-1].get(0, ceil(blockSize)-topW, ceil(blockSize), topW), round(scaleX(x)), yPos);
+     for(int x=lx;x<hx;x++){
+       image(tempImages[map[hy][x]-1].get(0, 0, ceil(blockSize), bottomW), round(scaleX(x)), y3);
+       image(tempImages[map[ly-1][x]-1].get(0, ceil(blockSize)-topW, ceil(blockSize), topW), round(scaleX(x)), yPos);
      }
-     image(tempImages[map[ly][lx]-1].get(ceil(blockSize)-leftW, 0, leftW, topW), xPos, yPos);
-     image(tempImages[map[hy-1][hx-1]-1].get(0, 0, rightW, bottomW), x3, y3);
-     image(tempImages[map[hy-1][lx]-1].get(0, 0, leftW, bottomW), xPos, y3);
-     image(tempImages[map[ly][hx-1]-1].get(0, ceil(blockSize)-topW, rightW, topW), x3, yPos);
+     image(tempImages[map[ly-1][lx-1]-1].get(ceil(blockSize)-leftW, 0, leftW, topW), xPos, yPos);
+     image(tempImages[map[hy][hx]-1].get(0, 0, rightW, bottomW), x3, y3);
+     image(tempImages[map[hy][lx-1]-1].get(0, 0, leftW, bottomW), xPos, y3);
+     image(tempImages[map[ly-1][hx]-1].get(0, ceil(blockSize)-topW, rightW, topW), x3, yPos);
+     stroke(0);
+     fill(255, 0);
+     rect(xPos, yPos, elementWidth, elementHeight);
   }
-  float scaleX(int x){
+  float scaleX(float x){
     return x*blockSize + mapXOffset + xPos;
   }
-  float scaleY(int y){
+  float scaleY(float y){
     return y*blockSize + mapYOffset + yPos;
   }
 }
