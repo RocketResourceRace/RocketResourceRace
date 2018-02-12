@@ -34,6 +34,7 @@ class Map extends Element{
   float[] mapVelocity = {0,0};
   int startX;
   int startY;
+  int frameStartTime;
   int xPos, yPos;
   boolean zoomChanged;
 
@@ -54,6 +55,7 @@ class Map extends Element{
     mapYOffset = 0;
     mapMaxSpeed = 5;
     generateMap();
+    frameStartTime = 0;
   }
   
   void limitCoords(){
@@ -233,10 +235,11 @@ class Map extends Element{
   }
   
   void draw(){
-    
     PImage[] tempImages = new PImage[numOfGroundTypes];
-    mapXOffset -= mapVelocity[0];
-    mapYOffset -= mapVelocity[1];
+    int frameTime = millis()-frameStartTime;
+    mapXOffset -= mapVelocity[0]*frameTime*60/1000;
+    mapYOffset -= mapVelocity[1]*frameTime*60/1000;
+    frameStartTime = millis();
     limitCoords();
     for (int i=0; i<3; i++){
       tempImages[i] = tileImages[i].copy();
