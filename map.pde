@@ -9,6 +9,7 @@ class TestMap extends State{
     if (_key == ESC){
       newState = "menu";
     }
+    
     return new ArrayList<String>();
   }
 }
@@ -26,10 +27,11 @@ class Map extends Element{
   int completeSmooth;
   float mapXOffset;
   float mapYOffset;
+  float mapMaxSpeed;
   PImage buffer;
   int elementWidth;
   int elementHeight;
-  int[] mapSpeed = {0,0};
+  float[] mapVelocity = {0,0};
   int startX;
   int startY;
   int xPos, yPos;
@@ -50,8 +52,15 @@ class Map extends Element{
     completeSmooth = 5;
     mapXOffset = 0;
     mapYOffset = 0;
+    mapMaxSpeed = 2;
     generateMap();
   }
+  
+  void limitCoords(){
+    mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth), 0);
+    mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight), 0); 
+  }
+  
   ArrayList<String> mouseEvent(String eventType, int button){
     if (eventType == "mouseClicked"){
       if (button == LEFT){
@@ -60,8 +69,7 @@ class Map extends Element{
           mapXOffset = scaleX(round((mouseX-mapXOffset-xPos)/blockSize))-xPos-round((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
           mapYOffset = scaleY(round((mouseY-mapYOffset-yPos)/blockSize))-yPos-round((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
           blockSize = newBlockSize;
-          mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth-xPos), 0);
-          mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight-yPos), 0);
+          limitCoords();
         }
       }
       if (button == RIGHT){
@@ -70,8 +78,7 @@ class Map extends Element{
           mapXOffset = scaleX(round((mouseX-mapXOffset-xPos)/blockSize))-xPos-round((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
           mapYOffset = scaleY(round((mouseY-mapYOffset-yPos)/blockSize))-yPos-round((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
           blockSize =newBlockSize;
-          mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth), 0);
-          mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight), 0);
+          limitCoords();
         }
       }
     }
@@ -79,8 +86,7 @@ class Map extends Element{
       if (eventType=="mouseDragged"){
         mapXOffset += (mouseX-startX);
         mapYOffset += (mouseY-startY);
-        mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth), 0);
-        mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight),0);
+        limitCoords();
         startX = mouseX;
         startY = mouseY;
       }
@@ -93,31 +99,31 @@ class Map extends Element{
   }
   ArrayList<String> keyboardEvent(String eventType, int _key){
     if (eventType == "keyPressed"){
-      if (_key == 'a'&&mapSpeed[0]>-1){
-        mapSpeed[0] -= 1;
+      if (_key == 'a'&&mapVelocity[0]>-mapMaxSpeed){
+        mapVelocity[0] -= mapMaxSpeed;
       }
-      if (_key == 's'&&mapSpeed[1]<1){
-        mapSpeed[1] += 1;
+      if (_key == 's'&&mapVelocity[1]<mapMaxSpeed){
+        mapVelocity[1] += mapMaxSpeed;
       }
-      if (_key == 'd'&&mapSpeed[0]<1){
-        mapSpeed[0] += 1;
+      if (_key == 'd'&&mapVelocity[0]<mapMaxSpeed){
+        mapVelocity[0] += mapMaxSpeed;
       }
-      if (_key == 'w'&&mapSpeed[1]>-1){
-        mapSpeed[1] -= 1;
+      if (_key == 'w'&&mapVelocity[1]>-mapMaxSpeed){
+        mapVelocity[1] -= mapMaxSpeed;
       }
     }
     if (eventType == "keyReleased"){
-      if (_key == 'a'&&mapSpeed[0]<0){
-        mapSpeed[0] += 1;
+      if (_key == 'a'&&mapVelocity[0]<0){
+        mapVelocity[0] += mapMaxSpeed;
       }
-      if (_key == 's'&&mapSpeed[1]>0){
-        mapSpeed[1] -= 1;
+      if (_key == 's'&&mapVelocity[1]>0){
+        mapVelocity[1] -= mapMaxSpeed;
       }
-      if (_key == 'd'&&mapSpeed[0]>0){
-        mapSpeed[0] -= 1;
+      if (_key == 'd'&&mapVelocity[0]>0){
+        mapVelocity[0] -= mapMaxSpeed;
       }
-      if (_key == 'w'&&mapSpeed[1]<0){
-        mapSpeed[1] += 1;
+      if (_key == 'w'&&mapVelocity[1]<0){
+        mapVelocity[1] += mapMaxSpeed;
       }
     }
     return new ArrayList<String>();
@@ -228,6 +234,9 @@ class Map extends Element{
   
   void draw(){
     PImage[] tempImages = new PImage[numOfGroundTypes];
+    mapXOffset += mapVelocity[0];
+    mapYOffset += mapVelocity[1];
+    limitCoords();
     for (int i=0; i<3; i++){
       tempImages[i] = tileImages[i].copy();
       tempImages[i].resize(ceil(blockSize), 0);
