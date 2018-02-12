@@ -97,7 +97,7 @@ class Map extends Element{
     }
     return new ArrayList<String>();
   }
-  ArrayList<String> keyboardEvent(String eventType, int _key){
+  ArrayList<String> keyboardEvent(String eventType, char _key){
     if (eventType == "keyPressed"){
       if (_key == 'a'&&mapVelocity[0]>-mapMaxSpeed){
         mapVelocity[0] -= mapMaxSpeed;
