@@ -75,6 +75,8 @@ int INITIALSMOOTH = 7;
 int COMPLETESMOOTH = 5;
 
 PImage[] tileImages;
+PImage[] buildingImages;
+PImage[] partyImages;
 
 void changeSetting(String id, String newValue){
   settings.set(id, newValue);
@@ -124,6 +126,13 @@ void setup(){
     loadImage("data/water.png"),
     loadImage("data/sand.png"),
     loadImage("data/grass.png")
+  };
+  buildingImages = new PImage[]{
+    loadImage("data/house.png"),
+  };
+  partyImages = new PImage[]{
+    loadImage("data/blue_flag.png"),
+    loadImage("data/red_flag.png")
   };
   states = new HashMap<String, State>();
   addState("menu", new Menu());

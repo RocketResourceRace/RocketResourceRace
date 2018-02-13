@@ -116,15 +116,25 @@ class Map extends Element{
     
     // Terrain
     
-    PImage[] tempImages = new PImage[3];
+    PImage[] tempTileImages = new PImage[3];
+    PImage[] tempBuilingImages = new PImage[1];
+    PImage[] tempPartyImages = new PImage[2];
     int frameTime = millis()-frameStartTime;
     mapXOffset -= mapVelocity[0]*frameTime*60/1000;
     mapYOffset -= mapVelocity[1]*frameTime*60/1000;
     frameStartTime = millis();
     limitCoords();
     for (int i=0; i<3; i++){
-      tempImages[i] = tileImages[i].copy();
-      tempImages[i].resize(ceil(blockSize), 0);
+      tempTileImages[i] = tileImages[i].copy();
+      tempTileImages[i].resize(ceil(blockSize), 0);
+    }
+    for (int i=0; i<1; i++){
+      tempBuilingImages[i] = buildingImages[i].copy();
+      tempBuilingImages[i].resize(ceil(blockSize), 0);
+    }
+    for (int i=0; i<2; i++){
+      tempPartyImages[i] = partyImages[i].copy();
+      tempPartyImages[i].resize(ceil(blockSize*24/60), 0);
     }
     int lx = max(0, -ceil((mapXOffset)/blockSize)+1);
     int ly = max(0, -ceil((mapYOffset)/blockSize)+1);
@@ -134,7 +144,7 @@ class Map extends Element{
       for (int x=lx; x<hx; x++){
        float x2 = round(scaleX(x));
        float y2 = round(scaleY(y));
-       image(tempImages[terrain[y][x]-1], x2, y2);
+       image(tempTileImages[terrain[y][x]-1], x2, y2);
        }
      }
      int x3 = round(scaleX(hx));
@@ -144,17 +154,17 @@ class Map extends Element{
      int leftW = round(scaleX(lx)-xPos);
      int rightW = round(xPos+elementWidth-scaleX(hx));
      for(int y=ly;y<hy;y++){
-       image(tempImages[terrain[y][hx]-1].get(0, 0, rightW, ceil(blockSize)), x3,round(scaleY(y)));
-       image(tempImages[terrain[y][lx-1]-1].get(ceil(blockSize)-leftW, 0, leftW, ceil(blockSize)), xPos, round(scaleY(y)));
+       image(tempTileImages[terrain[y][hx]-1].get(0, 0, rightW, ceil(blockSize)), x3,round(scaleY(y)));
+       image(tempTileImages[terrain[y][lx-1]-1].get(ceil(blockSize)-leftW, 0, leftW, ceil(blockSize)), xPos, round(scaleY(y)));
      }
      for(int x=lx;x<hx;x++){
-       image(tempImages[terrain[hy][x]-1].get(0, 0, ceil(blockSize), bottomW), round(scaleX(x)), y3);
-       image(tempImages[terrain[ly-1][x]-1].get(0, ceil(blockSize)-topW, ceil(blockSize), topW), round(scaleX(x)), yPos);
+       image(tempTileImages[terrain[hy][x]-1].get(0, 0, ceil(blockSize), bottomW), round(scaleX(x)), y3);
+       image(tempTileImages[terrain[ly-1][x]-1].get(0, ceil(blockSize)-topW, ceil(blockSize), topW), round(scaleX(x)), yPos);
      }
-     image(tempImages[terrain[ly-1][lx-1]-1].get(ceil(blockSize)-leftW, 0, leftW, topW), xPos, yPos);
-     image(tempImages[terrain[hy][hx]-1].get(0, 0, rightW, bottomW), x3, y3);
-     image(tempImages[terrain[hy][lx-1]-1].get(0, 0, leftW, bottomW), xPos, y3);
-     image(tempImages[terrain[ly-1][hx]-1].get(0, ceil(blockSize)-topW, rightW, topW), x3, yPos);
+     image(tempTileImages[terrain[ly-1][lx-1]-1].get(ceil(blockSize)-leftW, 0, leftW, topW), xPos, yPos);
+     image(tempTileImages[terrain[hy][hx]-1].get(0, 0, rightW, bottomW), x3, y3);
+     image(tempTileImages[terrain[hy][lx-1]-1].get(0, 0, leftW, bottomW), xPos, y3);
+     image(tempTileImages[terrain[ly-1][hx]-1].get(0, ceil(blockSize)-topW, rightW, topW), x3, yPos);
      
      
      // Parties
@@ -176,6 +186,11 @@ class Map extends Element{
                rect(max(c.x, xPos), max(c.y, yPos), min(blockSize*p.unitNumber/1000, xPos+elementWidth-c.x, blockSize*p.unitNumber/1000+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
              }
            }
+           int border = round((64-24)*blockSize/(2*64));
+           int imgSize = round(blockSize*24/60);
+           //if (c.x+blockSize>xPos && c.x<xPos+elementWidth && c.y+blockSize>yPos && c.y<yPos+elementHeight){
+             drawCroppedImage(round(c.x+border), round(c.y+border), imgSize, imgSize, tempPartyImages[parties[y][x].player]);
+           //}
          }
          x++;
        }
@@ -184,6 +199,26 @@ class Map extends Element{
      stroke(0);
      fill(255, 0);
      rect(xPos, yPos, elementWidth, elementHeight);
+  }
+  int sign(float x){
+    if(x > 0){
+      return 1;
+    }
+    else if (x < 0){
+      return -1;
+    }
+    return 0;
+  }
+  void drawCroppedImage(int x, int y, int w, int h, PImage img){
+    if (x+w>xPos && x<elementWidth+xPos && y+h>yPos && y<elementHeight+yPos){
+      int newX = max(min(x, xPos+elementWidth), xPos);
+      int newY = max(min(y, yPos+elementHeight), yPos);
+      int imgX = max(0, newX-x, 0);
+      int imgY = max(0, newY-y, 0);
+      int imgW = max(elementWidth+xPos-x, -sign(elementWidth+xPos-x)*(x+w-newX));
+      int imgH = max(elementHeight+yPos-y, -sign(elementHeight+yPos-y)*(y+h-newY));
+      image(img.get(imgX, imgY, imgW, imgH), newX, newY);
+    }
   }
   float scaleX(float x){
     return x*blockSize + mapXOffset + xPos;

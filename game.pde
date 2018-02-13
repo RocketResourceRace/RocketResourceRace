@@ -17,7 +17,7 @@ class Game extends State{
     terrain = generateMap();
     parties = new Party[mapHeight][mapWidth];
     buildings = new Building[mapHeight][mapWidth];
-    parties[99][99] = new Party(300, 'r');
+    parties[99][99] = new Party(0, 300, 'r');
     addElement("map", new Map(100, 100, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
   }
   ArrayList<String> keyboardEvent(String eventType, char _key){
