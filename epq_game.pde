@@ -128,7 +128,7 @@ void setup(){
   };
   states = new HashMap<String, State>();
   addState("menu", new Menu());
-  addState("map", new TestMap());
+  addState("map", new Game());
   activeState = "menu";
   fullScreen();
   noStroke();

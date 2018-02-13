@@ -1,23 +1,6 @@
 import java.util.Collections;
 
 
-class TestMap extends State{
-  TestMap(){
-    addElement("map", new Map(100, 100, 1000, 700));
-  }
-  ArrayList<String> keyboardEvent(String eventType, char _key){
-    if (_key == ESC){
-      newState = "menu";
-    }
-    return new ArrayList<String>();
-  }
-  void enterState(){
-    Map m = (Map)(getElement("map", "default"));
-    m.generateMap();
-  }
-}
-
-
 class Map extends Element{
   int[][] map;
   int mapWidth;
@@ -66,25 +49,13 @@ class Map extends Element{
     if (eventType == "mouseWheel"){
       float count = event.getCount();
       if(mouseX > xPos && mouseX < xPos+elementWidth && mouseY > yPos && mouseY < yPos+elementHeight){
-        if (count > 0){
-          float zoom = pow(0.9, count);
-          float newBlockSize = min(blockSize*zoom, (float)elementWidth/10);
-          if (blockSize != newBlockSize){
-            mapXOffset = scaleX(round((mouseX-mapXOffset-xPos)/blockSize))-xPos-round((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
-            mapYOffset = scaleY(round((mouseY-mapYOffset-yPos)/blockSize))-yPos-round((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
-            blockSize = newBlockSize;
-            limitCoords();
-          }
-        }
-        if (count < 0){
-          float zoom = pow(0.9, count);
-          float newBlockSize = max(blockSize*zoom, (float)elementWidth/(float)mapSize);
-          if (blockSize != newBlockSize){
-            mapXOffset = scaleX(round((mouseX-mapXOffset-xPos)/blockSize))-xPos-round((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
-            mapYOffset = scaleY(round((mouseY-mapYOffset-yPos)/blockSize))-yPos-round((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
-            blockSize =newBlockSize;
-            limitCoords();
-          }
+        float zoom = pow(0.9, count);
+        float newBlockSize = max(min(blockSize*zoom, (float)elementWidth/10), (float)elementWidth/(float)mapSize);
+        if (blockSize != newBlockSize){
+          mapXOffset = scaleX(round((mouseX-mapXOffset-xPos)/blockSize))-xPos-round((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
+          mapYOffset = scaleY(round((mouseY-mapYOffset-yPos)/blockSize))-yPos-round((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
+          blockSize = newBlockSize;
+          limitCoords();
         }
       }
     }
