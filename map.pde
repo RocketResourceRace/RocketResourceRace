@@ -3,6 +3,7 @@ import java.util.Collections;
 
 class Map extends Element{
   int[][] terrain;
+  Party[][] parties;
   int mapWidth;
   int mapHeight;
   float blockSize;
@@ -19,7 +20,7 @@ class Map extends Element{
   boolean zoomChanged;
   boolean mapFocused;
 
-  Map(int x, int y, int w, int h, int[][] terrain, int mapWidth, int mapHeight){
+  Map(int x, int y, int w, int h, int[][] terrain, Party[][] parties, int mapWidth, int mapHeight){
     xPos = x;
     yPos = y;
     elementWidth = w;
@@ -29,6 +30,7 @@ class Map extends Element{
     mapMaxSpeed = 15;
     frameStartTime = 0;
     this.terrain = terrain;
+    this.parties = parties;
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
     blockSize = w/(float)mapWidth;
@@ -54,9 +56,9 @@ class Map extends Element{
     }
     return new ArrayList<String>();
   }
-    
+     //<>//
   ArrayList<String> mouseEvent(String eventType, int button){ //<>//
-      if (eventType=="mouseDragged" && mapFocused){ //<>//
+      if (eventType=="mouseDragged" && mapFocused){
         mapXOffset += (mouseX-startX);
         mapYOffset += (mouseY-startY);
         limitCoords();
@@ -106,6 +108,9 @@ class Map extends Element{
   
   
   void draw(){
+    
+    // Terrain
+    
     PImage[] tempImages = new PImage[3];
     int frameTime = millis()-frameStartTime;
     mapXOffset -= mapVelocity[0]*frameTime*60/1000;
@@ -148,6 +153,30 @@ class Map extends Element{
      stroke(0);
      fill(255, 0);
      rect(xPos, yPos, elementWidth, elementHeight);
+     
+     
+     // Parties
+     PVector c;
+     int y=0;
+     for (Party[] row: parties){
+       x=0;
+       for(Party p: row){
+         if(p!=null){
+           c = new PVector(scaleX(x), scaleY(y));
+           if(c.x>xPos&&c.x<xPos+elementWidth&&c.y>yPos&&c.y<yPos+elementHeight){
+             noStroke();
+             fill(0, 204, 0);
+             rect(c.x, c.y, min(blockSize*p.unitNumber/1000, xPos+elementWidth-c.x), min(blockSize/8, yPos+elementHeight-c.y));
+             fill(120, 120, 120);
+             rect(c.x+min(blockSize*p.unitNumber/1000, xPos+elementWidth-c.x), c.y, min(0, blockSize*(1-p.unitNumber/1000), xPos+elementWidth-(c.x+blockSize*p.unitNumber/1000)), min(blockSize/8, yPos+elementHeight-c.y));
+           }
+         }
+         x++;
+         
+       }
+       y++;
+     }
+     
   }
   float scaleX(float x){
     return x*blockSize + mapXOffset + xPos;
