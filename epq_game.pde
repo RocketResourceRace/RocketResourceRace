@@ -1,7 +1,6 @@
 import java.math.BigDecimal;
 import processing.sound.*;
 
-int[][] map;
 int mapSize;
 String activeState;
 HashMap<String, State> states;
