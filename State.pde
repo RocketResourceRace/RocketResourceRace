@@ -130,7 +130,7 @@ class State{
     ArrayList<Event> events = new ArrayList<Event>();
     mouseEvent(eventType, button, event);
     for (Panel panel : panels){
-      if(panel.visible){
+      if(panel.mouseOver() && panel.visible){
         for (String id : panel.elements.keySet()){
           for (String eventName : panel.elements.get(id)._mouseEvent(eventType, button, event)){
             events.add(new Event(id, panel.id, eventName));

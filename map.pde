@@ -62,11 +62,13 @@ class Map extends Element{
     mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight), 0); 
   }
   
-  ArrayList<String> mouseEvent(String eventType, int button){
-    if (eventType == "mouseClicked"){
+  ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
+    if (eventType == "mouseWheel"){
+      float count = event.getCount();
       if(mouseX > xPos && mouseX < xPos+elementWidth && mouseY > yPos && mouseY < yPos+elementHeight){
-        if (button == LEFT){
-          float newBlockSize = min(blockSize*1.20, (float)elementWidth/10);
+        if (count > 0){
+          float zoom = pow(0.9, count);
+          float newBlockSize = min(blockSize*zoom, (float)elementWidth/10);
           if (blockSize != newBlockSize){
             mapXOffset = scaleX(round((mouseX-mapXOffset-xPos)/blockSize))-xPos-round((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
             mapYOffset = scaleY(round((mouseY-mapYOffset-yPos)/blockSize))-yPos-round((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
@@ -74,8 +76,9 @@ class Map extends Element{
             limitCoords();
           }
         }
-        if (button == RIGHT){
-          float newBlockSize = max(blockSize*0.8, (float)elementWidth/(float)mapSize);
+        if (count < 0){
+          float zoom = pow(0.9, count);
+          float newBlockSize = max(blockSize*zoom, (float)elementWidth/(float)mapSize);
           if (blockSize != newBlockSize){
             mapXOffset = scaleX(round((mouseX-mapXOffset-xPos)/blockSize))-xPos-round((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
             mapYOffset = scaleY(round((mouseY-mapYOffset-yPos)/blockSize))-yPos-round((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
@@ -84,7 +87,11 @@ class Map extends Element{
           }
         }
       }
-    } else {
+    }
+    return new ArrayList<String>();
+  }
+    
+  ArrayList<String> mouseEvent(String eventType, int button){
       if (eventType=="mouseDragged" && mapFocused){
         mapXOffset += (mouseX-startX);
         mapYOffset += (mouseY-startY);
@@ -99,7 +106,6 @@ class Map extends Element{
       } else if(eventType == "mousePressed"){
         mapFocused = false;
       }
-    }
     return new ArrayList<String>();
   }
   ArrayList<String> keyboardEvent(String eventType, char _key){

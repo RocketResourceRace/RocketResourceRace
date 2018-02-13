@@ -22,7 +22,7 @@ void mouseDragged(){mouseEvent("mouseDragged", mouseButton);}
 void mouseMoved(){mouseEvent("mouseMoved", mouseButton);}
 void mousePressed(){mouseEvent("mousePressed", mouseButton);}
 void mouseReleased(){mouseEvent("mouseReleased", mouseButton);}
-void mouseWheel(MouseEvent event){mouseEvent("mouseWheel", mouseButton);}
+void mouseWheel(MouseEvent event){mouseEvent("mouseWheel", mouseButton, event);}
 void keyPressed(){keyboardEvent("keyPressed", key);}
 void keyReleased(){keyboardEvent("keyReleased", key);}
 void keyTyped(){keyboardEvent("keyTyped", key);}
