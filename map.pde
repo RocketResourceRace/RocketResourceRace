@@ -3,14 +3,17 @@ import java.util.Collections;
 
 class TestMap extends State{
   TestMap(){
-    addElement("map", new Map(100, 100, 1000, 700, mapSize));
+    addElement("map", new Map(100, 100, 1000, 700));
   }
   ArrayList<String> keyboardEvent(String eventType, char _key){
     if (_key == ESC){
       newState = "menu";
     }
-    
     return new ArrayList<String>();
+  }
+  void enterState(){
+    Map m = (Map)(getElement("map", "default"));
+    m.generateMap();
   }
 }
 
@@ -37,15 +40,13 @@ class Map extends Element{
   int frameStartTime;
   int xPos, yPos;
   boolean zoomChanged;
+  boolean mapFocused;
 
-  Map(int x, int y, int w, int h, int mapSize){
+  Map(int x, int y, int w, int h){
     xPos = x;
     yPos = y;
     elementWidth = w;
     elementHeight = h;
-    mapWidth = mapSize;
-    mapHeight = mapSize;
-    blockSize = elementWidth/(float)mapSize;
     numOfGroundTypes = 3;
     numOfGroundSpawns = 100;
     waterLevel = 3;
@@ -54,10 +55,8 @@ class Map extends Element{
     mapXOffset = 0;
     mapYOffset = 0;
     mapMaxSpeed = 5;
-    generateMap();
     frameStartTime = 0;
-  }
-  
+  } //<>//
   void limitCoords(){
     mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth), 0);
     mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight), 0); 
@@ -65,36 +64,40 @@ class Map extends Element{
   
   ArrayList<String> mouseEvent(String eventType, int button){
     if (eventType == "mouseClicked"){
-      if (button == LEFT){
-        float newBlockSize = min(blockSize*1.20, (float)elementWidth/10);
-        if (blockSize != newBlockSize){
-          mapXOffset = scaleX(round((mouseX-mapXOffset-xPos)/blockSize))-xPos-round((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
-          mapYOffset = scaleY(round((mouseY-mapYOffset-yPos)/blockSize))-yPos-round((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
-          blockSize = newBlockSize;
-          limitCoords();
+      if(mouseX > xPos && mouseX < xPos+elementWidth && mouseY > yPos && mouseY < yPos+elementHeight){
+        if (button == LEFT){
+          float newBlockSize = min(blockSize*1.20, (float)elementWidth/10);
+          if (blockSize != newBlockSize){
+            mapXOffset = scaleX(round((mouseX-mapXOffset-xPos)/blockSize))-xPos-round((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
+            mapYOffset = scaleY(round((mouseY-mapYOffset-yPos)/blockSize))-yPos-round((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
+            blockSize = newBlockSize;
+            limitCoords();
+          }
+        }
+        if (button == RIGHT){
+          float newBlockSize = max(blockSize*0.8, (float)elementWidth/(float)mapSize);
+          if (blockSize != newBlockSize){
+            mapXOffset = scaleX(round((mouseX-mapXOffset-xPos)/blockSize))-xPos-round((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
+            mapYOffset = scaleY(round((mouseY-mapYOffset-yPos)/blockSize))-yPos-round((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
+            blockSize =newBlockSize;
+            limitCoords();
+          }
         }
       }
-      if (button == RIGHT){
-        float newBlockSize = max(blockSize*0.8, (float)elementWidth/(float)mapSize);
-        if (blockSize != newBlockSize){
-          mapXOffset = scaleX(round((mouseX-mapXOffset-xPos)/blockSize))-xPos-round((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
-          mapYOffset = scaleY(round((mouseY-mapYOffset-yPos)/blockSize))-yPos-round((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
-          blockSize =newBlockSize;
-          limitCoords();
-        }
-      }
-    }
-    else {
-      if (eventType=="mouseDragged"){
+    } else {
+      if (eventType=="mouseDragged" && mapFocused){
         mapXOffset += (mouseX-startX);
         mapYOffset += (mouseY-startY);
         limitCoords();
         startX = mouseX;
         startY = mouseY;
       }
-      if (eventType == "mousePressed"){
+      if (eventType == "mousePressed" && mouseX > xPos && mouseX < xPos+elementWidth && mouseY > yPos && mouseY < yPos+elementHeight){
         startX = mouseX;
         startY = mouseY;
+        mapFocused = true;
+      } else if(eventType == "mousePressed"){
+        mapFocused = false;
       }
     }
     return new ArrayList<String>();
@@ -161,6 +164,11 @@ class Map extends Element{
   
   
   void generateMap(){
+    
+    mapWidth = mapSize;
+    mapHeight = mapSize;
+    blockSize = elementWidth/(float)mapSize;
+    
     map = new int[mapHeight][mapWidth];
     for(int y=0; y<mapHeight; y++){
       map[y][0] = 1;
