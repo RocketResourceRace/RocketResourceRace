@@ -10,12 +10,15 @@ class Game extends State{
   int initialSmooth = 7;
   int completeSmooth = 5;
   int[][] terrain;
-  Party[][] parties = new Party[mapHeight][mapWidth];
+  Party[][] parties;
+  Building[][] buildings;
   float blockSize;
   Game(){
     terrain = generateMap();
+    parties = new Party[mapHeight][mapWidth];
+    buildings = new Building[mapHeight][mapWidth];
     parties[99][99] = new Party(300, 'r');
-    addElement("map", new Map(100, 100, mapElementWidth, mapElementHeight, terrain, parties, mapWidth, mapHeight));
+    addElement("map", new Map(100, 100, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
   }
   ArrayList<String> keyboardEvent(String eventType, char _key){
     if (_key == ESC){

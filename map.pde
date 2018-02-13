@@ -4,6 +4,7 @@ import java.util.Collections;
 class Map extends Element{
   int[][] terrain;
   Party[][] parties;
+  Building[][] buildings;
   int mapWidth;
   int mapHeight;
   float blockSize;
@@ -20,7 +21,7 @@ class Map extends Element{
   boolean zoomChanged;
   boolean mapFocused;
 
-  Map(int x, int y, int w, int h, int[][] terrain, Party[][] parties, int mapWidth, int mapHeight){
+  Map(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight){
     xPos = x;
     yPos = y;
     elementWidth = w;
@@ -31,6 +32,7 @@ class Map extends Element{
     frameStartTime = 0;
     this.terrain = terrain;
     this.parties = parties;
+    this.buildings = buildings;
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
     blockSize = w/(float)mapWidth;
