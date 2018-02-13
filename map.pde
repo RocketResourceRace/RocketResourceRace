@@ -39,6 +39,9 @@ class Map extends Element{
     mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth), 0);
     mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight), 0); 
   }
+  void setTerrain(int[][] terrain){
+    this.terrain = terrain;
+  }
   
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
     if (eventType == "mouseWheel"){
