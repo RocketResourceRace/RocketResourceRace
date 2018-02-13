@@ -168,7 +168,7 @@ class Map extends Element{
              fill(0, 204, 0);
              rect(c.x, c.y, min(blockSize*p.unitNumber/1000, xPos+elementWidth-c.x), min(blockSize/8, yPos+elementHeight-c.y));
              fill(120, 120, 120);
-             rect(c.x+min(blockSize*p.unitNumber/1000, xPos+elementWidth-c.x), c.y, min(blockSize*(1-p.unitNumber/1000), xPos+elementWidth-max(0, c.x+blockSize*p.unitNumber/1000)), min(blockSize/8, yPos+elementHeight-c.y));
+             rect(c.x+min(blockSize*p.unitNumber/1000, xPos+elementWidth-c.x), c.y, min(blockSize*(1-p.unitNumber/1000), max(0, xPos+elementWidth-(c.x+blockSize*p.unitNumber/1000))), min(blockSize/8, yPos+elementHeight-c.y));
            }
          }
          x++;
