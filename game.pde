@@ -14,7 +14,7 @@ class Game extends State{
   float blockSize;
   Game(){
     terrain = generateMap();
-    parties[10][100] = new Party(300, 'r');
+    parties[99][99] = new Party(300, 'r');
     addElement("map", new Map(100, 100, mapElementWidth, mapElementHeight, terrain, parties, mapWidth, mapHeight));
   }
   ArrayList<String> keyboardEvent(String eventType, char _key){
@@ -25,6 +25,7 @@ class Game extends State{
   }
   void enterState(){
     terrain = generateMap();
+    ((Map)(getElement("map", "default"))).setTerrain(terrain);
   }
   int[][] smoothMap(int distance, int firstType, int[][] terrain){
     ArrayList<int[]> order = new ArrayList<int[]>();
