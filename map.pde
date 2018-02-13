@@ -155,9 +155,6 @@ class Map extends Element{
      image(tempImages[terrain[hy][hx]-1].get(0, 0, rightW, bottomW), x3, y3);
      image(tempImages[terrain[hy][lx-1]-1].get(0, 0, leftW, bottomW), xPos, y3);
      image(tempImages[terrain[ly-1][hx]-1].get(0, ceil(blockSize)-topW, rightW, topW), x3, yPos);
-     stroke(0);
-     fill(255, 0);
-     rect(xPos, yPos, elementWidth, elementHeight);
      
      
      // Parties
@@ -168,20 +165,25 @@ class Map extends Element{
        for(Party p: row){
          if(p!=null){
            c = new PVector(scaleX(x), scaleY(y));
-           if(c.x>xPos&&c.x<xPos+elementWidth&&c.y>yPos&&c.y<yPos+elementHeight){
+           if(c.x<xPos+elementWidth&&c.y+blockSize/8>yPos&&c.y<yPos+elementHeight){
              noStroke();
-             fill(0, 204, 0);
-             rect(c.x, c.y, min(blockSize*p.unitNumber/1000, xPos+elementWidth-c.x), min(blockSize/8, yPos+elementHeight-c.y));
-             fill(120, 120, 120);
-             rect(c.x+min(blockSize*p.unitNumber/1000, xPos+elementWidth-c.x), c.y, min(blockSize*(1-p.unitNumber/1000), max(0, xPos+elementWidth-(c.x+blockSize*p.unitNumber/1000))), min(blockSize/8, yPos+elementHeight-c.y));
+             if (c.x+blockSize>xPos){
+               fill(120, 120, 120);
+               rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
+             }  
+             if (c.x+blockSize*p.unitNumber/1000>xPos){
+               fill(0, 204, 0);
+               rect(max(c.x, xPos), max(c.y, yPos), min(blockSize*p.unitNumber/1000, xPos+elementWidth-c.x, blockSize*p.unitNumber/1000+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
+             }
            }
          }
          x++;
-         
        }
        y++;
      }
-     
+     stroke(0);
+     fill(255, 0);
+     rect(xPos, yPos, elementWidth, elementHeight);
   }
   float scaleX(float x){
     return x*blockSize + mapXOffset + xPos;
