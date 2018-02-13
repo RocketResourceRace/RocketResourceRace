@@ -31,8 +31,7 @@ class Map extends Element{
     this.terrain = terrain;
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
-    blockSize = mapWidth/(float)w;
-    println(mapWidth, w);
+    blockSize = w/(float)mapWidth;
   }
   void limitCoords(){
     mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth), 0);
