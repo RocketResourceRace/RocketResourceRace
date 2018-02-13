@@ -45,8 +45,8 @@ class Map extends Element{
         float zoom = pow(0.9, count);
         float newBlockSize = max(min(blockSize*zoom, (float)elementWidth/10), (float)elementWidth/(float)mapSize);
         if (blockSize != newBlockSize){
-          mapXOffset = scaleX(round((mouseX-mapXOffset-xPos)/blockSize))-xPos-round((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
-          mapYOffset = scaleY(round((mouseY-mapYOffset-yPos)/blockSize))-yPos-round((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
+          mapXOffset = scaleX(((mouseX-mapXOffset-xPos)/blockSize))-xPos-((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
+          mapYOffset = scaleY(((mouseY-mapYOffset-yPos)/blockSize))-yPos-((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
           blockSize = newBlockSize;
           limitCoords();
         }
@@ -55,7 +55,7 @@ class Map extends Element{
     return new ArrayList<String>();
   }
     
-  ArrayList<String> mouseEvent(String eventType, int button){
+  ArrayList<String> mouseEvent(String eventType, int button){ //<>//
       if (eventType=="mouseDragged" && mapFocused){
         mapXOffset += (mouseX-startX);
         mapYOffset += (mouseY-startY);
