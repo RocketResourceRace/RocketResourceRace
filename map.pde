@@ -26,7 +26,7 @@ class Map extends Element{
     elementHeight = h;
     mapXOffset = 0;
     mapYOffset = 0;
-    mapMaxSpeed = 5;
+    mapMaxSpeed = 15;
     frameStartTime = 0;
     this.terrain = terrain;
     this.mapWidth = mapWidth;
@@ -56,7 +56,7 @@ class Map extends Element{
   }
     
   ArrayList<String> mouseEvent(String eventType, int button){ //<>//
-      if (eventType=="mouseDragged" && mapFocused){
+      if (eventType=="mouseDragged" && mapFocused){ //<>//
         mapXOffset += (mouseX-startX);
         mapYOffset += (mouseY-startY);
         limitCoords();
