@@ -14,6 +14,7 @@ StringDict settings;
 final String LETTERSNUMBERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890/\\_ ";
 HashMap<String, SoundFile> sfx;
 float volume;
+int prevT;
 
 // Event-driven methods
 void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}
@@ -147,6 +148,7 @@ boolean smoothed = false;
 
 void draw(){
   background(255);
+  prevT = millis();
   String newState = getActiveState().update();
   if (!newState.equals("")){
     for (Panel panel : states.get(newState).panels){
@@ -158,6 +160,7 @@ void draw(){
     states.get(newState).enterState();
     activeState = newState;
   }
+  println();
 }
 
 State getActiveState(){

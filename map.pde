@@ -9,8 +9,8 @@ class Map extends Element{
   int mapWidth;
   int mapHeight;
   float blockSize;
-  float mapXOffset;
-  float mapYOffset;
+  float mapXOffset, mapYOffset, targetXOffset, targetYOffset;
+  boolean panning=false;
   float mapMaxSpeed;
   int elementWidth;
   int elementHeight;
@@ -48,10 +48,19 @@ class Map extends Element{
     this.terrain = terrain;
   }
   void focusMap(float x, float y){
-    mapXOffset = -scaleXInv(x)*blockSize+elementWidth/2+xPos;
-    mapYOffset = -scaleYInv(y)*blockSize+elementHeight/2+yPos;
-    print(mapXOffset, mapYOffset);
-    limitCoords();
+    if(mouseX > xPos && mouseX < xPos+elementWidth && mouseY > yPos && mouseY < yPos+elementHeight){
+      targetXOffset = -scaleXInv(x)*blockSize+elementWidth/2+xPos;
+      targetYOffset = -scaleYInv(y)*blockSize+elementHeight/2+yPos;
+      limitCoords();
+      panning = true;
+    }
+  }
+  void resetTarget(){
+    targetXOffset = mapXOffset;
+    targetYOffset = mapYOffset;
+    panning = false;
+    mapVelocity[0] = 0;
+    mapVelocity[1] = 0;
   }
   
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
@@ -65,6 +74,7 @@ class Map extends Element{
           mapYOffset = scaleY(((mouseY-mapYOffset-yPos)/blockSize))-yPos-((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
           blockSize = newBlockSize;
           limitCoords();
+          resetTarget();
         }
       }
     }
@@ -78,6 +88,7 @@ class Map extends Element{
         limitCoords();
         startX = mouseX;
         startY = mouseY;
+        resetTarget();
       }
       if (eventType == "mousePressed"){
         if (mouseX > xPos && mouseX < xPos+elementWidth && mouseY > yPos && mouseY < yPos+elementHeight){
@@ -139,7 +150,15 @@ class Map extends Element{
     // Resize map based on scale
     elementWidth = round(EW*GUIScale);
     elementHeight = round(EH*GUIScale);
-    
+    if (panning){
+      mapVelocity[0] = round((mapXOffset-targetXOffset)/blockSize)*blockSize*0.05;
+      mapVelocity[1] = round((mapYOffset-targetYOffset)/blockSize)*blockSize*0.05;
+      if (pow(mapVelocity[0], 2) + pow(mapVelocity[1], 2) < pow(blockSize*0.01, 2)){
+        panning = false;
+        mapVelocity[0] = 0;
+        mapVelocity[1] = 0;
+      }
+    }
     mapXOffset -= mapVelocity[0]*frameTime*60/1000;
     mapYOffset -= mapVelocity[1]*frameTime*60/1000;
     frameStartTime = millis();
