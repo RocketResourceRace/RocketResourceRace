@@ -8,9 +8,9 @@ class Map extends Element{
   Building[][] buildings;
   int mapWidth;
   int mapHeight;
-  float blockSize;
+  float blockSize, targetBlockSize;
   float mapXOffset, mapYOffset, targetXOffset, targetYOffset;
-  boolean panning=false;
+  boolean panning=false, zooming=false;
   float mapMaxSpeed;
   int elementWidth;
   int elementHeight;
@@ -48,7 +48,22 @@ class Map extends Element{
   void setTerrain(int[][] terrain){
     this.terrain = terrain;
   }
-  void focusMap(float x, float y){
+  void loadSettings(float x, float y, float bs){
+    targetZoom(bs);
+    targetOffset(x, y);
+  }
+  void targetOffset(float x, float y){
+    targetXOffset = x;
+    targetYOffset = y;
+    limitCoords();
+    panning = true;
+  }
+  void targetZoom(float bs){
+    zooming = true;
+    targetBlockSize = bs;
+  }
+  void focusMapMouse(float x, float y){
+    // based on mouse click
     if(mouseX > xPos && mouseX < xPos+elementWidth && mouseY > yPos && mouseY < yPos+elementHeight){
       targetXOffset = -scaleXInv(x)*blockSize+elementWidth/2+xPos;
       targetYOffset = -scaleYInv(y)*blockSize+elementHeight/2+yPos;
@@ -63,6 +78,10 @@ class Map extends Element{
     mapVelocity[0] = 0;
     mapVelocity[1] = 0;
   }
+  void resetTargetZoom(){
+    zooming = false;
+    targetBlockSize = blockSize;
+  }
   
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
     if (eventType == "mouseWheel"){
@@ -76,6 +95,7 @@ class Map extends Element{
           blockSize = newBlockSize;
           limitCoords();
           resetTarget();
+          resetTargetZoom();
         }
       }
     }
@@ -102,7 +122,7 @@ class Map extends Element{
         }
       }
       else if (eventType == "mouseClicked"){
-        focusMap(mouseX, mouseY);
+        focusMapMouse(mouseX, mouseY);
       }
     return new ArrayList<String>();
   }
@@ -147,6 +167,16 @@ class Map extends Element{
     PImage[] tempBuilingImages = new PImage[1];
     PImage[] tempPartyImages = new PImage[2];
     int frameTime = millis()-frameStartTime;
+    
+    if (zooming){
+      println(blockSize);
+      blockSize += (targetBlockSize-blockSize)*0.05*frameTime*60/1000;
+      println(blockSize);
+      if (pow(blockSize, 2)+pow(targetBlockSize,2) < 0.1){
+        blockSize = targetBlockSize;
+        zooming = false;
+      }
+    }
     
     // Resize map based on scale
     elementWidth = round(EW*GUIScale);

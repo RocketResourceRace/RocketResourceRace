@@ -15,8 +15,11 @@ class Game extends State{
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
-  float blockSize;
   int turn;
+  boolean changeTurn = false;
+  Map map;
+  Player[] players;
+  
   Game(){
     terrain = generateMap();
     parties = new Party[mapHeight][mapWidth];
@@ -25,8 +28,19 @@ class Game extends State{
     addElement("map", new Map(bezle, bezle, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
     //int x, int y, int w, int h, color bgColour, color strokeColour, color textColour, int textSize, int textAlign, String text
     addElement("end turn", new Button(bezle, height-buttonH-bezle, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"));
+    map = (Map)getElement("map", "default");
+    players = new Player[2];
+    // Initial positions will be focused on starting party
+    players[0] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize);
+    players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize);
   }
   String update(){
+    if (changeTurn){  
+      players[turn].saveMapSettings(map.mapXOffset, map.mapYOffset, map.blockSize);
+      turn = (turn + 1)%2;
+      players[turn].loadMapSettings(map);
+      changeTurn = false;
+    }
     drawBar();
     drawPanels();
     return getNewState();
@@ -35,7 +49,7 @@ class Game extends State{
     for (Event event : events){
       if (event.type == "clicked"){
         if (event.id == "end turn"){
-          this.turn = (this.turn + 1)%2;
+          changeTurn = true;
         }
       }
     }
@@ -106,7 +120,6 @@ class Game extends State{
   int[][] generateMap(){
     
     int [][] terrain = new int[mapHeight][mapWidth];
-    blockSize = mapWidth/(float)mapSize;
     
     for(int y=0; y<mapHeight; y++){
       terrain[y][0] = 1;
