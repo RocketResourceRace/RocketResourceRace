@@ -2,8 +2,8 @@
 class Game extends State{
   final int numOfGroundTypes = 3;
   final int numOfGroundSpawns = 100;
-  final int mapElementWidth = 800;
-  final int mapElementHeight = 600;
+  final int mapElementWidth = 1100;
+  final int mapElementHeight = 700;
   final int buttonW = 120;
   final int buttonH = 50;
   final int bezle = 20;
@@ -19,6 +19,8 @@ class Game extends State{
   boolean changeTurn = false;
   Map map;
   Player[] players;
+  int cellX, cellY, cellSelectionX, cellSelectionY, cellSelectionW, cellSelectionH;
+  boolean cellSelected=false;
   
   Game(){
     terrain = generateMap();
@@ -26,13 +28,23 @@ class Game extends State{
     buildings = new Building[mapHeight][mapWidth];
     parties[99][99] = new Party(0, 300, 'r');
     addElement("map", new Map(bezle, bezle, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
-    //int x, int y, int w, int h, color bgColour, color strokeColour, color textColour, int textSize, int textAlign, String text
     addElement("end turn", new Button(bezle, height-buttonH-bezle, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"));
     map = (Map)getElement("map", "default");
     players = new Player[2];
+    
     // Initial positions will be focused on starting party
     players[0] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize);
     players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize);
+    
+    addPanel("cell selection", 0, 0, width, height, false, color(255, 255, 255, 255), color(0));
+    //addElement("cell selection", new );
+  }
+  void updateCellSelection(){
+    cellSelectionX = round(mapElementWidth*GUIScale)+bezle*2;
+    cellSelectionY = bezle;
+    cellSelectionW = width-cellSelectionX-bezle;
+    cellSelectionH = round(mapElementHeight*GUIScale);
+    
   }
   String update(){
     if (changeTurn){  
@@ -42,6 +54,8 @@ class Game extends State{
       changeTurn = false;
     }
     drawBar();
+    if (cellSelected)
+      drawCellSelection();
     drawPanels();
     return getNewState();
   }
@@ -54,6 +68,40 @@ class Game extends State{
       }
     }
   }
+  ArrayList<String> mouseEvent(String eventType, int button){
+    if (button == RIGHT){
+      if (eventType == "mouseClicked"){
+        if (map.mouseOver()){
+          if (cellSelected){
+            cellSelected = false;
+          }
+          else{
+            cellX = floor(map.scaleXInv(mouseX));
+            cellY = floor(map.scaleYInv(mouseY));
+            cellSelected = true;
+            getPanel("cell selection").setVisible(true);
+          }
+        }
+        else{
+          cellSelected = false;
+          getPanel("cell selection").setVisible(false);
+        }
+      }
+    }
+    return new ArrayList<String>();
+  }
+  
+  void drawCellSelection(){
+    pushStyle();
+    fill(50, 50, 200);
+    rect(cellSelectionX, cellSelectionY, cellSelectionW, cellSelectionH);
+    fill(0);
+    textSize(12);
+    textAlign(CENTER, TOP);
+    text("Cell Selection", cellSelectionX+cellSelectionW/2, cellSelectionY);
+    popStyle();
+  }
+  
   void drawBar(){
     float barX=buttonW+bezle*2;
     fill(200);
@@ -112,6 +160,7 @@ class Game extends State{
     return new ArrayList<String>();
   }
   void enterState(){
+    updateCellSelection();
     terrain = generateMap();
     ((Map)(getElement("map", "default"))).setTerrain(terrain);
   }

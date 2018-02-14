@@ -64,7 +64,7 @@ class Map extends Element{
   }
   void focusMapMouse(float x, float y){
     // based on mouse click
-    if(mouseX > xPos && mouseX < xPos+elementWidth && mouseY > yPos && mouseY < yPos+elementHeight){
+    if(mouseOver()){
       targetXOffset = -scaleXInv(x)*blockSize+elementWidth/2+xPos;
       targetYOffset = -scaleYInv(y)*blockSize+elementHeight/2+yPos;
       limitCoords();
@@ -86,7 +86,7 @@ class Map extends Element{
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
     if (eventType == "mouseWheel"){
       float count = event.getCount();
-      if(mouseX > xPos && mouseX < xPos+elementWidth && mouseY > yPos && mouseY < yPos+elementHeight){
+      if(mouseOver()){
         float zoom = pow(0.9, count);
         float newBlockSize = max(min(blockSize*zoom, (float)elementWidth/10), (float)elementWidth/(float)mapSize);
         if (blockSize != newBlockSize){
@@ -103,6 +103,7 @@ class Map extends Element{
   }
      //<>//
   ArrayList<String> mouseEvent(String eventType, int button){ //<>//
+    if (button == LEFT){
       if (eventType=="mouseDragged" && mapFocused){
         mapXOffset += (mouseX-startX);
         mapYOffset += (mouseY-startY);
@@ -113,7 +114,7 @@ class Map extends Element{
         resetTargetZoom();
       }
       if (eventType == "mousePressed"){
-        if (mouseX > xPos && mouseX < xPos+elementWidth && mouseY > yPos && mouseY < yPos+elementHeight){
+        if (mouseOver()){
           startX = mouseX;
           startY = mouseY;
           mapFocused = true;
@@ -125,6 +126,7 @@ class Map extends Element{
       else if (eventType == "mouseClicked"){
         focusMapMouse(mouseX, mouseY);
       }
+    }
     return new ArrayList<String>();
   }
   ArrayList<String> keyboardEvent(String eventType, char _key){
@@ -300,5 +302,8 @@ class Map extends Element{
   }
   float scaleYInv(float y){
     return (y-mapYOffset-yPos)/blockSize;
+  }
+  boolean mouseOver(){
+    return mouseX > xPos && mouseX < xPos+elementWidth && mouseY > yPos && mouseY < yPos+elementHeight;
   }
 }
