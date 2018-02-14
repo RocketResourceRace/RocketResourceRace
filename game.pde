@@ -2,8 +2,8 @@
 class Game extends State{
   final int numOfGroundTypes = 3;
   final int numOfGroundSpawns = 100;
-  final int mapElementWidth = 1000;
-  final int mapElementHeight = 800;
+  final int mapElementWidth = 800;
+  final int mapElementHeight = 600;
   final int buttonW = 100;
   final int buttonH = 50;
   final int bezle = 20;
