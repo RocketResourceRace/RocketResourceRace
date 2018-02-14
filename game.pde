@@ -59,7 +59,6 @@ class Game extends State{
     fill(200);
     stroke(170);
     rect(0, height-bezle*2-buttonH, width, buttonH+bezle*2);
-    fill(150);
     textSize(10*TextScale);
     String turnString="";
     if (this.turn==0){
@@ -76,6 +75,35 @@ class Game extends State{
     fill(255);
     textAlign(CENTER, TOP);
     text(turnString, bezle*2+buttonW+(textWidth(turnString)+10)/2, height-bezle-(textDescent()+textAscent())/2-buttonH/2);
+    
+    barX=width;
+    String tempString = "food:"+players[turn].food;
+    barX -= textWidth(tempString)+10+bezle;
+    fill(150);
+    rect(barX, height-bezle-buttonH, textWidth(tempString)+10, buttonH);
+    fill(255);
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezle-(textDescent()+textAscent())/2-buttonH/2);
+    
+    tempString = "wood:"+players[turn].wood;
+    barX -= textWidth(tempString)+10+bezle;
+    fill(150);
+    rect(barX, height-bezle-buttonH, textWidth(tempString)+10, buttonH);
+    fill(255);
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezle-(textDescent()+textAscent())/2-buttonH/2);
+    
+    tempString = "metal:"+players[turn].metal;
+    barX -= textWidth(tempString)+10+bezle;
+    fill(150);
+    rect(barX, height-bezle-buttonH, textWidth(tempString)+10, buttonH);
+    fill(255);
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezle-(textDescent()+textAscent())/2-buttonH/2);
+    
+    tempString = "energy:"+players[turn].energy;
+    barX -= textWidth(tempString)+10+bezle;
+    fill(150);
+    rect(barX, height-bezle-buttonH, textWidth(tempString)+10, buttonH);
+    fill(255);
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezle-(textDescent()+textAscent())/2-buttonH/2);
   }
   ArrayList<String> keyboardEvent(String eventType, char _key){
     if (_key == ESC){

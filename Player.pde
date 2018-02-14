@@ -1,6 +1,7 @@
 
 class Player{
   float mapXOffset, mapYOffset, blockSize;
+  float wood, food, energy, metal;
   Player(float mapXOffset, float mapYOffset, float blockSize){
     this.mapXOffset = mapXOffset;
     this.mapYOffset = mapYOffset;
