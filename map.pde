@@ -110,6 +110,7 @@ class Map extends Element{
         startX = mouseX;
         startY = mouseY;
         resetTarget();
+        resetTargetZoom();
       }
       if (eventType == "mousePressed"){
         if (mouseX > xPos && mouseX < xPos+elementWidth && mouseY > yPos && mouseY < yPos+elementHeight){
@@ -169,10 +170,8 @@ class Map extends Element{
     int frameTime = millis()-frameStartTime;
     
     if (zooming){
-      println(blockSize);
       blockSize += (targetBlockSize-blockSize)*0.05*frameTime*60/1000;
-      println(blockSize);
-      if (pow(blockSize, 2)+pow(targetBlockSize,2) < 0.1){
+      if (abs(blockSize-targetBlockSize) < 0.01){
         blockSize = targetBlockSize;
         zooming = false;
       }
@@ -182,8 +181,8 @@ class Map extends Element{
     elementWidth = round(EW*GUIScale);
     elementHeight = round(EH*GUIScale);
     if (panning){
-      mapVelocity[0] = round((mapXOffset-targetXOffset)/blockSize)*blockSize*0.05;
-      mapVelocity[1] = round((mapYOffset-targetYOffset)/blockSize)*blockSize*0.05;
+      mapVelocity[0] = (mapXOffset-targetXOffset)*0.05;
+      mapVelocity[1] = (mapYOffset-targetYOffset)*0.05;
       if (pow(mapVelocity[0], 2) + pow(mapVelocity[1], 2) < pow(blockSize*0.01, 2)){
         panning = false;
         mapVelocity[0] = 0;
