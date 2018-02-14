@@ -160,7 +160,6 @@ void draw(){
     states.get(newState).enterState();
     activeState = newState;
   }
-  println();
 }
 
 State getActiveState(){

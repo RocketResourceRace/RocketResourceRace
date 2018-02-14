@@ -4,7 +4,7 @@ class Game extends State{
   final int numOfGroundSpawns = 100;
   final int mapElementWidth = 800;
   final int mapElementHeight = 600;
-  final int buttonW = 100;
+  final int buttonW = 120;
   final int buttonH = 50;
   final int bezle = 20;
   int mapHeight = mapSize;
@@ -16,6 +16,7 @@ class Game extends State{
   Party[][] parties;
   Building[][] buildings;
   float blockSize;
+  int turn;
   Game(){
     terrain = generateMap();
     parties = new Party[mapHeight][mapWidth];
@@ -23,7 +24,44 @@ class Game extends State{
     parties[99][99] = new Party(0, 300, 'r');
     addElement("map", new Map(bezle, bezle, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
     //int x, int y, int w, int h, color bgColour, color strokeColour, color textColour, int textSize, int textAlign, String text
-    addElement("end turn", new Button(bezle, height-buttonH-bezle, buttonW, buttonH, color(150), color(0), color(0), 10, CENTER, "Next Turn"));
+    addElement("end turn", new Button(bezle, height-buttonH-bezle, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"));
+  }
+  String update(){
+    drawBar();
+    drawPanels();
+    return getNewState();
+  }
+  void elementEvent(ArrayList<Event> events){
+    for (Event event : events){
+      if (event.type == "clicked"){
+        if (event.id == "end turn"){
+          this.turn = (this.turn + 1)%2;
+        }
+      }
+    }
+  }
+  void drawBar(){
+    float barX=buttonW+bezle*2;
+    fill(200);
+    stroke(170);
+    rect(0, height-bezle*2-buttonH, width, buttonH+bezle*2);
+    fill(150);
+    textSize(10*TextScale);
+    String turnString="";
+    if (this.turn==0){
+      fill(255, 0, 0);
+      turnString = "Red Player's Turn";
+    }
+    else if (this.turn==1){
+      fill(0, 0, 255);
+      turnString = "Blue Player's Turn";
+    }
+    stroke(50);
+    rect(barX, height-bezle-buttonH, textWidth(turnString)+10, buttonH);
+    barX += textWidth(turnString)+10+bezle;
+    fill(255);
+    textAlign(CENTER, TOP);
+    text(turnString, bezle*2+buttonW+(textWidth(turnString)+10)/2, height-bezle-(textDescent()+textAscent())/2-buttonH/2);
   }
   ArrayList<String> keyboardEvent(String eventType, char _key){
     if (_key == ESC){

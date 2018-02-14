@@ -97,11 +97,10 @@ class State{
   ArrayList<String> mouseEvent(String eventType, int button){return new ArrayList<String>();}
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){return new ArrayList<String>();}
   ArrayList<String> keyboardEvent(String eventType, char _key){return new ArrayList<String>();}
-  void elementEvent(String id, String eventType){}
   
   void elementEvent(ArrayList<Event> events){
     for (Event event : events){
-      println(event.info());
+      println(event.info(), 1);
     }
   }
   
