@@ -74,16 +74,19 @@ class Game extends State{
         if (map.mouseOver()){
           if (cellSelected){
             cellSelected = false;
+            map.unselectCell();
           }
           else{
             cellX = floor(map.scaleXInv(mouseX));
             cellY = floor(map.scaleYInv(mouseY));
             cellSelected = true;
+            map.selectCell(cellX, cellY);
             getPanel("cell selection").setVisible(true);
           }
         }
         else{
           cellSelected = false;
+          map.unselectCell();
           getPanel("cell selection").setVisible(false);
         }
       }

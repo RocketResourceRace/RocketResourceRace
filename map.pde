@@ -21,6 +21,8 @@ class Map extends Element{
   int xPos, yPos;
   boolean zoomChanged;
   boolean mapFocused;
+  int selectedCellX, selectedCellY;
+  boolean cellSelected;
 
   Map(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight){
     xPos = x;
@@ -40,6 +42,14 @@ class Map extends Element{
     this.mapHeight = mapHeight;
     blockSize = max(min(w/(float)mapWidth, (float)elementWidth/10), (float)elementWidth/(float)mapSize);
     limitCoords();
+  }
+  void selectCell(int x, int y){
+    cellSelected = true;
+    selectedCellX = x;
+    selectedCellY = y;
+  }
+  void unselectCell(){
+    cellSelected = false;
   }
   void limitCoords(){
     mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth), 0);
@@ -267,7 +277,15 @@ class Map extends Element{
        }
        y++;
      }
+     
+     //cell selection
      stroke(0);
+     if (cellSelected){
+       fill(50, 50, 50, 50);;
+       c = new PVector(scaleX(selectedCellX), scaleY(selectedCellY));
+       rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
+     }
+     
      fill(255, 0);
      rect(xPos, yPos, elementWidth, elementHeight);
   }
