@@ -2,6 +2,7 @@ import java.util.Collections;
 
 
 class Map extends Element{
+  final int EW, EH;
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
@@ -24,8 +25,10 @@ class Map extends Element{
   Map(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight){
     xPos = x;
     yPos = y;
-    elementWidth = w;
-    elementHeight = h;
+    EW = w;
+    EH = h;
+    elementWidth = round(EW*GUIScale);
+    elementHeight = round(EH*GUIScale);
     mapXOffset = 0;
     mapYOffset = 0;
     mapMaxSpeed = 15;
@@ -43,6 +46,12 @@ class Map extends Element{
   }
   void setTerrain(int[][] terrain){
     this.terrain = terrain;
+  }
+  void focusMap(float x, float y){
+    mapXOffset = -scaleXInv(x)*blockSize+elementWidth/2+xPos;
+    mapYOffset = -scaleYInv(y)*blockSize+elementHeight/2+yPos;
+    print(mapXOffset, mapYOffset);
+    limitCoords();
   }
   
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
@@ -70,12 +79,18 @@ class Map extends Element{
         startX = mouseX;
         startY = mouseY;
       }
-      if (eventType == "mousePressed" && mouseX > xPos && mouseX < xPos+elementWidth && mouseY > yPos && mouseY < yPos+elementHeight){
-        startX = mouseX;
-        startY = mouseY;
-        mapFocused = true;
-      } else if(eventType == "mousePressed"){
-        mapFocused = false;
+      if (eventType == "mousePressed"){
+        if (mouseX > xPos && mouseX < xPos+elementWidth && mouseY > yPos && mouseY < yPos+elementHeight){
+          startX = mouseX;
+          startY = mouseY;
+          mapFocused = true;
+        } 
+        else{
+          mapFocused = false;
+        }
+      }
+      else if (eventType == "mouseClicked"){
+        focusMap(mouseX, mouseY);
       }
     return new ArrayList<String>();
   }
@@ -120,6 +135,11 @@ class Map extends Element{
     PImage[] tempBuilingImages = new PImage[1];
     PImage[] tempPartyImages = new PImage[2];
     int frameTime = millis()-frameStartTime;
+    
+    // Resize map based on scale
+    elementWidth = round(EW*GUIScale);
+    elementHeight = round(EH*GUIScale);
+    
     mapXOffset -= mapVelocity[0]*frameTime*60/1000;
     mapYOffset -= mapVelocity[1]*frameTime*60/1000;
     frameStartTime = millis();
@@ -225,5 +245,11 @@ class Map extends Element{
   }
   float scaleY(float y){
     return y*blockSize + mapYOffset + yPos;
+  }
+  float scaleXInv(float x){
+    return (x-mapXOffset-xPos)/blockSize;
+  }
+  float scaleYInv(float y){
+    return (y-mapYOffset-yPos)/blockSize;
   }
 }

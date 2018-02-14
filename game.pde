@@ -4,6 +4,9 @@ class Game extends State{
   final int numOfGroundSpawns = 100;
   final int mapElementWidth = 1000;
   final int mapElementHeight = 800;
+  final int buttonW = 100;
+  final int buttonH = 50;
+  final int bezle = 20;
   int mapHeight = mapSize;
   int mapWidth = mapSize;
   int waterLevel = 3;
@@ -18,7 +21,9 @@ class Game extends State{
     parties = new Party[mapHeight][mapWidth];
     buildings = new Building[mapHeight][mapWidth];
     parties[99][99] = new Party(0, 300, 'r');
-    addElement("map", new Map(100, 100, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
+    addElement("map", new Map(bezle, bezle, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
+    //int x, int y, int w, int h, color bgColour, color strokeColour, color textColour, int textSize, int textAlign, String text
+    addElement("end turn", new Button(bezle, height-buttonH-bezle, buttonW, buttonH, color(150), color(0), color(0), 10, CENTER, "Next Turn"));
   }
   ArrayList<String> keyboardEvent(String eventType, char _key){
     if (_key == ESC){
