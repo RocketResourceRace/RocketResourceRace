@@ -23,6 +23,7 @@ class Map extends Element{
   boolean mapFocused;
   int selectedCellX, selectedCellY;
   boolean cellSelected;
+  color partyManagementColour;
 
   Map(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight){
     xPos = x;
@@ -118,9 +119,9 @@ class Map extends Element{
   
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
     if (eventType == "mouseWheel"){
-      float count = event.getCount(); 
+      float count = event.getCount();  //<>//
       if(mouseOver()){   //<>//
-        float zoom = pow(0.9, count);    //<>//
+        float zoom = pow(0.9, count);   
         float newBlockSize = max(min(blockSize*zoom, (float)elementWidth/10), (float)elementWidth/(float)mapSize); 
         if (blockSize != newBlockSize){
           mapXOffset = scaleX(((mouseX-mapXOffset-xPos)/blockSize))-xPos-((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);

@@ -36,6 +36,9 @@ class Panel{
       elem.setOffset(x, y);
     }
   }
+  void setColour(color c){
+    bgColour = c;
+  }
   
   void setVisible(boolean a){
     visible = a;

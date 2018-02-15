@@ -23,6 +23,7 @@ class Game extends State{
   boolean cellSelected=false;
   String[] landTypes;
   String[] buildingTypes;
+  color partyManagementColour;
   
   Game(){
     addElement("map", new Map(bezel, bezel, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
@@ -90,6 +91,14 @@ class Game extends State{
             getPanel("land management").setVisible(true);
             if (parties[cellY][cellX] != null){
               getPanel("party management").setVisible(true);
+              if (parties[cellY][cellX].player == 1){
+                partyManagementColour = color(170, 30, 30);
+                getPanel("party management").setColour(color(220, 70, 70));
+              }
+              else{
+                partyManagementColour = color(0, 0, 150);
+                getPanel("party management").setColour(color(70, 70, 220));
+              }
             }
           }
         }
@@ -106,9 +115,9 @@ class Game extends State{
   void drawPartyManagement(){
     Panel pp = getPanel("party management");
     pushStyle();
-    fill(170, 30, 30);
+    fill(partyManagementColour);
     rect(cellSelectionX, pp.y, cellSelectionW, 13*TextScale);
-    fill(0);
+    fill(255);
     textSize(10*TextScale);
     textAlign(CENTER, TOP);
     text("Party Management", cellSelectionX+cellSelectionW/2, pp.y);
@@ -127,7 +136,7 @@ class Game extends State{
     pushStyle();
     fill(0, 150, 0);
     rect(cellSelectionX, cellSelectionY, cellSelectionW, 13*TextScale);
-    fill(0);
+    fill(255);
     textSize(10*TextScale);
     textAlign(CENTER, TOP);
     text("Land Management", cellSelectionX+cellSelectionW/2, cellSelectionY);
