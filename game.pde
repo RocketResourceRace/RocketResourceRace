@@ -6,7 +6,7 @@ class Game extends State{
   final int mapElementHeight = 700;
   final int buttonW = 120;
   final int buttonH = 50;
-  final int bezle = 20;
+  final int bezel = 20;
   int mapHeight = mapSize;
   int mapWidth = mapSize;
   int waterLevel = 3;
@@ -25,26 +25,27 @@ class Game extends State{
   String[] buildingTypes;
   
   Game(){
-    addElement("map", new Map(bezle, bezle, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
-    addElement("end turn", new Button(bezle, height-buttonH-bezle, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"));
+    addElement("map", new Map(bezel, bezel, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
+    addElement("end turn", new Button(bezel, height-buttonH-bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"));
     map = (Map)getElement("map", "default");
     players = new Player[2];
     
     // Initial positions will be focused on starting party
     players[0] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize);
     players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize);
-    
     addPanel("land management", 0, 0, width, height, false, color(50, 200, 50), color(0));
+    addPanel("party management", 0, 0, width, height, false, color(220, 70, 70), color(0));
     //addElement("cell selection", new );
     landTypes = new String[]{"Water", "Sand", "Grass"};
     buildingTypes = new String[]{"Homes"};
   }
   void updateCellSelection(){
-    cellSelectionX = round(mapElementWidth*GUIScale)+bezle*2;
-    cellSelectionY = bezle;
-    cellSelectionW = width-cellSelectionX-bezle;
+    cellSelectionX = round(mapElementWidth*GUIScale)+bezel*2;
+    cellSelectionY = bezel;
+    cellSelectionW = width-cellSelectionX-bezel;
     cellSelectionH = round(mapElementHeight*GUIScale);
     getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.3));
+    getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.3)+bezel, cellSelectionW, round(cellSelectionH*0.7)-bezel);
   }
   String update(){
     if (changeTurn){  
@@ -55,8 +56,11 @@ class Game extends State{
     }
     drawBar();
     drawPanels();
-    if (cellSelected)
-      drawCellSelection();
+    if (cellSelected){
+      drawCellManagement();
+      if(parties[cellY][cellX] != null)
+        drawPartyManagement();
+    }
     return getNewState();
   }
   void elementEvent(ArrayList<Event> events){
@@ -76,6 +80,7 @@ class Game extends State{
             cellSelected = false;
             map.unselectCell();
             getPanel("land management").setVisible(false);
+            getPanel("party management").setVisible(false);
           }
           else{
             cellX = floor(map.scaleXInv(mouseX));
@@ -83,19 +88,42 @@ class Game extends State{
             cellSelected = true;
             map.selectCell(cellX, cellY);
             getPanel("land management").setVisible(true);
+            if (parties[cellY][cellX] != null){
+              getPanel("party management").setVisible(true);
+            }
           }
         }
         else{
           cellSelected = false;
           map.unselectCell();
           getPanel("land management").setVisible(false);
+          getPanel("party management").setVisible(false);
         }
       }
     }
     return new ArrayList<String>();
   }
+  void drawPartyManagement(){
+    Panel pp = getPanel("party management");
+    pushStyle();
+    fill(170, 30, 30);
+    rect(cellSelectionX, pp.y, cellSelectionW, 13*TextScale);
+    fill(0);
+    textSize(10*TextScale);
+    textAlign(CENTER, TOP);
+    text("Party Management", cellSelectionX+cellSelectionW/2, pp.y);
+    
+    textAlign(LEFT, TOP);
+    float barY = pp.y + 13*TextScale;
+    text("Cell Type: "+landTypes[terrain[cellY][cellX]-1], 5+cellSelectionX, barY);
+    barY += 13*TextScale;
+    if (buildings[cellY][cellX] != null){
+      text("Building: "+buildingTypes[buildings[cellY][cellX].type-1], 5+cellSelectionX, barY);
+      barY += 13*TextScale;
+    }
+  }
   
-  void drawCellSelection(){
+  void drawCellManagement(){
     pushStyle();
     fill(0, 150, 0);
     rect(cellSelectionX, cellSelectionY, cellSelectionW, 13*TextScale);
@@ -115,10 +143,10 @@ class Game extends State{
   }
   
   void drawBar(){
-    float barX=buttonW+bezle*2;
+    float barX=buttonW+bezel*2;
     fill(200);
     stroke(170);
-    rect(0, height-bezle*2-buttonH, width, buttonH+bezle*2);
+    rect(0, height-bezel*2-buttonH, width, buttonH+bezel*2);
     textSize(10*TextScale);
     String turnString="";
     if (this.turn==0){
@@ -130,40 +158,40 @@ class Game extends State{
       turnString = "Blue Player's Turn";
     }
     stroke(50);
-    rect(barX, height-bezle-buttonH, textWidth(turnString)+10, buttonH);
-    barX += textWidth(turnString)+10+bezle;
+    rect(barX, height-bezel-buttonH, textWidth(turnString)+10, buttonH);
+    barX += textWidth(turnString)+10+bezel;
     fill(255);
     textAlign(CENTER, TOP);
-    text(turnString, bezle*2+buttonW+(textWidth(turnString)+10)/2, height-bezle-(textDescent()+textAscent())/2-buttonH/2);
+    text(turnString, bezel*2+buttonW+(textWidth(turnString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
     
     barX=width;
     String tempString = "food:"+players[turn].food;
-    barX -= textWidth(tempString)+10+bezle;
+    barX -= textWidth(tempString)+10+bezel;
     fill(150);
-    rect(barX, height-bezle-buttonH, textWidth(tempString)+10, buttonH);
+    rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezle-(textDescent()+textAscent())/2-buttonH/2);
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
     
     tempString = "wood:"+players[turn].wood;
-    barX -= textWidth(tempString)+10+bezle;
+    barX -= textWidth(tempString)+10+bezel;
     fill(150);
-    rect(barX, height-bezle-buttonH, textWidth(tempString)+10, buttonH);
+    rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezle-(textDescent()+textAscent())/2-buttonH/2);
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
     
     tempString = "metal:"+players[turn].metal;
-    barX -= textWidth(tempString)+10+bezle;
+    barX -= textWidth(tempString)+10+bezel;
     fill(150);
-    rect(barX, height-bezle-buttonH, textWidth(tempString)+10, buttonH);
+    rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezle-(textDescent()+textAscent())/2-buttonH/2);
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
     
     tempString = "energy:"+players[turn].energy;
-    barX -= textWidth(tempString)+10+bezle;
+    barX -= textWidth(tempString)+10+bezel;
     fill(150);
-    rect(barX, height-bezle-buttonH, textWidth(tempString)+10, buttonH);
+    rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezle-(textDescent()+textAscent())/2-buttonH/2);
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
   }
   
   ArrayList<String> keyboardEvent(String eventType, char _key){
