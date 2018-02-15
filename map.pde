@@ -2,7 +2,7 @@ import java.util.Collections;
 
 
 class Map extends Element{
-  final int EW, EH, INITIALHOLD=2000;
+  final int EW, EH, INITIALHOLD=400;
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
@@ -101,7 +101,7 @@ class Map extends Element{
       targetYOffset = -scaleYInv(y)*blockSize+elementHeight/2+yPos;
       limitCoords();
       panning = true;
-    } //<>//
+    } //<>// //<>//
   }
   void resetTarget(){
     targetXOffset = mapXOffset;
