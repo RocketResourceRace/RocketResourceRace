@@ -219,7 +219,7 @@ class Game extends State{
     float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, 64);
     players[0] = new Player(conditions1[0], conditions1[1], 64);
     
-    buildings[50][50] = new Building(1);
+    buildings[(int)playerStarts[0].y][(int)playerStarts[0].x] = new Building(1);
   }
   boolean startInvalid(PVector p1, PVector p2){
     if(p1.dist(p2)<mapWidth/4){
@@ -229,11 +229,11 @@ class Game extends State{
   }
   
   PVector[] generateStartingParties(){
-    PVector player1 = PVector.random2D().mult(mapWidth/4).add(new PVector(mapWidth/4, mapHeight/2));
-    PVector player2 = PVector.random2D().mult(mapWidth/4).add(new PVector(3*mapWidth/4, mapHeight/2));
+    PVector player1 = PVector.random2D().mult(mapWidth/8).add(new PVector(mapWidth/4, mapHeight/2));
+    PVector player2 = PVector.random2D().mult(mapWidth/8).add(new PVector(3*mapWidth/4, mapHeight/2));
     while(startInvalid(player1, player2)){
-      player1 = PVector.random2D().mult(mapWidth/4).add(new PVector(mapWidth/4, mapHeight/2));
-      player2 = PVector.random2D().mult(mapWidth/4).add(new PVector(3*mapWidth/4, mapHeight/2));
+      player1 = PVector.random2D().mult(mapWidth/8).add(new PVector(mapWidth/4, mapHeight/2));
+      player2 = PVector.random2D().mult(mapWidth/8).add(new PVector(3*mapWidth/4, mapHeight/2));
     }
     parties[(int)player1.y][(int)player1.x] = new Party(0, 100, 'r');
     parties[(int)player2.y][(int)player2.x] = new Party(1, 100, 'r');
