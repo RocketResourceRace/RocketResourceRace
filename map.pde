@@ -101,12 +101,12 @@ class Map extends Element{
       targetYOffset = -scaleYInv(y)*blockSize+elementHeight/2+yPos;
       limitCoords();
       panning = true;
-    } //<>// //<>//
+    }  
   }
   void resetTarget(){
     targetXOffset = mapXOffset;
     targetYOffset = mapYOffset;
-    panning = false; //<>//
+    panning = false; 
     mapVelocity[0] = 0;
     mapVelocity[1] = 0;
   }
@@ -118,10 +118,10 @@ class Map extends Element{
   
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
     if (eventType == "mouseWheel"){
-      float count = event.getCount(); //<>//
-      if(mouseOver()){ //<>// //<>//
-        float zoom = pow(0.9, count); //<>// //<>// //<>//
-        float newBlockSize = max(min(blockSize*zoom, (float)elementWidth/10), (float)elementWidth/(float)mapSize); //<>//
+      float count = event.getCount(); 
+      if(mouseOver()){   //<>//
+        float zoom = pow(0.9, count);    //<>//
+        float newBlockSize = max(min(blockSize*zoom, (float)elementWidth/10), (float)elementWidth/(float)mapSize); 
         if (blockSize != newBlockSize){
           mapXOffset = scaleX(((mouseX-mapXOffset-xPos)/blockSize))-xPos-((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
           mapYOffset = scaleY(((mouseY-mapYOffset-yPos)/blockSize))-yPos-((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
@@ -134,8 +134,8 @@ class Map extends Element{
     }
     return new ArrayList<String>();
   }
-     //<>//
-  ArrayList<String> mouseEvent(String eventType, int button){ //<>//
+     
+  ArrayList<String> mouseEvent(String eventType, int button){ 
     if (button == LEFT){
       if (eventType=="mouseDragged" && mapFocused){
         mapXOffset += (mouseX-startX);
@@ -306,7 +306,7 @@ class Map extends Element{
            }
            int border = round((64-24)*blockSize/(2*64));
            int imgSize = round(blockSize*24/60);
-           drawCroppedImage(round(c.x+border), round(c.y+border), imgSize, imgSize, tempPartyImages[parties[y][x].player]);
+           drawCroppedImage(floor(c.x+border), floor(c.y+border), imgSize, imgSize, tempPartyImages[parties[y][x].player]);
          }
          x++;
        }
