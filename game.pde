@@ -23,7 +23,6 @@ class Game extends State{
   boolean cellSelected=false;
   
   Game(){
-    terrain = generateMap();
     parties = new Party[mapHeight][mapWidth];
     buildings = new Building[mapHeight][mapWidth];
     parties[99][99] = new Party(0, 300, 'r');
