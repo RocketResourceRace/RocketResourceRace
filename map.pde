@@ -72,6 +72,13 @@ class Map extends Element{
     zooming = true;
     targetBlockSize = bs;
   }
+  void targetCell(int x, int y, float bs){
+    targetBlockSize = bs;
+    targetXOffset = x*blockSize+elementWidth/2+xPos;
+    targetYOffset = y*blockSize+elementHeight/2+yPos;
+    panning = true;
+    zooming = true;
+  }
   void focusMapMouse(float x, float y){
     // based on mouse click
     if(mouseOver()){
