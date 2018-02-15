@@ -24,6 +24,7 @@ class Map extends Element{
   int selectedCellX, selectedCellY;
   boolean cellSelected;
   color partyManagementColour;
+  Node[][] moveNodes;
 
   Map(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight){
     xPos = x;
@@ -44,6 +45,7 @@ class Map extends Element{
     this.mapHeight = mapHeight;
     limitCoords();
     frameStartTime = 0;
+    cancelMoveNodes();
   }
   void selectCell(int x, int y){
     cellSelected = true;
@@ -72,6 +74,7 @@ class Map extends Element{
     setPanningSpeed(0.02);
     resetTime = millis();
     frameStartTime = 0;
+    cancelMoveNodes();
   }
   void loadSettings(float x, float y, float bs){
     targetZoom(bs);
@@ -115,6 +118,13 @@ class Map extends Element{
     zooming = false;
     targetBlockSize = blockSize;
     setPanningSpeed(0.1);
+  }
+   //<>//
+  void updateMoveNodes(Node[][] nodes){ //<>//
+    moveNodes = nodes;
+  }
+  void cancelMoveNodes(){
+    moveNodes = null;
   }
 
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
@@ -325,6 +335,23 @@ class Map extends Element{
        if (max(c.x, xPos)+min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)>xPos && max(c.x, xPos) < elementWidth+xPos && max(c.y, yPos)+min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos)>yPos && max(c.y, yPos) < elementHeight+yPos){
          fill(50, 50, 50, 50);
          rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
+       }
+     }
+     if (moveNodes != null){
+       for (int y1=0; y1<mapHeight; y1++){
+         for (int x=0; x<mapWidth; x++){
+           if (moveNodes[y1][x] != null){
+             c = new PVector(scaleX(x), scaleY(y1));
+             if (max(c.x, xPos)+min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)>xPos && max(c.x, xPos) < elementWidth+xPos && max(c.y, yPos)+min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos)>yPos && max(c.y, yPos) < elementHeight+yPos){
+               fill(50, 150);
+               rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
+               fill(255);
+               textSize(8*TextScale);
+               textAlign(CENTER, CENTER);
+               text(moveNodes[y1][x].cost, c.x+blockSize/2, c.y+blockSize/2);
+             }
+           }
+         }
        }
      }
 
