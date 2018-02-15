@@ -25,7 +25,6 @@ class Game extends State{
   Game(){
     parties = new Party[mapHeight][mapWidth];
     buildings = new Building[mapHeight][mapWidth];
-    parties[99][99] = new Party(0, 300, 'r');
     addElement("map", new Map(bezle, bezle, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
     addElement("end turn", new Button(bezle, height-buttonH-bezle, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"));
     map = (Map)getElement("map", "default");
@@ -155,17 +154,48 @@ class Game extends State{
     fill(255);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezle-(textDescent()+textAscent())/2-buttonH/2);
   }
+  
   ArrayList<String> keyboardEvent(String eventType, char _key){
     if (_key == ESC){
       newState = "menu";
     }
     return new ArrayList<String>();
   }
+  
+  void resetParties(){
+    for(Party[] row: parties){
+      for(int i=0;i<row.length;i++){
+        row[i]=null;
+      }
+    }
+  }
+  
   void enterState(){
     updateCellSelection();
-    terrain = generateMap();
+    resetParties();
+    PVector[] playerStarts = generateStartingParties();
+    terrain = generateMap(playerStarts);
     ((Map)(getElement("map", "default"))).setTerrain(terrain);
   }
+  boolean startInvalid(PVector p1, PVector p2){
+    if(p1.dist(p2)<mapWidth/4){
+      return true;
+    }
+    return false;
+  }
+  
+  PVector[] generateStartingParties(){
+    PVector player1 = PVector.random2D().mult(mapWidth/4).add(new PVector(mapWidth/4, mapHeight/2));
+    PVector player2 = PVector.random2D().mult(mapWidth/4).add(new PVector(3*mapWidth/4, mapHeight/2));
+    while(startInvalid(player1, player2)){
+      player1 = PVector.random2D().mult(mapWidth/4).add(new PVector(mapWidth/4, mapHeight/2));
+      player2 = PVector.random2D().mult(mapWidth/4).add(new PVector(3*mapWidth/4, mapHeight/2));
+    }
+    parties[(int)player1.y][(int)player1.x] = new Party(0, 100, 'r');
+    parties[(int)player2.y][(int)player2.x] = new Party(1, 100, 'r');
+    return  new PVector[]{player1, player2};
+  }
+  
   int[][] smoothMap(int distance, int firstType, int[][] terrain){
     ArrayList<int[]> order = new ArrayList<int[]>();
     for (int y=0; y<mapHeight;y++){
@@ -196,7 +226,7 @@ class Game extends State{
   }
   
   
-  int[][] generateMap(){
+  int[][] generateMap(PVector[] playerStarts){
     
     int [][] terrain = new int[mapHeight][mapWidth];
     
@@ -221,6 +251,19 @@ class Game extends State{
              terrain[y1][x1] = type;
          }
         }
+      }
+    }
+    for (PVector playerStart: playerStarts){
+      int type = (int)random(numOfGroundTypes-1)+2;
+      int x = (int)playerStart.x;
+      int y = (int)playerStart.y;
+      terrain[y][x] = type;
+      // Player spawns will act as water but without water
+      for (int y1=y-waterLevel+1;y1<y+waterLevel;y1++){
+       for (int x1 = x-waterLevel+1; x1<x+waterLevel;x1++){
+         if (y1 < mapHeight && y1 >= 0 && x1 < mapWidth && x1 >= 0)
+           terrain[y1][x1] = type;
+       }
       }
     }
     ArrayList<int[]> order = new ArrayList<int[]>();
