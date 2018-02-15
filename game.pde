@@ -21,6 +21,7 @@ class Game extends State{
   Player[] players;
   int cellX, cellY, cellSelectionX, cellSelectionY, cellSelectionW, cellSelectionH;
   boolean cellSelected=false;
+  String[] landTypes;
   
   Game(){
     addElement("map", new Map(bezle, bezle, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
@@ -34,6 +35,7 @@ class Game extends State{
     
     addPanel("land management", 0, 0, width, height, false, color(50, 200, 50), color(0));
     //addElement("cell selection", new );
+    landTypes = new String[]{"Water", "Sand", "Grass"};
   }
   void updateCellSelection(){
     cellSelectionX = round(mapElementWidth*GUIScale)+bezle*2;
@@ -99,6 +101,10 @@ class Game extends State{
     textSize(10*TextScale);
     textAlign(CENTER, TOP);
     text("Land Management", cellSelectionX+cellSelectionW/2, cellSelectionY);
+    
+    textAlign(LEFT, TOP);
+    float barY = cellSelectionY + 13*TextScale;
+    text("Cell Type: "+landTypes[terrain[cellY][cellX]-1], cellSelectionX, barY);
     popStyle();
   }
   
