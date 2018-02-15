@@ -37,6 +37,11 @@ void doubleClick(){
   }
 }
 
+float sigmoid(float x){
+  return 1-2/(exp(x)+1);
+}
+
+
 void mouseEvent(String eventType, int button){
   getActiveState()._mouseEvent(eventType, button);
 }
@@ -107,7 +112,7 @@ void loadSettings(){
 }
 void loadSounds(){
   sfx = new HashMap<String, SoundFile>();
-  sfx.put("click3", new SoundFile(this, "click3.wav"));
+  //sfx.put("click3", new SoundFile(this, "click3.wav"));
 }
 
 

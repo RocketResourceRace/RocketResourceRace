@@ -102,7 +102,7 @@ class Button extends Element{
       }
       if (eventType == "mousePressed"){
         state = "on";
-        sfx.get("click3").play();
+        //sfx.get("click3").play();
       }
     }
     else{
