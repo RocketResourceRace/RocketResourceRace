@@ -1,7 +1,5 @@
 
 class Game extends State{
-  final int numOfGroundTypes = 3;
-  final int numOfGroundSpawns = 100;
   final int mapElementWidth = 1100;
   final int mapElementHeight = 700;
   final int buttonW = 120;
@@ -40,8 +38,8 @@ class Game extends State{
     //int x, int y, int w, int h, color bgColour, color strokeColour, color textColour, int textSize, int textAlign, String text
     addElement("move button", new Button(bezel, bezel*2, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
     
-    landTypes = new String[]{"Water", "Sand", "Grass"};
-    buildingTypes = new String[]{"Homes"};
+    landTypes = new String[]{"Water", "Sand", "Grass", "Forest"};
+    buildingTypes = new String[]{"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
   }
   void updateCellSelection(){
     cellSelectionX = round(mapElementWidth*GUIScale)+bezel*2;
@@ -221,8 +219,9 @@ class Game extends State{
     players[1] = new Player(conditions2[0], conditions2[1], 64);
     float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, 64);
     players[0] = new Player(conditions1[0], conditions1[1], 64);
-    
-    buildings[(int)playerStarts[0].y][(int)playerStarts[0].x] = new Building(1);
+    for(int i=0;i<NUMOFBUILDINGTYPES;i++){
+      buildings[(int)playerStarts[0].y][(int)playerStarts[0].x+i] = new Building(1+i);
+    }
     deselectCell();
   }
   int cost(int x, int y){
@@ -299,7 +298,7 @@ class Game extends State{
     Collections.shuffle(order);
     int[][] newMap = new int[mapHeight][mapWidth];
     for (int[] coord: order){
-      int[] counts = new int[numOfGroundTypes+1];
+      int[] counts = new int[NUMOFGROUNDTYPES+1];
       for (int y1=coord[1]-distance+1;y1<coord[1]+distance;y1++){
        for (int x1 = coord[0]-distance+1; x1<coord[0]+distance;x1++){
          if (y1<mapHeight&&y1>=0&&x1<mapWidth&&x1>=0){
@@ -308,7 +307,7 @@ class Game extends State{
        }
       }
       int highest = terrain[coord[1]][coord[0]];
-      for (int i=firstType; i<=numOfGroundTypes;i++){
+      for (int i=firstType; i<=NUMOFGROUNDTYPES;i++){
         if (counts[i] > counts[highest]){
           highest = i;
         }
@@ -331,8 +330,8 @@ class Game extends State{
       terrain[0][x] = 1;
       terrain[mapHeight-1][x] = 1;
     }
-    for(int i=0;i<numOfGroundSpawns;i++){
-      int type = (int)random(numOfGroundTypes)+1;
+    for(int i=0;i<NUMOFGROUNDSPAWNS;i++){
+      int type = (int)random(NUMOFGROUNDTYPES)+1;
       int x = (int)random(mapWidth-2)+1;
       int y = (int)random(mapHeight-2)+1;
       terrain[y][x] = type;
@@ -347,7 +346,7 @@ class Game extends State{
       }
     }
     for (PVector playerStart: playerStarts){
-      int type = (int)random(numOfGroundTypes-1)+2;
+      int type = (int)random(NUMOFGROUNDTYPES-1)+2;
       int x = (int)playerStart.x;
       int y = (int)playerStart.y;
       terrain[y][x] = type;
