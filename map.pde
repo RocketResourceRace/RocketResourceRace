@@ -29,6 +29,8 @@ class Map extends Element{
     yPos = y;
     EW = w;
     EH = h;
+    this.mapWidth = mapWidth;
+    this.mapHeight = mapHeight;
     elementWidth = round(EW*GUIScale);
     elementHeight = round(EH*GUIScale);
     mapXOffset = 0;
@@ -62,7 +64,7 @@ class Map extends Element{
     this.terrain = terrain;
     this.parties = parties;
     this.buildings = buildings;
-    blockSize = max(min(w/(float)mapWidth, (float)elementWidth/10), (float)elementWidth/(float)mapSize);
+    blockSize = min(elementWidth/(float)mapWidth, elementWidth/10);
   }
   void loadSettings(float x, float y, float bs){
     targetZoom(bs);
@@ -99,7 +101,7 @@ class Map extends Element{
     targetXOffset = mapXOffset;
     targetYOffset = mapYOffset;
     panning = false;
-    mapVelocity[0] = 0;
+    mapVelocity[0] = 0; //<>//
     mapVelocity[1] = 0;
   }
   void resetTargetZoom(){
