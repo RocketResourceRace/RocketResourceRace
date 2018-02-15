@@ -200,7 +200,7 @@ class Map extends Element{
     // Terrain
     
     PImage[] tempTileImages = new PImage[3];
-    PImage[] tempBuilingImages = new PImage[1];
+    PImage[] tempBuildingImages = new PImage[1];
     PImage[] tempPartyImages = new PImage[2];
     if (frameStartTime == 0){
       frameStartTime = millis();
@@ -237,8 +237,8 @@ class Map extends Element{
       tempTileImages[i].resize(ceil(blockSize), 0);
     }
     for (int i=0; i<1; i++){
-      tempBuilingImages[i] = buildingImages[i].copy();
-      tempBuilingImages[i].resize(ceil(blockSize), 0);
+      tempBuildingImages[i] = buildingImages[i].copy();
+      tempBuildingImages[i].resize(ceil(blockSize*48/64), 0);
     }
     for (int i=0; i<2; i++){
       tempPartyImages[i] = partyImages[i].copy();
@@ -296,13 +296,23 @@ class Map extends Element{
            }
            int border = round((64-24)*blockSize/(2*64));
            int imgSize = round(blockSize*24/60);
-           //if (c.x+blockSize>xPos && c.x<xPos+elementWidth && c.y+blockSize>yPos && c.y<yPos+elementHeight){
-             drawCroppedImage(round(c.x+border), round(c.y+border), imgSize, imgSize, tempPartyImages[parties[y][x].player]);
-           //}
+           drawCroppedImage(round(c.x+border), round(c.y+border), imgSize, imgSize, tempPartyImages[parties[y][x].player]);
          }
          x++;
        }
        y++;
+     }
+     
+     //Buildings
+     for(int y1=ly-1;y1<hy+1;y1++){
+       for (int x=lx-1; x<hx+1; x++){
+         if (buildings[y1][x] != null){
+           c = new PVector(scaleX(x), scaleY(y1));
+           int border = round((64-48)*blockSize/(2*64));
+           int imgSize = round(blockSize*48/60);
+           drawCroppedImage(round(c.x+border), round(c.y+border), imgSize, imgSize, tempBuildingImages[buildings[y1][x].type-1]);
+         }
+       }
      }
      
      //cell selection

@@ -1,7 +1,7 @@
 
 class Building{
-  char type;
-  Building(char type){
+  int type;
+  Building(int type){
     this.type = type;
   }
 }

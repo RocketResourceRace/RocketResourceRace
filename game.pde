@@ -177,6 +177,8 @@ class Game extends State{
     players[1] = new Player(conditions2[0], conditions2[1], conditions2[2]);
     float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, 64);
     players[0] = new Player(conditions1[0], conditions1[1], conditions1[2]);
+    
+    buildings[50][50] = new Building(1);
   }
   boolean startInvalid(PVector p1, PVector p2){
     if(p1.dist(p2)<mapWidth/4){
