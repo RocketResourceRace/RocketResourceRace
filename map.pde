@@ -34,13 +34,13 @@ class Map extends Element{
     mapXOffset = 0;
     mapYOffset = 0;
     mapMaxSpeed = 15;
-    frameStartTime = 0;
     this.terrain = terrain;
     this.parties = parties;
     this.buildings = buildings;
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
     limitCoords();
+    frameStartTime = 0;
   }
   void selectCell(int x, int y){
     cellSelected = true;
@@ -77,6 +77,14 @@ class Map extends Element{
   void targetZoom(float bs){
     zooming = true;
     targetBlockSize = bs;
+  }
+  float [] targetCell(int x, int y, float bs){
+    targetBlockSize = bs;
+    targetXOffset = -x*targetBlockSize+elementWidth/2+xPos;
+    targetYOffset = -y*targetBlockSize+elementHeight/2+yPos;
+    panning = true;
+    zooming = true;
+    return new float[]{targetXOffset, targetYOffset, targetBlockSize};
   }
   void focusMapMouse(float x, float y){
     // based on mouse click
@@ -185,6 +193,9 @@ class Map extends Element{
     PImage[] tempTileImages = new PImage[3];
     PImage[] tempBuilingImages = new PImage[1];
     PImage[] tempPartyImages = new PImage[2];
+    if (frameStartTime == 0){
+      frameStartTime = millis();
+    }
     int frameTime = millis()-frameStartTime;
     
     if (zooming){
