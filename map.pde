@@ -40,7 +40,6 @@ class Map extends Element{
     this.buildings = buildings;
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
-    blockSize = max(min(w/(float)mapWidth, (float)elementWidth/10), (float)elementWidth/(float)mapSize);
     limitCoords();
   }
   void selectCell(int x, int y){
@@ -55,8 +54,15 @@ class Map extends Element{
     mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth), 0);
     mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight), 0); 
   }
-  void setTerrain(int[][] terrain){
+  void reset(int mapWidth, int mapHeight, int[][] terrain, Party[][] parties, Building[][] buildings){
+    mapXOffset = 0;
+    mapYOffset = 0;
+    this.mapWidth = mapWidth;
+    this.mapHeight = mapHeight;
     this.terrain = terrain;
+    this.parties = parties;
+    this.buildings = buildings;
+    blockSize = max(min(w/(float)mapWidth, (float)elementWidth/10), (float)elementWidth/(float)mapSize);
   }
   void loadSettings(float x, float y, float bs){
     targetZoom(bs);
@@ -95,7 +101,7 @@ class Map extends Element{
   
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
     if (eventType == "mouseWheel"){
-      float count = event.getCount();
+      float count = event.getCount(); //<>//
       if(mouseOver()){
         float zoom = pow(0.9, count);
         float newBlockSize = max(min(blockSize*zoom, (float)elementWidth/10), (float)elementWidth/(float)mapSize);

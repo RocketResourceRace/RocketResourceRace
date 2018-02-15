@@ -23,8 +23,6 @@ class Game extends State{
   boolean cellSelected=false;
   
   Game(){
-    parties = new Party[mapHeight][mapWidth];
-    buildings = new Building[mapHeight][mapWidth];
     addElement("map", new Map(bezle, bezle, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
     addElement("end turn", new Button(bezle, height-buttonH-bezle, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"));
     map = (Map)getElement("map", "default");
@@ -161,21 +159,24 @@ class Game extends State{
     }
     return new ArrayList<String>();
   }
-  
-  void resetParties(){
-    for(Party[] row: parties){
-      for(int i=0;i<row.length;i++){
-        row[i]=null;
-      }
-    }
-  }
-  
+    
   void enterState(){
+    mapWidth = mapSize;
+    mapHeight = mapSize;
     updateCellSelection();
-    resetParties();
+    
+    parties = new Party[mapHeight][mapWidth];
+    buildings = new Building[mapHeight][mapWidth];
+    
     PVector[] playerStarts = generateStartingParties();
+    
     terrain = generateMap(playerStarts);
-    ((Map)(getElement("map", "default"))).setTerrain(terrain);
+    map.reset(mapWidth, mapHeight, terrain, parties, buildings);
+    
+    float[] conditions2 = map.target(playerStarts[1].x, playerStarts[1].y, 64);
+    players[1] = new Player(conditions2[0], conditions2[1], conditions2[2]);
+    float[] conditions1 = map.target(playerStarts[0].x, playerStarts[0].y, 64);
+    players[0] = new Player(conditions1[0], conditions1[1], conditions1[2]);
   }
   boolean startInvalid(PVector p1, PVector p2){
     if(p1.dist(p2)<mapWidth/4){
