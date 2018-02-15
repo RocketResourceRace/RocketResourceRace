@@ -119,8 +119,8 @@ class Map extends Element{
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
     if (eventType == "mouseWheel"){
       float count = event.getCount(); //<>//
-      if(mouseOver()){ //<>//
-        float zoom = pow(0.9, count); //<>// //<>//
+      if(mouseOver()){ //<>// //<>//
+        float zoom = pow(0.9, count); //<>// //<>// //<>//
         float newBlockSize = max(min(blockSize*zoom, (float)elementWidth/10), (float)elementWidth/(float)mapSize); //<>//
         if (blockSize != newBlockSize){
           mapXOffset = scaleX(((mouseX-mapXOffset-xPos)/blockSize))-xPos-((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
@@ -308,9 +308,11 @@ class Map extends Element{
      //cell selection
      stroke(0);
      if (cellSelected){
-       fill(50, 50, 50, 50);;
        c = new PVector(scaleX(selectedCellX), scaleY(selectedCellY));
-       rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
+       if (max(c.x, xPos)+min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)>xPos && max(c.x, xPos) < elementWidth+xPos && max(c.y, yPos)+min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos)>yPos && max(c.y, yPos) < elementHeight+yPos){
+         fill(50, 50, 50, 50);
+         rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
+       }
      }
      
      fill(255, 0);
