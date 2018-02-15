@@ -32,7 +32,7 @@ class Game extends State{
     players[0] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize);
     players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize);
     
-    addPanel("cell selection", 0, 0, width, height, false, color(255, 255, 255, 255), color(0));
+    addPanel("land management", 0, 0, width, height, false, color(50, 200, 50), color(0));
     //addElement("cell selection", new );
   }
   void updateCellSelection(){
@@ -40,7 +40,7 @@ class Game extends State{
     cellSelectionY = bezle;
     cellSelectionW = width-cellSelectionX-bezle;
     cellSelectionH = round(mapElementHeight*GUIScale);
-    
+    getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.3));
   }
   String update(){
     if (changeTurn){  
@@ -50,9 +50,9 @@ class Game extends State{
       changeTurn = false;
     }
     drawBar();
+    drawPanels();
     if (cellSelected)
       drawCellSelection();
-    drawPanels();
     return getNewState();
   }
   void elementEvent(ArrayList<Event> events){
@@ -71,19 +71,20 @@ class Game extends State{
           if (cellSelected){
             cellSelected = false;
             map.unselectCell();
+            getPanel("land management").setVisible(false);
           }
           else{
             cellX = floor(map.scaleXInv(mouseX));
             cellY = floor(map.scaleYInv(mouseY));
             cellSelected = true;
             map.selectCell(cellX, cellY);
-            getPanel("cell selection").setVisible(true);
+            getPanel("land management").setVisible(true);
           }
         }
         else{
           cellSelected = false;
           map.unselectCell();
-          getPanel("cell selection").setVisible(false);
+          getPanel("land management").setVisible(false);
         }
       }
     }
@@ -92,12 +93,12 @@ class Game extends State{
   
   void drawCellSelection(){
     pushStyle();
-    fill(50, 50, 200);
-    rect(cellSelectionX, cellSelectionY, cellSelectionW, cellSelectionH);
+    fill(0, 150, 0);
+    rect(cellSelectionX, cellSelectionY, cellSelectionW, 13*TextScale);
     fill(0);
-    textSize(12);
+    textSize(10*TextScale);
     textAlign(CENTER, TOP);
-    text("Cell Selection", cellSelectionX+cellSelectionW/2, cellSelectionY);
+    text("Land Management", cellSelectionX+cellSelectionW/2, cellSelectionY);
     popStyle();
   }
   

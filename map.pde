@@ -274,9 +274,20 @@ class Map extends Element{
      image(tempTileImages[terrain[hy][lx-1]-1].get(0, 0, leftW, bottomW), xPos, y3);
      image(tempTileImages[terrain[ly-1][hx]-1].get(0, ceil(blockSize)-topW, rightW, topW), x3, yPos);
      
+     //Buildings
+     PVector c;
+     for(int y1=ly-1;y1<hy+1;y1++){
+       for (int x=lx-1; x<hx+1; x++){
+         if (buildings[y1][x] != null){
+           c = new PVector(scaleX(x), scaleY(y1));
+           int border = round((64-48)*blockSize/(2*64));
+           int imgSize = round(blockSize*48/60);
+           drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, tempBuildingImages[buildings[y1][x].type-1]);
+         }
+       }
+     }
      
      // Parties
-     PVector c;
      int y=0;
      for (Party[] row: parties){
        x=0;
@@ -301,18 +312,6 @@ class Map extends Element{
          x++;
        }
        y++;
-     }
-     
-     //Buildings
-     for(int y1=ly-1;y1<hy+1;y1++){
-       for (int x=lx-1; x<hx+1; x++){
-         if (buildings[y1][x] != null){
-           c = new PVector(scaleX(x), scaleY(y1));
-           int border = round((64-48)*blockSize/(2*64));
-           int imgSize = round(blockSize*48/60);
-           drawCroppedImage(round(c.x+border), round(c.y+border), imgSize, imgSize, tempBuildingImages[buildings[y1][x].type-1]);
-         }
-       }
      }
      
      //cell selection
