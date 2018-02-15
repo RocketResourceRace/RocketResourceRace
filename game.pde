@@ -22,6 +22,7 @@ class Game extends State{
   int cellX, cellY, cellSelectionX, cellSelectionY, cellSelectionW, cellSelectionH;
   boolean cellSelected=false;
   String[] landTypes;
+  String[] buildingTypes;
   
   Game(){
     addElement("map", new Map(bezle, bezle, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
@@ -36,6 +37,7 @@ class Game extends State{
     addPanel("land management", 0, 0, width, height, false, color(50, 200, 50), color(0));
     //addElement("cell selection", new );
     landTypes = new String[]{"Water", "Sand", "Grass"};
+    buildingTypes = new String[]{"Homes"};
   }
   void updateCellSelection(){
     cellSelectionX = round(mapElementWidth*GUIScale)+bezle*2;
@@ -104,8 +106,12 @@ class Game extends State{
     
     textAlign(LEFT, TOP);
     float barY = cellSelectionY + 13*TextScale;
-    text("Cell Type: "+landTypes[terrain[cellY][cellX]-1], cellSelectionX, barY);
-    popStyle();
+    text("Cell Type: "+landTypes[terrain[cellY][cellX]-1], 5+cellSelectionX, barY);
+    barY += 13*TextScale;
+    if (buildings[cellY][cellX] != null){
+      text("Building: "+buildingTypes[buildings[cellY][cellX].type-1], 5+cellSelectionX, barY);
+      barY += 13*TextScale;
+    }
   }
   
   void drawBar(){
