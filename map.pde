@@ -212,7 +212,6 @@ class Map extends Element{
     }
     if (zooming){
       blockSize += (targetBlockSize-blockSize)*panningSpeed*frameTime*60/1000;
-      println(blockSize);
       if (abs(blockSize-targetBlockSize) < 0.001){
         resetTargetZoom();
       }

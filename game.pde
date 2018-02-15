@@ -36,7 +36,9 @@ class Game extends State{
     players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize);
     addPanel("land management", 0, 0, width, height, false, color(50, 200, 50), color(0));
     addPanel("party management", 0, 0, width, height, false, color(220, 70, 70), color(0));
-    //addElement("cell selection", new );
+    //int x, int y, int w, int h, color bgColour, color strokeColour, color textColour, int textSize, int textAlign, String text
+    addElement("move button", new Button(bezel, bezel*2, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
+    
     landTypes = new String[]{"Water", "Sand", "Grass"};
     buildingTypes = new String[]{"Homes"};
   }
@@ -73,15 +75,18 @@ class Game extends State{
       }
     }
   }
+  void deselectCell(){
+    cellSelected = false;
+    map.unselectCell();
+    getPanel("land management").setVisible(false);
+    getPanel("party management").setVisible(false);
+  }
   ArrayList<String> mouseEvent(String eventType, int button){
     if (button == RIGHT){
       if (eventType == "mouseClicked"){
         if (map.mouseOver()){
           if (cellSelected){
-            cellSelected = false;
-            map.unselectCell();
-            getPanel("land management").setVisible(false);
-            getPanel("party management").setVisible(false);
+            deselectCell();
           }
           else{
             cellX = floor(map.scaleXInv(mouseX));
@@ -103,10 +108,7 @@ class Game extends State{
           }
         }
         else{
-          cellSelected = false;
-          map.unselectCell();
-          getPanel("land management").setVisible(false);
-          getPanel("party management").setVisible(false);
+          deselectCell();
         }
       }
     }
@@ -121,15 +123,6 @@ class Game extends State{
     textSize(10*TextScale);
     textAlign(CENTER, TOP);
     text("Party Management", cellSelectionX+cellSelectionW/2, pp.y);
-    
-    textAlign(LEFT, TOP);
-    float barY = pp.y + 13*TextScale;
-    text("Cell Type: "+landTypes[terrain[cellY][cellX]-1], 5+cellSelectionX, barY);
-    barY += 13*TextScale;
-    if (buildings[cellY][cellX] != null){
-      text("Building: "+buildingTypes[buildings[cellY][cellX].type-1], 5+cellSelectionX, barY);
-      barY += 13*TextScale;
-    }
   }
   
   void drawCellManagement(){
@@ -229,6 +222,7 @@ class Game extends State{
     players[0] = new Player(conditions1[0], conditions1[1], 64);
     
     buildings[(int)playerStarts[0].y][(int)playerStarts[0].x] = new Building(1);
+    deselectCell();
   }
   boolean startInvalid(PVector p1, PVector p2){
     if(p1.dist(p2)<mapWidth/4){
