@@ -65,6 +65,7 @@ class Map extends Element{
     this.parties = parties;
     this.buildings = buildings;
     blockSize = min(elementWidth/(float)mapWidth, elementWidth/10);
+    frameStartTime = 0;
   }
   void loadSettings(float x, float y, float bs){
     targetZoom(bs);
@@ -100,8 +101,8 @@ class Map extends Element{
   void resetTarget(){
     targetXOffset = mapXOffset;
     targetYOffset = mapYOffset;
-    panning = false;
-    mapVelocity[0] = 0; //<>//
+    panning = false; //<>//
+    mapVelocity[0] = 0;
     mapVelocity[1] = 0;
   }
   void resetTargetZoom(){
