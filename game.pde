@@ -7,6 +7,7 @@ class Game extends State{
   final int buttonW = 120;
   final int buttonH = 50;
   final int bezel = 20;
+  final int[] terrainCosts = new int[]{4, 3, 2};
   int mapHeight = mapSize;
   int mapWidth = mapSize;
   int waterLevel = 3;
@@ -223,6 +224,51 @@ class Game extends State{
     
     buildings[(int)playerStarts[0].y][(int)playerStarts[0].x] = new Building(1);
     deselectCell();
+  }
+  int cost(int x, int y){
+    if (0<x && x<mapSize && 0<y && y<mapSize){
+      return terrainCosts[terrain[floor(y)][floor(x)]-1];
+    }
+    return mapWidth;
+  }
+  int[] minNode(Node[][] nodes, int w, int h){
+    int[] m = {-1, -1};
+    int cost = w;
+    for (int y=0; y<h; y++){
+      for (int x=0; x<w; x++){
+        if (!nodes[y][x].fixed && nodes[y][x].cost < cost){
+          m = new int[]{x, y};
+          cost = nodes[y][x].cost;
+        }
+      }
+    }
+    return m;
+  }
+  Node[][] djk(int x, int y, int availablePoints){
+    int xOff = max(0, x-availablePoints);
+    int yOff = max(0, y-availablePoints);
+    int w = min(mapWidth, y+availablePoints)-xOff;
+    int h = min(mapHeight, y+availablePoints)-yOff;
+    Node[][] nodes = new Node[w][h];
+    int cx = x-xOff;
+    int cy = y-yOff;
+    int[] curMinNode = minNode(nodes, w, h);
+    while (curMinNode[0] != -1 && curMinNode[1] != -1){
+      nodes[curMinNode[1]][curMinNode[0]].fixed = true;
+      if (0 < curMinNode[0] + 1 && curMinNode[0] + 1 < w){
+        nodes[curMinNode[1]][curMinNode[0]+1].cost = min(nodes[curMinNode[1]][curMinNode[0]+1].cost, nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0] + 1, curMinNode[1]));
+      }
+      if (0 < curMinNode[0] - 1 && curMinNode[0] + 1 < w){
+        nodes[curMinNode[1]][curMinNode[0]-1].cost = min(nodes[curMinNode[1]][curMinNode[0]-1].cost, nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0]-1, curMinNode[1]));
+      }
+      if (0 < curMinNode[1] + 1 && curMinNode[1] + 1 < w){
+        nodes[curMinNode[1]+1][curMinNode[0]].cost = min(nodes[curMinNode[1]+1][curMinNode[0]].cost, nodes[curMinNode[1]+1][curMinNode[0]].cost+cost(curMinNode[0], curMinNode[1]+1));
+      }
+      if (0 < curMinNode[1] - 1 && curMinNode[1] - 1 < w){
+        nodes[curMinNode[1]-1][curMinNode[0]].cost = min(nodes[curMinNode[1]-1][curMinNode[0]].cost, nodes[curMinNode[1]-1][curMinNode[0]].cost+cost(curMinNode[0], curMinNode[1]-1));
+      }
+    }
+    return nodes;
   }
   boolean startInvalid(PVector p1, PVector p2){
     if(p1.dist(p2)<mapWidth/4){
