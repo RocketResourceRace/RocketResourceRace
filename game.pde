@@ -173,9 +173,9 @@ class Game extends State{
     terrain = generateMap(playerStarts);
     map.reset(mapWidth, mapHeight, terrain, parties, buildings);
     
-    float[] conditions2 = map.target(playerStarts[1].x, playerStarts[1].y, 64);
+    float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, 64);
     players[1] = new Player(conditions2[0], conditions2[1], conditions2[2]);
-    float[] conditions1 = map.target(playerStarts[0].x, playerStarts[0].y, 64);
+    float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, 64);
     players[0] = new Player(conditions1[0], conditions1[1], conditions1[2]);
   }
   boolean startInvalid(PVector p1, PVector p2){
