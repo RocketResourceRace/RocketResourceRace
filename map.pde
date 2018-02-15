@@ -58,7 +58,7 @@ class Map extends Element{
   }
   void limitCoords(){
     mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth), 0);
-    mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight), 0); 
+    mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight), 0);
   }
   void reset(int mapWidth, int mapHeight, int[][] terrain, Party[][] parties, Building[][] buildings){
     mapXOffset = 0;
@@ -102,12 +102,12 @@ class Map extends Element{
       targetYOffset = -scaleYInv(y)*blockSize+elementHeight/2+yPos;
       limitCoords();
       panning = true;
-    }  
+    }
   }
   void resetTarget(){
     targetXOffset = mapXOffset;
     targetYOffset = mapYOffset;
-    panning = false; 
+    panning = false;
     mapVelocity[0] = 0;
     mapVelocity[1] = 0;
   }
@@ -116,13 +116,13 @@ class Map extends Element{
     targetBlockSize = blockSize;
     setPanningSpeed(0.1);
   }
-  
+
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
     if (eventType == "mouseWheel"){
-      float count = event.getCount();  //<>//
-      if(mouseOver()){   //<>//
-        float zoom = pow(0.9, count);   
-        float newBlockSize = max(min(blockSize*zoom, (float)elementWidth/10), (float)elementWidth/(float)mapSize); 
+      float count = event.getCount();
+      if(mouseOver()){
+        float zoom = pow(0.9, count);
+        float newBlockSize = max(min(blockSize*zoom, (float)elementWidth/10), (float)elementWidth/(float)mapSize);
         if (blockSize != newBlockSize){
           mapXOffset = scaleX(((mouseX-mapXOffset-xPos)/blockSize))-xPos-((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
           mapYOffset = scaleY(((mouseY-mapYOffset-yPos)/blockSize))-yPos-((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
@@ -135,8 +135,8 @@ class Map extends Element{
     }
     return new ArrayList<String>();
   }
-     
-  ArrayList<String> mouseEvent(String eventType, int button){ 
+
+  ArrayList<String> mouseEvent(String eventType, int button){
     if (button == LEFT){
       if (eventType=="mouseDragged" && mapFocused){
         mapXOffset += (mouseX-startX);
@@ -152,7 +152,7 @@ class Map extends Element{
           startX = mouseX;
           startY = mouseY;
           mapFocused = true;
-        } 
+        }
         else{
           mapFocused = false;
         }
@@ -194,14 +194,14 @@ class Map extends Element{
     }
     return new ArrayList<String>();
   }
-  
-  
+
+
   void draw(){
-    
+
     // Terrain
-    
-    PImage[] tempTileImages = new PImage[3];
-    PImage[] tempBuildingImages = new PImage[1];
+
+    PImage[] tempTileImages = new PImage[NUMOFGROUNDTYPES];
+    PImage[] tempBuildingImages = new PImage[NUMOFBUILDINGTYPES];
     PImage[] tempPartyImages = new PImage[2];
     if (frameStartTime == 0){
       frameStartTime = millis();
@@ -216,7 +216,7 @@ class Map extends Element{
         resetTargetZoom();
       }
     }
-    
+
     // Resize map based on scale
     elementWidth = round(EW*GUIScale);
     elementHeight = round(EH*GUIScale);
@@ -231,11 +231,16 @@ class Map extends Element{
     mapYOffset -= mapVelocity[1]*frameTime*60/1000;
     frameStartTime = millis();
     limitCoords();
-    for (int i=0; i<3; i++){
-      tempTileImages[i] = tileImages[i].copy();
-      tempTileImages[i].resize(ceil(blockSize), 0);
+    for (int i=0; i<NUMOFGROUNDTYPES; i++){
+      if(blockSize<24&&lowImages.containsKey(i)){
+        tempTileImages[i] = lowImages.get(i).copy();
+        tempTileImages[i].resize(ceil(blockSize), 0);
+      } else {
+        tempTileImages[i] = tileImages[i].copy();
+        tempTileImages[i].resize(ceil(blockSize), 0);
+      }
     }
-    for (int i=0; i<1; i++){
+    for (int i=0; i<NUMOFBUILDINGTYPES; i++){
       tempBuildingImages[i] = buildingImages[i].copy();
       tempBuildingImages[i].resize(ceil(blockSize*48/64), 0);
     }
@@ -272,7 +277,7 @@ class Map extends Element{
      image(tempTileImages[terrain[hy][hx]-1].get(0, 0, rightW, bottomW), x3, y3);
      image(tempTileImages[terrain[hy][lx-1]-1].get(0, 0, leftW, bottomW), xPos, y3);
      image(tempTileImages[terrain[ly-1][hx]-1].get(0, ceil(blockSize)-topW, rightW, topW), x3, yPos);
-     
+
      //Buildings
      PVector c;
      for(int y1=ly-1;y1<hy+1;y1++){
@@ -285,7 +290,7 @@ class Map extends Element{
          }
        }
      }
-     
+
      // Parties
      int y=0;
      for (Party[] row: parties){
@@ -298,7 +303,7 @@ class Map extends Element{
              if (c.x+blockSize>xPos){
                fill(120, 120, 120);
                rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
-             }  
+             }
              if (c.x+blockSize*p.unitNumber/1000>xPos){
                fill(0, 204, 0);
                rect(max(c.x, xPos), max(c.y, yPos), min(blockSize*p.unitNumber/1000, xPos+elementWidth-c.x, blockSize*p.unitNumber/1000+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
@@ -312,7 +317,7 @@ class Map extends Element{
        }
        y++;
      }
-     
+
      //cell selection
      stroke(0);
      if (cellSelected){
@@ -322,7 +327,7 @@ class Map extends Element{
          rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
        }
      }
-     
+
      fill(255, 0);
      rect(xPos, yPos, elementWidth, elementHeight);
   }
