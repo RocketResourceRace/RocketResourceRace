@@ -70,6 +70,7 @@ class Map extends Element{
     blockSize = min(elementWidth/(float)mapWidth, elementWidth/10);
     setPanningSpeed(0.01);
     resetTime = millis();
+    frameStartTime = 0;
   }
   void loadSettings(float x, float y, float bs){
     targetZoom(bs);
@@ -105,8 +106,8 @@ class Map extends Element{
   void resetTarget(){
     targetXOffset = mapXOffset;
     targetYOffset = mapYOffset;
-    panning = false;
-    mapVelocity[0] = 0; //<>//
+    panning = false; //<>//
+    mapVelocity[0] = 0;
     mapVelocity[1] = 0;
   }
   void resetTargetZoom(){
@@ -118,8 +119,8 @@ class Map extends Element{
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
     if (eventType == "mouseWheel"){
       float count = event.getCount(); //<>//
-      if(mouseOver()){
-        float zoom = pow(0.9, count); //<>//
+      if(mouseOver()){ //<>//
+        float zoom = pow(0.9, count); //<>// //<>//
         float newBlockSize = max(min(blockSize*zoom, (float)elementWidth/10), (float)elementWidth/(float)mapSize); //<>//
         if (blockSize != newBlockSize){
           mapXOffset = scaleX(((mouseX-mapXOffset-xPos)/blockSize))-xPos-((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
