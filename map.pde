@@ -68,7 +68,7 @@ class Map extends Element{
     this.parties = parties;
     this.buildings = buildings;
     blockSize = min(elementWidth/(float)mapWidth, elementWidth/10);
-    setPanningSpeed(0.01);
+    setPanningSpeed(0.02);
     resetTime = millis();
     frameStartTime = 0;
   }
@@ -101,7 +101,7 @@ class Map extends Element{
       targetYOffset = -scaleYInv(y)*blockSize+elementHeight/2+yPos;
       limitCoords();
       panning = true;
-    }
+    } //<>//
   }
   void resetTarget(){
     targetXOffset = mapXOffset;
@@ -211,7 +211,8 @@ class Map extends Element{
     }
     if (zooming){
       blockSize += (targetBlockSize-blockSize)*panningSpeed*frameTime*60/1000;
-      if (abs(blockSize-targetBlockSize) < 0.01){
+      println(blockSize);
+      if (abs(blockSize-targetBlockSize) < 0.001){
         resetTargetZoom();
       }
     }
@@ -222,10 +223,8 @@ class Map extends Element{
     if (panning){
       mapVelocity[0] = (mapXOffset-targetXOffset)*panningSpeed;
       mapVelocity[1] = (mapYOffset-targetYOffset)*panningSpeed;
-      if (pow(mapVelocity[0], 2) + pow(mapVelocity[1], 2) < pow(blockSize*0.01, 2)){
+      if (pow(mapVelocity[0], 2) + pow(mapVelocity[1], 2) < pow(blockSize*0.0001, 2)){
         resetTarget();
-        mapVelocity[0] = 0;
-        mapVelocity[1] = 0;
       }
     }
     mapXOffset -= mapVelocity[0]*frameTime*60/1000;
