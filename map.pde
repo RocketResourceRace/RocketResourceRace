@@ -2,14 +2,14 @@ import java.util.Collections;
 
 
 class Map extends Element{
-  final int EW, EH;
+  final int EW, EH, INITIALHOLD=2000;
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
   int mapWidth;
   int mapHeight;
   float blockSize, targetBlockSize;
-  float mapXOffset, mapYOffset, targetXOffset, targetYOffset;
+  float mapXOffset, mapYOffset, targetXOffset, targetYOffset, panningSpeed, resetTime;
   boolean panning=false, zooming=false;
   float mapMaxSpeed;
   int elementWidth;
@@ -52,6 +52,9 @@ class Map extends Element{
   void unselectCell(){
     cellSelected = false;
   }
+  void setPanningSpeed(float s){
+    panningSpeed = s;
+  }
   void limitCoords(){
     mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth), 0);
     mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight), 0); 
@@ -65,6 +68,8 @@ class Map extends Element{
     this.parties = parties;
     this.buildings = buildings;
     blockSize = min(elementWidth/(float)mapWidth, elementWidth/10);
+    setPanningSpeed(0.01);
+    resetTime = millis();
   }
   void loadSettings(float x, float y, float bs){
     targetZoom(bs);
@@ -82,8 +87,8 @@ class Map extends Element{
   }
   float [] targetCell(int x, int y, float bs){
     targetBlockSize = bs;
-    targetXOffset = -x*targetBlockSize+elementWidth/2+xPos;
-    targetYOffset = -y*targetBlockSize+elementHeight/2+yPos;
+    targetXOffset = -(x+0.5)*targetBlockSize+elementWidth/2+xPos;
+    targetYOffset = -(y+0.5)*targetBlockSize+elementHeight/2+yPos;
     panning = true;
     zooming = true;
     return new float[]{targetXOffset, targetYOffset, targetBlockSize};
@@ -107,14 +112,15 @@ class Map extends Element{
   void resetTargetZoom(){
     zooming = false;
     targetBlockSize = blockSize;
+    setPanningSpeed(0.1);
   }
   
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
     if (eventType == "mouseWheel"){
       float count = event.getCount(); //<>//
       if(mouseOver()){
-        float zoom = pow(0.9, count);
-        float newBlockSize = max(min(blockSize*zoom, (float)elementWidth/10), (float)elementWidth/(float)mapSize);
+        float zoom = pow(0.9, count); //<>//
+        float newBlockSize = max(min(blockSize*zoom, (float)elementWidth/10), (float)elementWidth/(float)mapSize); //<>//
         if (blockSize != newBlockSize){
           mapXOffset = scaleX(((mouseX-mapXOffset-xPos)/blockSize))-xPos-((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
           mapYOffset = scaleY(((mouseY-mapYOffset-yPos)/blockSize))-yPos-((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
@@ -199,12 +205,13 @@ class Map extends Element{
       frameStartTime = millis();
     }
     int frameTime = millis()-frameStartTime;
-    
+    if (millis()-resetTime < INITIALHOLD){
+      frameTime = 0;
+    }
     if (zooming){
-      blockSize += (targetBlockSize-blockSize)*0.05*frameTime*60/1000;
+      blockSize += (targetBlockSize-blockSize)*panningSpeed*frameTime*60/1000;
       if (abs(blockSize-targetBlockSize) < 0.01){
-        blockSize = targetBlockSize;
-        zooming = false;
+        resetTargetZoom();
       }
     }
     
@@ -212,10 +219,10 @@ class Map extends Element{
     elementWidth = round(EW*GUIScale);
     elementHeight = round(EH*GUIScale);
     if (panning){
-      mapVelocity[0] = (mapXOffset-targetXOffset)*0.05;
-      mapVelocity[1] = (mapYOffset-targetYOffset)*0.05;
+      mapVelocity[0] = (mapXOffset-targetXOffset)*panningSpeed;
+      mapVelocity[1] = (mapYOffset-targetYOffset)*panningSpeed;
       if (pow(mapVelocity[0], 2) + pow(mapVelocity[1], 2) < pow(blockSize*0.01, 2)){
-        panning = false;
+        resetTarget();
         mapVelocity[0] = 0;
         mapVelocity[1] = 0;
       }
