@@ -74,8 +74,8 @@ class Map extends Element{
   }
   void targetCell(int x, int y, float bs){
     targetBlockSize = bs;
-    targetXOffset = x*blockSize+elementWidth/2+xPos;
-    targetYOffset = y*blockSize+elementHeight/2+yPos;
+    targetXOffset = x*targetBlockSize+elementWidth/2+xPos;
+    targetYOffset = y*targetBlockSize+elementHeight/2+yPos;
     panning = true;
     zooming = true;
   }
