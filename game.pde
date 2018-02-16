@@ -78,6 +78,7 @@ class Game extends State{
   }
   void changeTurn(){
     changeTurn = true;
+    deselectCell();
     partyMovementPointsReset(turn);
   }
   void elementEvent(ArrayList<Event> events){

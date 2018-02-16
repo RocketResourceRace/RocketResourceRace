@@ -114,7 +114,7 @@ void loadSettings(){
 }
 void loadSounds(){
   sfx = new HashMap<String, SoundFile>();
-  sfx.put("click3", new SoundFile(this, "click3.wav"));
+  //sfx.put("click3", new SoundFile(this, "click3.wav"));
 }
 
 
