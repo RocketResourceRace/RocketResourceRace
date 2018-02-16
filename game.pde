@@ -280,6 +280,7 @@ class Game extends State{
       buildings[(int)playerStarts[0].y][(int)playerStarts[0].x+i] = new Building(1+i);
     }
     deselectCell();
+    turn = 0;
   }
   int cost(int x, int y){
     if (0<x && x<mapSize && 0<y && y<mapSize){

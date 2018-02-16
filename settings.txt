@@ -1,7 +1,7 @@
-gui_scale 1.03
+gui_scale 1.1
 text_scale 1.6
 volume 0.5
-mapSize 300
+mapSize 150
 sound 1
 water level
 smoothing 8

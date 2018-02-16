@@ -30,8 +30,7 @@ class Slider extends Element{
     this.value = new BigDecimal(""+value);
     this.name = name;
     textSize(15);
-    this.knobSize = textWidth(""+getInc(new BigDecimal(upper)));
-    print(""+getInc(new BigDecimal(upper)));
+    this.knobSize = textWidth(""+getInc(new BigDecimal(""+upper)));
   }
   void transform(int x, int y, int w, int h){
     this.lx = x;
