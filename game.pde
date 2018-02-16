@@ -8,9 +8,6 @@ class Game extends State{
   final int[] terrainCosts = new int[]{4, 3, 2, 3};
   int mapHeight = mapSize;
   int mapWidth = mapSize;
-  int waterLevel = 3;
-  int initialSmooth = 7;
-  int completeSmooth = 5;
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
@@ -405,7 +402,6 @@ class Game extends State{
   
   
   int[][] generateMap(PVector[] playerStarts){
-    
     int [][] terrain = new int[mapHeight][mapWidth];
     
     for(int y=0; y<mapHeight; y++){
@@ -416,7 +412,7 @@ class Game extends State{
       terrain[0][x] = 1;
       terrain[mapHeight-1][x] = 1;
     }
-    for(int i=0;i<NUMOFGROUNDSPAWNS;i++){
+    for(int i=0;i<groundSpawns;i++){
       int type = (int)random(NUMOFGROUNDTYPES)+1;
       int x = (int)random(mapWidth-2)+1;
       int y = (int)random(mapHeight-2)+1;

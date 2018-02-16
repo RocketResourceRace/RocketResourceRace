@@ -73,14 +73,14 @@ void setVolume(float x){
 
 int NUMOFGROUNDTYPES = 4;
 int NUMOFBUILDINGTYPES = 7;
-int NUMOFGROUNDSPAWNS = 100;
-int WATERLEVEL = 3;
+int groundSpawns = 100;
+int waterLevel = 3;
 int TILESIZE = 1;
 int MAPWIDTH = 100;
 int MAPHEIGHT = 100;
 
-int INITIALSMOOTH = 7;
-int COMPLETESMOOTH = 5;
+int initialSmooth = 7;
+int completeSmooth = 5;
 
 PImage[] tileImages;
 PImage[] buildingImages;

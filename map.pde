@@ -3,7 +3,6 @@ import java.util.Collections;
 
 class Map extends Element{
   final int EW, EH, INITIALHOLD=500;
-  final color[] terrainColours = {color(0,0,255), color(255,255,0), color(0,255,0),color(0,150,0)};;
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
@@ -119,9 +118,9 @@ class Map extends Element{
     zooming = false;
     targetBlockSize = blockSize;
     setPanningSpeed(0.1);
-  } //<>//
+  }
    //<>// //<>//
-  void updateMoveNodes(Node[][] nodes){ //<>//
+  void updateMoveNodes(Node[][] nodes){ //<>// //<>//
     moveNodes = nodes;
   }
   void cancelMoveNodes(){

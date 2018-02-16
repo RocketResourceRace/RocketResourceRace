@@ -29,6 +29,9 @@ class Slider extends Element{
     this.step = new BigDecimal(""+step);
     this.value = new BigDecimal(""+value);
     this.name = name;
+    textSize(15);
+    this.knobSize = textWidth(""+getInc(new BigDecimal(upper)));
+    print(""+getInc(new BigDecimal(upper)));
   }
   void transform(int x, int y, int w, int h){
     this.lx = x;
@@ -89,14 +92,16 @@ class Slider extends Element{
     BigDecimal range = upper.subtract(lower);
     float r = red(KnobColour), g = green(KnobColour), b = blue(KnobColour);
     pushStyle();
+    fill(255, 100);
+    stroke(strokeColour, 50);
+    rect(lx, y, lw, h);
+    //rect(xOffset+x, y+yOffset+padding+2, w, h-padding);
     stroke(strokeColour);
-    //fill(bgColour);
-    //rect(lx, y, lw, h);
     
     
     for(int i=0; i<=minor; i++){
       fill(scaleColour);
-      line(xOffset+x+w*i/minor, y+yOffset+padding+(h-padding)/4, xOffset+x+w*i/minor, y+yOffset+3*(h-padding)/4+padding);
+      line(xOffset+x+w*i/minor, y+yOffset+padding+(h-padding)/6, xOffset+x+w*i/minor, y+yOffset+5*(h-padding)/6+padding);
     }
     for(int i=0; i<=major; i++){
       fill(scaleColour);
@@ -123,7 +128,9 @@ class Slider extends Element{
     text(getInc(value).toPlainString(), x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2+boxHeight/4+yOffset+padding/2);
     stroke(0);
     textAlign(CENTER);
-    line(x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight/2+yOffset+padding/2, x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight+yOffset+padding/2);
+    stroke(255, 0, 0);
+    line(x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight/2+yOffset+padding/2, x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight+yOffset);
+    stroke(0);
     fill(0);
     textSize(12*TextScale);
     textAlign(LEFT, BOTTOM);
