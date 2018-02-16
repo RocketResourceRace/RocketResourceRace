@@ -334,7 +334,7 @@ class Map extends Element{
      if (cellSelected){
        c = new PVector(scaleX(selectedCellX), scaleY(selectedCellY));
        if (max(c.x, xPos)+min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)>xPos && max(c.x, xPos) < elementWidth+xPos && max(c.y, yPos)+min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos)>yPos && max(c.y, yPos) < elementHeight+yPos){
-         fill(50, 50, 50, 50);
+         fill(50, 100);
          rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
        }
      }
@@ -346,10 +346,12 @@ class Map extends Element{
              if (max(c.x, xPos)+min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)>xPos && max(c.x, xPos) < elementWidth+xPos && max(c.y, yPos)+min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos)>yPos && max(c.y, yPos) < elementHeight+yPos){
                fill(50, 150);
                rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
-               fill(255);
-               textSize(8*TextScale);
-               textAlign(CENTER, CENTER);
-               text(moveNodes[y1][x].cost, c.x+blockSize/2, c.y+blockSize/2);
+               if (blockSize > 10*TextScale){
+                 fill(255);
+                 textSize(8*TextScale);
+                 textAlign(CENTER, CENTER);
+                 text(moveNodes[y1][x].cost, c.x+blockSize/2, c.y+blockSize/2);
+               }
              }
            }
          }

@@ -121,11 +121,12 @@ class Game extends State{
             map.parties[y][x] = map.parties[cellY][cellX];
             map.parties[cellY][cellX] = null;
             deselectCell();
+            selectCell(mouseX, mouseY);
+            moving = false;
+            map.focusMapMouse(mouseX, mouseY);
             if (map.parties[y][x].movementPoints > 0){
-              selectCell(mouseX, mouseY);
               map.updateMoveNodes(djk(cellX, cellY, parties[cellY][cellX].movementPoints));
               moving = true;
-              map.focusMapMouse(mouseX, mouseY);
             }
           }
         }
@@ -179,7 +180,7 @@ class Game extends State{
     textAlign(LEFT, CENTER);
     textSize(8*TextScale);
     float barY = cellSelectionY + 13*TextScale + cellSelectionH*0.3 + bezel*2;
-    text("Movement Points Remaining: "+parties[cellY][cellX].movementPoints, 150+cellSelectionX, barY);
+    text("Movement Points Remaining: "+parties[cellY][cellX].movementPoints + "/16", 150+cellSelectionX, barY);
   }
   
   void drawCellManagement(){
