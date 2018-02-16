@@ -168,6 +168,7 @@ class Map extends Element{
         }
       }
       else if (eventType == "mouseClicked"){
+        if (moveNodes == null)
         focusMapMouse(mouseX, mouseY);
       }
     }

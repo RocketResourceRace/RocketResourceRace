@@ -65,19 +65,37 @@ class Game extends State{
     }
     return getNewState();
   }
+  void partyMovementPointsReset(int player){
+    for (int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        if (map.parties[y][x] != null){
+          if (map.parties[y][x].player == player){
+            map.parties[y][x].movementPoints = 16;
+          }
+        }
+      }
+    }
+  }
+  void changeTurn(){
+    changeTurn = true;
+    partyMovementPointsReset(turn);
+  }
   void elementEvent(ArrayList<Event> events){
     for (Event event : events){
       if (event.type == "clicked"){
         if (event.id == "end turn"){
-          changeTurn = true;
+          changeTurn();
+          
         }
         else if (event.id == "move button"){
-          moving = !moving;
-          if (moving){
-            map.updateMoveNodes(djk(cellX, cellY, 12));
-          }
-          else{
-            map.cancelMoveNodes();
+          if (parties[cellY][cellX].player == turn){
+            moving = !moving;
+            if (moving){
+              map.updateMoveNodes(djk(cellX, cellY, parties[cellY][cellX].movementPoints));
+            }
+            else{
+              map.cancelMoveNodes();
+            }
           }
         }
       }
@@ -92,6 +110,27 @@ class Game extends State{
     moving = false;
   }
   ArrayList<String> mouseEvent(String eventType, int button){
+    if (button == LEFT){
+      if (eventType == "mouseClicked"){
+        if (moving){
+          Node [][] nodes = map.moveNodes;
+          int x = floor(map.scaleXInv(mouseX));
+          int y = floor(map.scaleYInv(mouseY));
+          if (nodes[y][x] != null && !(cellX == x && cellY == y)){
+            map.parties[cellY][cellX].movementPoints-=nodes[y][x].cost;
+            map.parties[y][x] = map.parties[cellY][cellX];
+            map.parties[cellY][cellX] = null;
+            deselectCell();
+            if (map.parties[y][x].movementPoints > 0){
+              selectCell(mouseX, mouseY);
+              map.updateMoveNodes(djk(cellX, cellY, parties[cellY][cellX].movementPoints));
+              moving = true;
+              map.focusMapMouse(mouseX, mouseY);
+            }
+          }
+        }
+      }
+    }
     if (button == RIGHT){
       if (eventType == "mouseClicked"){
         if (map.mouseOver()){
@@ -99,22 +138,7 @@ class Game extends State{
             deselectCell();
           }
           else{
-            cellX = floor(map.scaleXInv(mouseX));
-            cellY = floor(map.scaleYInv(mouseY));
-            cellSelected = true;
-            map.selectCell(cellX, cellY);
-            getPanel("land management").setVisible(true);
-            if (parties[cellY][cellX] != null){
-              getPanel("party management").setVisible(true);
-              if (parties[cellY][cellX].player == 1){
-                partyManagementColour = color(170, 30, 30);
-                getPanel("party management").setColour(color(220, 70, 70));
-              }
-              else{
-                partyManagementColour = color(0, 0, 150);
-                getPanel("party management").setColour(color(70, 70, 220));
-              }
-            }
+            selectCell(mouseX, mouseY);
           }
         }
         else{
@@ -123,6 +147,24 @@ class Game extends State{
       }
     }
     return new ArrayList<String>();
+  }
+  void selectCell(int x, int y){
+    cellX = floor(map.scaleXInv(x));
+    cellY = floor(map.scaleYInv(y));
+    cellSelected = true;
+    map.selectCell(cellX, cellY);
+    getPanel("land management").setVisible(true);
+    if (parties[cellY][cellX] != null){
+      getPanel("party management").setVisible(true);
+      if (parties[cellY][cellX].player == 1){
+        partyManagementColour = color(170, 30, 30);
+        getPanel("party management").setColour(color(220, 70, 70));
+      }
+      else{
+        partyManagementColour = color(0, 0, 150);
+        getPanel("party management").setColour(color(70, 70, 220));
+      }
+    }
   }
   void drawPartyManagement(){
     Panel pp = getPanel("party management");
@@ -133,6 +175,11 @@ class Game extends State{
     textSize(10*TextScale);
     textAlign(CENTER, TOP);
     text("Party Management", cellSelectionX+cellSelectionW/2, pp.y);
+    
+    textAlign(LEFT, CENTER);
+    textSize(8*TextScale);
+    float barY = cellSelectionY + 13*TextScale + cellSelectionH*0.3 + bezel*2;
+    text("Movement Points Remaining: "+parties[cellY][cellX].movementPoints, 150+cellSelectionX, barY);
   }
   
   void drawCellManagement(){
@@ -237,9 +284,12 @@ class Game extends State{
   }
   int cost(int x, int y){
     if (0<x && x<mapSize && 0<y && y<mapSize){
-      return terrainCosts[terrain[floor(y)][floor(x)]-1];
+      if (map.parties[y][x] == null){
+        return terrainCosts[terrain[y][x]-1];
+      }
     }
-    return mapWidth;
+    //Not a valid location
+    return mapWidth*2;
   }
   int[] minNode(Node[][] nodes, int w, int h){
     int[] m = {-1, -1};
@@ -263,7 +313,7 @@ class Game extends State{
     int cx = x-xOff;
     int cy = y-yOff;
     nodes[cy][cx] = new Node(0, false);
-    int[] curMinNode = minNode(nodes, w, h);
+    int[] curMinNode = {cx, cy};
     while (curMinNode[0] != -1 && curMinNode[1] != -1){
       //println(curMinNode[0], curMinNode[1], cx, cy, nodes[curMinNode[1]][curMinNode[0]].fixed);
       nodes[curMinNode[1]][curMinNode[0]].fixed = true;
@@ -317,8 +367,8 @@ class Game extends State{
       player1 = PVector.random2D().mult(mapWidth/8).add(new PVector(mapWidth/4, mapHeight/2));
       player2 = PVector.random2D().mult(mapWidth/8).add(new PVector(3*mapWidth/4, mapHeight/2));
     }
-    parties[(int)player1.y][(int)player1.x] = new Party(0, 100, 'r');
-    parties[(int)player2.y][(int)player2.x] = new Party(1, 100, 'r');
+    parties[(int)player1.y][(int)player1.x] = new Party(0, 100, 'r', 16);
+    parties[(int)player2.y][(int)player2.x] = new Party(1, 100, 'r', 16);
     return  new PVector[]{player1, player2};
   }
   
