@@ -117,7 +117,7 @@ class Game extends State{
           Node [][] nodes = map.moveNodes;
           int x = floor(map.scaleXInv(mouseX));
           int y = floor(map.scaleYInv(mouseY));
-          if (nodes[y][x] != null && !(cellX == x && cellY == y)){
+          if (nodes[y][x] != null && !(cellX == x && cellY == y) && map.mouseOver()){
             map.parties[cellY][cellX].movementPoints-=nodes[y][x].cost;
             map.parties[y][x] = map.parties[cellY][cellX];
             map.parties[cellY][cellX] = null;
