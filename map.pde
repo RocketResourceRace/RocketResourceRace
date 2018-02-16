@@ -2,7 +2,8 @@ import java.util.Collections;
 
 
 class Map extends Element{
-  final int EW, EH, INITIALHOLD=400;
+  final int EW, EH, INITIALHOLD=500;
+  final color[] terrainColours = {color(0,0,255), color(255,255,0), color(0,255,0),color(0,150,0)};;
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
@@ -118,9 +119,9 @@ class Map extends Element{
     zooming = false;
     targetBlockSize = blockSize;
     setPanningSpeed(0.1);
-  }
+  } //<>//
    //<>// //<>//
-  void updateMoveNodes(Node[][] nodes){ //<>// //<>//
+  void updateMoveNodes(Node[][] nodes){ //<>//
     moveNodes = nodes;
   }
   void cancelMoveNodes(){
@@ -272,10 +273,10 @@ class Map extends Element{
      }
      int x3 = round(scaleX(hx));
      int y3 = round(scaleY(hy));
-     int topW = round(scaleY(ly)-yPos);
-     int bottomW = round(yPos+elementHeight-scaleY(hy));
-     int leftW = round(scaleX(lx)-xPos);
-     int rightW = round(xPos+elementWidth-scaleX(hx));
+     int topW = min(round(scaleY(ly)-yPos), ceil(blockSize));
+     int bottomW = min(round(yPos+elementHeight-scaleY(hy)), ceil(blockSize));
+     int leftW = min(round(scaleX(lx)-xPos), ceil(blockSize));
+     int rightW = min(round(xPos+elementWidth-scaleX(hx)), ceil(blockSize));
      for(int y=ly;y<hy;y++){
        image(tempTileImages[terrain[y][hx]-1].get(0, 0, rightW, ceil(blockSize)), x3,round(scaleY(y)));
        image(tempTileImages[terrain[y][lx-1]-1].get(ceil(blockSize)-leftW, 0, leftW, ceil(blockSize)), xPos, round(scaleY(y)));
@@ -288,6 +289,7 @@ class Map extends Element{
      image(tempTileImages[terrain[hy][hx]-1].get(0, 0, rightW, bottomW), x3, y3);
      image(tempTileImages[terrain[hy][lx-1]-1].get(0, 0, leftW, bottomW), xPos, y3);
      image(tempTileImages[terrain[ly-1][hx]-1].get(0, ceil(blockSize)-topW, rightW, topW), x3, yPos);
+
 
      //Buildings
      PVector c;

@@ -34,7 +34,7 @@ class Game extends State{
     players[0] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize);
     players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize);
     addPanel("land management", 0, 0, width, height, false, color(50, 200, 50), color(0));
-    addPanel("party management", 0, 0, width, height, false, color(220, 70, 70), color(0));
+    addPanel("party management", 0, 0, width, height, false, color(70, 70, 220), color(0));
     //int x, int y, int w, int h, color bgColour, color strokeColour, color textColour, int textSize, int textAlign, String text
     addElement("move button", new Button(bezel, bezel*2, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
     
@@ -210,11 +210,11 @@ class Game extends State{
     rect(0, height-bezel*2-buttonH, width, buttonH+bezel*2);
     textSize(10*TextScale);
     String turnString="";
-    if (this.turn==0){
+    if (this.turn==1){
       fill(255, 0, 0);
       turnString = "Red Player's Turn";
     }
-    else if (this.turn==1){
+    else if (this.turn==0){
       fill(0, 0, 255);
       turnString = "Blue Player's Turn";
     }
