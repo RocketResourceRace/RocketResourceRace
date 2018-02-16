@@ -119,8 +119,8 @@ class Map extends Element{
     targetBlockSize = blockSize;
     setPanningSpeed(0.1);
   }
-   //<>//
-  void updateMoveNodes(Node[][] nodes){ //<>//
+   //<>// //<>//
+  void updateMoveNodes(Node[][] nodes){ //<>// //<>//
     moveNodes = nodes;
   }
   void cancelMoveNodes(){
@@ -291,23 +291,16 @@ class Map extends Element{
 
      //Buildings
      PVector c;
-     for(int y1=ly-1;y1<hy+1;y1++){
+     for(int y=ly-1;y<hy+1;y++){
        for (int x=lx-1; x<hx+1; x++){
-         if (buildings[y1][x] != null){
-           c = new PVector(scaleX(x), scaleY(y1));
+         //int pt = millis();
+         if (buildings[y][x] != null){
+           c = new PVector(scaleX(x), scaleY(y));
            int border = round((64-48)*blockSize/(2*64));
            int imgSize = round(blockSize*48/60);
-           drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, tempBuildingImages[buildings[y1][x].type-1]);
+           drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, tempBuildingImages[buildings[y][x].type-1]);
          }
-       }
-     }
-
-     // Parties
-     int y=0;
-     for (Party[] row: parties){
-       x=0;
-       for(Party p: row){
-         if(p!=null){
+         if(parties[y][x]!=null){
            c = new PVector(scaleX(x), scaleY(y));
            if(c.x<xPos+elementWidth&&c.y+blockSize/8>yPos&&c.y<yPos+elementHeight){
              noStroke();
@@ -315,18 +308,19 @@ class Map extends Element{
                fill(120, 120, 120);
                rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
              }
-             if (c.x+blockSize*p.unitNumber/1000>xPos){
+             if (c.x+blockSize*parties[y][x].unitNumber/1000>xPos){
                fill(0, 204, 0);
-               rect(max(c.x, xPos), max(c.y, yPos), min(blockSize*p.unitNumber/1000, xPos+elementWidth-c.x, blockSize*p.unitNumber/1000+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
+               rect(max(c.x, xPos), max(c.y, yPos), min(blockSize*parties[y][x].unitNumber/1000, xPos+elementWidth-c.x, blockSize*parties[y][x].unitNumber/1000+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
              }
            }
            int border = round((64-24)*blockSize/(2*64));
            int imgSize = round(blockSize*24/60);
            drawCroppedImage(floor(c.x+border), floor(c.y+border), imgSize, imgSize, tempPartyImages[parties[y][x].player]);
          }
-         x++;
+         //if (millis()-pt > 10){
+         //  println(millis()-pt);
+         //}
        }
-       y++;
      }
 
      //cell selection
@@ -376,8 +370,8 @@ class Map extends Element{
       int newY = max(min(y, yPos+elementHeight), yPos);
       int imgX = max(0, newX-x, 0);
       int imgY = max(0, newY-y, 0);
-      int imgW = max(elementWidth+xPos-x, -sign(elementWidth+xPos-x)*(x+w-newX));
-      int imgH = max(elementHeight+yPos-y, -sign(elementHeight+yPos-y)*(y+h-newY));
+      int imgW = min(max(elementWidth+xPos-x, -sign(elementWidth+xPos-x)*(x+w-newX)), img.width);
+      int imgH = min(max(elementHeight+yPos-y, -sign(elementHeight+yPos-y)*(y+h-newY)), img.height);
       image(img.get(imgX, imgY, imgW, imgH), newX, newY);
     }
   }

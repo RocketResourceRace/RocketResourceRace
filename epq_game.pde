@@ -169,6 +169,7 @@ boolean smoothed = false;
 void draw(){
   background(255);
   prevT = millis();
+  
   String newState = getActiveState().update();
   if (!newState.equals("")){
     for (Panel panel : states.get(newState).panels){
