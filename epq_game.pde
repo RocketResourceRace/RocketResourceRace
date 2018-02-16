@@ -15,6 +15,7 @@ final String LETTERSNUMBERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw
 HashMap<String, SoundFile> sfx;
 float volume;
 int prevT;
+boolean soundOn = true;
 
 // Event-driven methods
 void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}
@@ -113,8 +114,11 @@ void loadSettings(){
   }
 }
 void loadSounds(){
-  sfx = new HashMap<String, SoundFile>();
-  sfx.put("click3", new SoundFile(this, "click3.wav"));
+  soundOn = Integer.parseInt(settings.get("sound"))==1;
+  if(soundOn){
+    sfx = new HashMap<String, SoundFile>(); //<>//
+    sfx.put("click3", new SoundFile(this, "click3.wav"));
+  }
 }
 
 
