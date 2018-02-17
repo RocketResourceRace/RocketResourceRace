@@ -20,6 +20,7 @@ class Game extends State{
   String[] landTypes;
   String[] buildingTypes;
   color partyManagementColour;
+  String[] tasks = {"rest", "farm", "defend"};
   
   Game(){
     addElement("map", new Map(bezel, bezel, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
@@ -34,6 +35,8 @@ class Game extends State{
     addPanel("party management", 0, 0, width, height, false, color(70, 70, 220), color(0));
     //int x, int y, int w, int h, color bgColour, color strokeColour, color textColour, int textSize, int textAlign, String text
     addElement("move button", new Button(bezel, bezel*2, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
+    addElement("tasks", new DropDown(bezel, bezel*3+30, 150, 10, color(150), color(50), tasks), "party management");
+    ((DropDown)getElement("tasks", "party management")).makeAvailable("defend");
     
     landTypes = new String[]{"Water", "Sand", "Grass", "Forest"};
     buildingTypes = new String[]{"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};

@@ -28,6 +28,14 @@ void keyPressed(){keyboardEvent("keyPressed", key);}
 void keyReleased(){keyboardEvent("keyReleased", key);}
 void keyTyped(){keyboardEvent("keyTyped", key);}
 
+float between(float lower, float v, float upper){
+  return max(min(upper, v), lower);
+}
+
+color brighten(color old, int off){
+  return color(between(0, red(old)+off, 255), between(0, green(old)+off, 255), between(0, blue(old)+off, 255));
+}
+
 void doubleClick(){
   if (millis() - lastClickTime < DOUBLECLICKWAIT){
     mouseEvent("mouseDoubleClicked", mouseButton);
@@ -56,10 +64,6 @@ void keyboardEvent(String eventType, char _key){
   getActiveState()._keyboardEvent(eventType, _key);
 }
 
-color brighten(color c, int offset){
-  float r = red(c), g = green(c), b = blue(c);
-  return color(min(r+offset, 255), min(g+offset, 255), min(b+offset, 255));
-}
 void setVolume(float x){
   if (0<=x && x<=1){
     volume = x;
