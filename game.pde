@@ -329,6 +329,11 @@ class Game extends State{
     text("Movement Points Remaining: "+parties[cellY][cellX].movementPoints + "/16", 150+cellSelectionX, barY);
     barY += 13*TextScale;
     text("Units: "+parties[cellY][cellX].unitNumber + "/1000", 150+cellSelectionX, barY);
+    barY += 13*TextScale;
+    if (parties[cellY][cellX].actions.size() > 0 && parties[cellY][cellX].actions.get(0).initialTurns > 0){
+      text("Turns Remaining: "+parties[cellY][cellX].actions.get(0).turns + "/"+parties[cellY][cellX].actions.get(0).initialTurns, 150+cellSelectionX, barY);
+      barY += 13*TextScale;
+    }
   }
   
   void drawCellManagement(){

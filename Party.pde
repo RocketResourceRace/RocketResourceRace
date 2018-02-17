@@ -21,7 +21,7 @@ class Party{
     if (actions.size() == 0){
       return "";
     }
-    if (actions.get(0).turns-- < 0){
+    if (actions.get(0).turns-- <= 0){
       return actions.get(0).type;
     }
     return "";
