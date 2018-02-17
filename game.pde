@@ -204,7 +204,9 @@ class Game extends State{
         getPanel("party management").setColour(color(70, 70, 220));
       }
     }
-    checkTasks();
+    if (parties[cellY][cellX] != null){
+      checkTasks();
+    }
   }
   void drawPartyManagement(){
     Panel pp = getPanel("party management");
