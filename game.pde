@@ -21,7 +21,7 @@ class Game extends State{
   String[] landTypes;
   String[] buildingTypes;
   color partyManagementColour;
-  String[] tasks = {"rest", "farm", "defend"};
+  String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill"};
   final String[] tooltipText = {
     "Defending improves fighting\neffectiveness against aggressors\nCosts: 6 movement points.",
     "The farm produces food when worked.\nCosts: 50 wood.\nConsumes: Nothing.",
@@ -70,13 +70,21 @@ class Game extends State{
   //task not defend moving
   void checkTasks(){
     resetAvailableTasks();
-    makeTaskAvailable("rest");
+    makeTaskAvailable("Rest");
+    int cellTerrain = terrain[cellY][cellX];
     if (parties[cellY][cellX].movementPoints >= DEFENDCOST)
-      makeTaskAvailable("defend");
+      makeTaskAvailable("Defend");
     if (buildings[cellY][cellX] != null){
       if (buildings[cellY][cellX].type==2){
-        makeTaskAvailable("farm");
+        makeTaskAvailable("Farm");
       }
+      makeTaskAvailable("Demolish");
+    }
+    else{
+      if (cellTerrain == 3){
+        makeTaskAvailable("Build Farm");
+      }
+      
     }
   }
   
@@ -111,7 +119,7 @@ class Game extends State{
     int th = ceil(textAscent()+textDescent())*lines.size();
     int tx = mouseX-tw/2;
     int ty = mouseY+20;
-    fill(200, 100);
+    fill(255, 200);
     stroke(0);
     rectMode(CORNER);
     rect(tx, ty, tw, th);
@@ -161,11 +169,11 @@ class Game extends State{
     for (Event event : events){
       if (event.type == "value changed"){
         if (event.id == "tasks"){
-          if (parties[cellY][cellX].task == "defend"){
+          if (parties[cellY][cellX].task == "Defend"){
             parties[cellY][cellX].movementPoints = min(parties[cellY][cellX].movementPoints+DEFENDCOST, 16);
           }
           parties[cellY][cellX].changeTask(((DropDown)getElement("tasks", "party management")).getSelected());
-          if (parties[cellY][cellX].task == "defend"){
+          if (parties[cellY][cellX].task == "Defend"){
             moving = false;
             map.cancelMoveNodes();
             parties[cellY][cellX].movementPoints -= DEFENDCOST;
@@ -178,7 +186,7 @@ class Game extends State{
           
         }
         else if (event.id == "move button"){
-          if (parties[cellY][cellX].player == turn && parties[cellY][cellX].task != "defend"){
+          if (parties[cellY][cellX].player == turn && parties[cellY][cellX].task != "Defend"){
             moving = !moving;
             if (moving){
               map.updateMoveNodes(djk(cellX, cellY, parties[cellY][cellX].movementPoints));
@@ -240,7 +248,8 @@ class Game extends State{
     if (eventType == "mouseMoved"){
       if (((DropDown)getElement("tasks", "party management")).moveOver()){
         switch (((DropDown)getElement("tasks", "party management")).findMouseOver()){
-          case "defend":toolTipSelected = 0;break;
+          case "Defend":toolTipSelected = 0;break;
+          case "Build Farm":toolTipSelected = 1;break;
           default: toolTipSelected = -1;break;
         }
       }
@@ -330,15 +339,11 @@ class Game extends State{
     textAlign(CENTER, TOP);
     text(turnString, bezel*2+buttonW+(textWidth(turnString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
     
-    barX=width;
-    String tempString = "food:"+players[turn].food;
-    barX -= textWidth(tempString)+10+bezel;
-    fill(150);
-    rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
-    fill(255);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
     
-    tempString = "wood:"+players[turn].wood;
+    String tempString;
+    barX=width;
+
+    tempString = "energy:"+players[turn].energy;
     barX -= textWidth(tempString)+10+bezel;
     fill(150);
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
@@ -352,7 +357,14 @@ class Game extends State{
     fill(255);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
     
-    tempString = "energy:"+players[turn].energy;
+    tempString = "wood:"+players[turn].wood;
+    barX -= textWidth(tempString)+10+bezel;
+    fill(150);
+    rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
+    fill(255);
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
+    
+    tempString = "food:"+players[turn].food;
     barX -= textWidth(tempString)+10+bezel;
     fill(150);
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
