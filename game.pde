@@ -55,6 +55,11 @@ class Game extends State{
   void resetAvailableTasks(){
     ((DropDown)getElement("tasks", "party management")).resetAvailable();
   }
+  //tasks
+  //settings
+  //moving
+  //attacking
+  //task not defend moving
   void checkTasks(){
     resetAvailableTasks();
     makeTaskAvailable("rest");
@@ -100,6 +105,11 @@ class Game extends State{
   }
   void elementEvent(ArrayList<Event> events){
     for (Event event : events){
+      if (event.type == "value changed"){
+        if (event.id == "tasks"){
+          parties[cellY][cellX].changeTask(((DropDown)getElement("tasks", "party management")).getSelected());
+        }
+      }
       if (event.type == "clicked"){
         if (event.id == "end turn"){
           changeTurn();
@@ -200,6 +210,8 @@ class Game extends State{
     textSize(8*TextScale);
     float barY = cellSelectionY + 13*TextScale + cellSelectionH*0.3 + bezel*2;
     text("Movement Points Remaining: "+parties[cellY][cellX].movementPoints + "/16", 150+cellSelectionX, barY);
+    barY += 13*TextScale;
+    text("Units: "+parties[cellY][cellX].unitNumber + "/1000", 150+cellSelectionX, barY);
   }
   
   void drawCellManagement(){
@@ -388,8 +400,8 @@ class Game extends State{
       player1 = PVector.random2D().mult(mapWidth/8).add(new PVector(mapWidth/4, mapHeight/2));
       player2 = PVector.random2D().mult(mapWidth/8).add(new PVector(3*mapWidth/4, mapHeight/2));
     }
-    parties[(int)player1.y][(int)player1.x] = new Party(0, 100, 'r', 16);
-    parties[(int)player2.y][(int)player2.x] = new Party(1, 100, 'r', 16);
+    parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "rest", 16);
+    parties[(int)player2.y][(int)player2.x] = new Party(1, 100, "rest", 16);
     return  new PVector[]{player1, player2};
   }
   

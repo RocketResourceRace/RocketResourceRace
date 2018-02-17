@@ -40,6 +40,9 @@ class DropDown extends Element{
   void resetAvailable(){
     this.availableOptions = new ArrayList<Integer>();
   }
+  String getSelected(){
+    return options.get(availableOptions.get(0));
+  }
   void makeAvailable(String option){
     for (int i=0; i<options.size(); i++){
       if (options.get(i).equals(option)){
