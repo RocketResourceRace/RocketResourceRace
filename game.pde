@@ -8,13 +8,14 @@ class Game extends State{
   final int[] terrainCosts = new int[]{4, 3, 2, 3};
   final int DEFENDCOST = 6;
   final float [] STARTINGRESOURCES = new float[]{1000, 1000, 0, 0};
-  final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", };
+  final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Clear Forest"};
   final String[] landTypes = {"Water", "Sand", "Grass", "Forest"};
   final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
   final String[] tooltipText = {
     "Defending improves fighting\neffectiveness against aggressors\nCosts: 6 movement points.",
     "The farm produces food when worked.\nCosts: 50 wood.\nConsumes: Nothing.",
     "The mine produces ore when worked.\nCosts: 200 wood.\nConsumes: 10 wood",
+    "Clearing a forest adds 100 wood to stockpile./nThe tile is turned to grassland",
   };
   int mapHeight = mapSize;
   int mapWidth = mapSize;
@@ -67,6 +68,7 @@ class Game extends State{
   //moving
   //attacking
   //task not defend moving
+  
   void checkTasks(){
     resetAvailableTasks();
     makeTaskAvailable("Rest");
@@ -85,6 +87,10 @@ class Game extends State{
       }
       
     }
+    if (cellTerrain == 4){
+      makeTaskAvailable("Clear Forest");
+    }
+    ((DropDown)getElement("tasks", "party management")).select(parties[cellY][cellX].task);
   }
   
   ArrayList<String> getLines(String s){
@@ -129,12 +135,37 @@ class Game extends State{
     }
   }
   
+  void turnChange(){
+    for (int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        if (map.parties[y][x] != null){
+          if (map.parties[y][x].player == turn){
+            String action = map.parties[y][x].progressAction();
+            switch (action){
+              case "Clear Forest":
+                map.terrain[y][x] = 3;
+                break;
+            }
+            if (action != ""){
+              map.parties[y][x].clearCurrentAction();
+              map.parties[y][x].task="Rest";
+            }
+          }
+        }
+      }
+    }
+    deselectCell();
+    partyMovementPointsReset(turn);
+    
+    players[turn].saveMapSettings(map.mapXOffset, map.mapYOffset, map.blockSize);
+    turn = (turn + 1)%2;
+    players[turn].loadMapSettings(map);
+    changeTurn = false;
+  }
+  
   String update(){
     if (changeTurn){  
-      players[turn].saveMapSettings(map.mapXOffset, map.mapYOffset, map.blockSize);
-      turn = (turn + 1)%2;
-      players[turn].loadMapSettings(map);
-      changeTurn = false;
+      turnChange();
     }
     drawBar();
     drawPanels();
@@ -161,14 +192,13 @@ class Game extends State{
   }
   void changeTurn(){
     changeTurn = true;
-    deselectCell();
-    partyMovementPointsReset(turn);
   }
   void elementEvent(ArrayList<Event> events){
     for (Event event : events){
       if (event.type == "value changed"){
         if (event.id == "tasks"){
           if (parties[cellY][cellX].task == "Defend"){
+            //Changing from defending
             parties[cellY][cellX].movementPoints = min(parties[cellY][cellX].movementPoints+DEFENDCOST, 16);
           }
           parties[cellY][cellX].changeTask(((DropDown)getElement("tasks", "party management")).getSelected());
@@ -176,6 +206,9 @@ class Game extends State{
             moving = false;
             map.cancelMoveNodes();
             parties[cellY][cellX].movementPoints -= DEFENDCOST;
+          }
+          else if (parties[cellY][cellX].task == "Clear Forest"){
+            parties[cellY][cellX].addAction(new Action("Clear Forest", 3));
           }
         }
       }
@@ -249,6 +282,7 @@ class Game extends State{
         switch (((DropDown)getElement("tasks", "party management")).findMouseOver()){
           case "Defend":toolTipSelected = 0;break;
           case "Build Farm":toolTipSelected = 1;break;
+          case "Clear Forest":toolTipSelected = 3;break;
           default: toolTipSelected = -1;break;
         }
       }
@@ -275,7 +309,7 @@ class Game extends State{
         getPanel("party management").setColour(color(70, 70, 220));
       }
     }
-    if (parties[cellY][cellX] != null){
+    if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn){
       checkTasks();
     }
   }

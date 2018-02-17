@@ -64,6 +64,13 @@ class DropDown extends Element{
     availableOptions.set(0, availableOptions.get(j));
     availableOptions.set(j, temp);
   }
+  void select(String s){
+    for (int j=0; j<availableOptions.size(); j++){
+      if (options.get(availableOptions.get(j)) == s){
+        select(j);
+      }
+    }
+  }
   int getH(){
     textSize(textSize*TextScale);
     return ceil(textAscent() + textDescent());
