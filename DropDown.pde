@@ -2,7 +2,7 @@
 class DropDown extends Element{
   ArrayList<String> options;
   ArrayList<Integer> availableOptions;
-  int selectedOption, textSize;
+  int textSize;
   boolean dropped;
   color bgColour, strokeColour;
   private final int HOVERINGOFFSET = 80, ONOFFSET = -50;
@@ -15,7 +15,6 @@ class DropDown extends Element{
     this.bgColour = bgColour;
     this.strokeColour = strokeColour;
     removeAllOptions();
-    selectedOption=0;
     for (String option : options){
       this.options.add(option);
     }
@@ -45,8 +44,22 @@ class DropDown extends Element{
     for (int i=0; i<options.size(); i++){
       if (options.get(i).equals(option)){
         this.availableOptions.add(i);
+        return;
       }
     }
+  }
+  void makeUnavailable(String option){
+    for (int i=0; i<options.size(); i++){
+      if (options.get(i).equals(option)){
+        this.availableOptions.remove(i);
+        return;
+      }
+    }
+  }
+  void select(int j){
+    int temp = availableOptions.get(0);
+    availableOptions.set(0, availableOptions.get(j));
+    availableOptions.set(j, temp);
   }
   int getH(){
     textSize(textSize*TextScale);
@@ -68,29 +81,38 @@ class DropDown extends Element{
     rect(x+xOffset, y+yOffset, w, h);
     fill(0);
     textAlign(LEFT, TOP);
-    text("Current Task: "+options.get(selectedOption), x+xOffset+5, y+yOffset);
+    text("Current Task: "+options.get(availableOptions.get(0)), x+xOffset+5, y+yOffset);
     
     if (dropped){
-      int i=0;
-      int j=1;
-      while (i < options.size()){
-        if (i!=selectedOption && optionAvailable(i)){
-          if (mouseOver(j)){
-            fill(brighten(bgColour, HOVERINGOFFSET));
-          }
-          else{
-            fill(bgColour);
-          }
-          rect(x+xOffset, y+yOffset+h*j, w, h);
-          fill(0);
-          text(options.get(i), x+xOffset+5, y+yOffset+h*j);
-          j++;
+      for (int j=1; j< availableOptions.size(); j++){
+        if (mouseOver(j)){
+          fill(brighten(bgColour, HOVERINGOFFSET));
         }
-        i++;
+        else{
+          fill(bgColour);
+        }
+        rect(x+xOffset, y+yOffset+h*j, w, h);
+        fill(0);
+        text(options.get(availableOptions.get(j)), x+xOffset+5, y+yOffset+h*j);
       }
     }
     popStyle();
   }
+  
+  ArrayList<String> mouseEvent(String eventType, int button){
+    ArrayList<String> events = new ArrayList<String>();
+    if (eventType == "mouseClicked" && button == LEFT){
+      for (int j=1; j < availableOptions.size();j++){
+        if (mouseOver(j)){
+          select(j);
+          print(availableOptions);
+          events.add("value changed");
+        }
+      }
+    }
+    return events;
+  }
+  
   boolean moveOver(){
     return mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+yOffset && mouseY <= y+h*availableOptions.size()+yOffset;
   }
