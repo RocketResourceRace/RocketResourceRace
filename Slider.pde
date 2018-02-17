@@ -93,7 +93,7 @@ class Slider extends Element{
     pushStyle();
     fill(255, 100);
     stroke(strokeColour, 50);
-    rect(lx, y, lw, h);
+    //rect(lx, y, lw, h);
     //rect(xOffset+x, y+yOffset+padding+2, w, h-padding);
     stroke(strokeColour);
     

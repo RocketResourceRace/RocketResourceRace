@@ -36,10 +36,10 @@ class Menu extends State{
   
     addElement("start", new Button(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Start"), "new game");
     addElement("save name", new TextEntry(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, LEFT, color(0), color(100, 100, 100), color(150, 150, 150), LETTERSNUMBERS, "Save Name"), "new game");
-    addElement("map size", new Slider(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(255, 255, 255), color(0), 100, mapSize, 300, 5, 20, 10, true, "Map Size"), "new game");
-    addElement("smoothing", new Slider(width-buttonW*2-buttonP*2, buttonH*1+buttonP*2, buttonW, buttonH, color(0, 255, 0), bColour, color(255, 255, 255), color(0), 0, 6, 20, 4, 20, 1, true, "Smoothing"), "new game");
-    addElement("water level", new Slider(width-buttonW*2-buttonP*2, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(255, 255, 255), color(0), 0, 3, 20, 4, 20, 1, true, "Water Level"), "new game");
-    addElement("ground spawns", new Slider(width-buttonW*2-buttonP*2, buttonH*3+buttonP*4, buttonW, buttonH, color(0, 255, 0), bColour, color(255, 255, 255), color(0), 50, 100, 300, 5, 25, 10, true, "Ground Spawns"), "new game");
+    addElement("map size", new Slider(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(150), color(0), 100, mapSize, 300, 5, 20, 10, true, "Map Size"), "new game");
+    addElement("smoothing", new Slider(width-buttonW*2-buttonP*2, buttonH*1+buttonP*2, buttonW, buttonH, color(0, 255, 0), bColour, color(150), color(0), 0, 6, 20, 4, 20, 1, true, "Smoothing"), "new game");
+    addElement("water level", new Slider(width-buttonW*2-buttonP*2, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(150), color(0), 0, 3, 20, 4, 20, 1, true, "Water Level"), "new game");
+    addElement("ground spawns", new Slider(width-buttonW*2-buttonP*2, buttonH*3+buttonP*4, buttonW, buttonH, color(0, 255, 0), bColour, color(150), color(0), 50, 100, 300, 5, 25, 10, true, "Ground Spawns"), "new game");
     addElement("back", new Button(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Back"), "new game");
   }
   
