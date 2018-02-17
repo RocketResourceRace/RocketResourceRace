@@ -6,6 +6,7 @@ class Game extends State{
   final int buttonH = 50;
   final int bezel = 20;
   final int[] terrainCosts = new int[]{4, 3, 2, 3};
+  final int DEFENDCOST = 6;
   int mapHeight = mapSize;
   int mapWidth = mapSize;
   int[][] terrain;
@@ -35,7 +36,7 @@ class Game extends State{
     addPanel("party management", 0, 0, width, height, false, color(70, 70, 220), color(0));
     //int x, int y, int w, int h, color bgColour, color strokeColour, color textColour, int textSize, int textAlign, String text
     addElement("move button", new Button(bezel, bezel*2, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
-    addElement("tasks", new DropDown(bezel, bezel*3+30, 150, 10, color(150), color(50), tasks), "party management");
+    addElement("tasks", new DropDown(bezel, bezel*3+30, 200, 10, color(150), color(50), tasks), "party management");
     
     landTypes = new String[]{"Water", "Sand", "Grass", "Forest"};
     buildingTypes = new String[]{"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
@@ -55,7 +56,7 @@ class Game extends State{
   void resetAvailableTasks(){
     ((DropDown)getElement("tasks", "party management")).resetAvailable();
   }
-  //tasks
+  //tasks building
   //settings
   //moving
   //attacking
@@ -63,7 +64,8 @@ class Game extends State{
   void checkTasks(){
     resetAvailableTasks();
     makeTaskAvailable("rest");
-    makeTaskAvailable("defend");
+    if (parties[cellY][cellX].movementPoints >= DEFENDCOST)
+      makeTaskAvailable("defend");
     if (buildings[cellY][cellX] != null){
       if (buildings[cellY][cellX].type==2){
         makeTaskAvailable("farm");
@@ -107,7 +109,15 @@ class Game extends State{
     for (Event event : events){
       if (event.type == "value changed"){
         if (event.id == "tasks"){
+          if (parties[cellY][cellX].task == "defend"){
+            parties[cellY][cellX].movementPoints = min(parties[cellY][cellX].movementPoints+DEFENDCOST, 16);
+          }
           parties[cellY][cellX].changeTask(((DropDown)getElement("tasks", "party management")).getSelected());
+          if (parties[cellY][cellX].task == "defend"){
+            moving = false;
+            map.cancelMoveNodes();
+            parties[cellY][cellX].movementPoints -= DEFENDCOST;
+          }
         }
       }
       if (event.type == "clicked"){
@@ -116,7 +126,7 @@ class Game extends State{
           
         }
         else if (event.id == "move button"){
-          if (parties[cellY][cellX].player == turn){
+          if (parties[cellY][cellX].player == turn && parties[cellY][cellX].task != "defend"){
             moving = !moving;
             if (moving){
               map.updateMoveNodes(djk(cellX, cellY, parties[cellY][cellX].movementPoints));
