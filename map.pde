@@ -2,7 +2,7 @@ import java.util.Collections;
 
 
 class Map extends Element{
-  final int EW, EH, INITIALHOLD=500;
+  final int EW, EH, INITIALHOLD=1000;
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
@@ -117,7 +117,7 @@ class Map extends Element{
   void resetTargetZoom(){
     zooming = false;
     targetBlockSize = blockSize;
-    setPanningSpeed(0.1);
+    setPanningSpeed(0.05);
   }
    //<>// //<>//
   void updateMoveNodes(Node[][] nodes){ //<>// //<>//

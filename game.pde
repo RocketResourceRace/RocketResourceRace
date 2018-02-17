@@ -199,7 +199,7 @@ class Game extends State{
     drawPanels();
     if (cellSelected){
       drawCellManagement();
-      if(parties[cellY][cellX] != null)
+      if(parties[cellY][cellX] != null && getPanel("party management").visible)
         drawPartyManagement();
     }
     if (toolTipSelected >= 0){
@@ -368,7 +368,7 @@ class Game extends State{
     cellSelected = true;
     map.selectCell(cellX, cellY);
     getPanel("land management").setVisible(true);
-    if (parties[cellY][cellX] != null){
+    if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn){
       getPanel("party management").setVisible(true);
       if (parties[cellY][cellX].player == 1){
         partyManagementColour = color(170, 30, 30);
@@ -378,8 +378,6 @@ class Game extends State{
         partyManagementColour = color(0, 0, 150);
         getPanel("party management").setColour(color(70, 70, 220));
       }
-    }
-    if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn){
       checkTasks();
     }
   }
@@ -499,13 +497,13 @@ class Game extends State{
     terrain = generateMap(playerStarts);
     map.reset(mapWidth, mapHeight, terrain, parties, buildings);
     
-    float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, 64);
-    players[1] = new Player(conditions2[0], conditions2[1], 64, STARTINGRESOURCES.clone());
-    float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, 64);
-    players[0] = new Player(conditions1[0], conditions1[1], 64, STARTINGRESOURCES.clone());
-    for(int i=0;i<NUMOFBUILDINGTYPES;i++){
-      buildings[(int)playerStarts[0].y][(int)playerStarts[0].x+i] = new Building(1+i);
-    }
+    float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, 42);
+    players[1] = new Player(conditions2[0], conditions2[1], 42, STARTINGRESOURCES.clone());
+    float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, 42);
+    players[0] = new Player(conditions1[0], conditions1[1], 42, STARTINGRESOURCES.clone());
+    //for(int i=0;i<NUMOFBUILDINGTYPES;i++){
+    //  buildings[(int)playerStarts[0].y][(int)playerStarts[0].x+i] = new Building(1+i);
+    //}
     deselectCell();
     turn = 0;
     toolTipSelected=-1;
