@@ -36,9 +36,6 @@ class Game extends State{
     //int x, int y, int w, int h, color bgColour, color strokeColour, color textColour, int textSize, int textAlign, String text
     addElement("move button", new Button(bezel, bezel*2, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
     addElement("tasks", new DropDown(bezel, bezel*3+30, 150, 10, color(150), color(50), tasks), "party management");
-    ((DropDown)getElement("tasks", "party management")).makeAvailable("defend");
-    ((DropDown)getElement("tasks", "party management")).makeAvailable("rest");
-    ((DropDown)getElement("tasks", "party management")).makeAvailable("farm");
     
     landTypes = new String[]{"Water", "Sand", "Grass", "Forest"};
     buildingTypes = new String[]{"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
@@ -51,6 +48,24 @@ class Game extends State{
     getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.3));
     getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.3)+bezel, cellSelectionW, round(cellSelectionH*0.7)-bezel);
   }
+  
+  void makeTaskAvailable(String task){
+    ((DropDown)getElement("tasks", "party management")).makeAvailable(task);
+  }
+  void resetAvailableTasks(){
+    ((DropDown)getElement("tasks", "party management")).resetAvailable();
+  }
+  void checkTasks(){
+    resetAvailableTasks();
+    makeTaskAvailable("rest");
+    makeTaskAvailable("defend");
+    if (buildings[cellY][cellX] != null){
+      if (buildings[cellY][cellX].type==2){
+        makeTaskAvailable("farm");
+      }
+    }
+  }
+  
   String update(){
     if (changeTurn){  
       players[turn].saveMapSettings(map.mapXOffset, map.mapYOffset, map.blockSize);
@@ -169,6 +184,7 @@ class Game extends State{
         getPanel("party management").setColour(color(70, 70, 220));
       }
     }
+    checkTasks();
   }
   void drawPartyManagement(){
     Panel pp = getPanel("party management");
