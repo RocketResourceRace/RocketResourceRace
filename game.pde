@@ -7,6 +7,15 @@ class Game extends State{
   final int bezel = 20;
   final int[] terrainCosts = new int[]{4, 3, 2, 3};
   final int DEFENDCOST = 6;
+  final float [] STARTINGRESOURCES = new float[]{1000, 1000, 0, 0};
+  final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", };
+  final String[] landTypes = {"Water", "Sand", "Grass", "Forest"};
+  final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
+  final String[] tooltipText = {
+    "Defending improves fighting\neffectiveness against aggressors\nCosts: 6 movement points.",
+    "The farm produces food when worked.\nCosts: 50 wood.\nConsumes: Nothing.",
+    "The mine produces ore when worked.\nCosts: 200 wood.\nConsumes: 10 wood",
+  };
   int mapHeight = mapSize;
   int mapWidth = mapSize;
   int[][] terrain;
@@ -18,15 +27,7 @@ class Game extends State{
   Player[] players;
   int cellX, cellY, cellSelectionX, cellSelectionY, cellSelectionW, cellSelectionH;
   boolean cellSelected=false, moving=false;
-  String[] landTypes;
-  String[] buildingTypes;
   color partyManagementColour;
-  String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill"};
-  final String[] tooltipText = {
-    "Defending improves fighting\neffectiveness against aggressors\nCosts: 6 movement points.",
-    "The farm produces food when worked.\nCosts: 50 wood.\nConsumes: Nothing.",
-    "The mine produces ore when worked.\nCosts: 200 wood.\nConsumes: 10 wood",
-  };
   int toolTipSelected;
   
   Game(){
@@ -36,16 +37,14 @@ class Game extends State{
     players = new Player[2];
     
     // Initial positions will be focused on starting party
-    players[0] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize);
-    players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize);
+    players[0] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, STARTINGRESOURCES);
+    players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, STARTINGRESOURCES);
     addPanel("land management", 0, 0, width, height, false, color(50, 200, 50), color(0));
     addPanel("party management", 0, 0, width, height, false, color(70, 70, 220), color(0));
     //int x, int y, int w, int h, color bgColour, color strokeColour, color textColour, int textSize, int textAlign, String text
     addElement("move button", new Button(bezel, bezel*2, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
     addElement("tasks", new DropDown(bezel, bezel*3+30, 200, 10, color(150), color(50), tasks), "party management");
     
-    landTypes = new String[]{"Water", "Sand", "Grass", "Forest"};
-    buildingTypes = new String[]{"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
     toolTipSelected=-1;
   }
   void updateCellSelection(){
@@ -343,28 +342,28 @@ class Game extends State{
     String tempString;
     barX=width;
 
-    tempString = "energy:"+players[turn].energy;
+    tempString = "energy:"+players[turn].resources[3];
     barX -= textWidth(tempString)+10+bezel;
     fill(150);
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
     
-    tempString = "metal:"+players[turn].metal;
+    tempString = "metal:"+players[turn].resources[2];
     barX -= textWidth(tempString)+10+bezel;
     fill(150);
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
     
-    tempString = "wood:"+players[turn].wood;
+    tempString = "wood:"+players[turn].resources[1];
     barX -= textWidth(tempString)+10+bezel;
     fill(150);
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
     
-    tempString = "food:"+players[turn].food;
+    tempString = "food:"+players[turn].resources[0];
     barX -= textWidth(tempString)+10+bezel;
     fill(150);
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
@@ -393,9 +392,9 @@ class Game extends State{
     map.reset(mapWidth, mapHeight, terrain, parties, buildings);
     
     float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, 64);
-    players[1] = new Player(conditions2[0], conditions2[1], 64);
+    players[1] = new Player(conditions2[0], conditions2[1], 64, STARTINGRESOURCES);
     float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, 64);
-    players[0] = new Player(conditions1[0], conditions1[1], 64);
+    players[0] = new Player(conditions1[0], conditions1[1], 64, STARTINGRESOURCES);
     for(int i=0;i<NUMOFBUILDINGTYPES;i++){
       buildings[(int)playerStarts[0].y][(int)playerStarts[0].x+i] = new Building(1+i);
     }
