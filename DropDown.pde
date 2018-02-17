@@ -115,6 +115,14 @@ class DropDown extends Element{
     return events;
   }
   
+  String findMouseOver(){
+    for (int j=0; j<availableOptions.size(); j++){
+      if (mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+h*j+yOffset && mouseY <= y+h*(j+1)+yOffset)
+        return options.get(availableOptions.get(j));
+    }
+    return "";
+  }
+  
   boolean moveOver(){
     return mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+yOffset && mouseY <= y+h*availableOptions.size()+yOffset;
   }

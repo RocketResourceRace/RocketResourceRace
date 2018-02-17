@@ -22,6 +22,12 @@ class Game extends State{
   String[] buildingTypes;
   color partyManagementColour;
   String[] tasks = {"rest", "farm", "defend"};
+  final String[] tooltipText = {
+    "Defending improves fighting\neffectiveness against aggressors\nCosts: 6 movement points.",
+    "The farm produces food when worked.\nCosts: 50 wood.\nConsumes: Nothing.",
+    "The mine produces ore when worked.\nCosts: 200 wood.\nConsumes: 10 wood",
+  };
+  int toolTipSelected;
   
   Game(){
     addElement("map", new Map(bezel, bezel, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
@@ -40,6 +46,7 @@ class Game extends State{
     
     landTypes = new String[]{"Water", "Sand", "Grass", "Forest"};
     buildingTypes = new String[]{"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
+    toolTipSelected=-1;
   }
   void updateCellSelection(){
     cellSelectionX = round(mapElementWidth*GUIScale)+bezel*2;
@@ -73,6 +80,48 @@ class Game extends State{
     }
   }
   
+  ArrayList<String> getLines(String s){
+    int j = 0;
+    ArrayList<String> lines = new ArrayList<String>();
+    for (int i=0; i<s.length(); i++){
+      if(s.charAt(i) == '\n'){
+        lines.add(s.substring(j, i));
+        j=i+1;
+      }
+    }
+    lines.add(s.substring(j, s.length()));
+    return lines;
+  }
+  
+  float maxWidthLine(ArrayList<String> lines){
+    float ml = 0;
+    for (int i=0; i<lines.size(); i++){
+      if (textWidth(lines.get(i)) > ml){
+        ml = textWidth(lines.get(i));
+      }
+    }
+    return ml;
+  }
+  
+  void drawToolTip(){
+    ArrayList<String> lines = getLines(tooltipText[toolTipSelected]);
+    textSize(8*TextScale);
+    int tw = ceil(maxWidthLine(lines))+4;
+    int gap = ceil(textAscent()+textDescent());
+    int th = ceil(textAscent()+textDescent())*lines.size();
+    int tx = mouseX-tw/2;
+    int ty = mouseY+20;
+    fill(200, 100);
+    stroke(0);
+    rectMode(CORNER);
+    rect(tx, ty, tw, th);
+    fill(0);
+    textAlign(LEFT, TOP);
+    for (int i=0; i<lines.size(); i++){
+      text(lines.get(i), tx+2, ty+i*gap);
+    }
+  }
+  
   String update(){
     if (changeTurn){  
       players[turn].saveMapSettings(map.mapXOffset, map.mapYOffset, map.blockSize);
@@ -86,6 +135,9 @@ class Game extends State{
       drawCellManagement();
       if(parties[cellY][cellX] != null)
         drawPartyManagement();
+    }
+    if (toolTipSelected >= 0){
+      drawToolTip();
     }
     return getNewState();
   }
@@ -183,6 +235,17 @@ class Game extends State{
         else{
           deselectCell();
         }
+      }
+    }
+    if (eventType == "mouseMoved"){
+      if (((DropDown)getElement("tasks", "party management")).moveOver()){
+        switch (((DropDown)getElement("tasks", "party management")).findMouseOver()){
+          case "defend":toolTipSelected = 0;break;
+          default: toolTipSelected = -1;break;
+        }
+      }
+      else{
+        toolTipSelected = -1;
       }
     }
     return new ArrayList<String>();
@@ -326,6 +389,7 @@ class Game extends State{
     }
     deselectCell();
     turn = 0;
+    toolTipSelected=-1;
   }
   int cost(int x, int y){
     if (0<x && x<mapSize && 0<y && y<mapSize){
