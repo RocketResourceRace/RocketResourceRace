@@ -1,6 +1,6 @@
 
 class Building{
-  int type, turnsLeft;
+  int type;
   Building(int type){
     this.type = type;
   }

@@ -7,16 +7,31 @@ class Game extends State{
   final int bezel = 20;
   final int[] terrainCosts = new int[]{4, 3, 2, 3};
   final int DEFENDCOST = 6;
-  final float [] STARTINGRESOURCES = new float[]{1000, 1000, 0, 0};
+  final float [] STARTINGRESOURCES = new float[]{500, 300, 0, 0};
   final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Clear Forest"};
   final String[] landTypes = {"Water", "Sand", "Grass", "Forest"};
   final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
   final String[] tooltipText = {
-    "Defending improves fighting\neffectiveness against aggressors\nCosts: 6 movement points.",
-    "The farm produces food when worked.\nCosts: 50 wood.\nConsumes: Nothing.",
-    "The mine produces ore when worked.\nCosts: 200 wood.\nConsumes: 10 wood",
-    "Clearing a forest adds 100 wood to stockpile./nThe tile is turned to grassland",
+    "Defending improves fighting\neffectiveness against enemy parties\nCosts: 6 movement points.",
+    "The farm produces food when worked.\nCosts: 50 wood.\nConsumes: Nothing.\nProduces: 1 food/worker.\nThis takes 3 turns to build.",
+    "The mine produces ore when worked.\nCosts: 200 wood.\nConsumes: 10 wood.\nProduces: 1 ore/worker",
+    "Homes create new units when worked.\nCosts: 100 wood.\nConsumes: 2 wood.\n",
+    "The smelter produces metal when worked.\nCosts: 200 wood.\nConsumes: 10 wood.\nProduces: 0.1 iron/worker",
+    "The factory produces parts when worked.\nCosts: 200 wood.\nConsumes: 10 wood",
+    "The sawmill produces wood when worked.\nCosts: 200 wood.\nConsumes: 10 wood\nProduces: 0.5 wood/worker\nThis takes 5 turns to build.",
+    "Clearing a forest adds 100 wood to stockpile.\nThe tile is turned to grassland\nThis takes 3 turns.",
+    "Demolishing destroys the building on this tile.\nThis takes 2 turns.",
+    "While a unit is at rest it can move and attack.",
   };
+  final float[][] costs = {
+    {0, 100, 0, 0},
+    {0, 50, 0, 0},
+    {0, 0, 0, 0},
+    {0, 0, 0, 0},
+    {0, 0, 0, 0},
+    {0, 200, 0, 0},
+  };
+  final int NUMRESOURCES = 4;
   int mapHeight = mapSize;
   int mapWidth = mapSize;
   int[][] terrain;
@@ -85,10 +100,10 @@ class Game extends State{
       if (cellTerrain == 3){
         makeTaskAvailable("Build Farm");
       }
-      
-    }
-    if (cellTerrain == 4){
-      makeTaskAvailable("Clear Forest");
+      else if (cellTerrain == 4){
+        makeTaskAvailable("Clear Forest");
+        makeTaskAvailable("Build Sawmill");
+      }
     }
     ((DropDown)getElement("tasks", "party management")).select(parties[cellY][cellX].task);
   }
@@ -142,8 +157,21 @@ class Game extends State{
           if (map.parties[y][x].player == turn){
             String action = map.parties[y][x].progressAction();
             switch (action){
+              //-1 building types
               case "Clear Forest":
                 map.terrain[y][x] = 3;
+                break;
+              case "Build Farm":
+                map.buildings[y][x] = new Building(2);
+                break;
+              case "Build Sawmill":
+                map.buildings[y][x] = new Building(6);
+                break;
+              case "Demolish":
+                println(players[0].resources, players[1].resources);
+                reclaimRes(players[turn], costs[5]);
+                map.buildings[y][x] = null;
+                println(players[0].resources, players[1].resources);
                 break;
             }
             if (action != ""){
@@ -193,6 +221,25 @@ class Game extends State{
   void changeTurn(){
     changeTurn = true;
   }
+  boolean sufficientResources(float[] available, float[] required){
+    for (int i=0; i<required.length;i++){
+      if (available[i] < required[i]){
+        return false;
+      }
+    }
+    return true;
+  }
+  void spendRes(Player player, float[] required){
+    for (int i=0; i<player.resources.length;i++){
+      player.resources[i] -= required[i];
+    }
+  }
+  void reclaimRes(Player player, float[] required){
+    //reclaim half cost of building
+    for (int i=0; i<player.resources.length;i++){
+      player.resources[i] += required[i]/2;
+    }
+  }
   void elementEvent(ArrayList<Event> events){
     for (Event event : events){
       if (event.type == "value changed"){
@@ -202,13 +249,32 @@ class Game extends State{
             parties[cellY][cellX].movementPoints = min(parties[cellY][cellX].movementPoints+DEFENDCOST, 16);
           }
           parties[cellY][cellX].changeTask(((DropDown)getElement("tasks", "party management")).getSelected());
-          if (parties[cellY][cellX].task == "Defend"){
+          if (parties[cellY][cellX].task != "Rest"){
             moving = false;
             map.cancelMoveNodes();
+          }
+          if (parties[cellY][cellX].task == "Defend"){
             parties[cellY][cellX].movementPoints -= DEFENDCOST;
+          }
+          else if (parties[cellY][cellX].task == "Demolish"){
+            if (sufficientResources(players[turn].resources, costs[buildings[cellY][cellX].type-1])){
+              parties[cellY][cellX].addAction(new Action("Demolish", 2));
+            }
           }
           else if (parties[cellY][cellX].task == "Clear Forest"){
             parties[cellY][cellX].addAction(new Action("Clear Forest", 3));
+          }
+          else if (parties[cellY][cellX].task == "Build Farm"){
+            if (sufficientResources(players[turn].resources, costs[1])){
+              parties[cellY][cellX].addAction(new Action("Build Farm", 3));
+              spendRes(players[turn], costs[1]);
+            }
+          }
+          else if (parties[cellY][cellX].task == "Build Sawmill"){
+            if (sufficientResources(players[turn].resources, costs[5])){
+              parties[cellY][cellX].addAction(new Action("Build Sawmill", 5));
+              spendRes(players[turn], costs[5]);
+            }
           }
         }
       }
@@ -218,7 +284,7 @@ class Game extends State{
           
         }
         else if (event.id == "move button"){
-          if (parties[cellY][cellX].player == turn && parties[cellY][cellX].task != "Defend"){
+          if (parties[cellY][cellX].player == turn && parties[cellY][cellX].task == "Rest"){
             moving = !moving;
             if (moving){
               map.updateMoveNodes(djk(cellX, cellY, parties[cellY][cellX].movementPoints));
@@ -282,7 +348,11 @@ class Game extends State{
         switch (((DropDown)getElement("tasks", "party management")).findMouseOver()){
           case "Defend":toolTipSelected = 0;break;
           case "Build Farm":toolTipSelected = 1;break;
-          case "Clear Forest":toolTipSelected = 3;break;
+          case "Build Sawmill":toolTipSelected = 6;break;
+          case "Build Homes":toolTipSelected = 3;break;
+          case "Clear Forest":toolTipSelected = 7;break;
+          case "Demolish":toolTipSelected = 8;break;
+          case "Rest":toolTipSelected = 9;break;
           default: toolTipSelected = -1;break;
         }
       }
@@ -380,7 +450,6 @@ class Game extends State{
     
     String tempString;
     barX=width;
-
     tempString = "energy:"+players[turn].resources[3];
     barX -= textWidth(tempString)+10+bezel;
     fill(150);
@@ -431,9 +500,9 @@ class Game extends State{
     map.reset(mapWidth, mapHeight, terrain, parties, buildings);
     
     float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, 64);
-    players[1] = new Player(conditions2[0], conditions2[1], 64, STARTINGRESOURCES);
+    players[1] = new Player(conditions2[0], conditions2[1], 64, STARTINGRESOURCES.clone());
     float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, 64);
-    players[0] = new Player(conditions1[0], conditions1[1], 64, STARTINGRESOURCES);
+    players[0] = new Player(conditions1[0], conditions1[1], 64, STARTINGRESOURCES.clone());
     for(int i=0;i<NUMOFBUILDINGTYPES;i++){
       buildings[(int)playerStarts[0].y][(int)playerStarts[0].x+i] = new Building(1+i);
     }
@@ -526,8 +595,8 @@ class Game extends State{
       player1 = PVector.random2D().mult(mapWidth/8).add(new PVector(mapWidth/4, mapHeight/2));
       player2 = PVector.random2D().mult(mapWidth/8).add(new PVector(3*mapWidth/4, mapHeight/2));
     }
-    parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "rest", 16);
-    parties[(int)player2.y][(int)player2.x] = new Party(1, 100, "rest", 16);
+    parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "Rest", 16);
+    parties[(int)player2.y][(int)player2.x] = new Party(1, 100, "Rest", 16);
     return  new PVector[]{player1, player2};
   }
   
