@@ -113,7 +113,7 @@ class Game extends State{
           makeTaskAvailable("Clear Forest");
           makeTaskAvailable("Build Sawmill");
         }
-        if (cellTerrain != 1){
+        if (cellTerrain != 1 && cellTerrain != 4){
           makeTaskAvailable("Build Homes");
         }
       }
@@ -184,10 +184,8 @@ class Game extends State{
                 map.buildings[y][x] = new Building(1);
                 break;
               case "Demolish":
-                println(players[0].resources, players[1].resources);
                 reclaimRes(players[turn], costs[5]);
                 map.buildings[y][x] = null;
-                println(players[0].resources, players[1].resources);
                 break;
             }
             if (action != ""){
