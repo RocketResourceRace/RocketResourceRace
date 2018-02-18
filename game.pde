@@ -8,7 +8,7 @@ class Game extends State{
   final int[] terrainCosts = new int[]{8, 6, 4, 3, 2, 3};
   final int DEFENDCOST = 6;
   final float [] STARTINGRESOURCES = new float[]{500, 300, 0, 0};
-  final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Clear Forest", "Battle"};
+  final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Build Homes", "Clear Forest", "Battle"};
   final String[] landTypes = {"Water", "Sand", "Grass", "Forest"};
   final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
   final String[] tooltipText = {
@@ -113,6 +113,9 @@ class Game extends State{
           makeTaskAvailable("Clear Forest");
           makeTaskAvailable("Build Sawmill");
         }
+        if (cellTerrain != 1){
+          makeTaskAvailable("Build Homes");
+        }
       }
     } //<>//
     ((DropDown)getElement("tasks", "party management")).select(parties[cellY][cellX].task);
@@ -176,6 +179,9 @@ class Game extends State{
                 break;
               case "Build Sawmill":
                 map.buildings[y][x] = new Building(6);
+                break;
+              case "Build Homes":
+                map.buildings[y][x] = new Building(1);
                 break;
               case "Demolish":
                 println(players[0].resources, players[1].resources);
@@ -315,6 +321,13 @@ class Game extends State{
             if (sufficientResources(players[turn].resources, costs[5])){
               parties[cellY][cellX].addAction(new Action("Build Sawmill", 5));
               spendRes(players[turn], costs[5]);
+              buildings[cellY][cellX] = new Building(0);
+            }
+          }
+          else if (parties[cellY][cellX].task == "Build Homes"){
+            if (sufficientResources(players[turn].resources, costs[0])){
+              parties[cellY][cellX].addAction(new Action("Build Homes", 3));
+              spendRes(players[turn], costs[0]);
               buildings[cellY][cellX] = new Building(0);
             }
           }
