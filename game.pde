@@ -178,6 +178,10 @@ class Game extends State{
               map.parties[y][x].clearCurrentAction();
               map.parties[y][x].task="Rest";
             }
+          } else {
+            if(map.parties[y][x].player==2){
+              map.parties[y][x] = ((Battle)map.parties[y][x]).doBattle();
+            }
           }
         }
       }
