@@ -15,12 +15,11 @@ class Party{
     strength = 1.5;
   }
   void changeTask(String task){
-    if (task=="Defend"){
-      strength = 2;
-    } else if(task=="Rest"){
-      strength = 1.5;
-    } else {
-      strength = 1;
+    switch(task){
+      case "Garrison": strength = 5; break;
+      case "Defend": strength = 3; break;
+      case "Rest": strength = 1.5; break;
+      case "default": strength = 1; break;
     }
     this.task = task;
   }
@@ -83,21 +82,21 @@ class Battle extends Party{
     }
   }
   int getUnitNumber(int turn){
-      if(turn==1){
+      if(turn==party1.player){
         return party1.getUnitNumber();
       } else {
         return party2.getUnitNumber();
       }
   }
   Party doBattle(){
-    int changeInParty1 = floor(-0.0005*party1.getUnitNumber()*party2.getUnitNumber()*party2.strength/party1.strength);
-    int changeInParty2 = floor(-0.0005*party1.getUnitNumber()*party2.getUnitNumber()*party1.strength/party2.strength);
+    int changeInParty1 = floor(-0.2*(party2.getUnitNumber()+pow(party2.getUnitNumber(), 2)/party1.getUnitNumber())*party2.strength/party1.strength);
+    int changeInParty2 = floor(-0.2*(party1.getUnitNumber()+pow(party1.getUnitNumber(), 2)/party2.getUnitNumber())*party1.strength/party2.strength);
     party1.strength = 1;
     party2.strength = 1;
     int newParty1Size = party1.getUnitNumber()+changeInParty1;
     int newParty2Size = party2.getUnitNumber()+changeInParty2;
     int endDifference = newParty1Size-newParty2Size; 
-    party1.setUnitNumber(newParty1Size); 
+    party1.setUnitNumber(newParty1Size);
     party2.setUnitNumber(newParty2Size);
     if (party1.getUnitNumber()==0){
       if(party2.getUnitNumber()==0){

@@ -603,11 +603,9 @@ class Game extends State{
       player1 = PVector.random2D().mult(mapWidth/8).add(new PVector(mapWidth/4, mapHeight/2));
       player2 = PVector.random2D().mult(mapWidth/8).add(new PVector(3*mapWidth/4, mapHeight/2));
     }
-    //parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "Rest", 16);
-    //parties[(int)player2.y][(int)player2.x] = new Party(1, 100, "Rest", 16);
+    parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "Rest", 16);
+    parties[(int)player1.y][(int)player1.x+1] = new Party(1, 100, "Rest", 16);
     
-    parties[50][50] = new Party(0, 100, "Rest", 16);
-    parties[50][51] = new Party(1, 100, "Rest", 16);
     return  new PVector[]{player1, player2};
   }
   
