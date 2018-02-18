@@ -119,8 +119,8 @@ class Map extends Element{
     targetBlockSize = blockSize;
     setPanningSpeed(0.05);
   }
-   //<>// //<>//
-  void updateMoveNodes(Node[][] nodes){ //<>// //<>//
+   //<>// //<>// //<>//
+  void updateMoveNodes(Node[][] nodes){ //<>// //<>// //<>//
     moveNodes = nodes;
   }
   void cancelMoveNodes(){
@@ -284,9 +284,9 @@ class Map extends Element{
        image(tempTileImages[terrain[hy][x]-1].get(0, 0, ceil(blockSize), bottomW), round(scaleX(x)), y3);
        image(tempTileImages[terrain[ly-1][x]-1].get(0, ceil(blockSize)-topW, ceil(blockSize), topW), round(scaleX(x)), yPos);
      }
-     image(tempTileImages[terrain[ly-1][lx-1]-1].get(ceil(blockSize)-leftW, 0, leftW, topW), xPos, yPos);
+     image(tempTileImages[terrain[ly-1][lx-1]-1].get(ceil(blockSize)-leftW, ceil(blockSize)-topW, leftW, topW), xPos, yPos);
      image(tempTileImages[terrain[hy][hx]-1].get(0, 0, rightW, bottomW), x3, y3);
-     image(tempTileImages[terrain[hy][lx-1]-1].get(0, 0, leftW, bottomW), xPos, y3);
+     image(tempTileImages[terrain[hy][lx-1]-1].get(ceil(blockSize)-leftW, 0, leftW, bottomW), xPos, y3);
      image(tempTileImages[terrain[ly-1][hx]-1].get(0, ceil(blockSize)-topW, rightW, topW), x3, yPos);
 
 
