@@ -119,8 +119,8 @@ class Map extends Element{
     targetBlockSize = blockSize;
     setPanningSpeed(0.05);
   }
-   //<>// //<>// //<>//
-  void updateMoveNodes(Node[][] nodes){ //<>// //<>// //<>//
+   //<>// //<>// //<>// //<>// //<>//
+  void updateMoveNodes(Node[][] nodes){ //<>// //<>// //<>// //<>// //<>//
     moveNodes = nodes;
   }
   void cancelMoveNodes(){

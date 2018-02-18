@@ -115,7 +115,7 @@ class DropDown extends Element{
       for (int j=1; j < availableOptions.size();j++){
         if (mouseOver(j)){
           select(j);
-          events.add("value changed");
+          events.add("valueChanged");
         }
       }
     }

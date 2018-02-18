@@ -59,7 +59,10 @@ class Game extends State{
     addPanel("party management", 0, 0, width, height, false, color(70, 70, 220), color(0));
     //int x, int y, int w, int h, color bgColour, color strokeColour, color textColour, int textSize, int textAlign, String text
     addElement("move button", new Button(bezel, bezel*2, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
-    addElement("tasks", new DropDown(bezel, bezel*3+30, 200, 10, color(150), color(50), tasks), "party management");
+    //int x, int y, int w, int h, color KnobColour, color bgColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name
+    addElement("split units", new Slider(bezel+10, bezel*3+30, 200, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
+    addElement("split button", new Button(bezel*2+220, bezel*3+30, 100, 30, color(150), color(50), color(0), 10, CENTER, "Split"), "party management");
+    addElement("tasks", new DropDown(bezel, bezel*4+30+30, 200, 10, color(150), color(50), tasks), "party management");
 
     
     toolTipSelected=-1;
@@ -249,9 +252,32 @@ class Game extends State{
       player.resources[i] += required[i]/2;
     }
   }
+  int[] newPartyLoc(){
+    ArrayList<int[]> locs = new ArrayList<int[]>();
+    locs.add(new int[]{cellX+1, cellY});
+    locs.add(new int[]{cellX-1, cellY});
+    locs.add(new int[]{cellX, cellY+1});
+    locs.add(new int[]{cellX, cellY-1});
+    Collections.shuffle(locs);
+    for (int i=0; i<4; i++){
+      if (parties[locs.get(i)[1]][locs.get(i)[0]] == null && terrain[locs.get(i)[1]][locs.get(i)[0]] != 1){
+        return locs.get(i);
+      }
+    }
+    return null;
+  }
   void elementEvent(ArrayList<Event> events){
     for (Event event : events){
-      if (event.type == "value changed"){
+      if (event.type == "clicked"){
+        if (event.id == "split button"){
+          int[] loc = newPartyLoc();
+          int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
+          if (loc != null && sliderVal > 0){
+            parties[loc[1]][loc[0]] = new Party(turn, sliderVal, "Rest", 0);
+          }
+        }
+      }
+      if (event.type == "valueChanged"){
         if (event.id == "tasks"){
           if (parties[cellY][cellX].task == "Defend"){
             //Changing from defending
@@ -383,6 +409,7 @@ class Game extends State{
     getPanel("land management").setVisible(true);
     if (parties[cellY][cellX] != null && parties[cellY][cellX].isTurn(turn)){
       getPanel("party management").setVisible(true);
+      ((Slider)getElement("split units", "party management")).setScale(0, 0, parties[cellY][cellX].unitNumber, 2, parties[cellY][cellX].unitNumber);
       if (turn == 1){
         partyManagementColour = color(170, 30, 30);
         getPanel("party management").setColour(color(220, 70, 70));

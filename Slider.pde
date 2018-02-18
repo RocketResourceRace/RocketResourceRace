@@ -30,6 +30,9 @@ class Slider extends Element{
     this.value = new BigDecimal(""+value);
     this.name = name;
     textSize(15);
+    scaleKnob();
+  }
+  void scaleKnob(){
     this.knobSize = textWidth(""+getInc(new BigDecimal(""+upper)));
   }
   void transform(int x, int y, int w, int h){
@@ -39,6 +42,14 @@ class Slider extends Element{
     this.w = w; 
     this.y = y;
     this.h = h;
+  }
+  void setScale(float lower, float value, float upper, int major, int minor){
+    this.major = major;
+    this.minor = minor;
+    this.upper = new BigDecimal(""+upper);
+    this.lower = new BigDecimal(""+lower);
+    this.value = new BigDecimal(""+value);
+    scaleKnob();
   }
   
   void setValue(BigDecimal value){
@@ -65,14 +76,14 @@ class Slider extends Element{
     if (button == LEFT){
       if (mouseOver() && eventType == "mousePressed"){
           pressed = true;
-          setValue((new BigDecimal(mouseX-x)).divide(new BigDecimal(w), 15, BigDecimal.ROUND_HALF_EVEN).multiply(upper.subtract(lower)).add(lower));
+          setValue((new BigDecimal(mouseX-x-xOffset)).divide(new BigDecimal(w), 15, BigDecimal.ROUND_HALF_EVEN).multiply(upper.subtract(lower)).add(lower));
           events.add("valueChanged");
       }
       else if (eventType == "mouseReleased"){
         pressed = false;
       }
       if (eventType == "mouseDragged" && pressed){
-        setValue((new BigDecimal(mouseX-x)).divide(new BigDecimal(w), 15, BigDecimal.ROUND_HALF_EVEN).multiply(upper.subtract(lower)).add(lower));
+        setValue((new BigDecimal(mouseX-x-xOffset)).divide(new BigDecimal(w), 15, BigDecimal.ROUND_HALF_EVEN).multiply(upper.subtract(lower)).add(lower));
         events.add("valueChanged");
       }
     }
@@ -80,7 +91,7 @@ class Slider extends Element{
   }
   
   Boolean mouseOver(){
-    return mouseX >= x && mouseX <= x+w && mouseY >= y && mouseY <= y+h;
+    return mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+yOffset && mouseY <= y+h+yOffset;
   }
   
   BigDecimal getInc(BigDecimal i){
@@ -133,7 +144,7 @@ class Slider extends Element{
     fill(0);
     textSize(12*TextScale);
     textAlign(LEFT, BOTTOM);
-    text(name, x, y);
+    text(name, x+xOffset, y+yOffset);
     popStyle();
   }
 }
