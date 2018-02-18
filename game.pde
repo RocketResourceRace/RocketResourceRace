@@ -308,11 +308,11 @@ class Game extends State{
   ArrayList<String> mouseEvent(String eventType, int button){
     if (button == LEFT){
       if (eventType == "mouseClicked"){
-        if (moving){
+        if (moving&&map.mouseOver()){
           Node [][] nodes = map.moveNodes;
           int x = floor(map.scaleXInv(mouseX));
           int y = floor(map.scaleYInv(mouseY));
-          if (nodes[y][x] != null && !(cellX == x && cellY == y) && map.mouseOver()){
+          if (nodes[y][x] != null && !(cellX == x && cellY == y)){
             map.parties[cellY][cellX].movementPoints-=nodes[y][x].cost;
             map.parties[y][x] = map.parties[cellY][cellX];
             map.parties[cellY][cellX] = null;
