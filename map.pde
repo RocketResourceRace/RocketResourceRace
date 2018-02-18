@@ -213,7 +213,7 @@ class Map extends Element{
 
     PImage[] tempTileImages = new PImage[NUMOFGROUNDTYPES];
     PImage[] tempBuildingImages = new PImage[NUMOFBUILDINGTYPES];
-    PImage[] tempPartyImages = new PImage[2];
+    PImage[] tempPartyImages = new PImage[3];
     if (frameStartTime == 0){
       frameStartTime = millis();
     }
@@ -255,9 +255,9 @@ class Map extends Element{
       tempBuildingImages[i] = buildingImages[i].copy();
       tempBuildingImages[i].resize(ceil(blockSize*48/64), 0);
     }
-    for (int i=0; i<2; i++){
+    for (int i=0; i<3; i++){
       tempPartyImages[i] = partyImages[i].copy();
-      tempPartyImages[i].resize(ceil(blockSize*24/60), 0);
+      tempPartyImages[i].resize(ceil(blockSize), 0);
     }
     int lx = max(0, -ceil((mapXOffset)/blockSize)+1);
     int ly = max(0, -ceil((mapYOffset)/blockSize)+1);
@@ -305,18 +305,38 @@ class Map extends Element{
            c = new PVector(scaleX(x), scaleY(y));
            if(c.x<xPos+elementWidth&&c.y+blockSize/8>yPos&&c.y<yPos+elementHeight){
              noStroke();
-             if (c.x+blockSize>xPos){
-               fill(120, 120, 120);
-               rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
-             }
-             if (c.x+blockSize*parties[y][x].unitNumber/1000>xPos){
-               fill(0, 204, 0);
-               rect(max(c.x, xPos), max(c.y, yPos), min(blockSize*parties[y][x].unitNumber/1000, xPos+elementWidth-c.x, blockSize*parties[y][x].unitNumber/1000+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
+             if(parties[y][x].player == 2){
+               Battle battle = (Battle) parties[y][x];
+               if (c.x+blockSize>xPos){
+                 fill(120, 120, 120);
+                 rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize/16, yPos+elementHeight-c.y, blockSize/16+c.y-yPos));
+               }
+               if (c.x+blockSize*parties[y][x].unitNumber/1000>xPos){
+                 fill(playerColours[battle.party1.player]);
+                 rect(max(c.x, xPos), max(c.y, yPos), min(blockSize*battle.party1.unitNumber/1000, xPos+elementWidth-c.x, blockSize*battle.party1.unitNumber/1000+c.x-xPos), min(blockSize/16, yPos+elementHeight-c.y, blockSize/16+c.y-yPos));
+               }
+               if (c.x+blockSize>xPos){
+                 fill(120, 120, 120);
+                 rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize/16, yPos+elementHeight-c.y, blockSize/16+c.y-yPos));
+               }
+               if (c.x+blockSize*parties[y][x].unitNumber/1000>xPos){
+                 fill(playerColours[battle.party2.player]);
+                 rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), min(blockSize*battle.party2.unitNumber/1000, xPos+elementWidth-c.x, blockSize*battle.party2.unitNumber/1000+c.x-xPos), min(blockSize/16, yPos+elementHeight-c.y, blockSize/16+c.y-yPos));
+               }
+               
+             } else {
+               if (c.x+blockSize>xPos){
+                 fill(120, 120, 120);
+                 rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
+               }
+               if (c.x+blockSize*parties[y][x].unitNumber/1000>xPos){
+                 fill(playerColours[parties[y][x].player]);
+                 rect(max(c.x, xPos), max(c.y, yPos), min(blockSize*parties[y][x].unitNumber/1000, xPos+elementWidth-c.x, blockSize*parties[y][x].unitNumber/1000+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
+               }
              }
            }
-           int border = round((64-24)*blockSize/(2*64));
-           int imgSize = round(blockSize*24/60);
-           drawCroppedImage(floor(c.x+border), floor(c.y+border), imgSize, imgSize, tempPartyImages[parties[y][x].player]);
+           int imgSize = round(blockSize);
+           drawCroppedImage(floor(c.x), floor(c.y), imgSize, imgSize, tempPartyImages[parties[y][x].player]);
          }
          //if (millis()-pt > 10){
          //  println(millis()-pt);

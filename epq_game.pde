@@ -86,6 +86,8 @@ int MAPHEIGHT = 100;
 int initialSmooth = 7;
 int completeSmooth = 5;
 
+color[] playerColours = new color[]{color(0, 0, 255), color(255, 0, 0)};
+
 PImage[] tileImages;
 PImage[] buildingImages;
 PImage[] partyImages;
@@ -146,6 +148,7 @@ void setup(){
   };
   lowImages = new HashMap<Integer, PImage>();
   lowImages.put(3, loadImage("data/forest_low.png"));
+  lowImages.put(0, loadImage("data/water_low.png"));
   buildingImages = new PImage[]{
     loadImage("data/house.png"),
     loadImage("data/farm.png"),
@@ -157,7 +160,8 @@ void setup(){
   };
   partyImages = new PImage[]{
     loadImage("data/blue_flag.png"),
-    loadImage("data/red_flag.png")
+    loadImage("data/red_flag.png"),
+    loadImage("data/battle.png")
   };
   states = new HashMap<String, State>();
   addState("menu", new Menu());

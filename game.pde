@@ -5,7 +5,7 @@ class Game extends State{
   final int buttonW = 120;
   final int buttonH = 50;
   final int bezel = 20;
-  final int[] terrainCosts = new int[]{4, 3, 2, 3};
+  final int[] terrainCosts = new int[]{8, 4, 3, 2, 3};
   final int DEFENDCOST = 6;
   final float [] STARTINGRESOURCES = new float[]{500, 300, 0, 0};
   final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Clear Forest"};
@@ -314,7 +314,11 @@ class Game extends State{
           int y = floor(map.scaleYInv(mouseY));
           if (nodes[y][x] != null && !(cellX == x && cellY == y)){
             map.parties[cellY][cellX].movementPoints-=nodes[y][x].cost;
-            map.parties[y][x] = map.parties[cellY][cellX];
+            if(map.parties[y][x]==null){
+              map.parties[y][x] = map.parties[cellY][cellX];
+            } else {
+              map.parties[y][x] = new Battle(map.parties[cellY][cellX], map.parties[y][x]);
+            }
             map.parties[cellY][cellX] = null;
             deselectCell();
             selectCell(mouseX, mouseY);
@@ -511,7 +515,9 @@ class Game extends State{
   int cost(int x, int y){
     if (0<x && x<mapSize && 0<y && y<mapSize){
       if (map.parties[y][x] == null){
-        return terrainCosts[terrain[y][x]-1];
+        return terrainCosts[terrain[y][x]];
+      } else if(map.parties[y][x].player!=this.turn){
+        return terrainCosts[0];
       }
     }
     //Not a valid location
@@ -593,8 +599,11 @@ class Game extends State{
       player1 = PVector.random2D().mult(mapWidth/8).add(new PVector(mapWidth/4, mapHeight/2));
       player2 = PVector.random2D().mult(mapWidth/8).add(new PVector(3*mapWidth/4, mapHeight/2));
     }
-    parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "Rest", 16);
-    parties[(int)player2.y][(int)player2.x] = new Party(1, 100, "Rest", 16);
+    //parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "Rest", 16);
+    //parties[(int)player2.y][(int)player2.x] = new Party(1, 100, "Rest", 16);
+    
+    parties[50][50] = new Party(0, 100, "Rest", 16);
+    parties[50][51] = new Party(1, 100, "Rest", 16);
     return  new PVector[]{player1, player2};
   }
   

@@ -34,3 +34,13 @@ class Party{
     actions.remove(0);
   }
 }
+
+class Battle extends Party{
+  Party party1;
+  Party party2;
+  Battle(Party p1, Party p2){
+    super(2, p1.unitNumber+p2.unitNumber, "Battle", 0);
+    party1 = p1;
+    party2 = p2;
+  }
+}
