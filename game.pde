@@ -372,13 +372,12 @@ class Game extends State{
     cellSelected = true;
     map.selectCell(cellX, cellY);
     getPanel("land management").setVisible(true);
-    if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn){
+    if (parties[cellY][cellX] != null && parties[cellY][cellX].isTurn(turn)){
       getPanel("party management").setVisible(true);
-      if (parties[cellY][cellX].player == 1){
+      if (turn == 1){
         partyManagementColour = color(170, 30, 30);
         getPanel("party management").setColour(color(220, 70, 70));
-      }
-      else{
+      } else {
         partyManagementColour = color(0, 0, 150);
         getPanel("party management").setColour(color(70, 70, 220));
       }
@@ -398,9 +397,9 @@ class Game extends State{
     textAlign(LEFT, CENTER);
     textSize(8*TextScale);
     float barY = cellSelectionY + 13*TextScale + cellSelectionH*0.3 + bezel*2;
-    text("Movement Points Remaining: "+parties[cellY][cellX].movementPoints + "/16", 150+cellSelectionX, barY);
+    text("Movement Points Remaining: "+parties[cellY][cellX].getMovementPoints(turn) + "/16", 150+cellSelectionX, barY);
     barY += 13*TextScale;
-    text("Units: "+parties[cellY][cellX].unitNumber + "/1000", 150+cellSelectionX, barY);
+    text("Units: "+parties[cellY][cellX].getUnitNumber(turn) + "/1000", 150+cellSelectionX, barY);
     barY += 13*TextScale;
     if (parties[cellY][cellX].actions.size() > 0 && parties[cellY][cellX].actions.get(0).initialTurns > 0){
       text("Turns Remaining: "+parties[cellY][cellX].actions.get(0).turns + "/"+parties[cellY][cellX].actions.get(0).initialTurns, 150+cellSelectionX, barY);
