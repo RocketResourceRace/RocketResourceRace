@@ -99,7 +99,6 @@ class Battle extends Party{
     int endDifference = newParty1Size-newParty2Size; 
     party1.setUnitNumber(newParty1Size); 
     party2.setUnitNumber(newParty2Size);
-    println(party1.getUnitNumber(), party2.getUnitNumber());
     if (party1.getUnitNumber()==0){
       if(party2.getUnitNumber()==0){
         if(endDifference==0){
