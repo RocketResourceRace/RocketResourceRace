@@ -8,7 +8,7 @@ class Game extends State{
   final int[] terrainCosts = new int[]{8, 4, 3, 2, 3};
   final int DEFENDCOST = 6;
   final float [] STARTINGRESOURCES = new float[]{500, 300, 0, 0};
-  final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Clear Forest"};
+  final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Clear Forest", "Battle"};
   final String[] landTypes = {"Water", "Sand", "Grass", "Forest"};
   final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
   final String[] tooltipText = {
@@ -86,25 +86,29 @@ class Game extends State{
   
   void checkTasks(){
     resetAvailableTasks();
-    makeTaskAvailable("Rest");
-    int cellTerrain = terrain[cellY][cellX];
-    if (parties[cellY][cellX].movementPoints >= DEFENDCOST)
-      makeTaskAvailable("Defend");
-    if (buildings[cellY][cellX] != null){
-      if (buildings[cellY][cellX].type==2){
-        makeTaskAvailable("Farm");
+    if(parties[cellY][cellX].player==2){
+      makeTaskAvailable("Battle");
+    } else {
+      makeTaskAvailable("Rest");
+      int cellTerrain = terrain[cellY][cellX];
+      if (parties[cellY][cellX].movementPoints >= DEFENDCOST)
+        makeTaskAvailable("Defend");
+      if (buildings[cellY][cellX] != null){
+        if (buildings[cellY][cellX].type==2){
+          makeTaskAvailable("Farm");
+        }
+        makeTaskAvailable("Demolish");
       }
-      makeTaskAvailable("Demolish");
-    }
-    else{
-      if (cellTerrain == 3){
-        makeTaskAvailable("Build Farm");
+      else{
+        if (cellTerrain == 3){
+          makeTaskAvailable("Build Farm");
+        }
+        else if (cellTerrain == 4){
+          makeTaskAvailable("Clear Forest");
+          makeTaskAvailable("Build Sawmill");
+        }
       }
-      else if (cellTerrain == 4){
-        makeTaskAvailable("Clear Forest");
-        makeTaskAvailable("Build Sawmill");
-      }
-    }
+    } //<>//
     ((DropDown)getElement("tasks", "party management")).select(parties[cellY][cellX].task);
   }
   
@@ -605,7 +609,7 @@ class Game extends State{
     parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "Rest", 16);
     parties[(int)player1.y][(int)player1.x+1] = new Party(1, 100, "Rest", 16);
     
-    return  new PVector[]{player1, player2};
+    return  new PVector[]{player1, player1};
   }
   
   int[][] smoothMap(int distance, int firstType, int[][] terrain){
