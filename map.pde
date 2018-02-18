@@ -309,19 +309,19 @@ class Map extends Element{
                Battle battle = (Battle) parties[y][x];
                if (c.x+blockSize>xPos){
                  fill(120, 120, 120);
-                 rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize/16, yPos+elementHeight-c.y, blockSize/16+c.y-yPos));
+                 rect(max(c.x, xPos), max(c.y, yPos), max(0, min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y, blockSize/16+c.y-yPos)));
                }
                if (c.x+blockSize*parties[y][x].unitNumber/1000>xPos){
                  fill(playerColours[battle.party1.player]);
-                 rect(max(c.x, xPos), max(c.y, yPos), min(blockSize*battle.party1.unitNumber/1000, xPos+elementWidth-c.x, blockSize*battle.party1.unitNumber/1000+c.x-xPos), min(blockSize/16, yPos+elementHeight-c.y, blockSize/16+c.y-yPos));
+                 rect(max(c.x, xPos), max(c.y, yPos), max(0, min(blockSize*battle.party1.unitNumber/1000, xPos+elementWidth-c.x, blockSize*battle.party1.unitNumber/1000+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y, blockSize/16+c.y-yPos)));
                }
                if (c.x+blockSize>xPos){
                  fill(120, 120, 120);
-                 rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize/16, yPos+elementHeight-c.y, blockSize/16+c.y-yPos));
+                 rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/16+c.y-yPos)));
                }
                if (c.x+blockSize*parties[y][x].unitNumber/1000>xPos){
                  fill(playerColours[battle.party2.player]);
-                 rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), min(blockSize*battle.party2.unitNumber/1000, xPos+elementWidth-c.x, blockSize*battle.party2.unitNumber/1000+c.x-xPos), min(blockSize/16, yPos+elementHeight-c.y, blockSize/16+c.y-yPos));
+                 rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize*battle.party2.unitNumber/1000, xPos+elementWidth-c.x, blockSize*battle.party2.unitNumber/1000+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/8+c.y-yPos)));
                }
                
              } else {
