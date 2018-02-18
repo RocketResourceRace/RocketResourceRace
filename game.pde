@@ -445,6 +445,9 @@ class Game extends State{
       if (parties[cellY][cellX].task != "Battle"){
         ((Slider)getElement("split units", "party management")).show();
       }
+      else{
+        ((Slider)getElement("split units", "party management")).hide();
+      }
       getPanel("party management").setVisible(true);
       ((Slider)getElement("split units", "party management")).setScale(1, 1, parties[cellY][cellX].unitNumber-1, 2, parties[cellY][cellX].unitNumber);
       if (turn == 1){
