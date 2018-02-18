@@ -150,6 +150,7 @@ void setup(){
   lowImages.put(3, loadImage("data/forest_low.png"));
   lowImages.put(0, loadImage("data/water_low.png"));
   buildingImages = new PImage[]{
+    loadImage("data/construction.png"),
     loadImage("data/house.png"),
     loadImage("data/farm.png"),
     loadImage("data/mine.png"),

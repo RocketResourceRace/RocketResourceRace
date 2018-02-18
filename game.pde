@@ -297,7 +297,7 @@ class Game extends State{
             parties[cellY][cellX].movementPoints -= DEFENDCOST;
           }
           else if (parties[cellY][cellX].task == "Demolish"){
-            if (sufficientResources(players[turn].resources, costs[buildings[cellY][cellX].type-1])){
+            if (sufficientResources(players[turn].resources, costs[buildings[cellY][cellX].type])){
               parties[cellY][cellX].addAction(new Action("Demolish", 2));
             }
           }
@@ -308,12 +308,14 @@ class Game extends State{
             if (sufficientResources(players[turn].resources, costs[1])){
               parties[cellY][cellX].addAction(new Action("Build Farm", 3));
               spendRes(players[turn], costs[1]);
+              buildings[cellY][cellX] = new Building(0);
             }
           }
           else if (parties[cellY][cellX].task == "Build Sawmill"){
             if (sufficientResources(players[turn].resources, costs[5])){
               parties[cellY][cellX].addAction(new Action("Build Sawmill", 5));
               spendRes(players[turn], costs[5]);
+              buildings[cellY][cellX] = new Building(0);
             }
           }
         }
@@ -497,7 +499,7 @@ class Game extends State{
     text("Cell Type: "+landTypes[terrain[cellY][cellX]-1], 5+cellSelectionX, barY);
     barY += 13*TextScale;
     if (buildings[cellY][cellX] != null){
-      text("Building: "+buildingTypes[buildings[cellY][cellX].type-1], 5+cellSelectionX, barY);
+      text("Building: "+buildingTypes[buildings[cellY][cellX].type], 5+cellSelectionX, barY);
       barY += 13*TextScale;
     }
   }

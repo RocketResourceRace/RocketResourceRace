@@ -299,7 +299,7 @@ class Map extends Element{
            c = new PVector(scaleX(x), scaleY(y));
            int border = round((64-48)*blockSize/(2*64));
            int imgSize = round(blockSize*48/60);
-           drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, tempBuildingImages[buildings[y][x].type-1]);
+           drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, tempBuildingImages[buildings[y][x].type]);
          }
          if(parties[y][x]!=null){
            c = new PVector(scaleX(x), scaleY(y));
