@@ -15,12 +15,11 @@ class Party{
     strength = 1.5;
   }
   void changeTask(String task){
-    if (task=="Defend"){
-      strength = 2;
-    } else if(task=="Rest"){
-      strength = 1.5;
-    } else {
-      strength = 1;
+    switch(task){
+      case "Garrison": strength = 5; break;
+      case "Defend": strength = 3; break;
+      case "Rest": strength = 1.5; break;
+      case "default": strength = 1; break;
     }
     this.task = task;
   }
@@ -83,7 +82,7 @@ class Battle extends Party{
     }
   }
   int getUnitNumber(int turn){
-      if(turn==1){
+      if(turn==party1.player){
         return party1.getUnitNumber();
       } else {
         return party2.getUnitNumber();
