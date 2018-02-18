@@ -12,7 +12,7 @@ class Party{
     this.player = player;
     this.movementPoints = movementPoints;
     actions = new ArrayList<Action>();
-    strength = 1;
+    strength = 1.5;
   }
   void changeTask(String task){
     if (task=="Defend"){
@@ -90,8 +90,8 @@ class Battle extends Party{
       }
   }
   Party doBattle(){
-    int changeInParty1 = (int)(-0.0005*party1.getUnitNumber()*party2.getUnitNumber()*party2.strength/party1.strength);
-    int changeInParty2 = (int)(-0.0005*party1.getUnitNumber()*party2.getUnitNumber()*party1.strength/party2.strength);
+    int changeInParty1 = floor(-0.0005*party1.getUnitNumber()*party2.getUnitNumber()*party2.strength/party1.strength);
+    int changeInParty2 = floor(-0.0005*party1.getUnitNumber()*party2.getUnitNumber()*party1.strength/party2.strength);
     party1.strength = 1;
     party2.strength = 1;
     int newParty1Size = party1.getUnitNumber()+changeInParty1;
@@ -99,6 +99,7 @@ class Battle extends Party{
     int endDifference = newParty1Size-newParty2Size; 
     party1.setUnitNumber(newParty1Size); 
     party2.setUnitNumber(newParty2Size);
+    println(party1.getUnitNumber(), party2.getUnitNumber());
     if (party1.getUnitNumber()==0){
       if(party2.getUnitNumber()==0){
         if(endDifference==0){
@@ -113,8 +114,10 @@ class Battle extends Party{
       } else {
         return party2;
       }
-    } else {
+    } if(party2.getUnitNumber()==0){
       return party1;
+    } else {
+      return this;
     }
   }
 }
