@@ -60,6 +60,7 @@ class Game extends State{
     //int x, int y, int w, int h, color bgColour, color strokeColour, color textColour, int textSize, int textAlign, String text
     addElement("move button", new Button(bezel, bezel*2, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
     addElement("tasks", new DropDown(bezel, bezel*3+30, 200, 10, color(150), color(50), tasks), "party management");
+
     
     toolTipSelected=-1;
   }
