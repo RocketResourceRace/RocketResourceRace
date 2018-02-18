@@ -9,6 +9,7 @@ class Slider extends Element{
   final int boxHeight = 20, boxWidth = 10;
   private final int PRESSEDOFFSET = 50;
   private String name;
+  boolean visible = true;
   
   Slider(int x, int y, int w, int h, color KnobColour, color bgColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name){
     this.lx = x;
@@ -31,6 +32,12 @@ class Slider extends Element{
     this.name = name;
     textSize(15);
     scaleKnob();
+  }
+  void show(){
+    visible = true;
+  }
+  void hide(){
+    visible = false;
   }
   void scaleKnob(){
     this.knobSize = textWidth(""+getInc(new BigDecimal(""+upper)));
@@ -99,6 +106,7 @@ class Slider extends Element{
   }
   
   void draw(){
+    if (!visible)return;
     BigDecimal range = upper.subtract(lower);
     float r = red(KnobColour), g = green(KnobColour), b = blue(KnobColour);
     pushStyle();

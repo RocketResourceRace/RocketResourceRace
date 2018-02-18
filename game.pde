@@ -5,7 +5,7 @@ class Game extends State{
   final int buttonW = 120;
   final int buttonH = 50;
   final int bezel = 20;
-  final int[] terrainCosts = new int[]{8, 4, 3, 2, 3};
+  final int[] terrainCosts = new int[]{8, 6, 4, 3, 2, 3};
   final int DEFENDCOST = 6;
   final float [] STARTINGRESOURCES = new float[]{500, 300, 0, 0};
   final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Clear Forest", "Battle"};
@@ -22,6 +22,8 @@ class Game extends State{
     "Clearing a forest adds 100 wood to stockpile.\nThe tile is turned to grassland\nThis takes 3 turns.",
     "Demolishing destroys the building on this tile.\nThis takes 2 turns.",
     "While a unit is at rest it can move and attack.",
+    "Merge parties.\nThis action will create a single party from two.\nThe new party has no action points this turn.",
+    "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated.",
   };
   final float[][] costs = {
     {0, 100, 0, 0},
@@ -272,8 +274,11 @@ class Game extends State{
         if (event.id == "split button"){
           int[] loc = newPartyLoc();
           int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
-          if (loc != null && sliderVal > 0){
+          if (loc != null && sliderVal > 0 && parties[cellY][cellX].unitNumber >= 2 && parties[cellY][cellX].task != "Battle"){
             parties[loc[1]][loc[0]] = new Party(turn, sliderVal, "Rest", 0);
+            parties[cellY][cellX].unitNumber -= sliderVal;
+            deselectCell();
+            selectCell(loc[0], loc[1]);
           }
         }
       }
@@ -351,8 +356,18 @@ class Game extends State{
             map.parties[cellY][cellX].movementPoints-=nodes[y][x].cost;
             if(map.parties[y][x]==null){
               map.parties[y][x] = map.parties[cellY][cellX];
-            } else {
-              map.parties[y][x] = new Battle(map.parties[cellY][cellX], map.parties[y][x]);
+            }
+            else {
+              if (map.parties[y][x].player == turn){
+                //merge parties
+                map.parties[y][x].unitNumber += map.parties[cellY][cellX].unitNumber;
+                map.parties[cellY][cellX] = null;
+                map.parties[y][x].movementPoints = 0;
+              }
+              else {
+                map.parties[y][x] = new Battle(map.parties[cellY][cellX], map.parties[y][x]);
+                ((Slider)getElement("split units", "party management")).hide();
+              }
             }
             map.parties[cellY][cellX] = null;
             deselectCell();
@@ -395,6 +410,25 @@ class Game extends State{
           default: toolTipSelected = -1;break;
         }
       }
+      else if (moving&&map.mouseOver()){
+          Node [][] nodes = map.moveNodes;
+          int x = floor(map.scaleXInv(mouseX));
+          int y = floor(map.scaleYInv(mouseY));
+          if (nodes[y][x] != null && !(cellX == x && cellY == y)){
+            if(map.parties[y][x]==null){
+              toolTipSelected = -1;
+            }
+            else {
+              if (map.parties[y][x].player == turn){
+                //merge parties
+                toolTipSelected = 10;
+              }
+              else {
+                toolTipSelected = 11;
+              }
+            }
+          }
+        }
       else{
         toolTipSelected = -1;
       }
@@ -408,8 +442,11 @@ class Game extends State{
     map.selectCell(cellX, cellY);
     getPanel("land management").setVisible(true);
     if (parties[cellY][cellX] != null && parties[cellY][cellX].isTurn(turn)){
+      if (parties[cellY][cellX].task != "Battle"){
+        ((Slider)getElement("split units", "party management")).show();
+      }
       getPanel("party management").setVisible(true);
-      ((Slider)getElement("split units", "party management")).setScale(0, 0, parties[cellY][cellX].unitNumber, 2, parties[cellY][cellX].unitNumber);
+      ((Slider)getElement("split units", "party management")).setScale(1, 1, parties[cellY][cellX].unitNumber-1, 2, parties[cellY][cellX].unitNumber);
       if (turn == 1){
         partyManagementColour = color(170, 30, 30);
         getPanel("party management").setColour(color(220, 70, 70));
@@ -550,9 +587,11 @@ class Game extends State{
   int cost(int x, int y){
     if (0<x && x<mapSize && 0<y && y<mapSize){
       if (map.parties[y][x] == null){
-        return terrainCosts[terrain[y][x]];
+        return terrainCosts[terrain[y][x]+1];
       } else if(map.parties[y][x].player!=this.turn){
         return terrainCosts[0];
+      }else if(map.parties[y][x].player==this.turn){
+        return terrainCosts[1];
       }
     }
     //Not a valid location
