@@ -12,7 +12,8 @@ class Game extends State{
   final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Build Homes", "Clear Forest", "Battle"};
   final String[] landTypes = {"Water", "Sand", "Grass", "Forest"};
   final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
-  final String[] tooltipText = {
+  final String attackToolTipRaw = "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a /p% chance of winning this battle.";
+  String[] tooltipText = {
     "Defending improves fighting\neffectiveness against enemy parties\nCosts: 6 movement points.",
     "The farm produces food when worked.\nCosts: 50 wood.\nConsumes: Nothing.\nProduces: 1 food/worker.\nThis takes 3 turns to build.",
     "The mine produces ore when worked.\nCosts: 200 wood.\nConsumes: 10 wood.\nProduces: 1 ore/worker",
@@ -24,7 +25,7 @@ class Game extends State{
     "Demolishing destroys the building on this tile.\nThis takes 2 turns.",
     "While a unit is at rest it can move and attack.",
     "Merge parties.\nThis action will create a single party from two.\nThe new party has no action points this turn.",
-    "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated.",
+    "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a ?% chance of winning this battle.",
   };
   final float[][] costs = {
     {0, 100, 0, 0},
@@ -108,7 +109,7 @@ class Game extends State{
       }
       else{
         if (cellTerrain == 3){
-          makeTaskAvailable("Build Farm");
+          makeTaskAvailable("Build Farm"); //<>//
         }
         else if (cellTerrain == 4){
           makeTaskAvailable("Clear Forest");
@@ -380,7 +381,7 @@ class Game extends State{
               }
               else {
                 map.parties[y][x] = new Battle(map.parties[cellY][cellX], map.parties[y][x]);
-                if(map.buildings[y][x].type==0){
+                if(map.buildings[y][x]!=null&&map.buildings[y][x].type==0){
                   map.buildings[y][x] = null;
                 }
                 ((Slider)getElement("split units", "party management")).hide();
@@ -433,6 +434,7 @@ class Game extends State{
           int y = floor(map.scaleYInv(mouseY));
           if (nodes[y][x] != null && !(cellX == x && cellY == y)){
             if(map.parties[y][x]==null){
+              //Moving into empty tile
               toolTipSelected = -1;
             }
             else {
@@ -441,6 +443,9 @@ class Game extends State{
                 toolTipSelected = 10;
               }
               else {
+                //Attack
+                int chance = getChanceOfBattleSuccess(map.parties[cellY][cellX], map.parties[y][x]);
+                tooltipText[11] = attackToolTipRaw.replace("/p", str(chance));
                 toolTipSelected = 11;
               }
             }
@@ -469,11 +474,11 @@ class Game extends State{
         ((Slider)getElement("split units", "party management")).hide();
       }
       getPanel("party management").setVisible(true);
-      if (parties[cellY][cellX].unitNumber <= 1){
+      if (parties[cellY][cellX].getUnitNumber() <= 1){
           ((Slider)getElement("split units", "party management")).hide();
       }
       else
-      ((Slider)getElement("split units", "party management")).setScale(1, 1, parties[cellY][cellX].unitNumber-1, 1, parties[cellY][cellX].unitNumber);
+      ((Slider)getElement("split units", "party management")).setScale(1, 1, parties[cellY][cellX].getUnitNumber()-1, 1, parties[cellY][cellX].getUnitNumber());
       if (turn == 1){
         partyManagementColour = color(170, 30, 30);
         getPanel("party management").setColour(color(220, 70, 70));

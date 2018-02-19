@@ -1,7 +1,7 @@
 
 
 class Party{
-  int unitNumber, movementPoints;
+  private int unitNumber, movementPoints;
   int player;
   float strength;
   String task;
@@ -74,6 +74,12 @@ class Party{
   void setUnitNumber(int newUnitNumber){
     unitNumber = max(0, newUnitNumber);
   }
+  Party clone(){
+    Party newParty = new Party(player, unitNumber, task, movementPoints);
+    newParty.actions = new ArrayList<Action>(actions);
+    newParty.strength = strength;
+    return newParty;
+  }
 }
 
 class Battle extends Party{
@@ -105,8 +111,8 @@ class Battle extends Party{
       }
   }
   Party doBattle(){
-    int changeInParty1 = floor(-0.2*(party2.getUnitNumber()+pow(party2.getUnitNumber(), 2)/party1.getUnitNumber())*party2.strength/party1.strength);
-    int changeInParty2 = floor(-0.2*(party1.getUnitNumber()+pow(party1.getUnitNumber(), 2)/party2.getUnitNumber())*party1.strength/party2.strength);
+    int changeInParty1 = getBattleUnitChange(party1, party2);
+    int changeInParty2 = getBattleUnitChange(party2, party2);
     party1.strength = 1;
     party2.strength = 1;
     int newParty1Size = party1.getUnitNumber()+changeInParty1;
@@ -134,4 +140,28 @@ class Battle extends Party{
       return this;
     }
   }
+}
+
+int getBattleUnitChange(Party p1, Party p2){
+  return floor(-0.2*(p2.getUnitNumber()+pow(p2.getUnitNumber(), 2)/p1.getUnitNumber())*random(0.85, 1.15)*p2.strength/p1.strength);
+}
+
+int getChanceOfBattleSuccess(Party attacker, Party defender){
+  int TRIALS = 1000;
+  int wins = 0;
+  Party clone1;
+  Party clone2;
+  Battle battle;
+  for (int i = 0;i<TRIALS;i++){
+    clone1 = attacker.clone();
+    clone2 = defender.clone();
+    battle = new Battle(clone1, clone2); 
+    while (clone1.getUnitNumber()>0&&clone2.getUnitNumber()>0){
+      battle.doBattle();
+    }
+    if(clone1.getUnitNumber()>0){
+      wins+=1;
+    }
+  }
+  return round((wins*50/TRIALS))*2;
 }
