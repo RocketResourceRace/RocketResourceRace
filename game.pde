@@ -342,7 +342,7 @@ class Game extends State{
           if (parties[cellY][cellX].player == turn && parties[cellY][cellX].task == "Rest"){
             moving = !moving;
             if (moving){
-              map.updateMoveNodes(djk(cellX, cellY, parties[cellY][cellX].movementPoints));
+              map.updateMoveNodes(djk(cellX, cellY));
             }
             else{
               map.cancelMoveNodes();
@@ -393,7 +393,7 @@ class Game extends State{
             moving = false;
             map.focusMapMouse(mouseX, mouseY);
             if (map.parties[y][x].movementPoints > 0){
-              map.updateMoveNodes(djk(cellX, cellY, parties[cellY][cellX].movementPoints));
+              map.updateMoveNodes(djk(cellX, cellY));
               moving = true;
             }
           }
@@ -436,6 +436,7 @@ class Game extends State{
             if(map.parties[y][x]==null){
               //Moving into empty tile
               toolTipSelected = -1;
+              map.updatePath(getPath(cellX, cellY, x, y, map.moveNodes));
             }
             else {
               if (map.parties[y][x].player == turn){
@@ -451,10 +452,12 @@ class Game extends State{
             }
           }
           else{
+            //map.cancelPath();
             toolTipSelected = -1;
           }
         }
       else{
+        //map.cancelPath();
         toolTipSelected = -1;
       }
     }
@@ -633,18 +636,40 @@ class Game extends State{
     //Not a valid location
     return -1;
   }
-  //ArrayList<int[]> getPath(int startX, int startY, int targetX, int targetY){
-  //  ArrayList<int[]> returnNodes = new ArrayList<int[]>();
-  //  int[] curNode = {targetX, targetY};
-  //  int[] startNode = {startX, startY};
-  //  while (!curNode.equals(startNode)){
-  //    if (0 < curMinNodes[0] + 1 && curMinNodes[0] + 1 < width){
-        
-  //    }
-  //  }
-  //  return returnNodes;
-  //}
-  Node[][] djk(int x, int y, float availablePoints){
+  ArrayList<int[]> getPath(int startX, int startY, int targetX, int targetY, Node[][] nodes){
+    ArrayList<int[]> returnNodes = new ArrayList<int[]>();
+    int[][] mvs = {{1,0}, {0,1}, {1,1}, {-1,0}, {0,-1}, {-1,-1}, {1,-1}, {-1,1}};
+    int[] curNode = {targetX, targetY};
+    int[] prevNode = {targetX, targetY};
+    int[] startNode = {startX, startY};
+    float remainingCost=nodes[targetY][targetX].cost;
+    while (!curNode.equals(startNode)){
+      for (int[] mv : mvs){
+        int nx = curNode[0]+mv[0];
+        int ny = curNode[1]+mv[1];
+        if (0 < nx && nx < width && 0 < ny && ny < height && nodes[ny][nx] != null){
+          float cost = cost(curNode[0], curNode[1], nx, ny);
+          //println(remainingCost, cost, nodes[ny][nx].cost);
+          if ((remainingCost-cost)==nodes[ny][nx].cost){
+            remainingCost -= cost;
+            returnNodes.add(new int[]{nx, ny});
+            curNode = new int[]{nx, ny};
+            break;
+          }
+        }
+      }
+      //println(curNode);
+      //println(startNode);
+      //println();
+      if (curNode.equals(prevNode)){
+        break;
+      }
+      prevNode = curNode;
+    }
+    //print("\n\n\n\n\n");
+    return returnNodes;
+  }
+  Node[][] djk(int x, int y){
     int[][] mvs = {{1,0}, {0,1}, {1,1}, {-1,0}, {0,-1}, {-1,-1}, {1,-1}, {-1,1}};
     int xOff = 0;
     int yOff = 0;

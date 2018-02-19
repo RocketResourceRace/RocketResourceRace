@@ -25,6 +25,7 @@ class Map extends Element{
   boolean cellSelected;
   color partyManagementColour;
   Node[][] moveNodes;
+  ArrayList<int[]> drawPath;
 
   Map(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight){
     xPos = x;
@@ -46,6 +47,7 @@ class Map extends Element{
     limitCoords();
     frameStartTime = 0;
     cancelMoveNodes();
+    cancelPath();
   }
   void selectCell(int x, int y){
     cellSelected = true;
@@ -117,14 +119,20 @@ class Map extends Element{
   void resetTargetZoom(){
     zooming = false;
     targetBlockSize = blockSize;
-    setPanningSpeed(0.05);
-  }
-   //<>// //<>// //<>// //<>// //<>// //<>// //<>//
-  void updateMoveNodes(Node[][] nodes){ //<>// //<>// //<>// //<>// //<>// //<>// //<>//
+    setPanningSpeed(0.05); //<>//
+  } //<>//
+   //<>// //<>// //<>// //<>// //<>// //<>//
+  void updateMoveNodes(Node[][] nodes){ //<>// //<>// //<>// //<>// //<>// //<>//
     moveNodes = nodes;
+  }
+  void updatePath(ArrayList<int[]> nodes){
+    drawPath = nodes;
   }
   void cancelMoveNodes(){
     moveNodes = null;
+  }
+  void cancelPath(){
+    drawPath = null;
   }
 
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
@@ -376,8 +384,17 @@ class Map extends Element{
          }
        }
      }
+     
+     if (drawPath != null){
+       for (int i=0; i<drawPath.size()-1;i++){
+         pushStyle();
+         stroke(255,0,0); 
+         line(scaleX(drawPath.get(i)[0])+blockSize/2, scaleY(drawPath.get(i)[1])+blockSize/2, scaleX(drawPath.get(i+1)[0])+blockSize/2, scaleY(drawPath.get(i+1)[1])+blockSize/2);
+         popStyle();
+       }
+     }
 
-     fill(255, 0);
+     noFill();
      rect(xPos, yPos, elementWidth, elementHeight);
   }
   int sign(float x){
