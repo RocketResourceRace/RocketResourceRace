@@ -91,8 +91,8 @@ class Battle extends Party{
       }
   }
   Party doBattle(){
-    int changeInParty1 = floor(-0.2*(party2.getUnitNumber()+pow(party2.getUnitNumber(), 2)/party1.getUnitNumber())*party2.strength/party1.strength);
-    int changeInParty2 = floor(-0.2*(party1.getUnitNumber()+pow(party1.getUnitNumber(), 2)/party2.getUnitNumber())*party1.strength/party2.strength);
+    int changeInParty1 = getBattleUnitChange(party1, party2);
+    int changeInParty2 = getBattleUnitChange(party2, party2);
     party1.strength = 1;
     party2.strength = 1;
     int newParty1Size = party1.getUnitNumber()+changeInParty1;
@@ -120,4 +120,8 @@ class Battle extends Party{
       return this;
     }
   }
+}
+
+int getBattleUnitChange(Party p1, Party p2){
+  return floor(-0.2*(p2.getUnitNumber()+pow(p2.getUnitNumber(), 2)/p1.getUnitNumber())*random(0.9, 1.1)*p2.strength/p1.strength);
 }

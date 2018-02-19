@@ -109,7 +109,7 @@ class Game extends State{
       else{
         if (cellTerrain == 3){
           makeTaskAvailable("Build Farm");
-        }
+        } //<>//
         else if (cellTerrain == 4){
           makeTaskAvailable("Clear Forest");
           makeTaskAvailable("Build Sawmill");
@@ -380,7 +380,7 @@ class Game extends State{
               }
               else {
                 map.parties[y][x] = new Battle(map.parties[cellY][cellX], map.parties[y][x]);
-                if(map.buildings[y][x].type==0){
+                if(map.buildings[y][x]!=null&&map.buildings[y][x].type==0){
                   map.buildings[y][x] = null;
                 }
                 ((Slider)getElement("split units", "party management")).hide();
