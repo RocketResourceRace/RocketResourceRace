@@ -109,7 +109,7 @@ class Game extends State{
       }
       else{
         if (cellTerrain == 3){
-          makeTaskAvailable("Build Farm"); //<>//
+          makeTaskAvailable("Build Farm"); //<>// //<>//
         }
         else if (cellTerrain == 4){
           makeTaskAvailable("Clear Forest");
@@ -118,8 +118,8 @@ class Game extends State{
         if (cellTerrain != 1 && cellTerrain != 4){
           makeTaskAvailable("Build Homes");
         } //<>//
-      } //<>//
-    } //<>//
+      } //<>// //<>//
+    } //<>// //<>//
     ((DropDown)getElement("tasks", "party management")).select(parties[cellY][cellX].task);
   }
   
@@ -650,8 +650,8 @@ class Game extends State{
         if (0 < nx && nx < width && 0 < ny && ny < height && nodes[ny][nx] != null){
           float cost = cost(curNode[0], curNode[1], nx, ny);
           //println(remainingCost, cost, nodes[ny][nx].cost);
-          if ((remainingCost-cost)==nodes[ny][nx].cost){
-            remainingCost -= cost;
+          if (abs((remainingCost-cost)-nodes[ny][nx].cost)<0.1){
+            remainingCost = nodes[ny][nx].cost;
             returnNodes.add(new int[]{nx, ny});
             curNode = new int[]{nx, ny};
             break;
