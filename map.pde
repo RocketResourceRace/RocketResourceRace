@@ -301,6 +301,7 @@ class Map extends Element{
            int imgSize = round(blockSize*48/60);
            drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, tempBuildingImages[buildings[y][x].type]);
          }
+         //Parties
          if(parties[y][x]!=null){
            c = new PVector(scaleX(x), scaleY(y));
            if(c.x<xPos+elementWidth&&c.y+blockSize/8>yPos&&c.y<yPos+elementHeight){

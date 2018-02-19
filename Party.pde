@@ -70,6 +70,8 @@ class Battle extends Party{
     party1 = attacker;
     party1.strength*=1.5;
     party2 = defender;
+    party1.task = "Rest";
+    party2.task = "Rest";
   }
   boolean isTurn(int turn){
     return true;

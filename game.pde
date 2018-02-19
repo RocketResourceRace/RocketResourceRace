@@ -379,6 +379,9 @@ class Game extends State{
               }
               else {
                 map.parties[y][x] = new Battle(map.parties[cellY][cellX], map.parties[y][x]);
+                if(map.buildings[y][x].type==0){
+                  map.buildings[y][x] = null;
+                }
                 ((Slider)getElement("split units", "party management")).hide();
               }
             }
