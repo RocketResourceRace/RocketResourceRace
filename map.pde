@@ -119,8 +119,8 @@ class Map extends Element{
     targetBlockSize = blockSize;
     setPanningSpeed(0.05);
   }
-   //<>// //<>// //<>// //<>// //<>//
-  void updateMoveNodes(Node[][] nodes){ //<>// //<>// //<>// //<>// //<>//
+   //<>// //<>// //<>// //<>// //<>// //<>//
+  void updateMoveNodes(Node[][] nodes){ //<>// //<>// //<>// //<>// //<>// //<>//
     moveNodes = nodes;
   }
   void cancelMoveNodes(){
@@ -360,9 +360,14 @@ class Map extends Element{
            if (moveNodes[y1][x] != null){
              c = new PVector(scaleX(x), scaleY(y1));
              if (max(c.x, xPos)+min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)>xPos && max(c.x, xPos) < elementWidth+xPos && max(c.y, yPos)+min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos)>yPos && max(c.y, yPos) < elementHeight+yPos){
-               fill(50, 150);
+               if (moveNodes[y1][x].cost <= parties[selectedCellY][selectedCellX].movementPoints){
+                 fill(0, 0, 0, 100);
+               }
+               else{
+                 fill(255-255*floor(moveNodes[y1][x].cost/24)/10, 150);
+               }
                rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
-               if (blockSize > 10*TextScale){
+               if (blockSize > 10*TextScale && moveNodes[y1][x].cost <= 24){
                  fill(255);
                  textSize(8*TextScale);
                  textAlign(CENTER, CENTER);

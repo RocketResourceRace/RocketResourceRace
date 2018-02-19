@@ -6,6 +6,7 @@ class Game extends State{
   final int buttonH = 50;
   final int bezel = 20;
   final int[] terrainCosts = new int[]{8, 6, 4, 3, 2, 3};
+  final int MOVEMENTPOINTS = 24;
   final int DEFENDCOST = 6;
   final float [] STARTINGRESOURCES = new float[]{500, 300, 0, 0};
   final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Build Homes", "Clear Forest", "Battle"};
@@ -230,7 +231,7 @@ class Game extends State{
       for (int x=0; x<mapWidth; x++){
         if (map.parties[y][x] != null){
           if (map.parties[y][x].player == player){
-            map.parties[y][x].movementPoints = 16;
+            map.parties[y][x].movementPoints = MOVEMENTPOINTS;
           }
         }
       }
@@ -290,7 +291,7 @@ class Game extends State{
         if (event.id == "tasks"){
           if (parties[cellY][cellX].task == "Defend"){
             //Changing from defending
-            parties[cellY][cellX].movementPoints = min(parties[cellY][cellX].movementPoints+DEFENDCOST, 16);
+            parties[cellY][cellX].movementPoints = min(parties[cellY][cellX].movementPoints+DEFENDCOST, MOVEMENTPOINTS);
           }
           parties[cellY][cellX].changeTask(((DropDown)getElement("tasks", "party management")).getSelected());
           if (parties[cellY][cellX].task != "Rest"){
@@ -444,6 +445,9 @@ class Game extends State{
               }
             }
           }
+          else{
+            toolTipSelected = -1;
+          }
         }
       else{
         toolTipSelected = -1;
@@ -465,7 +469,7 @@ class Game extends State{
         ((Slider)getElement("split units", "party management")).hide();
       }
       getPanel("party management").setVisible(true);
-      ((Slider)getElement("split units", "party management")).setScale(1, 1, parties[cellY][cellX].unitNumber-1, 2, parties[cellY][cellX].unitNumber);
+      ((Slider)getElement("split units", "party management")).setScale(1, 1, parties[cellY][cellX].unitNumber-1, 1, parties[cellY][cellX].unitNumber);
       if (turn == 1){
         partyManagementColour = color(170, 30, 30);
         getPanel("party management").setColour(color(220, 70, 70));
@@ -489,7 +493,7 @@ class Game extends State{
     textAlign(LEFT, CENTER);
     textSize(8*TextScale);
     float barY = cellSelectionY + 13*TextScale + cellSelectionH*0.3 + bezel*2;
-    text("Movement Points Remaining: "+parties[cellY][cellX].getMovementPoints(turn) + "/16", 150+cellSelectionX, barY);
+    text("Movement Points Remaining: "+parties[cellY][cellX].getMovementPoints(turn) + "/"+MOVEMENTPOINTS, 150+cellSelectionX, barY);
     barY += 13*TextScale;
     text("Units: "+parties[cellY][cellX].getUnitNumber(turn) + "/1000", 150+cellSelectionX, barY);
     barY += 13*TextScale;
@@ -642,7 +646,7 @@ class Game extends State{
     while (curMinNode[0] != -1 && curMinNode[1] != -1){
       //println(curMinNode[0], curMinNode[1], cx, cy, nodes[curMinNode[1]][curMinNode[0]].fixed);
       nodes[curMinNode[1]][curMinNode[0]].fixed = true;
-      if (0 < curMinNode[0] + 1 && curMinNode[0] + 1 < w && nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0] + 1, curMinNode[1]) <= availablePoints){
+      if (0 < curMinNode[0] + 1 && curMinNode[0] + 1 < w && nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0] + 1, curMinNode[1]) <= availablePoints+MOVEMENTPOINTS){
         if (nodes[curMinNode[1]][curMinNode[0]+1] == null){
           nodes[curMinNode[1]][curMinNode[0]+1] = new Node(nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0] + 1, curMinNode[1]), false);
         }
@@ -650,7 +654,7 @@ class Game extends State{
           nodes[curMinNode[1]][curMinNode[0]+1].cost = min(nodes[curMinNode[1]][curMinNode[0]+1].cost, nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0] + 1, curMinNode[1]));
         }
       }
-      if (0 < curMinNode[0] - 1 && curMinNode[0] + 1 < w && nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0]-1, curMinNode[1]) <= availablePoints){
+      if (0 < curMinNode[0] - 1 && curMinNode[0] + 1 < w && nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0]-1, curMinNode[1]) <= availablePoints+MOVEMENTPOINTS){
         if (nodes[curMinNode[1]][curMinNode[0]-1] == null){
           nodes[curMinNode[1]][curMinNode[0]-1] = new Node(nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0]-1, curMinNode[1]), false);
         }
@@ -658,7 +662,7 @@ class Game extends State{
           nodes[curMinNode[1]][curMinNode[0]-1].cost = min(nodes[curMinNode[1]][curMinNode[0]-1].cost, nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0]-1, curMinNode[1]));
         }
       }
-      if (0 < curMinNode[1] + 1 && curMinNode[1] + 1 < h && nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0], curMinNode[1]+1) <= availablePoints){
+      if (0 < curMinNode[1] + 1 && curMinNode[1] + 1 < h && nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0], curMinNode[1]+1) <= availablePoints+MOVEMENTPOINTS){
         if (nodes[curMinNode[1]+1][curMinNode[0]] == null){
           nodes[curMinNode[1]+1][curMinNode[0]] = new Node(nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0], curMinNode[1]+1), false);
         }
@@ -666,7 +670,7 @@ class Game extends State{
           nodes[curMinNode[1]+1][curMinNode[0]].cost = min(nodes[curMinNode[1]+1][curMinNode[0]].cost, nodes[curMinNode[1]+1][curMinNode[0]].cost+cost(curMinNode[0], curMinNode[1]+1));
         }
       }
-      if (0 < curMinNode[1] - 1 && curMinNode[1] - 1 < h && nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0], curMinNode[1]-1) <= availablePoints){
+      if (0 < curMinNode[1] - 1 && curMinNode[1] - 1 < h && nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0], curMinNode[1]-1) <= availablePoints+MOVEMENTPOINTS){
         if (nodes[curMinNode[1]-1][curMinNode[0]] == null){
           nodes[curMinNode[1]-1][curMinNode[0]] = new Node(nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0], curMinNode[1]-1), false);
         }
@@ -692,8 +696,8 @@ class Game extends State{
       player1 = PVector.random2D().mult(mapWidth/8).add(new PVector(mapWidth/4, mapHeight/2));
       player2 = PVector.random2D().mult(mapWidth/8).add(new PVector(3*mapWidth/4, mapHeight/2));
     }
-    parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "Rest", 16);
-    parties[(int)player1.y][(int)player1.x+1] = new Party(1, 100, "Rest", 16);
+    parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "Rest", MOVEMENTPOINTS);
+    parties[(int)player1.y][(int)player1.x+1] = new Party(1, 100, "Rest", MOVEMENTPOINTS);
     
     return  new PVector[]{player1, player1};
   }
