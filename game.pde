@@ -1,7 +1,7 @@
 
 class Game extends State{
-  final int mapElementWidth = 1100;
-  final int mapElementHeight = 700;
+  final int mapElementWidth = (int) (width*0.6);
+  final int mapElementHeight = (int) (height*0.7);
   final int buttonW = 120;
   final int buttonH = 50;
   final int bezel = 20;
