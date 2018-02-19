@@ -117,7 +117,7 @@ class Game extends State{
         }
         if (cellTerrain != 1 && cellTerrain != 4){
           makeTaskAvailable("Build Homes");
-        }
+        } //<>//
       } //<>//
     } //<>//
     ((DropDown)getElement("tasks", "party management")).select(parties[cellY][cellX].task);
@@ -616,7 +616,7 @@ class Game extends State{
     turn = 0;
     toolTipSelected=-1;
   }
-  int cost(int x, int y){
+  int cost(int x, int y, int prevX, int prevY){
     if (0<x && x<mapSize && 0<y && y<mapSize){
       if (map.parties[y][x] == null){
         return terrainCosts[terrain[y][x]+1];
@@ -655,51 +655,6 @@ class Game extends State{
     }
     return m;
   }
-  //ArrayList<int[]> astar(int startX, int startY, int targetX, int targetY){
-  //  Node[][] nodes = new Node[height][width];
-  //  int[] startNode = {startX, startY};
-  //  int[] curMinNodes = {startX, startY};
-  //  int[] targetNode = {targetX, targetY};
-  //  while(!curMinNodes.equals(targetNode)){
-      
-  //    nodes[curMinNodes[1]][curMinNodes[0]].fixed = true;
-  //    if (0 < curMinNodes[0] + 1 && curMinNodes[0] + 1 < width){
-  //      if (nodes[curMinNodes[1]][curMinNodes[0]+1] == null){
-  //        nodes[curMinNodes[1]][curMinNodes[0]+1] = new Node(nodes[curMinNodes[1]][curMinNodes[0]].cost+cost(curMinNodes[0] + 1, curMinNodes[1]), false, round(sqrt(pow(targetX-curMinNodes[0],2) + pow(targetY-curMinNodes[1],2))));
-  //      }
-  //      else{
-  //        nodes[curMinNodes[1]][curMinNodes[0]+1].cost = min(nodes[curMinNodes[1]][curMinNodes[0]+1].cost, nodes[curMinNodes[1]][curMinNodes[0]].cost+cost(curMinNodes[0] + 1, curMinNodes[1]));
-  //      }
-  //    }
-  //    if (0 < curMinNodes[0] - 1 && curMinNodes[0] + 1 < width){
-  //      if (nodes[curMinNodes[1]][curMinNodes[0]-1] == null){
-  //        nodes[curMinNodes[1]][curMinNodes[0]-1] = new Node(nodes[curMinNodes[1]][curMinNodes[0]].cost+cost(curMinNodes[0]-1, curMinNodes[1]), false, round(sqrt(pow(targetX-curMinNodes[0],2) + pow(targetY-curMinNodes[1],2))));
-  //      }
-  //      else{
-  //        nodes[curMinNodes[1]][curMinNodes[0]-1].cost = min(nodes[curMinNodes[1]][curMinNodes[0]-1].cost, nodes[curMinNodes[1]][curMinNodes[0]].cost+cost(curMinNodes[0]-1, curMinNodes[1]));
-  //      }
-  //    }
-  //    if (0 < curMinNodes[1] + 1 && curMinNodes[1] + 1 < height){
-  //      if (nodes[curMinNodes[1]+1][curMinNodes[0]] == null){
-  //        nodes[curMinNodes[1]+1][curMinNodes[0]] = new Node(nodes[curMinNodes[1]][curMinNodes[0]].cost+cost(curMinNodes[0], curMinNodes[1]+1), false, round(sqrt(pow(targetX-curMinNodes[0],2) + pow(targetY-curMinNodes[1],2))));
-  //      }
-  //      else{
-  //        nodes[curMinNodes[1]+1][curMinNodes[0]].cost = min(nodes[curMinNodes[1]+1][curMinNodes[0]].cost, nodes[curMinNodes[1]+1][curMinNodes[0]].cost+cost(curMinNodes[0], curMinNodes[1]+1));
-  //      }
-  //    }
-  //    if (0 < curMinNodes[1] - 1 && curMinNodes[1] - 1 < height){
-  //      if (nodes[curMinNodes[1]-1][curMinNodes[0]] == null){
-  //        nodes[curMinNodes[1]-1][curMinNodes[0]] = new Node(nodes[curMinNodes[1]][curMinNodes[0]].cost+cost(curMinNodes[0], curMinNodes[1]-1), false, round(sqrt(pow(targetX-curMinNodes[0],2) + pow(targetY-curMinNodes[1],2))));
-  //      }
-  //      else{
-  //        nodes[curMinNodes[1]-1][curMinNodes[0]].cost = min(nodes[curMinNodes[1]-1][curMinNodes[0]].cost, nodes[curMinNodes[1]-1][curMinNodes[0]].cost+cost(curMinNodes[0], curMinNodes[1]-1));
-  //      }
-  //    }
-      
-  //    curMinNodes = minNodeAvecEstimate(nodes, width, height);
-  //  }
-  //  return returnNodes;
-  //}
   //ArrayList<int[]> getPath(int startX, int startY, int targetX, int targetY){
   //  ArrayList<int[]> returnNodes = new ArrayList<int[]>();
   //  int[] curNode = {targetX, targetY};
@@ -729,17 +684,23 @@ class Game extends State{
         int nx = curMinNodes.get(0)[0]+mv[0];
         int ny = curMinNodes.get(0)[1]+mv[1];
         if (0 < nx && nx < w && 0 < ny && ny < h){
-          int newCost = cost(nx, ny);
-          int oldCost = curMinNodes.get(0)[2];
-          int totalNewCost = oldCost+newCost;
+          int newCost = cost(nx, ny, curMinNodes.get(0)[0], curMinNodes.get(0)[1]);
+          int prevCost = curMinNodes.get(0)[2];
+          int totalNewCost = prevCost+newCost;
           if (totalNewCost < 24*10){
             if (nodes[ny][nx] == null){
               nodes[ny][nx] = new Node(totalNewCost, false);
-              curMinNodes.add(search(curMinNodes, oldCost), new int[]{nx, ny, totalNewCost});
+              curMinNodes.add(search(curMinNodes, totalNewCost), new int[]{nx, ny, totalNewCost});
             }
             else if (!nodes[ny][nx].fixed){
-              nodes[ny][nx].cost = min(oldCost, totalNewCost);
-              curMinNodes.get(search(curMinNodes, nx, ny))[2] = totalNewCost;
+              if (totalNewCost < nodes[ny][nx].cost){
+                nodes[ny][nx].cost = min(nodes[ny][nx].cost, totalNewCost);
+                println(nx, ny);
+                for (int[] node : curMinNodes)
+                  println(node);
+                curMinNodes.remove(search(curMinNodes, nx, ny));
+                curMinNodes.add(search(curMinNodes, totalNewCost), new int[]{nx, ny, totalNewCost});
+              }
             }
           }
         }
@@ -766,7 +727,7 @@ class Game extends State{
     
     //linear search for now
     for (int i=0; i < nodes.size(); i++){
-      if (nodes.get(i)[2] <= target){
+      if (nodes.get(i)[2] > target){
         return i;
       }
     }
