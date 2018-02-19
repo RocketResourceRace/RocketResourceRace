@@ -117,7 +117,7 @@ class Game extends State{
         if (cellTerrain != 1 && cellTerrain != 4){
           makeTaskAvailable("Build Homes");
         }
-      }
+      } //<>//
     } //<>//
     ((DropDown)getElement("tasks", "party management")).select(parties[cellY][cellX].task);
   }
@@ -469,6 +469,10 @@ class Game extends State{
         ((Slider)getElement("split units", "party management")).hide();
       }
       getPanel("party management").setVisible(true);
+      if (parties[cellY][cellX].unitNumber <= 1){
+          ((Slider)getElement("split units", "party management")).hide();
+      }
+      else
       ((Slider)getElement("split units", "party management")).setScale(1, 1, parties[cellY][cellX].unitNumber-1, 1, parties[cellY][cellX].unitNumber);
       if (turn == 1){
         partyManagementColour = color(170, 30, 30);

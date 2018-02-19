@@ -1,7 +1,7 @@
 
 
 class Party{
-  private int unitNumber, movementPoints;
+  int unitNumber, movementPoints;
   int player;
   float strength;
   String task;
