@@ -145,7 +145,6 @@ int getChanceOfBattleSuccess(Party attacker, Party defender){
     while (clone1.getUnitNumber()>0&&clone2.getUnitNumber()>0){
       battle.doBattle();
     }
-    println(clone1.getUnitNumber(), clone2.getUnitNumber());
     if(clone1.getUnitNumber()>0){
       wins+=1;
     }
