@@ -6,6 +6,7 @@ class Party{
   float strength;
   String task;
   ArrayList<Action> actions;
+  ArrayList<int[]> path;
   Party(int player, int startingUnits, String startingTask, int movementPoints){
     unitNumber = startingUnits;
     task = startingTask;
@@ -13,6 +14,7 @@ class Party{
     this.movementPoints = movementPoints;
     actions = new ArrayList<Action>();
     strength = 1.5;
+    clearPath();
   }
   void changeTask(String task){
     switch(task){
@@ -22,6 +24,18 @@ class Party{
       case "default": strength = 1; break;
     }
     this.task = task;
+  }
+  int[] nextNode(){
+    return path.get(0);
+  }
+  void loadPath(ArrayList<int[]> p){
+    path = p;
+  }
+  void clearNode(){
+    path.remove(0);
+  }
+  void clearPath(){
+    path = new ArrayList<int[]>();
   }
   void addAction(Action a){
     actions.add(a);

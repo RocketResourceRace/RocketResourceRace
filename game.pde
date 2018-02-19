@@ -622,7 +622,7 @@ class Game extends State{
       }
     }
     //Not a valid location
-    return mapWidth*2;
+    return -1;
   }
   int[] minNode(Node[][] nodes, int w, int h){
     int[] m = {-1, -1};
@@ -637,7 +637,77 @@ class Game extends State{
     }
     return m;
   }
+  int[] minNodeAvecEstimate(Node[][] nodes, int w, int h){
+    int minCost = w;
+    int[] m = {-1, -1};
+    for (int y=0; y<h; y++){
+      for (int x=0; x<w; x++){
+        if (nodes[y][x] != null && !nodes[y][x].fixed && nodes[y][x].cost+nodes[y][x].estimCost < minCost){
+          m = new int[]{x, y};
+          minCost = nodes[y][x].cost;
+        }
+      }
+    }
+    return m;
+  }
+  //ArrayList<int[]> astar(int startX, int startY, int targetX, int targetY){
+  //  Node[][] nodes = new Node[height][width];
+  //  int[] startNode = {startX, startY};
+  //  int[] curMinNodes = {startX, startY};
+  //  int[] targetNode = {targetX, targetY};
+  //  while(!curMinNodes.equals(targetNode)){
+      
+  //    nodes[curMinNodes[1]][curMinNodes[0]].fixed = true;
+  //    if (0 < curMinNodes[0] + 1 && curMinNodes[0] + 1 < width){
+  //      if (nodes[curMinNodes[1]][curMinNodes[0]+1] == null){
+  //        nodes[curMinNodes[1]][curMinNodes[0]+1] = new Node(nodes[curMinNodes[1]][curMinNodes[0]].cost+cost(curMinNodes[0] + 1, curMinNodes[1]), false, round(sqrt(pow(targetX-curMinNodes[0],2) + pow(targetY-curMinNodes[1],2))));
+  //      }
+  //      else{
+  //        nodes[curMinNodes[1]][curMinNodes[0]+1].cost = min(nodes[curMinNodes[1]][curMinNodes[0]+1].cost, nodes[curMinNodes[1]][curMinNodes[0]].cost+cost(curMinNodes[0] + 1, curMinNodes[1]));
+  //      }
+  //    }
+  //    if (0 < curMinNodes[0] - 1 && curMinNodes[0] + 1 < width){
+  //      if (nodes[curMinNodes[1]][curMinNodes[0]-1] == null){
+  //        nodes[curMinNodes[1]][curMinNodes[0]-1] = new Node(nodes[curMinNodes[1]][curMinNodes[0]].cost+cost(curMinNodes[0]-1, curMinNodes[1]), false, round(sqrt(pow(targetX-curMinNodes[0],2) + pow(targetY-curMinNodes[1],2))));
+  //      }
+  //      else{
+  //        nodes[curMinNodes[1]][curMinNodes[0]-1].cost = min(nodes[curMinNodes[1]][curMinNodes[0]-1].cost, nodes[curMinNodes[1]][curMinNodes[0]].cost+cost(curMinNodes[0]-1, curMinNodes[1]));
+  //      }
+  //    }
+  //    if (0 < curMinNodes[1] + 1 && curMinNodes[1] + 1 < height){
+  //      if (nodes[curMinNodes[1]+1][curMinNodes[0]] == null){
+  //        nodes[curMinNodes[1]+1][curMinNodes[0]] = new Node(nodes[curMinNodes[1]][curMinNodes[0]].cost+cost(curMinNodes[0], curMinNodes[1]+1), false, round(sqrt(pow(targetX-curMinNodes[0],2) + pow(targetY-curMinNodes[1],2))));
+  //      }
+  //      else{
+  //        nodes[curMinNodes[1]+1][curMinNodes[0]].cost = min(nodes[curMinNodes[1]+1][curMinNodes[0]].cost, nodes[curMinNodes[1]+1][curMinNodes[0]].cost+cost(curMinNodes[0], curMinNodes[1]+1));
+  //      }
+  //    }
+  //    if (0 < curMinNodes[1] - 1 && curMinNodes[1] - 1 < height){
+  //      if (nodes[curMinNodes[1]-1][curMinNodes[0]] == null){
+  //        nodes[curMinNodes[1]-1][curMinNodes[0]] = new Node(nodes[curMinNodes[1]][curMinNodes[0]].cost+cost(curMinNodes[0], curMinNodes[1]-1), false, round(sqrt(pow(targetX-curMinNodes[0],2) + pow(targetY-curMinNodes[1],2))));
+  //      }
+  //      else{
+  //        nodes[curMinNodes[1]-1][curMinNodes[0]].cost = min(nodes[curMinNodes[1]-1][curMinNodes[0]].cost, nodes[curMinNodes[1]-1][curMinNodes[0]].cost+cost(curMinNodes[0], curMinNodes[1]-1));
+  //      }
+  //    }
+      
+  //    curMinNodes = minNodeAvecEstimate(nodes, width, height);
+  //  }
+  //  return returnNodes;
+  //}
+  //ArrayList<int[]> getPath(int startX, int startY, int targetX, int targetY){
+  //  ArrayList<int[]> returnNodes = new ArrayList<int[]>();
+  //  int[] curNode = {targetX, targetY};
+  //  int[] startNode = {startX, startY};
+  //  while (!curNode.equals(startNode)){
+  //    if (0 < curMinNodes[0] + 1 && curMinNodes[0] + 1 < width){
+        
+  //    }
+  //  }
+  //  return returnNodes;
+  //}
   Node[][] djk(int x, int y, int availablePoints){
+    int[][] mvs = {{1,0}, {0,1}, {1,1}, {-1,0}, {0,-1}, {-1,-1}, {1,-1}, {-1,1}};
     int xOff = 0;
     int yOff = 0;
     int w = mapWidth;
@@ -646,45 +716,56 @@ class Game extends State{
     int cx = x-xOff;
     int cy = y-yOff;
     nodes[cy][cx] = new Node(0, false);
-    int[] curMinNode = {cx, cy};
-    while (curMinNode[0] != -1 && curMinNode[1] != -1){
-      //println(curMinNode[0], curMinNode[1], cx, cy, nodes[curMinNode[1]][curMinNode[0]].fixed);
-      nodes[curMinNode[1]][curMinNode[0]].fixed = true;
-      if (0 < curMinNode[0] + 1 && curMinNode[0] + 1 < w && nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0] + 1, curMinNode[1]) <= availablePoints+MOVEMENTPOINTS){
-        if (nodes[curMinNode[1]][curMinNode[0]+1] == null){
-          nodes[curMinNode[1]][curMinNode[0]+1] = new Node(nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0] + 1, curMinNode[1]), false);
-        }
-        else{
-          nodes[curMinNode[1]][curMinNode[0]+1].cost = min(nodes[curMinNode[1]][curMinNode[0]+1].cost, nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0] + 1, curMinNode[1]));
-        }
-      }
-      if (0 < curMinNode[0] - 1 && curMinNode[0] + 1 < w && nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0]-1, curMinNode[1]) <= availablePoints+MOVEMENTPOINTS){
-        if (nodes[curMinNode[1]][curMinNode[0]-1] == null){
-          nodes[curMinNode[1]][curMinNode[0]-1] = new Node(nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0]-1, curMinNode[1]), false);
-        }
-        else{
-          nodes[curMinNode[1]][curMinNode[0]-1].cost = min(nodes[curMinNode[1]][curMinNode[0]-1].cost, nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0]-1, curMinNode[1]));
-        }
-      }
-      if (0 < curMinNode[1] + 1 && curMinNode[1] + 1 < h && nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0], curMinNode[1]+1) <= availablePoints+MOVEMENTPOINTS){
-        if (nodes[curMinNode[1]+1][curMinNode[0]] == null){
-          nodes[curMinNode[1]+1][curMinNode[0]] = new Node(nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0], curMinNode[1]+1), false);
-        }
-        else{
-          nodes[curMinNode[1]+1][curMinNode[0]].cost = min(nodes[curMinNode[1]+1][curMinNode[0]].cost, nodes[curMinNode[1]+1][curMinNode[0]].cost+cost(curMinNode[0], curMinNode[1]+1));
+    ArrayList<int[]> curMinNodes = new ArrayList<int[]>();
+    curMinNodes.add(new int[]{cx, cy, 0});
+    while (curMinNodes.size() > 0){
+      nodes[curMinNodes.get(0)[1]][curMinNodes.get(0)[0]].fixed = true;
+      for (int[] mv : mvs){
+        int nx = curMinNodes.get(0)[0]+mv[0];
+        int ny = curMinNodes.get(0)[1]+mv[1];
+        if (0 < nx && nx < w && 0 < ny && ny < h){
+          int newCost = cost(nx, ny);
+          int oldCost = curMinNodes.get(0)[2];
+          int totalNewCost = oldCost+newCost;
+          if (totalNewCost < 24*10){
+            if (nodes[ny][nx] == null){
+              nodes[ny][nx] = new Node(totalNewCost, false);
+              curMinNodes.add(search(curMinNodes, oldCost), new int[]{nx, ny, totalNewCost});
+            }
+            else if (!nodes[ny][nx].fixed){
+              nodes[ny][nx].cost = min(oldCost, totalNewCost);
+              curMinNodes.get(search(curMinNodes, nx, ny))[2] = totalNewCost;
+            }
+          }
         }
       }
-      if (0 < curMinNode[1] - 1 && curMinNode[1] - 1 < h && nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0], curMinNode[1]-1) <= availablePoints+MOVEMENTPOINTS){
-        if (nodes[curMinNode[1]-1][curMinNode[0]] == null){
-          nodes[curMinNode[1]-1][curMinNode[0]] = new Node(nodes[curMinNode[1]][curMinNode[0]].cost+cost(curMinNode[0], curMinNode[1]-1), false);
-        }
-        else{
-          nodes[curMinNode[1]-1][curMinNode[0]].cost = min(nodes[curMinNode[1]-1][curMinNode[0]].cost, nodes[curMinNode[1]-1][curMinNode[0]].cost+cost(curMinNode[0], curMinNode[1]-1));
-        }
-      }
-      curMinNode = minNode(nodes, w, h);
+      curMinNodes.remove(0);
     }
     return nodes;
+  }
+  int search(ArrayList<int[]> nodes, int x, int y){
+    for (int i=0; i < nodes.size(); i++){
+      if (nodes.get(i)[0] == x && nodes.get(i)[1] == y){
+        return i;
+      }
+    }
+    return -1;
+  }
+  int search(ArrayList<int[]> nodes, int target){
+    //int upper = nodes.size();
+    //int lower = 0;
+    //while(nodes.get(lower)[2] > target || target > nodes.get(upper)[2]){
+      
+    //}
+    //return lower;
+    
+    //linear search for now
+    for (int i=0; i < nodes.size(); i++){
+      if (nodes.get(i)[2] <= target){
+        return i;
+      }
+    }
+    return nodes.size();
   }
   boolean startInvalid(PVector p1, PVector p2){
     if(p1.dist(p2)<mapWidth/4){
