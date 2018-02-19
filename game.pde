@@ -616,44 +616,22 @@ class Game extends State{
     turn = 0;
     toolTipSelected=-1;
   }
-  int cost(int x, int y, int prevX, int prevY){
+  float cost(int x, int y, int prevX, int prevY){
+    float mult=1;
+    if (x!=prevX && y!=prevY){
+      mult = sqrt(2);
+    }
     if (0<x && x<mapSize && 0<y && y<mapSize){
       if (map.parties[y][x] == null){
-        return terrainCosts[terrain[y][x]+1];
+        return terrainCosts[terrain[y][x]+1]*mult;
       } else if(map.parties[y][x].player!=this.turn){
-        return terrainCosts[0];
+        return terrainCosts[0]*mult;
       }else if(map.parties[y][x].player==this.turn){
-        return terrainCosts[1];
+        return terrainCosts[1]*mult;
       }
     }
     //Not a valid location
     return -1;
-  }
-  int[] minNode(Node[][] nodes, int w, int h){
-    int[] m = {-1, -1};
-    int cost = w;
-    for (int y=0; y<h; y++){
-      for (int x=0; x<w; x++){
-        if (nodes[y][x] != null && !nodes[y][x].fixed && nodes[y][x].cost < cost){
-          m = new int[]{x, y};
-          cost = nodes[y][x].cost;
-        }
-      }
-    }
-    return m;
-  }
-  int[] minNodeAvecEstimate(Node[][] nodes, int w, int h){
-    int minCost = w;
-    int[] m = {-1, -1};
-    for (int y=0; y<h; y++){
-      for (int x=0; x<w; x++){
-        if (nodes[y][x] != null && !nodes[y][x].fixed && nodes[y][x].cost+nodes[y][x].estimCost < minCost){
-          m = new int[]{x, y};
-          minCost = nodes[y][x].cost;
-        }
-      }
-    }
-    return m;
   }
   //ArrayList<int[]> getPath(int startX, int startY, int targetX, int targetY){
   //  ArrayList<int[]> returnNodes = new ArrayList<int[]>();
@@ -666,7 +644,7 @@ class Game extends State{
   //  }
   //  return returnNodes;
   //}
-  Node[][] djk(int x, int y, int availablePoints){
+  Node[][] djk(int x, int y, float availablePoints){
     int[][] mvs = {{1,0}, {0,1}, {1,1}, {-1,0}, {0,-1}, {-1,-1}, {1,-1}, {-1,1}};
     int xOff = 0;
     int yOff = 0;
@@ -676,36 +654,39 @@ class Game extends State{
     int cx = x-xOff;
     int cy = y-yOff;
     nodes[cy][cx] = new Node(0, false);
+    ArrayList<Float> curMinCosts = new ArrayList<Float>();
     ArrayList<int[]> curMinNodes = new ArrayList<int[]>();
-    curMinNodes.add(new int[]{cx, cy, 0});
+    curMinNodes.add(new int[]{cx, cy});
+    curMinCosts.add(0.0);
     while (curMinNodes.size() > 0){
       nodes[curMinNodes.get(0)[1]][curMinNodes.get(0)[0]].fixed = true;
       for (int[] mv : mvs){
         int nx = curMinNodes.get(0)[0]+mv[0];
         int ny = curMinNodes.get(0)[1]+mv[1];
         if (0 < nx && nx < w && 0 < ny && ny < h){
-          int newCost = cost(nx, ny, curMinNodes.get(0)[0], curMinNodes.get(0)[1]);
-          int prevCost = curMinNodes.get(0)[2];
-          int totalNewCost = prevCost+newCost;
+          float newCost = cost(nx, ny, curMinNodes.get(0)[0], curMinNodes.get(0)[1]);
+          float prevCost = curMinCosts.get(0);
+          float totalNewCost = prevCost+newCost;
           if (totalNewCost < 24*10){
             if (nodes[ny][nx] == null){
               nodes[ny][nx] = new Node(totalNewCost, false);
-              curMinNodes.add(search(curMinNodes, totalNewCost), new int[]{nx, ny, totalNewCost});
+              curMinNodes.add(search(curMinCosts, totalNewCost), new int[]{nx, ny});
+              curMinCosts.add(search(curMinCosts, totalNewCost), totalNewCost);
             }
             else if (!nodes[ny][nx].fixed){
               if (totalNewCost < nodes[ny][nx].cost){
                 nodes[ny][nx].cost = min(nodes[ny][nx].cost, totalNewCost);
-                println(nx, ny);
-                for (int[] node : curMinNodes)
-                  println(node);
                 curMinNodes.remove(search(curMinNodes, nx, ny));
-                curMinNodes.add(search(curMinNodes, totalNewCost), new int[]{nx, ny, totalNewCost});
+                curMinNodes.add(search(curMinCosts, totalNewCost), new int[]{nx, ny});
+                curMinCosts.remove(search(curMinNodes, nx, ny));
+                curMinCosts.add(search(curMinCosts, totalNewCost), totalNewCost);
               }
             }
           }
         }
       }
       curMinNodes.remove(0);
+      curMinCosts.remove(0);
     }
     return nodes;
   }
@@ -717,7 +698,7 @@ class Game extends State{
     }
     return -1;
   }
-  int search(ArrayList<int[]> nodes, int target){
+  int search(ArrayList<Float> costs, float target){
     //int upper = nodes.size();
     //int lower = 0;
     //while(nodes.get(lower)[2] > target || target > nodes.get(upper)[2]){
@@ -726,12 +707,12 @@ class Game extends State{
     //return lower;
     
     //linear search for now
-    for (int i=0; i < nodes.size(); i++){
-      if (nodes.get(i)[2] > target){
+    for (int i=0; i < costs.size(); i++){
+      if (costs.get(i) > target){
         return i;
       }
     }
-    return nodes.size();
+    return costs.size();
   }
   boolean startInvalid(PVector p1, PVector p2){
     if(p1.dist(p2)<mapWidth/4){

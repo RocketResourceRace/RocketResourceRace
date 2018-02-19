@@ -1,13 +1,14 @@
 
 
 class Party{
-  private int unitNumber, movementPoints;
+  private int unitNumber;
+  private float movementPoints;
   int player;
   float strength;
   String task;
   ArrayList<Action> actions;
   ArrayList<int[]> path;
-  Party(int player, int startingUnits, String startingTask, int movementPoints){
+  Party(int player, int startingUnits, String startingTask, float movementPoints){
     unitNumber = startingUnits;
     task = startingTask;
     this.player = player;
@@ -59,10 +60,10 @@ class Party{
   boolean isTurn(int turn){
     return this.player==turn;
   }
-  int getMovementPoints(){
+  float getMovementPoints(){
     return movementPoints;
   }
-  int getMovementPoints(int turn){
+  float getMovementPoints(int turn){
     return movementPoints;
   }
   int getUnitNumber(){
@@ -96,7 +97,7 @@ class Battle extends Party{
   boolean isTurn(int turn){
     return true;
   }
-  int getMovementPoints(int turn){
+  float getMovementPoints(int turn){
     if(turn==0){
       return party1.getMovementPoints();
     } else {

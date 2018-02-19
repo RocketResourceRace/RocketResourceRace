@@ -366,7 +366,10 @@ class Map extends Element{
                  fill(255);
                  textSize(8*TextScale);
                  textAlign(CENTER, CENTER);
-                 text(moveNodes[y1][x].cost, c.x+blockSize/2, c.y+blockSize/2);
+                 String s = ""+moveNodes[y1][x].cost;
+                 s = s.substring(0, min(s.length(), 3));
+                 BigDecimal cost = new BigDecimal(s);
+                 text(cost.stripTrailingZeros().toPlainString(), c.x+blockSize/2, c.y+blockSize/2);
                }
              }
            }
