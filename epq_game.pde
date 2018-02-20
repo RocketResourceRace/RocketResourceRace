@@ -1,5 +1,6 @@
 import java.math.BigDecimal;
 import processing.sound.*;
+import java.util.Arrays;
 
 int mapSize;
 String activeState;

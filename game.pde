@@ -5,14 +5,15 @@ class Game extends State{
   final int buttonW = 120;
   final int buttonH = 50;
   final int bezel = 20;
-  final int[] terrainCosts = new int[]{8, 6, 4, 3, 2, 3};
-  final int MOVEMENTPOINTS = 24;
-  final int DEFENDCOST = 6;
+  final int[] terrainCosts = new int[]{32, 24, 16, 12, 8, 12};
+  final int MOVEMENTPOINTS = 64;
+  final int DEFENDCOST = 32;
   final float [] STARTINGRESOURCES = new float[]{500, 300, 0, 0};
   final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Build Homes", "Clear Forest", "Battle"};
   final String[] landTypes = {"Water", "Sand", "Grass", "Forest"};
   final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
   final String attackToolTipRaw = "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a /p% chance of winning this battle.";
+  final String turnsToolTipRaw = "Move /i Turns";
   String[] tooltipText = {
     "Defending improves fighting\neffectiveness against enemy parties\nCosts: 6 movement points.",
     "The farm produces food when worked.\nCosts: 50 wood.\nConsumes: Nothing.\nProduces: 1 food/worker.\nThis takes 3 turns to build.",
@@ -26,6 +27,7 @@ class Game extends State{
     "While a unit is at rest it can move and attack.",
     "Merge parties.\nThis action will create a single party from two.\nThe new party has no action points this turn.",
     "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a ?% chance of winning this battle.",
+    "Move.",
   };
   final float[][] costs = {
     {0, 100, 0, 0},
@@ -435,8 +437,12 @@ class Game extends State{
           if (nodes[y][x] != null && !(cellX == x && cellY == y)){
             if(map.parties[y][x]==null){
               //Moving into empty tile
-              toolTipSelected = -1;
               map.updatePath(getPath(cellX, cellY, x, y, map.moveNodes));
+              if (nodes[y][x].cost>MOVEMENTPOINTS)
+                tooltipText[12] = turnsToolTipRaw.replace("/i", str(nodes[y][x].cost/MOVEMENTPOINTS));
+              else
+                tooltipText[12] = "Move";
+              toolTipSelected = 12;
             }
             else {
               if (map.parties[y][x].player == turn){
@@ -452,12 +458,12 @@ class Game extends State{
             }
           }
           else{
-            //map.cancelPath();
+            map.cancelPath();
             toolTipSelected = -1;
           }
         }
       else{
-        //map.cancelPath();
+        map.cancelPath();
         toolTipSelected = -1;
       }
     }
@@ -620,19 +626,17 @@ class Game extends State{
     toolTipSelected=-1;
   }
   int cost(int x, int y, int prevX, int prevY){
-    int mult = 10;
-    int div = 10;
+    float mult = 1;
     if (x!=prevX && y!=prevY){
-      mult = 141;
-      div = 100;
+      mult = 1.41;
     }
     if (0<x && x<mapSize && 0<y && y<mapSize){
       if (map.parties[y][x] == null){
-        return terrainCosts[terrain[y][x]+1]*mult/div; //<>//
+        return round(float(terrainCosts[terrain[y][x]+1])*mult); //<>//
       } else if(map.parties[y][x].player!=this.turn){
-        return terrainCosts[0]*mult/div;
+        return round(float(terrainCosts[0])*mult);
       }else if(map.parties[y][x].player==this.turn){
-        return terrainCosts[1]*mult/div;
+        return round(float(terrainCosts[1])*mult);
       }
     }
     //Not a valid location
@@ -640,21 +644,23 @@ class Game extends State{
   }
   ArrayList<int[]> getPath(int startX, int startY, int targetX, int targetY, Node[][] nodes){
     int iters = 0;
+    float thresh = 0;
     ArrayList<int[]> returnNodes = new ArrayList<int[]>();
     int[][] mvs = {{1,0}, {0,1}, {1,1}, {-1,0}, {0,-1}, {-1,-1}, {1,-1}, {-1,1}};
     int[] curNode = {targetX, targetY};
     int[] prevNode = {targetX, targetY};
     int[] startNode = {startX, startY};
     int remainingCost=nodes[targetY][targetX].cost;
+    returnNodes.add(new int[]{targetX, targetY});
     while (!curNode.equals(startNode) && remainingCost > 0){
-      if (iters++ > 200)
+      if (iters++ > 1000)
         break;
       for (int[] mv : mvs){
         int nx = curNode[0]+mv[0];
         int ny = curNode[1]+mv[1];
-        if (0 < nx && nx < width && 0 < ny && ny < height && nodes[ny][nx] != null){
+        if (0 <= nx && nx < mapWidth && 0 <= ny && ny < mapHeight && nodes[ny][nx] != null){
           int cost = cost(curNode[0], curNode[1], nx, ny);
-          if ((remainingCost-cost)==nodes[ny][nx].cost){
+          if (abs((remainingCost-cost)-nodes[ny][nx].cost) < thresh){
             remainingCost = nodes[ny][nx].cost;
             returnNodes.add(new int[]{nx, ny});
             curNode = new int[]{nx, ny};
@@ -663,7 +669,7 @@ class Game extends State{
         }
       }
       if (curNode.equals(prevNode)){
-        break;
+        thresh += 0.01;
       }
       prevNode = curNode;
     }
@@ -692,7 +698,7 @@ class Game extends State{
           int newCost = cost(nx, ny, curMinNodes.get(0)[0], curMinNodes.get(0)[1]);
           int prevCost = curMinCosts.get(0);
           int totalNewCost = prevCost+newCost;
-          if (totalNewCost < 24*100){
+          if (totalNewCost < MOVEMENTPOINTS*100){
             if (nodes[ny][nx] == null){
               nodes[ny][nx] = new Node(totalNewCost, false);
               curMinNodes.add(search(curMinCosts, totalNewCost), new int[]{nx, ny});
