@@ -1,14 +1,14 @@
 
 class Node{
-  float cost;
+  int cost;
   float estimCost;
   boolean fixed;
   
-  Node(float cost, boolean fixed){
+  Node(int cost, boolean fixed){
     this.fixed = fixed;
     this.cost = cost;
   }
-  Node(float cost, boolean fixed, float estimCost){
+  Node(int cost, boolean fixed, float estimCost){
     this.fixed = fixed;
     this.cost = cost;
   }

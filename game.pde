@@ -619,38 +619,42 @@ class Game extends State{
     turn = 0;
     toolTipSelected=-1;
   }
-  float cost(int x, int y, int prevX, int prevY){
-    float mult=1;
+  int cost(int x, int y, int prevX, int prevY){
+    int mult = 10;
+    int div = 10;
     if (x!=prevX && y!=prevY){
-      mult = sqrt(2);
+      mult = 141;
+      div = 100;
     }
     if (0<x && x<mapSize && 0<y && y<mapSize){
       if (map.parties[y][x] == null){
-        return terrainCosts[terrain[y][x]+1]*mult;
+        return terrainCosts[terrain[y][x]+1]*mult/div; //<>//
       } else if(map.parties[y][x].player!=this.turn){
-        return terrainCosts[0]*mult;
+        return terrainCosts[0]*mult/div;
       }else if(map.parties[y][x].player==this.turn){
-        return terrainCosts[1]*mult;
+        return terrainCosts[1]*mult/div;
       }
     }
     //Not a valid location
     return -1;
   }
   ArrayList<int[]> getPath(int startX, int startY, int targetX, int targetY, Node[][] nodes){
+    int iters = 0;
     ArrayList<int[]> returnNodes = new ArrayList<int[]>();
     int[][] mvs = {{1,0}, {0,1}, {1,1}, {-1,0}, {0,-1}, {-1,-1}, {1,-1}, {-1,1}};
     int[] curNode = {targetX, targetY};
     int[] prevNode = {targetX, targetY};
     int[] startNode = {startX, startY};
-    float remainingCost=nodes[targetY][targetX].cost;
-    while (!curNode.equals(startNode)){
+    int remainingCost=nodes[targetY][targetX].cost;
+    while (!curNode.equals(startNode) && remainingCost > 0){
+      if (iters++ > 200)
+        break;
       for (int[] mv : mvs){
         int nx = curNode[0]+mv[0];
         int ny = curNode[1]+mv[1];
         if (0 < nx && nx < width && 0 < ny && ny < height && nodes[ny][nx] != null){
-          float cost = cost(curNode[0], curNode[1], nx, ny);
-          //println(remainingCost, cost, nodes[ny][nx].cost);
-          if (abs((remainingCost-cost)-nodes[ny][nx].cost)<0.1){
+          int cost = cost(curNode[0], curNode[1], nx, ny);
+          if ((remainingCost-cost)==nodes[ny][nx].cost){
             remainingCost = nodes[ny][nx].cost;
             returnNodes.add(new int[]{nx, ny});
             curNode = new int[]{nx, ny};
@@ -658,15 +662,11 @@ class Game extends State{
           }
         }
       }
-      //println(curNode);
-      //println(startNode);
-      //println();
       if (curNode.equals(prevNode)){
         break;
       }
       prevNode = curNode;
     }
-    //print("\n\n\n\n\n");
     return returnNodes;
   }
   Node[][] djk(int x, int y){
@@ -679,20 +679,20 @@ class Game extends State{
     int cx = x-xOff;
     int cy = y-yOff;
     nodes[cy][cx] = new Node(0, false);
-    ArrayList<Float> curMinCosts = new ArrayList<Float>();
+    ArrayList<Integer> curMinCosts = new ArrayList<Integer>();
     ArrayList<int[]> curMinNodes = new ArrayList<int[]>();
     curMinNodes.add(new int[]{cx, cy});
-    curMinCosts.add(0.0);
+    curMinCosts.add(0);
     while (curMinNodes.size() > 0){
       nodes[curMinNodes.get(0)[1]][curMinNodes.get(0)[0]].fixed = true;
       for (int[] mv : mvs){
         int nx = curMinNodes.get(0)[0]+mv[0];
         int ny = curMinNodes.get(0)[1]+mv[1];
         if (0 < nx && nx < w && 0 < ny && ny < h){
-          float newCost = cost(nx, ny, curMinNodes.get(0)[0], curMinNodes.get(0)[1]);
-          float prevCost = curMinCosts.get(0);
-          float totalNewCost = prevCost+newCost;
-          if (totalNewCost < 24*10){
+          int newCost = cost(nx, ny, curMinNodes.get(0)[0], curMinNodes.get(0)[1]);
+          int prevCost = curMinCosts.get(0);
+          int totalNewCost = prevCost+newCost;
+          if (totalNewCost < 24*100){
             if (nodes[ny][nx] == null){
               nodes[ny][nx] = new Node(totalNewCost, false);
               curMinNodes.add(search(curMinCosts, totalNewCost), new int[]{nx, ny});
@@ -723,7 +723,7 @@ class Game extends State{
     }
     return -1;
   }
-  int search(ArrayList<Float> costs, float target){
+  int search(ArrayList<Integer> costs, float target){
     //int upper = nodes.size();
     //int lower = 0;
     //while(nodes.get(lower)[2] > target || target > nodes.get(upper)[2]){
