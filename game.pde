@@ -109,7 +109,7 @@ class Game extends State{
         }
         makeTaskAvailable("Demolish");
       }
-      else{
+      else{ //<>//
         if (cellTerrain == 3){
           makeTaskAvailable("Build Farm"); //<>// //<>//
         }
@@ -117,9 +117,9 @@ class Game extends State{
           makeTaskAvailable("Clear Forest");
           makeTaskAvailable("Build Sawmill");
         }
-        if (cellTerrain != 1 && cellTerrain != 4){
-          makeTaskAvailable("Build Homes");
-        } //<>//
+        if (cellTerrain != 1 && cellTerrain != 4){ //<>//
+          makeTaskAvailable("Build Homes"); //<>//
+        } //<>// //<>//
       } //<>// //<>//
     } //<>// //<>//
     ((DropDown)getElement("tasks", "party management")).select(parties[cellY][cellX].task);
@@ -361,6 +361,25 @@ class Game extends State{
     getPanel("party management").setVisible(false);
     map.cancelMoveNodes();
     moving = false;
+  }
+  
+  void moveParty(int px, int py){
+    int tx = map.parties[py][px].target[0];
+    int ty = map.parties[py][px].target[1];
+    Node[][] nodes = djk(px, py);
+    ArrayList <int[]> path = getPath(px, py, tx, ty, nodes);
+    for (int[] node : path){
+      int cost = nodes[node[1]][node[0]].cost;
+      if (map.parties[px][py].movementPoints >= cost){
+        map.parties[px][py].movementPoints -= cost;
+        if (map.parties[node[1]][node[0]] == null){
+          // empty cell
+          map.parties[node[1]][node[0]] = map.parties[px][py];
+          px = node[0];
+          py = node[1];
+        }
+      }
+    }
   }
   ArrayList<String> mouseEvent(String eventType, int button){
     if (button == LEFT){

@@ -8,6 +8,7 @@ class Party{
   String task;
   ArrayList<Action> actions;
   ArrayList<int[]> path;
+  int[] target;
   Party(int player, int startingUnits, String startingTask, float movementPoints){
     unitNumber = startingUnits;
     task = startingTask;
@@ -16,6 +17,7 @@ class Party{
     actions = new ArrayList<Action>();
     strength = 1.5;
     clearPath();
+    target = null;
   }
   void changeTask(String task){
     switch(task){
