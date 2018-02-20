@@ -387,10 +387,12 @@ class Map extends Element{
      
      if (drawPath != null){
        for (int i=0; i<drawPath.size()-1;i++){
-         pushStyle();
-         stroke(255,0,0); 
-         line(scaleX(drawPath.get(i)[0])+blockSize/2, scaleY(drawPath.get(i)[1])+blockSize/2, scaleX(drawPath.get(i+1)[0])+blockSize/2, scaleY(drawPath.get(i+1)[1])+blockSize/2);
-         popStyle();
+         if (lx <= drawPath.get(i)[0] && drawPath.get(i)[0] < hx && ly <= drawPath.get(i)[1] && drawPath.get(i)[1] < hy){
+           pushStyle();
+           stroke(255,0,0); 
+           line(scaleX(drawPath.get(i)[0])+blockSize/2, scaleY(drawPath.get(i)[1])+blockSize/2, scaleX(drawPath.get(i+1)[0])+blockSize/2, scaleY(drawPath.get(i+1)[1])+blockSize/2);
+           popStyle();
+         }
        }
      }
 
