@@ -661,39 +661,50 @@ class Game extends State{
     //Not a valid location
     return -1;
   }
+  
   ArrayList<int[]> getPath(int startX, int startY, int targetX, int targetY, Node[][] nodes){
-    int iters = 0;
-    float thresh = 0;
     ArrayList<int[]> returnNodes = new ArrayList<int[]>();
-    int[][] mvs = {{1,0}, {0,1}, {1,1}, {-1,0}, {0,-1}, {-1,-1}, {1,-1}, {-1,1}};
-    int[] curNode = {targetX, targetY};
-    int[] prevNode = {targetX, targetY};
-    int[] startNode = {startX, startY};
-    int remainingCost=nodes[targetY][targetX].cost;
     returnNodes.add(new int[]{targetX, targetY});
-    while (!curNode.equals(startNode) && remainingCost > 0){
-      if (iters++ > 1000)
-        break;
-      for (int[] mv : mvs){
-        int nx = curNode[0]+mv[0];
-        int ny = curNode[1]+mv[1];
-        if (0 <= nx && nx < mapWidth && 0 <= ny && ny < mapHeight && nodes[ny][nx] != null){
-          int cost = cost(curNode[0], curNode[1], nx, ny);
-          if (abs((remainingCost-cost)-nodes[ny][nx].cost) < thresh){
-            remainingCost = nodes[ny][nx].cost;
-            returnNodes.add(new int[]{nx, ny});
-            curNode = new int[]{nx, ny};
-            break;
-          }
-        }
-      }
-      if (curNode.equals(prevNode)){
-        thresh += 0.01;
-      }
-      prevNode = curNode;
+    int[] curNode = {targetX, targetY};
+    while (curNode[0] != startX || curNode[1] != startY){
+      returnNodes.add(new int[]{nodes[curNode[1]][curNode[0]].prevX, nodes[curNode[1]][curNode[0]].prevY});
+      curNode = returnNodes.get(returnNodes.size()-1);
     }
     return returnNodes;
   }
+  //ArrayList<int[]> getPath(int startX, int startY, int targetX, int targetY, Node[][] nodes){
+  //  int iters = 0;
+  //  float thresh = 0;
+  //  ArrayList<int[]> returnNodes = new ArrayList<int[]>();
+  //  int[][] mvs = {{1,0}, {0,1}, {1,1}, {-1,0}, {0,-1}, {-1,-1}, {1,-1}, {-1,1}};
+  //  int[] curNode = {targetX, targetY};
+  //  int[] prevNode = {targetX, targetY};
+  //  int[] startNode = {startX, startY};
+  //  int remainingCost=nodes[targetY][targetX].cost;
+  //  returnNodes.add(new int[]{targetX, targetY});
+  //  while (!curNode.equals(startNode) && remainingCost > 0){
+  //    if (iters++ > 1000)
+  //      break;
+  //    for (int[] mv : mvs){
+  //      int nx = curNode[0]+mv[0];
+  //      int ny = curNode[1]+mv[1];
+  //      if (0 <= nx && nx < mapWidth && 0 <= ny && ny < mapHeight && nodes[ny][nx] != null){
+  //        int cost = cost(curNode[0], curNode[1], nx, ny);
+  //        if (abs((remainingCost-cost)-nodes[ny][nx].cost) < thresh){
+  //          remainingCost = nodes[ny][nx].cost;
+  //          returnNodes.add(new int[]{nx, ny});
+  //          curNode = new int[]{nx, ny};
+  //          break;
+  //        }
+  //      }
+  //    }
+  //    if (curNode.equals(prevNode)){
+  //      thresh += 0.01;
+  //    }
+  //    prevNode = curNode;
+  //  }
+  //  return returnNodes;
+  //}
   Node[][] djk(int x, int y){
     int[][] mvs = {{1,0}, {0,1}, {1,1}, {-1,0}, {0,-1}, {-1,-1}, {1,-1}, {-1,1}};
     int xOff = 0;
@@ -703,7 +714,7 @@ class Game extends State{
     Node[][] nodes = new Node[h][w];
     int cx = x-xOff;
     int cy = y-yOff;
-    nodes[cy][cx] = new Node(0, false);
+    nodes[cy][cx] = new Node(0, false, cx, cy);
     ArrayList<Integer> curMinCosts = new ArrayList<Integer>();
     ArrayList<int[]> curMinNodes = new ArrayList<int[]>();
     curMinNodes.add(new int[]{cx, cy});
@@ -719,13 +730,14 @@ class Game extends State{
           int totalNewCost = prevCost+newCost;
           if (totalNewCost < MOVEMENTPOINTS*100){
             if (nodes[ny][nx] == null){
-              nodes[ny][nx] = new Node(totalNewCost, false);
+              nodes[ny][nx] = new Node(totalNewCost, false, curMinNodes.get(0)[0], curMinNodes.get(0)[1]);
               curMinNodes.add(search(curMinCosts, totalNewCost), new int[]{nx, ny});
               curMinCosts.add(search(curMinCosts, totalNewCost), totalNewCost);
             }
             else if (!nodes[ny][nx].fixed){
               if (totalNewCost < nodes[ny][nx].cost){
                 nodes[ny][nx].cost = min(nodes[ny][nx].cost, totalNewCost);
+                nodes[ny][nx].setPrev(curMinNodes.get(0)[0], curMinNodes.get(0)[1]);
                 curMinNodes.remove(search(curMinNodes, nx, ny));
                 curMinNodes.add(search(curMinCosts, totalNewCost), new int[]{nx, ny});
                 curMinCosts.remove(search(curMinNodes, nx, ny));

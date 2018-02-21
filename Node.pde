@@ -1,15 +1,17 @@
 
 class Node{
   int cost;
-  float estimCost;
   boolean fixed;
+  int prevX = -1, prevY = -1;
   
-  Node(int cost, boolean fixed){
+  Node(int cost, boolean fixed, int prevX, int prevY){
     this.fixed = fixed;
     this.cost = cost;
+    this.prevX = prevX;
+    this.prevY = prevY;
   }
-  Node(int cost, boolean fixed, float estimCost){
-    this.fixed = fixed;
-    this.cost = cost;
+  void setPrev(int prevX ,int prevY){
+    this.prevX = prevX;
+    this.prevY = prevY;
   }
 }
