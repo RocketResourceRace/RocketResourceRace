@@ -111,7 +111,7 @@ class Game extends State{
       }
       else{ //<>//
         if (cellTerrain == 3){
-          makeTaskAvailable("Build Farm"); //<>// //<>//
+          makeTaskAvailable("Build Farm"); //<>// //<>// //<>//
         }
         else if (cellTerrain == 4){
           makeTaskAvailable("Clear Forest");
@@ -119,9 +119,9 @@ class Game extends State{
         }
         if (cellTerrain != 1 && cellTerrain != 4){ //<>//
           makeTaskAvailable("Build Homes"); //<>//
-        } //<>// //<>//
-      } //<>// //<>//
-    } //<>// //<>//
+        } //<>// //<>// //<>//
+      } //<>// //<>// //<>//
+    } //<>// //<>// //<>//
     ((DropDown)getElement("tasks", "party management")).select(parties[cellY][cellX].task);
   }
   
@@ -368,18 +368,44 @@ class Game extends State{
     int ty = map.parties[py][px].target[1];
     Node[][] nodes = djk(px, py);
     ArrayList <int[]> path = getPath(px, py, tx, ty, nodes);
+    Collections.reverse(path);
+    int i=0;
     for (int[] node : path){
       int cost = nodes[node[1]][node[0]].cost;
-      if (map.parties[px][py].movementPoints >= cost){
-        map.parties[px][py].movementPoints -= cost;
+      if (map.parties[py][px].getMovementPoints() >= cost){
+        map.parties[py][px].subMovementPoints(cost);
         if (map.parties[node[1]][node[0]] == null){
           // empty cell
-          map.parties[node[1]][node[0]] = map.parties[px][py];
+          map.parties[node[1]][node[0]] = map.parties[py][px];
+          map.parties[py][px] = null;
           px = node[0];
           py = node[1];
         }
+        else if(node[0] != px || node[1] != py){
+          if (map.parties[node[1]][node[0]].player == turn){
+            // merge cells
+            map.parties[node[1]][node[0]].unitNumber += map.parties[py][px].unitNumber;
+            map.parties[py][px] = null;
+            map.parties[node[1]][node[0]].setMovementPoints(0);
+          }
+          else{
+            map.parties[node[1]][node[0]] = new Battle(map.parties[py][px], map.parties[node[1]][node[0]]);
+            map.parties[py][px] = null;
+            if(map.buildings[node[1]][node[0]]!=null&&map.buildings[node[1]][node[0]].type==0){
+              map.buildings[node[1]][node[0]] = null;
+            }
+          }
+        }
       }
+      else{
+        map.parties[py][px].path = new ArrayList(path.subList(i-1, path.size()));
+        break;
+      }
+      i++;
     }
+    
+    deselectCell();
+    selectCell(px, py);
   }
   ArrayList<String> mouseEvent(String eventType, int button){
     if (button == LEFT){
@@ -388,36 +414,8 @@ class Game extends State{
           Node [][] nodes = map.moveNodes;
           int x = floor(map.scaleXInv(mouseX));
           int y = floor(map.scaleYInv(mouseY));
-          if (nodes[y][x] != null && !(cellX == x && cellY == y)){
-            map.parties[cellY][cellX].movementPoints-=nodes[y][x].cost;
-            if(map.parties[y][x]==null){
-              map.parties[y][x] = map.parties[cellY][cellX];
-            }
-            else {
-              if (map.parties[y][x].player == turn){
-                //merge parties
-                map.parties[y][x].unitNumber += map.parties[cellY][cellX].unitNumber;
-                map.parties[cellY][cellX] = null;
-                map.parties[y][x].movementPoints = 0;
-              }
-              else {
-                map.parties[y][x] = new Battle(map.parties[cellY][cellX], map.parties[y][x]);
-                if(map.buildings[y][x]!=null&&map.buildings[y][x].type==0){
-                  map.buildings[y][x] = null;
-                }
-                ((Slider)getElement("split units", "party management")).hide();
-              }
-            }
-            map.parties[cellY][cellX] = null;
-            deselectCell();
-            selectCell(mouseX, mouseY);
-            moving = false;
-            map.focusMapMouse(mouseX, mouseY);
-            if (map.parties[y][x].movementPoints > 0){
-              map.updateMoveNodes(djk(cellX, cellY));
-              moving = true;
-            }
-          }
+          parties[cellY][cellX].target = new int[]{x, y};
+          moveParty(cellX, cellY);
         }
       }
     }
@@ -454,9 +452,11 @@ class Game extends State{
           int x = floor(map.scaleXInv(mouseX));
           int y = floor(map.scaleYInv(mouseY));
           if (nodes[y][x] != null && !(cellX == x && cellY == y)){
+            if (parties[cellY][cellX] != null){
+              map.updatePath(getPath(cellX, cellY, x, y, map.moveNodes));
+            }
             if(map.parties[y][x]==null){
               //Moving into empty tile
-              map.updatePath(getPath(cellX, cellY, x, y, map.moveNodes));
               if (nodes[y][x].cost>MOVEMENTPOINTS)
                 tooltipText[12] = turnsToolTipRaw.replace("/i", str(nodes[y][x].cost/MOVEMENTPOINTS));
               else
@@ -632,7 +632,7 @@ class Game extends State{
     
     terrain = generateMap(playerStarts);
     map.reset(mapWidth, mapHeight, terrain, parties, buildings);
-    
+     //<>//
     float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, 42);
     players[1] = new Player(conditions2[0], conditions2[1], 42, STARTINGRESOURCES.clone());
     float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, 42);

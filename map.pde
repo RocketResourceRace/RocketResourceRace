@@ -119,10 +119,10 @@ class Map extends Element{
   void resetTargetZoom(){
     zooming = false;
     targetBlockSize = blockSize;
-    setPanningSpeed(0.05); //<>//
-  } //<>//
-   //<>// //<>// //<>// //<>// //<>// //<>//
-  void updateMoveNodes(Node[][] nodes){ //<>// //<>// //<>// //<>// //<>// //<>//
+    setPanningSpeed(0.05); //<>// //<>//
+  } //<>// //<>//
+   //<>// //<>// //<>// //<>// //<>// //<>// //<>//
+  void updateMoveNodes(Node[][] nodes){ //<>// //<>// //<>// //<>// //<>// //<>// //<>//
     moveNodes = nodes;
   }
   void updatePath(ArrayList<int[]> nodes){
@@ -392,6 +392,19 @@ class Map extends Element{
            stroke(255,0,0); 
            line(scaleX(drawPath.get(i)[0])+blockSize/2, scaleY(drawPath.get(i)[1])+blockSize/2, scaleX(drawPath.get(i+1)[0])+blockSize/2, scaleY(drawPath.get(i+1)[1])+blockSize/2);
            popStyle();
+         }
+       }
+     }
+     else if (cellSelected && parties[selectedCellY][selectedCellX] != null){
+       ArrayList<int[]> path = parties[selectedCellY][selectedCellX].path;
+       if (path != null){
+         for (int i=0; i<path.size()-1;i++){
+           if (lx <= path.get(i)[0] && path.get(i)[0] < hx && ly <= path.get(i)[1] && path.get(i)[1] < hy){
+             pushStyle();
+             stroke(100); 
+             line(scaleX(path.get(i)[0])+blockSize/2, scaleY(path.get(i)[1])+blockSize/2, scaleX(path.get(i+1)[0])+blockSize/2, scaleY(path.get(i+1)[1])+blockSize/2);
+             popStyle();
+           }
          }
        }
      }

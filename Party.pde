@@ -65,6 +65,12 @@ class Party{
   float getMovementPoints(){
     return movementPoints;
   }
+  void subMovementPoints(int p){
+    movementPoints -= p;
+  }
+  void setMovementPoints(int p){
+    movementPoints = p;
+  }
   float getMovementPoints(int turn){
     return movementPoints;
   }
