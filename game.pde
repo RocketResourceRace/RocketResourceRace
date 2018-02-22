@@ -9,7 +9,7 @@ class Game extends State{
   final int MOVEMENTPOINTS = 64;
   final int DEFENDCOST = 32;
   final float [] STARTINGRESOURCES = new float[]{500, 300, 0, 0};
-  final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Build Homes", "Clear Forest", "Battle"};
+  final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Build Homes", "Build Factory", "Clear Forest", "Battle"};
   final String[] landTypes = {"Water", "Sand", "Grass", "Forest"};
   final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
   final String attackToolTipRaw = "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a /p% chance of winning this battle.";
@@ -102,7 +102,7 @@ class Game extends State{
     } else {
       makeTaskAvailable("Rest");
       int cellTerrain = terrain[cellY][cellX];
-      if (parties[cellY][cellX].movementPoints >= DEFENDCOST)
+      if (parties[cellY][cellX].movementPoints >= DEFENDCOST && cellTerrain != 1)
         makeTaskAvailable("Defend");
       if (buildings[cellY][cellX] != null){
         if (buildings[cellY][cellX].type==2){
@@ -116,11 +116,15 @@ class Game extends State{
         }
         else if (cellTerrain == 4){
           makeTaskAvailable("Clear Forest");
-          makeTaskAvailable("Build Sawmill");
+          if (parties[cellY][cellX].task != "Clear Forest")
+            makeTaskAvailable("Build Sawmill");
         }
         if (cellTerrain != 1 && cellTerrain != 4){ //<>//
           makeTaskAvailable("Build Homes"); //<>//
         } //<>// //<>// //<>//
+        if (cellTerrain != 1 && cellTerrain != 4 && cellTerrain != 5){
+          makeTaskAvailable("Build Factory");
+        }
       } //<>// //<>// //<>//
     } //<>// //<>// //<>//
     ((DropDown)getElement("tasks", "party management")).select(parties[cellY][cellX].task);
@@ -187,6 +191,9 @@ class Game extends State{
                 break;
               case "Build Homes":
                 map.buildings[y][x] = new Building(1);
+                break;
+              case "Build Factory":
+                map.buildings[y][x] = new Building(5);
                 break;
               case "Demolish":
                 reclaimRes(players[turn], costs[5]);
@@ -339,6 +346,13 @@ class Game extends State{
               buildings[cellY][cellX] = new Building(0);
             }
           }
+          else if (parties[cellY][cellX].task == "Build Factory"){
+            if (sufficientResources(players[turn].resources, costs[4])){
+              parties[cellY][cellX].addAction(new Action("Build Factory", 6));
+              spendRes(players[turn], costs[4]);
+              buildings[cellY][cellX] = new Building(0);
+            }
+          }
         }
       }
       if (event.type == "clicked"){
@@ -470,6 +484,7 @@ class Game extends State{
           case "Build Farm":toolTipSelected = 1;break;
           case "Build Sawmill":toolTipSelected = 6;break;
           case "Build Homes":toolTipSelected = 3;break;
+          case "Build Factory":toolTipSelected = 5;break;
           case "Clear Forest":toolTipSelected = 7;break;
           case "Demolish":toolTipSelected = 8;break;
           case "Rest":toolTipSelected = 9;break;
@@ -583,7 +598,10 @@ class Game extends State{
     text("Cell Type: "+landTypes[terrain[cellY][cellX]-1], 5+cellSelectionX, barY);
     barY += 13*TextScale;
     if (buildings[cellY][cellX] != null){
-      text("Building: "+buildingTypes[buildings[cellY][cellX].type], 5+cellSelectionX, barY);
+      if (buildings[cellY][cellX].type != 0)
+        text("Building: "+buildingTypes[buildings[cellY][cellX].type-1], 5+cellSelectionX, barY);
+      else
+        text("Building: In Construction", 5+cellSelectionX, barY);
       barY += 13*TextScale;
     }
   }
@@ -619,6 +637,7 @@ class Game extends State{
     barX += textWidth(turnString)+10+bezel;
     
     
+    textAlign(CENTER, TOP);
     String tempString;
     barX=width;
     tempString = "energy:"+players[turn].resources[3];
