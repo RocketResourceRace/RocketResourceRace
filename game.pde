@@ -38,6 +38,7 @@ class Game extends State{
     {0, 200, 0, 0},
   };
   final int NUMRESOURCES = 4;
+  int turnNumber;
   int mapHeight = mapSize;
   int mapWidth = mapSize;
   int[][] terrain;
@@ -69,7 +70,7 @@ class Game extends State{
     addElement("split units", new Slider(bezel+10, bezel*3+30, 200, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
     addElement("split button", new Button(bezel*2+220, bezel*3+30, 100, 30, color(150), color(50), color(0), 10, CENTER, "Split"), "party management");
     addElement("tasks", new DropDown(bezel, bezel*4+30+30, 200, 10, color(150), color(50), tasks), "party management");
-
+    turnNumber = 0;
     
     toolTipSelected=-1;
   }
@@ -192,11 +193,14 @@ class Game extends State{
                 map.buildings[y][x] = null;
                 break;
             }
+            
             if (action != ""){
               map.parties[y][x].clearCurrentAction();
               map.parties[y][x].task="Rest";
             }
-          } else {
+            moveParty(x, y);
+          } 
+          else {
             if(map.parties[y][x].player==2){
               map.parties[y][x] = ((Battle)map.parties[y][x]).doBattle();
             }
@@ -211,6 +215,8 @@ class Game extends State{
     turn = (turn + 1)%2;
     players[turn].loadMapSettings(map);
     changeTurn = false;
+    if (turn == 0)
+      turnNumber ++;
   }
   
   String update(){
@@ -364,54 +370,77 @@ class Game extends State{
   }
   
   void moveParty(int px, int py){
+    if (map.parties[py][px].target == null || map.parties[py][px].getMovementPoints() == 0)
+      return;
     int tx = map.parties[py][px].target[0];
     int ty = map.parties[py][px].target[1];
+    if (px == tx && py == ty){
+        map.parties[py][px].path = null;
+      return;
+    }
     Node[][] nodes = djk(px, py);
     ArrayList <int[]> path = getPath(px, py, tx, ty, nodes);
     Collections.reverse(path);
     int i=0;
-    for (int[] node : path){
-      int cost = nodes[node[1]][node[0]].cost;
+    for (int node=1; node<path.size(); node++){
+      int cost = cost(path.get(node)[0], path.get(node)[1], px, py);
       if (map.parties[py][px].getMovementPoints() >= cost){
-        map.parties[py][px].subMovementPoints(cost);
-        if (map.parties[node[1]][node[0]] == null){
+        if (map.parties[path.get(node)[1]][path.get(node)[0]] == null){
           // empty cell
-          map.parties[node[1]][node[0]] = map.parties[py][px];
+          map.parties[py][px].subMovementPoints(cost);
+          map.parties[path.get(node)[1]][path.get(node)[0]] = map.parties[py][px];
           map.parties[py][px] = null;
-          px = node[0];
-          py = node[1];
+          px = path.get(node)[0];
+          py = path.get(node)[1];
         }
-        else if(node[0] != px || node[1] != py){
-          if (map.parties[node[1]][node[0]].player == turn){
+        else if(path.get(node)[0] != px || path.get(node)[1] != py){
+          if (map.parties[path.get(node)[1]][path.get(node)[0]].player == turn){
             // merge cells
-            map.parties[node[1]][node[0]].unitNumber += map.parties[py][px].unitNumber;
+            map.parties[path.get(node)[1]][path.get(node)[0]].unitNumber += map.parties[py][px].unitNumber;
             map.parties[py][px] = null;
-            map.parties[node[1]][node[0]].setMovementPoints(0);
+            map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(0);
           }
           else{
-            map.parties[node[1]][node[0]] = new Battle(map.parties[py][px], map.parties[node[1]][node[0]]);
+            map.parties[path.get(node)[1]][path.get(node)[0]] = new Battle(map.parties[py][px], map.parties[path.get(node)[1]][path.get(node)[0]]);
             map.parties[py][px] = null;
-            if(map.buildings[node[1]][node[0]]!=null&&map.buildings[node[1]][node[0]].type==0){
-              map.buildings[node[1]][node[0]] = null;
+            if(map.buildings[path.get(node)[1]][path.get(node)[0]]!=null&&map.buildings[path.get(node)[1]][path.get(node)[0]].type==0){
+              map.buildings[path.get(node)[1]][path.get(node)[0]] = null;
             }
           }
         }
+        i++;
       }
       else{
-        map.parties[py][px].path = new ArrayList(path.subList(i-1, path.size()));
+        if (i > 0)
+          map.parties[py][px].path = new ArrayList(path.subList(i-1, path.size()));
+        else
+          map.parties[py][px].path = null;
         break;
       }
-      i++;
     }
     
     deselectCell();
-    selectCell(px, py);
+    //selectCell(px, py);
+  }
+  int getMoveTurns(int startX, int startY, int targetX, int targetY, Node[][] nodes){
+    int movementPoints = round(parties[startY][startX].getMovementPoints());
+    int turns = 0;
+    ArrayList <int[]> path = getPath(startX, startY, targetX, targetY, nodes);
+    Collections.reverse(path);
+    for (int node=1; node<path.size(); node++){
+      int cost = cost(path.get(node)[0], path.get(node)[1], path.get(node-1)[0], path.get(node-1)[1]);
+      if (movementPoints < cost){
+        turns += 1;
+        movementPoints = MOVEMENTPOINTS;
+      }
+      movementPoints -= cost;
+    }
+    return turns;
   }
   ArrayList<String> mouseEvent(String eventType, int button){
     if (button == LEFT){
       if (eventType == "mouseClicked"){
         if (moving&&map.mouseOver()){
-          Node [][] nodes = map.moveNodes;
           int x = floor(map.scaleXInv(mouseX));
           int y = floor(map.scaleYInv(mouseY));
           parties[cellY][cellX].target = new int[]{x, y};
@@ -458,7 +487,7 @@ class Game extends State{
             if(map.parties[y][x]==null){
               //Moving into empty tile
               if (nodes[y][x].cost>MOVEMENTPOINTS)
-                tooltipText[12] = turnsToolTipRaw.replace("/i", str(nodes[y][x].cost/MOVEMENTPOINTS));
+                tooltipText[12] = turnsToolTipRaw.replace("/i", str(getMoveTurns(cellX, cellY, x, y, nodes)));
               else
                 tooltipText[12] = "Move";
               toolTipSelected = 12;
@@ -580,6 +609,14 @@ class Game extends State{
     fill(255);
     textAlign(CENTER, TOP);
     text(turnString, bezel*2+buttonW+(textWidth(turnString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
+    
+    turnString = "Turn: "+turnNumber;
+    fill(150);
+    rect(barX, height-bezel-buttonH, textWidth(turnString)+10, buttonH);
+    fill(0);
+    textAlign(LEFT, TOP);
+    text(turnString, barX+5, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
+    barX += textWidth(turnString)+10+bezel;
     
     
     String tempString;
