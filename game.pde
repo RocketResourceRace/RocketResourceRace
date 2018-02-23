@@ -91,9 +91,6 @@ class Game extends State{
   }
   //tasks building
   //settings
-  //moving
-  //attacking
-  //task not defend moving
   
   void checkTasks(){
     resetAvailableTasks();

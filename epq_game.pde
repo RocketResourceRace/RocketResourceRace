@@ -8,13 +8,13 @@ HashMap<String, State> states;
 int lastClickTime = 0;
 final int DOUBLECLICKWAIT = 500;  
 float GUIScale = 1.0;
-float TextScale = 1.0;
+float TextScale = 1.6;
 PrintWriter settingsWriteFile; 
 BufferedReader settingsReadFile;
 StringDict settings;
 final String LETTERSNUMBERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890/\\_ ";
 HashMap<String, SoundFile> sfx;
-float volume;
+float volume = 0.5;
 int prevT;
 boolean soundOn = true;
 
@@ -49,6 +49,18 @@ void doubleClick(){
 
 float sigmoid(float x){
   return 1-2/(exp(x)+1);
+}
+
+void createFile(){
+  changeSetting("gui_scale", "1.0");
+  changeSetting("text_scale", "1.6");
+  changeSetting("volume", "0.5");
+  changeSetting("mapSize", "100");
+  changeSetting("sound", "1.0");
+  changeSetting("water level", "");
+  changeSetting("smoothing", "8");
+  changeSetting("ground spawns", "");
+  writeSettings();
 }
 
 
@@ -118,10 +130,13 @@ void loadSettings(){
   }
   catch (IOException e) {
     e.printStackTrace();
+    print("Ignore that message");
+  }
+  catch (Exception e){
+    createFile();
   }
 }
 void loadSounds(){
-  soundOn = Integer.parseInt(settings.get("sound"))==1;
   if(soundOn){
     sfx = new HashMap<String, SoundFile>();
     sfx.put("click3", new SoundFile(this, "click3.wav"));
@@ -133,6 +148,7 @@ float halfScreenWidth;
 float halfScreenHeight;
 void setup(){
   settings = new StringDict();
+  //if
   settingsReadFile = createReader("settings.txt");
   loadSettings();
   loadSounds();
