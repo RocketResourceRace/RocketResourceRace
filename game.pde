@@ -9,7 +9,7 @@ class Game extends State{
   final int MOVEMENTPOINTS = 64;
   final int DEFENDCOST = 32;
   final float [] STARTINGRESOURCES = new float[]{500, 300, 0, 0};
-  final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Build Homes", "Build Factory", "Clear Forest", "Battle"};
+  final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Build Homes", "Build Factory", "Build Mine", "Build Smelter", "Clear Forest", "Battle"};
   final String[] landTypes = {"Water", "Sand", "Grass", "Forest"};
   final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
   final String attackToolTipRaw = "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a /p% chance of winning this battle.";
@@ -32,9 +32,9 @@ class Game extends State{
   final float[][] costs = {
     {0, 100, 0, 0},
     {0, 50, 0, 0},
+    {0, 200, 0, 0},
     {0, 0, 0, 0},
-    {0, 0, 0, 0},
-    {0, 0, 0, 0},
+    {0, 200, 0, 0},
     {0, 200, 0, 0},
   };
   final int NUMRESOURCES = 4;
@@ -124,6 +124,10 @@ class Game extends State{
         } //<>// //<>// //<>//
         if (cellTerrain != 1 && cellTerrain != 4 && cellTerrain != 5){
           makeTaskAvailable("Build Factory");
+          makeTaskAvailable("Build Smelter");
+        }
+        if (cellTerrain == 5){
+          makeTaskAvailable("Build Mine");
         }
       } //<>// //<>// //<>//
     } //<>// //<>// //<>//
@@ -194,6 +198,12 @@ class Game extends State{
                 break;
               case "Build Factory":
                 map.buildings[y][x] = new Building(5);
+                break;
+              case "Build Mine":
+                map.buildings[y][x] = new Building(3);
+                break;
+              case "Build Smelter":
+                map.buildings[y][x] = new Building(4);
                 break;
               case "Demolish":
                 reclaimRes(players[turn], costs[5]);
@@ -353,6 +363,20 @@ class Game extends State{
               buildings[cellY][cellX] = new Building(0);
             }
           }
+          else if (parties[cellY][cellX].task == "Build Mine"){
+            if (sufficientResources(players[turn].resources, costs[2])){
+              parties[cellY][cellX].addAction(new Action("Build Mine", 5));
+              spendRes(players[turn], costs[2]);
+              buildings[cellY][cellX] = new Building(0);
+            }
+          }
+          else if (parties[cellY][cellX].task == "Build Smelter"){
+            if (sufficientResources(players[turn].resources, costs[3])){
+              parties[cellY][cellX].addAction(new Action("Build Factory", 6));
+              spendRes(players[turn], costs[3]);
+              buildings[cellY][cellX] = new Building(0);
+            }
+          }
         }
       }
       if (event.type == "clicked"){
@@ -486,6 +510,8 @@ class Game extends State{
           case "Build Homes":toolTipSelected = 3;break;
           case "Build Factory":toolTipSelected = 5;break;
           case "Clear Forest":toolTipSelected = 7;break;
+          case "Clear Mine":toolTipSelected = 2;break;
+          case "Clear Smelter":toolTipSelected = 4;break;
           case "Demolish":toolTipSelected = 8;break;
           case "Rest":toolTipSelected = 9;break;
           default: toolTipSelected = -1;break;
