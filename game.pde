@@ -926,11 +926,11 @@ class Game extends State{
   
   int[][] generateMap(PVector[] playerStarts){
     HashMap<Integer, Float> groundWeightings = new HashMap(5);
-    groundWeightings.put(1, 1.0);
-    groundWeightings.put(2, 1.0);
-    groundWeightings.put(3, 3.0);
-    groundWeightings.put(4, 1.0);
-    groundWeightings.put(5, 0.0);
+    groundWeightings.put(WATER, 1.0);
+    groundWeightings.put(SAND, 1.0);
+    groundWeightings.put(GRASS, 3.0);
+    groundWeightings.put(FOREST, 1.0);
+    groundWeightings.put(HILLS, 0.0);
     
     float totalWeighting = 0;
     for (float weight: groundWeightings.values()){
