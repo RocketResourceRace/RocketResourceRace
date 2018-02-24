@@ -10,8 +10,13 @@ class Game extends State{
   final int DEFENDCOST = 32;
   final float [] STARTINGRESOURCES = new float[]{500, 300, 0, 0};
   final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Build Homes", "Build Factory", "Build Mine", "Build Smelter", "Clear Forest", "Battle"};
-  final String[] landTypes = {"Water", "Sand", "Grass", "Forest"};
+  final String[] landTypes = {"Water", "Sand", "Grass", "Forest", "Hills"};
   final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
+  final int WATER = 1;
+  final int SAND = 2;
+  final int GRASS = 3;
+  final int FOREST = 4;
+  final int HILLS = 5;
   final String attackToolTipRaw = "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a /p% chance of winning this battle.";
   final String turnsToolTipRaw = "Move /i Turns";
   String[] tooltipText = {
@@ -99,31 +104,31 @@ class Game extends State{
     } else {
       makeTaskAvailable("Rest");
       int cellTerrain = terrain[cellY][cellX];
-      if (parties[cellY][cellX].movementPoints >= DEFENDCOST && cellTerrain != 1)
+      if (parties[cellY][cellX].movementPoints >= DEFENDCOST && cellTerrain != WATER)
         makeTaskAvailable("Defend");
       if (buildings[cellY][cellX] != null){
-        if (buildings[cellY][cellX].type==2){
+        if (buildings[cellY][cellX].type==GRASS){
           makeTaskAvailable("Farm");
         }
-        makeTaskAvailable("Demolish");
+        makeTaskAvailable("Demolish"); //<>//
       }
-      else{ //<>//
-        if (cellTerrain == 3){
+      else{ //<>// //<>//
+        if (cellTerrain == GRASS){
           makeTaskAvailable("Build Farm"); //<>// //<>// //<>//
         }
-        else if (cellTerrain == 4){
+        else if (cellTerrain == FOREST){
           makeTaskAvailable("Clear Forest");
           if (parties[cellY][cellX].task != "Clear Forest")
-            makeTaskAvailable("Build Sawmill");
-        }
-        if (cellTerrain != 1 && cellTerrain != 4){ //<>//
+            makeTaskAvailable("Build Sawmill"); //<>//
+        } //<>//
+        if (cellTerrain != WATER && cellTerrain != FOREST){ //<>// //<>//
           makeTaskAvailable("Build Homes"); //<>//
         } //<>// //<>// //<>//
-        if (cellTerrain != 1 && cellTerrain != 4 && cellTerrain != 5){
-          makeTaskAvailable("Build Factory");
-          makeTaskAvailable("Build Smelter");
+        if (cellTerrain != WATER && cellTerrain != FOREST && cellTerrain != HILLS){
+          makeTaskAvailable("Build Factory"); //<>//
+          makeTaskAvailable("Build Smelter"); //<>//
         }
-        if (cellTerrain == 5){
+        if (cellTerrain == HILLS){
           makeTaskAvailable("Build Mine");
         }
       } //<>// //<>// //<>//
@@ -182,7 +187,7 @@ class Game extends State{
             switch (action){
               //-1 building types
               case "Clear Forest":
-                map.terrain[y][x] = 3;
+                map.terrain[y][x] = GRASS;
                 break;
               case "Build Farm":
                 map.buildings[y][x] = new Building(2);
@@ -683,7 +688,7 @@ class Game extends State{
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
-    
+     //<>//
     tempString = "food:"+players[turn].resources[0];
     barX -= textWidth(tempString)+10+bezel;
     fill(150);
@@ -904,25 +909,51 @@ class Game extends State{
     return newMap;
   }
   
+  int getRandomGroundType(HashMap<Integer, Float> groundWeightings, float total){
+    float randomNum = random(0, 1);
+    float min = 0;
+    int lastType = 1;
+    for (int type: groundWeightings.keySet()){
+      if(randomNum>min&&randomNum<min+groundWeightings.get(type)/total){
+        return type;
+      }
+      min += groundWeightings.get(type)/total;
+      lastType = type;
+    }
+    return lastType;
+  }
+  
   
   int[][] generateMap(PVector[] playerStarts){
+    HashMap<Integer, Float> groundWeightings = new HashMap(5);
+    groundWeightings.put(1, 1.0);
+    groundWeightings.put(2, 1.0);
+    groundWeightings.put(3, 3.0);
+    groundWeightings.put(4, 1.0);
+    groundWeightings.put(5, 0.0);
+    
+    float totalWeighting = 0;
+    for (float weight: groundWeightings.values()){
+      totalWeighting+=weight;
+    }
+    
     int [][] terrain = new int[mapHeight][mapWidth];
     
     for(int y=0; y<mapHeight; y++){
-      terrain[y][0] = 1;
-      terrain[y][mapWidth-1] = 1;
+      terrain[y][0] = WATER;
+      terrain[y][mapWidth-1] = WATER;
     }
     for(int x=1; x<mapWidth-1; x++){
-      terrain[0][x] = 1;
-      terrain[mapHeight-1][x] = 1;
+      terrain[0][x] = WATER;
+      terrain[mapHeight-1][x] = WATER;
     }
     for(int i=0;i<groundSpawns;i++){
-      int type = (int)random(NUMOFGROUNDTYPES)+1;
+      int type = getRandomGroundType(groundWeightings, totalWeighting);
       int x = (int)random(mapWidth-2)+1;
       int y = (int)random(mapHeight-2)+1;
       terrain[y][x] = type;
       // Water will be type 1
-      if (type==1){
+      if (type==WATER){
         for (int y1=y-waterLevel+1;y1<y+waterLevel;y1++){
          for (int x1 = x-waterLevel+1; x1<x+waterLevel;x1++){
            if (y1 < mapHeight && y1 >= 0 && x1 < mapWidth && x1 >= 0)
@@ -932,7 +963,7 @@ class Game extends State{
       }
     }
     for (PVector playerStart: playerStarts){
-      int type = (int)random(NUMOFGROUNDTYPES-1)+2;
+      int type = (int)random(NUMOFGROUNDTYPES-2)+2;
       int x = (int)playerStart.x;
       int y = (int)playerStart.y;
       terrain[y][x] = type;
@@ -989,8 +1020,22 @@ class Game extends State{
       }
       terrain[coord[1]][coord[0]] = terrain[y][x];
     }
+    for (int y=0; y<mapHeight; y++){
+      for(int x=0; x<mapWidth; x++){
+        if(terrain[y][x] == GRASS && random(0,1) > 0.75){
+          terrain[y][x] = HILLS;
+        }
+      }      
+    }
     terrain = smoothMap(initialSmooth, 2, terrain);
     terrain = smoothMap(completeSmooth, 1, terrain);
+    for (int y=0; y<mapHeight; y++){
+      for(int x=0; x<mapWidth; x++){
+        if(terrain[y][x] == GRASS && random(0,1) > 0.9){
+          terrain[y][x] = HILLS;
+        }
+      }      
+    }
     return terrain;
   }
 }

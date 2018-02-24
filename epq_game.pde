@@ -88,7 +88,7 @@ void setVolume(float x){
   print("invalid volume");
 }
 
-int NUMOFGROUNDTYPES = 4;
+int NUMOFGROUNDTYPES = 5;
 int NUMOFBUILDINGTYPES = 7;
 int groundSpawns = 100;
 int waterLevel = 3;
@@ -162,6 +162,7 @@ void setup(){
     loadImage("data/sand.png"),
     loadImage("data/grass.png"),
     loadImage("data/forest.png"),
+    loadImage("data/hill.png"),
   };
   lowImages = new HashMap<Integer, PImage>();
   lowImages.put(3, loadImage("data/forest_low.png"));
