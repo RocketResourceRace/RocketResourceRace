@@ -276,6 +276,7 @@ class Game extends State{
               //-1 building types
               case "Clear Forest":
                 map.terrain[y][x] = GRASS;
+                players[turn].resources[WOOD]+=100;
                 break;
               case "Build Farm":
                 map.buildings[y][x] = new Building(FARM);
@@ -723,8 +724,8 @@ class Game extends State{
       } else {
         partyManagementColour = color(0, 0, 150);
         getPanel("party management").setColour(color(70, 70, 220));
-      }
-      checkTasks(); //<>// //<>// //<>//
+      } //<>//
+      checkTasks(); //<>// //<>//
     }
   }
   float[] resourceProduction(int x, int y){
@@ -751,8 +752,8 @@ class Game extends State{
           }
         }
         for (int task=0; task<tasks.length;task++){
-          if(map.parties[y][x].getTask()==tasks[task]){
-            for(int resource = 0; resource < NUMRESOURCES; resource++){ //<>// //<>// //<>//
+          if(map.parties[y][x].getTask()==tasks[task]){ //<>//
+            for(int resource = 0; resource < NUMRESOURCES; resource++){ //<>// //<>//
               if(resource<NUMRESOURCES-1){
                 production[resource] = (taskOutcomes[task][resource])*productivity*map.parties[y][x].getUnitNumber();
               }
@@ -770,8 +771,8 @@ class Game extends State{
     for(int i=0; i<NUMRESOURCES;i++){
       if(totalResourceRequirements[i]==0){
         resourceAmountsAvailable[i] = 1;
-      } else{
-       resourceAmountsAvailable[i] = min(1, players[turn].resources[i]/totalResourceRequirements[i]); //<>// //<>// //<>//
+      } else{ //<>//
+       resourceAmountsAvailable[i] = min(1, players[turn].resources[i]/totalResourceRequirements[i]); //<>// //<>//
       }
     }
     if (map.parties[y][x] != null){
