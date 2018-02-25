@@ -95,7 +95,7 @@ class DropDown extends Element{
     
     if (dropped){
       for (int j=1; j< availableOptions.size(); j++){
-        if (mouseOver(j)){
+        if (active && mouseOver(j)){
           fill(brighten(bgColour, HOVERINGOFFSET));
         }
         else{
@@ -111,6 +111,10 @@ class DropDown extends Element{
   
   ArrayList<String> mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
+    if (eventType == "mouseMoved"){
+      active = moveOver();
+      
+    }
     if (eventType == "mouseClicked" && button == LEFT){
       for (int j=1; j < availableOptions.size();j++){
         if (mouseOver(j)){

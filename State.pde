@@ -1,12 +1,13 @@
 
 class State{
   ArrayList<Panel> panels;
-  String newState;
+  String newState, activePanel;
   
   State(){
     panels = new ArrayList<Panel>();
     addPanel("default", 0, 0, width, height, true, color(255, 255), color(0));
     newState = "";
+    activePanel = "default";
   }
   
   String getNewState(){
@@ -108,19 +109,23 @@ class State{
   void _mouseEvent(String eventType, int button){
     ArrayList<Event> events = new ArrayList<Event>();
     mouseEvent(eventType, button);
-    //for (int i=panels.size()-1; i>=0; i++){
-    //  if (panels.get(i).mouseOver()){
-    //    panelToTop(panels.get(i).id);
-    //    break;
-    //  }
-    //}
+    if (eventType == "mousePressed"){
+      for (int i=0; i<panels.size(); i++){
+        if (panels.get(i).mouseOver()&& panels.get(i).visible){
+          activePanel = panels.get(i).id;
+          println(activePanel);
+          break;
+        }
+      }
+    }
     for (Panel panel : panels){
-      if(panel.mouseOver() && panel.visible){
+      if(activePanel == panel.id){
         for (String id : panel.elements.keySet()){
           for (String eventName : panel.elements.get(id)._mouseEvent(eventType, button)){
             events.add(new Event(id, panel.id, eventName));
           }
         }
+        break;
       }
     }
     elementEvent(events);

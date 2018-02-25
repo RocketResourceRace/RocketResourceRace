@@ -22,6 +22,7 @@ class Menu extends State{
     getPanel("startup").visible = true;
     currentPanel = "startup";
     newPanel = currentPanel;
+    activePanel = currentPanel;
     
     addElement("new game", new Button(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "New Game"), "startup");
     addElement("load game", new Button(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Load Game"), "startup");
@@ -98,6 +99,7 @@ class Menu extends State{
     for (String id : getPanel(newPanel).elements.keySet()){
       getPanel(newPanel).elements.get(id).mouseEvent("mouseMoved", LEFT);
     }
+    activePanel = newPanel;
   }
   
   void elementEvent(ArrayList<Event> events){

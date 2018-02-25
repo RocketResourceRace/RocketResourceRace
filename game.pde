@@ -52,6 +52,7 @@ class Game extends State{
     "Move.",
     "Super Rest adds more units to a party each turn.",
   };
+  final String[] resourceNames = {"Food", "Wood", "Metal", "Energy", "", "", "", "", "Units"};
   final float[][] buildingCosts = {
     {0, 100, 0, 0, 0, 0, 0, 0, 0},
     {0, 50, 0, 0, 0, 0, 0, 0, 0},
@@ -138,28 +139,28 @@ class Game extends State{
     turnNumber = 0;
     
     toolTipSelected=-1;
-  }
-  void updateCellSelection(){ //<>//
-    cellSelectionX = round((width-400-bezel*2)*GUIScale)+bezel*2;
-    cellSelectionY = bezel*2; //<>//
+  } //<>//
+  void updateCellSelection(){
+    cellSelectionX = round((width-400-bezel*2)*GUIScale)+bezel*2; //<>//
+    cellSelectionY = bezel*2;
     cellSelectionW = width-cellSelectionX-bezel*2;
     cellSelectionH = round(mapElementHeight*GUIScale);
     getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.3));
     getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.3)+bezel, cellSelectionW, round(cellSelectionH*0.7)-bezel*3);
   }
-  
-  void makeTaskAvailable(String task){ //<>//
-    ((DropDown)getElement("tasks", "party management")).makeAvailable(task);
-  } //<>//
+   //<>//
+  void makeTaskAvailable(String task){
+    ((DropDown)getElement("tasks", "party management")).makeAvailable(task); //<>//
+  }
   void resetAvailableTasks(){
     ((DropDown)getElement("tasks", "party management")).resetAvailable();
   }
   //tasks building
   //settings
   
-  void checkTasks(){
+  void checkTasks(){ //<>//
     resetAvailableTasks(); //<>//
-    if(parties[cellY][cellX].player==2){ //<>//
+    if(parties[cellY][cellX].player==2){
       makeTaskAvailable("Battle");
     } else {
       makeTaskAvailable("Rest");
@@ -186,8 +187,8 @@ class Game extends State{
         if (buildings[cellY][cellX].type==SAWMILL){
           makeTaskAvailable("Produce Wood");
         }
-        if (buildings[cellY][cellX].type==BIG_FACTORY){
-          makeTaskAvailable("Produce Spaceship Parts"); //<>//
+        if (buildings[cellY][cellX].type==BIG_FACTORY){ //<>//
+          makeTaskAvailable("Produce Spaceship Parts");
         }
         makeTaskAvailable("Demolish");
       }
@@ -715,8 +716,80 @@ class Game extends State{
         partyManagementColour = color(0, 0, 150);
         getPanel("party management").setColour(color(70, 70, 220));
       }
-      checkTasks();
-    } //<>//
+      checkTasks(); //<>//
+    }
+  }
+  float[] resourceProduction(int x, int y){
+    float[] totalResourceRequirements = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    float [] resourceAmountsAvailable = new float[9];
+    float [] production = new float[9];
+    for(int i=0; i<NUMRESOURCES;i++){
+      if(totalResourceRequirements[i]==0){
+        resourceAmountsAvailable[i] = 1;
+      } else{
+       resourceAmountsAvailable[i] = min(1, players[turn].resources[i]/totalResourceRequirements[i]);
+      }
+    }
+    if (map.parties[y][x] != null){
+      if (map.parties[y][x].player == turn){
+        float productivity = 1;
+        for (int task=0; task<tasks.length;task++){
+          if(map.parties[y][x].getTask()==tasks[task]){
+            for(int resource = 0; resource < NUMRESOURCES; resource++){
+              if(taskCosts[task][resource]>0){
+                productivity = min(productivity, resourceAmountsAvailable[resource]);
+              }
+            }
+          }
+        }
+        for (int task=0; task<tasks.length;task++){
+          if(map.parties[y][x].getTask()==tasks[task]){
+            for(int resource = 0; resource < NUMRESOURCES; resource++){ //<>//
+              if(resource<NUMRESOURCES-1){
+                production[resource] = (taskOutcomes[task][resource])*productivity*map.parties[y][x].getUnitNumber();
+              }
+            }
+          }
+        }
+      }
+    }
+    return production;
+  }
+  float[] resourceConsumption(int x, int y){
+    float[] totalResourceRequirements = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    float [] resourceAmountsAvailable = new float[9];
+    float [] production = new float[9];
+    for(int i=0; i<NUMRESOURCES;i++){
+      if(totalResourceRequirements[i]==0){
+        resourceAmountsAvailable[i] = 1;
+      } else{
+       resourceAmountsAvailable[i] = min(1, players[turn].resources[i]/totalResourceRequirements[i]); //<>//
+      }
+    }
+    if (map.parties[y][x] != null){
+      if (map.parties[y][x].player == turn){
+        float productivity = 1;
+        for (int task=0; task<tasks.length;task++){
+          if(map.parties[y][x].getTask()==tasks[task]){
+            for(int resource = 0; resource < NUMRESOURCES; resource++){
+              if(taskCosts[task][resource]>0){
+                productivity = min(productivity, resourceAmountsAvailable[resource]);
+              }
+            }
+          }
+        }
+        for (int task=0; task<tasks.length;task++){
+          if(map.parties[y][x].getTask()==tasks[task]){
+            for(int resource = 0; resource < NUMRESOURCES; resource++){
+              if(resource<NUMRESOURCES-1){
+                production[resource] = (taskOutcomes[task][resource])*productivity*map.parties[y][x].getUnitNumber();
+              }
+            }
+          }
+        }
+      }
+    }
+    return production;
   }
   void drawPartyManagement(){
     Panel pp = getPanel("party management");
@@ -741,10 +814,19 @@ class Game extends State{
     }
   }
   
+  //String resourcesList(float[] resources){
+  //  ArrayList<Object[]> names = new ArrayList<Object[]>();
+  //  for (int i=0; i<NUMRESOURCES;i++){
+  //    if (resources[i]>0){
+  //      names.add(new Object[]{resourceNames[i], resources[i]});
+  //    }
+  //  }
+  //}
+  
   void drawCellManagement(){
     pushStyle();
     fill(0, 150, 0);
-    rect(cellSelectionX, cellSelectionY, cellSelectionW, 13*TextScale); //<>//
+    rect(cellSelectionX, cellSelectionY, cellSelectionW, 13*TextScale);
     fill(255);
     textSize(10*TextScale);
     textAlign(CENTER, TOP);
@@ -761,9 +843,10 @@ class Game extends State{
         text("Building: In Construction", 5+cellSelectionX, barY);
       barY += 13*TextScale;
     }
+    float[] production = resourceProduction(cellX, cellY);
   }
   
-  void drawBar(){ //<>//
+  void drawBar(){
     float barX=buttonW+bezel*2;
     fill(200);
     stroke(170);
