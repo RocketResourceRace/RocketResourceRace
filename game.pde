@@ -975,6 +975,11 @@ class Game extends State{
     if (_key == ESC){
       newState = "menu";
     }
+    if (eventType == "keyTyped"){
+      if (key == ' '){
+        changeTurn();
+      }
+    }
     return new ArrayList<String>();
   }
     
