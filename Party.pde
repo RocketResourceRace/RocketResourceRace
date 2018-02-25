@@ -5,7 +5,7 @@ class Party{
   private float movementPoints;
   int player;
   float strength;
-  String task;
+  private String task;
   ArrayList<Action> actions;
   ArrayList<int[]> path;
   int[] target;
@@ -27,6 +27,9 @@ class Party{
       case "default": strength = 1; break;
     }
     this.task = task;
+  }
+  String getTask(){
+    return task;
   }
   int[] nextNode(){
     return path.get(0);
@@ -99,8 +102,6 @@ class Battle extends Party{
     party1 = attacker;
     party1.strength*=1.5;
     party2 = defender;
-    party1.task = "Rest";
-    party2.task = "Rest";
   }
   boolean isTurn(int turn){
     return true;
@@ -135,15 +136,19 @@ class Battle extends Party{
           return null;
         } else if(endDifference>0){
           party1.setUnitNumber(endDifference);
+          party1.changeTask("Rest");
           return party1;
         } else {
           party2.setUnitNumber(-endDifference);
+          party2.changeTask("Rest");
           return party2;
         }
       } else {
+        party2.changeTask("Rest");
         return party2;
       }
     } if(party2.getUnitNumber()==0){
+      party1.changeTask("Rest");
       return party1;
     } else {
       return this;

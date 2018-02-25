@@ -206,7 +206,7 @@ class Game extends State{
   }
   
   void turnChange(){
-    for (int y=0; y<mapHeight; y++){
+    for (int y=0; y<mapHeight; y++){ //<>//
       for (int x=0; x<mapWidth; x++){
         if (map.parties[y][x] != null){
           if (map.parties[y][x].player == turn){
@@ -242,7 +242,7 @@ class Game extends State{
             
             if (action != ""){
               map.parties[y][x].clearCurrentAction();
-              map.parties[y][x].task="Rest";
+              map.parties[y][x].changeTask("Rest");
             }
             moveParty(x, y);
           } 
@@ -334,7 +334,7 @@ class Game extends State{
         if (event.id == "split button"){
           int[] loc = newPartyLoc();
           int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
-          if (loc != null && sliderVal > 0 && parties[cellY][cellX].unitNumber >= 2 && parties[cellY][cellX].task != "Battle"){
+          if (loc != null && sliderVal > 0 && parties[cellY][cellX].unitNumber >= 2 && parties[cellY][cellX].getTask() != "Battle"){
             parties[loc[1]][loc[0]] = new Party(turn, sliderVal, "Rest", 0);
             parties[cellY][cellX].unitNumber -= sliderVal;
             deselectCell();
@@ -344,62 +344,62 @@ class Game extends State{
       }
       if (event.type == "valueChanged"){
         if (event.id == "tasks"){
-          if (parties[cellY][cellX].task == "Defend"){
+          if (parties[cellY][cellX].getTask() == "Defend"){
             //Changing from defending
             parties[cellY][cellX].movementPoints = min(parties[cellY][cellX].movementPoints+DEFENDCOST, MOVEMENTPOINTS);
           }
           parties[cellY][cellX].changeTask(((DropDown)getElement("tasks", "party management")).getSelected());
-          if (parties[cellY][cellX].task != "Rest"){
+          if (parties[cellY][cellX].getTask() != "Rest"){
             moving = false;
             map.cancelMoveNodes();
           }
-          if (parties[cellY][cellX].task == "Defend"){
+          if (parties[cellY][cellX].getTask() == "Defend"){
             parties[cellY][cellX].movementPoints -= DEFENDCOST;
           }
-          else if (parties[cellY][cellX].task == "Demolish"){
+          else if (parties[cellY][cellX].getTask() == "Demolish"){
             if (sufficientResources(players[turn].resources, costs[buildings[cellY][cellX].type])){
               parties[cellY][cellX].addAction(new Action("Demolish", 2));
             }
           }
-          else if (parties[cellY][cellX].task == "Clear Forest"){
+          else if (parties[cellY][cellX].getTask() == "Clear Forest"){
             parties[cellY][cellX].addAction(new Action("Clear Forest", 3));
           }
-          else if (parties[cellY][cellX].task == "Build Farm"){
+          else if (parties[cellY][cellX].getTask() == "Build Farm"){
             if (sufficientResources(players[turn].resources, costs[1])){
               parties[cellY][cellX].addAction(new Action("Build Farm", 3));
               spendRes(players[turn], costs[1]);
               buildings[cellY][cellX] = new Building(0);
             }
           }
-          else if (parties[cellY][cellX].task == "Build Sawmill"){
+          else if (parties[cellY][cellX].getTask() == "Build Sawmill"){
             if (sufficientResources(players[turn].resources, costs[5])){
               parties[cellY][cellX].addAction(new Action("Build Sawmill", 5));
               spendRes(players[turn], costs[5]);
               buildings[cellY][cellX] = new Building(0);
             }
           }
-          else if (parties[cellY][cellX].task == "Build Homes"){
+          else if (parties[cellY][cellX].getTask() == "Build Homes"){
             if (sufficientResources(players[turn].resources, costs[0])){
               parties[cellY][cellX].addAction(new Action("Build Homes", 3));
               spendRes(players[turn], costs[0]);
               buildings[cellY][cellX] = new Building(0);
             }
           }
-          else if (parties[cellY][cellX].task == "Build Factory"){
+          else if (parties[cellY][cellX].getTask() == "Build Factory"){
             if (sufficientResources(players[turn].resources, costs[4])){
               parties[cellY][cellX].addAction(new Action("Build Factory", 6));
               spendRes(players[turn], costs[4]);
               buildings[cellY][cellX] = new Building(0);
             }
           }
-          else if (parties[cellY][cellX].task == "Build Mine"){
+          else if (parties[cellY][cellX].getTask() == "Build Mine"){
             if (sufficientResources(players[turn].resources, costs[2])){
               parties[cellY][cellX].addAction(new Action("Build Mine", 5));
               spendRes(players[turn], costs[2]);
               buildings[cellY][cellX] = new Building(0);
             }
           }
-          else if (parties[cellY][cellX].task == "Build Smelter"){
+          else if (parties[cellY][cellX].getTask() == "Build Smelter"){
             if (sufficientResources(players[turn].resources, costs[3])){
               parties[cellY][cellX].addAction(new Action("Build Smelter", 6));
               spendRes(players[turn], costs[3]);
@@ -414,7 +414,7 @@ class Game extends State{
           
         }
         else if (event.id == "move button"){
-          if (parties[cellY][cellX].player == turn && parties[cellY][cellX].task == "Rest"){
+          if (parties[cellY][cellX].player == turn && parties[cellY][cellX].getTask() == "Rest"){
             moving = !moving;
             if (moving){
               map.updateMoveNodes(djk(cellX, cellY));
@@ -595,7 +595,7 @@ class Game extends State{
     map.selectCell(cellX, cellY);
     getPanel("land management").setVisible(true);
     if (parties[cellY][cellX] != null && parties[cellY][cellX].isTurn(turn)){
-      if (parties[cellY][cellX].task != "Battle"){
+      if (parties[cellY][cellX].getTask() != "Battle"){
         ((Slider)getElement("split units", "party management")).show();
       }
       else{
