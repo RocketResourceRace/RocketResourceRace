@@ -240,9 +240,9 @@ class Map extends Element{
     elementWidth = round(EW*GUIScale);
     elementHeight = round(EH*GUIScale);
     if (panning){
-      mapVelocity[0] = (mapXOffset-targetXOffset)*panningSpeed;
-      mapVelocity[1] = (mapYOffset-targetYOffset)*panningSpeed;
-      if (pow(mapVelocity[0], 2) + pow(mapVelocity[1], 2) < pow(blockSize*0.0001, 2)){
+      mapXOffset -= (mapXOffset-targetXOffset)*panningSpeed*frameTime*60/1000;
+      mapYOffset -= (mapYOffset-targetYOffset)*panningSpeed*frameTime*60/1000;
+      if (pow(mapXOffset-targetXOffset, 2) + pow(mapYOffset-targetYOffset, 2) < pow(blockSize*0.5, 2)){
         resetTarget();
       }
     }
