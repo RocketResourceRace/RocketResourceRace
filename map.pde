@@ -113,8 +113,6 @@ class Map extends Element{
     targetXOffset = mapXOffset;
     targetYOffset = mapYOffset;
     panning = false;
-    mapVelocity[0] = 0;
-    mapVelocity[1] = 0;
   }
   void resetTargetZoom(){
     zooming = false;
@@ -185,15 +183,23 @@ class Map extends Element{
   ArrayList<String> keyboardEvent(String eventType, char _key){
     if (eventType == "keyPressed"){
       if (_key == 'a'&&mapVelocity[0]>-mapMaxSpeed){
+        resetTargetZoom();
+        resetTarget();
         mapVelocity[0] -= mapMaxSpeed;
       }
       if (_key == 's'&&mapVelocity[1]<mapMaxSpeed){
+        resetTargetZoom();
+        resetTarget();
         mapVelocity[1] += mapMaxSpeed;
       }
       if (_key == 'd'&&mapVelocity[0]<mapMaxSpeed){
+        resetTargetZoom();
+        resetTarget();
         mapVelocity[0] += mapMaxSpeed;
       }
       if (_key == 'w'&&mapVelocity[1]>-mapMaxSpeed){
+        resetTargetZoom();
+        resetTarget();
         mapVelocity[1] -= mapMaxSpeed;
       }
     }
@@ -243,7 +249,7 @@ class Map extends Element{
       mapXOffset -= (mapXOffset-targetXOffset)*panningSpeed*frameTime*60/1000;
       mapYOffset -= (mapYOffset-targetYOffset)*panningSpeed*frameTime*60/1000;
     }
-    if (pow(mapXOffset-targetXOffset, 2) + pow(mapYOffset-targetYOffset, 2) < pow(blockSize*0.5, 2) && abs(blockSize-targetBlockSize) < 1){
+    if ((zooming || panning) && pow(mapXOffset-targetXOffset, 2) + pow(mapYOffset-targetYOffset, 2) < pow(blockSize*0.5, 2) && abs(blockSize-targetBlockSize) < 1){
       resetTargetZoom();
       resetTarget();
     }
@@ -251,6 +257,7 @@ class Map extends Element{
     mapYOffset -= mapVelocity[1]*frameTime*60/1000;
     frameStartTime = millis();
     limitCoords();
+    
     for (int i=0; i<NUMOFGROUNDTYPES; i++){
       if(blockSize<24&&lowImages.containsKey(i)){
         tempTileImages[i] = lowImages.get(i).copy();
