@@ -451,7 +451,7 @@ class Game extends State{
             parties[loc[1]][loc[0]] = new Party(turn, sliderVal, "Rest", 0);
             parties[cellY][cellX].unitNumber -= sliderVal;
             deselectCell();
-            selectCell(loc[0], loc[1]);
+            selectCell((int)map.scaleX(loc[0]+1), (int)map.scaleY(loc[1]+1));
           }
         }
       }
