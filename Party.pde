@@ -61,6 +61,11 @@ class Party{
   void clearCurrentAction(){
     if (actions.size() > 0)
     actions.remove(0);
+  }void clearActions(){
+    actions = new ArrayList<Action>();
+  }
+  String currentAction(){
+    return actions.get(0).type;
   }
   boolean isTurn(int turn){
     return this.player==turn;

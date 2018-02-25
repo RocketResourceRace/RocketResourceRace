@@ -139,18 +139,18 @@ class Game extends State{
     turnNumber = 0;
     
     toolTipSelected=-1;
-  } //<>// //<>// //<>//
+  } //<>// //<>// //<>// //<>//
   void updateCellSelection(){
-    cellSelectionX = round((width-400-bezel*2)*GUIScale)+bezel*2; //<>// //<>// //<>//
+    cellSelectionX = round((width-400-bezel*2)*GUIScale)+bezel*2; //<>// //<>// //<>// //<>//
     cellSelectionY = bezel*2;
     cellSelectionW = width-cellSelectionX-bezel*2;
     cellSelectionH = round(mapElementHeight*GUIScale);
     getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.3));
     getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.3)+bezel, cellSelectionW, round(cellSelectionH*0.7)-bezel*3);
   }
-   //<>// //<>// //<>//
+   //<>// //<>// //<>// //<>//
   void makeTaskAvailable(String task){
-    ((DropDown)getElement("tasks", "party management")).makeAvailable(task); //<>// //<>// //<>//
+    ((DropDown)getElement("tasks", "party management")).makeAvailable(task); //<>// //<>// //<>// //<>//
   }
   void resetAvailableTasks(){
     ((DropDown)getElement("tasks", "party management")).resetAvailable();
@@ -158,13 +158,17 @@ class Game extends State{
   //tasks building
   //settings
   
-  void checkTasks(){ //<>// //<>// //<>//
-    resetAvailableTasks(); //<>// //<>// //<>//
+  void checkTasks(){ //<>// //<>// //<>// //<>//
+    resetAvailableTasks(); //<>// //<>// //<>// //<>//
     if(parties[cellY][cellX].player==2){
       makeTaskAvailable("Battle");
-    } else {
+    }
+    else {
       makeTaskAvailable("Rest");
       int cellTerrain = terrain[cellY][cellX];
+      if(parties[cellY][cellX].hasActions()){
+        makeTaskAvailable(parties[cellY][cellX].currentAction());
+      }
       if (parties[cellY][cellX].movementPoints >= DEFENDCOST && cellTerrain != WATER)
         makeTaskAvailable("Defend");
       if (buildings[cellY][cellX] != null){
@@ -183,7 +187,7 @@ class Game extends State{
         if (buildings[cellY][cellX].type==FACTORY){
           makeTaskAvailable("Produce Concrete");
           makeTaskAvailable("Produce Cable");
-        }
+        } //<>//
         if (buildings[cellY][cellX].type==SAWMILL){
           makeTaskAvailable("Produce Wood");
         }
@@ -192,7 +196,7 @@ class Game extends State{
         }
         makeTaskAvailable("Demolish");
       }
-      else{ 
+      else{
         if (cellTerrain == GRASS){
           makeTaskAvailable("Build Farm");  
         }
@@ -459,6 +463,17 @@ class Game extends State{
             //Changing from defending
             parties[cellY][cellX].movementPoints = min(parties[cellY][cellX].movementPoints+DEFENDCOST, MOVEMENTPOINTS);
           }
+          //if (parties[cellY][cellX].getTask().substring(0, 5).equals("Build")){
+          //  //Changing from building
+          //  parties[cellY][cellX].movementPoints = min(parties[cellY][cellX].movementPoints+BUILDMOVECOST, MOVEMENTPOINTS);
+          //  String t = parties[cellY][cellX].getTask().substring(6, parties[cellY][cellX].getTask().length());
+          //  for (int i=0; i<tasks.length; i++){
+          //    if (tasks[i] == t){
+          //      reclaimRes(players[1], );
+          //    }
+          //  }
+          //}
+          
           parties[cellY][cellX].changeTask(((DropDown)getElement("tasks", "party management")).getSelected());
           if (parties[cellY][cellX].getTask() != "Rest"){
             moving = false;
@@ -469,14 +484,17 @@ class Game extends State{
           }
           else if (parties[cellY][cellX].getTask() == "Demolish"){
             if (sufficientResources(players[turn].resources, buildingCosts[buildings[cellY][cellX].type])){
+              parties[cellY][cellX].clearActions();
               parties[cellY][cellX].addAction(new Action("Demolish", 2));
             }
           }
           else if (parties[cellY][cellX].getTask() == "Clear Forest"){
+            parties[cellY][cellX].clearActions();
             parties[cellY][cellX].addAction(new Action("Clear Forest", 3));
           }
           else if (parties[cellY][cellX].getTask() == "Build Farm"){
             if (sufficientResources(players[turn].resources, buildingCosts[1])){
+              parties[cellY][cellX].clearActions();
               parties[cellY][cellX].addAction(new Action("Build Farm", 3));
               spendRes(players[turn], buildingCosts[1]);
               buildings[cellY][cellX] = new Building(0);
@@ -484,6 +502,7 @@ class Game extends State{
           }
           else if (parties[cellY][cellX].getTask() == "Build Sawmill"){
             if (sufficientResources(players[turn].resources, buildingCosts[5])){
+              parties[cellY][cellX].clearActions();
               parties[cellY][cellX].addAction(new Action("Build Sawmill", 5));
               spendRes(players[turn], buildingCosts[5]);
               buildings[cellY][cellX] = new Building(0);
@@ -491,6 +510,7 @@ class Game extends State{
           }
           else if (parties[cellY][cellX].getTask() == "Build Homes"){
             if (sufficientResources(players[turn].resources, buildingCosts[0])){
+              parties[cellY][cellX].clearActions();
               parties[cellY][cellX].addAction(new Action("Build Homes", 3));
               spendRes(players[turn], buildingCosts[0]);
               buildings[cellY][cellX] = new Building(0);
@@ -498,6 +518,7 @@ class Game extends State{
           }
           else if (parties[cellY][cellX].getTask() == "Build Factory"){
             if (sufficientResources(players[turn].resources, buildingCosts[4])){
+              parties[cellY][cellX].clearActions();
               parties[cellY][cellX].addAction(new Action("Build Factory", 6));
               spendRes(players[turn], buildingCosts[4]);
               buildings[cellY][cellX] = new Building(0);
@@ -505,6 +526,7 @@ class Game extends State{
           }
           else if (parties[cellY][cellX].getTask() == "Build Mine"){
             if (sufficientResources(players[turn].resources, buildingCosts[2])){
+              parties[cellY][cellX].clearActions();
               parties[cellY][cellX].addAction(new Action("Build Mine", 5));
               spendRes(players[turn], buildingCosts[2]);
               buildings[cellY][cellX] = new Building(0);
@@ -512,11 +534,13 @@ class Game extends State{
           }
           else if (parties[cellY][cellX].getTask() == "Build Smelter"){
             if (sufficientResources(players[turn].resources, buildingCosts[3])){
+              parties[cellY][cellX].clearActions();
               parties[cellY][cellX].addAction(new Action("Build Smelter", 6));
               spendRes(players[turn], buildingCosts[3]);
               buildings[cellY][cellX] = new Building(0);
             }
           }
+          checkTasks();
         }
       }
       if (event.type == "clicked"){
@@ -692,7 +716,7 @@ class Game extends State{
             map.cancelPath();
             toolTipSelected = -1;
           }
-        }
+        } //<>//
       else{
         map.cancelPath();
         toolTipSelected = -1;
@@ -720,7 +744,7 @@ class Game extends State{
       } //<>//
       else
       ((Slider)getElement("split units", "party management")).setScale(1, 1, parties[cellY][cellX].getUnitNumber()-1, 1, parties[cellY][cellX].getUnitNumber()); //<>//
-      if (turn == 1){
+      if (turn == 1){ //<>//
         partyManagementColour = color(170, 30, 30);
         getPanel("party management").setColour(color(220, 70, 70));
       } else {
@@ -739,7 +763,7 @@ class Game extends State{
         resourceAmountsAvailable[i] = 1;
       } else{
        resourceAmountsAvailable[i] = min(1, players[turn].resources[i]/totalResourceRequirements[i]);
-      }
+      } //<>//
     }
     if (map.parties[y][x] != null){
       if (map.parties[y][x].player == turn){
@@ -815,9 +839,9 @@ class Game extends State{
     textAlign(LEFT, CENTER);
     textSize(8*TextScale);
     float barY = cellSelectionY + 13*TextScale + cellSelectionH*0.3 + bezel*2;
-    text("Movement Points Remaining: "+parties[cellY][cellX].getMovementPoints(turn) + "/"+MOVEMENTPOINTS, 150+cellSelectionX, barY);
+    text("Movement Points Remaining: "+parties[cellY][cellX].getMovementPoints(turn) + "/"+MOVEMENTPOINTS, 120+cellSelectionX, barY);
     barY += 13*TextScale;
-    text("Units: "+parties[cellY][cellX].getUnitNumber(turn) + "/1000", 150+cellSelectionX, barY);
+    text("Units: "+parties[cellY][cellX].getUnitNumber(turn) + "/1000", 120+cellSelectionX, barY);
     barY += 13*TextScale;
     if (parties[cellY][cellX].actions.size() > 0 && parties[cellY][cellX].actions.get(0).initialTurns > 0){
       text("Turns Remaining: "+parties[cellY][cellX].actions.get(0).turns + "/"+parties[cellY][cellX].actions.get(0).initialTurns, 150+cellSelectionX, barY);
