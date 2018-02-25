@@ -95,7 +95,7 @@ class Game extends State{
     {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Smelter
     {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Clear Forest
     {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Battle
-    {0, 0, 0, 0, 0, 0, 0, 0, 2}, // Super Rest
+    {0, 0, 0, 0, 0, 0, 0, 0, 0.1}, // Super Rest
     {0, 0, 0, 0, 0, 0, 0, 1, 0}, // Produce Ore
     {0, 0, 0.1, 0, 0, 0, 0, 0, 0}, // Produce Metal
     {0, 0, 0, 0, 0.1, 0, 0, 0, 0}, // Produce Concrete
