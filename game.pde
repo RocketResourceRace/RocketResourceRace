@@ -5,7 +5,7 @@ class Game extends State{
   final int buttonW = 120;
   final int buttonH = 50;
   final int bezel = 20;
-  final int[] terrainCosts = new int[]{32, 24, 16, 12, 8, 12};
+  final int[] terrainCosts = new int[]{32, 24, 16, 12, 8, 12, 28};
   final int MOVEMENTPOINTS = 64;
   final int DEFENDCOST = 32;
   final float [] STARTINGRESOURCES = new float[]{500, 300, 0, 0};
