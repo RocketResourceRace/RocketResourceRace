@@ -847,8 +847,7 @@ class Game extends State{
     text("Units: "+parties[cellY][cellX].getUnitNumber(turn) + "/1000", 120+cellSelectionX, barY);
     barY += 13*TextScale;
     if (parties[cellY][cellX].actions.size() > 0 && parties[cellY][cellX].actions.get(0).initialTurns > 0){
-      text("Turns Remaining: "+parties[cellY][cellX].actions.get(0).turns + "/"+parties[cellY][cellX].actions.get(0).initialTurns, 150+cellSelectionX, barY);
-      barY += 13*TextScale;
+      text("Turns Remaining: "+parties[cellY][cellX].actions.get(0).turns + "/"+parties[cellY][cellX].actions.get(0).initialTurns, cellSelectionX+200+bezel*3, barY+bezel*3);
     }
   }
   
