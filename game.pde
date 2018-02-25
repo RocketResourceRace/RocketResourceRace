@@ -117,6 +117,25 @@ class Game extends State{
         if (buildings[cellY][cellX].type==FARM){
           makeTaskAvailable("Farm");
         }
+  final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
+        if (buildings[cellY][cellX].type==HOMES){
+          makeTaskAvailable("Super Rest");
+        }
+        if (buildings[cellY][cellX].type==MINE){
+          makeTaskAvailable("Produce Ore");
+        }
+        if (buildings[cellY][cellX].type==SMELTER){
+          makeTaskAvailable("Produce Metal");
+        }
+        if (buildings[cellY][cellX].type==FACTORY){
+          makeTaskAvailable("Produce");
+        }
+        if (buildings[cellY][cellX].type==SAWMILL){
+          makeTaskAvailable("Produce Wood");
+        }
+        if (buildings[cellY][cellX].type==BIG_FACTORY){
+          makeTaskAvailable("Produce Spaceship Parts");
+        }
         makeTaskAvailable("Demolish");
       }
       else{ //<>//
