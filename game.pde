@@ -139,18 +139,18 @@ class Game extends State{
     turnNumber = 0;
     
     toolTipSelected=-1;
-  } //<>// //<>// //<>// //<>// //<>//
+  }     
   void updateCellSelection(){
-    cellSelectionX = round((width-400-bezel*2)*GUIScale)+bezel*2; //<>// //<>// //<>// //<>// //<>//
+    cellSelectionX = round((width-400-bezel*2)*GUIScale)+bezel*2;     
     cellSelectionY = bezel*2;
     cellSelectionW = width-cellSelectionX-bezel*2;
     cellSelectionH = round(mapElementHeight*GUIScale);
     getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.3));
     getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.3)+bezel, cellSelectionW, round(cellSelectionH*0.7)-bezel*3);
   }
-   //<>// //<>// //<>// //<>// //<>//
+       
   void makeTaskAvailable(String task){
-    ((DropDown)getElement("tasks", "party management")).makeAvailable(task); //<>// //<>// //<>// //<>// //<>//
+    ((DropDown)getElement("tasks", "party management")).makeAvailable(task);     
   }
   void resetAvailableTasks(){
     ((DropDown)getElement("tasks", "party management")).resetAvailable();
@@ -158,8 +158,8 @@ class Game extends State{
   //tasks building
   //settings
   
-  void checkTasks(){ //<>// //<>// //<>// //<>// //<>//
-    resetAvailableTasks(); //<>// //<>// //<>// //<>// //<>//
+  void checkTasks(){     
+    resetAvailableTasks();     
     if(parties[cellY][cellX].player==2){
       makeTaskAvailable("Battle");
     }
@@ -187,11 +187,11 @@ class Game extends State{
         if (buildings[cellY][cellX].type==FACTORY){
           makeTaskAvailable("Produce Concrete");
           makeTaskAvailable("Produce Cable");
-        } //<>// //<>//
+        }  
         if (buildings[cellY][cellX].type==SAWMILL){
           makeTaskAvailable("Produce Wood");
         }
-        if (buildings[cellY][cellX].type==BIG_FACTORY){ //<>// //<>// //<>//
+        if (buildings[cellY][cellX].type==BIG_FACTORY){   
           makeTaskAvailable("Produce Spaceship Parts");
         }
         makeTaskAvailable("Demolish");
@@ -716,13 +716,13 @@ class Game extends State{
                 tooltipText[11] = attackToolTipRaw.replace("/p", str(chance));
                 toolTipSelected = 11;
               }
-            } //<>//
+            } 
           }
           else{
             map.cancelPath();
             toolTipSelected = -1;
           }
-        } //<>//
+        } 
       else{
         map.cancelPath();
         toolTipSelected = -1;
@@ -744,48 +744,48 @@ class Game extends State{
       else{
         ((Slider)getElement("split units", "party management")).hide();
       }
-      getPanel("party management").setVisible(true); //<>//
+      getPanel("party management").setVisible(true); 
       if (parties[cellY][cellX].getUnitNumber() <= 1){
           ((Slider)getElement("split units", "party management")).hide();
-      } //<>//
+      } 
       else
-      ((Slider)getElement("split units", "party management")).setScale(1, 1, parties[cellY][cellX].getUnitNumber()-1, 1, parties[cellY][cellX].getUnitNumber()); //<>//
-      if (turn == 1){ //<>//
+      ((Slider)getElement("split units", "party management")).setScale(1, 1, parties[cellY][cellX].getUnitNumber()-1, 1, parties[cellY][cellX].getUnitNumber()); 
+      if (turn == 1){ 
         partyManagementColour = color(170, 30, 30);
         getPanel("party management").setColour(color(220, 70, 70));
       } else {
         partyManagementColour = color(0, 0, 150);
         getPanel("party management").setColour(color(70, 70, 220));
-      } //<>//
-      checkTasks(); //<>// //<>//
+      } 
+      checkTasks();  
     }
   }
   float[] resourceProduction(int x, int y){
     float[] totalResourceRequirements = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     float [] resourceAmountsAvailable = new float[9];
-    float [] production = new float[9]; //<>//
+    float [] production = new float[9]; 
     for(int i=0; i<NUMRESOURCES;i++){
       if(totalResourceRequirements[i]==0){
         resourceAmountsAvailable[i] = 1;
       } else{
        resourceAmountsAvailable[i] = min(1, players[turn].resources[i]/totalResourceRequirements[i]);
-      } //<>//
+      } 
     }
     if (map.parties[y][x] != null){
       if (map.parties[y][x].player == turn){
         float productivity = 1;
         for (int task=0; task<tasks.length;task++){
-          if(map.parties[y][x].getTask()==tasks[task]){ //<>//
+          if(map.parties[y][x].getTask()==tasks[task]){ 
             for(int resource = 0; resource < NUMRESOURCES; resource++){
-              if(taskCosts[task][resource]>0){ //<>//
+              if(taskCosts[task][resource]>0){ 
                 productivity = min(productivity, resourceAmountsAvailable[resource]);
               }
             }
           }
         }
         for (int task=0; task<tasks.length;task++){
-          if(map.parties[y][x].getTask()==tasks[task]){ //<>//
-            for(int resource = 0; resource < NUMRESOURCES; resource++){ //<>// //<>//
+          if(map.parties[y][x].getTask()==tasks[task]){ 
+            for(int resource = 0; resource < NUMRESOURCES; resource++){  
               if(resource<NUMRESOURCES-1){
                 production[resource] = (taskOutcomes[task][resource])*productivity*map.parties[y][x].getUnitNumber();
               }
@@ -794,17 +794,17 @@ class Game extends State{
         }
       }
     }
-    return production; //<>//
+    return production; 
   }
-  float[] resourceConsumption(int x, int y){ //<>//
+  float[] resourceConsumption(int x, int y){ 
     float[] totalResourceRequirements = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     float [] resourceAmountsAvailable = new float[9];
     float [] production = new float[9];
     for(int i=0; i<NUMRESOURCES;i++){
       if(totalResourceRequirements[i]==0){
         resourceAmountsAvailable[i] = 1;
-      } else{ //<>//
-       resourceAmountsAvailable[i] = min(1, players[turn].resources[i]/totalResourceRequirements[i]); //<>// //<>//
+      } else{ 
+       resourceAmountsAvailable[i] = min(1, players[turn].resources[i]/totalResourceRequirements[i]);  
       }
     }
     if (map.parties[y][x] != null){
