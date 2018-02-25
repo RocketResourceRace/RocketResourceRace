@@ -145,7 +145,7 @@ class Game extends State{
         }
         else if (cellTerrain == FOREST){
           makeTaskAvailable("Clear Forest");
-          if (parties[cellY][cellX].task != "Clear Forest")
+          if (parties[cellY][cellX].getTask() != "Clear Forest")
             makeTaskAvailable("Build Sawmill");
         }
         if (cellTerrain != WATER && cellTerrain != FOREST){ 
@@ -160,7 +160,7 @@ class Game extends State{
         }
       }  
     }  
-    ((DropDown)getElement("tasks", "party management")).select(parties[cellY][cellX].task);
+    ((DropDown)getElement("tasks", "party management")).select(parties[cellY][cellX].getTask());
   }
   
   ArrayList<String> getLines(String s){
