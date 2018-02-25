@@ -139,18 +139,18 @@ class Game extends State{
         }
         makeTaskAvailable("Demolish");
       }
-      else{ //<>//
+      else{ 
         if (cellTerrain == GRASS){
-          makeTaskAvailable("Build Farm"); //<>// //<>//
+          makeTaskAvailable("Build Farm");  
         }
         else if (cellTerrain == FOREST){
           makeTaskAvailable("Clear Forest");
           if (parties[cellY][cellX].task != "Clear Forest")
             makeTaskAvailable("Build Sawmill");
         }
-        if (cellTerrain != WATER && cellTerrain != FOREST){ //<>//
+        if (cellTerrain != WATER && cellTerrain != FOREST){ 
           makeTaskAvailable("Build Homes");
-        } //<>// //<>//
+        }  
         if (cellTerrain != WATER && cellTerrain != FOREST && cellTerrain != HILLS){
           makeTaskAvailable("Build Factory");
           makeTaskAvailable("Build Smelter");
@@ -158,8 +158,8 @@ class Game extends State{
         if (cellTerrain == HILLS){
           makeTaskAvailable("Build Mine");
         }
-      } //<>// //<>//
-    } //<>// //<>//
+      }  
+    }  
     ((DropDown)getElement("tasks", "party management")).select(parties[cellY][cellX].task);
   }
   
@@ -187,7 +187,7 @@ class Game extends State{
   }
   
   void drawToolTip(){
-    ArrayList<String> lines = getLines(tooltipText[toolTipSelected]); //<>//
+    ArrayList<String> lines = getLines(tooltipText[toolTipSelected]); 
     textSize(8*TextScale);
     int tw = ceil(maxWidthLine(lines))+4;
     int gap = ceil(textAscent()+textDescent());
@@ -716,7 +716,7 @@ class Game extends State{
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
-     //<>//
+     
     tempString = "food:"+players[turn].resources[0];
     barX -= textWidth(tempString)+10+bezel;
     fill(150);
@@ -744,7 +744,7 @@ class Game extends State{
     
     terrain = generateMap(playerStarts);
     map.reset(mapWidth, mapHeight, terrain, parties, buildings);
-     //<>//
+     
     float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, 42);
     players[1] = new Player(conditions2[0], conditions2[1], 42, STARTINGRESOURCES.clone());
     float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, 42);
@@ -763,7 +763,7 @@ class Game extends State{
     }
     if (0<x && x<mapSize && 0<y && y<mapSize){
       if (map.parties[y][x] == null){
-        return round(float(terrainCosts[terrain[y][x]+1])*mult); //<>//
+        return round(float(terrainCosts[terrain[y][x]+1])*mult); 
       } else if(map.parties[y][x].player!=this.turn){
         return round(float(terrainCosts[0])*mult);
       }else if(map.parties[y][x].player==this.turn){
