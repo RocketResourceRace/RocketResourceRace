@@ -113,7 +113,6 @@ class State{
       for (int i=0; i<panels.size(); i++){
         if (panels.get(i).mouseOver()&& panels.get(i).visible){
           activePanel = panels.get(i).id;
-          println(activePanel);
           break;
         }
       }
@@ -125,7 +124,8 @@ class State{
             events.add(new Event(id, panel.id, eventName));
           }
         }
-        break;
+        if (!eventType.equals("mouseMoved"))
+          break;
       }
     }
     elementEvent(events);

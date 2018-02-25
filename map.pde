@@ -236,6 +236,7 @@ class Map extends Element{
       blockSize += (targetBlockSize-blockSize)*panningSpeed*frameTime*60/1000;
       if (abs(blockSize-targetBlockSize) < 0.001){
         resetTargetZoom();
+        resetTarget();
       }
     }
 
@@ -247,6 +248,7 @@ class Map extends Element{
       mapYOffset -= (mapYOffset-targetYOffset)*panningSpeed*frameTime*60/1000;
       if (pow(mapXOffset-targetXOffset, 2) + pow(mapYOffset-targetYOffset, 2) < pow(blockSize*0.5, 2)){
         resetTarget();
+        resetTargetZoom();
       }
     }
     mapXOffset -= mapVelocity[0]*frameTime*60/1000;
