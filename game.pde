@@ -62,7 +62,7 @@ class Game extends State{
     {0, 200, 0, 0, 0, 0, 0, 0, 0},
   };
   final float[][] taskCosts = {
-    {1, 0, 0, 0, 0, 0, 0, 0, 0}, // Rest
+    {0.1, 0, 0, 0, 0, 0, 0, 0, 0}, // Rest
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Farm
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Defend
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Demolish
@@ -76,11 +76,11 @@ class Game extends State{
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Battle
     {0.5, 0, 0, 0, 0, 0, 0, 0, 0}, // Super Rest
     {0.2, 1, 0, 0, 0, 0, 0, 0, 0}, // Produce Ore
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Metal
+    {0.2, 0, 0, 0, 0, 0, 0, 1, 0}, // Produce Metal
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Concrete
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Cable
+    {0.2, 0, 1, 0, 0, 0, 0, 0, 0}, // Produce Cable
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Wood
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Spaceship Parts
+    {0.2, 0, 1, 0, 0, 0, 0, 0, 0}, // Produce Spaceship Parts
   };
   final float[][] taskOutcomes = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0.01}, // Rest
@@ -97,11 +97,11 @@ class Game extends State{
     {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Battle
     {0, 0, 0, 0, 0, 0, 0, 0, 2}, // Super Rest
     {0, 0, 0, 0, 0, 0, 0, 1, 0}, // Produce Ore
-    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Metal
-    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Concrete
-    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Cable
-    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Wood
-    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Spaceship Parts
+    {0, 0, 0.1, 0, 0, 0, 0, 0, 0}, // Produce Metal
+    {0, 0, 0, 0, 0.1, 0, 0, 0, 0}, // Produce Concrete
+    {0, 0, 0, 0, 0, 0.1, 0, 0, 0}, // Produce Cable
+    {0, 0.1, 0, 0, 0, 0, 0, 0, 0}, // Produce Wood
+    {0, 0, 0, 0, 0, 0, 0.1, 0, 0}, // Produce Spaceship Parts
   };
   final int NUMRESOURCES = 9;
   int turnNumber;
@@ -276,6 +276,7 @@ class Game extends State{
               //-1 building types
               case "Clear Forest":
                 map.terrain[y][x] = GRASS;
+                players[turn].resources[WOOD]+=100;
                 break;
               case "Build Farm":
                 map.buildings[y][x] = new Building(FARM);
@@ -725,7 +726,7 @@ class Game extends State{
       } else {
         partyManagementColour = color(0, 0, 150);
         getPanel("party management").setColour(color(70, 70, 220));
-      }
+      } //<>//
       checkTasks(); //<>// //<>//
     }
   }
@@ -753,7 +754,7 @@ class Game extends State{
           }
         }
         for (int task=0; task<tasks.length;task++){
-          if(map.parties[y][x].getTask()==tasks[task]){
+          if(map.parties[y][x].getTask()==tasks[task]){ //<>//
             for(int resource = 0; resource < NUMRESOURCES; resource++){ //<>// //<>//
               if(resource<NUMRESOURCES-1){
                 production[resource] = (taskOutcomes[task][resource])*productivity*map.parties[y][x].getUnitNumber();
@@ -772,7 +773,7 @@ class Game extends State{
     for(int i=0; i<NUMRESOURCES;i++){
       if(totalResourceRequirements[i]==0){
         resourceAmountsAvailable[i] = 1;
-      } else{
+      } else{ //<>//
        resourceAmountsAvailable[i] = min(1, players[turn].resources[i]/totalResourceRequirements[i]); //<>// //<>//
       }
     }
