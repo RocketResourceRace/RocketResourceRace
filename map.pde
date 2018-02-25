@@ -243,7 +243,7 @@ class Map extends Element{
       mapXOffset -= (mapXOffset-targetXOffset)*panningSpeed*frameTime*60/1000;
       mapYOffset -= (mapYOffset-targetYOffset)*panningSpeed*frameTime*60/1000;
     }
-    if (panning && zooming && pow(mapXOffset-targetXOffset, 2) + pow(mapYOffset-targetYOffset, 2) < pow(blockSize*0.5, 2) || abs(blockSize-targetBlockSize) < 0.1){
+    if (pow(mapXOffset-targetXOffset, 2) + pow(mapYOffset-targetYOffset, 2) < pow(blockSize*0.5, 2) && abs(blockSize-targetBlockSize) < 1){
       resetTargetZoom();
       resetTarget();
     }

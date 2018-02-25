@@ -137,7 +137,6 @@ class Game extends State{
     addElement("split button", new Button(bezel*2+220, bezel*3+30, 100, 30, color(150), color(50), color(0), 10, CENTER, "Split"), "party management");
     addElement("tasks", new DropDown(bezel, bezel*4+30+30, 200, 10, color(150), color(50), tasks), "party management");
     turnNumber = 0;
-    
     toolTipSelected=-1;
   }     
   void updateCellSelection(){
