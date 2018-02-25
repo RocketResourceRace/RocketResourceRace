@@ -363,12 +363,12 @@ class Game extends State{
         }
       }
     }
-    deselectCell();
     partyMovementPointsReset(turn);
     
-    players[turn].saveMapSettings(map.mapXOffset, map.mapYOffset, map.blockSize);
+    players[turn].saveSettings(map.mapXOffset, map.mapYOffset, map.blockSize, cellX, cellY, cellSelected);
+    deselectCell();
     turn = (turn + 1)%2;
-    players[turn].loadMapSettings(map);
+    players[turn].loadSettings(this, map);
     changeTurn = false;
     if (turn == 0)
       turnNumber ++;
@@ -549,6 +549,7 @@ class Game extends State{
   }
   
   void moveParty(int px, int py){
+    boolean cellFollow = (px==cellX && py==cellY);
     if (map.parties[py][px].target == null || map.parties[py][px].getMovementPoints() == 0)
       return;
     int tx = map.parties[py][px].target[0];
@@ -599,7 +600,9 @@ class Game extends State{
     }
     
     deselectCell();
-    //selectCell(px, py);
+    if(cellFollow){
+      selectCell((int)map.scaleX(px+1), (int)map.scaleY(py+1));
+    }
   }
   int getMoveTurns(int startX, int startY, int targetX, int targetY, Node[][] nodes){
     int movementPoints = round(parties[startY][startX].getMovementPoints());
