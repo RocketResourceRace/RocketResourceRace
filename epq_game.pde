@@ -137,6 +137,7 @@ void loadSettings(){
   }
 }
 void loadSounds(){
+  soundOn = !(Integer.parseInt(settings.get("sound"))==0);
   if(soundOn){
     sfx = new HashMap<String, SoundFile>();
     sfx.put("click3", new SoundFile(this, "click3.wav"));
