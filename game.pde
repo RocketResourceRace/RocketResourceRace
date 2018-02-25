@@ -331,7 +331,11 @@ class Game extends State{
               if(map.parties[y][x].getTask()==tasks[task]){
                 for(int resource = 0; resource < NUMRESOURCES; resource++){
                   if(taskCosts[task][resource]>0){
-                    productivity = min(productivity, resourceAmountsAvailable[resource]);
+                    if(resource==0){
+                      productivity = min(productivity, resourceAmountsAvailable[resource]+0.5);
+                    } else {
+                      productivity = min(productivity, resourceAmountsAvailable[resource]);
+                    }
                   }
                 }
               }
@@ -340,12 +344,13 @@ class Game extends State{
               if(map.parties[y][x].getTask()==tasks[task]){
                 for(int resource = 0; resource < NUMRESOURCES; resource++){
                   if(resource<NUMRESOURCES-1){
-                    players[turn].resources[resource] += (taskOutcomes[task][resource]-taskCosts[task][resource])*productivity*map.parties[y][x].getUnitNumber();
+                    players[turn].resources[resource] += max((taskOutcomes[task][resource]-taskCosts[task][resource])*productivity*map.parties[y][x].getUnitNumber(), -players[turn].resources[resource]);
                   } else if(resourceAmountsAvailable[0]<1){
                     map.parties[y][x].setUnitNumber(ceil(map.parties[y][x].getUnitNumber()-(1-resourceAmountsAvailable[0])*taskOutcomes[task][resource]*map.parties[y][x].getUnitNumber()));
                   } else{
                     map.parties[y][x].setUnitNumber(ceil(map.parties[y][x].getUnitNumber()+taskOutcomes[task][resource]*(float)map.parties[y][x].getUnitNumber()));
                   }
+                  
                 }
               }
             }
