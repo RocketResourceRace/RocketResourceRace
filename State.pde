@@ -119,7 +119,7 @@ class State{
       }
     }
     for (Panel panel : panels){
-      if(activePanel == panel.id){
+      if(activePanel == panel.id || eventType.equals("mouseMoved")){
         for (String id : panel.elements.keySet()){
           for (String eventName : panel.elements.get(id)._mouseEvent(eventType, button)){
             events.add(new Event(id, panel.id, eventName));
