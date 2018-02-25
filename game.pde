@@ -616,7 +616,7 @@ class Game extends State{
   ArrayList<String> mouseEvent(String eventType, int button){
     if (button == LEFT){
       if (eventType == "mouseClicked"){
-        if (moving&&map.mouseOver()){
+        if (moving&&map.mouseOver() && activePanel == "default"){
           int x = floor(map.scaleXInv(mouseX));
           int y = floor(map.scaleYInv(mouseY));
           parties[cellY][cellX].target = new int[]{x, y};
@@ -716,7 +716,7 @@ class Game extends State{
           ((Slider)getElement("split units", "party management")).hide();
       }
       else
-      ((Slider)getElement("split units", "party management")).setScale(1, 1, parties[cellY][cellX].getUnitNumber()-1, 1, parties[cellY][cellX].getUnitNumber());
+      ((Slider)getElement("split units", "party management")).setScale(1, 1, parties[cellY][cellX].getUnitNumber()-1, 1, parties[cellY][cellX].getUnitNumber()); //<>//
       if (turn == 1){
         partyManagementColour = color(170, 30, 30);
         getPanel("party management").setColour(color(220, 70, 70));
@@ -744,7 +744,7 @@ class Game extends State{
         for (int task=0; task<tasks.length;task++){
           if(map.parties[y][x].getTask()==tasks[task]){
             for(int resource = 0; resource < NUMRESOURCES; resource++){
-              if(taskCosts[task][resource]>0){
+              if(taskCosts[task][resource]>0){ //<>//
                 productivity = min(productivity, resourceAmountsAvailable[resource]);
               }
             }
@@ -763,7 +763,7 @@ class Game extends State{
     }
     return production;
   }
-  float[] resourceConsumption(int x, int y){
+  float[] resourceConsumption(int x, int y){ //<>//
     float[] totalResourceRequirements = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     float [] resourceAmountsAvailable = new float[9];
     float [] production = new float[9];
