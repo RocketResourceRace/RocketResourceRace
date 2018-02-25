@@ -40,6 +40,7 @@ class Game extends State{
     "Merge parties.\nThis action will create a single party from two.\nThe new party has no action points this turn.",
     "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a ?% chance of winning this battle.",
     "Move.",
+    "Super Rest adds more units to a party each turn.",
   };
   final float[][] costs = {
     {0, 100, 0, 0},
@@ -117,7 +118,6 @@ class Game extends State{
         if (buildings[cellY][cellX].type==FARM){
           makeTaskAvailable("Farm");
         }
-  final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
         if (buildings[cellY][cellX].type==HOMES){
           makeTaskAvailable("Super Rest");
         }
@@ -128,7 +128,7 @@ class Game extends State{
           makeTaskAvailable("Produce Metal");
         }
         if (buildings[cellY][cellX].type==FACTORY){
-          makeTaskAvailable("Produce");
+          makeTaskAvailable("Produce Nothing");
         }
         if (buildings[cellY][cellX].type==SAWMILL){
           makeTaskAvailable("Produce Wood");
@@ -542,6 +542,7 @@ class Game extends State{
           case "Build Smelter":toolTipSelected = 4;break;
           case "Demolish":toolTipSelected = 8;break;
           case "Rest":toolTipSelected = 9;break;
+          case "Super Rest":toolTipSelected = 13;break;
           default: toolTipSelected = -1;break;
         }
       }
