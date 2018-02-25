@@ -76,11 +76,11 @@ class Game extends State{
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Battle
     {0.5, 0, 0, 0, 0, 0, 0, 0, 0}, // Super Rest
     {0.2, 1, 0, 0, 0, 0, 0, 0, 0}, // Produce Ore
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Metal
+    {0.2, 0, 0, 0, 0, 0, 0, 1, 0}, // Produce Metal
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Concrete
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Cable
+    {0.2, 0, 1, 0, 0, 0, 0, 0, 0}, // Produce Cable
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Wood
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Spaceship Parts
+    {0.2, 0, 1, 0, 0, 0, 0, 0, 0}, // Produce Spaceship Parts
   };
   final float[][] taskOutcomes = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0.01}, // Rest
@@ -97,11 +97,11 @@ class Game extends State{
     {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Battle
     {0, 0, 0, 0, 0, 0, 0, 0, 2}, // Super Rest
     {0, 0, 0, 0, 0, 0, 0, 1, 0}, // Produce Ore
-    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Metal
-    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Concrete
-    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Cable
-    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Wood
-    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Spaceship Parts
+    {0, 0, 0.1, 0, 0, 0, 0, 0, 0}, // Produce Metal
+    {0, 0, 0, 0, 0.1, 0, 0, 0, 0}, // Produce Concrete
+    {0, 0, 0, 0, 0, 0.1, 0, 0, 0}, // Produce Cable
+    {0, 0.1, 0, 0, 0, 0, 0, 0, 0}, // Produce Wood
+    {0, 0, 0, 0, 0, 0, 0.1, 0, 0}, // Produce Spaceship Parts
   };
   final int NUMRESOURCES = 9;
   int turnNumber;
