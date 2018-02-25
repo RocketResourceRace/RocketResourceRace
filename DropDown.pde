@@ -44,6 +44,11 @@ class DropDown extends Element{
     return options.get(availableOptions.get(0));
   }
   void makeAvailable(String option){
+    for (int i=0; i<availableOptions.size(); i++){
+      if (options.get(availableOptions.get(i)).equals(option)){
+        return;
+      }
+    }
     for (int i=0; i<options.size(); i++){
       if (options.get(i).equals(option)){
         this.availableOptions.add(i);
