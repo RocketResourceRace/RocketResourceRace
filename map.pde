@@ -119,10 +119,10 @@ class Map extends Element{
   void resetTargetZoom(){
     zooming = false;
     targetBlockSize = blockSize;
-    setPanningSpeed(0.05); //<>// //<>// //<>//
-  } //<>// //<>// //<>//
-   //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
-  void updateMoveNodes(Node[][] nodes){ //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
+    setPanningSpeed(0.05); //<>// //<>//
+  } //<>// //<>//
+   //<>// //<>// //<>// //<>// //<>// //<>// //<>//
+  void updateMoveNodes(Node[][] nodes){ //<>// //<>// //<>// //<>// //<>// //<>// //<>//
     moveNodes = nodes;
   }
   void updatePath(ArrayList<int[]> nodes){
