@@ -234,10 +234,6 @@ class Map extends Element{
     }
     if (zooming){
       blockSize += (targetBlockSize-blockSize)*panningSpeed*frameTime*60/1000;
-      if (abs(blockSize-targetBlockSize) < 0.001){
-        resetTargetZoom();
-        resetTarget();
-      }
     }
 
     // Resize map based on scale
@@ -246,10 +242,10 @@ class Map extends Element{
     if (panning){
       mapXOffset -= (mapXOffset-targetXOffset)*panningSpeed*frameTime*60/1000;
       mapYOffset -= (mapYOffset-targetYOffset)*panningSpeed*frameTime*60/1000;
-      if (pow(mapXOffset-targetXOffset, 2) + pow(mapYOffset-targetYOffset, 2) < pow(blockSize*0.5, 2)){
-        resetTarget();
-        resetTargetZoom();
-      }
+    }
+    if (panning && zooming && pow(mapXOffset-targetXOffset, 2) + pow(mapYOffset-targetYOffset, 2) < pow(blockSize*0.5, 2) || abs(blockSize-targetBlockSize) < 0.1){
+      resetTargetZoom();
+      resetTarget();
     }
     mapXOffset -= mapVelocity[0]*frameTime*60/1000;
     mapYOffset -= mapVelocity[1]*frameTime*60/1000;
