@@ -62,7 +62,7 @@ class Game extends State{
     {0, 200, 0, 0, 0, 0, 0, 0, 0},
   };
   final float[][] taskCosts = {
-    {1, 0, 0, 0, 0, 0, 0, 0, 0}, // Rest
+    {0.1, 0, 0, 0, 0, 0, 0, 0, 0}, // Rest
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Farm
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Defend
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Demolish
@@ -139,18 +139,18 @@ class Game extends State{
     turnNumber = 0;
     
     toolTipSelected=-1;
-  } //<>// //<>//
+  } //<>// //<>// //<>//
   void updateCellSelection(){
-    cellSelectionX = round((width-400-bezel*2)*GUIScale)+bezel*2; //<>// //<>//
+    cellSelectionX = round((width-400-bezel*2)*GUIScale)+bezel*2; //<>// //<>// //<>//
     cellSelectionY = bezel*2;
     cellSelectionW = width-cellSelectionX-bezel*2;
     cellSelectionH = round(mapElementHeight*GUIScale);
     getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.3));
     getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.3)+bezel, cellSelectionW, round(cellSelectionH*0.7)-bezel*3);
   }
-   //<>// //<>//
+   //<>// //<>// //<>//
   void makeTaskAvailable(String task){
-    ((DropDown)getElement("tasks", "party management")).makeAvailable(task); //<>// //<>//
+    ((DropDown)getElement("tasks", "party management")).makeAvailable(task); //<>// //<>// //<>//
   }
   void resetAvailableTasks(){
     ((DropDown)getElement("tasks", "party management")).resetAvailable();
@@ -158,8 +158,8 @@ class Game extends State{
   //tasks building
   //settings
   
-  void checkTasks(){ //<>// //<>//
-    resetAvailableTasks(); //<>// //<>//
+  void checkTasks(){ //<>// //<>// //<>//
+    resetAvailableTasks(); //<>// //<>// //<>//
     if(parties[cellY][cellX].player==2){
       makeTaskAvailable("Battle");
     } else {
@@ -187,7 +187,7 @@ class Game extends State{
         if (buildings[cellY][cellX].type==SAWMILL){
           makeTaskAvailable("Produce Wood");
         }
-        if (buildings[cellY][cellX].type==BIG_FACTORY){ //<>// //<>//
+        if (buildings[cellY][cellX].type==BIG_FACTORY){ //<>// //<>// //<>//
           makeTaskAvailable("Produce Spaceship Parts");
         }
         makeTaskAvailable("Demolish");
@@ -724,7 +724,7 @@ class Game extends State{
         partyManagementColour = color(0, 0, 150);
         getPanel("party management").setColour(color(70, 70, 220));
       }
-      checkTasks(); //<>// //<>//
+      checkTasks(); //<>// //<>// //<>//
     }
   }
   float[] resourceProduction(int x, int y){
@@ -752,7 +752,7 @@ class Game extends State{
         }
         for (int task=0; task<tasks.length;task++){
           if(map.parties[y][x].getTask()==tasks[task]){
-            for(int resource = 0; resource < NUMRESOURCES; resource++){ //<>// //<>//
+            for(int resource = 0; resource < NUMRESOURCES; resource++){ //<>// //<>// //<>//
               if(resource<NUMRESOURCES-1){
                 production[resource] = (taskOutcomes[task][resource])*productivity*map.parties[y][x].getUnitNumber();
               }
@@ -771,7 +771,7 @@ class Game extends State{
       if(totalResourceRequirements[i]==0){
         resourceAmountsAvailable[i] = 1;
       } else{
-       resourceAmountsAvailable[i] = min(1, players[turn].resources[i]/totalResourceRequirements[i]); //<>// //<>//
+       resourceAmountsAvailable[i] = min(1, players[turn].resources[i]/totalResourceRequirements[i]); //<>// //<>// //<>//
       }
     }
     if (map.parties[y][x] != null){
