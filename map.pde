@@ -214,7 +214,10 @@ class Map extends Element{
     return new ArrayList<String>();
   }
 
-
+  void setWidth(int w){
+    this.elementWidth = w;
+  }
+  
   void draw(){
 
     // Terrain

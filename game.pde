@@ -1,10 +1,10 @@
 
 class Game extends State{
-  final int mapElementWidth = (int) (width*0.6);
-  final int mapElementHeight = (int) (height*0.7);
   final int buttonW = 120;
   final int buttonH = 50;
-  final int bezel = 20;
+  final int bezel = 10;
+  final int mapElementWidth = round(width-bezel*2);
+  final int mapElementHeight = round(height-bezel*4-buttonH);
   final int[] terrainCosts = new int[]{32, 24, 16, 12, 8, 12, 28};
   final int MOVEMENTPOINTS = 64;
   final int DEFENDCOST = 32;
@@ -130,7 +130,7 @@ class Game extends State{
     addPanel("land management", 0, 0, width, height, false, color(50, 200, 50), color(0));
     addPanel("party management", 0, 0, width, height, false, color(70, 70, 220), color(0));
     //int x, int y, int w, int h, color bgColour, color strokeColour, color textColour, int textSize, int textAlign, String text
-    addElement("move button", new Button(bezel, bezel*2, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
+    addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
     //int x, int y, int w, int h, color KnobColour, color bgColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name
     addElement("split units", new Slider(bezel+10, bezel*3+30, 200, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
     addElement("split button", new Button(bezel*2+220, bezel*3+30, 100, 30, color(150), color(50), color(0), 10, CENTER, "Split"), "party management");
@@ -140,12 +140,12 @@ class Game extends State{
     toolTipSelected=-1;
   }
   void updateCellSelection(){ //<>//
-    cellSelectionX = round(mapElementWidth*GUIScale)+bezel*2;
-    cellSelectionY = bezel; //<>//
-    cellSelectionW = width-cellSelectionX-bezel;
+    cellSelectionX = round((width-400-bezel*2)*GUIScale)+bezel*2;
+    cellSelectionY = bezel*2; //<>//
+    cellSelectionW = width-cellSelectionX-bezel*2;
     cellSelectionH = round(mapElementHeight*GUIScale);
     getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.3));
-    getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.3)+bezel, cellSelectionW, round(cellSelectionH*0.7)-bezel);
+    getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.3)+bezel, cellSelectionW, round(cellSelectionH*0.7)-bezel*3);
   }
   
   void makeTaskAvailable(String task){ //<>//
@@ -533,6 +533,7 @@ class Game extends State{
     getPanel("party management").setVisible(false);
     map.cancelMoveNodes();
     moving = false;
+    map.setWidth(round(width-bezel*2));
   }
   
   void moveParty(int px, int py){
@@ -692,6 +693,7 @@ class Game extends State{
     cellY = floor(map.scaleYInv(y));
     cellSelected = true;
     map.selectCell(cellX, cellY);
+    map.setWidth(round(width-bezel*2-400));
     getPanel("land management").setVisible(true);
     if (parties[cellY][cellX] != null && parties[cellY][cellX].isTurn(turn)){
       if (parties[cellY][cellX].getTask() != "Battle"){
@@ -714,9 +716,9 @@ class Game extends State{
         getPanel("party management").setColour(color(70, 70, 220));
       }
       checkTasks();
-    }
+    } //<>//
   }
-  void drawPartyManagement(){ //<>//
+  void drawPartyManagement(){
     Panel pp = getPanel("party management");
     pushStyle();
     fill(partyManagementColour);
@@ -742,9 +744,9 @@ class Game extends State{
   void drawCellManagement(){
     pushStyle();
     fill(0, 150, 0);
-    rect(cellSelectionX, cellSelectionY, cellSelectionW, 13*TextScale);
+    rect(cellSelectionX, cellSelectionY, cellSelectionW, 13*TextScale); //<>//
     fill(255);
-    textSize(10*TextScale); //<>//
+    textSize(10*TextScale);
     textAlign(CENTER, TOP);
     text("Land Management", cellSelectionX+cellSelectionW/2, cellSelectionY);
     
@@ -761,9 +763,9 @@ class Game extends State{
     }
   }
   
-  void drawBar(){
+  void drawBar(){ //<>//
     float barX=buttonW+bezel*2;
-    fill(200); //<>//
+    fill(200);
     stroke(170);
     rect(0, height-bezel*2-buttonH, width, buttonH+bezel*2);
     textSize(10*TextScale);
