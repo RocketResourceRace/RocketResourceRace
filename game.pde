@@ -349,6 +349,9 @@ class Game extends State{
                 }
               }
             }
+            if(map.parties[y][x].getUnitNumber()==0){
+              map.parties[y][x] = null;
+            }
           }
         }
       }
