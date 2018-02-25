@@ -37,7 +37,7 @@ class Game extends State{
   final String attackToolTipRaw = "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a /p% chance of winning this battle.";
   final String turnsToolTipRaw = "Move /i Turns";
   String[] tooltipText = {
-    "Defending improves fighting\neffectiveness against enemy parties\nCosts: 6 movement points.",
+    "Defending improves fighting\neffectiveness against enemy parties\nCosts: 32 movement points.",
     "The farm produces food when worked.\nCosts: 50 wood.\nConsumes: Nothing.\nProduces: 4 food/worker.\nThis takes 3 turns to build.",
     "The mine produces ore when worked.\nCosts: 200 wood.\nConsumes: 1 wood/worker.\nProduces: 1 ore/worker",
     "Homes create new units when worked.\nCosts: 100 wood.\nConsumes: 2 wood.\n",
@@ -61,7 +61,7 @@ class Game extends State{
     {0, 200, 0, 0, 0, 0, 0, 0, 0},
   };
   final float[][] taskCosts = {
-    {0.1, 0, 0, 0, 0, 0, 0, 0, 0}, // Rest
+    {1, 0, 0, 0, 0, 0, 0, 0, 0}, // Rest
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Farm
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Defend
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Demolish
@@ -344,7 +344,7 @@ class Game extends State{
                   } else if(resourceAmountsAvailable[0]<1){
                     map.parties[y][x].setUnitNumber(ceil(map.parties[y][x].getUnitNumber()-(1-resourceAmountsAvailable[0])*taskOutcomes[task][resource]*map.parties[y][x].getUnitNumber()));
                   } else{
-                    map.parties[y][x].setUnitNumber(ceil((float)(map.parties[y][x].getUnitNumber()+taskOutcomes[task][resource])*(float)map.parties[y][x].getUnitNumber()));
+                    map.parties[y][x].setUnitNumber(ceil(map.parties[y][x].getUnitNumber()+taskOutcomes[task][resource]*(float)map.parties[y][x].getUnitNumber()));
                   }
                 }
               }
@@ -797,28 +797,40 @@ class Game extends State{
     barX=width;
     tempString = "energy:"+players[turn].resources[3];
     barX -= textWidth(tempString)+10+bezel;
-    fill(150);
+    if (players[turn].resources[3]>0)
+      fill(150);
+    else
+      fill(255,0,0);
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
     
     tempString = "metal:"+players[turn].resources[2];
     barX -= textWidth(tempString)+10+bezel;
-    fill(150);
+    if (players[turn].resources[2]>0)
+      fill(150);
+    else
+      fill(255,0,0);
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
     
     tempString = "wood:"+players[turn].resources[1];
     barX -= textWidth(tempString)+10+bezel;
-    fill(150);
+    if (players[turn].resources[1]>0)
+      fill(150);
+    else
+      fill(255,0,0);
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
      
     tempString = "food:"+players[turn].resources[0];
     barX -= textWidth(tempString)+10+bezel;
-    fill(150);
+    if (players[turn].resources[0]>0)
+      fill(150);
+    else
+      fill(255,0,0);
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
