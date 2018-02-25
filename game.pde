@@ -822,7 +822,7 @@ class Game extends State{
           if(map.parties[y][x].getTask()==tasks[task]){
             for(int resource = 0; resource < NUMRESOURCES; resource++){
               if(resource<NUMRESOURCES-1){
-                production[resource] = (taskOutcomes[task][resource])*productivity*map.parties[y][x].getUnitNumber();
+                production[resource] = (taskCosts[task][resource])*productivity*map.parties[y][x].getUnitNumber();
               }
             }
           }
@@ -853,14 +853,19 @@ class Game extends State{
     }
   }
   
-  //String resourcesList(float[] resources){
-  //  ArrayList<Object[]> names = new ArrayList<Object[]>();
-  //  for (int i=0; i<NUMRESOURCES;i++){
-  //    if (resources[i]>0){
-  //      names.add(new Object[]{resourceNames[i], resources[i]});
-  //    }
-  //  }
-  //}
+  String resourcesList(float[] resources){
+    String returnString = "";
+    boolean notNothing = false;
+    for (int i=0; i<NUMRESOURCES;i++){
+      if (resources[i]>0){
+        returnString += resources[i]+ " " +resourceNames[i]+ ", "; 
+        notNothing = true;
+      }
+    }
+    if (!notNothing)
+      returnString += "Nothing/Unknown";
+    return returnString;
+  }
   
   void drawCellManagement(){
     pushStyle();
@@ -883,6 +888,12 @@ class Game extends State{
       barY += 13*TextScale;
     }
     float[] production = resourceProduction(cellX, cellY);
+    float[] consumption = resourceConsumption(cellX, cellY);
+    text("Producing: "+resourcesList(production), 5+cellSelectionX, barY);
+    barY += 13*TextScale;
+    fill(255,0,0);
+    text("Consuming: "+resourcesList(consumption), 5+cellSelectionX, barY);
+    barY += 13*TextScale;
   }
   
   void drawBar(){
