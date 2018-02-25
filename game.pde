@@ -618,7 +618,7 @@ class Game extends State{
       }
       else{
         if (i > 0)
-          map.parties[py][px].path = new ArrayList(path.subList(i-1, path.size()));
+          map.parties[py][px].path = new ArrayList(path.subList(i, path.size()));
         else
           map.parties[py][px].path = null;
         break;
