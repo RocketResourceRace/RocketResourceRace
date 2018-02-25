@@ -84,7 +84,7 @@ class Party{
     return unitNumber;
   }
   void setUnitNumber(int newUnitNumber){
-    unitNumber = max(0, newUnitNumber);
+    unitNumber = (int)between(0, newUnitNumber, 1000);
   }
   Party clone(){
     Party newParty = new Party(player, unitNumber, task, movementPoints);

@@ -3,7 +3,7 @@ class Player{
   float mapXOffset, mapYOffset, blockSize;
   float wood, food, energy, metal;
   float[] resources;
-  // Resources: food wood metal energy
+  // Resources: food wood metal energy concrete cable spaceship_parts ore people
   Player(float mapXOffset, float mapYOffset, float blockSize, float[] resources){
     this.mapXOffset = mapXOffset;
     this.mapYOffset = mapYOffset;

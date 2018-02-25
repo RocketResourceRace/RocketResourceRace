@@ -8,7 +8,7 @@ class Game extends State{
   final int[] terrainCosts = new int[]{32, 24, 16, 12, 8, 12, 28};
   final int MOVEMENTPOINTS = 64;
   final int DEFENDCOST = 32;
-  final float [] STARTINGRESOURCES = new float[]{500, 300, 0, 0};
+  final float [] STARTINGRESOURCES = new float[]{500, 300, 0, 0, 0, 0, 0, 0, 0};
   final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Build Homes", "Build Factory", "Build Mine", "Build Smelter", "Clear Forest", "Battle", "Super Rest", "Produce Ore", "Produce Metal", "Produce Concrete", "Produce Cable", "Produce Wood", "Produce Spacehip Parts"};
   final String[] landTypes = {"Water", "Sand", "Grass", "Forest", "Hills"};
   final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
@@ -24,12 +24,22 @@ class Game extends State{
   final int FACTORY = 5;
   final int SAWMILL = 6;
   final int BIG_FACTORY = 6;
+  final int FOOD = 0;
+  final int WOOD = 1;
+  final int METAL = 2;
+  final int ENERGY = 3;
+  final int CONCRETE = 4;
+  final int CABLE = 5;
+  final int SPACESHIP_PARTS = 6;
+  final int ORE = 7;
+  final int PEOPLE = 8;
+  
   final String attackToolTipRaw = "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a /p% chance of winning this battle.";
   final String turnsToolTipRaw = "Move /i Turns";
   String[] tooltipText = {
     "Defending improves fighting\neffectiveness against enemy parties\nCosts: 6 movement points.",
-    "The farm produces food when worked.\nCosts: 50 wood.\nConsumes: Nothing.\nProduces: 1 food/worker.\nThis takes 3 turns to build.",
-    "The mine produces ore when worked.\nCosts: 200 wood.\nConsumes: 10 wood.\nProduces: 1 ore/worker",
+    "The farm produces food when worked.\nCosts: 50 wood.\nConsumes: Nothing.\nProduces: 4 food/worker.\nThis takes 3 turns to build.",
+    "The mine produces ore when worked.\nCosts: 200 wood.\nConsumes: 1 wood/worker.\nProduces: 1 ore/worker",
     "Homes create new units when worked.\nCosts: 100 wood.\nConsumes: 2 wood.\n",
     "The smelter produces metal when worked.\nCosts: 200 wood.\nConsumes: 10 wood.\nProduces: 0.1 iron/worker",
     "The factory produces parts when worked.\nCosts: 200 wood.\nConsumes: 10 wood",
@@ -42,15 +52,57 @@ class Game extends State{
     "Move.",
     "Super Rest adds more units to a party each turn.",
   };
-  final float[][] costs = {
-    {0, 100, 0, 0},
-    {0, 50, 0, 0},
-    {0, 200, 0, 0},
-    {0, 0, 0, 0},
-    {0, 200, 0, 0},
-    {0, 200, 0, 0},
+  final float[][] buildingCosts = {
+    {0, 100, 0, 0, 0, 0, 0, 0, 0},
+    {0, 50, 0, 0, 0, 0, 0, 0, 0},
+    {0, 200, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 200, 0, 0, 0, 0, 0, 0, 0},
+    {0, 200, 0, 0, 0, 0, 0, 0, 0},
   };
-  final int NUMRESOURCES = 4;
+  final float[][] taskCosts = {
+    {1, 0, 0, 0, 0, 0, 0, 0, 0}, // Rest
+    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Farm
+    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Defend
+    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Demolish
+    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Farm
+    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Sawmill
+    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Homes
+    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Factory
+    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Mine
+    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Smelter
+    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Clear Forest
+    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Battle
+    {5, 0, 0, 0, 0, 0, 0, 0, 0}, // Super Rest
+    {2, 1, 0, 0, 0, 0, 0, 0, 0}, // Produce Ore
+    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Metal
+    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Concrete
+    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Cable
+    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Wood
+    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Spaceship Parts
+  };
+  final float[][] taskOutcomes = {
+    {0, 0, 0, 0, 0, 0, 0, 0, 1}, // Rest
+    {4, 0, 0, 0, 0, 0, 0, 0, 0}, // Farm
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Defend
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Demolish
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Farm
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Sawmill
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Homes
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Factory
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Mine
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Smelter
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Clear Forest
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Battle
+    {0, 0, 0, 0, 0, 0, 0, 0, 2}, // Super Rest
+    {0, 0, 0, 0, 0, 0, 0, 1, 0}, // Produce Ore
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Metal
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Concrete
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Cable
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Wood
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Spaceship Parts
+  };
+  final int NUMRESOURCES = 9;
   int turnNumber;
   int mapHeight = mapSize;
   int mapWidth = mapSize;
@@ -206,10 +258,18 @@ class Game extends State{
   }
   
   void turnChange(){
-    for (int y=0; y<mapHeight; y++){ //<>//
+    float[] totalResourceRequirements = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    for (int y=0; y<mapHeight; y++){
       for (int x=0; x<mapWidth; x++){
         if (map.parties[y][x] != null){
           if (map.parties[y][x].player == turn){
+            for (int i=0; i<tasks.length;i++){
+              if(map.parties[y][x].getTask()==tasks[i]){
+                for(int resource = 0; resource < NUMRESOURCES; resource++){
+                  totalResourceRequirements[resource]+=taskCosts[i][resource]*map.parties[y][x].getUnitNumber();
+                }
+              }
+            }
             String action = map.parties[y][x].progressAction();
             switch (action){
               //-1 building types
@@ -235,11 +295,10 @@ class Game extends State{
                 map.buildings[y][x] = new Building(SMELTER);
                 break;
               case "Demolish":
-                reclaimRes(players[turn], costs[5]);
+                reclaimRes(players[turn], buildingCosts[5]);
                 map.buildings[y][x] = null;
                 break;
             }
-            
             if (action != ""){
               map.parties[y][x].clearCurrentAction();
               map.parties[y][x].changeTask("Rest");
@@ -249,6 +308,46 @@ class Game extends State{
           else {
             if(map.parties[y][x].player==2){
               map.parties[y][x] = ((Battle)map.parties[y][x]).doBattle();
+            }
+          }
+        }
+      }
+    }
+    float [] resourceAmountsAvailable = new float[9];
+    for(int i=0; i<NUMRESOURCES;i++){
+      if(totalResourceRequirements[i]==0){
+        resourceAmountsAvailable[i] = 1;
+      } else{
+       resourceAmountsAvailable[i] = min(1, players[turn].resources[i]/totalResourceRequirements[i]);
+      }
+    }
+    
+    for (int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        if (map.parties[y][x] != null){
+          if (map.parties[y][x].player == turn){
+            float productivity = 1;
+            for (int task=0; task<tasks.length;task++){
+              if(map.parties[y][x].getTask()==tasks[task]){
+                for(int resource = 0; resource < NUMRESOURCES; resource++){
+                  if(taskCosts[task][resource]>0){
+                    productivity = min(productivity, resourceAmountsAvailable[resource]);
+                  }
+                }
+              }
+            }
+            for (int task=0; task<tasks.length;task++){
+              if(map.parties[y][x].getTask()==tasks[task]){
+                for(int resource = 0; resource < NUMRESOURCES; resource++){
+                  if(resource<NUMRESOURCES-1){
+                    players[turn].resources[resource] += (taskOutcomes[task][resource]-taskCosts[task][resource])*productivity*map.parties[y][x].getUnitNumber();
+                  } else if(resourceAmountsAvailable[0]<1){
+                    map.parties[y][x].setUnitNumber(ceil(map.parties[y][x].getUnitNumber()-(1-resourceAmountsAvailable[0])*taskOutcomes[task][resource]*map.parties[y][x].getUnitNumber()));
+                  } else{
+                    map.parties[y][x].setUnitNumber(ceil((map.parties[y][x].getUnitNumber()+taskOutcomes[task][resource])*map.parties[y][x].getUnitNumber()));
+                  }
+                }
+              }
             }
           }
         }
@@ -357,7 +456,7 @@ class Game extends State{
             parties[cellY][cellX].movementPoints -= DEFENDCOST;
           }
           else if (parties[cellY][cellX].getTask() == "Demolish"){
-            if (sufficientResources(players[turn].resources, costs[buildings[cellY][cellX].type])){
+            if (sufficientResources(players[turn].resources, buildingCosts[buildings[cellY][cellX].type])){
               parties[cellY][cellX].addAction(new Action("Demolish", 2));
             }
           }
@@ -365,44 +464,44 @@ class Game extends State{
             parties[cellY][cellX].addAction(new Action("Clear Forest", 3));
           }
           else if (parties[cellY][cellX].getTask() == "Build Farm"){
-            if (sufficientResources(players[turn].resources, costs[1])){
+            if (sufficientResources(players[turn].resources, buildingCosts[1])){
               parties[cellY][cellX].addAction(new Action("Build Farm", 3));
-              spendRes(players[turn], costs[1]);
+              spendRes(players[turn], buildingCosts[1]);
               buildings[cellY][cellX] = new Building(0);
             }
           }
           else if (parties[cellY][cellX].getTask() == "Build Sawmill"){
-            if (sufficientResources(players[turn].resources, costs[5])){
+            if (sufficientResources(players[turn].resources, buildingCosts[5])){
               parties[cellY][cellX].addAction(new Action("Build Sawmill", 5));
-              spendRes(players[turn], costs[5]);
+              spendRes(players[turn], buildingCosts[5]);
               buildings[cellY][cellX] = new Building(0);
             }
           }
           else if (parties[cellY][cellX].getTask() == "Build Homes"){
-            if (sufficientResources(players[turn].resources, costs[0])){
+            if (sufficientResources(players[turn].resources, buildingCosts[0])){
               parties[cellY][cellX].addAction(new Action("Build Homes", 3));
-              spendRes(players[turn], costs[0]);
+              spendRes(players[turn], buildingCosts[0]);
               buildings[cellY][cellX] = new Building(0);
             }
           }
           else if (parties[cellY][cellX].getTask() == "Build Factory"){
-            if (sufficientResources(players[turn].resources, costs[4])){
+            if (sufficientResources(players[turn].resources, buildingCosts[4])){
               parties[cellY][cellX].addAction(new Action("Build Factory", 6));
-              spendRes(players[turn], costs[4]);
+              spendRes(players[turn], buildingCosts[4]);
               buildings[cellY][cellX] = new Building(0);
             }
           }
           else if (parties[cellY][cellX].getTask() == "Build Mine"){
-            if (sufficientResources(players[turn].resources, costs[2])){
+            if (sufficientResources(players[turn].resources, buildingCosts[2])){
               parties[cellY][cellX].addAction(new Action("Build Mine", 5));
-              spendRes(players[turn], costs[2]);
+              spendRes(players[turn], buildingCosts[2]);
               buildings[cellY][cellX] = new Building(0);
             }
           }
           else if (parties[cellY][cellX].getTask() == "Build Smelter"){
-            if (sufficientResources(players[turn].resources, costs[3])){
+            if (sufficientResources(players[turn].resources, buildingCosts[3])){
               parties[cellY][cellX].addAction(new Action("Build Smelter", 6));
-              spendRes(players[turn], costs[3]);
+              spendRes(players[turn], buildingCosts[3]);
               buildings[cellY][cellX] = new Building(0);
             }
           }
