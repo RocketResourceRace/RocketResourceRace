@@ -56,7 +56,7 @@ void createFile(){
   changeSetting("text_scale", "1.6");
   changeSetting("volume", "0.5");
   changeSetting("mapSize", "100");
-  changeSetting("sound", "1.0");
+  changeSetting("sound", "1");
   changeSetting("water level", "");
   changeSetting("smoothing", "8");
   changeSetting("ground spawns", "");

@@ -61,29 +61,29 @@ class Game extends State{
     {0, 200, 0, 0, 0, 0, 0, 0, 0},
   };
   final float[][] taskCosts = {
-    {1, 0, 0, 0, 0, 0, 0, 0, 0}, // Rest
-    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Farm
-    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Defend
-    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Demolish
-    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Farm
-    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Sawmill
-    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Homes
-    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Factory
-    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Mine
-    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Smelter
-    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Clear Forest
-    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Battle
-    {5, 0, 0, 0, 0, 0, 0, 0, 0}, // Super Rest
-    {2, 1, 0, 0, 0, 0, 0, 0, 0}, // Produce Ore
-    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Metal
-    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Concrete
-    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Cable
-    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Wood
-    {2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Spaceship Parts
+    {0.1, 0, 0, 0, 0, 0, 0, 0, 0}, // Rest
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Farm
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Defend
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Demolish
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Farm
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Sawmill
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Homes
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Factory
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Mine
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Smelter
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Clear Forest
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Battle
+    {0.5, 0, 0, 0, 0, 0, 0, 0, 0}, // Super Rest
+    {0.2, 1, 0, 0, 0, 0, 0, 0, 0}, // Produce Ore
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Metal
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Concrete
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Cable
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Wood
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Spaceship Parts
   };
   final float[][] taskOutcomes = {
-    {0, 0, 0, 0, 0, 0, 0, 0, 1}, // Rest
-    {4, 0, 0, 0, 0, 0, 0, 0, 0}, // Farm
+    {0, 0, 0, 0, 0, 0, 0, 0, 0.01}, // Rest
+    {0.4, 0, 0, 0, 0, 0, 0, 0, 0}, // Farm
     {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Defend
     {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Demolish
     {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Farm
@@ -139,18 +139,18 @@ class Game extends State{
     
     toolTipSelected=-1;
   }
-  void updateCellSelection(){
+  void updateCellSelection(){ //<>//
     cellSelectionX = round(mapElementWidth*GUIScale)+bezel*2;
-    cellSelectionY = bezel;
+    cellSelectionY = bezel; //<>//
     cellSelectionW = width-cellSelectionX-bezel;
     cellSelectionH = round(mapElementHeight*GUIScale);
     getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.3));
     getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.3)+bezel, cellSelectionW, round(cellSelectionH*0.7)-bezel);
   }
   
-  void makeTaskAvailable(String task){
+  void makeTaskAvailable(String task){ //<>//
     ((DropDown)getElement("tasks", "party management")).makeAvailable(task);
-  }
+  } //<>//
   void resetAvailableTasks(){
     ((DropDown)getElement("tasks", "party management")).resetAvailable();
   }
@@ -158,8 +158,8 @@ class Game extends State{
   //settings
   
   void checkTasks(){
-    resetAvailableTasks();
-    if(parties[cellY][cellX].player==2){
+    resetAvailableTasks(); //<>//
+    if(parties[cellY][cellX].player==2){ //<>//
       makeTaskAvailable("Battle");
     } else {
       makeTaskAvailable("Rest");
@@ -187,7 +187,7 @@ class Game extends State{
           makeTaskAvailable("Produce Wood");
         }
         if (buildings[cellY][cellX].type==BIG_FACTORY){
-          makeTaskAvailable("Produce Spaceship Parts");
+          makeTaskAvailable("Produce Spaceship Parts"); //<>//
         }
         makeTaskAvailable("Demolish");
       }
@@ -344,7 +344,7 @@ class Game extends State{
                   } else if(resourceAmountsAvailable[0]<1){
                     map.parties[y][x].setUnitNumber(ceil(map.parties[y][x].getUnitNumber()-(1-resourceAmountsAvailable[0])*taskOutcomes[task][resource]*map.parties[y][x].getUnitNumber()));
                   } else{
-                    map.parties[y][x].setUnitNumber(ceil((map.parties[y][x].getUnitNumber()+taskOutcomes[task][resource])*map.parties[y][x].getUnitNumber()));
+                    map.parties[y][x].setUnitNumber(ceil((float)(map.parties[y][x].getUnitNumber()+taskOutcomes[task][resource])*(float)map.parties[y][x].getUnitNumber()));
                   }
                 }
               }
@@ -716,7 +716,7 @@ class Game extends State{
       checkTasks();
     }
   }
-  void drawPartyManagement(){
+  void drawPartyManagement(){ //<>//
     Panel pp = getPanel("party management");
     pushStyle();
     fill(partyManagementColour);
@@ -744,7 +744,7 @@ class Game extends State{
     fill(0, 150, 0);
     rect(cellSelectionX, cellSelectionY, cellSelectionW, 13*TextScale);
     fill(255);
-    textSize(10*TextScale);
+    textSize(10*TextScale); //<>//
     textAlign(CENTER, TOP);
     text("Land Management", cellSelectionX+cellSelectionW/2, cellSelectionY);
     
@@ -763,7 +763,7 @@ class Game extends State{
   
   void drawBar(){
     float barX=buttonW+bezel*2;
-    fill(200);
+    fill(200); //<>//
     stroke(170);
     rect(0, height-bezel*2-buttonH, width, buttonH+bezel*2);
     textSize(10*TextScale);
