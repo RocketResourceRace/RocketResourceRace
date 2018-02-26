@@ -38,20 +38,21 @@ class Game extends State{
   final String turnsToolTipRaw = "Move /i Turns";
   String[] tooltipText = {
     "Defending improves fighting\neffectiveness against enemy parties\nCosts: 32 movement points.",
-    "The farm produces food when worked.\nCosts: 50 wood.\nConsumes: Nothing.\nProduces: 4 food/worker.\nThis takes 3 turns to build.",
-    "The mine produces ore when worked.\nCosts: 200 wood.\nConsumes: 1 wood/worker.\nProduces: 1 ore/worker",
-    "Homes create new units when worked.\nCosts: 100 wood.\nConsumes: 2 wood.\n",
-    "The smelter produces metal when worked.\nCosts: 200 wood.\nConsumes: 10 wood.\nProduces: 0.1 iron/worker",
-    "The factory produces parts when worked.\nCosts: 200 wood.\nConsumes: 10 wood",
-    "The sawmill produces wood when worked.\nCosts: 200 wood.\nConsumes: 10 wood\nProduces: 0.5 wood/worker\nThis takes 5 turns to build.",
-    "Clearing a forest adds 100 wood to stockpile.\nThe tile is turned to grassland\nThis takes 3 turns.",
-    "Demolishing destroys the building on this tile.\nThis takes 2 turns.",
+    "The farm produces food when worked.\nCosts: 50 wood.\nConsumes: Nothing.\nProduces: 4 food/worker.\nThis takes 100 units 2 turns to build.",
+    "The mine produces ore when worked.\nCosts: 200 wood.\nConsumes: 1 wood/worker.\nProduces: 1 ore/worker.\nThis takes 100 units 5 turns to build.",
+    "Homes create new units when worked.\nCosts: 100 wood.\nConsumes: 2 wood.\nThis takes 100 units 3 turns to build.",
+    "The smelter produces metal when worked.\nCosts: 200 wood.\nConsumes: 10 wood.\nProduces: 0.1 iron/worker.\nThis takes 100 units 8 turns to build.",
+    "The factory produces parts when worked.\nCosts: 200 wood.\nConsumes: 10 wood.\nThis takes 100 units 8 turns to build.",
+    "The sawmill produces wood when worked.\nCosts: 200 wood.\nConsumes: 10 wood\nProduces: 0.5 wood/worker\nThis takes 100 units 4 turns to build.",
+    "Clearing a forest adds 100 wood to stockpile.\nThe tile is turned to grassland\nThis takes 3 turns for 100 units.",
+    "Demolishing destroys the building on this tile.\nThis takes 2 turns for 100 units.",
     "While a unit is at rest it can move and attack.",
     "Merge parties.\nThis action will create a single party from two.\nThe new party has no action points this turn.",
     "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a ?% chance of winning this battle.",
     "Move.",
     "Super Rest adds more units to a party each turn.",
   };
+  final float[] buildingTimes = {3, 2, 5, 8, 8, 4, 12};
   final String[] resourceNames = {"Food", "Wood", "Metal", "Energy", "", "", "", "", "Units"};
   final float[][] buildingCosts = {
     {0, 100, 0, 0, 0, 0, 0, 0, 0},
@@ -122,6 +123,7 @@ class Game extends State{
   Game(){
     addElement("map", new Map(bezel, bezel, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
     addElement("end turn", new Button(bezel, height-buttonH-bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"));
+    addElement("idle party finder", new Button(bezel*2+buttonW, height-buttonH-bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Idle Party"));
     map = (Map)getElement("map", "default");
     players = new Player[2];
     
@@ -134,7 +136,7 @@ class Game extends State{
     addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
     //int x, int y, int w, int h, color KnobColour, color bgColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name
     addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
-    addElement("split button", new Button(bezel*2+220, bezel*3+30, 100, 30, color(150), color(50), color(0), 10, CENTER, "Split"), "party management");
+    addElement("split button", new Button(bezel*2+240, bezel*3+30, 100, 30, color(150), color(50), color(0), 10, CENTER, "Split"), "party management");
     addElement("tasks", new DropDown(bezel, bezel*4+30+30, 200, 10, color(150), color(50), tasks), "party management");
     turnNumber = 0;
     toolTipSelected=-1;
@@ -492,12 +494,12 @@ class Game extends State{
           }
           else if (parties[cellY][cellX].getTask() == "Clear Forest"){
             parties[cellY][cellX].clearActions();
-            parties[cellY][cellX].addAction(new Action("Clear Forest", 3));
+            parties[cellY][cellX].addAction(new Action("Clear Forest", buildingTimes[FOREST]));
           }
           else if (parties[cellY][cellX].getTask() == "Build Farm"){
             if (sufficientResources(players[turn].resources, buildingCosts[1])){
               parties[cellY][cellX].clearActions();
-              parties[cellY][cellX].addAction(new Action("Build Farm", 3));
+              parties[cellY][cellX].addAction(new Action("Build Farm", buildingTimes[FARM]));
               spendRes(players[turn], buildingCosts[1]);
               buildings[cellY][cellX] = new Building(0);
             }
@@ -505,7 +507,7 @@ class Game extends State{
           else if (parties[cellY][cellX].getTask() == "Build Sawmill"){
             if (sufficientResources(players[turn].resources, buildingCosts[5])){
               parties[cellY][cellX].clearActions();
-              parties[cellY][cellX].addAction(new Action("Build Sawmill", 5));
+              parties[cellY][cellX].addAction(new Action("Build Sawmill", buildingTimes[SAWMILL]));
               spendRes(players[turn], buildingCosts[5]);
               buildings[cellY][cellX] = new Building(0);
             }
@@ -513,7 +515,7 @@ class Game extends State{
           else if (parties[cellY][cellX].getTask() == "Build Homes"){
             if (sufficientResources(players[turn].resources, buildingCosts[0])){
               parties[cellY][cellX].clearActions();
-              parties[cellY][cellX].addAction(new Action("Build Homes", 3));
+              parties[cellY][cellX].addAction(new Action("Build Homes", buildingTimes[HOMES]));
               spendRes(players[turn], buildingCosts[0]);
               buildings[cellY][cellX] = new Building(0);
             }
@@ -521,7 +523,7 @@ class Game extends State{
           else if (parties[cellY][cellX].getTask() == "Build Factory"){
             if (sufficientResources(players[turn].resources, buildingCosts[4])){
               parties[cellY][cellX].clearActions();
-              parties[cellY][cellX].addAction(new Action("Build Factory", 6));
+              parties[cellY][cellX].addAction(new Action("Build Factory", buildingTimes[FACTORY]));
               spendRes(players[turn], buildingCosts[4]);
               buildings[cellY][cellX] = new Building(0);
             }
@@ -529,7 +531,7 @@ class Game extends State{
           else if (parties[cellY][cellX].getTask() == "Build Mine"){
             if (sufficientResources(players[turn].resources, buildingCosts[2])){
               parties[cellY][cellX].clearActions();
-              parties[cellY][cellX].addAction(new Action("Build Mine", 5));
+              parties[cellY][cellX].addAction(new Action("Build Mine", buildingTimes[MINE]));
               spendRes(players[turn], buildingCosts[2]);
               buildings[cellY][cellX] = new Building(0);
             }
@@ -537,7 +539,7 @@ class Game extends State{
           else if (parties[cellY][cellX].getTask() == "Build Smelter"){
             if (sufficientResources(players[turn].resources, buildingCosts[3])){
               parties[cellY][cellX].clearActions();
-              parties[cellY][cellX].addAction(new Action("Build Smelter", 6));
+              parties[cellY][cellX].addAction(new Action("Build Smelter", buildingTimes[SMELTER]));
               spendRes(players[turn], buildingCosts[3]);
               buildings[cellY][cellX] = new Building(0);
             }
@@ -897,7 +899,7 @@ class Game extends State{
   }
   
   void drawBar(){
-    float barX=buttonW+bezel*2;
+    float barX=buttonW*2+bezel*3;
     fill(200);
     stroke(170);
     rect(0, height-bezel*2-buttonH, width, buttonH+bezel*2);
@@ -913,10 +915,10 @@ class Game extends State{
     }
     stroke(50);
     rect(barX, height-bezel-buttonH, textWidth(turnString)+10, buttonH);
-    barX += textWidth(turnString)+10+bezel;
     fill(255);
     textAlign(CENTER, TOP);
-    text(turnString, bezel*2+buttonW+(textWidth(turnString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
+    text(turnString, barX+(textWidth(turnString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
+    barX += textWidth(turnString)+10+bezel;
     
     turnString = "Turn: "+turnNumber;
     fill(150);
