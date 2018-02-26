@@ -1,8 +1,8 @@
 
 class Action{
-  int turns, initialTurns;
+  float turns, initialTurns;
   String type;
-  Action(String type, int turns){
+  Action(String type, float turns){
     this.type = type;
     this.turns = turns;
     initialTurns = turns;

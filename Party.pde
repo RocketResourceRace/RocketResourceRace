@@ -49,12 +49,18 @@ class Party{
   boolean hasActions(){
     return actions.size()>0;
   }
+  int turnsLeft(){
+    return ceil(actions.get(0).turns/(sqrt(unitNumber)/10));
+  }
   String progressAction(){
     if (actions.size() == 0){
       return "";
     }
-    if (--actions.get(0).turns <= 0){
+    if (actions.get(0).turns <= 1){
       return actions.get(0).type;
+    }
+    else{
+      actions.get(0).turns -= sqrt((float)unitNumber)/10;
     }
     return "";
   }
