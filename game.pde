@@ -470,7 +470,7 @@ class Game extends State{
           //  String t = parties[cellY][cellX].getTask().substring(6, parties[cellY][cellX].getTask().length());
           //  for (int i=0; i<tasks.length; i++){
           //    if (tasks[i] == t){
-          //      reclaimRes(players[1], );
+          //      reclaimRes(players[1], );and 
           //    }
           //  }
           //}
@@ -579,6 +579,7 @@ class Game extends State{
   
   void moveParty(int px, int py){
     boolean cellFollow = (px==cellX && py==cellY);
+    boolean stillThere = true;
     if (map.parties[py][px].target == null || map.parties[py][px].getMovementPoints() == 0)
       return;
     int tx = map.parties[py][px].target[0];
@@ -606,11 +607,19 @@ class Game extends State{
           if (map.parties[path.get(node)[1]][path.get(node)[0]].player == turn){
             // merge cells
             map.parties[path.get(node)[1]][path.get(node)[0]].unitNumber += map.parties[py][px].unitNumber;
+            if(cellFollow){
+              selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
+              stillThere = false;
+            }
             map.parties[py][px] = null;
             map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(0);
           }
           else{
             map.parties[path.get(node)[1]][path.get(node)[0]] = new Battle(map.parties[py][px], map.parties[path.get(node)[1]][path.get(node)[0]]);
+            if(cellFollow){
+              selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
+              stillThere = false;
+            }
             map.parties[py][px] = null;
             if(map.buildings[path.get(node)[1]][path.get(node)[0]]!=null&&map.buildings[path.get(node)[1]][path.get(node)[0]].type==0){
               map.buildings[path.get(node)[1]][path.get(node)[0]] = null;
@@ -628,7 +637,7 @@ class Game extends State{
       }
     }
     
-    if(cellFollow){
+    if(cellFollow&&stillThere){
       selectCell((int)px, (int)py, false);
     }
   }
