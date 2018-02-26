@@ -52,6 +52,8 @@ class Game extends State{
     "Move.",
     "Super Rest adds more units to a party each turn.",
     "The rate that an action is completed is affected\nby the number of units in a party\n(a square root relationship).\nThe turn time for 100 units is given for tasks.",
+    "A party must be at rest to move",
+    "This splits the number of units selected.\nCan only split when movement points > 0.",
   };
   final float[] buildingTimes = {3, 2, 5, 8, 8, 4, 12};
   final String[] resourceNames = {"Food", "Wood", "Metal", "Energy", "", "", "", "", "Units"};
@@ -490,7 +492,7 @@ class Game extends State{
           selectCell((int)map.scaleX(t[0]+1), (int)map.scaleY(t[1]+1));
           map.targetCell(t[0], t[1], 64);
         }
-        if (event.id == "split button"){
+        if (event.id == "split button" && parties[cellY][cellX].movementPoints>0){
           int[] loc = newPartyLoc();
           int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
           if (loc != null && sliderVal > 0 && parties[cellY][cellX].unitNumber >= 2 && parties[cellY][cellX].getTask() != "Battle"){
@@ -538,7 +540,7 @@ class Game extends State{
           }
           else if (parties[cellY][cellX].getTask() == "Clear Forest"){
             parties[cellY][cellX].clearActions();
-            parties[cellY][cellX].addAction(new Action("Clear Forest", buildingTimes[FOREST]));
+            parties[cellY][cellX].addAction(new Action("Clear Forest", 2));
           }
           else if (parties[cellY][cellX].getTask() == "Build Farm"){
             if (sufficientResources(players[turn].resources, buildingCosts[1])){
@@ -619,6 +621,7 @@ class Game extends State{
     map.cancelMoveNodes();
     moving = false;
     map.setWidth(round(width-bezel*2));
+    ((Text)getElement("turns remaining", "party management")).setText("");
   }
   
   void moveParty(int px, int py){
@@ -747,6 +750,12 @@ class Game extends State{
       }
       else if(((Text)getElement("turns remaining", "party management")).mouseOver()){
         toolTipSelected = 14;
+      }
+      else if(((Button)getElement("move button", "party management")).mouseOver()){
+        toolTipSelected = 15;
+      }
+      else if(((Button)getElement("split button", "party management")).mouseOver()){
+        toolTipSelected = 16;
       }
       else if (moving&&map.mouseOver()){
           Node [][] nodes = map.moveNodes;
