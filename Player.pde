@@ -24,6 +24,8 @@ class Player{
     m.loadSettings(mapXOffset, mapYOffset, blockSize);
     if(cellSelected){
       g.selectCell((int)this.cellX, (int)this.cellY, false);
+    } else {
+      g.deselectCell();
     }
   }
 }

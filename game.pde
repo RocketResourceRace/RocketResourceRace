@@ -373,7 +373,6 @@ class Game extends State{
     partyMovementPointsReset(turn);
     
     players[turn].saveSettings(map.mapXOffset, map.mapYOffset, map.blockSize, cellX, cellY, cellSelected);
-    deselectCell();
     turn = (turn + 1)%2;
     players[turn].loadSettings(this, map);
     changeTurn = false;
@@ -453,7 +452,6 @@ class Game extends State{
           if (loc != null && sliderVal > 0 && parties[cellY][cellX].unitNumber >= 2 && parties[cellY][cellX].getTask() != "Battle"){
             parties[loc[1]][loc[0]] = new Party(turn, sliderVal, "Rest", 0);
             parties[cellY][cellX].unitNumber -= sliderVal;
-            deselectCell();
             selectCell((int)map.scaleX(loc[0]+1), (int)map.scaleY(loc[1]+1));
           }
         }
@@ -630,9 +628,8 @@ class Game extends State{
       }
     }
     
-    deselectCell();
     if(cellFollow){
-      selectCell((int)map.scaleX(px+1), (int)map.scaleY(py+1));
+      selectCell((int)px, (int)py, false);
     }
   }
   int getMoveTurns(int startX, int startY, int targetX, int targetY, Node[][] nodes){
@@ -665,8 +662,6 @@ class Game extends State{
               int y = floor(map.scaleYInv(mouseY));
               parties[cellY][cellX].target = new int[]{x, y};
               moveParty(cellX, cellY);
-              deselectCell();
-              selectCell(mouseX, mouseY);
             }
             else{
               deselectCell();
@@ -747,10 +742,11 @@ class Game extends State{
   }
   
   void selectCell(int x, int y, boolean raw){
+    deselectCell();
     if(raw){
       selectCell(x, y);
     } else {
-    toolTipSelected = -1;
+      toolTipSelected = -1;
       cellX = x;
       cellY = y;
       cellSelected = true;
