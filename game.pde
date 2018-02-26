@@ -133,13 +133,13 @@ class Game extends State{
     players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, STARTINGRESOURCES);
     addPanel("land management", 0, 0, width, height, false, color(50, 200, 50), color(0));
     addPanel("party management", 0, 0, width, height, false, color(70, 70, 220), color(0));
-    addElement("turns remaining", new Text(bezel*2+200, bezel*4+30+30, 8, "", color(255), LEFT), "party management");
+    addElement("turns remaining", new Text(bezel*2+220, bezel*4+30+30, 8, "", color(255), LEFT), "party management");
     //int x, int y, int w, int h, color bgColour, color strokeColour, color textColour, int textSize, int textAlign, String text
     addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
     //int x, int y, int w, int h, color KnobColour, color bgColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name
     addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
     addElement("split button", new Button(bezel*2+240, bezel*3+30, 100, 30, color(150), color(50), color(0), 10, CENTER, "Split"), "party management");
-    addElement("tasks", new DropDown(bezel, bezel*4+30+30, 200, 10, color(150), color(50), tasks), "party management");
+    addElement("tasks", new DropDown(bezel, bezel*4+30+30, 220, 10, color(150), color(50), tasks), "party management");
     turnNumber = 0;
     toolTipSelected=-1;
   }     
@@ -569,6 +569,7 @@ class Game extends State{
     }
   }
   void deselectCell(){
+    toolTipSelected = -1;
     cellSelected = false;
     map.unselectCell();
     getPanel("land management").setVisible(false);
@@ -650,28 +651,31 @@ class Game extends State{
     return turns;
   }
   ArrayList<String> mouseEvent(String eventType, int button){
-    if (button == LEFT){
-      if (eventType == "mouseClicked"){
-        if (moving&&map.mouseOver() && activePanel == "default"){
-          int x = floor(map.scaleXInv(mouseX));
-          int y = floor(map.scaleYInv(mouseY));
-          parties[cellY][cellX].target = new int[]{x, y};
-          moveParty(cellX, cellY);
-        }
-      }
-    }
     if (button == RIGHT){
       if (eventType == "mouseClicked"){
-        if (map.mouseOver()){
-          if (cellSelected){
-            deselectCell();
+        deselectCell();
+      }
+    }
+    if (button == LEFT){
+      if (eventType == "mouseClicked"){
+        if (activePanel == "default" && !getPanel("party management").mouseOver() && !getPanel("land management").mouseOver()){
+          if (map.mouseOver()){
+            if (moving){
+              int x = floor(map.scaleXInv(mouseX));
+              int y = floor(map.scaleYInv(mouseY));
+              parties[cellY][cellX].target = new int[]{x, y};
+              moveParty(cellX, cellY);
+              deselectCell();
+              selectCell(mouseX, mouseY);
+            }
+            else{
+              deselectCell();
+              selectCell(mouseX, mouseY);
+            }
           }
           else{
-            selectCell(mouseX, mouseY);
+            deselectCell();
           }
-        }
-        else{
-          deselectCell();
         }
       }
     }
@@ -746,6 +750,7 @@ class Game extends State{
     if(raw){
       selectCell(x, y);
     } else {
+    toolTipSelected = -1;
       cellX = x;
       cellY = y;
       cellSelected = true;
@@ -761,10 +766,10 @@ class Game extends State{
         }
         getPanel("party management").setVisible(true); 
         if (parties[cellY][cellX].getUnitNumber() <= 1){
-            ((Slider)getElement("split units", "party management")).hide();
-        } 
-        else
-        ((Slider)getElement("split units", "party management")).setScale(1, 1, parties[cellY][cellX].getUnitNumber()-1, 1, parties[cellY][cellX].getUnitNumber()); 
+          ((Slider)getElement("split units", "party management")).hide();
+        } else {
+          ((Slider)getElement("split units", "party management")).setScale(1, 1, parties[cellY][cellX].getUnitNumber()-1, 1, parties[cellY][cellX].getUnitNumber());
+        }
         if (turn == 1){ 
           partyManagementColour = color(170, 30, 30);
           getPanel("party management").setColour(color(220, 70, 70));

@@ -173,10 +173,6 @@ class Map extends Element{
           mapFocused = false;
         }
       }
-      else if (eventType == "mouseClicked"){
-        if (moveNodes == null)
-        focusMapMouse(mouseX, mouseY);
-      }
     }
     return new ArrayList<String>();
   }
