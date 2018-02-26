@@ -23,7 +23,7 @@ class Player{
   void loadSettings(Game g, Map m){
     m.loadSettings(mapXOffset, mapYOffset, blockSize);
     if(cellSelected){
-      g.selectCell((int)m.scaleX(cellX+1), (int)m.scaleY(cellY+1));
+      g.selectCell((int)this.cellX, (int)this.cellY, false);
     }
   }
 }

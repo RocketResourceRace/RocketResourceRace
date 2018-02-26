@@ -737,33 +737,43 @@ class Game extends State{
     return new ArrayList<String>();
   }
   void selectCell(int x, int y){
-    cellX = floor(map.scaleXInv(x));
-    cellY = floor(map.scaleYInv(y));
-    cellSelected = true;
-    map.selectCell(cellX, cellY);
-    map.setWidth(round(width-bezel*2-400));
-    getPanel("land management").setVisible(true);
-    if (parties[cellY][cellX] != null && parties[cellY][cellX].isTurn(turn)){
-      if (parties[cellY][cellX].getTask() != "Battle"){
-        ((Slider)getElement("split units", "party management")).show();
-      }
-      else{
-        ((Slider)getElement("split units", "party management")).hide();
-      }
-      getPanel("party management").setVisible(true); 
-      if (parties[cellY][cellX].getUnitNumber() <= 1){
+    x = floor(map.scaleXInv(x));
+    y = floor(map.scaleYInv(y));
+    selectCell(x, y, false);
+  }
+  
+  void selectCell(int x, int y, boolean raw){
+    if(raw){
+      selectCell(x, y);
+    } else {
+      cellX = x;
+      cellY = y;
+      cellSelected = true;
+      map.selectCell(cellX, cellY);
+      map.setWidth(round(width-bezel*2-400));
+      getPanel("land management").setVisible(true);
+      if (parties[cellY][cellX] != null && parties[cellY][cellX].isTurn(turn)){
+        if (parties[cellY][cellX].getTask() != "Battle"){
+          ((Slider)getElement("split units", "party management")).show();
+        }
+        else{
           ((Slider)getElement("split units", "party management")).hide();
-      } 
-      else
-      ((Slider)getElement("split units", "party management")).setScale(1, 1, parties[cellY][cellX].getUnitNumber()-1, 1, parties[cellY][cellX].getUnitNumber()); 
-      if (turn == 1){ 
-        partyManagementColour = color(170, 30, 30);
-        getPanel("party management").setColour(color(220, 70, 70));
-      } else {
-        partyManagementColour = color(0, 0, 150);
-        getPanel("party management").setColour(color(70, 70, 220));
-      } 
-      checkTasks();  
+        }
+        getPanel("party management").setVisible(true); 
+        if (parties[cellY][cellX].getUnitNumber() <= 1){
+            ((Slider)getElement("split units", "party management")).hide();
+        } 
+        else
+        ((Slider)getElement("split units", "party management")).setScale(1, 1, parties[cellY][cellX].getUnitNumber()-1, 1, parties[cellY][cellX].getUnitNumber()); 
+        if (turn == 1){ 
+          partyManagementColour = color(170, 30, 30);
+          getPanel("party management").setColour(color(220, 70, 70));
+        } else {
+          partyManagementColour = color(0, 0, 150);
+          getPanel("party management").setColour(color(70, 70, 220));
+        } 
+        checkTasks();  
+      }
     }
   }
   float[] resourceProduction(int x, int y){
