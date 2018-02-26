@@ -51,6 +51,7 @@ class Game extends State{
     "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a ?% chance of winning this battle.",
     "Move.",
     "Super Rest adds more units to a party each turn.",
+    "The rate that an action is completed is affected\nby the number of units in a party\n(a square root relationship).\nThe turn time for 100 units is given for tasks.",
   };
   final float[] buildingTimes = {3, 2, 5, 8, 8, 4, 12};
   final String[] resourceNames = {"Food", "Wood", "Metal", "Energy", "", "", "", "", "Units"};
@@ -132,6 +133,7 @@ class Game extends State{
     players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, STARTINGRESOURCES);
     addPanel("land management", 0, 0, width, height, false, color(50, 200, 50), color(0));
     addPanel("party management", 0, 0, width, height, false, color(70, 70, 220), color(0));
+    addElement("turns remaining", new Text(bezel*2+200, bezel*4+30+30, 8, "", color(255), LEFT), "party management");
     //int x, int y, int w, int h, color bgColour, color strokeColour, color textColour, int textSize, int textAlign, String text
     addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
     //int x, int y, int w, int h, color KnobColour, color bgColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name
@@ -690,6 +692,9 @@ class Game extends State{
           default: toolTipSelected = -1;break;
         }
       }
+      else if(((Text)getElement("turns remaining", "party management")).mouseOver()){
+        toolTipSelected = 14;
+      }
       else if (moving&&map.mouseOver()){
           Node [][] nodes = map.moveNodes;
           int x = floor(map.scaleXInv(mouseX));
@@ -851,7 +856,8 @@ class Game extends State{
     text("Units: "+parties[cellY][cellX].getUnitNumber(turn) + "/1000", 120+cellSelectionX, barY);
     barY += 13*TextScale;
     if (parties[cellY][cellX].actions.size() > 0 && parties[cellY][cellX].actions.get(0).initialTurns > 0){
-      text("Turns Remaining: "+parties[cellY][cellX].turnsLeft() + "/"+round(parties[cellY][cellX].actions.get(0).initialTurns), cellSelectionX+220+bezel*3, barY+bezel*3);
+      ((Text)getElement("turns remaining", "party management")).setText("Turns Remaining: "+parties[cellY][cellX].turnsLeft() + "/"+round(parties[cellY][cellX].actions.get(0).initialTurns));
+      //text("Turns Remaining: "+parties[cellY][cellX].turnsLeft() + "/"+round(parties[cellY][cellX].actions.get(0).initialTurns), cellSelectionX+220+bezel*3, barY+bezel*3);
     }
   }
   
@@ -989,6 +995,8 @@ class Game extends State{
     mapWidth = mapSize;
     mapHeight = mapSize;
     updateCellSelection();
+    
+    ((Text)getElement("turns remaining", "party management")).setText("");
     
     parties = new Party[mapHeight][mapWidth];
     buildings = new Building[mapHeight][mapWidth];
