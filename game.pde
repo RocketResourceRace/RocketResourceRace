@@ -664,8 +664,11 @@ class Game extends State{
               moveParty(cellX, cellY);
             }
             else{
-              deselectCell();
-              selectCell(mouseX, mouseY);
+              if(floor(map.scaleXInv(mouseX))==cellX&&floor(map.scaleYInv(mouseY))==cellY&&cellSelected){
+                deselectCell();
+              } else {
+                selectCell(mouseX, mouseY);
+              }
             }
           }
           else{
