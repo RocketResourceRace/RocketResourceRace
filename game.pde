@@ -120,6 +120,7 @@ class Game extends State{
   boolean cellSelected=false, moving=false;
   color partyManagementColour;
   int toolTipSelected;
+  ArrayList<Integer[]> prevIdle;
   
   Game(){
     addElement("map", new Map(bezel, bezel, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
@@ -142,6 +143,7 @@ class Game extends State{
     addElement("tasks", new DropDown(bezel, bezel*4+30+30, 220, 10, color(150), color(50), tasks), "party management");
     turnNumber = 0;
     toolTipSelected=-1;
+    prevIdle = new ArrayList<Integer[]>();
   }     
   void updateCellSelection(){
     cellSelectionX = round((width-400-bezel*2)*GUIScale)+bezel*2;     
@@ -222,6 +224,7 @@ class Game extends State{
     }  
     ((DropDown)getElement("tasks", "party management")).select(parties[cellY][cellX].getTask());
   }
+  
   
   ArrayList<String> getLines(String s){
     int j = 0;
@@ -443,9 +446,50 @@ class Game extends State{
     }
     return null;
   }
+  boolean canMove(int x, int y){
+    float points = map.parties[y][x].getMovementPoints();
+    int[][] mvs = {{1,0}, {0,1}, {1,1}, {-1,0}, {0,-1}, {-1,-1}, {1,-1}, {-1,1}};
+    for (int[] n : mvs){
+      if (points >= cost(x+n[0], y+n[1], x, y)){
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  boolean inPrevIdle(int x, int y){
+    for (int i=0; i<prevIdle.size();i++){
+      if (prevIdle.get(i)[0] == x && prevIdle.get(i)[1] == y){
+        return true;
+      }
+    }
+    return false;
+  }
+  void clearPrevIdle(){
+    prevIdle = new ArrayList<Integer[]>();
+  }
+  
+  int[] findIdle(int player){
+    for (int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        if (parties[y][x] != null && parties[y][x].player == player && (parties[y][x].task == "Rest" && !inPrevIdle(x, y))){
+          prevIdle.add(new Integer[]{x, y});
+          return new int[]{x, y};
+        }
+      }
+    }
+    clearPrevIdle();
+    return new int[]{cellX, cellY};
+  }
+  
   void elementEvent(ArrayList<Event> events){
     for (Event event : events){
       if (event.type == "clicked"){
+        if (event.id == "idle party finder"){
+          int[] t = findIdle(turn);
+          selectCell((int)map.scaleX(t[0]+1), (int)map.scaleY(t[1]+1));
+          map.targetCell(t[0], t[1], 64);
+        }
         if (event.id == "split button"){
           int[] loc = newPartyLoc();
           int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
@@ -591,6 +635,7 @@ class Game extends State{
     ArrayList <int[]> path = getPath(px, py, tx, ty, nodes);
     Collections.reverse(path);
     int i=0;
+    
     for (int node=1; node<path.size(); node++){
       int cost = cost(path.get(node)[0], path.get(node)[1], px, py);
       if (map.parties[py][px].getMovementPoints() >= cost){
@@ -670,9 +715,6 @@ class Game extends State{
                 selectCell(mouseX, mouseY);
               }
             }
-          }
-          else{
-            deselectCell();
           }
         }
       }
@@ -1010,6 +1052,7 @@ class Game extends State{
     mapHeight = mapSize;
     updateCellSelection();
     
+    clearPrevIdle();
     ((Text)getElement("turns remaining", "party management")).setText("");
     
     parties = new Party[mapHeight][mapWidth];
