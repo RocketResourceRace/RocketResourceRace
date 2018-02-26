@@ -36,12 +36,22 @@ class Panel{
       elem.setOffset(x, y);
     }
   }
+  void setColour(color c){
+    bgColour = c;
+  }
   
   void setVisible(boolean a){
     visible = a;
     for (Element elem:elements.values()){
       elem.mouseEvent("mouseMoved", mouseButton);
     }
+  }
+  void transform(int x, int y, int w, int h){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    setOffset();
   }
   
   void draw(){

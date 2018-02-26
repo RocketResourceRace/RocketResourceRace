@@ -22,6 +22,7 @@ class Menu extends State{
     getPanel("startup").visible = true;
     currentPanel = "startup";
     newPanel = currentPanel;
+    activePanel = currentPanel;
     
     addElement("new game", new Button(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "New Game"), "startup");
     addElement("load game", new Button(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Load Game"), "startup");
@@ -31,11 +32,15 @@ class Menu extends State{
     addElement("gui scale", new Slider(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0.5, GUIScale, 1.5, 10, 50, 0.01, true, "GUI Scale"), "settings");
     addElement("volume", new Slider(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0, 0.5, 1, 10, 50, 0.05, true, "Volume"), "settings");
     addElement("text scale", new Slider(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0.8, TextScale, 2.4, 8, 8*5, 0.05, true, "Text Scale"), "settings");
-    addElement("back", new Button(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Back"), "settings");
+    addElement("back", new Button(width-buttonW-buttonP, buttonH*4+buttonP*5, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Back"), "settings");
+    addElement("background dimming", new ToggleButton(width-(buttonW+buttonP)*2, buttonH*0+buttonP*1, buttonW/2, buttonH/2, bColour, sColour, "Background Dimming"), "settings");
   
     addElement("start", new Button(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Start"), "new game");
     addElement("save name", new TextEntry(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, LEFT, color(0), color(100, 100, 100), color(150, 150, 150), LETTERSNUMBERS, "Save Name"), "new game");
-    addElement("map size", new Slider(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(255, 255, 255), color(0), 50, mapSize, 150, 10, 20, 5, true, "Map Size"), "new game");
+    addElement("map size", new Slider(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(150), color(0), 50, mapSize, 300, 5, 25, 10, true, "Map Size"), "new game");
+    addElement("smoothing", new Slider(width-buttonW*2-buttonP*2, buttonH*1+buttonP*2, buttonW, buttonH, color(0, 255, 0), bColour, color(150), color(0), 0, 6, 20, 4, 20, 1, true, "Smoothing"), "new game");
+    addElement("water level", new Slider(width-buttonW*2-buttonP*2, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(150), color(0), 0, 3, 20, 4, 20, 1, true, "Water Level"), "new game");
+    addElement("ground spawns", new Slider(width-buttonW*2-buttonP*2, buttonH*3+buttonP*4, buttonW, buttonH, color(0, 255, 0), bColour, color(150), color(0), 50, 100, 300, 5, 25, 10, true, "Ground Spawns"), "new game");
     addElement("back", new Button(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Back"), "new game");
   }
   
@@ -47,11 +52,13 @@ class Menu extends State{
   }
   
   String update(){
-    pushStyle();
     background(BGimg);
-    fill(currentColour());
-    rect(0, 0, width, height);
-    popStyle();
+    if(((ToggleButton)getElement("background dimming", "settings")).getState()){
+      pushStyle();
+      fill(currentColour());
+      rect(0, 0, width, height);
+      popStyle();
+    }
     if (!currentPanel.equals(newPanel)){
       changeMenuPanel();
     }
@@ -73,10 +80,14 @@ class Menu extends State{
     getElement("volume", "settings").transform(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH);
     getElement("text scale", "settings").transform(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH);
     getElement("back", "settings").transform(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH);
+    getElement("background dimming", "settings").transform(width-(buttonW+buttonP)*2, buttonH*0+buttonP*1, buttonW/2, buttonH/2);
     
     getElement("start", "new game").transform(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH);
     getElement("save name", "new game").transform(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH);
     getElement("map size", "new game").transform(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH);
+    getElement("smoothing", "new game").transform(width-buttonW*2-buttonP*2, buttonH*1+buttonP*2, buttonW, buttonH);
+    getElement("water level", "new game").transform(width-buttonW*2-buttonP*2, buttonH*2+buttonP*3, buttonW, buttonH);
+    getElement("ground spawns", "new game").transform(width-buttonW*2-buttonP*2, buttonH*3+buttonP*4, buttonW, buttonH);
     getElement("back", "new game").transform(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH);
   }
   
@@ -88,6 +99,7 @@ class Menu extends State{
     for (String id : getPanel(newPanel).elements.keySet()){
       getPanel(newPanel).elements.get(id).mouseEvent("mouseMoved", LEFT);
     }
+    activePanel = newPanel;
   }
   
   void elementEvent(ArrayList<Event> events){
@@ -107,6 +119,16 @@ class Menu extends State{
           setVolume(((Slider)getElement("volume", "settings")).getValue());
           changeSetting("volume", ""+volume);
           writeSettings();
+        }
+        if (event.id.equals("water level")){
+          waterLevel = (int)((Slider)getElement("water level", "new game")).getValue();
+        }
+        if (event.id.equals("ground spawns")){
+          groundSpawns = (int)((Slider)getElement("ground spawns", "new game")).getValue();
+        }
+        if (event.id.equals("smoothing")){
+          initialSmooth = (int)((Slider)getElement("smoothing", "new game")).getValue();
+          completeSmooth = (int)((Slider)getElement("smoothing", "new game")).getValue()+2;
         }
         if (event.id.equals("map size")){
           mapSize = (int)((Slider)getElement("map size", "new game")).getValue();

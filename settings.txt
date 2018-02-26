@@ -1,4 +1,0 @@
-gui_scale 1.2
-text_scale 1.6
-volume 0.5
-mapSize 120

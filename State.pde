@@ -1,12 +1,13 @@
 
 class State{
   ArrayList<Panel> panels;
-  String newState;
+  String newState, activePanel;
   
   State(){
     panels = new ArrayList<Panel>();
     addPanel("default", 0, 0, width, height, true, color(255, 255), color(0));
     newState = "";
+    activePanel = "default";
   }
   
   String getNewState(){
@@ -18,6 +19,12 @@ class State{
   String update(){
     drawPanels();
     return getNewState();
+  }
+  void enterState(){
+    
+  }
+  void leaveState(){
+    
   }
   void hidePanels(){
     for (Panel panel:panels){
@@ -91,11 +98,10 @@ class State{
   ArrayList<String> mouseEvent(String eventType, int button){return new ArrayList<String>();}
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){return new ArrayList<String>();}
   ArrayList<String> keyboardEvent(String eventType, char _key){return new ArrayList<String>();}
-  void elementEvent(String id, String eventType){}
   
   void elementEvent(ArrayList<Event> events){
     for (Event event : events){
-      println(event.info());
+      println(event.info(), 1);
     }
   }
   
@@ -103,19 +109,23 @@ class State{
   void _mouseEvent(String eventType, int button){
     ArrayList<Event> events = new ArrayList<Event>();
     mouseEvent(eventType, button);
-    //for (int i=panels.size()-1; i>=0; i++){
-    //  if (panels.get(i).mouseOver()){
-    //    panelToTop(panels.get(i).id);
-    //    break;
-    //  }
-    //}
+    if (eventType == "mousePressed"){
+      for (int i=0; i<panels.size(); i++){
+        if (panels.get(i).mouseOver()&& panels.get(i).visible){
+          activePanel = panels.get(i).id;
+          break;
+        }
+      }
+    }
     for (Panel panel : panels){
-      if(panel.mouseOver() && panel.visible){
+      if(activePanel == panel.id || eventType.equals("mouseMoved")){
         for (String id : panel.elements.keySet()){
           for (String eventName : panel.elements.get(id)._mouseEvent(eventType, button)){
             events.add(new Event(id, panel.id, eventName));
           }
         }
+        if (!eventType.equals("mouseMoved"))
+          break;
       }
     }
     elementEvent(events);
@@ -124,7 +134,7 @@ class State{
     ArrayList<Event> events = new ArrayList<Event>();
     mouseEvent(eventType, button, event);
     for (Panel panel : panels){
-      if(panel.visible){
+      if(panel.mouseOver() && panel.visible){
         for (String id : panel.elements.keySet()){
           for (String eventName : panel.elements.get(id)._mouseEvent(eventType, button, event)){
             events.add(new Event(id, panel.id, eventName));

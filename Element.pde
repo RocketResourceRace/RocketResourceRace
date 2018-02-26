@@ -21,7 +21,7 @@ class Element{
     return mouseEvent(eventType, button);
   } 
   ArrayList<String> _mouseEvent(String eventType, int button, MouseEvent event){
-    return mouseEvent(eventType, button);
+    return mouseEvent(eventType, button, event);
   } 
   ArrayList<String> _keyboardEvent(String eventType, char _key){
     return keyboardEvent(eventType, _key);

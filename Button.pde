@@ -38,6 +38,7 @@ class Button extends Element{
     setLines(text);
   }
   void draw(){
+    //println(xOffset, yOffset);
     int padding=0;
     float r = red(bgColour), g = green(bgColour), b = blue(bgColour);
     pushStyle();
@@ -101,10 +102,9 @@ class Button extends Element{
       }
       if (eventType == "mousePressed"){
         state = "on";
-        sfx.get("click3").play();
-      }
-      if (eventType == "mouseClicked"){
-        events.add("clicked");
+        if(soundOn){
+          sfx.get("click3").play();
+        }
       }
     }
     else{
@@ -114,6 +114,6 @@ class Button extends Element{
   }
   
   Boolean mouseOver(){
-    return mouseX >= x && mouseX <= x+w && mouseY >= y && mouseY <= y+h;
+    return mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+yOffset && mouseY <= y+h+yOffset;
   }
 }

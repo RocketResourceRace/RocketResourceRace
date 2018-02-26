@@ -9,6 +9,7 @@ class Slider extends Element{
   final int boxHeight = 20, boxWidth = 10;
   private final int PRESSEDOFFSET = 50;
   private String name;
+  boolean visible = true;
   
   Slider(int x, int y, int w, int h, color KnobColour, color bgColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name){
     this.lx = x;
@@ -29,6 +30,17 @@ class Slider extends Element{
     this.step = new BigDecimal(""+step);
     this.value = new BigDecimal(""+value);
     this.name = name;
+    textSize(15);
+    scaleKnob();
+  }
+  void show(){
+    visible = true;
+  }
+  void hide(){
+    visible = false;
+  }
+  void scaleKnob(){
+    this.knobSize = textWidth(""+getInc(new BigDecimal(""+upper)));
   }
   void transform(int x, int y, int w, int h){
     this.lx = x;
@@ -37,6 +49,14 @@ class Slider extends Element{
     this.w = w; 
     this.y = y;
     this.h = h;
+  }
+  void setScale(float lower, float value, float upper, int major, int minor){
+    this.major = major;
+    this.minor = minor;
+    this.upper = new BigDecimal(""+upper);
+    this.lower = new BigDecimal(""+lower);
+    this.value = new BigDecimal(""+value);
+    scaleKnob();
   }
   
   void setValue(BigDecimal value){
@@ -63,14 +83,14 @@ class Slider extends Element{
     if (button == LEFT){
       if (mouseOver() && eventType == "mousePressed"){
           pressed = true;
-          setValue((new BigDecimal(mouseX-x)).divide(new BigDecimal(w), 15, BigDecimal.ROUND_HALF_EVEN).multiply(upper.subtract(lower)).add(lower));
+          setValue((new BigDecimal(mouseX-x-xOffset)).divide(new BigDecimal(w), 15, BigDecimal.ROUND_HALF_EVEN).multiply(upper.subtract(lower)).add(lower));
           events.add("valueChanged");
       }
       else if (eventType == "mouseReleased"){
         pressed = false;
       }
       if (eventType == "mouseDragged" && pressed){
-        setValue((new BigDecimal(mouseX-x)).divide(new BigDecimal(w), 15, BigDecimal.ROUND_HALF_EVEN).multiply(upper.subtract(lower)).add(lower));
+        setValue((new BigDecimal(mouseX-x-xOffset)).divide(new BigDecimal(w), 15, BigDecimal.ROUND_HALF_EVEN).multiply(upper.subtract(lower)).add(lower));
         events.add("valueChanged");
       }
     }
@@ -78,7 +98,7 @@ class Slider extends Element{
   }
   
   Boolean mouseOver(){
-    return mouseX >= x && mouseX <= x+w && mouseY >= y && mouseY <= y+h;
+    return mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+yOffset && mouseY <= y+h+yOffset;
   }
   
   BigDecimal getInc(BigDecimal i){
@@ -86,17 +106,20 @@ class Slider extends Element{
   }
   
   void draw(){
+    if (!visible)return;
     BigDecimal range = upper.subtract(lower);
     float r = red(KnobColour), g = green(KnobColour), b = blue(KnobColour);
     pushStyle();
-    stroke(strokeColour);
-    //fill(bgColour);
+    fill(255, 100);
+    stroke(strokeColour, 50);
     //rect(lx, y, lw, h);
+    //rect(xOffset+x, y+yOffset+padding+2, w, h-padding);
+    stroke(strokeColour);
     
     
     for(int i=0; i<=minor; i++){
       fill(scaleColour);
-      line(xOffset+x+w*i/minor, y+yOffset+padding+(h-padding)/4, xOffset+x+w*i/minor, y+yOffset+3*(h-padding)/4+padding);
+      line(xOffset+x+w*i/minor, y+yOffset+padding+(h-padding)/6, xOffset+x+w*i/minor, y+yOffset+5*(h-padding)/6+padding);
     }
     for(int i=0; i<=major; i++){
       fill(scaleColour);
@@ -123,11 +146,13 @@ class Slider extends Element{
     text(getInc(value).toPlainString(), x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2+boxHeight/4+yOffset+padding/2);
     stroke(0);
     textAlign(CENTER);
+    stroke(255, 0, 0);
     line(x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight/2+yOffset+padding/2, x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight+yOffset+padding/2);
+    stroke(0);
     fill(0);
     textSize(12*TextScale);
     textAlign(LEFT, BOTTOM);
-    text(name, x, y);
+    text(name, x+xOffset, y+yOffset);
     popStyle();
   }
 }
