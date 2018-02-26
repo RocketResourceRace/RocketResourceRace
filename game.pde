@@ -1154,9 +1154,9 @@ class Game extends State{
       player2 = PVector.random2D().mult(mapWidth/8).add(new PVector(3*mapWidth/4, mapHeight/2));
     }
     parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "Rest", MOVEMENTPOINTS);
-    parties[(int)player1.y][(int)player1.x+1] = new Party(1, 100, "Rest", MOVEMENTPOINTS);
+    parties[(int)player2.y][(int)player2.x] = new Party(1, 100, "Rest", MOVEMENTPOINTS);
     
-    return  new PVector[]{player1, player1};
+    return  new PVector[]{player1, player2};
   }
   
   int[][] smoothMap(int distance, int firstType, int[][] terrain){
