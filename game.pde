@@ -569,6 +569,7 @@ class Game extends State{
     }
   }
   void deselectCell(){
+    toolTipSelected = -1;
     cellSelected = false;
     map.unselectCell();
     getPanel("land management").setVisible(false);
@@ -657,16 +658,20 @@ class Game extends State{
     }
     if (button == LEFT){
       if (eventType == "mouseClicked"){
-        if (moving&&map.mouseOver() && activePanel == "default"){
-          int x = floor(map.scaleXInv(mouseX));
-          int y = floor(map.scaleYInv(mouseY));
-          parties[cellY][cellX].target = new int[]{x, y};
-          moveParty(cellX, cellY);
-        }
         if (activePanel == "default" && !getPanel("party management").mouseOver() && !getPanel("land management").mouseOver()){
           if (map.mouseOver()){
-            deselectCell();
-            selectCell(mouseX, mouseY);
+            if (moving){
+              int x = floor(map.scaleXInv(mouseX));
+              int y = floor(map.scaleYInv(mouseY));
+              parties[cellY][cellX].target = new int[]{x, y};
+              moveParty(cellX, cellY);
+              deselectCell();
+              selectCell(mouseX, mouseY);
+            }
+            else{
+              deselectCell();
+              selectCell(mouseX, mouseY);
+            }
           }
           else{
             deselectCell();
@@ -736,6 +741,7 @@ class Game extends State{
     return new ArrayList<String>();
   }
   void selectCell(int x, int y){
+    toolTipSelected = -1;
     cellX = floor(map.scaleXInv(x));
     cellY = floor(map.scaleYInv(y));
     cellSelected = true;
