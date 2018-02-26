@@ -680,7 +680,7 @@ class Game extends State{
       }
     }
     if (eventType == "mouseMoved"){
-      if (((DropDown)getElement("tasks", "party management")).moveOver()){
+      if (((DropDown)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible){
         switch (((DropDown)getElement("tasks", "party management")).findMouseOver()){
           case "Defend":toolTipSelected = 0;break;
           case "Build Farm":toolTipSelected = 1;break;
