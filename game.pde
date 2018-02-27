@@ -8,7 +8,7 @@ class Game extends State{
   final int[] terrainCosts = new int[]{32, 24, 16, 12, 8, 12, 28};
   final int MOVEMENTPOINTS = 64;
   final int DEFENDCOST = 32;
-  final float [] STARTINGRESOURCES = new float[]{500, 300, 0, 0, 0, 0, 0, 0, 0};
+  final float [] STARTINGRESOURCES = new float[]{500, 500, 0, 0, 0, 0, 0, 0, 0};
   final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Build Homes", "Build Factory", "Build Mine", "Build Smelter", "Clear Forest", "Battle", "Super Rest", "Produce Ore", "Produce Metal", "Produce Concrete", "Produce Cable", "Produce Wood", "Produce Spacehip Parts"};
   final String[] landTypes = {"Water", "Sand", "Grass", "Forest", "Hills"};
   final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
@@ -547,10 +547,8 @@ class Game extends State{
             parties[cellY][cellX].movementPoints -= DEFENDCOST;
           }
           else if (parties[cellY][cellX].getTask() == "Demolish"){
-            if (sufficientResources(players[turn].resources, buildingCosts[buildings[cellY][cellX].type])){
-              parties[cellY][cellX].clearActions();
-              parties[cellY][cellX].addAction(new Action("Demolish", 2));
-            }
+            parties[cellY][cellX].clearActions();
+            parties[cellY][cellX].addAction(new Action("Demolish", 2));
           }
           else if (parties[cellY][cellX].getTask() == "Clear Forest"){
             parties[cellY][cellX].clearActions();
@@ -563,6 +561,9 @@ class Game extends State{
               spendRes(players[turn], buildingCosts[1]);
               buildings[cellY][cellX] = new Building(0);
             }
+            else{
+              parties[cellY][cellX].changeTask("Rest");
+            }
           }
           else if (parties[cellY][cellX].getTask() == "Build Sawmill"){
             if (sufficientResources(players[turn].resources, buildingCosts[5])){
@@ -570,6 +571,9 @@ class Game extends State{
               parties[cellY][cellX].addAction(new Action("Build Sawmill", buildingTimes[SAWMILL]));
               spendRes(players[turn], buildingCosts[5]);
               buildings[cellY][cellX] = new Building(0);
+            }
+            else{
+              parties[cellY][cellX].changeTask("Rest");
             }
           }
           else if (parties[cellY][cellX].getTask() == "Build Homes"){
@@ -579,6 +583,9 @@ class Game extends State{
               spendRes(players[turn], buildingCosts[0]);
               buildings[cellY][cellX] = new Building(0);
             }
+            else{
+              parties[cellY][cellX].changeTask("Rest");
+            }
           }
           else if (parties[cellY][cellX].getTask() == "Build Factory"){
             if (sufficientResources(players[turn].resources, buildingCosts[4])){
@@ -586,6 +593,9 @@ class Game extends State{
               parties[cellY][cellX].addAction(new Action("Build Factory", buildingTimes[FACTORY]));
               spendRes(players[turn], buildingCosts[4]);
               buildings[cellY][cellX] = new Building(0);
+            }
+            else{
+              parties[cellY][cellX].changeTask("Rest");
             }
           }
           else if (parties[cellY][cellX].getTask() == "Build Mine"){
@@ -595,6 +605,9 @@ class Game extends State{
               spendRes(players[turn], buildingCosts[2]);
               buildings[cellY][cellX] = new Building(0);
             }
+            else{
+              parties[cellY][cellX].changeTask("Rest");
+            }
           }
           else if (parties[cellY][cellX].getTask() == "Build Smelter"){
             if (sufficientResources(players[turn].resources, buildingCosts[3])){
@@ -602,6 +615,9 @@ class Game extends State{
               parties[cellY][cellX].addAction(new Action("Build Smelter", buildingTimes[SMELTER]));
               spendRes(players[turn], buildingCosts[3]);
               buildings[cellY][cellX] = new Building(0);
+            }
+            else{
+              parties[cellY][cellX].changeTask("Rest");
             }
           }
           checkTasks();
