@@ -56,7 +56,7 @@ class Party{
     if (actions.size() == 0){
       return "";
     }
-    if (actions.get(0).turns <= 1){
+    if (actions.get(0).turns-sqrt((float)unitNumber)/10 <= 0){
       return actions.get(0).type;
     }
     else{

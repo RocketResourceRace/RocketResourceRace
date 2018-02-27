@@ -8,7 +8,7 @@ class Game extends State{
   final int[] terrainCosts = new int[]{32, 24, 16, 12, 8, 12, 28};
   final int MOVEMENTPOINTS = 64;
   final int DEFENDCOST = 32;
-  final float [] STARTINGRESOURCES = new float[]{500, 300, 0, 0, 0, 0, 0, 0, 0};
+  final float [] STARTINGRESOURCES = new float[]{500, 500, 0, 0, 0, 0, 0, 0, 0};
   final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Build Homes", "Build Factory", "Build Mine", "Build Smelter", "Clear Forest", "Battle", "Super Rest", "Produce Ore", "Produce Metal", "Produce Concrete", "Produce Cable", "Produce Wood", "Produce Spacehip Parts"};
   final String[] landTypes = {"Water", "Sand", "Grass", "Forest", "Hills"};
   final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
@@ -55,7 +55,7 @@ class Game extends State{
     "A party must be at rest to move",
     "This splits the number of units selected.\nCan only split when movement points > 0.",
   };
-  final float[] buildingTimes = {3, 2, 5, 8, 8, 4, 12};
+  final float[] buildingTimes = {0, 3, 2, 5, 8, 8, 4, 12};
   final String[] resourceNames = {"Food", "Wood", "Metal", "Energy", "", "", "", "", "Units"};
   final float[][] buildingCosts = {
     {0, 100, 0, 0, 0, 0, 0, 0, 0},
@@ -376,8 +376,22 @@ class Game extends State{
       }
     }
     partyMovementPointsReset(turn);
-    
-    players[turn].saveSettings(map.mapXOffset, map.mapYOffset, map.blockSize, cellX, cellY, cellSelected);
+    float mapXOffset;
+    float mapYOffset;
+    if (map.panning){
+      mapXOffset = map.targetXOffset;
+      mapYOffset = map.targetYOffset;
+    } else {
+      mapXOffset = map.mapXOffset;
+      mapYOffset = map.mapYOffset;
+    }
+    float blockSize;
+    if (map.zooming){
+      blockSize = map.targetBlockSize;
+    } else{
+      blockSize = map.blockSize;
+    }
+    players[turn].saveSettings(mapXOffset, mapYOffset, blockSize, cellX, cellY, cellSelected);
     turn = (turn + 1)%2;
     players[turn].loadSettings(this, map);
     changeTurn = false;
@@ -533,10 +547,8 @@ class Game extends State{
             parties[cellY][cellX].movementPoints -= DEFENDCOST;
           }
           else if (parties[cellY][cellX].getTask() == "Demolish"){
-            if (sufficientResources(players[turn].resources, buildingCosts[buildings[cellY][cellX].type])){
-              parties[cellY][cellX].clearActions();
-              parties[cellY][cellX].addAction(new Action("Demolish", 2));
-            }
+            parties[cellY][cellX].clearActions();
+            parties[cellY][cellX].addAction(new Action("Demolish", 2));
           }
           else if (parties[cellY][cellX].getTask() == "Clear Forest"){
             parties[cellY][cellX].clearActions();
@@ -549,6 +561,9 @@ class Game extends State{
               spendRes(players[turn], buildingCosts[1]);
               buildings[cellY][cellX] = new Building(0);
             }
+            else{
+              parties[cellY][cellX].changeTask("Rest");
+            }
           }
           else if (parties[cellY][cellX].getTask() == "Build Sawmill"){
             if (sufficientResources(players[turn].resources, buildingCosts[5])){
@@ -556,6 +571,9 @@ class Game extends State{
               parties[cellY][cellX].addAction(new Action("Build Sawmill", buildingTimes[SAWMILL]));
               spendRes(players[turn], buildingCosts[5]);
               buildings[cellY][cellX] = new Building(0);
+            }
+            else{
+              parties[cellY][cellX].changeTask("Rest");
             }
           }
           else if (parties[cellY][cellX].getTask() == "Build Homes"){
@@ -565,6 +583,9 @@ class Game extends State{
               spendRes(players[turn], buildingCosts[0]);
               buildings[cellY][cellX] = new Building(0);
             }
+            else{
+              parties[cellY][cellX].changeTask("Rest");
+            }
           }
           else if (parties[cellY][cellX].getTask() == "Build Factory"){
             if (sufficientResources(players[turn].resources, buildingCosts[4])){
@@ -572,6 +593,9 @@ class Game extends State{
               parties[cellY][cellX].addAction(new Action("Build Factory", buildingTimes[FACTORY]));
               spendRes(players[turn], buildingCosts[4]);
               buildings[cellY][cellX] = new Building(0);
+            }
+            else{
+              parties[cellY][cellX].changeTask("Rest");
             }
           }
           else if (parties[cellY][cellX].getTask() == "Build Mine"){
@@ -581,6 +605,9 @@ class Game extends State{
               spendRes(players[turn], buildingCosts[2]);
               buildings[cellY][cellX] = new Building(0);
             }
+            else{
+              parties[cellY][cellX].changeTask("Rest");
+            }
           }
           else if (parties[cellY][cellX].getTask() == "Build Smelter"){
             if (sufficientResources(players[turn].resources, buildingCosts[3])){
@@ -588,6 +615,9 @@ class Game extends State{
               parties[cellY][cellX].addAction(new Action("Build Smelter", buildingTimes[SMELTER]));
               spendRes(players[turn], buildingCosts[3]);
               buildings[cellY][cellX] = new Building(0);
+            }
+            else{
+              parties[cellY][cellX].changeTask("Rest");
             }
           }
           checkTasks();
@@ -627,12 +657,12 @@ class Game extends State{
   void moveParty(int px, int py){
     boolean cellFollow = (px==cellX && py==cellY);
     boolean stillThere = true;
-    if (map.parties[py][px].target == null || map.parties[py][px].getMovementPoints() == 0)
+    if (map.parties[py][px].target == null)
       return;
     int tx = map.parties[py][px].target[0];
     int ty = map.parties[py][px].target[1];
     if (px == tx && py == ty){
-        map.parties[py][px].path = null;
+      map.parties[py][px].path = null;
       return;
     }
     Node[][] nodes = djk(px, py);
@@ -677,10 +707,7 @@ class Game extends State{
         i++;
       }
       else{
-        if (i > 0)
-          map.parties[py][px].path = new ArrayList(path.subList(i, path.size()));
-        else
-          map.parties[py][px].path = null;
+        map.parties[py][px].path = new ArrayList(path.subList(i, path.size()));
         break;
       }
     }
@@ -712,13 +739,15 @@ class Game extends State{
     }
     if (button == LEFT){
       if (eventType == "mouseClicked"){
-        if (activePanel == "default" && !getPanel("party management").mouseOver() && !getPanel("land management").mouseOver()){
+        if (activePanel == "default" && ((!getPanel("party management").mouseOver() || !getPanel("party management").visible) && (!getPanel("land management").mouseOver() || !getPanel("land management").visible))){
           if (map.mouseOver()){
             if (moving){
               int x = floor(map.scaleXInv(mouseX));
               int y = floor(map.scaleYInv(mouseY));
               parties[cellY][cellX].target = new int[]{x, y};
+              parties[cellY][cellX].path = null;
               moveParty(cellX, cellY);
+              map.cancelPath();
             }
             else{
               if(floor(map.scaleXInv(mouseX))==cellX&&floor(map.scaleYInv(mouseY))==cellY&&cellSelected){
@@ -748,16 +777,16 @@ class Game extends State{
           default: toolTipSelected = -1;break;
         }
       }
-      else if(((Text)getElement("turns remaining", "party management")).mouseOver()){
+      else if(((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").visible){
         toolTipSelected = 14;
       }
-      else if(((Button)getElement("move button", "party management")).mouseOver()){
+      else if(((Button)getElement("move button", "party management")).mouseOver()&& getPanel("party management").visible){
         toolTipSelected = 15;
       }
-      else if(((Button)getElement("split button", "party management")).mouseOver()){
+      else if(((Button)getElement("split button", "party management")).mouseOver()&& getPanel("party management").visible){
         toolTipSelected = 16;
       }
-      else if (moving&&map.mouseOver()){
+      else if (moving&&map.mouseOver() && ((!getPanel("party management").mouseOver() || !getPanel("party management").visible) && (!getPanel("land management").mouseOver() || !getPanel("land management").visible))){
           Node [][] nodes = map.moveNodes;
           int x = floor(map.scaleXInv(mouseX));
           int y = floor(map.scaleYInv(mouseY));
