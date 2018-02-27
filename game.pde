@@ -709,7 +709,7 @@ class Game extends State{
     }
     if (button == LEFT){
       if (eventType == "mouseClicked"){
-        if (activePanel == "default" && !getPanel("party management").mouseOver() && !getPanel("land management").mouseOver()){
+        if (activePanel == "default" && ((!getPanel("party management").mouseOver() || !getPanel("party management").visible) && (!getPanel("land management").mouseOver() || !getPanel("land management").visible))){
           if (map.mouseOver()){
             if (moving){
               int x = floor(map.scaleXInv(mouseX));
@@ -730,30 +730,32 @@ class Game extends State{
       }
     }
     if (eventType == "mouseMoved"){
-      if (((DropDown)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible){
-        switch (((DropDown)getElement("tasks", "party management")).findMouseOver()){
-          case "Defend":toolTipSelected = 0;break;
-          case "Build Farm":toolTipSelected = 1;break;
-          case "Build Sawmill":toolTipSelected = 6;break;
-          case "Build Homes":toolTipSelected = 3;break;
-          case "Build Factory":toolTipSelected = 5;break;
-          case "Clear Forest":toolTipSelected = 7;break;
-          case "Build Mine":toolTipSelected = 2;break;
-          case "Build Smelter":toolTipSelected = 4;break;
-          case "Demolish":toolTipSelected = 8;break;
-          case "Rest":toolTipSelected = 9;break;
-          case "Super Rest":toolTipSelected = 13;break;
-          default: toolTipSelected = -1;break;
+      if (getPanel("party management").visible){
+        if (((DropDown)getElement("tasks", "party management")).moveOver()){
+          switch (((DropDown)getElement("tasks", "party management")).findMouseOver()){
+            case "Defend":toolTipSelected = 0;break;
+            case "Build Farm":toolTipSelected = 1;break;
+            case "Build Sawmill":toolTipSelected = 6;break;
+            case "Build Homes":toolTipSelected = 3;break;
+            case "Build Factory":toolTipSelected = 5;break;
+            case "Clear Forest":toolTipSelected = 7;break;
+            case "Build Mine":toolTipSelected = 2;break;
+            case "Build Smelter":toolTipSelected = 4;break;
+            case "Demolish":toolTipSelected = 8;break;
+            case "Rest":toolTipSelected = 9;break;
+            case "Super Rest":toolTipSelected = 13;break;
+            default: toolTipSelected = -1;break;
+          }
         }
-      }
-      else if(((Text)getElement("turns remaining", "party management")).mouseOver()){
-        toolTipSelected = 14;
-      }
-      else if(((Button)getElement("move button", "party management")).mouseOver()){
-        toolTipSelected = 15;
-      }
-      else if(((Button)getElement("split button", "party management")).mouseOver()){
-        toolTipSelected = 16;
+        else if(((Text)getElement("turns remaining", "party management")).mouseOver()){
+          toolTipSelected = 14;
+        }
+        else if(((Button)getElement("move button", "party management")).mouseOver()){
+          toolTipSelected = 15;
+        }
+        else if(((Button)getElement("split button", "party management")).mouseOver()){
+          toolTipSelected = 16;
+        }
       }
       else if (moving&&map.mouseOver()){
           Node [][] nodes = map.moveNodes;
