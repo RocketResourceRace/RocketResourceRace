@@ -55,7 +55,7 @@ class Game extends State{
     "A party must be at rest to move",
     "This splits the number of units selected.\nCan only split when movement points > 0.",
   };
-  final float[] buildingTimes = {3, 2, 5, 8, 8, 4, 12};
+  final float[] buildingTimes = {0, 3, 2, 5, 8, 8, 4, 12};
   final String[] resourceNames = {"Food", "Wood", "Metal", "Energy", "", "", "", "", "Units"};
   final float[][] buildingCosts = {
     {0, 100, 0, 0, 0, 0, 0, 0, 0},
