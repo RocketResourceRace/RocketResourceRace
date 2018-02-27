@@ -627,12 +627,12 @@ class Game extends State{
   void moveParty(int px, int py){
     boolean cellFollow = (px==cellX && py==cellY);
     boolean stillThere = true;
-    if (map.parties[py][px].target == null || map.parties[py][px].getMovementPoints() == 0)
+    if (map.parties[py][px].target == null)
       return;
     int tx = map.parties[py][px].target[0];
     int ty = map.parties[py][px].target[1];
     if (px == tx && py == ty){
-        map.parties[py][px].path = null;
+      map.parties[py][px].path = null;
       return;
     }
     Node[][] nodes = djk(px, py);
@@ -677,10 +677,7 @@ class Game extends State{
         i++;
       }
       else{
-        if (i > 0)
-          map.parties[py][px].path = new ArrayList(path.subList(i, path.size()));
-        else
-          map.parties[py][px].path = null;
+        map.parties[py][px].path = new ArrayList(path.subList(i, path.size()));
         break;
       }
     }
@@ -719,6 +716,7 @@ class Game extends State{
               int y = floor(map.scaleYInv(mouseY));
               parties[cellY][cellX].target = new int[]{x, y};
               moveParty(cellX, cellY);
+              map.cancelPath();
             }
             else{
               if(floor(map.scaleXInv(mouseX))==cellX&&floor(map.scaleYInv(mouseY))==cellY&&cellSelected){
