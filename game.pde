@@ -376,8 +376,22 @@ class Game extends State{
       }
     }
     partyMovementPointsReset(turn);
-    
-    players[turn].saveSettings(map.mapXOffset, map.mapYOffset, map.blockSize, cellX, cellY, cellSelected);
+    float mapXOffset;
+    float mapYOffset;
+    if (map.panning){
+      mapXOffset = map.targetXOffset;
+      mapYOffset = map.targetYOffset;
+    } else {
+      mapXOffset = map.mapXOffset;
+      mapYOffset = map.mapYOffset;
+    }
+    float blockSize;
+    if (map.zooming){
+      blockSize = map.targetBlockSize;
+    } else{
+      blockSize = map.blockSize;
+    }
+    players[turn].saveSettings(mapXOffset, mapYOffset, blockSize, cellX, cellY, cellSelected);
     turn = (turn + 1)%2;
     players[turn].loadSettings(this, map);
     changeTurn = false;
