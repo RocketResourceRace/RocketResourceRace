@@ -684,12 +684,16 @@ class Game extends State{
         else if(path.get(node)[0] != px || path.get(node)[1] != py){
           if (map.parties[path.get(node)[1]][path.get(node)[0]].player == turn){
             // merge cells
-            map.parties[path.get(node)[1]][path.get(node)[0]].unitNumber += map.parties[py][px].unitNumber;
+            int overflow = map.parties[path.get(node)[1]][path.get(node)[0]].changeUnitNumber(map.parties[py][px].unitNumber);
             if(cellFollow){
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
               stillThere = false;
             }
-            map.parties[py][px] = null;
+            if (overflow>0){
+              map.parties[py][px].setUnitNumber(overflow);
+            } else {
+              map.parties[py][px] = null;
+            }
             map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(0);
           }
           else{

@@ -97,6 +97,11 @@ class Party{
   void setUnitNumber(int newUnitNumber){
     unitNumber = (int)between(0, newUnitNumber, 1000);
   }
+  int changeUnitNumber(int changeInUnitNumber){
+    int overflow = max(0, changeInUnitNumber+unitNumber-1000);
+    this.setUnitNumber(unitNumber+changeInUnitNumber);
+    return overflow;
+  }
   Party clone(){
     Party newParty = new Party(player, unitNumber, task, movementPoints);
     newParty.actions = new ArrayList<Action>(actions);
