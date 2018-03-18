@@ -1,7 +1,7 @@
 
 class Node{
   int cost;
-  boolean fixed;
+  boolean fixed, sticky;
   int prevX = -1, prevY = -1;
   
   Node(int cost, boolean fixed, int prevX, int prevY){
