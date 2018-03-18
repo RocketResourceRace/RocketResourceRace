@@ -123,6 +123,7 @@ class Game extends State{
   color partyManagementColour;
   int toolTipSelected;
   ArrayList<Integer[]> prevIdle;
+  int moveMode=0;
   
   Game(){
     addElement("map", new Map(bezel, bezel, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
@@ -466,7 +467,7 @@ class Game extends State{
     float points = map.parties[y][x].getMovementPoints();
     int[][] mvs = {{1,0}, {0,1}, {1,1}, {-1,0}, {0,-1}, {-1,-1}, {1,-1}, {-1,1}};
     for (int[] n : mvs){
-      if (points >= cost(x+n[0], y+n[1], x, y)){
+      if (points >= cost(x+n[0], y+n[1], x, y, 3)){
         return true;
       }
     }
@@ -632,7 +633,7 @@ class Game extends State{
           if (parties[cellY][cellX].player == turn && parties[cellY][cellX].getTask() == "Rest"){
             moving = !moving;
             if (moving){
-              map.updateMoveNodes(djk(cellX, cellY));
+              map.updateMoveNodes(djk(cellX, cellY, moveMode));
             }
             else{
               map.cancelMoveNodes();
@@ -654,6 +655,19 @@ class Game extends State{
     ((Text)getElement("turns remaining", "party management")).setText("");
   }
   
+  int getMoveMode(int px, int py, int tx, int ty){
+    int mode = 0;
+    if (map.parties[ty][tx] != null){
+      if (map.parties[py][px].player!=map.parties[ty][tx].player){
+        mode = 1;
+      }
+      if (map.parties[py][px].player==map.parties[ty][tx].player){
+        mode = 2;
+      }
+    }
+    return mode;
+  }
+  
   void moveParty(int px, int py){
     boolean cellFollow = (px==cellX && py==cellY);
     boolean stillThere = true;
@@ -665,13 +679,14 @@ class Game extends State{
       map.parties[py][px].path = null;
       return;
     }
-    Node[][] nodes = djk(px, py);
+    int mode = getMoveMode(px, py, tx, ty);
+    Node[][] nodes = djk(px, py, mode);
     ArrayList <int[]> path = getPath(px, py, tx, ty, nodes);
     Collections.reverse(path);
     int i=0;
     
     for (int node=1; node<path.size(); node++){
-      int cost = cost(path.get(node)[0], path.get(node)[1], px, py);
+      int cost = cost(path.get(node)[0], path.get(node)[1], px, py, mode);
       if (map.parties[py][px].getMovementPoints() >= cost){
         if (map.parties[path.get(node)[1]][path.get(node)[0]] == null){
           // empty cell
@@ -682,29 +697,31 @@ class Game extends State{
           py = path.get(node)[1];
         }
         else if(path.get(node)[0] != px || path.get(node)[1] != py){
-          if (map.parties[path.get(node)[1]][path.get(node)[0]].player == turn){
-            // merge cells
-            int overflow = map.parties[path.get(node)[1]][path.get(node)[0]].changeUnitNumber(map.parties[py][px].unitNumber);
-            if(cellFollow){
-              selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
-              stillThere = false;
+          if (px == tx && py == ty){
+            if (map.parties[path.get(node)[1]][path.get(node)[0]].player == turn){
+              // merge cells
+              int overflow = map.parties[path.get(node)[1]][path.get(node)[0]].changeUnitNumber(map.parties[py][px].unitNumber);
+              if(cellFollow){
+                selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
+                stillThere = false;
+              }
+              if (overflow>0){
+                map.parties[py][px].setUnitNumber(overflow);
+              } else {
+                map.parties[py][px] = null;
+              }
+              map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(0);
             }
-            if (overflow>0){
-              map.parties[py][px].setUnitNumber(overflow);
-            } else {
+            else{
+              map.parties[path.get(node)[1]][path.get(node)[0]] = new Battle(map.parties[py][px], map.parties[path.get(node)[1]][path.get(node)[0]]);
+              if(cellFollow){
+                selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
+                stillThere = false;
+              }
               map.parties[py][px] = null;
-            }
-            map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(0);
-          }
-          else{
-            map.parties[path.get(node)[1]][path.get(node)[0]] = new Battle(map.parties[py][px], map.parties[path.get(node)[1]][path.get(node)[0]]);
-            if(cellFollow){
-              selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
-              stillThere = false;
-            }
-            map.parties[py][px] = null;
-            if(map.buildings[path.get(node)[1]][path.get(node)[0]]!=null&&map.buildings[path.get(node)[1]][path.get(node)[0]].type==0){
-              map.buildings[path.get(node)[1]][path.get(node)[0]] = null;
+              if(map.buildings[path.get(node)[1]][path.get(node)[0]]!=null&&map.buildings[path.get(node)[1]][path.get(node)[0]].type==0){
+                map.buildings[path.get(node)[1]][path.get(node)[0]] = null;
+              }
             }
           }
         }
@@ -724,9 +741,10 @@ class Game extends State{
     int movementPoints = round(parties[startY][startX].getMovementPoints());
     int turns = 0;
     ArrayList <int[]> path = getPath(startX, startY, targetX, targetY, nodes);
+    int mode = getMoveMode(startX, startY, targetX, targetY);
     Collections.reverse(path);
     for (int node=1; node<path.size(); node++){
-      int cost = cost(path.get(node)[0], path.get(node)[1], path.get(node-1)[0], path.get(node-1)[1]);
+      int cost = cost(path.get(node)[0], path.get(node)[1], path.get(node-1)[0], path.get(node-1)[1], mode);
       if (movementPoints < cost){
         turns += 1;
         movementPoints = MOVEMENTPOINTS;
@@ -796,6 +814,13 @@ class Game extends State{
           int y = floor(map.scaleYInv(mouseY));
           if (nodes[y][x] != null && !(cellX == x && cellY == y)){
             if (parties[cellY][cellX] != null){
+              int newMoveMode = getMoveMode(cellX, cellY, x, y);
+              if (moveMode != newMoveMode){
+                moveMode = newMoveMode;
+                if (moving){
+                  map.updateMoveNodes(djk(cellX, cellY, moveMode));
+                }
+              }
               map.updatePath(getPath(cellX, cellY, x, y, map.moveNodes));
             }
             if(map.parties[y][x]==null){
@@ -1125,7 +1150,10 @@ class Game extends State{
     turn = 0;
     toolTipSelected=-1;
   }
-  int cost(int x, int y, int prevX, int prevY){
+  int cost(int x, int y, int prevX, int prevY, int mode){
+    //mode 0 is anything
+    //mode 1 is merging
+    //mode 2 is attacking
     float mult = 1;
     if (x!=prevX && y!=prevY){
       mult = 1.41;
@@ -1133,14 +1161,14 @@ class Game extends State{
     if (0<x && x<mapSize && 0<y && y<mapSize){
       if (map.parties[y][x] == null){
         return round(float(terrainCosts[terrain[y][x]+1])*mult); 
-      } else if(map.parties[y][x].player!=this.turn){
+      } else if(map.parties[y][x].player!=this.turn && (mode == 1)){
         return round(float(terrainCosts[0])*mult);
-      }else if(map.parties[y][x].player==this.turn){
+      }else if(map.parties[y][x].player==this.turn && (mode == 2)){
         return round(float(terrainCosts[1])*mult);
       }
     }
     //Not a valid location
-    return -1;
+    return 1000;
   }
   
   ArrayList<int[]> getPath(int startX, int startY, int targetX, int targetY, Node[][] nodes){
@@ -1186,7 +1214,7 @@ class Game extends State{
   //  }
   //  return returnNodes;
   //}
-  Node[][] djk(int x, int y){
+  Node[][] djk(int x, int y, int mode){
     int[][] mvs = {{1,0}, {0,1}, {1,1}, {-1,0}, {0,-1}, {-1,-1}, {1,-1}, {-1,1}};
     int xOff = 0;
     int yOff = 0;
@@ -1206,7 +1234,7 @@ class Game extends State{
         int nx = curMinNodes.get(0)[0]+mv[0];
         int ny = curMinNodes.get(0)[1]+mv[1];
         if (0 < nx && nx < w && 0 < ny && ny < h){
-          int newCost = cost(nx, ny, curMinNodes.get(0)[0], curMinNodes.get(0)[1]);
+          int newCost = cost(nx, ny, curMinNodes.get(0)[0], curMinNodes.get(0)[1], mode);
           int prevCost = curMinCosts.get(0);
           int totalNewCost = prevCost+newCost;
           if (totalNewCost < MOVEMENTPOINTS*100){
