@@ -1206,23 +1206,28 @@ class Game extends State{
         int nx = curMinNodes.get(0)[0]+mv[0];
         int ny = curMinNodes.get(0)[1]+mv[1];
         if (0 < nx && nx < w && 0 < ny && ny < h){
+          boolean sticky = map.parties[ny][nx] != null;
           int newCost = cost(nx, ny, curMinNodes.get(0)[0], curMinNodes.get(0)[1]);
           int prevCost = curMinCosts.get(0);
           int totalNewCost = prevCost+newCost;
           if (totalNewCost < MOVEMENTPOINTS*100){
             if (nodes[ny][nx] == null){
               nodes[ny][nx] = new Node(totalNewCost, false, curMinNodes.get(0)[0], curMinNodes.get(0)[1]);
-              curMinNodes.add(search(curMinCosts, totalNewCost), new int[]{nx, ny});
-              curMinCosts.add(search(curMinCosts, totalNewCost), totalNewCost);
+              if (!sticky){
+                curMinNodes.add(search(curMinCosts, totalNewCost), new int[]{nx, ny});
+                curMinCosts.add(search(curMinCosts, totalNewCost), totalNewCost);
+              }
             }
             else if (!nodes[ny][nx].fixed){
               if (totalNewCost < nodes[ny][nx].cost){
                 nodes[ny][nx].cost = min(nodes[ny][nx].cost, totalNewCost);
                 nodes[ny][nx].setPrev(curMinNodes.get(0)[0], curMinNodes.get(0)[1]);
-                curMinNodes.remove(search(curMinNodes, nx, ny));
-                curMinNodes.add(search(curMinCosts, totalNewCost), new int[]{nx, ny});
-                curMinCosts.remove(search(curMinNodes, nx, ny));
-                curMinCosts.add(search(curMinCosts, totalNewCost), totalNewCost);
+                if (!sticky){
+                  curMinNodes.remove(search(curMinNodes, nx, ny));
+                  curMinNodes.add(search(curMinCosts, totalNewCost), new int[]{nx, ny});
+                  curMinCosts.remove(search(curMinNodes, nx, ny));
+                  curMinCosts.add(search(curMinCosts, totalNewCost), totalNewCost);
+                }
               }
             }
           }
