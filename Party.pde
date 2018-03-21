@@ -176,7 +176,7 @@ int getBattleUnitChange(Party p1, Party p2){
   return floor(-0.2*(p2.getUnitNumber()+pow(p2.getUnitNumber(), 2)/p1.getUnitNumber())*random(0.85, 1.15)*p2.strength/p1.strength);
 }
 
-int getChanceOfBattleSuccess(Party attacker, Party defender){
+int getChanceOfBattleSuccess(Party attacker, Party defender){ 
   int TRIALS = 1000;
   int wins = 0;
   Party clone1;
