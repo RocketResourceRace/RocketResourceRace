@@ -65,6 +65,8 @@ class Game extends State{
     {0, 200, 0, 0, 0, 0, 0, 0, 0},
     {0, 200, 0, 0, 0, 0, 0, 0, 0},
   };
+  
+  // Costs per productivity per unit
   final float[][] taskCosts = {
     {0.1, 0, 0, 0, 0, 0, 0, 0, 0}, // Rest
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Farm
@@ -86,6 +88,8 @@ class Game extends State{
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Wood
     {0.2, 0, 1, 0, 0, 0, 0, 0, 0}, // Produce Spaceship Parts
   };
+  
+  // Outcomes per productivity per unit
   final float[][] taskOutcomes = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0.01}, // Rest
     {0.4, 0, 0, 0, 0, 0, 0, 0, 0}, // Farm
