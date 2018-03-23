@@ -700,6 +700,19 @@ class Game extends State{
             }
             map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(0);
           }
+          if (map.parties[path.get(node)[1]][path.get(node)[0]].player == 2){
+            // merge cells
+            int overflow = ((Battle) map.parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, map.parties[py][px].unitNumber);
+            if(cellFollow){
+              selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
+              stillThere = false;
+            }
+            if (overflow>0){
+              map.parties[py][px].setUnitNumber(overflow);
+            } else {
+              map.parties[py][px] = null;
+            }
+          }
           else{
             map.parties[path.get(node)[1]][path.get(node)[0]] = new Battle(map.parties[py][px], map.parties[path.get(node)[1]][path.get(node)[0]]);
             map.parties[path.get(node)[1]][path.get(node)[0]] = ((Battle)map.parties[path.get(node)[1]][path.get(node)[0]]).doBattle();

@@ -123,7 +123,7 @@ class Battle extends Party{
     return true;
   }
   float getMovementPoints(int turn){
-    if(turn==0){
+    if(turn==party1.player){
       return party1.getMovementPoints();
     } else {
       return party2.getMovementPoints();
@@ -135,6 +135,17 @@ class Battle extends Party{
       } else {
         return party2.getUnitNumber();
       }
+  }
+  int changeUnitNumber(int turn, int changeInUnitNumber){
+    if(turn==this.party1.player){
+      int overflow = max(0, changeInUnitNumber+party1.getUnitNumber()-1000);
+      this.party1.setUnitNumber(party1.getUnitNumber()+changeInUnitNumber);
+      return overflow;
+    } else {
+      int overflow = max(0, changeInUnitNumber+party2.getUnitNumber()-1000);
+      this.party2.setUnitNumber(party2.getUnitNumber()+changeInUnitNumber);
+      return overflow;
+    }
   }
   Party doBattle(){
     int changeInParty1 = getBattleUnitChange(party1, party2);
@@ -170,6 +181,10 @@ class Battle extends Party{
       return this;
     }
   }
+  Battle clone(){
+    Battle newParty = new Battle(this.party1.clone(), this.party2.clone());
+    return newParty;
+  }
 }
 
 int getBattleUnitChange(Party p1, Party p2){
@@ -183,9 +198,21 @@ int getChanceOfBattleSuccess(Party attacker, Party defender){
   Party clone2;
   Battle battle;
   for (int i = 0;i<TRIALS;i++){
-    clone1 = attacker.clone();
-    clone2 = defender.clone();
-    battle = new Battle(clone1, clone2); 
+    if(defender.player==2){
+      battle = (Battle) defender.clone();
+      battle.changeUnitNumber(attacker.player, attacker.getUnitNumber());
+      if(battle.party1.player==attacker.player){
+        clone1 = battle.party1;
+        clone2 = battle.party2;
+      } else {
+        clone1 = battle.party2;
+        clone2 = battle.party1;
+      }
+    } else {
+      clone1 = attacker.clone();
+      clone2 = defender.clone();
+      battle = new Battle(clone1, clone2); 
+    }
     while (clone1.getUnitNumber()>0&&clone2.getUnitNumber()>0){
       battle.doBattle();
     }
