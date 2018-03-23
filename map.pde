@@ -61,7 +61,7 @@ class Map extends Element{
     panningSpeed = s;
   }
   void limitCoords(){
-    mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth), 0);
+    mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth*0.79), 0);
     mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight), 0);
   }
   void reset(int mapWidth, int mapHeight, int[][] terrain, Party[][] parties, Building[][] buildings){
