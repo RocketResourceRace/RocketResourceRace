@@ -149,7 +149,7 @@ class Battle extends Party{
   }
   Party doBattle(){
     int changeInParty1 = getBattleUnitChange(party1, party2);
-    int changeInParty2 = getBattleUnitChange(party2, party2);
+    int changeInParty2 = getBattleUnitChange(party2, party1);
     party1.strength = 1;
     party2.strength = 1;
     int newParty1Size = party1.getUnitNumber()+changeInParty1;
