@@ -180,7 +180,7 @@ class Game extends State{
       if(parties[cellY][cellX].hasActions()){
         makeTaskAvailable(parties[cellY][cellX].currentAction());
       }
-      if (parties[cellY][cellX].movementPoints >= DEFENDCOST && cellTerrain != WATER)
+      if (parties[cellY][cellX].getMovementPoints() >= DEFENDCOST && cellTerrain != WATER)
         makeTaskAvailable("Defend");
       if (buildings[cellY][cellX] != null){
         if (buildings[cellY][cellX].type==FARM){
@@ -379,7 +379,7 @@ class Game extends State{
         }
       }
     }
-    partyMovementPointsReset(turn);
+    partyMovementPointsReset();
     float mapXOffset;
     float mapYOffset;
     if (map.panning){
@@ -419,12 +419,12 @@ class Game extends State{
     }
     return getNewState();
   }
-  void partyMovementPointsReset(int player){
+  void partyMovementPointsReset(){
     for (int y=0; y<mapHeight; y++){
       for (int x=0; x<mapWidth; x++){
         if (map.parties[y][x] != null){
-          if (map.parties[y][x].player == player){
-            map.parties[y][x].movementPoints = MOVEMENTPOINTS;
+          if (map.parties[y][x].player != 2){
+            map.parties[y][x].setMovementPoints(MOVEMENTPOINTS);
           }
         }
       }
@@ -510,7 +510,7 @@ class Game extends State{
           selectCell((int)map.scaleX(t[0]+1), (int)map.scaleY(t[1]+1));
           map.targetCell(t[0], t[1], 64);
         }
-        if (event.id == "split button" && parties[cellY][cellX].movementPoints>0){
+        if (event.id == "split button" && parties[cellY][cellX].getMovementPoints()>0){
           int[] loc = newPartyLoc();
           int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
           if (loc != null && sliderVal > 0 && parties[cellY][cellX].getUnitNumber() >= 2 && parties[cellY][cellX].getTask() != "Battle"){
@@ -526,7 +526,7 @@ class Game extends State{
           parties[cellY][cellX].target = null;
           if (parties[cellY][cellX].getTask() == "Defend"){
             //Changing from defending
-            parties[cellY][cellX].movementPoints = min(parties[cellY][cellX].movementPoints+DEFENDCOST, MOVEMENTPOINTS);
+            parties[cellY][cellX].setMovementPoints(min(parties[cellY][cellX].movementPoints+DEFENDCOST, MOVEMENTPOINTS));
           }
           //if (parties[cellY][cellX].getTask().substring(0, 5).equals("Build")){
           //  //Changing from building
@@ -548,7 +548,7 @@ class Game extends State{
             map.cancelMoveNodes();
           }
           if (parties[cellY][cellX].getTask() == "Defend"){
-            parties[cellY][cellX].movementPoints -= DEFENDCOST;
+            parties[cellY][cellX].subMovementPoints(DEFENDCOST);
           }
           else if (parties[cellY][cellX].getTask() == "Demolish"){
             parties[cellY][cellX].clearActions();
@@ -688,6 +688,7 @@ class Game extends State{
         else if(path.get(node)[0] != px || path.get(node)[1] != py){
           if (map.parties[path.get(node)[1]][path.get(node)[0]].player == turn){
             // merge cells
+            int movementPoints = min(map.parties[path.get(node)[1]][path.get(node)[0]].getMovementPoints(), map.parties[py][px].getMovementPoints()-cost);
             int overflow = map.parties[path.get(node)[1]][path.get(node)[0]].changeUnitNumber(map.parties[py][px].getUnitNumber());
             if(cellFollow){
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
@@ -698,9 +699,9 @@ class Game extends State{
             } else {
               map.parties[py][px] = null;
             }
-            map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(0);
+            map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(movementPoints);
           } else if (map.parties[path.get(node)[1]][path.get(node)[0]].player == 2){
-            // merge cells
+            // merge cells battle
             int overflow = ((Battle) map.parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, map.parties[py][px].getUnitNumber());
             if(cellFollow){
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
