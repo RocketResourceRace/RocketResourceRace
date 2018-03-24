@@ -633,7 +633,7 @@ class Game extends State{
           
         }
         else if (event.id == "move button"){
-          if (parties[cellY][cellX].player == turn && parties[cellY][cellX].getTask() == "Rest"){
+          if (parties[cellY][cellX].player == turn){
             moving = !moving;
             if (moving){
               map.updateMoveNodes(djk(cellX, cellY));
@@ -769,6 +769,8 @@ class Game extends State{
               int y = floor(map.scaleYInv(mouseY));
               parties[cellY][cellX].target = new int[]{x, y};
               parties[cellY][cellX].path = null;
+              parties[cellY][cellX].changeTask("Rest");
+              parties[cellY][cellX].clearActions();
               moveParty(cellX, cellY);
               map.cancelPath();
             }
