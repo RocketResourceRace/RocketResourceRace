@@ -324,17 +324,17 @@ class Map extends Element{
                  fill(120, 120, 120);
                  rect(max(c.x, xPos), max(c.y, yPos), max(0, min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y, blockSize/16+c.y-yPos)));
                }
-               if (c.x+blockSize*parties[y][x].unitNumber/1000>xPos){
+               if (c.x+blockSize*parties[y][x].getUnitNumber()/1000>xPos){
                  fill(playerColours[battle.party1.player]);
-                 rect(max(c.x, xPos), max(c.y, yPos), max(0, min(blockSize*battle.party1.unitNumber/1000, xPos+elementWidth-c.x, blockSize*battle.party1.unitNumber/1000+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y, blockSize/16+c.y-yPos)));
+                 rect(max(c.x, xPos), max(c.y, yPos), max(0, min(blockSize*battle.party1.getUnitNumber()/1000, xPos+elementWidth-c.x, blockSize*battle.party1.getUnitNumber()/1000+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y, blockSize/16+c.y-yPos)));
                }
                if (c.x+blockSize>xPos){
                  fill(120, 120, 120);
                  rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/16+c.y-yPos)));
                }
-               if (c.x+blockSize*parties[y][x].unitNumber/1000>xPos){
+               if (c.x+blockSize*parties[y][x].getUnitNumber()/1000>xPos){
                  fill(playerColours[battle.party2.player]);
-                 rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize*battle.party2.unitNumber/1000, xPos+elementWidth-c.x, blockSize*battle.party2.unitNumber/1000+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/8+c.y-yPos)));
+                 rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize*battle.party2.getUnitNumber()/1000, xPos+elementWidth-c.x, blockSize*battle.party2.getUnitNumber()/1000+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/8+c.y-yPos)));
                }
                
              } else {
@@ -342,9 +342,9 @@ class Map extends Element{
                  fill(120, 120, 120);
                  rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
                }
-               if (c.x+blockSize*parties[y][x].unitNumber/1000>xPos){
+               if (c.x+blockSize*parties[y][x].getUnitNumber()/1000>xPos){
                  fill(playerColours[parties[y][x].player]);
-                 rect(max(c.x, xPos), max(c.y, yPos), min(blockSize*parties[y][x].unitNumber/1000, xPos+elementWidth-c.x, blockSize*parties[y][x].unitNumber/1000+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
+                 rect(max(c.x, xPos), max(c.y, yPos), min(blockSize*parties[y][x].getUnitNumber()/1000, xPos+elementWidth-c.x, blockSize*parties[y][x].getUnitNumber()/1000+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
                }
              }
            }

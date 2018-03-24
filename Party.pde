@@ -114,7 +114,7 @@ class Battle extends Party{
   Party party1;
   Party party2;
   Battle(Party attacker, Party defender){
-    super(2, attacker.unitNumber+defender.unitNumber, "Battle", 0);
+    super(2, attacker.getUnitNumber()+defender.getUnitNumber(), "Battle", 0);
     party1 = attacker;
     party1.strength*=1.5;
     party2 = defender;

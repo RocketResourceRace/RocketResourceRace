@@ -513,9 +513,9 @@ class Game extends State{
         if (event.id == "split button" && parties[cellY][cellX].movementPoints>0){
           int[] loc = newPartyLoc();
           int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
-          if (loc != null && sliderVal > 0 && parties[cellY][cellX].unitNumber >= 2 && parties[cellY][cellX].getTask() != "Battle"){
+          if (loc != null && sliderVal > 0 && parties[cellY][cellX].getUnitNumber() >= 2 && parties[cellY][cellX].getTask() != "Battle"){
             parties[loc[1]][loc[0]] = new Party(turn, sliderVal, "Rest", 0);
-            parties[cellY][cellX].unitNumber -= sliderVal;
+            parties[cellY][cellX].changeUnitNumber(-sliderVal);
             selectCell((int)map.scaleX(loc[0]+1), (int)map.scaleY(loc[1]+1));
           }
         }
@@ -688,7 +688,7 @@ class Game extends State{
         else if(path.get(node)[0] != px || path.get(node)[1] != py){
           if (map.parties[path.get(node)[1]][path.get(node)[0]].player == turn){
             // merge cells
-            int overflow = map.parties[path.get(node)[1]][path.get(node)[0]].changeUnitNumber(map.parties[py][px].unitNumber);
+            int overflow = map.parties[path.get(node)[1]][path.get(node)[0]].changeUnitNumber(map.parties[py][px].getUnitNumber());
             if(cellFollow){
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
               stillThere = false;
@@ -699,10 +699,9 @@ class Game extends State{
               map.parties[py][px] = null;
             }
             map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(0);
-          }
-          if (map.parties[path.get(node)[1]][path.get(node)[0]].player == 2){
+          } if (map.parties[path.get(node)[1]][path.get(node)[0]].player == 2){
             // merge cells
-            int overflow = ((Battle) map.parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, map.parties[py][px].unitNumber);
+            int overflow = ((Battle) map.parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, map.parties[py][px].getUnitNumber());
             if(cellFollow){
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
               stillThere = false;
@@ -714,7 +713,7 @@ class Game extends State{
             }
           }
           else{
-            map.parties[path.get(node)[1]][path.get(node)[0]] = new Battle(map.parties[py][px], map.parties[path.get(node)[1]][path.get(node)[0]]);
+            map.parties[path.get(node)[1]][path.get(node)[0]] = new Battle(map.parties[py][px], map.parties[path.get(node)[1]][path.get(node)[0]]); //<>//
             map.parties[path.get(node)[1]][path.get(node)[0]] = ((Battle)map.parties[path.get(node)[1]][path.get(node)[0]]).doBattle();
             if(cellFollow){
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
