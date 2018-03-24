@@ -510,13 +510,27 @@ class Game extends State{
           selectCell((int)map.scaleX(t[0]+1), (int)map.scaleY(t[1]+1));
           map.targetCell(t[0], t[1], 64);
         }
-        if (event.id == "split button" && parties[cellY][cellX].getMovementPoints()>0){
+        else if (event.id == "split button" && parties[cellY][cellX].getMovementPoints()>0){
           int[] loc = newPartyLoc();
           int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
           if (loc != null && sliderVal > 0 && parties[cellY][cellX].getUnitNumber() >= 2 && parties[cellY][cellX].getTask() != "Battle"){
             parties[loc[1]][loc[0]] = new Party(turn, sliderVal, "Rest", 0);
             parties[cellY][cellX].changeUnitNumber(-sliderVal);
             selectCell((int)map.scaleX(loc[0]+1), (int)map.scaleY(loc[1]+1));
+          }
+        }
+        else if (event.id == "end turn"){
+          changeTurn();
+        }
+        else if (event.id == "move button"){
+          if (parties[cellY][cellX].player == turn){
+            moving = !moving;
+            if (moving){
+              map.updateMoveNodes(djk(cellX, cellY));
+            }
+            else{
+              map.cancelMoveNodes();
+            }
           }
         }
       }
@@ -625,23 +639,6 @@ class Game extends State{
             }
           }
           checkTasks();
-        }
-      }
-      if (event.type == "clicked"){
-        if (event.id == "end turn"){
-          changeTurn();
-          
-        }
-        else if (event.id == "move button"){
-          if (parties[cellY][cellX].player == turn){
-            moving = !moving;
-            if (moving){
-              map.updateMoveNodes(djk(cellX, cellY));
-            }
-            else{
-              map.cancelMoveNodes();
-            }
-          }
         }
       }
     }
