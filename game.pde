@@ -699,7 +699,7 @@ class Game extends State{
               map.parties[py][px] = null;
             }
             map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(0);
-          } if (map.parties[path.get(node)[1]][path.get(node)[0]].player == 2){
+          } else if (map.parties[path.get(node)[1]][path.get(node)[0]].player == 2){
             // merge cells
             int overflow = ((Battle) map.parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, map.parties[py][px].getUnitNumber());
             if(cellFollow){
