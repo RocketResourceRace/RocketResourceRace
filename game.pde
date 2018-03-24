@@ -813,7 +813,7 @@ class Game extends State{
           Node [][] nodes = map.moveNodes;
           int x = floor(map.scaleXInv(mouseX));
           int y = floor(map.scaleYInv(mouseY));
-          if (nodes[y][x] != null && !(cellX == x && cellY == y)){
+          if (x < mapWidth && nodes[y][x] != null && !(cellX == x && cellY == y)){
             if (parties[cellY][cellX] != null){
               map.updatePath(getPath(cellX, cellY, x, y, map.moveNodes));
             }
