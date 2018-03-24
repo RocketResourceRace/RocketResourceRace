@@ -127,7 +127,7 @@ class Game extends State{
   color partyManagementColour;
   int toolTipSelected;
   ArrayList<Integer[]> prevIdle;
-  
+  Party splittedParty;
   Game(){
     addElement("map", new Map(bezel, bezel, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
     addElement("end turn", new Button(bezel, height-buttonH-bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"));
@@ -511,12 +511,12 @@ class Game extends State{
           map.targetCell(t[0], t[1], 64);
         }
         else if (event.id == "split button" && parties[cellY][cellX].getMovementPoints()>0){
-          int[] loc = newPartyLoc();
           int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
-          if (loc != null && sliderVal > 0 && parties[cellY][cellX].getUnitNumber() >= 2 && parties[cellY][cellX].getTask() != "Battle"){
-            parties[loc[1]][loc[0]] = new Party(turn, sliderVal, "Rest", 0);
+          if (sliderVal > 0 && parties[cellY][cellX].getUnitNumber() >= 2 && parties[cellY][cellX].getTask() != "Battle"){
+            map.updateMoveNodes(djk(cellX, cellY));
+            moving = true;
+            splittedParty = new Party(turn, sliderVal, "Rest", parties[cellY][cellX].getMovementPoints());
             parties[cellY][cellX].changeUnitNumber(-sliderVal);
-            selectCell((int)map.scaleX(loc[0]+1), (int)map.scaleY(loc[1]+1));
           }
         }
         else if (event.id == "end turn"){
@@ -654,16 +654,19 @@ class Game extends State{
     map.setWidth(round(width-bezel*2));
     ((Text)getElement("turns remaining", "party management")).setText("");
   }
-  
   void moveParty(int px, int py){
+    moveParty(px, py, map.parties[py][px], false);
+  }
+  
+  void moveParty(int px, int py, Party p, boolean splitting){
     boolean cellFollow = (px==cellX && py==cellY);
     boolean stillThere = true;
-    if (map.parties[py][px].target == null)
+    if (p.target == null)
       return;
-    int tx = map.parties[py][px].target[0];
-    int ty = map.parties[py][px].target[1];
+    int tx = p.target[0];
+    int ty = p.target[1];
     if (px == tx && py == ty){
-      map.parties[py][px].path = null;
+      p.path = null;
       return;
     }
     Node[][] nodes = djk(px, py);
@@ -673,52 +676,73 @@ class Game extends State{
     
     for (int node=1; node<path.size(); node++){
       int cost = cost(path.get(node)[0], path.get(node)[1], px, py);
-      if (map.parties[py][px].getMovementPoints() >= cost){
+      if (p.getMovementPoints() >= cost){
         if (map.parties[path.get(node)[1]][path.get(node)[0]] == null){
           // empty cell
-          map.parties[py][px].subMovementPoints(cost);
-          map.parties[path.get(node)[1]][path.get(node)[0]] = map.parties[py][px];
-          map.parties[py][px] = null;
+          p.subMovementPoints(cost);
+          map.parties[path.get(node)[1]][path.get(node)[0]] = p;
+          if (splitting){
+            splittedParty = null;
+            splitting = false;
+          } else{
+            map.parties[py][px] = null;
+          }
           px = path.get(node)[0];
           py = path.get(node)[1];
+          p = map.parties[py][px];
         }
         else if(path.get(node)[0] != px || path.get(node)[1] != py){
           if (map.parties[path.get(node)[1]][path.get(node)[0]].player == turn){
             // merge cells
-            int movementPoints = min(map.parties[path.get(node)[1]][path.get(node)[0]].getMovementPoints(), map.parties[py][px].getMovementPoints()-cost);
-            int overflow = map.parties[path.get(node)[1]][path.get(node)[0]].changeUnitNumber(map.parties[py][px].getUnitNumber());
+            int movementPoints = min(map.parties[path.get(node)[1]][path.get(node)[0]].getMovementPoints(), p.getMovementPoints()-cost);
+            int overflow = map.parties[path.get(node)[1]][path.get(node)[0]].changeUnitNumber(p.getUnitNumber());
             if(cellFollow){
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
               stillThere = false;
             }
             if (overflow>0){
-              map.parties[py][px].setUnitNumber(overflow);
+              p.setUnitNumber(overflow);
             } else {
-              map.parties[py][px] = null;
+              if (splitting){
+                splittedParty = null;
+                splitting = false;
+              } else{
+                map.parties[py][px] = null;
+              }
             }
             map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(movementPoints);
           } else if (map.parties[path.get(node)[1]][path.get(node)[0]].player == 2){
             // merge cells battle
-            int overflow = ((Battle) map.parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, map.parties[py][px].getUnitNumber());
+            int overflow = ((Battle) map.parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, p.getUnitNumber());
             if(cellFollow){
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
               stillThere = false;
             }
             if (overflow>0){
-              map.parties[py][px].setUnitNumber(overflow);
+              p.setUnitNumber(overflow);
             } else {
-              map.parties[py][px] = null;
+              if (splitting){
+                splittedParty = null;
+                splitting = false;
+              } else{
+                map.parties[py][px] = null;
+              }
             }
           }
           else{
-            map.parties[py][px].subMovementPoints(cost);
-            map.parties[path.get(node)[1]][path.get(node)[0]] = new Battle(map.parties[py][px], map.parties[path.get(node)[1]][path.get(node)[0]]); //<>//
+            p.subMovementPoints(cost);
+            map.parties[path.get(node)[1]][path.get(node)[0]] = new Battle(p, map.parties[path.get(node)[1]][path.get(node)[0]]); //<>//
             map.parties[path.get(node)[1]][path.get(node)[0]] = ((Battle)map.parties[path.get(node)[1]][path.get(node)[0]]).doBattle();
             if(cellFollow){
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
               stillThere = false;
             }
-            map.parties[py][px] = null;
+            if (splitting){
+                splittedParty = null;
+                splitting = false;
+              } else{
+                map.parties[py][px] = null;
+              }
             if(map.buildings[path.get(node)[1]][path.get(node)[0]]!=null&&map.buildings[path.get(node)[1]][path.get(node)[0]].type==0){
               map.buildings[path.get(node)[1]][path.get(node)[0]] = null;
             }
@@ -727,7 +751,7 @@ class Game extends State{
         i++;
       }
       else{
-        map.parties[py][px].path = new ArrayList(path.subList(i, path.size()));
+        p.path = new ArrayList(path.subList(i, path.size()));
         break;
       }
     }
@@ -764,11 +788,21 @@ class Game extends State{
             if (moving){
               int x = floor(map.scaleXInv(mouseX));
               int y = floor(map.scaleYInv(mouseY));
-              parties[cellY][cellX].target = new int[]{x, y};
-              parties[cellY][cellX].path = null;
-              parties[cellY][cellX].changeTask("Rest");
-              parties[cellY][cellX].clearActions();
-              moveParty(cellX, cellY);
+              if (splittedParty != null){
+                splittedParty.target = new int[]{x, y};
+                splittedParty.path = null;
+                splittedParty.changeTask("Rest");
+                splittedParty.clearActions();
+                moveParty(cellX, cellY, splittedParty, true);
+                splittedParty = null;
+                moving = false;
+              } else {
+                parties[cellY][cellX].target = new int[]{x, y};
+                parties[cellY][cellX].path = null;
+                parties[cellY][cellX].changeTask("Rest");
+                parties[cellY][cellX].clearActions();
+                moveParty(cellX, cellY);
+              }
               map.cancelPath();
             }
             else{
