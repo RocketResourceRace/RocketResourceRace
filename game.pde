@@ -655,10 +655,16 @@ class Game extends State{
     ((Text)getElement("turns remaining", "party management")).setText("");
   }
   void moveParty(int px, int py){
-    moveParty(px, py, map.parties[py][px], false);
+    moveParty(px, py, false);
   }
   
-  void moveParty(int px, int py, Party p, boolean splitting){
+  void moveParty(int px, int py, boolean splitting){
+    Party p;
+    if (splitting){
+      p = splittedParty;
+    } else {
+      p = map.parties[py][px];
+    }
     boolean cellFollow = (px==cellX && py==cellY);
     boolean stillThere = true;
     if (p.target == null)
@@ -793,9 +799,7 @@ class Game extends State{
                 splittedParty.path = null;
                 splittedParty.changeTask("Rest");
                 splittedParty.clearActions();
-                moveParty(cellX, cellY, splittedParty, true);
-                splittedParty = null;
-                moving = false;
+                moveParty(cellX, cellY, true);
               } else {
                 parties[cellY][cellX].target = new int[]{x, y};
                 parties[cellY][cellX].path = null;
