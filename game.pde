@@ -5,7 +5,7 @@ class Game extends State{
   final int bezel = 10;
   final int mapElementWidth = round(width-bezel*2);
   final int mapElementHeight = round(height-bezel*4-buttonH);
-  final int[] terrainCosts = new int[]{32, 24, 16, 12, 8, 12, 28};
+  final int[] terrainCosts = new int[]{16, 12, 8, 12, 28};
   final int MOVEMENTPOINTS = 64;
   final int DEFENDCOST = 32;
   final float [] STARTINGRESOURCES = new float[]{500, 500, 0, 0, 0, 0, 0, 0, 0};
@@ -713,6 +713,7 @@ class Game extends State{
             }
           }
           else{
+            map.parties[py][px].subMovementPoints(cost);
             map.parties[path.get(node)[1]][path.get(node)[0]] = new Battle(map.parties[py][px], map.parties[path.get(node)[1]][path.get(node)[0]]); //<>//
             map.parties[path.get(node)[1]][path.get(node)[0]] = ((Battle)map.parties[path.get(node)[1]][path.get(node)[0]]).doBattle();
             if(cellFollow){
@@ -1148,13 +1149,7 @@ class Game extends State{
       mult = 1.41;
     }
     if (0<x && x<mapSize && 0<y && y<mapSize){
-      if (map.parties[y][x] == null){
-        return round(float(terrainCosts[terrain[y][x]+1])*mult); 
-      } else if(map.parties[y][x].player!=this.turn){
-        return round(float(terrainCosts[0])*mult);
-      }else if(map.parties[y][x].player==this.turn){
-        return round(float(terrainCosts[1])*mult);
-      }
+      return round(float(terrainCosts[terrain[y][x]-1])*mult);
     }
     //Not a valid location
     return -1;
