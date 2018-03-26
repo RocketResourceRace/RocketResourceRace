@@ -1,4 +1,15 @@
 
+class Building{
+  int type;
+  Building(int type){
+    this.type = type;
+  }
+}
+
+
+
+
+
 
 class Party{
   private int unitNumber;
@@ -228,4 +239,60 @@ int getChanceOfBattleSuccess(Party attacker, Party defender){
     }
   }
   return round((wins*50/TRIALS))*2;
+}
+
+
+
+
+
+class Player{
+  float mapXOffset, mapYOffset, blockSize;
+  float wood, food, energy, metal;
+  float[] resources;
+  int cellX, cellY;
+  boolean cellSelected = false;
+  // Resources: food wood metal energy concrete cable spaceship_parts ore people
+  Player(float mapXOffset, float mapYOffset, float blockSize, float[] resources){
+    this.mapXOffset = mapXOffset;
+    this.mapYOffset = mapYOffset;
+    this.blockSize = blockSize;
+    this.resources = resources; 
+  }
+  void saveSettings(float mapXOffset, float mapYOffset, float blockSize, int cellX, int cellY, boolean cellSelected){
+    this.mapXOffset = mapXOffset;
+    this.mapYOffset = mapYOffset;
+    this.blockSize = blockSize;
+    this.cellX = cellX;
+    this.cellY = cellY;
+    this.cellSelected = cellSelected;
+  }
+  void loadSettings(Game g, Map m){
+    m.loadSettings(mapXOffset, mapYOffset, blockSize);
+    if(cellSelected){
+      g.selectCell((int)this.cellX, (int)this.cellY, false);
+    } else {
+      g.deselectCell();
+    }
+  }
+}
+
+
+
+
+
+class Node{
+  int cost;
+  boolean fixed;
+  int prevX = -1, prevY = -1;
+  
+  Node(int cost, boolean fixed, int prevX, int prevY){
+    this.fixed = fixed;
+    this.cost = cost;
+    this.prevX = prevX;
+    this.prevY = prevY;
+  }
+  void setPrev(int prevX ,int prevY){
+    this.prevX = prevX;
+    this.prevY = prevY;
+  }
 }
