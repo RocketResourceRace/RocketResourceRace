@@ -220,13 +220,25 @@ class Map extends Element{
     this.elementWidth = w;
   }
   
+  void drawSelectedCell(PVector c){
+   //cell selection
+   stroke(0);
+   if (cellSelected){
+     if (max(c.x, xPos)+min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)>xPos && max(c.x, xPos) < elementWidth+xPos && max(c.y, yPos)+min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos)>yPos && max(c.y, yPos) < elementHeight+yPos){
+       fill(50, 100);
+       rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
+     }
+   }
+  }
+  
   void draw(){
 
     // Terrain
 
     PImage[] tempTileImages = new PImage[NUMOFGROUNDTYPES];
-    PImage[] tempBuildingImages = new PImage[NUMOFBUILDINGTYPES];
+    PImage[][] tempBuildingImages = new PImage[NUMOFBUILDINGTYPES][];
     PImage[] tempPartyImages = new PImage[3];
+    HashMap<String, PImage> tempTaskImages = new HashMap<String, PImage>();
     if (frameStartTime == 0){
       frameStartTime = millis();
     }
@@ -264,12 +276,19 @@ class Map extends Element{
       }
     }
     for (int i=0; i<NUMOFBUILDINGTYPES; i++){
-      tempBuildingImages[i] = buildingImages[i].copy();
-      tempBuildingImages[i].resize(ceil(blockSize*48/64), 0);
+      tempBuildingImages[i] = new PImage[buildingImages[i].length];
+      for (int j=0; j<buildingImages[i].length; j++){
+        tempBuildingImages[i][j] = buildingImages[i][j].copy();
+        tempBuildingImages[i][j].resize(ceil(blockSize*48/64), 0);
+      }
     }
     for (int i=0; i<3; i++){
       tempPartyImages[i] = partyImages[i].copy();
       tempPartyImages[i].resize(ceil(blockSize), 0);
+    }
+    for(String taskName: taskImages.keySet()){
+      tempTaskImages.put(taskName, taskImages.get(taskName).copy());
+      tempTaskImages.get(taskName).resize(ceil(3*blockSize/16), 0);
     }
     int lx = max(0, -ceil((mapXOffset)/blockSize)+1);
     int ly = max(0, -ceil((mapYOffset)/blockSize)+1);
@@ -301,17 +320,17 @@ class Map extends Element{
      image(tempTileImages[terrain[hy][lx-1]-1].get(ceil(blockSize)-leftW, 0, leftW, bottomW), xPos, y3);
      image(tempTileImages[terrain[ly-1][hx]-1].get(0, ceil(blockSize)-topW, rightW, topW), x3, yPos);
 
-
-     //Buildings
      PVector c;
+     PVector selectedCell = new PVector(scaleX(selectedCellX), scaleY(selectedCellY));
+
      for(int y=ly-1;y<hy+1;y++){
        for (int x=lx-1; x<hx+1; x++){
-         //int pt = millis();
+         //Buildings
          if (buildings[y][x] != null){
            c = new PVector(scaleX(x), scaleY(y));
            int border = round((64-48)*blockSize/(2*64));
            int imgSize = round(blockSize*48/60);
-           drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, tempBuildingImages[buildings[y][x].type]);
+           drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, tempBuildingImages[buildings[y][x].type][buildings[y][x].image_id]);
          }
          //Parties
          if(parties[y][x]!=null){
@@ -347,9 +366,32 @@ class Map extends Element{
                  rect(max(c.x, xPos), max(c.y, yPos), min(blockSize*parties[y][x].getUnitNumber()/1000, xPos+elementWidth-c.x, blockSize*parties[y][x].getUnitNumber()/1000+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
                }
              }
+             int imgSize = round(blockSize);
+             drawCroppedImage(floor(c.x), floor(c.y), imgSize, imgSize, tempPartyImages[parties[y][x].player]);
+             for (String task: taskImages.keySet()){
+               if (parties[y][x].task.contains(task)){
+                 drawCroppedImage(floor(c.x+13*blockSize/32), floor(c.y+blockSize/2), ceil(3*blockSize/16), ceil(3*blockSize/16), tempTaskImages.get(task));
+               }
+             }
            }
-           int imgSize = round(blockSize);
-           drawCroppedImage(floor(c.x), floor(c.y), imgSize, imgSize, tempPartyImages[parties[y][x].player]);
+         }
+         if (cellSelected&&y==selectedCellY&&x==selectedCellX){
+           drawSelectedCell(selectedCell);
+         }
+         if(parties[y][x]!=null){
+           c = new PVector(scaleX(x), scaleY(y));
+           if(c.x<xPos+elementWidth&&c.y+blockSize/8>yPos&&c.y<yPos+elementHeight){
+             textSize(blockSize/7);
+             fill(255);
+             textAlign(CENTER, CENTER);
+             if(parties[y][x].actions.size() > 0 && parties[y][x].actions.get(0).initialTurns>0){
+               int totalTurns = round(parties[y][x].actions.get(0).initialTurns);
+               String turnsLeftString = str(totalTurns-parties[y][x].turnsLeft())+"/"+str(totalTurns);
+               if (c.x+textWidth(turnsLeftString) < elementWidth+xPos && c.y+2*(textAscent()+textDescent()) < elementHeight+yPos){
+                 text(turnsLeftString, c.x+blockSize/2, c.y+3*blockSize/4);
+               }
+             }
+           }
          }
          //if (millis()-pt > 10){
          //  println(millis()-pt);
@@ -357,15 +399,6 @@ class Map extends Element{
        }
      }
 
-     //cell selection
-     stroke(0);
-     if (cellSelected){
-       c = new PVector(scaleX(selectedCellX), scaleY(selectedCellY));
-       if (max(c.x, xPos)+min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)>xPos && max(c.x, xPos) < elementWidth+xPos && max(c.y, yPos)+min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos)>yPos && max(c.y, yPos) < elementHeight+yPos){
-         fill(50, 100);
-         rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
-       }
-     }
      if (moveNodes != null){
        for (int y1=0; y1<mapHeight; y1++){
          for (int x=0; x<mapWidth; x++){

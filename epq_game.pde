@@ -102,8 +102,9 @@ int completeSmooth = 5;
 color[] playerColours = new color[]{color(0, 0, 255), color(255, 0, 0)};
 
 PImage[] tileImages;
-PImage[] buildingImages;
+PImage[][] buildingImages;
 PImage[] partyImages;
+HashMap<String, PImage> taskImages;
 HashMap<Integer, PImage> lowImages;
 
 void changeSetting(String id, String newValue){
@@ -168,21 +169,31 @@ void setup(){
   lowImages = new HashMap<Integer, PImage>();
   lowImages.put(3, loadImage("data/forest_low.png"));
   lowImages.put(0, loadImage("data/water_low.png"));
-  buildingImages = new PImage[]{
-    loadImage("data/construction.png"),
-    loadImage("data/house.png"),
-    loadImage("data/farm.png"),
-    loadImage("data/mine.png"),
-    loadImage("data/smelter.png"),
-    loadImage("data/factory.png"),
-    loadImage("data/sawmill.png"),
-    loadImage("data/big_factory.png")
+  buildingImages = new PImage[][]{
+    {loadImage("data/construction_start.png"),
+    loadImage("data/construction_mid.png"),
+    loadImage("data/construction_end.png")},
+    {loadImage("data/house.png")},
+    {loadImage("data/farm.png")},
+    {loadImage("data/mine.png")},
+    {loadImage("data/smelter.png")},
+    {loadImage("data/factory.png")},
+    {loadImage("data/sawmill.png")},
+    {loadImage("data/big_factory.png")}
   };
   partyImages = new PImage[]{
     loadImage("data/blue_flag.png"),
     loadImage("data/red_flag.png"),
     loadImage("data/battle.png")
   };
+  taskImages = new HashMap<String, PImage>();
+  taskImages.put("Work Farm", loadImage("data/task_farm.png"));
+  taskImages.put("Defend", loadImage("data/task_defend.png"));
+  taskImages.put("Demolish", loadImage("data/task_demolish.png"));
+  taskImages.put("Forest", loadImage("data/task_clear_forest.png"));
+  taskImages.put("Build", loadImage("data/task_construction.png"));
+  taskImages.put("Super", loadImage("data/task_super_rest.png"));
+  taskImages.put("Produce", loadImage("data/task_produce.png"));
   states = new HashMap<String, State>();
   addState("menu", new Menu());
   addState("map", new Game());

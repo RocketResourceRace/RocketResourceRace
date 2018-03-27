@@ -1,8 +1,12 @@
 
+
+
 class Building{
   int type;
+  int image_id;
   Building(int type){
     this.type = type;
+    this.image_id = 0;
   }
 }
 
@@ -67,13 +71,20 @@ class Party{
     if (actions.size() == 0){
       return "";
     }
-    if (actions.get(0).turns-sqrt((float)unitNumber)/10 <= 0){
+    else if (actions.get(0).turns-sqrt((float)unitNumber)/10 <= 0){
       return actions.get(0).type;
     }
     else{
       actions.get(0).turns -= sqrt((float)unitNumber)/10;
+      if (actions.get(0).type.contains("Build")) {
+        if (actions.get(0).turns-sqrt((float)unitNumber)/10 <= 0){
+          return "Construction End";
+        } else {
+          return "Construction Mid";
+        }
+      }
+      return "";
     }
-    return "";
   }
   void clearCurrentAction(){
     if (actions.size() > 0)
