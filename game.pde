@@ -127,6 +127,7 @@ class Game extends State{
   color partyManagementColour;
   int toolTipSelected;
   ArrayList<Integer[]> prevIdle;
+  float[] totals = {0,0,0,0,0,0,0,0,0};
   Party splittedParty;
   Game(){
     addElement("map", new Map(bezel, bezel, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
@@ -298,8 +299,7 @@ class Game extends State{
         }
         checkTasks();
       }
-    
-
+    this.totals = totalResources();
     return false;
   }
   void updateCellSelection(){
@@ -553,6 +553,7 @@ class Game extends State{
     turn = (turn + 1)%2;
     players[turn].loadSettings(this, map);
     changeTurn = false;
+    this.totals = totalResources();
     if (turn == 0)
       turnNumber ++;
   }
@@ -1067,6 +1068,19 @@ class Game extends State{
     return returnString;
   }
   
+  float[] totalResources(){
+    float[] amount={0,0,0,0,0,0,0,0,0};
+    for (int x=0; x<mapWidth; x++){
+      for (int y=0; y<mapHeight; y++){
+        for (int res=0; res<9; res++){
+          amount[res]+=resourceProduction(x, y)[res];
+          amount[res]-=resourceConsumption(x, y)[res];
+        }
+      }
+    }
+    return amount;
+  }
+  
   void drawCellManagement(){
     pushStyle();
     fill(0, 150, 0);
@@ -1095,6 +1109,7 @@ class Game extends State{
     text("Consuming: "+resourcesList(consumption), 5+cellSelectionX, barY);
     barY += 13*TextScale;
   }
+  
   
   void drawBar(){
     float barX=buttonW*2+bezel*3;
@@ -1126,7 +1141,6 @@ class Game extends State{
     text(turnString, barX+5, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
     barX += textWidth(turnString)+10+bezel;
     
-    
     textAlign(CENTER, TOP);
     String tempString;
     barX=width;
@@ -1139,6 +1153,17 @@ class Game extends State{
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
+    fill(0);
+    textSize(8*TextScale);
+    if (totals[3] >= 0){
+      fill(0);
+      tempString = "+"+totals[3];
+    }
+    else{
+      fill(255, 0, 0);
+      tempString = ""+totals[3];
+    }
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel+(textDescent()+textAscent())/2-buttonH/2);
     
     tempString = "metal:"+round(players[turn].resources[2]);
     barX -= textWidth(tempString)+10+bezel;
@@ -1149,6 +1174,17 @@ class Game extends State{
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
+    fill(0);
+    textSize(8*TextScale);
+    if (totals[2] >= 0){
+      fill(0);
+      tempString = "+"+totals[2];
+    }
+    else{
+      fill(255, 0, 0);
+      tempString = ""+totals[2];
+    }
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel+(textDescent()+textAscent())/2-buttonH/2);
     
     tempString = "wood:"+round(players[turn].resources[1]);
     barX -= textWidth(tempString)+10+bezel;
@@ -1159,6 +1195,17 @@ class Game extends State{
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
+    fill(0);
+    textSize(8*TextScale);
+    if (totals[1] >= 0){
+      fill(0);
+      tempString = "+"+totals[1];
+    }
+    else{
+      fill(255, 0, 0);
+      tempString = ""+totals[1];
+    }
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel+(textDescent()+textAscent())/2-buttonH/2);
      
     tempString = "food:"+round(players[turn].resources[0]);
     barX -= textWidth(tempString)+10+bezel;
@@ -1169,6 +1216,17 @@ class Game extends State{
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
+    fill(0);
+    textSize(8*TextScale);
+    if (totals[0] >= 0){
+      fill(0);
+      tempString = "+"+totals[0];
+    }
+    else{
+      fill(255, 0, 0);
+      tempString = ""+totals[0];
+    }
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel+(textDescent()+textAscent())/2-buttonH/2);
   }
   
   ArrayList<String> keyboardEvent(String eventType, char _key){
@@ -1210,6 +1268,7 @@ class Game extends State{
     turn = 0;
     turnNumber = 0;
     toolTipSelected=-1;
+    this.totals = totalResources();
   }
   int cost(int x, int y, int prevX, int prevY){
     float mult = 1;
@@ -1233,39 +1292,6 @@ class Game extends State{
     }
     return returnNodes;
   }
-  //ArrayList<int[]> getPath(int startX, int startY, int targetX, int targetY, Node[][] nodes){
-  //  int iters = 0;
-  //  float thresh = 0;
-  //  ArrayList<int[]> returnNodes = new ArrayList<int[]>();
-  //  int[][] mvs = {{1,0}, {0,1}, {1,1}, {-1,0}, {0,-1}, {-1,-1}, {1,-1}, {-1,1}};
-  //  int[] curNode = {targetX, targetY};
-  //  int[] prevNode = {targetX, targetY};
-  //  int[] startNode = {startX, startY};
-  //  int remainingCost=nodes[targetY][targetX].cost;
-  //  returnNodes.add(new int[]{targetX, targetY});
-  //  while (!curNode.equals(startNode) && remainingCost > 0){
-  //    if (iters++ > 1000)
-  //      break;
-  //    for (int[] mv : mvs){
-  //      int nx = curNode[0]+mv[0];
-  //      int ny = curNode[1]+mv[1];
-  //      if (0 <= nx && nx < mapWidth && 0 <= ny && ny < mapHeight && nodes[ny][nx] != null){
-  //        int cost = cost(curNode[0], curNode[1], nx, ny);
-  //        if (abs((remainingCost-cost)-nodes[ny][nx].cost) < thresh){
-  //          remainingCost = nodes[ny][nx].cost;
-  //          returnNodes.add(new int[]{nx, ny});
-  //          curNode = new int[]{nx, ny};
-  //          break;
-  //        }
-  //      }
-  //    }
-  //    if (curNode.equals(prevNode)){
-  //      thresh += 0.01;
-  //    }
-  //    prevNode = curNode;
-  //  }
-  //  return returnNodes;
-  //}
   Node[][] djk(int x, int y){
     int[][] mvs = {{1,0}, {0,1}, {1,1}, {-1,0}, {0,-1}, {-1,-1}, {1,-1}, {-1,1}};
     int xOff = 0;
