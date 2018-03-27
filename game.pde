@@ -145,12 +145,51 @@ class Game extends State{
     addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
     //int x, int y, int w, int h, color KnobColour, color bgColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name
     addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
-    addElement("split button", new Button(bezel*2+240, bezel*3+30, 100, 30, color(150), color(50), color(0), 10, CENTER, "Split"), "party management");
     addElement("tasks", new DropDown(bezel, bezel*4+30+30, 220, 10, color(150), color(50), tasks), "party management");
     turnNumber = 0;
     toolTipSelected=-1;
     prevIdle = new ArrayList<Integer[]>();
   }     
+  boolean postEvent(GameEvent event){
+    if (event instanceof Move){
+      
+      Move m = (Move)event;
+      int x = m.endX;
+      int y = m.endY;
+      int cellX = m.startX;
+      int cellY = m.startY;
+      
+      if (canMove(cellX, cellY)){
+        int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
+        if (sliderVal > 0 && parties[cellY][cellX].getUnitNumber() >= 2 && parties[cellY][cellX].getTask() != "Battle"){
+          map.updateMoveNodes(djk(cellX, cellY));
+          moving = true;
+          splittedParty = new Party(turn, sliderVal, "Rest", parties[cellY][cellX].getMovementPoints());
+          parties[cellY][cellX].changeUnitNumber(-sliderVal);
+          if (parties[cellY][cellX].getUnitNumber() <= 0){
+            parties[cellY][cellX] = null;
+          }
+        }
+      }
+      
+      if (splittedParty != null){
+        splittedParty.target = new int[]{x, y};
+        splittedParty.path = null;
+        splittedParty.changeTask("Rest");
+        splittedParty.clearActions();
+        moveParty(cellX, cellY, true);
+      } 
+      else {
+        parties[cellY][cellX].target = new int[]{x, y};
+        parties[cellY][cellX].path = null;
+        parties[cellY][cellX].changeTask("Rest");
+        parties[cellY][cellX].clearActions();
+        moveParty(cellX, cellY);
+      }
+    }
+
+    return false;
+  }
   void updateCellSelection(){
     cellSelectionX = round((width-400-bezel*2)*GUIScale)+bezel*2;     
     cellSelectionY = bezel*2;
@@ -510,15 +549,6 @@ class Game extends State{
           selectCell((int)map.scaleX(t[0]+1), (int)map.scaleY(t[1]+1));
           map.targetCell(t[0], t[1], 64);
         }
-        else if (event.id == "split button" && parties[cellY][cellX].getMovementPoints()>0){
-          int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
-          if (sliderVal > 0 && parties[cellY][cellX].getUnitNumber() >= 2 && parties[cellY][cellX].getTask() != "Battle"){
-            map.updateMoveNodes(djk(cellX, cellY));
-            moving = true;
-            splittedParty = new Party(turn, sliderVal, "Rest", parties[cellY][cellX].getMovementPoints());
-            parties[cellY][cellX].changeUnitNumber(-sliderVal);
-          }
-        }
         else if (event.id == "end turn"){
           changeTurn();
         }
@@ -794,19 +824,7 @@ class Game extends State{
             if (moving){
               int x = floor(map.scaleXInv(mouseX));
               int y = floor(map.scaleYInv(mouseY));
-              if (splittedParty != null){
-                splittedParty.target = new int[]{x, y};
-                splittedParty.path = null;
-                splittedParty.changeTask("Rest");
-                splittedParty.clearActions();
-                moveParty(cellX, cellY, true);
-              } else {
-                parties[cellY][cellX].target = new int[]{x, y};
-                parties[cellY][cellX].path = null;
-                parties[cellY][cellX].changeTask("Rest");
-                parties[cellY][cellX].clearActions();
-                moveParty(cellX, cellY);
-              }
+              postEvent(new Move(cellX, cellY, x, y));
               map.cancelPath();
             }
             else{
@@ -842,9 +860,6 @@ class Game extends State{
       }
       else if(((Button)getElement("move button", "party management")).mouseOver()&& getPanel("party management").visible){
         toolTipSelected = 15;
-      }
-      else if(((Button)getElement("split button", "party management")).mouseOver()&& getPanel("party management").visible){
-        toolTipSelected = 16;
       }
       else if (moving&&map.mouseOver() && ((!getPanel("party management").mouseOver() || !getPanel("party management").visible) && (!getPanel("land management").mouseOver() || !getPanel("land management").visible))){
           Node [][] nodes = map.moveNodes;
@@ -916,7 +931,7 @@ class Game extends State{
         if (parties[cellY][cellX].getUnitNumber() <= 1){
           ((Slider)getElement("split units", "party management")).hide();
         } else {
-          ((Slider)getElement("split units", "party management")).setScale(1, 1, parties[cellY][cellX].getUnitNumber()-1, 1, parties[cellY][cellX].getUnitNumber());
+          ((Slider)getElement("split units", "party management")).setScale(1, parties[cellY][cellX].getUnitNumber(), parties[cellY][cellX].getUnitNumber(), 1, parties[cellY][cellX].getUnitNumber()/2);
         }
         if (turn == 1){ 
           partyManagementColour = color(170, 30, 30);
