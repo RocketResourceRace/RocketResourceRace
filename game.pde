@@ -17,6 +17,7 @@ class Game extends State{
   final int GRASS = 3;
   final int FOREST = 4;
   final int HILLS = 5;
+  final int CONSTRUCTION = 0;
   final int HOMES = 1;
   final int FARM = 2;
   final int MINE = 3;
@@ -230,7 +231,7 @@ class Game extends State{
             ((Text)getElement("turns remaining", "party management")).setText("");
             parties[cellY][cellX].addAction(new Action("Build Farm", buildingTimes[FARM]));
             spendRes(players[turn], buildingCosts[1]);
-            buildings[cellY][cellX] = new Building(0);
+            buildings[cellY][cellX] = new Building(CONSTRUCTION);
           }
           else{
             parties[cellY][cellX].changeTask("Rest");
@@ -242,7 +243,7 @@ class Game extends State{
             ((Text)getElement("turns remaining", "party management")).setText("");
             parties[cellY][cellX].addAction(new Action("Build Sawmill", buildingTimes[SAWMILL]));
             spendRes(players[turn], buildingCosts[5]);
-            buildings[cellY][cellX] = new Building(0);
+            buildings[cellY][cellX] = new Building(CONSTRUCTION);
           }
           else{
             parties[cellY][cellX].changeTask("Rest");
@@ -254,7 +255,7 @@ class Game extends State{
             ((Text)getElement("turns remaining", "party management")).setText("");
             parties[cellY][cellX].addAction(new Action("Build Homes", buildingTimes[HOMES]));
             spendRes(players[turn], buildingCosts[0]);
-            buildings[cellY][cellX] = new Building(0);
+            buildings[cellY][cellX] = new Building(CONSTRUCTION);
           }
           else{
             parties[cellY][cellX].changeTask("Rest");
@@ -266,7 +267,7 @@ class Game extends State{
             ((Text)getElement("turns remaining", "party management")).setText("");
             parties[cellY][cellX].addAction(new Action("Build Factory", buildingTimes[FACTORY]));
             spendRes(players[turn], buildingCosts[4]);
-            buildings[cellY][cellX] = new Building(0);
+            buildings[cellY][cellX] = new Building(CONSTRUCTION);
           }
           else{
             parties[cellY][cellX].changeTask("Rest");
@@ -278,7 +279,7 @@ class Game extends State{
             ((Text)getElement("turns remaining", "party management")).setText("");
             parties[cellY][cellX].addAction(new Action("Build Mine", buildingTimes[MINE]));
             spendRes(players[turn], buildingCosts[2]);
-            buildings[cellY][cellX] = new Building(0);
+            buildings[cellY][cellX] = new Building(CONSTRUCTION);
           }
           else{
             parties[cellY][cellX].changeTask("Rest");
@@ -290,7 +291,7 @@ class Game extends State{
             ((Text)getElement("turns remaining", "party management")).setText("");
             parties[cellY][cellX].addAction(new Action("Build Smelter", buildingTimes[SMELTER]));
             spendRes(players[turn], buildingCosts[3]);
-            buildings[cellY][cellX] = new Building(0);
+            buildings[cellY][cellX] = new Building(CONSTRUCTION);
           }
           else{
             parties[cellY][cellX].changeTask("Rest");
@@ -469,6 +470,14 @@ class Game extends State{
               case "Demolish":
                 reclaimRes(players[turn], buildingCosts[5]);
                 map.buildings[y][x] = null;
+                break;
+              case "Construction Mid":
+                map.buildings[y][x].image_id = 1;
+                action = "";
+                break;
+              case "Construction End":
+                map.buildings[y][x].image_id = 2;
+                action = "";
                 break;
             }
             if (action != ""){

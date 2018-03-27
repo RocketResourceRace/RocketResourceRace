@@ -102,7 +102,7 @@ int completeSmooth = 5;
 color[] playerColours = new color[]{color(0, 0, 255), color(255, 0, 0)};
 
 PImage[] tileImages;
-PImage[] buildingImages;
+PImage[][] buildingImages;
 PImage[] partyImages;
 HashMap<String, PImage> taskImages;
 HashMap<Integer, PImage> lowImages;
@@ -169,15 +169,17 @@ void setup(){
   lowImages = new HashMap<Integer, PImage>();
   lowImages.put(3, loadImage("data/forest_low.png"));
   lowImages.put(0, loadImage("data/water_low.png"));
-  buildingImages = new PImage[]{
-    loadImage("data/construction.png"),
-    loadImage("data/house.png"),
-    loadImage("data/farm.png"),
-    loadImage("data/mine.png"),
-    loadImage("data/smelter.png"),
-    loadImage("data/factory.png"),
-    loadImage("data/sawmill.png"),
-    loadImage("data/big_factory.png")
+  buildingImages = new PImage[][]{
+    {loadImage("data/construction_start.png"),
+    loadImage("data/construction_mid.png"),
+    loadImage("data/construction_end.png")},
+    {loadImage("data/house.png")},
+    {loadImage("data/farm.png")},
+    {loadImage("data/mine.png")},
+    {loadImage("data/smelter.png")},
+    {loadImage("data/factory.png")},
+    {loadImage("data/sawmill.png")},
+    {loadImage("data/big_factory.png")}
   };
   partyImages = new PImage[]{
     loadImage("data/blue_flag.png"),
