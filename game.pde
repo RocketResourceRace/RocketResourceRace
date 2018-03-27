@@ -303,12 +303,15 @@ class Game extends State{
     return false;
   }
   void updateCellSelection(){
-    cellSelectionX = round((width-400-bezel*2)*GUIScale)+bezel*2;     
+    cellSelectionX = round((width-400-bezel*2)/GUIScale)+bezel*2;     
     cellSelectionY = bezel*2;
     cellSelectionW = width-cellSelectionX-bezel*2;
-    cellSelectionH = round(mapElementHeight*GUIScale);
+    cellSelectionH = round(mapElementHeight);
     getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.3));
     getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.3)+bezel, cellSelectionW, round(cellSelectionH*0.7)-bezel*3);
+    ((Button)getElement("move button", "party management")).transform(bezel, round(13*TextScale+bezel), 100, 30);
+    ((Slider)getElement("split units", "party management")).transform(round(10*GUIScale+bezel), round(bezel*3+2*TextScale*13), cellSelectionW-2*bezel-round(20*GUIScale),round(TextScale*2*13));
+    ((DropDown)getElement("tasks", "party management")).transform(bezel, round(bezel*4+4*TextScale*13), cellSelectionW-2*bezel, 30);
   }
        
   void makeTaskAvailable(String task){
