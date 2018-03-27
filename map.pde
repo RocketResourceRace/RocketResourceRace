@@ -227,6 +227,7 @@ class Map extends Element{
     PImage[] tempTileImages = new PImage[NUMOFGROUNDTYPES];
     PImage[] tempBuildingImages = new PImage[NUMOFBUILDINGTYPES];
     PImage[] tempPartyImages = new PImage[3];
+    HashMap<String, PImage> tempTaskImages = new HashMap<String, PImage>();
     if (frameStartTime == 0){
       frameStartTime = millis();
     }
@@ -271,6 +272,10 @@ class Map extends Element{
       tempPartyImages[i] = partyImages[i].copy();
       tempPartyImages[i].resize(ceil(blockSize), 0);
     }
+    for(String taskName: taskImages.keySet()){
+      tempTaskImages.put(taskName, taskImages.get(taskName).copy());
+      tempTaskImages.get(taskName).resize(ceil(3*blockSize/16), 0);
+    }
     int lx = max(0, -ceil((mapXOffset)/blockSize)+1);
     int ly = max(0, -ceil((mapYOffset)/blockSize)+1);
     int hx = min(floor((elementWidth-mapXOffset)/blockSize), mapWidth-1);
@@ -302,11 +307,10 @@ class Map extends Element{
      image(tempTileImages[terrain[ly-1][hx]-1].get(0, ceil(blockSize)-topW, rightW, topW), x3, yPos);
 
 
-     //Buildings
      PVector c;
      for(int y=ly-1;y<hy+1;y++){
        for (int x=lx-1; x<hx+1; x++){
-         //int pt = millis();
+         //Buildings
          if (buildings[y][x] != null){
            c = new PVector(scaleX(x), scaleY(y));
            int border = round((64-48)*blockSize/(2*64));
@@ -350,6 +354,11 @@ class Map extends Element{
            }
            int imgSize = round(blockSize);
            drawCroppedImage(floor(c.x), floor(c.y), imgSize, imgSize, tempPartyImages[parties[y][x].player]);
+           for (String task: taskImages.keySet()){
+             if (parties[y][x].task.contains(task)){
+               drawCroppedImage(floor(c.x+13*blockSize/32), floor(c.y+blockSize/2), ceil(3*blockSize/16), ceil(3*blockSize/16), tempTaskImages.get(task));
+             }
+           }
          }
          //if (millis()-pt > 10){
          //  println(millis()-pt);

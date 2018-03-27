@@ -104,6 +104,7 @@ color[] playerColours = new color[]{color(0, 0, 255), color(255, 0, 0)};
 PImage[] tileImages;
 PImage[] buildingImages;
 PImage[] partyImages;
+HashMap<String, PImage> taskImages;
 HashMap<Integer, PImage> lowImages;
 
 void changeSetting(String id, String newValue){
@@ -183,6 +184,14 @@ void setup(){
     loadImage("data/red_flag.png"),
     loadImage("data/battle.png")
   };
+  taskImages = new HashMap<String, PImage>();
+  taskImages.put("Farm", loadImage("data/task_farm.png"));
+  taskImages.put("Defend", loadImage("data/task_defend.png"));
+  taskImages.put("Demolish", loadImage("data/task_demolish.png"));
+  taskImages.put("Forest", loadImage("data/task_clear_forest.png"));
+  taskImages.put("Build", loadImage("data/task_construction.png"));
+  taskImages.put("Super", loadImage("data/task_super_rest.png"));
+  taskImages.put("Produce", loadImage("data/task_produce.png"));
   states = new HashMap<String, State>();
   addState("menu", new Menu());
   addState("map", new Game());
