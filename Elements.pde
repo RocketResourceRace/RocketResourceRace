@@ -448,6 +448,10 @@ class Text extends Element{
     this.colour = colour;
     this.align = align;
   }
+  void translate(int x, int y){
+    this.x = x;
+    this.y = y;
+  }
   void setText(String text){
     this.text = text;
   }

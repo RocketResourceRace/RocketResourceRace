@@ -313,6 +313,7 @@ class Game extends State{
     ((Button)getElement("move button", "party management")).transform(bezel, round(13*TextScale+bezel), 100, 30);
     ((Slider)getElement("split units", "party management")).transform(round(10*GUIScale+bezel), round(bezel*3+2*TextScale*13), cellSelectionW-2*bezel-round(20*GUIScale),round(TextScale*2*13));
     ((DropDown)getElement("tasks", "party management")).transform(bezel, round(bezel*4+4*TextScale*13), cellSelectionW-2*bezel, 30);
+    ((Text)getElement("turns remaining", "party management")).translate(100+bezel*2, round(13*TextScale*2 + bezel*3));
   }
        
   void makeTaskAvailable(String task){
@@ -726,7 +727,7 @@ class Game extends State{
     int tx = p.target[0];
     int ty = p.target[1];
     if (px == tx && py == ty){
-      p.path = null;
+      p.path = null; //<>//
       return;
     }
     Node[][] nodes = djk(px, py);
@@ -781,7 +782,7 @@ class Game extends State{
             if (overflow>0){
               p.setUnitNumber(overflow);
             } else {
-              if (splitting){
+              if (splitting){ //<>//
                 splittedParty = null;
                 splitting = false;
               } else{
@@ -1119,6 +1120,17 @@ class Game extends State{
     barY += 13*TextScale;
   }
   
+  String getResourceString(int i){
+    String tempString = (new BigDecimal(""+totals[i]).divide(new BigDecimal("1"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
+    if (totals[i] >= 0){
+      fill(0);
+      tempString = "+"+tempString;
+    }
+    else{
+      fill(255, 0, 0);
+    }
+    return tempString;
+  }
   
   void drawBar(){
     float barX=buttonW*2+bezel*3;
@@ -1164,14 +1176,7 @@ class Game extends State{
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
     fill(0);
     textSize(8*TextScale);
-    if (totals[3] >= 0){
-      fill(0);
-      tempString = "+"+totals[3];
-    }
-    else{
-      fill(255, 0, 0);
-      tempString = ""+totals[3];
-    }
+    tempString=getResourceString(3);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel+(textDescent()+textAscent())/2-buttonH/2);
     
     tempString = "metal:"+round(players[turn].resources[2]);
@@ -1183,16 +1188,7 @@ class Game extends State{
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
-    fill(0);
-    textSize(8*TextScale);
-    if (totals[2] >= 0){
-      fill(0);
-      tempString = "+"+totals[2];
-    }
-    else{
-      fill(255, 0, 0);
-      tempString = ""+totals[2];
-    }
+    tempString=getResourceString(2);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel+(textDescent()+textAscent())/2-buttonH/2);
     
     tempString = "wood:"+round(players[turn].resources[1]);
@@ -1204,16 +1200,7 @@ class Game extends State{
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
-    fill(0);
-    textSize(8*TextScale);
-    if (totals[1] >= 0){
-      fill(0);
-      tempString = "+"+totals[1];
-    }
-    else{
-      fill(255, 0, 0);
-      tempString = ""+totals[1];
-    }
+    tempString=getResourceString(1);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel+(textDescent()+textAscent())/2-buttonH/2);
      
     tempString = "food:"+round(players[turn].resources[0]);
@@ -1225,16 +1212,7 @@ class Game extends State{
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
-    fill(0);
-    textSize(8*TextScale);
-    if (totals[0] >= 0){
-      fill(0);
-      tempString = "+"+totals[0];
-    }
-    else{
-      fill(255, 0, 0);
-      tempString = ""+totals[0];
-    }
+    tempString=getResourceString(0);
     text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel+(textDescent()+textAscent())/2-buttonH/2);
   }
   
