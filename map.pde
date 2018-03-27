@@ -375,13 +375,16 @@ class Map extends Element{
                if (blockSize > 10*TextScale && moveNodes[y1][x].cost <= parties[selectedCellY][selectedCellX].getMovementPoints()){
                  fill(50, 150);
                  rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
-                 fill(255);
+                   fill(255);
                  textSize(8*TextScale);
                  textAlign(CENTER, CENTER);
                  String s = ""+moveNodes[y1][x].cost;
                  s = s.substring(0, min(s.length(), 3));
                  BigDecimal cost = new BigDecimal(s);
-                 text(cost.stripTrailingZeros().toPlainString(), c.x+blockSize/2, c.y+blockSize/2);
+                 String s2 = cost.stripTrailingZeros().toPlainString();
+                 if (c.x+textWidth(s2) < elementWidth+xPos && c.y+2*(textAscent()+textDescent()) < elementHeight+yPos){
+                   text(s2, c.x+blockSize/2, c.y+blockSize/2);
+                 }
                }
              }
            }
