@@ -147,8 +147,6 @@ class Game extends State{
     addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
     addElement("split button", new Button(bezel*2+240, bezel*3+30, 100, 30, color(150), color(50), color(0), 10, CENTER, "Split"), "party management");
     addElement("tasks", new DropDown(bezel, bezel*4+30+30, 220, 10, color(150), color(50), tasks), "party management");
-    turnNumber = 0;
-    toolTipSelected=-1;
     prevIdle = new ArrayList<Integer[]>();
   }     
   void updateCellSelection(){
@@ -1179,6 +1177,7 @@ class Game extends State{
     //}
     deselectCell();
     turn = 0;
+    turnNumber = 0;
     toolTipSelected=-1;
   }
   int cost(int x, int y, int prevX, int prevY){
