@@ -305,7 +305,6 @@ class Slider extends Element{
     this.step = new BigDecimal(""+step);
     this.value = new BigDecimal(""+value);
     this.name = name;
-    textSize(15);
     scaleKnob();
   }
   void show(){
@@ -315,6 +314,7 @@ class Slider extends Element{
     visible = false;
   }
   void scaleKnob(){
+    textSize(8*TextScale);
     this.knobSize = textWidth(""+getInc(new BigDecimal(""+upper)));
   }
   void transform(int x, int y, int w, int h){
@@ -411,7 +411,7 @@ class Slider extends Element{
       fill(KnobColour);
     }
     
-    textSize(15);
+    textSize(TextScale*8);
     textAlign(CENTER);
     rectMode(CENTER);
     this.knobSize = max(this.knobSize, textWidth(""+getInc(value)));

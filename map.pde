@@ -34,7 +34,7 @@ class Map extends Element{
     EH = h;
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
-    elementWidth = round(EW*GUIScale);
+    elementWidth = round(EW);
     elementHeight = round(EH);
     mapXOffset = 0;
     mapYOffset = 0;
