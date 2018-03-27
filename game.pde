@@ -9,7 +9,7 @@ class Game extends State{
   final int MOVEMENTPOINTS = 64;
   final int DEFENDCOST = 32;
   final float [] STARTINGRESOURCES = new float[]{500, 500, 0, 0, 0, 0, 0, 0, 0};
-  final String[] tasks = {"Rest", "Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Build Homes", "Build Factory", "Build Mine", "Build Smelter", "Clear Forest", "Battle", "Super Rest", "Produce Ore", "Produce Metal", "Produce Concrete", "Produce Cable", "Produce Wood", "Produce Spacehip Parts"};
+  final String[] tasks = {"Rest", "Work Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Build Homes", "Build Factory", "Build Mine", "Build Smelter", "Clear Forest", "Battle", "Super Rest", "Produce Ore", "Produce Metal", "Produce Concrete", "Produce Cable", "Produce Wood", "Produce Spacehip Parts"};
   final String[] landTypes = {"Water", "Sand", "Grass", "Forest", "Hills"};
   final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
   final int WATER = 1;
@@ -338,7 +338,7 @@ class Game extends State{
         makeTaskAvailable("Defend");
       if (buildings[cellY][cellX] != null){
         if (buildings[cellY][cellX].type==FARM){
-          makeTaskAvailable("Farm");
+          makeTaskAvailable("Work Farm");
         }
         if (buildings[cellY][cellX].type==HOMES){
           makeTaskAvailable("Super Rest");

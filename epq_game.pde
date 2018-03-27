@@ -185,7 +185,7 @@ void setup(){
     loadImage("data/battle.png")
   };
   taskImages = new HashMap<String, PImage>();
-  taskImages.put("Farm", loadImage("data/task_farm.png"));
+  taskImages.put("Work Farm", loadImage("data/task_farm.png"));
   taskImages.put("Defend", loadImage("data/task_defend.png"));
   taskImages.put("Demolish", loadImage("data/task_demolish.png"));
   taskImages.put("Forest", loadImage("data/task_clear_forest.png"));
