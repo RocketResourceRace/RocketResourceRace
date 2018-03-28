@@ -121,6 +121,7 @@ class Game extends State{
   Building[][] buildings;
   int turn;
   boolean changeTurn = false;
+  int winner = -1;
   Map map;
   Player[] players;
   int cellX, cellY, cellSelectionX, cellSelectionY, cellSelectionW, cellSelectionH;
@@ -142,6 +143,9 @@ class Game extends State{
     players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, STARTINGRESOURCES);
     addPanel("land management", 0, 0, width, height, false, color(50, 200, 50), color(0));
     addPanel("party management", 0, 0, width, height, false, color(70, 70, 220), color(0));
+    addPanel("end screen", 0, 0, width, height, false, color(50, 50, 50, 50), color(0));
+    addElement("end game button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2+height/8), (int)(GUIScale*width/8), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "End Game"), "end screen");
+    addElement("winner", new Text(width/2, height/2, (int)(TextScale*10), "Winner: player /w", color(255), CENTER), "end screen");
     addElement("turns remaining", new Text(bezel*2+220, bezel*4+30+30, 8, "", color(255), LEFT), "party management");
     //int x, int y, int w, int h, color bgColour, color strokeColour, color textColour, int textSize, int textAlign, String text
     addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
@@ -568,6 +572,36 @@ class Game extends State{
       turnNumber ++;
   }
   
+  boolean checkForPlayerWin(){
+    boolean player1alive = false;
+    boolean player2alive = false;
+    
+    for (int y=0;y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        if (parties[y][x] != null){
+          if(parties[y][x].player == 2){
+            player1alive = true;
+            player2alive = true;
+          } else if (parties[y][x].player == 1){
+            player2alive = true;
+          } else if (parties[y][x].player == 0){
+            player1alive = true;
+          }
+        }
+      }
+    }
+    if (!player1alive){
+      winner = 1;
+    } else if (!player2alive) {
+      winner  = 0;
+    } else {
+      return false;
+    }
+    Text winnerMessage = ((Text)this.getElement("winner", "end screen"));
+    winnerMessage.setText(winnerMessage.text.replace("/w", str(winner+1)));
+    return true;
+  }
+  
   String update(){
     if (changeTurn){  
       turnChange();
@@ -581,6 +615,9 @@ class Game extends State{
     }
     if (toolTipSelected >= 0){
       drawToolTip();
+    }
+    if (checkForPlayerWin()){
+      this.getPanel("end screen").visible = true;
     }
     return getNewState();
   }
@@ -688,6 +725,9 @@ class Game extends State{
               map.cancelMoveNodes();
             }
           }
+        }
+        else if (event.id == "end game button"){
+          newState = "menu";
         }
       }
       if (event.type == "valueChanged"){
