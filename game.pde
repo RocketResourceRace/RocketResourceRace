@@ -44,7 +44,7 @@ class Game extends State{
   final String factoryToolTipRaw = "The factory produces parts when worked.\nCosts: 200 wood.\nConsumes: 10 wood.\nThis party will take %d turns to build it";
   final String sawmillToolTipRaw = "The sawmill produces wood when worked.\nCosts: 200 wood.\nConsumes: 10 wood\nProduces: 0.5 wood/worker\nThis party will take %d turns to build it";
   final String clearForestToolTipRaw = "Clearing a forest adds 100 wood to stockpile.\nThe tile is turned to grassland\nThis party will take %d turns to build it";
-  final String demolishingToolTipRaw = "Demolishing destroys the building on this tile.\nThis party will take %i turns to build it";
+  final String demolishingToolTipRaw = "Demolishing destroys the building on this tile.\nThis party will take %d turns to build it";
   
   
   String[] tooltipText = {
@@ -863,7 +863,6 @@ class Game extends State{
             }
           }
           else{
-            print(1);
             p.subMovementPoints(cost);
             map.parties[path.get(node)[1]][path.get(node)[0]] = new Battle(p, map.parties[path.get(node)[1]][path.get(node)[0]]);
             map.parties[path.get(node)[1]][path.get(node)[0]] = ((Battle)map.parties[path.get(node)[1]][path.get(node)[0]]).doBattle();
