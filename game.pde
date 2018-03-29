@@ -756,7 +756,7 @@ class Game extends State{
     getPanel("party management").setVisible(false);
     map.cancelMoveNodes();
     moving = false;
-    map.setWidth(round(width-bezel*2));
+    //map.setWidth(round(width-bezel*2));
     ((Text)getElement("turns remaining", "party management")).setText("");
   }
   
@@ -1029,7 +1029,7 @@ class Game extends State{
       cellY = y;
       cellSelected = true;
       map.selectCell(cellX, cellY);
-      map.setWidth(round(width-bezel*2-400));
+      //map.setWidth(round(width-bezel*2-400));
       getPanel("land management").setVisible(true);
       if (parties[cellY][cellX] != null && parties[cellY][cellX].isTurn(turn)){
         if (parties[cellY][cellX].getTask() != "Battle"){

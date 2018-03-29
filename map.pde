@@ -61,8 +61,8 @@ class Map extends Element{
     panningSpeed = s;
   }
   void limitCoords(){
-    mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth*0.79), 0);
-    mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight), 0);
+    mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth*0.5), elementWidth*0.5);
+    mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight*0.5), elementHeight*0.5);
   }
   void reset(int mapWidth, int mapHeight, int[][] terrain, Party[][] parties, Building[][] buildings){
     mapXOffset = 0;
@@ -304,25 +304,30 @@ class Map extends Element{
      int topW = min(round(scaleY(ly)-yPos), ceil(blockSize));
      int bottomW = min(round(yPos+elementHeight-scaleY(hy)), ceil(blockSize));
      int leftW = min(round(scaleX(lx)-xPos), ceil(blockSize));
-     int rightW = min(round(xPos+elementWidth-scaleX(hx)), ceil(blockSize));
+     int rightW = min(round(xPos+elementWidth-scaleX(hx)), ceil(blockSize)); //<>//
      for(int y=ly;y<hy;y++){
        image(tempTileImages[terrain[y][hx]-1].get(0, 0, rightW, ceil(blockSize)), x3,round(scaleY(y)));
+       if (lx > 0)
        image(tempTileImages[terrain[y][lx-1]-1].get(ceil(blockSize)-leftW, 0, leftW, ceil(blockSize)), xPos, round(scaleY(y)));
      }
      for(int x=lx;x<hx;x++){
        image(tempTileImages[terrain[hy][x]-1].get(0, 0, ceil(blockSize), bottomW), round(scaleX(x)), y3);
+       if (ly > 0)
        image(tempTileImages[terrain[ly-1][x]-1].get(0, ceil(blockSize)-topW, ceil(blockSize), topW), round(scaleX(x)), yPos);
      }
+     if (lx > 0 && ly > 0)
      image(tempTileImages[terrain[ly-1][lx-1]-1].get(ceil(blockSize)-leftW, ceil(blockSize)-topW, leftW, topW), xPos, yPos);
      image(tempTileImages[terrain[hy][hx]-1].get(0, 0, rightW, bottomW), x3, y3);
+     if (lx > 0)  
      image(tempTileImages[terrain[hy][lx-1]-1].get(ceil(blockSize)-leftW, 0, leftW, bottomW), xPos, y3);
+     if (ly > 0)
      image(tempTileImages[terrain[ly-1][hx]-1].get(0, ceil(blockSize)-topW, rightW, topW), x3, yPos);
 
      PVector c;
      PVector selectedCell = new PVector(scaleX(selectedCellX), scaleY(selectedCellY));
 
-     for(int y=ly-1;y<hy+1;y++){
-       for (int x=lx-1; x<hx+1; x++){
+     for(int y=max(ly-1,1);y<hy+1;y++){
+       for (int x=max(lx-1,1); x<hx+1; x++){
          //Buildings
          if (buildings[y][x] != null){
            c = new PVector(scaleX(x), scaleY(y));
@@ -448,6 +453,7 @@ class Map extends Element{
      }
 
      noFill();
+     stroke(0);
      rect(xPos, yPos, elementWidth, elementHeight);
   }
   int sign(float x){
