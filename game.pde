@@ -823,6 +823,7 @@ class Game extends State{
           }
         }
         else if(path.get(node)[0] != px || path.get(node)[1] != py){
+          p.clearPath();
           if (map.parties[path.get(node)[1]][path.get(node)[0]].player == turn){
             // merge cells
             int movementPoints = min(map.parties[path.get(node)[1]][path.get(node)[0]].getMovementPoints(), p.getMovementPoints()-cost);
@@ -862,6 +863,7 @@ class Game extends State{
             }
           }
           else{
+            print(1);
             p.subMovementPoints(cost);
             map.parties[path.get(node)[1]][path.get(node)[0]] = new Battle(p, map.parties[path.get(node)[1]][path.get(node)[0]]);
             map.parties[path.get(node)[1]][path.get(node)[0]] = ((Battle)map.parties[path.get(node)[1]][path.get(node)[0]]).doBattle();
@@ -879,6 +881,7 @@ class Game extends State{
               map.buildings[path.get(node)[1]][path.get(node)[0]] = null;
             }
           }
+          break;
         }
         i++;
       }
@@ -988,7 +991,7 @@ class Game extends State{
           Node [][] nodes = map.moveNodes;
           int x = floor(map.scaleXInv(mouseX));
           int y = floor(map.scaleYInv(mouseY));
-          if (x < mapWidth && y<mapHeight && nodes[y][x] != null && !(cellX == x && cellY == y)){
+          if (x < mapWidth && y<mapHeight && x>=0 && y>=0 && nodes[y][x] != null && !(cellX == x && cellY == y)){
             if (parties[cellY][cellX] != null){
               map.updatePath(getPath(cellX, cellY, x, y, map.moveNodes));
             }
