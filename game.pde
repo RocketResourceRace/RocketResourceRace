@@ -771,7 +771,7 @@ class Game extends State{
       return;
     }
     Node[][] nodes = djk(px, py);
-    ArrayList <int[]> path = getPath(px, py, tx, ty, nodes);
+    ArrayList <int[]> path = getPath(px, py, tx, ty, nodes); //<>//
     Collections.reverse(path);
     int i=0;
     
@@ -781,7 +781,7 @@ class Game extends State{
         if (map.parties[path.get(node)[1]][path.get(node)[0]] == null){
           // empty cell
           p.subMovementPoints(cost);
-          map.parties[path.get(node)[1]][path.get(node)[0]] = p;
+          map.parties[path.get(node)[1]][path.get(node)[0]] = p; //<>//
           if (splitting){
             splittedParty = null;
             splitting = false;
@@ -826,7 +826,7 @@ class Game extends State{
                 splittedParty = null;
                 splitting = false;
               } else{
-                map.parties[py][px] = null;
+                map.parties[py][px] = null; //<>//
               }
             }
           }
@@ -836,7 +836,7 @@ class Game extends State{
             map.parties[path.get(node)[1]][path.get(node)[0]] = ((Battle)map.parties[path.get(node)[1]][path.get(node)[0]]).doBattle();
             if(cellFollow){
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
-              stillThere = false;
+              stillThere = false; //<>//
             }
             if (splitting){
                 splittedParty = null;
@@ -1099,7 +1099,7 @@ class Game extends State{
     text("Units: "+parties[cellY][cellX].getUnitNumber(turn) + "/1000", 120+cellSelectionX, barY);
     barY += 13*TextScale;
     if (parties[cellY][cellX].actions.size() > 0 && parties[cellY][cellX].actions.get(0).initialTurns > 0){
-      ((Text)getElement("turns remaining", "party management")).setText("Turns Remaining: "+parties[cellY][cellX].turnsLeft() + "/"+round(parties[cellY][cellX].actions.get(0).initialTurns));
+      ((Text)getElement("turns remaining", "party management")).setText("Turns Remaining: "+parties[cellY][cellX].turnsLeft() + "/"+round(parties[cellY][cellX].calcTurns(parties[cellY][cellX].actions.get(0).initialTurns)));
       //text("Turns Remaining: "+parties[cellY][cellX].turnsLeft() + "/"+round(parties[cellY][cellX].actions.get(0).initialTurns), cellSelectionX+220+bezel*3, barY+bezel*3);
     }
   }
