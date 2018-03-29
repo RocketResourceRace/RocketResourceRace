@@ -704,7 +704,7 @@ class Game extends State{
     return false;
   }
   void clearPrevIdle(){
-    prevIdle = new ArrayList<Integer[]>();
+    prevIdle.clear();
   }
   
   int[] findIdle(int player){
@@ -725,7 +725,7 @@ class Game extends State{
       if (event.type == "clicked"){
         if (event.id == "idle party finder"){
           int[] t = findIdle(turn);
-          selectCell((int)map.scaleX(t[0]+1), (int)map.scaleY(t[1]+1));
+          selectCell(floor(map.scaleX(t[0]+1)), floor(map.scaleY(t[1]+1)));
           map.targetCell(t[0], t[1], 64);
         }
         else if (event.id == "end turn"){
@@ -1034,11 +1034,15 @@ class Game extends State{
     selectCell(x, y, false);
   }
   
+  boolean cellInBounds(int x, int y){
+    return 0<=x&&x<mapWidth&&0<=y&&y<=mapHeight;
+  }
+  
   void selectCell(int x, int y, boolean raw){
     deselectCell();
     if(raw){
       selectCell(x, y);
-    } else {
+    } else if (cellInBounds(x, y)){
       toolTipSelected = -1;
       cellX = x;
       cellY = y;
