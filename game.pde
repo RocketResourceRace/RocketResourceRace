@@ -180,6 +180,7 @@ class Game extends State{
           map.updateMoveNodes(djk(cellX, cellY));
           moving = true;
           splittedParty = new Party(turn, sliderVal, "Rest", parties[cellY][cellX].getMovementPoints());
+          splittedParty.setPathTurns(1+getMoveTurns(cellX, cellY, x, y,map.moveNodes));
           parties[cellY][cellX].changeUnitNumber(-sliderVal);
           if (parties[cellY][cellX].getUnitNumber() <= 0){
             parties[cellY][cellX] = null;
@@ -189,7 +190,9 @@ class Game extends State{
       
       if (splittedParty != null){
         splittedParty.target = new int[]{x, y};
-        splittedParty.path = null;
+        Node[][] nodes = djk(cellX, cellY);
+        splittedParty.path = getPath(cellX, cellY, x, y, nodes);
+        Collections.reverse(splittedParty.path);
         splittedParty.changeTask("Rest");
         splittedParty.clearActions();
         ((Text)getElement("turns remaining", "party management")).setText("");
@@ -197,7 +200,9 @@ class Game extends State{
       } 
       else {
         parties[cellY][cellX].target = new int[]{x, y};
-        parties[cellY][cellX].path = null;
+        Node[][] nodes = djk(cellX, cellY);
+        parties[cellY][cellX].path = getPath(cellX, cellY, x, y, nodes);
+        Collections.reverse(parties[cellY][cellX].path);
         parties[cellY][cellX].changeTask("Rest");
         parties[cellY][cellX].clearActions();         
         ((Text)getElement("turns remaining", "party management")).setText("");
@@ -767,14 +772,17 @@ class Game extends State{
   void moveParty(int px, int py, boolean splitting){
     
     Party p;
+    
     if (splitting){
       p = splittedParty;
     } else {
       p = map.parties[py][px];
     }
+    
+    
     boolean cellFollow = (px==cellX && py==cellY);
     boolean stillThere = true;
-    if (p.target == null)
+    if (p.target == null || p.path == null)
       return;
     int tx = p.target[0];
     int ty = p.target[1];
@@ -789,13 +797,10 @@ class Game extends State{
       p.path = null;
       return;
     }
-
-    Node[][] nodes = djk(px, py);
-
-    ArrayList <int[]> path = getPath(px, py, tx, ty, nodes);
-    Collections.reverse(path);
-    int i=0;
     
+    ArrayList <int[]> path = p.path;
+    int i=0; //<>//
+    boolean moved = false;
     for (int node=1; node<path.size(); node++){
       int cost = cost(path.get(node)[0], path.get(node)[1], px, py);
       if (p.getMovementPoints() >= cost){
@@ -812,6 +817,10 @@ class Game extends State{
           px = path.get(node)[0];
           py = path.get(node)[1];
           p = map.parties[py][px];
+          if (!moved){
+            p.moved();
+            moved = true;
+          }
         }
         else if(path.get(node)[0] != px || path.get(node)[1] != py){
           if (map.parties[path.get(node)[1]][path.get(node)[0]].player == turn){
@@ -836,7 +845,7 @@ class Game extends State{
           } else if (map.parties[path.get(node)[1]][path.get(node)[0]].player == 2){
             // merge cells battle
             int overflow = ((Battle) map.parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, p.getUnitNumber());
-            if(cellFollow){ //<>//
+            if(cellFollow){
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
               stillThere = false;
             }
@@ -876,6 +885,9 @@ class Game extends State{
       else{
         p.path = new ArrayList(path.subList(i, path.size()));
         break;
+      }
+      if (tx==px&&ty==py){
+        p.path = null;
       }
     }
     
@@ -976,7 +988,7 @@ class Game extends State{
           Node [][] nodes = map.moveNodes;
           int x = floor(map.scaleXInv(mouseX));
           int y = floor(map.scaleYInv(mouseY));
-          if (x < mapWidth && nodes[y][x] != null && !(cellX == x && cellY == y)){
+          if (x < mapWidth && y<mapHeight && nodes[y][x] != null && !(cellX == x && cellY == y)){
             if (parties[cellY][cellX] != null){
               map.updatePath(getPath(cellX, cellY, x, y, map.moveNodes));
             }
@@ -1144,9 +1156,11 @@ class Game extends State{
     barY += 13*TextScale;
     text("Units: "+parties[cellY][cellX].getUnitNumber(turn) + "/1000", 120+cellSelectionX, barY);
     barY += 13*TextScale;
-    if (parties[cellY][cellX].actions.size() > 0 && parties[cellY][cellX].actions.get(0).initialTurns > 0){
+    if (parties[cellY][cellX].pathTurns > 0){
+      ((Text)getElement("turns remaining", "party management")).setText("Turns Remaining: "+ parties[cellY][cellX].pathTurns);
+    }
+    else if (parties[cellY][cellX].actions.size() > 0 && parties[cellY][cellX].actions.get(0).initialTurns > 0){
       ((Text)getElement("turns remaining", "party management")).setText("Turns Remaining: "+parties[cellY][cellX].turnsLeft() + "/"+round(parties[cellY][cellX].calcTurns(parties[cellY][cellX].actions.get(0).initialTurns)));
-      //text("Turns Remaining: "+parties[cellY][cellX].turnsLeft() + "/"+round(parties[cellY][cellX].actions.get(0).initialTurns), cellSelectionX+220+bezel*3, barY+bezel*3);
     }
   }
   

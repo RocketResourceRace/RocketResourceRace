@@ -304,7 +304,7 @@ class Map extends Element{
      int topW = min(round(scaleY(ly)-yPos), ceil(blockSize));
      int bottomW = min(round(yPos+elementHeight-scaleY(hy)), ceil(blockSize));
      int leftW = min(round(scaleX(lx)-xPos), ceil(blockSize));
-     int rightW = min(round(xPos+elementWidth-scaleX(hx)), ceil(blockSize)); //<>//
+     int rightW = min(round(xPos+elementWidth-scaleX(hx)), ceil(blockSize));
      for(int y=ly;y<hy;y++){
        image(tempTileImages[terrain[y][hx]-1].get(0, 0, rightW, ceil(blockSize)), x3,round(scaleY(y)));
        if (lx > 0)

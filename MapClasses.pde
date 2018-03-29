@@ -24,6 +24,7 @@ class Party{
   ArrayList<Action> actions;
   ArrayList<int[]> path;
   int[] target;
+  int pathTurns;
   Party(int player, int startingUnits, String startingTask, int movementPoints){
     unitNumber = startingUnits;
     task = startingTask;
@@ -33,6 +34,7 @@ class Party{
     strength = 1.5;
     clearPath();
     target = null;
+    pathTurns = 0;
   }
   void changeTask(String task){
     switch(task){
@@ -42,6 +44,12 @@ class Party{
       case "default": strength = 1; break;
     }
     this.task = task;
+  }
+  void setPathTurns(int v){
+    pathTurns = v;
+  }
+  void moved(){
+    pathTurns = max(pathTurns-1, 0);
   }
   String getTask(){
     return task;
@@ -57,6 +65,7 @@ class Party{
   }
   void clearPath(){
     path = new ArrayList<int[]>();
+    pathTurns=0;
   }
   void addAction(Action a){
     actions.add(a);
