@@ -712,12 +712,13 @@ class Game extends State{
       for (int x=0; x<mapWidth; x++){
         if (parties[y][x] != null && parties[y][x].player == player && (parties[y][x].task == "Rest" && !inPrevIdle(x, y))){
           prevIdle.add(new Integer[]{x, y});
+          println(x, y);
           return new int[]{x, y};
         }
       }
     }
     clearPrevIdle();
-    return new int[]{cellX, cellY};
+    return findIdle(player);
   }
   
   void elementEvent(ArrayList<Event> events){
@@ -725,7 +726,8 @@ class Game extends State{
       if (event.type == "clicked"){
         if (event.id == "idle party finder"){
           int[] t = findIdle(turn);
-          selectCell(floor(map.scaleX(t[0]+1)), floor(map.scaleY(t[1]+1)));
+          println(t[0], t[1], "\n");
+          selectCell(t[0], t[1], false);
           map.targetCell(t[0], t[1], 64);
         }
         else if (event.id == "end turn"){
