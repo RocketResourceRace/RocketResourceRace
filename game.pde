@@ -726,7 +726,6 @@ class Game extends State{
       if (event.type == "clicked"){
         if (event.id == "idle party finder"){
           int[] t = findIdle(turn);
-          println(t[0], t[1], "\n");
           selectCell(t[0], t[1], false);
           map.targetCell(t[0], t[1], 64);
         }
