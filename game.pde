@@ -37,24 +37,35 @@ class Game extends State{
   
   final String attackToolTipRaw = "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a /p% chance of winning this battle.";
   final String turnsToolTipRaw = "Move /i Turns";
+  final String farmToolTipRaw = "The farm produces food when worked.\nCosts: 50 wood.\nConsumes: Nothing.\nProduces: 4 food/worker.\nThis party will take %d turns to build it";
+  final String mineToolTipRaw = "The mine produces ore when worked.\nCosts: 200 wood.\nConsumes: 1 wood/worker.\nProduces: 1 ore/worker.\nThis party will take %d turns to build it";
+  final String homesToolTipRaw = "Homes create new units when worked.\nCosts: 100 wood.\nConsumes: 2 wood.\nThis party will take %d turns to build it";
+  final String smelterToolTipRaw = "The smelter produces metal when worked.\nCosts: 200 wood.\nConsumes: 10 wood.\nProduces: 0.1 iron/worker.\nThis party will take %d turns to build it";
+  final String factoryToolTipRaw = "The factory produces parts when worked.\nCosts: 200 wood.\nConsumes: 10 wood.\nThis party will take %d turns to build it";
+  final String sawmillToolTipRaw = "The sawmill produces wood when worked.\nCosts: 200 wood.\nConsumes: 10 wood\nProduces: 0.5 wood/worker\nThis party will take %d turns to build it";
+  final String clearForestToolTipRaw = "Clearing a forest adds 100 wood to stockpile.\nThe tile is turned to grassland\nThis party will take %d turns to build it";
+  final String demolishingToolTipRaw = "Demolishing destroys the building on this tile.\nThis party will take %i turns to build it";
+  
+  
   String[] tooltipText = {
     "Defending improves fighting\neffectiveness against enemy parties\nCosts: 32 movement points.",
-    "The farm produces food when worked.\nCosts: 50 wood.\nConsumes: Nothing.\nProduces: 4 food/worker.\nThis takes 100 units 2 turns to build.",
-    "The mine produces ore when worked.\nCosts: 200 wood.\nConsumes: 1 wood/worker.\nProduces: 1 ore/worker.\nThis takes 100 units 5 turns to build.",
-    "Homes create new units when worked.\nCosts: 100 wood.\nConsumes: 2 wood.\nThis takes 100 units 3 turns to build.",
-    "The smelter produces metal when worked.\nCosts: 200 wood.\nConsumes: 10 wood.\nProduces: 0.1 iron/worker.\nThis takes 100 units 8 turns to build.",
-    "The factory produces parts when worked.\nCosts: 200 wood.\nConsumes: 10 wood.\nThis takes 100 units 8 turns to build.",
-    "The sawmill produces wood when worked.\nCosts: 200 wood.\nConsumes: 10 wood\nProduces: 0.5 wood/worker\nThis takes 100 units 4 turns to build.",
-    "Clearing a forest adds 100 wood to stockpile.\nThe tile is turned to grassland\nThis takes 3 turns for 100 units.",
-    "Demolishing destroys the building on this tile.\nThis takes 2 turns for 100 units.",
+    "farm",
+    "mine",
+    "homes",
+    "smelter",
+    "factory",
+    "sawmill",
+    "clear forest",
+    "demolishing",
     "While a unit is at rest it can move and attack.",
     "Merge parties.\nThis action will create a single party from two.\nThe new party has no action points this turn.",
-    "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a ?% chance of winning this battle.",
+    "Attack enemy party.",
     "Move.",
     "Super Rest adds more units to a party each turn.",
     "The rate that an action is completed is affected\nby the number of units in a party\n(a square root relationship).\nThe turn time for 100 units is given for tasks.",
     "A party must be at rest to move",
     "This splits the number of units selected.\nCan only split when movement points > 0.",
+    "",
   };
   final float[] buildingTimes = {0, 3, 2, 5, 8, 8, 4, 12};
   final String[] resourceNames = {"Food", "Wood", "Metal", "Energy", "", "", "", "", "Units"};
@@ -760,7 +771,7 @@ class Game extends State{
     } else {
       p = map.parties[py][px];
     }
-    boolean cellFollow = (px==cellX && py==cellY);
+    boolean cellFollow = (px==cellX && py==cellY); //<>//
     boolean stillThere = true;
     if (p.target == null)
       return;
@@ -770,8 +781,8 @@ class Game extends State{
       p.path = null; //<>//
       return;
     }
-    Node[][] nodes = djk(px, py);
-    ArrayList <int[]> path = getPath(px, py, tx, ty, nodes); //<>//
+    Node[][] nodes = djk(px, py); //<>//
+    ArrayList <int[]> path = getPath(px, py, tx, ty, nodes);
     Collections.reverse(path);
     int i=0;
     
@@ -781,7 +792,7 @@ class Game extends State{
         if (map.parties[path.get(node)[1]][path.get(node)[0]] == null){
           // empty cell
           p.subMovementPoints(cost);
-          map.parties[path.get(node)[1]][path.get(node)[0]] = p; //<>//
+          map.parties[path.get(node)[1]][path.get(node)[0]] = p;
           if (splitting){
             splittedParty = null;
             splitting = false;
@@ -815,7 +826,7 @@ class Game extends State{
           } else if (map.parties[path.get(node)[1]][path.get(node)[0]].player == 2){
             // merge cells battle
             int overflow = ((Battle) map.parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, p.getUnitNumber());
-            if(cellFollow){
+            if(cellFollow){ //<>//
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
               stillThere = false;
             }
@@ -825,8 +836,8 @@ class Game extends State{
               if (splitting){ //<>//
                 splittedParty = null;
                 splitting = false;
-              } else{
-                map.parties[py][px] = null; //<>//
+              } else{ //<>//
+                map.parties[py][px] = null;
               }
             }
           }
@@ -836,7 +847,7 @@ class Game extends State{
             map.parties[path.get(node)[1]][path.get(node)[0]] = ((Battle)map.parties[path.get(node)[1]][path.get(node)[0]]).doBattle();
             if(cellFollow){
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
-              stillThere = false; //<>//
+              stillThere = false;
             }
             if (splitting){
                 splittedParty = null;
@@ -907,14 +918,38 @@ class Game extends State{
       if (((DropDown)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible){
         switch (((DropDown)getElement("tasks", "party management")).findMouseOver()){
           case "Defend":toolTipSelected = 0;break;
-          case "Build Farm":toolTipSelected = 1;break;
-          case "Build Sawmill":toolTipSelected = 6;break;
-          case "Build Homes":toolTipSelected = 3;break;
-          case "Build Factory":toolTipSelected = 5;break;
-          case "Clear Forest":toolTipSelected = 7;break;
-          case "Build Mine":toolTipSelected = 2;break;
-          case "Build Smelter":toolTipSelected = 4;break;
-          case "Demolish":toolTipSelected = 8;break;
+          case "Build Farm":
+            tooltipText[1] = String.format(farmToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[FARM]));
+            toolTipSelected = 1;
+            break;
+          case "Build Sawmill":
+            tooltipText[6] = String.format(sawmillToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[SAWMILL]));
+            toolTipSelected = 6;
+            break;
+          case "Build Homes":
+            tooltipText[3] = String.format(homesToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[HOMES]));
+            toolTipSelected = 3;
+            break;
+          case "Build Factory":
+            tooltipText[5] = String.format(factoryToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[FACTORY]));
+            toolTipSelected = 5;
+            break;
+          case "Clear Forest":
+            tooltipText[7] = String.format(clearForestToolTipRaw,parties[cellY][cellX].calcTurns(2));
+            toolTipSelected = 7;
+            break;
+          case "Build Mine":
+            tooltipText[2] = String.format(mineToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[MINE]));
+            toolTipSelected = 2;
+            break;
+          case "Build Smelter":
+            tooltipText[4] = String.format(smelterToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[SMELTER]));
+            toolTipSelected = 4;
+            break;
+          case "Demolish":
+            tooltipText[8] = String.format(demolishingToolTipRaw,parties[cellY][cellX].calcTurns(2));
+            toolTipSelected = 8;
+            break;
           case "Rest":toolTipSelected = 9;break;
           case "Super Rest":toolTipSelected = 13;break;
           default: toolTipSelected = -1;break;
