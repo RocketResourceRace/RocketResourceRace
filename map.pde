@@ -251,8 +251,6 @@ class Map extends Element{
     }
 
     // Resize map based on scale
-    elementWidth = round(EW*GUIScale);
-    elementHeight = round(EH);
     if (panning){
       mapXOffset -= (mapXOffset-targetXOffset)*panningSpeed*frameTime*60/1000;
       mapYOffset -= (mapYOffset-targetYOffset)*panningSpeed*frameTime*60/1000;

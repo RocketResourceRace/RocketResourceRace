@@ -65,7 +65,11 @@ class Party{
     return actions.size()>0;
   }
   int turnsLeft(){
-    return ceil(actions.get(0).turns/(sqrt(unitNumber)/10));
+    return calcTurns(actions.get(0).turns);
+  }
+  int calcTurns(float turnsCost){
+    //Use this to calculate the number of turns a task will take for this party
+    return ceil(turnsCost/(sqrt(unitNumber)/10));
   }
   String progressAction(){
     if (actions.size() == 0){
