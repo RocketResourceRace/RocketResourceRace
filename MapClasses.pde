@@ -138,7 +138,7 @@ class Battle extends Party{
   Battle(Party attacker, Party defender){
     super(2, attacker.getUnitNumber()+defender.getUnitNumber(), "Battle", 0);
     party1 = attacker;
-    party1.strength*=1.5;
+    party1.strength = 2.25;
     party2 = defender;
   }
   boolean isTurn(int turn){
