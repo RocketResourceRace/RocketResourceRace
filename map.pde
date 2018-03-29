@@ -383,7 +383,7 @@ class Map extends Element{
              fill(255);
              textAlign(CENTER, CENTER);
              if(parties[y][x].actions.size() > 0 && parties[y][x].actions.get(0).initialTurns>0){
-               int totalTurns = round(parties[y][x].actions.get(0).initialTurns);
+               int totalTurns = parties[y][x].calcTurns(parties[y][x].actions.get(0).initialTurns);
                String turnsLeftString = str(totalTurns-parties[y][x].turnsLeft())+"/"+str(totalTurns);
                if (c.x+textWidth(turnsLeftString) < elementWidth+xPos && c.y+2*(textAscent()+textDescent()) < elementHeight+yPos){
                  text(turnsLeftString, c.x+blockSize/2, c.y+3*blockSize/4);
