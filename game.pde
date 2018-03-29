@@ -765,33 +765,40 @@ class Game extends State{
   }
   
   void moveParty(int px, int py, boolean splitting){
+    
     Party p;
     if (splitting){
       p = splittedParty;
     } else {
       p = map.parties[py][px];
     }
-    boolean cellFollow = (px==cellX && py==cellY); //<>//
+    boolean cellFollow = (px==cellX && py==cellY);
     boolean stillThere = true;
     if (p.target == null)
       return;
     int tx = p.target[0];
     int ty = p.target[1];
     if (px == tx && py == ty){
-      p.path = null; //<>//
+      if (splitting){
+        if(parties[py][px] == null){
+          parties[py][px] = p;
+        } else {
+          parties[py][px].changeUnitNumber(p.getUnitNumber());
+        }
+      }
+      p.path = null;
       return;
     }
-<<<<<<< HEAD
-    Node[][] nodes = djk(px, py); //<>//
-=======
->>>>>>> abdd4deb5cc8ccd37c791628d926c6c996d16d3e
+
+    Node[][] nodes = djk(px, py);
+
     ArrayList <int[]> path = getPath(px, py, tx, ty, nodes);
     Collections.reverse(path);
     int i=0;
     
     for (int node=1; node<path.size(); node++){
       int cost = cost(path.get(node)[0], path.get(node)[1], px, py);
-      if (p.getMovementPoints() >= cost){ //<>//
+      if (p.getMovementPoints() >= cost){
         if (map.parties[path.get(node)[1]][path.get(node)[0]] == null){
           // empty cell
           p.subMovementPoints(cost);
@@ -836,20 +843,18 @@ class Game extends State{
             if (overflow>0){
               p.setUnitNumber(overflow);
             } else {
-              if (splitting){ //<>//
+              if (splitting){
                 splittedParty = null;
                 splitting = false;
-<<<<<<< HEAD
-              } else{ //<>//
-=======
->>>>>>> abdd4deb5cc8ccd37c791628d926c6c996d16d3e
+              } else{
+
                 map.parties[py][px] = null;
               }
             }
           }
           else{
             p.subMovementPoints(cost);
-            map.parties[path.get(node)[1]][path.get(node)[0]] = new Battle(p, map.parties[path.get(node)[1]][path.get(node)[0]]); //<>//
+            map.parties[path.get(node)[1]][path.get(node)[0]] = new Battle(p, map.parties[path.get(node)[1]][path.get(node)[0]]);
             map.parties[path.get(node)[1]][path.get(node)[0]] = ((Battle)map.parties[path.get(node)[1]][path.get(node)[0]]).doBattle();
             if(cellFollow){
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
