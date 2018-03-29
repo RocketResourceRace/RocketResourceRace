@@ -151,7 +151,7 @@ class Battle extends Party{
   Battle(Party attacker, Party defender){
     super(2, attacker.getUnitNumber()+defender.getUnitNumber(), "Battle", 0);
     party1 = attacker;
-    party1.strength = 2.25;
+    party1.strength = 2;
     party2 = defender;
   }
   boolean isTurn(int turn){
@@ -230,7 +230,7 @@ class Battle extends Party{
 }
 
 int getBattleUnitChange(Party p1, Party p2){
-  return floor(-0.2*(p2.getUnitNumber()+pow(p2.getUnitNumber(), 2)/p1.getUnitNumber())*random(0.80, 1.5)*p2.strength/p1.strength);
+  return floor(-0.2*(p2.getUnitNumber()+pow(p2.getUnitNumber(), 2)/p1.getUnitNumber())*random(0.75, 1.5)*p2.strength/p1.strength);
 }
 
 int getChanceOfBattleSuccess(Party attacker, Party defender){ 
