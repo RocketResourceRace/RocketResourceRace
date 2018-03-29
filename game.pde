@@ -781,7 +781,10 @@ class Game extends State{
       p.path = null; //<>//
       return;
     }
+<<<<<<< HEAD
     Node[][] nodes = djk(px, py); //<>//
+=======
+>>>>>>> abdd4deb5cc8ccd37c791628d926c6c996d16d3e
     ArrayList <int[]> path = getPath(px, py, tx, ty, nodes);
     Collections.reverse(path);
     int i=0;
@@ -836,7 +839,10 @@ class Game extends State{
               if (splitting){ //<>//
                 splittedParty = null;
                 splitting = false;
+<<<<<<< HEAD
               } else{ //<>//
+=======
+>>>>>>> abdd4deb5cc8ccd37c791628d926c6c996d16d3e
                 map.parties[py][px] = null;
               }
             }
