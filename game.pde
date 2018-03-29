@@ -421,8 +421,8 @@ class Game extends State{
     int tw = ceil(maxWidthLine(lines))+4;
     int gap = ceil(textAscent()+textDescent());
     int th = ceil(textAscent()+textDescent())*lines.size();
-    int tx = mouseX-tw/2;
-    int ty = mouseY+20;
+    int tx = round(between(0, mouseX-tw/2, width-tw));
+    int ty = round(between(0, mouseY+20, height-th-20));
     fill(255, 200);
     stroke(0);
     rectMode(CORNER);
@@ -1206,6 +1206,7 @@ class Game extends State{
     String tempString;
     barX=width;
     tempString = "energy:"+round(players[turn].resources[3]);
+    textSize(12*TextScale);
     barX -= textWidth(tempString)+10+bezel;
     if (players[turn].resources[3]>0)
       fill(150);
@@ -1213,13 +1214,14 @@ class Game extends State{
       fill(255,0,0);
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())-buttonH/2);
     fill(0);
     textSize(8*TextScale);
     tempString=getResourceString(totals[3]);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel+(textDescent()+textAscent())/2-buttonH/2);
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-buttonH/2);
     
     tempString = "metal:"+round(players[turn].resources[2]);
+    textSize(12*TextScale);
     barX -= textWidth(tempString)+10+bezel;
     if (players[turn].resources[2]>0)
       fill(150);
@@ -1227,11 +1229,13 @@ class Game extends State{
       fill(255,0,0);
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())-buttonH/2);
+    textSize(8*TextScale);
     tempString=getResourceString(totals[2]);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel+(textDescent()+textAscent())/2-buttonH/2);
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-buttonH/2);
     
     tempString = "wood:"+round(players[turn].resources[1]);
+    textSize(12*TextScale);
     barX -= textWidth(tempString)+10+bezel;
     if (players[turn].resources[1]>0)
       fill(150);
@@ -1239,11 +1243,13 @@ class Game extends State{
       fill(255,0,0);
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())-buttonH/2);
+    textSize(8*TextScale);
     tempString=getResourceString(totals[1]);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel+(textDescent()+textAscent())/2-buttonH/2);
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-buttonH/2);
      
     tempString = "food:"+round(players[turn].resources[0]);
+    textSize(12*TextScale);
     barX -= textWidth(tempString)+10+bezel;
     if (players[turn].resources[0]>0)
       fill(150);
@@ -1251,9 +1257,10 @@ class Game extends State{
       fill(255,0,0);
     rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
     fill(255);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())-buttonH/2);
+    textSize(8*TextScale);
     tempString=getResourceString(totals[0]);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel+(textDescent()+textAscent())/2-buttonH/2);
+    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-buttonH/2);
   }
   
   ArrayList<String> keyboardEvent(String eventType, char _key){
