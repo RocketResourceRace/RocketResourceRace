@@ -174,10 +174,12 @@ class Game extends State{
       int cellX = m.startX;
       int cellY = m.startY;
       
+      Node[][] nodes = djk(cellX, cellY);
+      
       if (canMove(cellX, cellY)){
         int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
         if (sliderVal > 0 && parties[cellY][cellX].getUnitNumber() >= 2 && parties[cellY][cellX].getTask() != "Battle"){
-          map.updateMoveNodes(djk(cellX, cellY));
+          map.updateMoveNodes(nodes);
           moving = true;
           splittedParty = new Party(turn, sliderVal, "Rest", parties[cellY][cellX].getMovementPoints());
           parties[cellY][cellX].changeUnitNumber(-sliderVal);
@@ -189,9 +191,8 @@ class Game extends State{
       
       if (splittedParty != null){
         splittedParty.target = new int[]{x, y};
-        Node[][] nodes = djk(cellX, cellY);
         splittedParty.path = getPath(cellX, cellY, x, y, nodes);
-        splittedParty.setPathTurns(1+getMoveTurns(cellX, cellY, x, y,map.moveNodes));  
+        splittedParty.setPathTurns(1+getMoveTurns(cellX, cellY, x, y, nodes));  
         Collections.reverse(splittedParty.path);
         splittedParty.changeTask("Rest");
         splittedParty.clearActions();
@@ -200,9 +201,8 @@ class Game extends State{
       } 
       else {
         parties[cellY][cellX].target = new int[]{x, y};
-        Node[][] nodes = djk(cellX, cellY);
         parties[cellY][cellX].path = getPath(cellX, cellY, x, y, nodes);
-        parties[cellY][cellX].setPathTurns(1+getMoveTurns(cellX, cellY, x, y,map.moveNodes));
+        parties[cellY][cellX].setPathTurns(1+getMoveTurns(cellX, cellY, x, y, nodes));
         Collections.reverse(parties[cellY][cellX].path);
         parties[cellY][cellX].changeTask("Rest");
         parties[cellY][cellX].clearActions();         
