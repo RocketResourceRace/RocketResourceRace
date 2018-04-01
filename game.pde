@@ -9,7 +9,10 @@ class Game extends State{
   final int MOVEMENTPOINTS = 64;
   final int DEFENDCOST = 32;
   final float [] STARTINGRESOURCES = new float[]{500, 500, 1000, 1000, 1000, 10000, 1000, 10000, 10000};
-  final String[] tasks = {"Rest", "Work Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Build Homes", "Build Factory", "Build Mine", "Build Smelter", "Build Rocket Factory", "Clear Forest", "Battle", "Super Rest", "Produce Ore", "Produce Metal", "Produce Concrete", "Produce Cable", "Produce Wood", "Produce Spacehip Parts"};
+  final String[] tasks = {
+    "Rest", "Work Farm", "Defend", "Demolish", 
+    "Build Farm", "Build Sawmill", "Build Homes", "Build Factory", "Build Mine", "Build Smelter", "Build Big Factory", "Build Rocket Factory", 
+    "Clear Forest", "Battle", "Super Rest", "Produce Ore", "Produce Metal", "Produce Concrete", "Produce Cable", "Produce Wood", "Produce Rocket Parts", "Produce Rocket"};
   final String[] landTypes = {"Water", "Sand", "Grass", "Forest", "Hills"};
   final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory", "Rocket Factory"};
   final int WATER = 1;
@@ -32,7 +35,7 @@ class Game extends State{
   final int ENERGY = 3;
   final int CONCRETE = 4;
   final int CABLE = 5;
-  final int SPACESHIP_PARTS = 6;
+  final int ROCKET_PARTS = 6;
   final int ORE = 7;
   final int PEOPLE = 8;
   
@@ -43,6 +46,7 @@ class Game extends State{
   final String homesToolTipRaw = "Homes create new units when worked.\nCosts: 100 wood.\nConsumes: 2 wood/worker.\nThis party will take %d turns to build it";
   final String smelterToolTipRaw = "The smelter produces metal when worked.\nCosts: 200 wood.\nConsumes: 10 wood/worker.\nProduces: 0.1 iron/worker.\nThis party will take %d turns to build it";
   final String factoryToolTipRaw = "The factory produces parts when worked.\nCosts: 200 wood.\nConsumes: 10 wood/worker.\nThis party will take %d turns to build it";
+  final String bigFactoryToolTipRaw = "The big factory produces rocket parts when worked.\nCosts: 200 metal.\nConsumes: 1 metal/worker.\nThis party will take %d turns to build it";
   final String sawmillToolTipRaw = "The sawmill produces wood when worked.\nCosts: 200 wood.\nConsumes: 10 wood/worker.\nProduces: 0.5 wood/worker.\nThis party will take %d turns to build it";
   final String rocketFactoryToolTipRaw = "The rocket factory produces a rocket when worked.\nCosts: 1000 metal and 1000 concrete.\nConsumes: 10 cable and 10 rocket parts /worker.\nProduces: rockets\nThis party will take %d turns to build it";
   final String clearForestToolTipRaw = "Clearing a forest adds 100 wood to stockpile.\nThe tile is turned to grassland\nThis party will take %d turns to build it";
@@ -69,6 +73,7 @@ class Game extends State{
     "A party must be at rest to move",
     "This splits the number of units selected.\nCan only split when movement points > 0.",
     "",
+    "big factory"
   };
   final float[] buildingTimes = {0, 3, 2, 5, 8, 8, 4, 12, 12};
   final String[] resourceNames = {"Food", "Wood", "Metal", "Energy", "Concrete", "Cable", "Rocket Parts", "Ore", "Units"};
@@ -79,7 +84,7 @@ class Game extends State{
     {0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 200, 0, 0, 0, 0, 0, 0, 0},
     {0, 200, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 200, 0, 0, 0, 0, 0, 0},
     {0, 0, 1000, 0, 1000, 0, 0, 0, 0},
   };
   
@@ -95,6 +100,7 @@ class Game extends State{
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Factory
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Mine
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Smelter
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Big Factory
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Rocket Factory
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Clear Forest
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Battle
@@ -104,7 +110,8 @@ class Game extends State{
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Concrete
     {0.2, 0, 1, 0, 0, 0, 0, 0, 0}, // Produce Cable
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Wood
-    {0.2, 0, 1, 0, 0, 0, 0, 0, 0}, // Produce Spaceship Parts
+    {0.2, 0, 1, 0, 0, 0, 0, 0, 0}, // Produce Rocket Parts
+    {0.2, 0, 0, 0, 0, 1, 1, 0, 0}, // Produce Rocket
   };
   
   // Outcomes per productivity per unit
@@ -119,6 +126,7 @@ class Game extends State{
     {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Factory
     {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Mine
     {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Smelter
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Big Factory
     {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Rocket Factory
     {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Clear Forest
     {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Battle
@@ -128,7 +136,8 @@ class Game extends State{
     {0, 0, 0, 0, 0.1, 0, 0, 0, 0}, // Produce Concrete
     {0, 0, 0, 0, 0, 0.1, 0, 0, 0}, // Produce Cable
     {0, 0.1, 0, 0, 0, 0, 0, 0, 0}, // Produce Wood
-    {0, 0, 0, 0, 0, 0, 0.1, 0, 0}, // Produce Spaceship Parts
+    {0, 0, 0, 0, 0, 0, 0.1, 0, 0}, // Produce Rocket Parts
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Rocket
   };
   final int NUMRESOURCES = 9;
   int turnNumber;
@@ -278,9 +287,21 @@ class Game extends State{
             parties[cellY][cellX].changeTask("Rest");
           }
         }
+        else if (parties[cellY][cellX].getTask() == "Build Big Factory"){
+          if (sufficientResources(players[turn].resources, buildingCosts[BIG_FACTORY-1])){
+            parties[cellY][cellX].clearActions();
+            ((Text)getElement("turns remaining", "party management")).setText("");
+            parties[cellY][cellX].addAction(new Action("Build Big Factory", buildingTimes[BIG_FACTORY]));
+            spendRes(players[turn], buildingCosts[BIG_FACTORY-1]);
+            buildings[cellY][cellX] = new Building(CONSTRUCTION);
+          }
+          else{
+            parties[cellY][cellX].changeTask("Rest");
+          }
+        }
         else if (parties[cellY][cellX].getTask() == "Build Rocket Factory"){
           if (sufficientResources(players[turn].resources, buildingCosts[ROCKET_FACTORY-1])){
-            parties[cellY][cellX].clearActions();         
+            parties[cellY][cellX].clearActions();
             ((Text)getElement("turns remaining", "party management")).setText("");
             parties[cellY][cellX].addAction(new Action("Build Rocket Factory", buildingTimes[ROCKET_FACTORY]));
             spendRes(players[turn], buildingCosts[ROCKET_FACTORY-1]);
@@ -398,8 +419,11 @@ class Game extends State{
         if (buildings[cellY][cellX].type==SAWMILL){
           makeTaskAvailable("Produce Wood");
         }
-        if (buildings[cellY][cellX].type==BIG_FACTORY){   
-          makeTaskAvailable("Produce Spaceship Parts");
+        if (buildings[cellY][cellX].type==BIG_FACTORY){
+          makeTaskAvailable("Produce Rocket Parts");
+        }
+        if (buildings[cellY][cellX].type==ROCKET_FACTORY){
+          makeTaskAvailable("Produce Rocket");
         }
         makeTaskAvailable("Demolish");
       }
@@ -417,6 +441,7 @@ class Game extends State{
         }  
         if (cellTerrain != WATER && cellTerrain != FOREST && cellTerrain != HILLS){
           makeTaskAvailable("Build Factory");
+          makeTaskAvailable("Build Big Factory");
           makeTaskAvailable("Build Smelter");
           makeTaskAvailable("Build Rocket Factory");
         }
@@ -511,6 +536,9 @@ class Game extends State{
                 break;
               case "Build Rocket Factory":
                 map.buildings[y][x] = new Building(ROCKET_FACTORY);
+                break;
+              case "Build Big Factory":
+                map.buildings[y][x] = new Building(BIG_FACTORY);
                 break;
               case "Demolish":
                 reclaimRes(players[turn], buildingCosts[5]);
@@ -990,6 +1018,10 @@ class Game extends State{
           case "Build Factory":
             tooltipText[5] = String.format(factoryToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[FACTORY]));
             toolTipSelected = 5;
+            break;
+          case "Build Big Factory":
+            tooltipText[18] = String.format(factoryToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[BIG_FACTORY]));
+            toolTipSelected = 18;
             break;
           case "Clear Forest":
             tooltipText[8] = String.format(clearForestToolTipRaw,parties[cellY][cellX].calcTurns(2));

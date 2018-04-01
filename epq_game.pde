@@ -180,7 +180,8 @@ void setup(){
     {loadImage("data/factory.png")},
     {loadImage("data/sawmill.png")},
     {loadImage("data/big_factory.png")},
-    {loadImage("data/big_factory.png")}
+    {loadImage("data/rocket_factory_empty.png"),
+    loadImage("data/rocket_factory_full.png")}
   };
   partyImages = new PImage[]{
     loadImage("data/blue_flag.png"),
