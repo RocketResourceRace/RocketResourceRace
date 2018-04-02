@@ -898,7 +898,7 @@ class Game extends State{
         }
         i++;
       }
-      else{
+      else{ //<>//
         p.path = new ArrayList(path.subList(i, path.size()));
         break;
       }
@@ -1375,9 +1375,7 @@ class Game extends State{
     
     parties = new Party[mapHeight][mapWidth];
     buildings = new Building[mapHeight][mapWidth];
-    
     PVector[] playerStarts = generateStartingParties();
-    
     terrain = generateMap(playerStarts);
     map.reset(mapWidth, mapHeight, terrain, parties, buildings);
      
@@ -1498,13 +1496,16 @@ class Game extends State{
     }
     return false;
   }
+  PVector generatePartyPosition(int xOffset){
+    return new PVector(int(random(xOffset-mapWidth/8, xOffset+mapWidth/8)), int(random(mapHeight/4, 3*mapHeight/4)));
+  }
   
   PVector[] generateStartingParties(){
-    PVector player1 = PVector.random2D().mult(mapWidth/8).add(new PVector(mapWidth/4, mapHeight/2));
-    PVector player2 = PVector.random2D().mult(mapWidth/8).add(new PVector(3*mapWidth/4, mapHeight/2));
+    PVector player1 = generatePartyPosition(mapWidth/4);
+    PVector player2 = generatePartyPosition(3*mapWidth/4);
     while(startInvalid(player1, player2)){
-      player1 = PVector.random2D().mult(mapWidth/8).add(new PVector(mapWidth/4, mapHeight/2));
-      player2 = PVector.random2D().mult(mapWidth/8).add(new PVector(3*mapWidth/4, mapHeight/2));
+      player1 = generatePartyPosition(mapWidth/4);
+      player2 = generatePartyPosition(3*mapWidth/4);
     }
     parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "Rest", MOVEMENTPOINTS);
     parties[(int)player2.y][(int)player2.x] = new Party(1, 100, "Rest", MOVEMENTPOINTS);
@@ -1600,8 +1601,8 @@ class Game extends State{
       int y = (int)playerStart.y;
       terrain[y][x] = type;
       // Player spawns will act as water but without water
-      for (int y1=y-waterLevel+1;y1<y+waterLevel;y1++){
-       for (int x1 = x-waterLevel+1; x1<x+waterLevel;x1++){
+      for (int y1=y-5;y1<y+4;y1++){
+       for (int x1 = x-5; x1<x+4;x1++){
          if (y1 < mapHeight && y1 >= 0 && x1 < mapWidth && x1 >= 0)
            terrain[y1][x1] = type;
        }
@@ -1667,6 +1668,11 @@ class Game extends State{
           terrain[y][x] = HILLS;
         }
       }      
+    }
+    for (int i =0; i<playerStarts.length;i++){
+      while (terrain[int(playerStarts[i].y)][int(playerStarts[i].x)]==WATER){
+        playerStarts[i] = generatePartyPosition(int((i+0.5)*(mapWidth/playerStarts.length)));
+      }
     }
     return terrain;
   }
