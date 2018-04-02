@@ -935,8 +935,25 @@ class Game extends State{
   }
   ArrayList<String> mouseEvent(String eventType, int button){
     if (button == RIGHT){
-      if (eventType == "mouseClicked"){
-        deselectCell();
+      if (eventType == "mousePressed"){
+        if (parties[cellY][cellX].player == turn){
+          if (map.mouseOver()){
+            moving = true;
+            map.updateMoveNodes(djk(cellX, cellY));
+          }
+        }
+      }
+      if (eventType == "mouseReleased"){
+        if (parties[cellY][cellX].player == turn){
+          if (moving){
+            int x = floor(map.scaleXInv(mouseX));
+            int y = floor(map.scaleYInv(mouseY));
+            postEvent(new Move(cellX, cellY, x, y));
+            map.cancelPath();
+            moving = false;
+            map.cancelMoveNodes();
+          }
+        }
       }
     }
     if (button == LEFT){
@@ -944,10 +961,13 @@ class Game extends State{
         if (activePanel == "default" && ((!getPanel("party management").mouseOver() || !getPanel("party management").visible) && (!getPanel("land management").mouseOver() || !getPanel("land management").visible))){
           if (map.mouseOver()){
             if (moving){
-              int x = floor(map.scaleXInv(mouseX));
-              int y = floor(map.scaleYInv(mouseY));
-              postEvent(new Move(cellX, cellY, x, y));
+              //int x = floor(map.scaleXInv(mouseX));
+              //int y = floor(map.scaleYInv(mouseY));
+              //postEvent(new Move(cellX, cellY, x, y));
+              //map.cancelPath();
               map.cancelPath();
+              moving = false;
+              map.cancelMoveNodes();
             }
             else{
               if(floor(map.scaleXInv(mouseX))==cellX&&floor(map.scaleYInv(mouseY))==cellY&&cellSelected){
@@ -960,7 +980,7 @@ class Game extends State{
         }
       }
     }
-    if (eventType == "mouseMoved"){
+    if (eventType == "mouseMoved" || (button==RIGHT&&eventType == "mouseDragged")){
       if (((DropDown)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible){
         switch (((DropDown)getElement("tasks", "party management")).findMouseOver()){
           case "Defend":toolTipSelected = 0;break;
