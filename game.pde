@@ -159,12 +159,13 @@ class Game extends State{
   color partyManagementColour;
   int toolTipSelected;
   ArrayList<Integer[]> prevIdle;
-  float[] totals = {0,0,0,0,0,0,0,0,0,0};
+  float[] totals;
   Party splittedParty;
   Game(){
     addElement("map", new Map(bezel, bezel, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
     map = (Map)getElement("map", "default");
     players = new Player[2];
+    totals = new float[resourceNames.length];
     
     // Initial positions will be focused on starting party
     players[0] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, STARTINGRESOURCES, color(0,0,255));
@@ -188,7 +189,6 @@ class Game extends State{
     int resSummaryX = width-((ResourceSummary)(getElement("resource summary", "bottom bar"))).totalWidth();
     addElement("resource expander", new Button(resSummaryX-50, bezel, 30, 30, color(150), color(50), color(0), 10, CENTER, "<"), "bottom bar");
     addElement("turn number", new TextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", color(0,0,255), 0), "bottom bar");
-    
     prevIdle = new ArrayList<Integer[]>();
   }     
   boolean postEvent(GameEvent event){
@@ -244,7 +244,10 @@ class Game extends State{
       }
     }
     else if (event instanceof EndTurn){
-      turnChange();
+      if (!changeTurn)
+        changeTurn();
+      else
+        valid = false;
     }
     
     else if (event instanceof ChangeTask){
@@ -391,10 +394,12 @@ class Game extends State{
       }
       checkTasks();
     }
-    this.totals = totalResources();
-    ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
-    rs.updateNet(totals);
-    rs.updateStockpile(players[turn].resources);
+    if (valid){
+      this.totals = totalResources();
+      ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
+      rs.updateNet(totals);
+      rs.updateStockpile(players[turn].resources);
+    }
     return valid;
   }
   void updateCellSelection(){
@@ -693,7 +698,6 @@ class Game extends State{
     turn = (turn + 1)%2;
     players[turn].loadSettings(this, map);
     changeTurn = false;
-    this.totals = totalResources();
     TextBox t = ((TextBox)(getElement("turn number", "bottom bar")));
     t.setColour(players[turn].colour);
     t.setText("Turn "+turnNumber);
@@ -807,11 +811,11 @@ class Game extends State{
     Collections.shuffle(locs);
     for (int i=0; i<4; i++){
       if (parties[locs.get(i)[1]][locs.get(i)[0]] == null && terrain[locs.get(i)[1]][locs.get(i)[0]] != 1){
-        return locs.get(i);
+        return locs.get(i); //<>//
       }
     }
     return null;
-  } //<>//
+  }
   boolean canMove(int x, int y){
     float points = map.parties[y][x].getMovementPoints();
     int[][] mvs = {{1,0}, {0,1}, {1,1}, {-1,0}, {0,-1}, {-1,-1}, {1,-1}, {-1,1}};
@@ -1361,7 +1365,7 @@ class Game extends State{
   }
   
   float[] totalResources(){
-    float[] amount={0,0,0,0,0,0,0,0,0};
+    float[] amount=new float[resourceNames.length];
     for (int x=0; x<mapWidth; x++){
       for (int y=0; y<mapHeight; y++){
         for (int res=0; res<9; res++){

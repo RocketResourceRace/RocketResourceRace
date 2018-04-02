@@ -264,6 +264,9 @@ class Map extends Element{
     frameStartTime = millis();
     limitCoords();
     
+    if (blockSize <= 0)
+      return;
+    
     for (int i=0; i<NUMOFGROUNDTYPES; i++){
       if(blockSize<24&&lowImages.containsKey(i)){
         tempTileImages[i] = lowImages.get(i).copy();
