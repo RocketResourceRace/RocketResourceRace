@@ -8,7 +8,7 @@ class Game extends State{
   final int[] terrainCosts = new int[]{16, 12, 8, 12, 28};
   final int MOVEMENTPOINTS = 64;
   final int DEFENDCOST = 32;
-  final float [] STARTINGRESOURCES = new float[]{1000, 1000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, -1};
+  final float [] STARTINGRESOURCES = new float[]{500, 500, 0, 0, 0, 0, 0, 0, 0, -1};
   final String[] tasks = {
     "Rest", "Work Farm", "Defend", "Demolish", 
     "Build Farm", "Build Sawmill", "Build Homes", "Build Factory", "Build Mine", "Build Smelter", "Build Big Factory", "Build Rocket Factory", 
@@ -898,7 +898,7 @@ class Game extends State{
     }
     
     ArrayList <int[]> path = p.path;
-    int i=0; //<>//
+    int i=0; //<>// //<>//
     boolean moved = false;
     for (int node=1; node<path.size(); node++){
       int cost = cost(path.get(node)[0], path.get(node)[1], px, py);
