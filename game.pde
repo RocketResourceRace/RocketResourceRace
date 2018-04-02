@@ -166,6 +166,7 @@ class Game extends State{
     prevIdle = new ArrayList<Integer[]>();
   }     
   boolean postEvent(GameEvent event){
+    // Returns true if event is valid
     if (event instanceof Move){
       
       Move m = (Move)event;
@@ -173,6 +174,11 @@ class Game extends State{
       int y = m.endY;
       int cellX = m.startX;
       int cellY = m.startY;
+      
+      if (x<0 || x>=mapWidth || y<0 || y>=mapHeight){
+        print("invalid movement");
+        return false;
+      }
       
       Node[][] nodes = djk(cellX, cellY);
       
@@ -198,6 +204,7 @@ class Game extends State{
         splittedParty.clearActions();
         ((Text)getElement("turns remaining", "party management")).setText("");
         moveParty(cellX, cellY, true);
+        return true;
       } 
       else {
         parties[cellY][cellX].target = new int[]{x, y};
@@ -208,10 +215,12 @@ class Game extends State{
         parties[cellY][cellX].clearActions();         
         ((Text)getElement("turns remaining", "party management")).setText("");
         moveParty(cellX, cellY);
+        return true;
       }
     }
     else if (event instanceof EndTurn){
       changeTurn();
+      return true;
     }
     
     else if (event instanceof ChangeTask){
@@ -320,6 +329,7 @@ class Game extends State{
           }
         }
         checkTasks();
+        return true;
       }
     this.totals = totalResources();
     return false;
