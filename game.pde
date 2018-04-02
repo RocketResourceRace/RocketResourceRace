@@ -8,7 +8,7 @@ class Game extends State{
   final int[] terrainCosts = new int[]{16, 12, 8, 12, 28};
   final int MOVEMENTPOINTS = 64;
   final int DEFENDCOST = 32;
-  final float [] STARTINGRESOURCES = new float[]{1000, 1000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 0};
+  final float [] STARTINGRESOURCES = new float[]{1000, 1000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, -1};
   final String[] tasks = {
     "Rest", "Work Farm", "Defend", "Demolish", 
     "Build Farm", "Build Sawmill", "Build Homes", "Build Factory", "Build Mine", "Build Smelter", "Build Big Factory", "Build Rocket Factory", 
@@ -79,70 +79,70 @@ class Game extends State{
   final float[] buildingTimes = {0, 3, 2, 5, 8, 8, 4, 12, 12};
   final String[] resourceNames = {"Food", "Wood", "Metal", "Energy", "Concrete", "Cable", "Rocket Parts", "Ore", "Units", "Rocket Progress"};
   final float[][] buildingCosts = {
-    {0, 100, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 50, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 200, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 200, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 200, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 200, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 1000, 0, 1000, 0, 0, 0, 0, 0},
+    {0, 100, 0, 0, 0, 0, 0, 0, 0},
+    {0, 50, 0, 0, 0, 0, 0, 0, 0},
+    {0, 200, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 200, 0, 0, 0, 0, 0, 0, 0},
+    {0, 200, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 200, 0, 0, 0, 0, 0, 0},
+    {0, 0, 1000, 0, 1000, 0, 0, 0, 0},
   };
   
   // Costs per productivity per unit
   final float[][] taskCosts = {
-    {0.1, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Rest
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Farm
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Defend
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Demolish
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Farm
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Sawmill
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Homes
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Factory
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Mine
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Smelter
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Big Factory
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Rocket Factory
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Clear Forest
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Battle
-    {0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Super Rest
-    {0.2, 1, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Ore
-    {0.2, 0, 0, 0, 0, 0, 0, 1, 0, 0}, // Produce Metal
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Concrete
-    {0.2, 0, 1, 0, 0, 0, 0, 0, 0, 0}, // Produce Cable
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Wood
-    {0.2, 0, 1, 0, 0, 0, 0, 0, 0, 0}, // Produce Rocket Parts
+    {0.1, 0, 0, 0, 0, 0, 0, 0, 0}, // Rest
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Farm
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Defend
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Demolish
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Farm
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Sawmill
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Homes
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Factory
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Mine
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Smelter
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Big Factory
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Rocket Factory
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Clear Forest
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Battle
+    {0.5, 0, 0, 0, 0, 0, 0, 0, 0}, // Super Rest
+    {0.2, 1, 0, 0, 0, 0, 0, 0, 0}, // Produce Ore
+    {0.2, 0, 0, 0, 0, 0, 0, 1, 0}, // Produce Metal
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Concrete
+    {0.2, 0, 1, 0, 0, 0, 0, 0, 0}, // Produce Cable
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Wood
+    {0.2, 0, 1, 0, 0, 0, 0, 0, 0}, // Produce Rocket Parts
     {0.2, 0, 0, 0, 0, 1, 1, 0, 0, 0}, // Produce Rocket
-    {0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Launch Rocket
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Launch Rocket
   };
   
   // Outcomes per productivity per unit
   final float[][] taskOutcomes = {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0.01, 0}, // Rest
-    {0.4, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Farm
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Defend
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Demolish
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Farm
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Sawmill
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Homes
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Factory
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Mine
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Smelter
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Big Factory
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Rocket Factory
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Clear Forest
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Battle
-    {0, 0, 0, 0, 0, 0, 0, 0, 0.1, 0}, // Super Rest
-    {0, 0, 0, 0, 0, 0, 0, 1, 0, 0}, // Produce Ore
-    {0, 0, 0.1, 0, 0, 0, 0, 0, 0, 0}, // Produce Metal
-    {0, 0, 0, 0, 0.1, 0, 0, 0, 0, 0}, // Produce Concrete
-    {0, 0, 0, 0, 0, 0.1, 0, 0, 0, 0}, // Produce Cable
-    {0, 0.1, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Wood
-    {0, 0, 0, 0, 0, 0, 0.1, 0, 0, 0}, // Produce Rocket Parts
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0}, // Produce Rocket
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Launch Rocket
+    {0, 0, 0, 0, 0, 0, 0, 0, 0.01}, // Rest
+    {0.4, 0, 0, 0, 0, 0, 0, 0, 0}, // Farm
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Defend
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Demolish
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Farm
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Sawmill
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Homes
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Factory
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Mine
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Smelter
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Big Factory
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Rocket Factory
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Clear Forest
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Battle
+    {0, 0, 0, 0, 0, 0, 0, 0, 0.1}, // Super Rest
+    {0, 0, 0, 0, 0, 0, 0, 1, 0}, // Produce Ore
+    {0, 0, 0.1, 0, 0, 0, 0, 0, 0}, // Produce Metal
+    {0, 0, 0, 0, 0.1, 0, 0, 0, 0}, // Produce Concrete
+    {0, 0, 0, 0, 0, 0.1, 0, 0, 0}, // Produce Cable
+    {0, 0.1, 0, 0, 0, 0, 0, 0, 0}, // Produce Wood
+    {0, 0, 0, 0, 0, 0, 0.1, 0, 0}, // Produce Rocket Parts
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, // Produce Rocket
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Launch Rocket
   };
-  final int NUMRESOURCES = 10;
+  final int NUMRESOURCES = 9;
   int turnNumber;
   int mapHeight = mapSize;
   int mapWidth = mapSize;
@@ -159,7 +159,7 @@ class Game extends State{
   color partyManagementColour;
   int toolTipSelected;
   ArrayList<Integer[]> prevIdle;
-  float[] totals = {0,0,0,0,0,0,0,0,0,0};
+  float[] totals = {0,0,0,0,0,0,0,0,0};
   Party splittedParty;
   Game(){
     addElement("map", new Map(bezel, bezel, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
@@ -370,6 +370,10 @@ class Game extends State{
           } else {
             players[turn].resources[ROCKET_PROGRESS] = 0;
           }
+        } else if (parties[cellY][cellX].getTask() == "Produce Rocket"){
+          if(players[turn].resources[ROCKET_PROGRESS]==-1){
+            players[turn].resources[ROCKET_PROGRESS] = 0;
+          }
         }
         checkTasks();
       }
@@ -435,7 +439,7 @@ class Game extends State{
           makeTaskAvailable("Produce Rocket Parts");
         }
         if (buildings[cellY][cellX].type==ROCKET_FACTORY){
-          if (players[turn].resources[ROCKET_PROGRESS]>1000){
+          if (players[turn].resources[ROCKET_PROGRESS]>=1000){
             makeTaskAvailable("Launch Rocket");
           } else {
             makeTaskAvailable("Produce Rocket");
@@ -614,7 +618,13 @@ class Game extends State{
               if(map.parties[y][x].getTask()==tasks[task]){
                 for(int resource = 0; resource < NUMRESOURCES; resource++){
                   if(resource!=PEOPLE){
+                    if(tasks[task]=="Produce Rocket"){
+                      resource = ROCKET_PROGRESS;
+                    }
                     players[turn].resources[resource] += max((taskOutcomes[task][resource]-taskCosts[task][resource])*productivity*map.parties[y][x].getUnitNumber(), -players[turn].resources[resource]);
+                    if(tasks[task]=="Produce Rocket"){
+                      break;
+                    }
                   } else if(resourceAmountsAvailable[0]<1){
                     map.parties[y][x].setUnitNumber(floor(map.parties[y][x].getUnitNumber()-(1-resourceAmountsAvailable[0])*taskOutcomes[task][resource]*map.parties[y][x].getUnitNumber()));
                   } else{
@@ -709,6 +719,9 @@ class Game extends State{
     }
     drawBar();
     drawPanels();
+    if(players[0].resources[ROCKET_PROGRESS]!=-1||players[1].resources[ROCKET_PROGRESS]!=-1){
+      drawRocketProgressBar();
+    }
     if (cellSelected){
       drawCellManagement();
       if(parties[cellY][cellX] != null && getPanel("party management").visible)
@@ -737,7 +750,7 @@ class Game extends State{
     changeTurn = true;
   }
   boolean sufficientResources(float[] available, float[] required){
-    for (int i=0; i<required.length;i++){
+    for (int i=0; i<NUMRESOURCES;i++){
       if (available[i] < required[i]){
         return false;
       }
@@ -745,13 +758,13 @@ class Game extends State{
     return true;
   }
   void spendRes(Player player, float[] required){
-    for (int i=0; i<player.resources.length;i++){
+    for (int i=0; i<NUMRESOURCES;i++){
       player.resources[i] -= required[i];
     }
   }
   void reclaimRes(Player player, float[] required){
     //reclaim half cost of building
-    for (int i=0; i<player.resources.length;i++){
+    for (int i=0; i<NUMRESOURCES;i++){
       player.resources[i] += required[i]/2;
     }
   }
@@ -1337,6 +1350,70 @@ class Game extends State{
       fill(255, 0, 0);
     }
     return tempString;
+  }
+  
+  void drawRocketProgressBar(){
+    int x, y, w, h;
+    String progressMessage;
+    boolean both = players[0].resources[ROCKET_PROGRESS] != -1 && players[1].resources[ROCKET_PROGRESS] != -1;
+    int progress = int(players[turn].resources[ROCKET_PROGRESS]);
+    color fillColour;
+    if(progress == -1){
+      progress = int(players[(turn+1)%2].resources[ROCKET_PROGRESS]);
+      progressMessage = "";
+      fillColour = playerColours[(turn+1)%2];
+    } else {
+      fillColour = playerColours[turn];
+      if(progress>=1000){
+         progressMessage = "Rocket Progress: Completed";
+      } else {
+        progressMessage = "Rocket Progress: "+str(progress)+"/1000";
+      }
+    }
+    if (both){
+      x = round(width*0.25);
+      y = round(height*0.05);
+      w = round(width/2);
+      h = round(height*0.015);
+      fill(200);
+      stroke(100);
+      rect(x, y, w, h);
+      noStroke();
+      progress = int(players[0].resources[ROCKET_PROGRESS]);
+      w = round(min(w, w*progress/1000));
+      fill(playerColours[0]);
+      rect(x, y, w, h);
+      y = round(height*0.065);
+      w = round(width/2);
+      fill(200);
+      stroke(100);
+      rect(x, y, w, h);
+      noStroke();
+      progress = int(players[1].resources[ROCKET_PROGRESS]);
+      w = round(min(w, w*progress/1000));
+      fill(playerColours[1]);
+      rect(x, y, w, h);
+      y = round(height*0.05);
+    } else {
+      x = round(width*0.25);
+      y = round(height*0.05);
+      w = round(width/2);
+      h = round(height*0.03);
+      fill(200);
+      stroke(100);
+      rect(x, y, w, h);
+      noStroke();
+      w = round(min(w, w*progress/1000));
+      fill(fillColour);
+      rect(x, y, w, h);
+    }
+    textSize(10*TextScale);
+    textAlign(CENTER, BOTTOM);
+    fill(200);
+    int tw = ceil((textWidth(progressMessage)));
+    rect(width/2 -tw/2, y-10*TextScale, tw, 10*TextScale);
+    fill(0);
+    text(progressMessage, width/2, y);
   }
   
   void drawBar(){
