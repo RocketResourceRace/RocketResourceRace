@@ -1,4 +1,61 @@
 
+
+class TextBox extends Element{
+  int textSize, bgColour, textColour, vAlign, hAlign, rectMode;
+  String text;
+  boolean autoSizing;
+  
+  TextBox(int x, int y, int w, int h, int textSize, String text, int bgColour, int textColour, int hAlign, int vAlign, int rectMode){
+    //w=-1 means get width from text
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    if (this.w == -1)
+      autoSizing = true;
+    else
+      autoSizing = false;
+    this.textSize = textSize;
+    this.bgColour = bgColour;
+    this.textColour = textColour;
+    this.vAlign = vAlign;
+    this.hAlign = hAlign;
+    setText(text);
+    this.rectMode = rectMode;
+  }
+  
+  void setText(String text){
+    this.text = text;
+    if (autoSizing){
+      textSize(textSize*TextScale);
+      this.w = ceil(textWidth(text))+10;
+    }
+  }
+  String getText(){
+    return text;
+  }
+  
+  void setColour(int c){
+    bgColour = c;
+  }
+  
+  void draw(){
+    pushStyle();
+    textSize(textSize*TextScale);
+    textAlign(hAlign, vAlign);
+    rectMode(rectMode);
+    if (bgColour != color(255, 255)){
+      fill(bgColour);
+      rect(x+xOffset, y+yOffset, w, h);
+    }
+    fill(textColour);
+    text(text, x+xOffset, y+yOffset);
+    popStyle();
+  }
+}
+
+
+
 class ResourceSummary extends Element{
   float[] stockPile, net;
   String[] resNames;

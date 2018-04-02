@@ -272,14 +272,15 @@ int getChanceOfBattleSuccess(Party attacker, Party defender){
 class Player{
   float mapXOffset, mapYOffset, blockSize;
   float[] resources;
-  int cellX, cellY;
+  int cellX, cellY, colour;
   boolean cellSelected = false;
   // Resources: food wood metal energy concrete cable spaceship_parts ore people
-  Player(float mapXOffset, float mapYOffset, float blockSize, float[] resources){
+  Player(float mapXOffset, float mapYOffset, float blockSize, float[] resources, int colour){
     this.mapXOffset = mapXOffset;
     this.mapYOffset = mapYOffset;
     this.blockSize = blockSize;
     this.resources = resources; 
+    this.colour = colour;
   }
   void saveSettings(float mapXOffset, float mapYOffset, float blockSize, int cellX, int cellY, boolean cellSelected){
     this.mapXOffset = mapXOffset;

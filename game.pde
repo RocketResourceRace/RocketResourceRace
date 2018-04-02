@@ -167,8 +167,8 @@ class Game extends State{
     players = new Player[2];
     
     // Initial positions will be focused on starting party
-    players[0] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, STARTINGRESOURCES);
-    players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, STARTINGRESOURCES);
+    players[0] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, STARTINGRESOURCES, color(0,0,255));
+    players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, STARTINGRESOURCES, color(255,0,0));
     addPanel("land management", 0, 0, width, height, false, color(50, 200, 50), color(0));
     addPanel("party management", 0, 0, width, height, false, color(70, 70, 220), color(0));
     addPanel("bottom bar", 0, height-70, width, 70, true, color(150), color(50));
@@ -187,6 +187,7 @@ class Game extends State{
     addElement("resource summary", new ResourceSummary(0, 0, 70, resourceNames, players[turn].resources, totals), "bottom bar");
     int resSummaryX = width-((ResourceSummary)(getElement("resource summary", "bottom bar"))).totalWidth();
     addElement("resource expander", new Button(resSummaryX-50, bezel, 30, 30, color(150), color(50), color(0), 10, CENTER, "<"), "bottom bar");
+    addElement("turn number", new TextBox(bezel*3+buttonW*2+buttonW/2, bezel+buttonH/2, -1, buttonH, 14, "Turn 0", color(0,0,255), 0, CENTER, CENTER, CENTER), "bottom bar");
     
     prevIdle = new ArrayList<Integer[]>();
   }     
@@ -693,6 +694,7 @@ class Game extends State{
     players[turn].loadSettings(this, map);
     changeTurn = false;
     this.totals = totalResources();
+    ((TextBox)(getElement("turn number", "bottom bar"))).setColour(players[turn].colour);
     if (turn == 0)
       turnNumber ++;
   }
@@ -809,9 +811,9 @@ class Game extends State{
   }
   
   boolean inPrevIdle(int x, int y){
-    for (int i=0; i<prevIdle.size();i++){
+    for (int i=0; i<prevIdle.size();i++){ //<>//
       if (prevIdle.get(i)[0] == x && prevIdle.get(i)[1] == y){
-        return true; //<>//
+        return true;
       }
     }
     return false;
@@ -865,7 +867,6 @@ class Game extends State{
             b.setText("<");
           else
             b.setText(">");
-          
         }
         else if (event.id == "end game button"){
           newState = "menu";
@@ -1049,7 +1050,7 @@ class Game extends State{
   ArrayList<String> mouseEvent(String eventType, int button){
     if (button == RIGHT){
       if (eventType == "mousePressed"){
-        if (parties[cellY][cellX].player == turn){
+        if (parties[cellY][cellX].player == turn && cellSelected){
           if (map.mouseOver()){
             moving = true;
             map.updateMoveNodes(djk(cellX, cellY));
@@ -1585,9 +1586,9 @@ class Game extends State{
     map.reset(mapWidth, mapHeight, terrain, parties, buildings);
      
     float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, 42);
-    players[1] = new Player(conditions2[0], conditions2[1], 42, STARTINGRESOURCES.clone());
+    players[1] = new Player(conditions2[0], conditions2[1], 42, STARTINGRESOURCES.clone(), color(255,0,0));
     float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, 42);
-    players[0] = new Player(conditions1[0], conditions1[1], 42, STARTINGRESOURCES.clone());
+    players[0] = new Player(conditions1[0], conditions1[1], 42, STARTINGRESOURCES.clone(), color(0,0,255));
     //for(int i=0;i<NUMOFBUILDINGTYPES;i++){
     //  buildings[(int)playerStarts[0].y][(int)playerStarts[0].x+i] = new Building(1+i);
     //}
