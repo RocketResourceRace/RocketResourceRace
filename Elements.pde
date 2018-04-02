@@ -1,4 +1,30 @@
 
+class ResourcePanel extends Element{
+  float[] stockPile, producing, consuming;
+  ResourcePanel(int x, int y, int w, int h){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+  }
+  
+  void updateStockpile(float[] v){
+    stockPile = v;
+  }
+  void updateProducing(float[] v){
+    producing = v;
+  }
+  void updateConsuming(float[] v){
+    consuming = v;
+  }
+  
+  void draw(){
+    
+  }
+}
+
+
+
 class DropDown extends Element{
   ArrayList<String> options;
   ArrayList<Integer> availableOptions;
