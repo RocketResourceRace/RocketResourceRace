@@ -89,7 +89,7 @@ void setVolume(float x){
 }
 
 int NUMOFGROUNDTYPES = 5;
-int NUMOFBUILDINGTYPES = 7;
+int NUMOFBUILDINGTYPES = 9;
 int groundSpawns = 100;
 int waterLevel = 3;
 int TILESIZE = 1;
@@ -179,7 +179,9 @@ void setup(){
     {loadImage("data/smelter.png")},
     {loadImage("data/factory.png")},
     {loadImage("data/sawmill.png")},
-    {loadImage("data/big_factory.png")}
+    {loadImage("data/big_factory.png")},
+    {loadImage("data/rocket_factory_empty.png"),
+    loadImage("data/rocket_factory_full.png")}
   };
   partyImages = new PImage[]{
     loadImage("data/blue_flag.png"),
