@@ -82,7 +82,7 @@ class Game extends State{
     {0, 100, 0, 0, 0, 0, 0, 0, 0},
     {0, 50, 0, 0, 0, 0, 0, 0, 0},
     {0, 200, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 200, 0, 0, 0, 0, 0, 0, 0},
     {0, 200, 0, 0, 0, 0, 0, 0, 0},
     {0, 200, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 200, 0, 0, 0, 0, 0, 0},
@@ -159,32 +159,40 @@ class Game extends State{
   color partyManagementColour;
   int toolTipSelected;
   ArrayList<Integer[]> prevIdle;
-  float[] totals = {0,0,0,0,0,0,0,0,0};
+  float[] totals;
   Party splittedParty;
   Game(){
     addElement("map", new Map(bezel, bezel, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
-    addElement("end turn", new Button(bezel, height-buttonH-bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"));
-    addElement("idle party finder", new Button(bezel*2+buttonW, height-buttonH-bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Idle Party"));
     map = (Map)getElement("map", "default");
     players = new Player[2];
+    totals = new float[resourceNames.length];
     
     // Initial positions will be focused on starting party
-    players[0] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, STARTINGRESOURCES);
-    players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, STARTINGRESOURCES);
+    players[0] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, STARTINGRESOURCES, color(0,0,255));
+    players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, STARTINGRESOURCES, color(255,0,0));
     addPanel("land management", 0, 0, width, height, false, color(50, 200, 50), color(0));
     addPanel("party management", 0, 0, width, height, false, color(70, 70, 220), color(0));
+    addPanel("bottom bar", 0, height-70, width, 70, true, color(150), color(50));
     addPanel("end screen", 0, 0, width, height, false, color(50, 50, 50, 50), color(0));
+    
     addElement("end game button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2+height/8), (int)(GUIScale*width/8), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "End Game"), "end screen");
     addElement("winner", new Text(width/2, height/2, (int)(TextScale*10), "", color(255), CENTER), "end screen");
+    
     addElement("turns remaining", new Text(bezel*2+220, bezel*4+30+30, 8, "", color(255), LEFT), "party management");
-    //int x, int y, int w, int h, color bgColour, color strokeColour, color textColour, int textSize, int textAlign, String text
     addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
-    //int x, int y, int w, int h, color KnobColour, color bgColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name
     addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
     addElement("tasks", new DropDown(bezel, bezel*4+30+30, 220, 10, color(150), color(50), tasks), "party management");
+    
+    addElement("end turn", new Button(bezel, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"), "bottom bar");
+    addElement("idle party finder", new Button(bezel*2+buttonW, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Idle Party"), "bottom bar");
+    addElement("resource summary", new ResourceSummary(0, 0, 70, resourceNames, players[turn].resources, totals), "bottom bar");
+    int resSummaryX = width-((ResourceSummary)(getElement("resource summary", "bottom bar"))).totalWidth();
+    addElement("resource expander", new Button(resSummaryX-50, bezel, 30, 30, color(150), color(50), color(0), 10, CENTER, "<"), "bottom bar");
+    addElement("turn number", new TextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", color(0,0,255), 0), "bottom bar");
     prevIdle = new ArrayList<Integer[]>();
   }     
   boolean postEvent(GameEvent event){
+    boolean valid = true;
     // Returns true if event is valid
     if (event instanceof Move){
       
@@ -196,7 +204,7 @@ class Game extends State{
       
       if (x<0 || x>=mapWidth || y<0 || y>=mapHeight){
         println("invalid movement");
-        return false;
+        valid = false;
       }
       
       Node[][] nodes = djk(cellX, cellY);
@@ -223,7 +231,6 @@ class Game extends State{
         splittedParty.clearActions();
         ((Text)getElement("turns remaining", "party management")).setText("");
         moveParty(cellX, cellY, true);
-        return true;
       } 
       else {
         parties[cellY][cellX].target = new int[]{x, y};
@@ -234,12 +241,13 @@ class Game extends State{
         parties[cellY][cellX].clearActions();         
         ((Text)getElement("turns remaining", "party management")).setText("");
         moveParty(cellX, cellY);
-        return true;
       }
     }
     else if (event instanceof EndTurn){
-      changeTurn();
-      return true;
+      if (!changeTurn)
+        changeTurn();
+      else
+        valid = false;
     }
     
     else if (event instanceof ChangeTask){
@@ -247,148 +255,152 @@ class Game extends State{
       int cellX = m.x;
       int cellY = m.y;
       String task = m.task;
-        parties[cellY][cellX].clearPath();
-        parties[cellY][cellX].target = null;
-        if (parties[cellY][cellX].getTask() == "Defend"){
-          //Changing from defending
-          parties[cellY][cellX].setMovementPoints(min(parties[cellY][cellX].getMovementPoints()+DEFENDCOST, MOVEMENTPOINTS));
-        }
-        parties[cellY][cellX].changeTask(task);
-        if (parties[cellY][cellX].getTask() == "Rest"){
+      parties[cellY][cellX].clearPath();
+      parties[cellY][cellX].target = null;
+      if (parties[cellY][cellX].getTask() == "Defend"){
+        //Changing from defending
+        parties[cellY][cellX].setMovementPoints(min(parties[cellY][cellX].getMovementPoints()+DEFENDCOST, MOVEMENTPOINTS));
+      }
+      parties[cellY][cellX].changeTask(task);
+      if (parties[cellY][cellX].getTask() == "Rest"){
+        parties[cellY][cellX].clearActions();         
+        ((Text)getElement("turns remaining", "party management")).setText("");
+      }
+      else{
+        moving = false;
+        map.cancelMoveNodes();
+      }
+      if (parties[cellY][cellX].getTask() == "Defend"){
+        parties[cellY][cellX].subMovementPoints(DEFENDCOST);
+      }
+      else if (parties[cellY][cellX].getTask() == "Demolish"){
+        parties[cellY][cellX].clearActions();         
+        ((Text)getElement("turns remaining", "party management")).setText("");
+        parties[cellY][cellX].addAction(new Action("Demolish", 2));
+      }
+      else if (parties[cellY][cellX].getTask() == "Clear Forest"){
+        parties[cellY][cellX].clearActions();         
+        ((Text)getElement("turns remaining", "party management")).setText("");
+        parties[cellY][cellX].addAction(new Action("Clear Forest", 2));
+      }
+      else if (parties[cellY][cellX].getTask() == "Build Farm"){
+        if (sufficientResources(players[turn].resources, buildingCosts[FARM-1], true)){
           parties[cellY][cellX].clearActions();         
           ((Text)getElement("turns remaining", "party management")).setText("");
+          parties[cellY][cellX].addAction(new Action("Build Farm", buildingTimes[FARM]));
+          spendRes(players[turn], buildingCosts[FARM-1]);
+          buildings[cellY][cellX] = new Building(CONSTRUCTION);
         }
         else{
-          moving = false;
-          map.cancelMoveNodes();
+          parties[cellY][cellX].changeTask("Rest");
         }
-        if (parties[cellY][cellX].getTask() == "Defend"){
-          parties[cellY][cellX].subMovementPoints(DEFENDCOST);
-        }
-        else if (parties[cellY][cellX].getTask() == "Demolish"){
-          parties[cellY][cellX].clearActions();         
-          ((Text)getElement("turns remaining", "party management")).setText("");
-          parties[cellY][cellX].addAction(new Action("Demolish", 2));
-        }
-        else if (parties[cellY][cellX].getTask() == "Clear Forest"){
-          parties[cellY][cellX].clearActions();         
-          ((Text)getElement("turns remaining", "party management")).setText("");
-          parties[cellY][cellX].addAction(new Action("Clear Forest", 2));
-        }
-        else if (parties[cellY][cellX].getTask() == "Build Farm"){
-          if (sufficientResources(players[turn].resources, buildingCosts[FARM-1])){
-            parties[cellY][cellX].clearActions();         
-            ((Text)getElement("turns remaining", "party management")).setText("");
-            parties[cellY][cellX].addAction(new Action("Build Farm", buildingTimes[FARM]));
-            spendRes(players[turn], buildingCosts[FARM-1]);
-            buildings[cellY][cellX] = new Building(CONSTRUCTION);
-          }
-          else{
-            parties[cellY][cellX].changeTask("Rest");
-          }
-        }
-        else if (parties[cellY][cellX].getTask() == "Build Sawmill"){
-          if (sufficientResources(players[turn].resources, buildingCosts[SAWMILL-1])){
-            parties[cellY][cellX].clearActions();         
-            ((Text)getElement("turns remaining", "party management")).setText("");
-            parties[cellY][cellX].addAction(new Action("Build Sawmill", buildingTimes[SAWMILL]));
-            spendRes(players[turn], buildingCosts[SAWMILL-1]);
-            buildings[cellY][cellX] = new Building(CONSTRUCTION);
-          }
-          else{
-            parties[cellY][cellX].changeTask("Rest");
-          }
-        }
-        else if (parties[cellY][cellX].getTask() == "Build Big Factory"){
-          if (sufficientResources(players[turn].resources, buildingCosts[BIG_FACTORY-1])){
-            parties[cellY][cellX].clearActions();
-            ((Text)getElement("turns remaining", "party management")).setText("");
-            parties[cellY][cellX].addAction(new Action("Build Big Factory", buildingTimes[BIG_FACTORY]));
-            spendRes(players[turn], buildingCosts[BIG_FACTORY-1]);
-            buildings[cellY][cellX] = new Building(CONSTRUCTION);
-          }
-          else{
-            parties[cellY][cellX].changeTask("Rest");
-          }
-        }
-        else if (parties[cellY][cellX].getTask() == "Build Rocket Factory"){
-          if (sufficientResources(players[turn].resources, buildingCosts[ROCKET_FACTORY-1])){
-            parties[cellY][cellX].clearActions();
-            ((Text)getElement("turns remaining", "party management")).setText("");
-            parties[cellY][cellX].addAction(new Action("Build Rocket Factory", buildingTimes[ROCKET_FACTORY]));
-            spendRes(players[turn], buildingCosts[ROCKET_FACTORY-1]);
-            buildings[cellY][cellX] = new Building(CONSTRUCTION);
-          }
-          else{
-            parties[cellY][cellX].changeTask("Rest");
-          }
-        }
-        else if (parties[cellY][cellX].getTask() == "Build Homes"){
-          if (sufficientResources(players[turn].resources, buildingCosts[HOMES-1])){
-            parties[cellY][cellX].clearActions();         
-            ((Text)getElement("turns remaining", "party management")).setText("");
-            parties[cellY][cellX].addAction(new Action("Build Homes", buildingTimes[HOMES]));
-            spendRes(players[turn], buildingCosts[HOMES-1]);
-            buildings[cellY][cellX] = new Building(CONSTRUCTION);
-          }
-          else{
-            parties[cellY][cellX].changeTask("Rest");
-          }
-        }
-        else if (parties[cellY][cellX].getTask() == "Build Factory"){
-          if (sufficientResources(players[turn].resources, buildingCosts[FACTORY-1])){
-            parties[cellY][cellX].clearActions();         
-            ((Text)getElement("turns remaining", "party management")).setText("");
-            parties[cellY][cellX].addAction(new Action("Build Factory", buildingTimes[FACTORY]));
-            spendRes(players[turn], buildingCosts[FACTORY-1]);
-            buildings[cellY][cellX] = new Building(CONSTRUCTION);
-          }
-          else{
-            parties[cellY][cellX].changeTask("Rest");
-          }
-        }
-        else if (parties[cellY][cellX].getTask() == "Build Mine"){
-          if (sufficientResources(players[turn].resources, buildingCosts[MINE-1])){
-            parties[cellY][cellX].clearActions();         
-            ((Text)getElement("turns remaining", "party management")).setText("");
-            parties[cellY][cellX].addAction(new Action("Build Mine", buildingTimes[MINE]));
-            spendRes(players[turn], buildingCosts[MINE-1]);
-            buildings[cellY][cellX] = new Building(CONSTRUCTION);
-          }
-          else{
-            parties[cellY][cellX].changeTask("Rest");
-          }
-        }
-        else if (parties[cellY][cellX].getTask() == "Build Smelter"){
-          if (sufficientResources(players[turn].resources, buildingCosts[SMELTER-1])){
-            parties[cellY][cellX].clearActions();         
-            ((Text)getElement("turns remaining", "party management")).setText("");
-            parties[cellY][cellX].addAction(new Action("Build Smelter", buildingTimes[SMELTER]));
-            spendRes(players[turn], buildingCosts[SMELTER-1]);
-            buildings[cellY][cellX] = new Building(CONSTRUCTION);
-          }
-          else{
-            parties[cellY][cellX].changeTask("Rest");
-          }
-        } else if (parties[cellY][cellX].getTask() == "Launch Rocket"){
-          int rocketBehaviour = int(random(10));
-          buildings[cellY][cellX].image_id=0;
-          //Rocket Launch Animation with behaviour
-          if (rocketBehaviour > 6){
-            winner = turn;
-          } else {
-            players[turn].resources[ROCKET_PROGRESS] = 0;
-          }
-        } else if (parties[cellY][cellX].getTask() == "Produce Rocket"){
-          if(players[turn].resources[ROCKET_PROGRESS]==-1){
-            players[turn].resources[ROCKET_PROGRESS] = 0;
-          }
-        }
-        checkTasks();
-        return true;
       }
-    this.totals = totalResources();
-    return false;
+      else if (parties[cellY][cellX].getTask() == "Build Sawmill"){
+        if (sufficientResources(players[turn].resources, buildingCosts[SAWMILL-1], true)){
+          parties[cellY][cellX].clearActions();         
+          ((Text)getElement("turns remaining", "party management")).setText("");
+          parties[cellY][cellX].addAction(new Action("Build Sawmill", buildingTimes[SAWMILL]));
+          spendRes(players[turn], buildingCosts[SAWMILL-1]);
+          buildings[cellY][cellX] = new Building(CONSTRUCTION);
+        }
+        else{
+          parties[cellY][cellX].changeTask("Rest");
+        }
+      }
+      else if (parties[cellY][cellX].getTask() == "Build Big Factory"){
+        if (sufficientResources(players[turn].resources, buildingCosts[BIG_FACTORY-1], true)){
+          parties[cellY][cellX].clearActions();
+          ((Text)getElement("turns remaining", "party management")).setText("");
+          parties[cellY][cellX].addAction(new Action("Build Big Factory", buildingTimes[BIG_FACTORY]));
+          spendRes(players[turn], buildingCosts[BIG_FACTORY-1]);
+          buildings[cellY][cellX] = new Building(CONSTRUCTION);
+        }
+        else{
+          parties[cellY][cellX].changeTask("Rest");
+        }
+      }
+      else if (parties[cellY][cellX].getTask() == "Build Rocket Factory"){
+        if (sufficientResources(players[turn].resources, buildingCosts[ROCKET_FACTORY-1], true)){
+          parties[cellY][cellX].clearActions();
+          ((Text)getElement("turns remaining", "party management")).setText("");
+          parties[cellY][cellX].addAction(new Action("Build Rocket Factory", buildingTimes[ROCKET_FACTORY]));
+          spendRes(players[turn], buildingCosts[ROCKET_FACTORY-1]);
+          buildings[cellY][cellX] = new Building(CONSTRUCTION);
+        }
+        else{
+          parties[cellY][cellX].changeTask("Rest");
+        }
+      }
+      else if (parties[cellY][cellX].getTask() == "Build Homes"){
+        if (sufficientResources(players[turn].resources, buildingCosts[HOMES-1], true)){
+          parties[cellY][cellX].clearActions();         
+          ((Text)getElement("turns remaining", "party management")).setText("");
+          parties[cellY][cellX].addAction(new Action("Build Homes", buildingTimes[HOMES]));
+          spendRes(players[turn], buildingCosts[HOMES-1]);
+          buildings[cellY][cellX] = new Building(CONSTRUCTION);
+        }
+        else{
+          parties[cellY][cellX].changeTask("Rest");
+        }
+      }
+      else if (parties[cellY][cellX].getTask() == "Build Factory"){
+        if (sufficientResources(players[turn].resources, buildingCosts[FACTORY-1], true)){
+          parties[cellY][cellX].clearActions();         
+          ((Text)getElement("turns remaining", "party management")).setText("");
+          parties[cellY][cellX].addAction(new Action("Build Factory", buildingTimes[FACTORY]));
+          spendRes(players[turn], buildingCosts[FACTORY-1]);
+          buildings[cellY][cellX] = new Building(CONSTRUCTION);
+        }
+        else{
+          parties[cellY][cellX].changeTask("Rest");
+        }
+      }
+      else if (parties[cellY][cellX].getTask() == "Build Mine"){
+        if (sufficientResources(players[turn].resources, buildingCosts[MINE-1], true)){
+          parties[cellY][cellX].clearActions();         
+          ((Text)getElement("turns remaining", "party management")).setText("");
+          parties[cellY][cellX].addAction(new Action("Build Mine", buildingTimes[MINE]));
+          spendRes(players[turn], buildingCosts[MINE-1]);
+          buildings[cellY][cellX] = new Building(CONSTRUCTION);
+        }
+        else{
+          parties[cellY][cellX].changeTask("Rest");
+        }
+      }
+      else if (parties[cellY][cellX].getTask() == "Build Smelter"){
+        if (sufficientResources(players[turn].resources, buildingCosts[SMELTER-1], true)){
+          parties[cellY][cellX].clearActions();         
+          ((Text)getElement("turns remaining", "party management")).setText("");
+          parties[cellY][cellX].addAction(new Action("Build Smelter", buildingTimes[SMELTER]));
+          spendRes(players[turn], buildingCosts[SMELTER-1]);
+          buildings[cellY][cellX] = new Building(CONSTRUCTION);
+        }
+        else{
+          parties[cellY][cellX].changeTask("Rest");
+        }
+      } else if (parties[cellY][cellX].getTask() == "Launch Rocket"){
+        int rocketBehaviour = int(random(10));
+        buildings[cellY][cellX].image_id=0;
+        //Rocket Launch Animation with behaviour
+        if (rocketBehaviour > 6){
+          winner = turn;
+        } else {
+          players[turn].resources[ROCKET_PROGRESS] = 0;
+        }
+      } else if (parties[cellY][cellX].getTask() == "Produce Rocket"){
+        if(players[turn].resources[ROCKET_PROGRESS]==-1){
+          players[turn].resources[ROCKET_PROGRESS] = 0;
+        }
+      }
+      checkTasks();
+    }
+    if (valid){
+      this.totals = totalResources();
+      ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
+      rs.updateNet(totals);
+      rs.updateStockpile(players[turn].resources);
+    }
+    return valid;
   }
   void updateCellSelection(){
     cellSelectionX = round((width-400-bezel*2)/GUIScale)+bezel*2;     
@@ -686,7 +698,9 @@ class Game extends State{
     turn = (turn + 1)%2;
     players[turn].loadSettings(this, map);
     changeTurn = false;
-    this.totals = totalResources();
+    TextBox t = ((TextBox)(getElement("turn number", "bottom bar")));
+    t.setColour(players[turn].colour);
+    t.setText("Turn "+turnNumber);
     if (turn == 0)
       turnNumber ++;
   }
@@ -727,7 +741,6 @@ class Game extends State{
     if (changeTurn){  
       turnChange();
     }
-    drawBar();
     drawPanels();
     if(players[0].resources[ROCKET_PROGRESS]!=-1||players[1].resources[ROCKET_PROGRESS]!=-1){
       drawRocketProgressBar();
@@ -767,6 +780,17 @@ class Game extends State{
     }
     return true;
   }
+  boolean sufficientResources(float[] available, float[] required, boolean flash){
+    ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
+    boolean t = true;
+    for (int i=0; i<NUMRESOURCES;i++){
+      if (available[i] < required[i]){
+        t = false;
+        rs.flash(i);
+      }
+    }
+    return t;
+  }
   void spendRes(Player player, float[] required){
     for (int i=0; i<NUMRESOURCES;i++){
       player.resources[i] -= required[i];
@@ -787,7 +811,7 @@ class Game extends State{
     Collections.shuffle(locs);
     for (int i=0; i<4; i++){
       if (parties[locs.get(i)[1]][locs.get(i)[0]] == null && terrain[locs.get(i)[1]][locs.get(i)[0]] != 1){
-        return locs.get(i);
+        return locs.get(i); //<>//
       }
     }
     return null;
@@ -851,6 +875,16 @@ class Game extends State{
             }
           }
         }
+        else if (event.id == "resource expander"){
+          ResourceSummary r = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
+          Button b = ((Button)(getElement("resource expander", "bottom bar")));
+          r.toggleExpand();
+          b.transform(width-r.totalWidth()-50, bezel, 30, 30);
+          if (b.getText() == ">")
+            b.setText("<");
+          else
+            b.setText(">");
+        }
         else if (event.id == "end game button"){
           newState = "menu";
         }
@@ -905,7 +939,7 @@ class Game extends State{
       }
       p.path = null;
       return;
-    }
+    } //<>//
     
     ArrayList <int[]> path = p.path;
     int i=0; //<>// //<>//
@@ -1033,7 +1067,7 @@ class Game extends State{
   ArrayList<String> mouseEvent(String eventType, int button){
     if (button == RIGHT){
       if (eventType == "mousePressed"){
-        if (parties[cellY][cellX].player == turn){
+        if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn && cellSelected){
           if (map.mouseOver()){
             moving = true;
             map.updateMoveNodes(djk(cellX, cellY));
@@ -1331,7 +1365,7 @@ class Game extends State{
   }
   
   float[] totalResources(){
-    float[] amount={0,0,0,0,0,0,0,0,0};
+    float[] amount=new float[resourceNames.length];
     for (int x=0; x<mapWidth; x++){
       for (int y=0; y<mapHeight; y++){
         for (int res=0; res<9; res++){
@@ -1448,97 +1482,6 @@ class Game extends State{
     text(progressMessage, width/2, y);
   }
   
-  void drawBar(){
-    float barX=buttonW*2+bezel*3;
-    fill(200);
-    stroke(170);
-    rect(0, height-bezel*2-buttonH, width, buttonH+bezel*2);
-    textSize(10*TextScale);
-    String turnString="";
-    if (this.turn==1){
-      fill(255, 0, 0);
-      turnString = "Red Player's Turn";
-    }
-    else if (this.turn==0){
-      fill(0, 0, 255);
-      turnString = "Blue Player's Turn";
-    }
-    stroke(50);
-    rect(barX, height-bezel-buttonH, textWidth(turnString)+10, buttonH);
-    fill(255);
-    textAlign(CENTER, TOP);
-    text(turnString, barX+(textWidth(turnString)+10)/2, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
-    barX += textWidth(turnString)+10+bezel;
-    
-    turnString = "Turn: "+turnNumber;
-    fill(150);
-    rect(barX, height-bezel-buttonH, textWidth(turnString)+10, buttonH);
-    fill(0);
-    textAlign(LEFT, TOP);
-    text(turnString, barX+5, height-bezel-(textDescent()+textAscent())/2-buttonH/2);
-    barX += textWidth(turnString)+10+bezel;
-    
-    textAlign(CENTER, TOP);
-    String tempString;
-    barX=width;
-    tempString = "energy:"+round(players[turn].resources[3]);
-    textSize(12*TextScale);
-    barX -= textWidth(tempString)+10+bezel;
-    if (players[turn].resources[3]>0)
-      fill(150);
-    else
-      fill(255,0,0);
-    rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
-    fill(255);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())-buttonH/2);
-    fill(0);
-    textSize(8*TextScale);
-    tempString=getResourceString(totals[3]);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-buttonH/2);
-    
-    tempString = "metal:"+round(players[turn].resources[2]);
-    textSize(12*TextScale);
-    barX -= textWidth(tempString)+10+bezel;
-    if (players[turn].resources[2]>0)
-      fill(150);
-    else
-      fill(255,0,0);
-    rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
-    fill(255);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())-buttonH/2);
-    textSize(8*TextScale);
-    tempString=getResourceString(totals[2]);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-buttonH/2);
-    
-    tempString = "wood:"+round(players[turn].resources[1]);
-    textSize(12*TextScale);
-    barX -= textWidth(tempString)+10+bezel;
-    if (players[turn].resources[1]>0)
-      fill(150);
-    else
-      fill(255,0,0);
-    rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
-    fill(255);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())-buttonH/2);
-    textSize(8*TextScale);
-    tempString=getResourceString(totals[1]);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-buttonH/2);
-     
-    tempString = "food:"+round(players[turn].resources[0]);
-    textSize(12*TextScale);
-    barX -= textWidth(tempString)+10+bezel;
-    if (players[turn].resources[0]>0)
-      fill(150);
-    else
-      fill(255,0,0);
-    rect(barX, height-bezel-buttonH, textWidth(tempString)+10, buttonH);
-    fill(255);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-(textDescent()+textAscent())-buttonH/2);
-    textSize(8*TextScale);
-    tempString=getResourceString(totals[0]);
-    text(tempString, barX+(textWidth(tempString)+10)/2, height-bezel-buttonH/2);
-  }
-  
   ArrayList<String> keyboardEvent(String eventType, char _key){
     if (_key == ESC){
       newState = "menu";
@@ -1569,9 +1512,9 @@ class Game extends State{
     map.reset(mapWidth, mapHeight, terrain, parties, buildings);
      
     float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, 42);
-    players[1] = new Player(conditions2[0], conditions2[1], 42, STARTINGRESOURCES.clone());
+    players[1] = new Player(conditions2[0], conditions2[1], 42, STARTINGRESOURCES.clone(), color(255,0,0));
     float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, 42);
-    players[0] = new Player(conditions1[0], conditions1[1], 42, STARTINGRESOURCES.clone());
+    players[0] = new Player(conditions1[0], conditions1[1], 42, STARTINGRESOURCES.clone(), color(0,0,255));
     //for(int i=0;i<NUMOFBUILDINGTYPES;i++){
     //  buildings[(int)playerStarts[0].y][(int)playerStarts[0].x+i] = new Building(1+i);
     //}
@@ -1581,6 +1524,13 @@ class Game extends State{
     toolTipSelected=-1;
     winner = -1;
     this.totals = totalResources();
+    TextBox t = ((TextBox)(getElement("turn number", "bottom bar")));
+    t.setColour(players[turn].colour);
+    t.setText("Turn "+turnNumber);
+    
+    ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
+    rs.updateNet(totals);
+    rs.updateStockpile(players[turn].resources);
   }
   int cost(int x, int y, int prevX, int prevY){
     float mult = 1;

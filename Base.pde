@@ -43,9 +43,11 @@ class State{
   }
   void addElement(String id, Element elem){
     getPanel("default").elements.put(id, elem);
+    elem.setOffset(getPanel("default").x, getPanel("default").y);
   }
   void addElement(String id, Element elem, String panel){
     getPanel(panel).elements.put(id, elem);
+    elem.setOffset(getPanel(panel).x, getPanel(panel).y);
   }
   
   Element getElement(String id, String panel){

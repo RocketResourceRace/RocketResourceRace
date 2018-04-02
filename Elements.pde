@@ -1,4 +1,176 @@
 
+
+class TextBox extends Element{
+  int textSize, bgColour, textColour;
+  String text;
+  boolean autoSizing;
+  
+  TextBox(int x, int y, int w, int h, int textSize, String text, int bgColour, int textColour){
+    //w=-1 means get width from text
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    if (this.w == -1)
+      autoSizing = true;
+    else
+      autoSizing = false;
+    this.textSize = textSize;
+    this.bgColour = bgColour;
+    this.textColour = textColour;
+    setText(text);
+  }
+  
+  void setText(String text){
+    this.text = text;
+    if (autoSizing){
+      textSize(textSize*TextScale);
+      this.w = ceil(textWidth(text))+10;
+    }
+  }
+  String getText(){
+    return text;
+  }
+  
+  void setColour(int c){
+    bgColour = c;
+  }
+  
+  void draw(){
+    pushStyle();
+    textSize(textSize*TextScale);
+    textAlign(CENTER, CENTER);
+    rectMode(CORNER);
+    if (bgColour != color(255, 255)){
+      fill(bgColour);
+      rect(x+xOffset, y+yOffset, w, h);
+    }
+    fill(textColour);
+    text(text, x+xOffset+w/2, y+yOffset+h/2);
+    popStyle();
+  }
+}
+
+
+
+class ResourceSummary extends Element{
+  float[] stockPile, net;
+  String[] resNames;
+  int numRes, scroll;
+  boolean expanded;
+  int[] timings;
+  
+  final int GAP = 10;
+  final int FLASHTIMES = 500;
+  
+  ResourceSummary(int x, int y, int h, String[] resNames, float[] stockPile, float[] net){
+    this.x = x;
+    this.y = y;
+    this.h = h;
+    this.resNames = resNames;
+    this.numRes = resNames.length;
+    this.stockPile = stockPile;
+    this.net = net;
+    this.expanded = false;
+    this.timings = new int[resNames.length];
+  }
+  
+  void updateStockpile(float[] v){
+    stockPile = v;
+  }
+  void updateNet(float[] v){
+    net = v;
+  }
+  void toggleExpand(){
+    expanded = !expanded;
+  }
+  
+  String getResString(int i){
+    return resNames[i];
+  }
+  String getStockString(int i){
+    String tempString = (new BigDecimal(""+stockPile[i]).divide(new BigDecimal("1"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
+    return tempString;
+  }
+  String getNetString(int i){
+    String tempString = (new BigDecimal(""+net[i]).divide(new BigDecimal("1"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
+    if (net[i] >= 0){
+      return "+"+tempString;
+    }
+    return tempString;
+  }
+  int columnWidth(int i){
+    textSize(10*TextScale);
+    return ceil(textWidth(getResString(i)));
+  }
+  int totalWidth(){
+    int startRes;
+    if (expanded){
+      startRes = numRes-1;
+    }
+    else{
+      startRes = 3;
+    }
+    int tot = 0;
+    for (int i=startRes; i>=0; i--)
+      tot += columnWidth(i)+GAP;
+    return tot;
+  }
+  
+  void flash(int i){
+    timings[i] = millis()+FLASHTIMES;
+  }
+  int getFill(int i){
+   if (timings[i] < millis()){
+     return color(100);
+    }
+    return color(155*(timings[i]-millis())/FLASHTIMES+100, 100, 100);
+  }
+  
+  void draw(){
+    int cw = 0, startRes;
+    int w, yLevel;
+    if (expanded){
+      startRes = numRes-1;
+    }
+    else{
+      startRes = 3;
+    }
+    pushStyle();
+    textAlign(LEFT, TOP);
+    rectMode(CORNERS);
+    for (int i=startRes; i>=0; i--){
+      w = columnWidth(i);
+      fill(getFill(i));
+      textSize(10*TextScale);
+      rect(width-cw+xOffset+x-GAP/2, yOffset+y, width-cw+xOffset+x-GAP/2-(w+GAP), yOffset+y+textAscent()+textDescent());
+      cw += w+GAP;
+      line(width-cw+xOffset+x-GAP/2, yOffset+y, width-cw+xOffset+x-GAP/2, yOffset+y+h);
+      fill(0);
+      
+      yLevel=0;
+      textSize(10*TextScale);
+      text(getResString(i), width-cw+xOffset, y+yOffset);
+      yLevel += textAscent()+textDescent();
+      
+      textSize(8*TextScale);
+      text(getStockString(i), width-cw+xOffset, y+yOffset+yLevel);
+      yLevel += textAscent()+textDescent();
+      
+      if (net[i] < 0)
+        fill(255,0,0);
+      else
+        fill(0,255,0);
+      textSize(8*TextScale);
+      text(getNetString(i), width-cw+xOffset, y+yOffset+yLevel);
+      yLevel += textAscent()+textDescent();
+    }
+    popStyle();
+  }
+}
+
+
+
 class DropDown extends Element{
   ArrayList<String> options;
   ArrayList<Integer> availableOptions;
@@ -188,6 +360,9 @@ class Button extends Element{
   void setText(String text){
     this.text = text;
     setLines(text);
+  }
+  String getText(){
+    return this.text;
   }
   void draw(){
     //println(xOffset, yOffset);
