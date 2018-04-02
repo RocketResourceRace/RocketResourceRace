@@ -361,6 +361,15 @@ class Game extends State{
           else{
             parties[cellY][cellX].changeTask("Rest");
           }
+        } else if (parties[cellY][cellX].getTask() == "Launch Rocket"){
+          int rocketBehaviour = int(random(10));
+          buildings[cellY][cellX].image_id=0;
+          //Rocket Launch Animation with behaviour
+          if (rocketBehaviour > 6){
+            winner = turn;
+          } else {
+            players[turn].resources[ROCKET_PROGRESS] = 0;
+          }
         }
         checkTasks();
       }
@@ -663,29 +672,31 @@ class Game extends State{
   }
   
   boolean checkForPlayerWin(){
-    boolean player1alive = false;
-    boolean player2alive = false;
-    
-    for (int y=0;y<mapHeight; y++){
-      for (int x=0; x<mapWidth; x++){
-        if (parties[y][x] != null){
-          if(parties[y][x].player == 2){
-            player1alive = true;
-            player2alive = true;
-          } else if (parties[y][x].player == 1){
-            player2alive = true;
-          } else if (parties[y][x].player == 0){
-            player1alive = true;
+    if(winner == -1){
+      boolean player1alive = false;
+      boolean player2alive = false;
+      
+      for (int y=0;y<mapHeight; y++){
+        for (int x=0; x<mapWidth; x++){
+          if (parties[y][x] != null){
+            if(parties[y][x].player == 2){
+              player1alive = true;
+              player2alive = true;
+            } else if (parties[y][x].player == 1){
+              player2alive = true;
+            } else if (parties[y][x].player == 0){
+              player1alive = true;
+            }
           }
         }
       }
-    }
-    if (!player1alive){
-      winner = 1;
-    } else if (!player2alive) {
-      winner = 0;
-    } else {
-      return false;
+      if (!player1alive){
+        winner = 1;
+      } else if (!player2alive) {
+        winner = 0;
+      } else {
+        return false;
+      }
     }
     Text winnerMessage = ((Text)this.getElement("winner", "end screen"));
     winnerMessage.setText(winnerMessage.text.replace("/w", str(winner+1)));
@@ -1461,6 +1472,7 @@ class Game extends State{
     turn = 0;
     turnNumber = 0;
     toolTipSelected=-1;
+    winner = -1;
     this.totals = totalResources();
   }
   int cost(int x, int y, int prevX, int prevY){
