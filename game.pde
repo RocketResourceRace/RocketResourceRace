@@ -154,7 +154,9 @@ class Game extends State{
     players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, STARTINGRESOURCES);
     addPanel("land management", 0, 0, width, height, false, color(50, 200, 50), color(0));
     addPanel("party management", 0, 0, width, height, false, color(70, 70, 220), color(0));
+    addPanel("resources", 0, 0, width, height, false, color(255, 255), color(255, 255));
     addPanel("end screen", 0, 0, width, height, false, color(50, 50, 50, 50), color(0));
+    
     addElement("end game button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2+height/8), (int)(GUIScale*width/8), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "End Game"), "end screen");
     addElement("winner", new Text(width/2, height/2, (int)(TextScale*10), "", color(255), CENTER), "end screen");
     addElement("turns remaining", new Text(bezel*2+220, bezel*4+30+30, 8, "", color(255), LEFT), "party management");
@@ -163,6 +165,7 @@ class Game extends State{
     //int x, int y, int w, int h, color KnobColour, color bgColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name
     addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
     addElement("tasks", new DropDown(bezel, bezel*4+30+30, 220, 10, color(150), color(50), tasks), "party management");
+    //addElement("resource summary", new ResourceSummary(0, 0, 1000, 0));
     prevIdle = new ArrayList<Integer[]>();
   }     
   boolean postEvent(GameEvent event){
@@ -808,7 +811,7 @@ class Game extends State{
       }
       p.path = null;
       return;
-    }
+    } //<>//
     
     ArrayList <int[]> path = p.path;
     int i=0; //<>// //<>//
