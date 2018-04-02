@@ -58,8 +58,10 @@ class ResourceSummary extends Element{
   String[] resNames;
   int numRes, scroll;
   boolean expanded;
+  int[] timings;
   
   final int GAP = 10;
+  final int FLASHTIMES = 500;
   
   ResourceSummary(int x, int y, int h, String[] resNames, float[] stockPile, float[] net){
     this.x = x;
@@ -70,6 +72,7 @@ class ResourceSummary extends Element{
     this.stockPile = stockPile;
     this.net = net;
     this.expanded = false;
+    this.timings = new int[resNames.length];
   }
   
   void updateStockpile(float[] v){
@@ -86,10 +89,15 @@ class ResourceSummary extends Element{
     return resNames[i];
   }
   String getStockString(int i){
-    return ""+stockPile[i];
+    String tempString = (new BigDecimal(""+stockPile[i]).divide(new BigDecimal("1"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
+    return tempString;
   }
   String getNetString(int i){
-    return ""+net[i];
+    String tempString = (new BigDecimal(""+net[i]).divide(new BigDecimal("1"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
+    if (net[i] >= 0){
+      return "+"+tempString;
+    }
+    return tempString;
   }
   int columnWidth(int i){
     textSize(10*TextScale);
@@ -109,6 +117,16 @@ class ResourceSummary extends Element{
     return tot;
   }
   
+  void flash(int i){
+    timings[i] = millis()+FLASHTIMES;
+  }
+  int getFill(int i){
+   if (timings[i] < millis()){
+     return color(100);
+    }
+    return color(155*(timings[i]-millis())/FLASHTIMES+100, 100, 100);
+  }
+  
   void draw(){
     int cw = 0, startRes;
     int w, yLevel;
@@ -123,7 +141,7 @@ class ResourceSummary extends Element{
     rectMode(CORNERS);
     for (int i=startRes; i>=0; i--){
       w = columnWidth(i);
-      fill(100);
+      fill(getFill(i));
       textSize(10*TextScale);
       rect(width-cw+xOffset+x-GAP/2, yOffset+y, width-cw+xOffset+x-GAP/2-(w+GAP), yOffset+y+textAscent()+textDescent());
       cw += w+GAP;
@@ -139,6 +157,10 @@ class ResourceSummary extends Element{
       text(getStockString(i), width-cw+xOffset, y+yOffset+yLevel);
       yLevel += textAscent()+textDescent();
       
+      if (net[i] < 0)
+        fill(255,0,0);
+      else
+        fill(0,255,0);
       textSize(8*TextScale);
       text(getNetString(i), width-cw+xOffset, y+yOffset+yLevel);
       yLevel += textAscent()+textDescent();
