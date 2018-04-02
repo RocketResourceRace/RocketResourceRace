@@ -187,7 +187,7 @@ class Game extends State{
     addElement("resource summary", new ResourceSummary(0, 0, 70, resourceNames, players[turn].resources, totals), "bottom bar");
     int resSummaryX = width-((ResourceSummary)(getElement("resource summary", "bottom bar"))).totalWidth();
     addElement("resource expander", new Button(resSummaryX-50, bezel, 30, 30, color(150), color(50), color(0), 10, CENTER, "<"), "bottom bar");
-    addElement("turn number", new TextBox(bezel*3+buttonW*2+buttonW/2, bezel+buttonH/2, -1, buttonH, 14, "Turn 0", color(0,0,255), 0, CENTER, CENTER, CENTER), "bottom bar");
+    addElement("turn number", new TextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", color(0,0,255), 0), "bottom bar");
     
     prevIdle = new ArrayList<Integer[]>();
   }     
@@ -694,7 +694,9 @@ class Game extends State{
     players[turn].loadSettings(this, map);
     changeTurn = false;
     this.totals = totalResources();
-    ((TextBox)(getElement("turn number", "bottom bar"))).setColour(players[turn].colour);
+    TextBox t = ((TextBox)(getElement("turn number", "bottom bar")));
+    t.setColour(players[turn].colour);
+    t.setText("Turn "+turnNumber);
     if (turn == 0)
       turnNumber ++;
   }
@@ -809,9 +811,9 @@ class Game extends State{
     }
     return false;
   }
-  
+   //<>//
   boolean inPrevIdle(int x, int y){
-    for (int i=0; i<prevIdle.size();i++){ //<>//
+    for (int i=0; i<prevIdle.size();i++){
       if (prevIdle.get(i)[0] == x && prevIdle.get(i)[1] == y){
         return true;
       }
@@ -1598,6 +1600,9 @@ class Game extends State{
     toolTipSelected=-1;
     winner = -1;
     this.totals = totalResources();
+    TextBox t = ((TextBox)(getElement("turn number", "bottom bar")));
+    t.setColour(players[turn].colour);
+    t.setText("Turn "+turnNumber);
   }
   int cost(int x, int y, int prevX, int prevY){
     float mult = 1;

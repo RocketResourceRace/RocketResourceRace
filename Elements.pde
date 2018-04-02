@@ -1,11 +1,11 @@
 
 
 class TextBox extends Element{
-  int textSize, bgColour, textColour, vAlign, hAlign, rectMode;
+  int textSize, bgColour, textColour;
   String text;
   boolean autoSizing;
   
-  TextBox(int x, int y, int w, int h, int textSize, String text, int bgColour, int textColour, int hAlign, int vAlign, int rectMode){
+  TextBox(int x, int y, int w, int h, int textSize, String text, int bgColour, int textColour){
     //w=-1 means get width from text
     this.x = x;
     this.y = y;
@@ -18,10 +18,7 @@ class TextBox extends Element{
     this.textSize = textSize;
     this.bgColour = bgColour;
     this.textColour = textColour;
-    this.vAlign = vAlign;
-    this.hAlign = hAlign;
     setText(text);
-    this.rectMode = rectMode;
   }
   
   void setText(String text){
@@ -42,14 +39,14 @@ class TextBox extends Element{
   void draw(){
     pushStyle();
     textSize(textSize*TextScale);
-    textAlign(hAlign, vAlign);
-    rectMode(rectMode);
+    textAlign(CENTER, CENTER);
+    rectMode(CORNER);
     if (bgColour != color(255, 255)){
       fill(bgColour);
       rect(x+xOffset, y+yOffset, w, h);
     }
     fill(textColour);
-    text(text, x+xOffset, y+yOffset);
+    text(text, x+xOffset+w/2, y+yOffset+h/2);
     popStyle();
   }
 }
