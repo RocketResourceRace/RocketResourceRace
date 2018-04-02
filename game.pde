@@ -8,10 +8,13 @@ class Game extends State{
   final int[] terrainCosts = new int[]{16, 12, 8, 12, 28};
   final int MOVEMENTPOINTS = 64;
   final int DEFENDCOST = 32;
-  final float [] STARTINGRESOURCES = new float[]{500, 500, 0, 0, 0, 0, 0, 0, 0};
-  final String[] tasks = {"Rest", "Work Farm", "Defend", "Demolish", "Build Farm", "Build Sawmill", "Build Homes", "Build Factory", "Build Mine", "Build Smelter", "Clear Forest", "Battle", "Super Rest", "Produce Ore", "Produce Metal", "Produce Concrete", "Produce Cable", "Produce Wood", "Produce Spacehip Parts"};
+  final float [] STARTINGRESOURCES = new float[]{500, 500, 0, 0, 0, 0, 0, 0, 0, -1};
+  final String[] tasks = {
+    "Rest", "Work Farm", "Defend", "Demolish", 
+    "Build Farm", "Build Sawmill", "Build Homes", "Build Factory", "Build Mine", "Build Smelter", "Build Big Factory", "Build Rocket Factory", 
+    "Clear Forest", "Battle", "Super Rest", "Produce Ore", "Produce Metal", "Produce Concrete", "Produce Cable", "Produce Wood", "Produce Rocket Parts", "Produce Rocket", "Launch Rocket"};
   final String[] landTypes = {"Water", "Sand", "Grass", "Forest", "Hills"};
-  final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory"};
+  final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory", "Rocket Factory"};
   final int WATER = 1;
   final int SAND = 2;
   final int GRASS = 3;
@@ -24,25 +27,29 @@ class Game extends State{
   final int SMELTER = 4;
   final int FACTORY = 5;
   final int SAWMILL = 6;
-  final int BIG_FACTORY = 6;
+  final int BIG_FACTORY = 7;
+  final int ROCKET_FACTORY = 8;
   final int FOOD = 0;
   final int WOOD = 1;
   final int METAL = 2;
   final int ENERGY = 3;
   final int CONCRETE = 4;
   final int CABLE = 5;
-  final int SPACESHIP_PARTS = 6;
+  final int ROCKET_PARTS = 6;
   final int ORE = 7;
   final int PEOPLE = 8;
+  final int ROCKET_PROGRESS = 9;
   
   final String attackToolTipRaw = "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a /p% chance of winning this battle.";
   final String turnsToolTipRaw = "Move /i Turns";
   final String farmToolTipRaw = "The farm produces food when worked.\nCosts: 50 wood.\nConsumes: Nothing.\nProduces: 4 food/worker.\nThis party will take %d turns to build it";
   final String mineToolTipRaw = "The mine produces ore when worked.\nCosts: 200 wood.\nConsumes: 1 wood/worker.\nProduces: 1 ore/worker.\nThis party will take %d turns to build it";
-  final String homesToolTipRaw = "Homes create new units when worked.\nCosts: 100 wood.\nConsumes: 2 wood.\nThis party will take %d turns to build it";
-  final String smelterToolTipRaw = "The smelter produces metal when worked.\nCosts: 200 wood.\nConsumes: 10 wood.\nProduces: 0.1 iron/worker.\nThis party will take %d turns to build it";
-  final String factoryToolTipRaw = "The factory produces parts when worked.\nCosts: 200 wood.\nConsumes: 10 wood.\nThis party will take %d turns to build it";
-  final String sawmillToolTipRaw = "The sawmill produces wood when worked.\nCosts: 200 wood.\nConsumes: 10 wood\nProduces: 0.5 wood/worker\nThis party will take %d turns to build it";
+  final String homesToolTipRaw = "Homes create new units when worked.\nCosts: 100 wood.\nConsumes: 2 wood/worker.\nThis party will take %d turns to build it";
+  final String smelterToolTipRaw = "The smelter produces metal when worked.\nCosts: 200 wood.\nConsumes: 10 wood/worker.\nProduces: 0.1 iron/worker.\nThis party will take %d turns to build it";
+  final String factoryToolTipRaw = "The factory produces parts when worked.\nCosts: 200 wood.\nConsumes: 10 wood/worker.\nThis party will take %d turns to build it";
+  final String bigFactoryToolTipRaw = "The big factory produces rocket parts when worked.\nCosts: 200 metal.\nConsumes: 1 metal/worker.\nThis party will take %d turns to build it";
+  final String sawmillToolTipRaw = "The sawmill produces wood when worked.\nCosts: 200 wood.\nConsumes: 10 wood/worker.\nProduces: 0.5 wood/worker.\nThis party will take %d turns to build it";
+  final String rocketFactoryToolTipRaw = "The rocket factory produces a rocket when worked.\nCosts: 1000 metal and 1000 concrete.\nConsumes: 10 cable and 10 rocket parts /worker.\nProduces: rockets\nThis party will take %d turns to build it";
   final String clearForestToolTipRaw = "Clearing a forest adds 100 wood to stockpile.\nThe tile is turned to grassland\nThis party will take %d turns to build it";
   final String demolishingToolTipRaw = "Demolishing destroys the building on this tile.\nThis party will take %d turns to build it";
   
@@ -55,6 +62,7 @@ class Game extends State{
     "smelter",
     "factory",
     "sawmill",
+    "rocket factory",
     "clear forest",
     "demolishing",
     "While a unit is at rest it can move and attack.",
@@ -66,9 +74,10 @@ class Game extends State{
     "A party must be at rest to move",
     "This splits the number of units selected.\nCan only split when movement points > 0.",
     "",
+    "big factory"
   };
-  final float[] buildingTimes = {0, 3, 2, 5, 8, 8, 4, 12};
-  final String[] resourceNames = {"Food", "Wood", "Metal", "Energy", "", "", "", "", "Units"};
+  final float[] buildingTimes = {0, 3, 2, 5, 8, 8, 4, 12, 12};
+  final String[] resourceNames = {"Food", "Wood", "Metal", "Energy", "Concrete", "Cable", "Rocket Parts", "Ore", "Units", "Rocket Progress"};
   final float[][] buildingCosts = {
     {0, 100, 0, 0, 0, 0, 0, 0, 0},
     {0, 50, 0, 0, 0, 0, 0, 0, 0},
@@ -76,6 +85,8 @@ class Game extends State{
     {0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 200, 0, 0, 0, 0, 0, 0, 0},
     {0, 200, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 200, 0, 0, 0, 0, 0, 0},
+    {0, 0, 1000, 0, 1000, 0, 0, 0, 0},
   };
   
   // Costs per productivity per unit
@@ -90,6 +101,8 @@ class Game extends State{
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Factory
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Mine
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Smelter
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Big Factory
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Rocket Factory
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Clear Forest
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Battle
     {0.5, 0, 0, 0, 0, 0, 0, 0, 0}, // Super Rest
@@ -98,7 +111,9 @@ class Game extends State{
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Concrete
     {0.2, 0, 1, 0, 0, 0, 0, 0, 0}, // Produce Cable
     {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Produce Wood
-    {0.2, 0, 1, 0, 0, 0, 0, 0, 0}, // Produce Spaceship Parts
+    {0.2, 0, 1, 0, 0, 0, 0, 0, 0}, // Produce Rocket Parts
+    {0.2, 0, 0, 0, 0, 1, 1, 0, 0, 0}, // Produce Rocket
+    {0.2, 0, 0, 0, 0, 0, 0, 0, 0}, // Launch Rocket
   };
   
   // Outcomes per productivity per unit
@@ -113,6 +128,8 @@ class Game extends State{
     {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Factory
     {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Mine
     {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Smelter
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Big Factory
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Build Rocket Factory
     {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Clear Forest
     {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Battle
     {0, 0, 0, 0, 0, 0, 0, 0, 0.1}, // Super Rest
@@ -121,7 +138,9 @@ class Game extends State{
     {0, 0, 0, 0, 0.1, 0, 0, 0, 0}, // Produce Concrete
     {0, 0, 0, 0, 0, 0.1, 0, 0, 0}, // Produce Cable
     {0, 0.1, 0, 0, 0, 0, 0, 0, 0}, // Produce Wood
-    {0, 0, 0, 0, 0, 0, 0.1, 0, 0}, // Produce Spaceship Parts
+    {0, 0, 0, 0, 0, 0, 0.1, 0, 0}, // Produce Rocket Parts
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, // Produce Rocket
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}, // Launch Rocket
   };
   final int NUMRESOURCES = 9;
   int turnNumber;
@@ -257,11 +276,11 @@ class Game extends State{
           parties[cellY][cellX].addAction(new Action("Clear Forest", 2));
         }
         else if (parties[cellY][cellX].getTask() == "Build Farm"){
-          if (sufficientResources(players[turn].resources, buildingCosts[1])){
+          if (sufficientResources(players[turn].resources, buildingCosts[FARM-1])){
             parties[cellY][cellX].clearActions();         
             ((Text)getElement("turns remaining", "party management")).setText("");
             parties[cellY][cellX].addAction(new Action("Build Farm", buildingTimes[FARM]));
-            spendRes(players[turn], buildingCosts[1]);
+            spendRes(players[turn], buildingCosts[FARM-1]);
             buildings[cellY][cellX] = new Building(CONSTRUCTION);
           }
           else{
@@ -269,11 +288,35 @@ class Game extends State{
           }
         }
         else if (parties[cellY][cellX].getTask() == "Build Sawmill"){
-          if (sufficientResources(players[turn].resources, buildingCosts[5])){
+          if (sufficientResources(players[turn].resources, buildingCosts[SAWMILL-1])){
             parties[cellY][cellX].clearActions();         
             ((Text)getElement("turns remaining", "party management")).setText("");
             parties[cellY][cellX].addAction(new Action("Build Sawmill", buildingTimes[SAWMILL]));
-            spendRes(players[turn], buildingCosts[5]);
+            spendRes(players[turn], buildingCosts[SAWMILL-1]);
+            buildings[cellY][cellX] = new Building(CONSTRUCTION);
+          }
+          else{
+            parties[cellY][cellX].changeTask("Rest");
+          }
+        }
+        else if (parties[cellY][cellX].getTask() == "Build Big Factory"){
+          if (sufficientResources(players[turn].resources, buildingCosts[BIG_FACTORY-1])){
+            parties[cellY][cellX].clearActions();
+            ((Text)getElement("turns remaining", "party management")).setText("");
+            parties[cellY][cellX].addAction(new Action("Build Big Factory", buildingTimes[BIG_FACTORY]));
+            spendRes(players[turn], buildingCosts[BIG_FACTORY-1]);
+            buildings[cellY][cellX] = new Building(CONSTRUCTION);
+          }
+          else{
+            parties[cellY][cellX].changeTask("Rest");
+          }
+        }
+        else if (parties[cellY][cellX].getTask() == "Build Rocket Factory"){
+          if (sufficientResources(players[turn].resources, buildingCosts[ROCKET_FACTORY-1])){
+            parties[cellY][cellX].clearActions();
+            ((Text)getElement("turns remaining", "party management")).setText("");
+            parties[cellY][cellX].addAction(new Action("Build Rocket Factory", buildingTimes[ROCKET_FACTORY]));
+            spendRes(players[turn], buildingCosts[ROCKET_FACTORY-1]);
             buildings[cellY][cellX] = new Building(CONSTRUCTION);
           }
           else{
@@ -281,11 +324,11 @@ class Game extends State{
           }
         }
         else if (parties[cellY][cellX].getTask() == "Build Homes"){
-          if (sufficientResources(players[turn].resources, buildingCosts[0])){
+          if (sufficientResources(players[turn].resources, buildingCosts[HOMES-1])){
             parties[cellY][cellX].clearActions();         
             ((Text)getElement("turns remaining", "party management")).setText("");
             parties[cellY][cellX].addAction(new Action("Build Homes", buildingTimes[HOMES]));
-            spendRes(players[turn], buildingCosts[0]);
+            spendRes(players[turn], buildingCosts[HOMES-1]);
             buildings[cellY][cellX] = new Building(CONSTRUCTION);
           }
           else{
@@ -293,11 +336,11 @@ class Game extends State{
           }
         }
         else if (parties[cellY][cellX].getTask() == "Build Factory"){
-          if (sufficientResources(players[turn].resources, buildingCosts[4])){
+          if (sufficientResources(players[turn].resources, buildingCosts[FACTORY-1])){
             parties[cellY][cellX].clearActions();         
             ((Text)getElement("turns remaining", "party management")).setText("");
             parties[cellY][cellX].addAction(new Action("Build Factory", buildingTimes[FACTORY]));
-            spendRes(players[turn], buildingCosts[4]);
+            spendRes(players[turn], buildingCosts[FACTORY-1]);
             buildings[cellY][cellX] = new Building(CONSTRUCTION);
           }
           else{
@@ -305,11 +348,11 @@ class Game extends State{
           }
         }
         else if (parties[cellY][cellX].getTask() == "Build Mine"){
-          if (sufficientResources(players[turn].resources, buildingCosts[2])){
+          if (sufficientResources(players[turn].resources, buildingCosts[MINE-1])){
             parties[cellY][cellX].clearActions();         
             ((Text)getElement("turns remaining", "party management")).setText("");
             parties[cellY][cellX].addAction(new Action("Build Mine", buildingTimes[MINE]));
-            spendRes(players[turn], buildingCosts[2]);
+            spendRes(players[turn], buildingCosts[MINE-1]);
             buildings[cellY][cellX] = new Building(CONSTRUCTION);
           }
           else{
@@ -317,15 +360,28 @@ class Game extends State{
           }
         }
         else if (parties[cellY][cellX].getTask() == "Build Smelter"){
-          if (sufficientResources(players[turn].resources, buildingCosts[3])){
+          if (sufficientResources(players[turn].resources, buildingCosts[SMELTER-1])){
             parties[cellY][cellX].clearActions();         
             ((Text)getElement("turns remaining", "party management")).setText("");
             parties[cellY][cellX].addAction(new Action("Build Smelter", buildingTimes[SMELTER]));
-            spendRes(players[turn], buildingCosts[3]);
+            spendRes(players[turn], buildingCosts[SMELTER-1]);
             buildings[cellY][cellX] = new Building(CONSTRUCTION);
           }
           else{
             parties[cellY][cellX].changeTask("Rest");
+          }
+        } else if (parties[cellY][cellX].getTask() == "Launch Rocket"){
+          int rocketBehaviour = int(random(10));
+          buildings[cellY][cellX].image_id=0;
+          //Rocket Launch Animation with behaviour
+          if (rocketBehaviour > 6){
+            winner = turn;
+          } else {
+            players[turn].resources[ROCKET_PROGRESS] = 0;
+          }
+        } else if (parties[cellY][cellX].getTask() == "Produce Rocket"){
+          if(players[turn].resources[ROCKET_PROGRESS]==-1){
+            players[turn].resources[ROCKET_PROGRESS] = 0;
           }
         }
         checkTasks();
@@ -389,8 +445,15 @@ class Game extends State{
         if (buildings[cellY][cellX].type==SAWMILL){
           makeTaskAvailable("Produce Wood");
         }
-        if (buildings[cellY][cellX].type==BIG_FACTORY){   
-          makeTaskAvailable("Produce Spaceship Parts");
+        if (buildings[cellY][cellX].type==BIG_FACTORY){
+          makeTaskAvailable("Produce Rocket Parts");
+        }
+        if (buildings[cellY][cellX].type==ROCKET_FACTORY){
+          if (players[turn].resources[ROCKET_PROGRESS]>=1000){
+            makeTaskAvailable("Launch Rocket");
+          } else {
+            makeTaskAvailable("Produce Rocket");
+          }
         }
         makeTaskAvailable("Demolish");
       }
@@ -408,7 +471,9 @@ class Game extends State{
         }  
         if (cellTerrain != WATER && cellTerrain != FOREST && cellTerrain != HILLS){
           makeTaskAvailable("Build Factory");
+          makeTaskAvailable("Build Big Factory");
           makeTaskAvailable("Build Smelter");
+          makeTaskAvailable("Build Rocket Factory");
         }
         if (cellTerrain == HILLS){
           makeTaskAvailable("Build Mine");
@@ -462,7 +527,7 @@ class Game extends State{
   }
   
   void turnChange(){
-    float[] totalResourceRequirements = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    float[] totalResourceRequirements = new float[NUMRESOURCES];
     for (int y=0; y<mapHeight; y++){
       for (int x=0; x<mapWidth; x++){
         if (map.parties[y][x] != null){
@@ -499,6 +564,12 @@ class Game extends State{
               case "Build Smelter":
                 map.buildings[y][x] = new Building(SMELTER);
                 break;
+              case "Build Rocket Factory":
+                map.buildings[y][x] = new Building(ROCKET_FACTORY);
+                break;
+              case "Build Big Factory":
+                map.buildings[y][x] = new Building(BIG_FACTORY);
+                break;
               case "Demolish":
                 reclaimRes(players[turn], buildingCosts[5]);
                 map.buildings[y][x] = null;
@@ -526,7 +597,7 @@ class Game extends State{
         }
       }
     }
-    float [] resourceAmountsAvailable = new float[9];
+    float [] resourceAmountsAvailable = new float[NUMRESOURCES];
     for(int i=0; i<NUMRESOURCES;i++){
       if(totalResourceRequirements[i]==0){
         resourceAmountsAvailable[i] = 1;
@@ -556,8 +627,14 @@ class Game extends State{
             for (int task=0; task<tasks.length;task++){
               if(map.parties[y][x].getTask()==tasks[task]){
                 for(int resource = 0; resource < NUMRESOURCES; resource++){
-                  if(resource<NUMRESOURCES-1){
+                  if(resource!=PEOPLE){
+                    if(tasks[task]=="Produce Rocket"){
+                      resource = ROCKET_PROGRESS;
+                    }
                     players[turn].resources[resource] += max((taskOutcomes[task][resource]-taskCosts[task][resource])*productivity*map.parties[y][x].getUnitNumber(), -players[turn].resources[resource]);
+                    if(tasks[task]=="Produce Rocket"){
+                      break;
+                    }
                   } else if(resourceAmountsAvailable[0]<1){
                     map.parties[y][x].setUnitNumber(floor(map.parties[y][x].getUnitNumber()-(1-resourceAmountsAvailable[0])*taskOutcomes[task][resource]*map.parties[y][x].getUnitNumber()));
                   } else{
@@ -569,6 +646,21 @@ class Game extends State{
             }
             if(map.parties[y][x].getUnitNumber()==0){
               map.parties[y][x] = null;
+            }
+          }
+        }
+      }
+    }
+    if (players[turn].resources[ROCKET_PROGRESS] > 1000){
+      //display indicator saying rocket produced
+      for (int y=0; y<mapHeight; y++){
+        for (int x=0; x<mapWidth; x++){
+          if (map.parties[y][x] != null){
+            if (map.parties[y][x].player == turn){
+              if(map.parties[y][x].getTask()=="Produce Rocket"){
+                map.parties[y][x].changeTask("Rest");
+                map.buildings[y][x].image_id=1;
+              }
             }
           }
         }
@@ -600,29 +692,31 @@ class Game extends State{
   }
   
   boolean checkForPlayerWin(){
-    boolean player1alive = false;
-    boolean player2alive = false;
-    
-    for (int y=0;y<mapHeight; y++){
-      for (int x=0; x<mapWidth; x++){
-        if (parties[y][x] != null){
-          if(parties[y][x].player == 2){
-            player1alive = true;
-            player2alive = true;
-          } else if (parties[y][x].player == 1){
-            player2alive = true;
-          } else if (parties[y][x].player == 0){
-            player1alive = true;
+    if(winner == -1){
+      boolean player1alive = false;
+      boolean player2alive = false;
+      
+      for (int y=0;y<mapHeight; y++){
+        for (int x=0; x<mapWidth; x++){
+          if (parties[y][x] != null){
+            if(parties[y][x].player == 2){
+              player1alive = true;
+              player2alive = true;
+            } else if (parties[y][x].player == 1){
+              player2alive = true;
+            } else if (parties[y][x].player == 0){
+              player1alive = true;
+            }
           }
         }
       }
-    }
-    if (!player1alive){
-      winner = 1;
-    } else if (!player2alive) {
-      winner = 0;
-    } else {
-      return false;
+      if (!player1alive){
+        winner = 1;
+      } else if (!player2alive) {
+        winner = 0;
+      } else {
+        return false;
+      }
     }
     Text winnerMessage = ((Text)this.getElement("winner", "end screen"));
     winnerMessage.setText(winnerMessage.text.replace("/w", str(winner+1)));
@@ -635,6 +729,9 @@ class Game extends State{
     }
     drawBar();
     drawPanels();
+    if(players[0].resources[ROCKET_PROGRESS]!=-1||players[1].resources[ROCKET_PROGRESS]!=-1){
+      drawRocketProgressBar();
+    }
     if (cellSelected){
       drawCellManagement();
       if(parties[cellY][cellX] != null && getPanel("party management").visible)
@@ -663,7 +760,7 @@ class Game extends State{
     changeTurn = true;
   }
   boolean sufficientResources(float[] available, float[] required){
-    for (int i=0; i<required.length;i++){
+    for (int i=0; i<NUMRESOURCES;i++){
       if (available[i] < required[i]){
         return false;
       }
@@ -671,13 +768,13 @@ class Game extends State{
     return true;
   }
   void spendRes(Player player, float[] required){
-    for (int i=0; i<player.resources.length;i++){
+    for (int i=0; i<NUMRESOURCES;i++){
       player.resources[i] -= required[i];
     }
   }
   void reclaimRes(Player player, float[] required){
     //reclaim half cost of building
-    for (int i=0; i<player.resources.length;i++){
+    for (int i=0; i<NUMRESOURCES;i++){
       player.resources[i] += required[i]/2;
     }
   }
@@ -898,7 +995,7 @@ class Game extends State{
         }
         i++;
       }
-      else{
+      else{ //<>//
         p.path = new ArrayList(path.subList(i, path.size()));
         break;
       }
@@ -1000,9 +1097,13 @@ class Game extends State{
             tooltipText[5] = String.format(factoryToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[FACTORY]));
             toolTipSelected = 5;
             break;
+          case "Build Big Factory":
+            tooltipText[18] = String.format(factoryToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[BIG_FACTORY]));
+            toolTipSelected = 18;
+            break;
           case "Clear Forest":
-            tooltipText[7] = String.format(clearForestToolTipRaw,parties[cellY][cellX].calcTurns(2));
-            toolTipSelected = 7;
+            tooltipText[8] = String.format(clearForestToolTipRaw,parties[cellY][cellX].calcTurns(2));
+            toolTipSelected = 8;
             break;
           case "Build Mine":
             tooltipText[2] = String.format(mineToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[MINE]));
@@ -1012,20 +1113,24 @@ class Game extends State{
             tooltipText[4] = String.format(smelterToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[SMELTER]));
             toolTipSelected = 4;
             break;
-          case "Demolish":
-            tooltipText[8] = String.format(demolishingToolTipRaw,parties[cellY][cellX].calcTurns(2));
-            toolTipSelected = 8;
+          case "Build Rocket Factory":
+            tooltipText[7] = String.format(rocketFactoryToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[ROCKET_FACTORY]));
+            toolTipSelected = 7;
             break;
-          case "Rest":toolTipSelected = 9;break;
-          case "Super Rest":toolTipSelected = 13;break;
+          case "Demolish":
+            tooltipText[9] = String.format(demolishingToolTipRaw,parties[cellY][cellX].calcTurns(2));
+            toolTipSelected = 9;
+            break;
+          case "Rest":toolTipSelected = 10;break;
+          case "Super Rest":toolTipSelected = 14;break;
           default: toolTipSelected = -1;break;
         }
       }
       else if(((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").visible){
-        toolTipSelected = 14;
+        toolTipSelected = 15;
       }
       else if(((Button)getElement("move button", "party management")).mouseOver()&& getPanel("party management").visible){
-        toolTipSelected = 15;
+        toolTipSelected = 16;
       }
       else if (moving&&map.mouseOver() && ((!getPanel("party management").mouseOver() || !getPanel("party management").visible) && (!getPanel("land management").mouseOver() || !getPanel("land management").visible))){
           Node [][] nodes = map.moveNodes;
@@ -1038,21 +1143,21 @@ class Game extends State{
             if(map.parties[y][x]==null){
               //Moving into empty tile
               if (nodes[y][x].cost>MOVEMENTPOINTS)
-                tooltipText[12] = turnsToolTipRaw.replace("/i", str(getMoveTurns(cellX, cellY, x, y, nodes)));
+                tooltipText[13] = turnsToolTipRaw.replace("/i", str(getMoveTurns(cellX, cellY, x, y, nodes)));
               else
-                tooltipText[12] = "Move";
-                toolTipSelected = 12;
+                tooltipText[13] = "Move";
+                toolTipSelected = 13;
             }
             else {
               if (map.parties[y][x].player == turn){
                 //merge parties
-                toolTipSelected = 10;
+                toolTipSelected = 11;
               }
               else {
                 //Attack
                 int chance = getChanceOfBattleSuccess(map.parties[cellY][cellX], map.parties[y][x]);
-                tooltipText[11] = attackToolTipRaw.replace("/p", str(chance));
-                toolTipSelected = 11;
+                tooltipText[12] = attackToolTipRaw.replace("/p", str(chance));
+                toolTipSelected = 12;
               }
             } 
           }
@@ -1115,9 +1220,9 @@ class Game extends State{
     }
   }
   float[] resourceProduction(int x, int y){
-    float[] totalResourceRequirements = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-    float [] resourceAmountsAvailable = new float[9];
-    float [] production = new float[9]; 
+    float[] totalResourceRequirements = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    float [] resourceAmountsAvailable = new float[NUMRESOURCES];
+    float [] production = new float[NUMRESOURCES]; 
     for(int i=0; i<NUMRESOURCES;i++){
       if(totalResourceRequirements[i]==0){
         resourceAmountsAvailable[i] = 1;
@@ -1151,9 +1256,9 @@ class Game extends State{
     return production; 
   }
   float[] resourceConsumption(int x, int y){ 
-    float[] totalResourceRequirements = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-    float [] resourceAmountsAvailable = new float[9];
-    float [] production = new float[9];
+    float[] totalResourceRequirements = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    float [] resourceAmountsAvailable = new float[NUMRESOURCES];
+    float [] production = new float[NUMRESOURCES];
     for(int i=0; i<NUMRESOURCES;i++){
       if(totalResourceRequirements[i]==0){
         resourceAmountsAvailable[i] = 1;
@@ -1279,6 +1384,70 @@ class Game extends State{
     return tempString;
   }
   
+  void drawRocketProgressBar(){
+    int x, y, w, h;
+    String progressMessage;
+    boolean both = players[0].resources[ROCKET_PROGRESS] != -1 && players[1].resources[ROCKET_PROGRESS] != -1;
+    int progress = int(players[turn].resources[ROCKET_PROGRESS]);
+    color fillColour;
+    if(progress == -1){
+      progress = int(players[(turn+1)%2].resources[ROCKET_PROGRESS]);
+      progressMessage = "";
+      fillColour = playerColours[(turn+1)%2];
+    } else {
+      fillColour = playerColours[turn];
+      if(progress>=1000){
+         progressMessage = "Rocket Progress: Completed";
+      } else {
+        progressMessage = "Rocket Progress: "+str(progress)+"/1000";
+      }
+    }
+    if (both){
+      x = round(width*0.25);
+      y = round(height*0.05);
+      w = round(width/2);
+      h = round(height*0.015);
+      fill(200);
+      stroke(100);
+      rect(x, y, w, h);
+      noStroke();
+      progress = int(players[0].resources[ROCKET_PROGRESS]);
+      w = round(min(w, w*progress/1000));
+      fill(playerColours[0]);
+      rect(x, y, w, h);
+      y = round(height*0.065);
+      w = round(width/2);
+      fill(200);
+      stroke(100);
+      rect(x, y, w, h);
+      noStroke();
+      progress = int(players[1].resources[ROCKET_PROGRESS]);
+      w = round(min(w, w*progress/1000));
+      fill(playerColours[1]);
+      rect(x, y, w, h);
+      y = round(height*0.05);
+    } else {
+      x = round(width*0.25);
+      y = round(height*0.05);
+      w = round(width/2);
+      h = round(height*0.03);
+      fill(200);
+      stroke(100);
+      rect(x, y, w, h);
+      noStroke();
+      w = round(min(w, w*progress/1000));
+      fill(fillColour);
+      rect(x, y, w, h);
+    }
+    textSize(10*TextScale);
+    textAlign(CENTER, BOTTOM);
+    fill(200);
+    int tw = ceil((textWidth(progressMessage)));
+    rect(width/2 -tw/2, y-10*TextScale, tw, 10*TextScale);
+    fill(0);
+    text(progressMessage, width/2, y);
+  }
+  
   void drawBar(){
     float barX=buttonW*2+bezel*3;
     fill(200);
@@ -1395,9 +1564,7 @@ class Game extends State{
     
     parties = new Party[mapHeight][mapWidth];
     buildings = new Building[mapHeight][mapWidth];
-    
     PVector[] playerStarts = generateStartingParties();
-    
     terrain = generateMap(playerStarts);
     map.reset(mapWidth, mapHeight, terrain, parties, buildings);
      
@@ -1412,6 +1579,7 @@ class Game extends State{
     turn = 0;
     turnNumber = 0;
     toolTipSelected=-1;
+    winner = -1;
     this.totals = totalResources();
   }
   int cost(int x, int y, int prevX, int prevY){
@@ -1518,13 +1686,16 @@ class Game extends State{
     }
     return false;
   }
+  PVector generatePartyPosition(int xOffset){
+    return new PVector(int(random(xOffset-mapWidth/8, xOffset+mapWidth/8)), int(random(mapHeight/4, 3*mapHeight/4)));
+  }
   
   PVector[] generateStartingParties(){
-    PVector player1 = PVector.random2D().mult(mapWidth/8).add(new PVector(mapWidth/4, mapHeight/2));
-    PVector player2 = PVector.random2D().mult(mapWidth/8).add(new PVector(3*mapWidth/4, mapHeight/2));
+    PVector player1 = generatePartyPosition(mapWidth/4);
+    PVector player2 = generatePartyPosition(3*mapWidth/4);
     while(startInvalid(player1, player2)){
-      player1 = PVector.random2D().mult(mapWidth/8).add(new PVector(mapWidth/4, mapHeight/2));
-      player2 = PVector.random2D().mult(mapWidth/8).add(new PVector(3*mapWidth/4, mapHeight/2));
+      player1 = generatePartyPosition(mapWidth/4);
+      player2 = generatePartyPosition(3*mapWidth/4);
     }
     parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "Rest", MOVEMENTPOINTS);
     parties[(int)player2.y][(int)player2.x] = new Party(1, 100, "Rest", MOVEMENTPOINTS);
@@ -1620,8 +1791,8 @@ class Game extends State{
       int y = (int)playerStart.y;
       terrain[y][x] = type;
       // Player spawns will act as water but without water
-      for (int y1=y-waterLevel+1;y1<y+waterLevel;y1++){
-       for (int x1 = x-waterLevel+1; x1<x+waterLevel;x1++){
+      for (int y1=y-5;y1<y+4;y1++){
+       for (int x1 = x-5; x1<x+4;x1++){
          if (y1 < mapHeight && y1 >= 0 && x1 < mapWidth && x1 >= 0)
            terrain[y1][x1] = type;
        }
@@ -1687,6 +1858,11 @@ class Game extends State{
           terrain[y][x] = HILLS;
         }
       }      
+    }
+    for (int i =0; i<playerStarts.length;i++){
+      while (terrain[int(playerStarts[i].y)][int(playerStarts[i].x)]==WATER){
+        playerStarts[i] = generatePartyPosition(int((i+0.5)*(mapWidth/playerStarts.length)));
+      }
     }
     return terrain;
   }
