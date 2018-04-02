@@ -163,8 +163,6 @@ class Game extends State{
   Party splittedParty;
   Game(){
     addElement("map", new Map(bezel, bezel, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
-    addElement("end turn", new Button(bezel, height-buttonH-bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"));
-    addElement("idle party finder", new Button(bezel*2+buttonW, height-buttonH-bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Idle Party"));
     map = (Map)getElement("map", "default");
     players = new Player[2];
     
@@ -173,7 +171,7 @@ class Game extends State{
     players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, STARTINGRESOURCES);
     addPanel("land management", 0, 0, width, height, false, color(50, 200, 50), color(0));
     addPanel("party management", 0, 0, width, height, false, color(70, 70, 220), color(0));
-    addPanel("resources", 0, 0, width, height, false, color(255, 255), color(255, 255));
+    addPanel("bottom bar", 0, height-70, width, 70, true, color(150), color(50));
     addPanel("end screen", 0, 0, width, height, false, color(50, 50, 50, 50), color(0));
     
     addElement("end game button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2+height/8), (int)(GUIScale*width/8), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "End Game"), "end screen");
@@ -184,6 +182,9 @@ class Game extends State{
     //int x, int y, int w, int h, color KnobColour, color bgColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name
     addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
     addElement("tasks", new DropDown(bezel, bezel*4+30+30, 220, 10, color(150), color(50), tasks), "party management");
+    
+    addElement("end turn", new Button(bezel, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"), "bottom bar");
+    addElement("idle party finder", new Button(bezel*2+buttonW, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Idle Party"), "bottom bar");
     //addElement("resource summary", new ResourceSummary(0, 0, 1000, 0));
     prevIdle = new ArrayList<Integer[]>();
   }     
@@ -730,7 +731,6 @@ class Game extends State{
     if (changeTurn){  
       turnChange();
     }
-    drawBar();
     drawPanels();
     if(players[0].resources[ROCKET_PROGRESS]!=-1||players[1].resources[ROCKET_PROGRESS]!=-1){
       drawRocketProgressBar();
@@ -811,7 +811,7 @@ class Game extends State{
       if (prevIdle.get(i)[0] == x && prevIdle.get(i)[1] == y){
         return true;
       }
-    }
+    } //<>//
     return false;
   }
   void clearPrevIdle(){
