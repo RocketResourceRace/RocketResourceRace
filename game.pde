@@ -176,7 +176,7 @@ class Game extends State{
       int cellY = m.startY;
       
       if (x<0 || x>=mapWidth || y<0 || y>=mapHeight){
-        print("invalid movement");
+        println("invalid movement");
         return false;
       }
       
