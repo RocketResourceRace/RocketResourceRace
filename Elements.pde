@@ -1,39 +1,93 @@
 
 class ResourceSummary extends Element{
-  float[] stockPile, producing, consuming;
+  float[] stockPile, net;
   String[] resNames;
   int numRes, scroll;
+  boolean expanded;
   
-  ResourceSummary(int x, int y, int w, int h, String[] resNames){
+  final int GAP = 10;
+  
+  ResourceSummary(int x, int y, int h, String[] resNames, float[] stockPile, float[] net){
     this.x = x;
     this.y = y;
-    this.w = w;
     this.h = h;
     this.resNames = resNames;
     this.numRes = resNames.length;
+    this.stockPile = stockPile;
+    this.net = net;
+    this.expanded = false;
   }
   
   void updateStockpile(float[] v){
     stockPile = v;
   }
-  void updateProducing(float[] v){
-    producing = v;
+  void updateNet(float[] v){
+    net = v;
   }
-  void updateConsuming(float[] v){
-    consuming = v;
+  void toggleExpand(){
+    expanded = !expanded;
   }
   
   String getResString(int i){
-    return "";
+    return resNames[i];
+  }
+  String getStockString(int i){
+    return ""+stockPile[i];
+  }
+  String getNetString(int i){
+    return ""+net[i];
+  }
+  int columnWidth(int i){
+    textSize(10*TextScale);
+    return ceil(textWidth(getResString(i)));
+  }
+  int totalWidth(){
+    int startRes;
+    if (expanded){
+      startRes = numRes-1;
+    }
+    else{
+      startRes = 3;
+    }
+    int tot = 0;
+    for (int i=startRes; i>=0; i--)
+      tot += columnWidth(i)+GAP;
+    return tot;
   }
   
   void draw(){
+    int cw = 0, startRes;
+    int w, yLevel;
+    if (expanded){
+      startRes = numRes-1;
+    }
+    else{
+      startRes = 3;
+    }
     pushStyle();
-    int sliceSize = h/numRes;
-    for (int i=0; i<numRes; i++){
-      textSize(14*TextScale);
-      text(getResString(i), x, sliceSize*i);
-      line(x, sliceSize*i,+w, sliceSize*i);
+    textAlign(LEFT, TOP);
+    rectMode(CORNERS);
+    for (int i=startRes; i>=0; i--){
+      w = columnWidth(i);
+      fill(100);
+      textSize(10*TextScale);
+      rect(width-cw+xOffset+x-GAP/2, yOffset+y, width-cw+xOffset+x-GAP/2-(w+GAP), yOffset+y+textAscent()+textDescent());
+      cw += w+GAP;
+      line(width-cw+xOffset+x-GAP/2, yOffset+y, width-cw+xOffset+x-GAP/2, yOffset+y+h);
+      fill(0);
+      
+      yLevel=0;
+      textSize(10*TextScale);
+      text(getResString(i), width-cw+xOffset, y+yOffset);
+      yLevel += textAscent()+textDescent();
+      
+      textSize(8*TextScale);
+      text(getStockString(i), width-cw+xOffset, y+yOffset+yLevel);
+      yLevel += textAscent()+textDescent();
+      
+      textSize(8*TextScale);
+      text(getNetString(i), width-cw+xOffset, y+yOffset+yLevel);
+      yLevel += textAscent()+textDescent();
     }
     popStyle();
   }
@@ -230,6 +284,9 @@ class Button extends Element{
   void setText(String text){
     this.text = text;
     setLines(text);
+  }
+  String getText(){
+    return this.text;
   }
   void draw(){
     //println(xOffset, yOffset);

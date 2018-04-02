@@ -159,7 +159,7 @@ class Game extends State{
   color partyManagementColour;
   int toolTipSelected;
   ArrayList<Integer[]> prevIdle;
-  float[] totals = {0,0,0,0,0,0,0,0,0};
+  float[] totals = {0,0,0,0,0,0,0,0,0,0};
   Party splittedParty;
   Game(){
     addElement("map", new Map(bezel, bezel, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
@@ -176,16 +176,18 @@ class Game extends State{
     
     addElement("end game button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2+height/8), (int)(GUIScale*width/8), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "End Game"), "end screen");
     addElement("winner", new Text(width/2, height/2, (int)(TextScale*10), "", color(255), CENTER), "end screen");
+    
     addElement("turns remaining", new Text(bezel*2+220, bezel*4+30+30, 8, "", color(255), LEFT), "party management");
-    //int x, int y, int w, int h, color bgColour, color strokeColour, color textColour, int textSize, int textAlign, String text
     addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
-    //int x, int y, int w, int h, color KnobColour, color bgColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name
     addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
     addElement("tasks", new DropDown(bezel, bezel*4+30+30, 220, 10, color(150), color(50), tasks), "party management");
     
     addElement("end turn", new Button(bezel, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"), "bottom bar");
     addElement("idle party finder", new Button(bezel*2+buttonW, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Idle Party"), "bottom bar");
-    //addElement("resource summary", new ResourceSummary(0, 0, 1000, 0));
+    addElement("resource summary", new ResourceSummary(0, 0, 70, resourceNames, players[turn].resources, totals), "bottom bar");
+    int resSummaryX = width-((ResourceSummary)(getElement("resource summary", "bottom bar"))).totalWidth();
+    addElement("resource expander", new Button(resSummaryX-50, bezel, 30, 30, color(150), color(50), color(0), 10, CENTER, "<"), "bottom bar");
+    
     prevIdle = new ArrayList<Integer[]>();
   }     
   boolean postEvent(GameEvent event){
@@ -809,9 +811,9 @@ class Game extends State{
   boolean inPrevIdle(int x, int y){
     for (int i=0; i<prevIdle.size();i++){
       if (prevIdle.get(i)[0] == x && prevIdle.get(i)[1] == y){
-        return true;
+        return true; //<>//
       }
-    } //<>//
+    }
     return false;
   }
   void clearPrevIdle(){
@@ -853,6 +855,17 @@ class Game extends State{
               map.cancelMoveNodes();
             }
           }
+        }
+        else if (event.id == "resource expander"){
+          ResourceSummary r = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
+          Button b = ((Button)(getElement("resource expander", "bottom bar")));
+          r.toggleExpand();
+          b.transform(width-r.totalWidth()-50, bezel, 30, 30);
+          if (b.getText() == ">")
+            b.setText("<");
+          else
+            b.setText(">");
+          
         }
         else if (event.id == "end game button"){
           newState = "menu";

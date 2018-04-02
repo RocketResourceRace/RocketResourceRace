@@ -271,7 +271,6 @@ int getChanceOfBattleSuccess(Party attacker, Party defender){
 
 class Player{
   float mapXOffset, mapYOffset, blockSize;
-  float wood, food, energy, metal;
   float[] resources;
   int cellX, cellY;
   boolean cellSelected = false;
