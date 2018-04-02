@@ -1,11 +1,16 @@
 
 class ResourcePanel extends Element{
   float[] stockPile, producing, consuming;
-  ResourcePanel(int x, int y, int w, int h){
+  String[] resNames;
+  int numRes, scroll;
+  
+  ResourcePanel(int x, int y, int w, int h, String[] resNames){
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
+    this.resNames = resNames;
+    this.numRes = resNames.length;
   }
   
   void updateStockpile(float[] v){
@@ -18,8 +23,15 @@ class ResourcePanel extends Element{
     consuming = v;
   }
   
+  String getResString(int i){
+    return "";
+  }
+  
   void draw(){
-    
+    for (int i=0; i<numRes; i++){
+      textSize(14*TextScale);
+      
+    }
   }
 }
 
