@@ -1069,8 +1069,15 @@ class Game extends State{
       if (eventType == "mousePressed"){
         if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn && cellSelected){
           if (map.mouseOver()){
-            moving = true;
-            map.updateMoveNodes(djk(cellX, cellY));
+            if (moving){
+              map.cancelPath();
+              moving = false;
+              map.cancelMoveNodes();
+            }
+            else{
+              moving = true;
+              map.updateMoveNodes(djk(cellX, cellY));
+            }
           }
         }
       }
@@ -1096,9 +1103,19 @@ class Game extends State{
               //int y = floor(map.scaleYInv(mouseY));
               //postEvent(new Move(cellX, cellY, x, y));
               //map.cancelPath();
-              map.cancelPath();
-              moving = false;
-              map.cancelMoveNodes();
+              if (mousePressed){
+                map.cancelPath();
+                moving = false;
+                map.cancelMoveNodes();
+              }
+              else{
+                int x = floor(map.scaleXInv(mouseX));
+                int y = floor(map.scaleYInv(mouseY));
+                postEvent(new Move(cellX, cellY, x, y));
+                map.cancelPath();
+                moving = false;
+                map.cancelMoveNodes();
+              }
             }
             else{
               if(floor(map.scaleXInv(mouseX))==cellX&&floor(map.scaleYInv(mouseY))==cellY&&cellSelected){
