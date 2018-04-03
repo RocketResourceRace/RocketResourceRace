@@ -1425,12 +1425,14 @@ class Game extends State{
     boolean notNothing = false;
     for (int i=0; i<NUMRESOURCES;i++){
       if (resources[i]>0){
-        returnString += getResourceString(resources[i])+ " " +resourceNames[i]+ ", "; 
+        returnString += roundDp(""+resources[i], 1)+ " " +resourceNames[i]+ ", "; 
         notNothing = true;
       }
     }
     if (!notNothing)
       returnString += "Nothing/Unknown";
+    else if(returnString.length()-2 > 0)
+      returnString = returnString.substring(0, returnString.length()-2);
     return returnString;
   }
   
@@ -1469,15 +1471,21 @@ class Game extends State{
     }
     float[] production = resourceProduction(cellX, cellY);
     float[] consumption = resourceConsumption(cellX, cellY);
-    text("Producing: "+resourcesList(production), 5+cellSelectionX, barY);
-    barY += 13*TextScale;
-    fill(255,0,0);
-    text("Consuming: "+resourcesList(consumption), 5+cellSelectionX, barY);
-    barY += 13*TextScale;
+    String pl = resourcesList(production);
+    String cl = resourcesList(consumption);
+    if (!pl.equals("Nothing/Unknown")){
+      text("Producing: "+pl, 5+cellSelectionX, barY);
+      barY += 13*TextScale;
+    }
+    if (!cl.equals("Nothing/Unknown")){
+      fill(255,0,0);
+      text("Consuming: "+cl, 5+cellSelectionX, barY);
+      barY += 13*TextScale;
+    }
   }
   
   String getResourceString(float amount){
-    String tempString = (new BigDecimal(""+amount).divide(new BigDecimal("1"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
+    String tempString = roundDp(""+amount, 1);
     if (amount >= 0){
       fill(0);
       tempString = "+"+tempString;

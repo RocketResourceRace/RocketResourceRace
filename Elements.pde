@@ -1,9 +1,22 @@
 
-//class NotificationManager extends Element{
-//  NotificationManager(int x, int y, int w, int h, ){
+class NotificationManager extends Element{
+  ArrayList<String> notifications;
+  int bgColour, textColour;
+  NotificationManager(int x, int y, int w, int h, int bgColour, int textColour){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.bgColour = bgColour;
+    this.textColour = textColour;
+  }
+  
+  void draw(){
+    pushStyle();
     
-//  }
-//}
+    popStyle();
+  }
+}
 
 
 
