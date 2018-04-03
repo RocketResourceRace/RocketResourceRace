@@ -432,8 +432,8 @@ class Game extends State{
     cellSelectionY = bezel*2;
     cellSelectionW = width-cellSelectionX-bezel*2;
     cellSelectionH = round(mapElementHeight);
-    getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.3));
-    getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.3)+bezel, cellSelectionW, round(cellSelectionH*0.7)-bezel*3);
+    getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.15));
+    getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.15)+bezel, cellSelectionW, round(cellSelectionH*0.5)-bezel*3);
     ((Button)getElement("move button", "party management")).transform(bezel, round(13*TextScale+bezel), 100, 30);
     ((Slider)getElement("split units", "party management")).transform(round(10*GUIScale+bezel), round(bezel*3+2*TextScale*13), cellSelectionW-2*bezel-round(20*GUIScale),round(TextScale*2*13));
     ((DropDown)getElement("tasks", "party management")).transform(bezel, round(bezel*4+4*TextScale*13), cellSelectionW-2*bezel, 30);
@@ -1406,7 +1406,7 @@ class Game extends State{
     
     textAlign(LEFT, CENTER);
     textSize(8*TextScale);
-    float barY = cellSelectionY + 13*TextScale + cellSelectionH*0.3 + bezel*2;
+    float barY = cellSelectionY + 13*TextScale + cellSelectionH*0.15 + bezel*2;
     text("Movement Points Remaining: "+parties[cellY][cellX].getMovementPoints(turn) + "/"+MOVEMENTPOINTS, 120+cellSelectionX, barY);
     barY += 13*TextScale;
     text("Units: "+parties[cellY][cellX].getUnitNumber(turn) + "/1000", 120+cellSelectionX, barY);

@@ -1,4 +1,11 @@
 
+//class NotificationManager extends Element{
+//  NotificationManager(int x, int y, int w, int h, ){
+    
+//  }
+//}
+
+
 
 class TextBox extends Element{
   int textSize, bgColour, textColour;
