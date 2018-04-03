@@ -1594,6 +1594,7 @@ class Game extends State{
     ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
     rs.updateNet(totals);
     rs.updateStockpile(players[turn].resources);
+    getPanel("pause screen").visible = false;
   }
   int cost(int x, int y, int prevX, int prevY){
     float mult = 1;
