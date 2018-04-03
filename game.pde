@@ -3,8 +3,8 @@ class Game extends State{
   final int buttonW = 120;
   final int buttonH = 50;
   final int bezel = 10;
-  final int mapElementWidth = round(width-bezel*2);
-  final int mapElementHeight = round(height-bezel*4-buttonH);
+  final int mapElementWidth = round(width);
+  final int mapElementHeight = round(height-bezel*2-buttonH);
   final int[] terrainCosts = new int[]{16, 12, 8, 12, 28};
   final int MOVEMENTPOINTS = 64;
   final int DEFENDCOST = 32;
@@ -162,7 +162,7 @@ class Game extends State{
   float[] totals;
   Party splittedParty;
   Game(){
-    addElement("map", new Map(bezel, bezel, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
+    addElement("map", new Map(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
     map = (Map)getElement("map", "default");
     players = new Player[2];
     totals = new float[resourceNames.length];
@@ -769,6 +769,7 @@ class Game extends State{
   }
   
   String update(){
+    background(100);
     if (changeTurn){  
       turnChange();
     }
@@ -815,8 +816,8 @@ class Game extends State{
     ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
     boolean t = true;
     for (int i=0; i<NUMRESOURCES;i++){
-      if (available[i] < required[i]){
-        t = false; //<>//
+      if (available[i] < required[i]){ //<>//
+        t = false;
         rs.flash(i);
       }
     }
@@ -952,11 +953,11 @@ class Game extends State{
     toolTipSelected = -1;
     cellSelected = false;
     map.unselectCell();
-    getPanel("land management").setVisible(false);
-    getPanel("party management").setVisible(false); //<>//
+    getPanel("land management").setVisible(false); //<>//
+    getPanel("party management").setVisible(false);
     map.cancelMoveNodes();
-    moving = false;
-    //map.setWidth(round(width-bezel*2)); //<>//
+    moving = false; //<>//
+    //map.setWidth(round(width-bezel*2));
     ((Text)getElement("turns remaining", "party management")).setText("");
   }
   
@@ -1042,8 +1043,8 @@ class Game extends State{
           } else if (map.parties[path.get(node)[1]][path.get(node)[0]].player == 2){
             // merge cells battle
             int overflow = ((Battle) map.parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, p.getUnitNumber());
-            if(cellFollow){
-              selectCell((int)path.get(node)[0], (int)path.get(node)[1], false); //<>//
+            if(cellFollow){ //<>//
+              selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
               stillThere = false;
             }
             if (overflow>0){
