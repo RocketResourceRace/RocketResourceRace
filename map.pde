@@ -20,7 +20,7 @@ class Map extends Element{
   int frameStartTime;
   int xPos, yPos;
   boolean zoomChanged;
-  boolean mapFocused;
+  boolean mapFocused, mapActive;
   int selectedCellX, selectedCellY;
   boolean cellSelected;
   color partyManagementColour;
@@ -48,6 +48,9 @@ class Map extends Element{
     frameStartTime = 0;
     cancelMoveNodes();
     cancelPath();
+  }
+  void setActive(boolean a){
+    this.mapActive = a;
   }
   void selectCell(int x, int y){
     cellSelected = true;
@@ -136,7 +139,7 @@ class Map extends Element{
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
     if (eventType == "mouseWheel"){
       float count = event.getCount();
-      if(mouseOver()){
+      if(mouseOver() && mapActive){
         float zoom = pow(0.9, count);
         float newBlockSize = max(min(blockSize*zoom, (float)elementWidth/10), (float)elementWidth/(float)mapSize);
         if (blockSize != newBlockSize){
@@ -153,7 +156,7 @@ class Map extends Element{
   }
 
   ArrayList<String> mouseEvent(String eventType, int button){
-    if (button == LEFT){
+    if (button == LEFT&mapActive){
       if (eventType=="mouseDragged" && mapFocused){
         mapXOffset += (mouseX-startX);
         mapYOffset += (mouseY-startY);

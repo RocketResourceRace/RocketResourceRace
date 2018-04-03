@@ -40,7 +40,9 @@ class NotificationManager extends Element{
     ArrayList<String> events = new ArrayList<String>();
     if (eventType == "mouseWheel"){
       float count = event.getCount();
-      scroll = round(between(0, scroll+count, notifications.size()-displayNots));
+      if (moveOver()){
+        scroll = round(between(0, scroll+count, notifications.size()-displayNots));
+      }
     }
     return events;
   }

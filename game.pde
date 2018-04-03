@@ -567,6 +567,12 @@ class Game extends State{
     }
   }
   
+  boolean UIHovering(){
+   //To avoid doing things while hoving over important stuff
+   return !((!getPanel("party management").mouseOver() || !getPanel("party management").visible) && (!getPanel("land management").mouseOver() || !getPanel("land management").visible) &&
+   !(((NotificationManager)(getElement("notification manager", "default"))).moveOver()));
+  }
+  
   void turnChange(){
     float[] totalResourceRequirements = new float[NUMRESOURCES];
     for (int y=0; y<mapHeight; y++){
@@ -810,13 +816,13 @@ class Game extends State{
   }
   boolean sufficientResources(float[] available, float[] required){
     for (int i=0; i<NUMRESOURCES;i++){
-      if (available[i] < required[i]){
+      if (available[i] < required[i]){ //<>//
         return false;
       }
     }
     return true;
   }
-  boolean sufficientResources(float[] available, float[] required, boolean flash){ //<>//
+  boolean sufficientResources(float[] available, float[] required, boolean flash){
     ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
     boolean t = true;
     for (int i=0; i<NUMRESOURCES;i++){
@@ -947,16 +953,16 @@ class Game extends State{
         }
       }
       if (event.type == "valueChanged"){
-        if (event.id == "tasks"){
+        if (event.id == "tasks"){ //<>//
           postEvent(new ChangeTask(cellX, cellY, ((DropDown)getElement("tasks", "party management")).getSelected()));
         }
-      }
+      } //<>//
     }
   }
-  void deselectCell(){ //<>//
+  void deselectCell(){
     toolTipSelected = -1;
     cellSelected = false;
-    map.unselectCell(); //<>//
+    map.unselectCell();
     getPanel("land management").setVisible(false);
     getPanel("party management").setVisible(false);
     map.cancelMoveNodes();
@@ -1037,13 +1043,13 @@ class Game extends State{
               map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
             } else {
               if (splitting){
-                splittedParty = null;
+                splittedParty = null; //<>//
                 splitting = false;
               } else{
                 map.parties[py][px] = null;
               }
             }
-            map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(movementPoints); //<>//
+            map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(movementPoints);
           } else if (map.parties[path.get(node)[1]][path.get(node)[0]].player == 2){
             // merge cells battle
             int overflow = ((Battle) map.parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, p.getUnitNumber());
@@ -1124,7 +1130,7 @@ class Game extends State{
   ArrayList<String> mouseEvent(String eventType, int button){
     if (button == RIGHT){
       if (eventType == "mousePressed"){
-        if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn && cellSelected){
+        if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn && cellSelected && !UIHovering()){
           if (map.mouseOver()){
             if (moving){
               map.cancelPath();
@@ -1139,7 +1145,7 @@ class Game extends State{
         }
       }
       if (eventType == "mouseReleased"){
-        if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn){
+        if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn && !UIHovering()){
           if (moving){
             int x = floor(map.scaleXInv(mouseX));
             int y = floor(map.scaleYInv(mouseY));
@@ -1153,7 +1159,7 @@ class Game extends State{
     }
     if (button == LEFT){
       if (eventType == "mouseClicked"){
-        if (activePanel == "default" && ((!getPanel("party management").mouseOver() || !getPanel("party management").visible) && (!getPanel("land management").mouseOver() || !getPanel("land management").visible))){
+        if (activePanel == "default" && !UIHovering()){
           if (map.mouseOver()){
             if (moving){
               //int x = floor(map.scaleXInv(mouseX));
@@ -1240,7 +1246,7 @@ class Game extends State{
       else if(((Button)getElement("move button", "party management")).mouseOver()&& getPanel("party management").visible){
         toolTipSelected = 16;
       }
-      else if (moving&&map.mouseOver() && ((!getPanel("party management").mouseOver() || !getPanel("party management").visible) && (!getPanel("land management").mouseOver() || !getPanel("land management").visible))){
+      else if (moving&&map.mouseOver() && !UIHovering()){
           Node [][] nodes = map.moveNodes;
           int x = floor(map.scaleXInv(mouseX));
           int y = floor(map.scaleYInv(mouseY));
@@ -1278,6 +1284,7 @@ class Game extends State{
         map.cancelPath();
         toolTipSelected = -1;
       }
+      map.mapActive = !UIHovering();
     }
     return new ArrayList<String>();
   }
