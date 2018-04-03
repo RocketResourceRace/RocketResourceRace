@@ -811,7 +811,7 @@ class Game extends State{
     Collections.shuffle(locs);
     for (int i=0; i<4; i++){
       if (parties[locs.get(i)[1]][locs.get(i)[0]] == null && terrain[locs.get(i)[1]][locs.get(i)[0]] != 1){
-        return locs.get(i); //<>//
+        return locs.get(i); //<>// //<>//
       }
     }
     return null;
@@ -939,10 +939,10 @@ class Game extends State{
       }
       p.path = null;
       return;
-    } //<>//
+    } //<>// //<>//
     
     ArrayList <int[]> path = p.path;
-    int i=0; //<>// //<>//
+    int i=0; //<>// //<>// //<>//
     boolean moved = false;
     for (int node=1; node<path.size(); node++){
       int cost = cost(path.get(node)[0], path.get(node)[1], px, py);
@@ -977,6 +977,7 @@ class Game extends State{
             }
             if (overflow>0){
               p.setUnitNumber(overflow);
+              map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
             } else {
               if (splitting){
                 splittedParty = null;
@@ -986,7 +987,6 @@ class Game extends State{
               }
             }
             map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(movementPoints);
-            map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
           } else if (map.parties[path.get(node)[1]][path.get(node)[0]].player == 2){
             // merge cells battle
             int overflow = ((Battle) map.parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, p.getUnitNumber());
@@ -996,6 +996,7 @@ class Game extends State{
             }
             if (overflow>0){
               p.setUnitNumber(overflow);
+              map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
             } else {
               if (splitting){
                 splittedParty = null;
@@ -1005,7 +1006,6 @@ class Game extends State{
                 map.parties[py][px] = null;
               }
             }
-            map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
           }
           else{
             p.subMovementPoints(cost);
@@ -1029,7 +1029,7 @@ class Game extends State{
         }
         i++;
       }
-      else{ //<>//
+      else{ //<>// //<>//
         p.path = new ArrayList(path.subList(i, path.size()));
         break;
       }
