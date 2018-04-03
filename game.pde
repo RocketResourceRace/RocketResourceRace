@@ -174,9 +174,14 @@ class Game extends State{
     addPanel("party management", 0, 0, width, height, false, color(70, 70, 220), color(0));
     addPanel("bottom bar", 0, height-70, width, 70, true, color(150), color(50));
     addPanel("end screen", 0, 0, width, height, false, color(50, 50, 50, 50), color(0));
+    addPanel("pause screen", 0, 0, width, height, false, color(50, 50, 50, 50), color(0));
     
     addElement("end game button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2+height/8), (int)(GUIScale*width/8), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "End Game"), "end screen");
     addElement("winner", new Text(width/2, height/2, (int)(TextScale*10), "", color(255), CENTER), "end screen");
+    
+    addElement("main menu button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2-height/24), (int)(GUIScale*width/6), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "Exit to Main Menu"), "pause screen");
+    addElement("desktop button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2+height/24), (int)(GUIScale*width/6), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "Exit to Desktop"), "pause screen");
+    addElement("resume button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2-3*height/24), (int)(GUIScale*width/6), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "Resume"), "pause screen");
     
     addElement("turns remaining", new Text(bezel*2+220, bezel*4+30+30, 8, "", color(255), LEFT), "party management");
     addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
@@ -888,6 +893,15 @@ class Game extends State{
         else if (event.id == "end game button"){
           newState = "menu";
         }
+        else if (event.id == "main menu button"){
+          newState = "menu";
+        }
+        else if (event.id == "desktop button"){
+          exit();
+        }
+        else if (event.id == "resume button"){
+          getPanel("pause screen").visible = false;
+        }
       }
       if (event.type == "valueChanged"){
         if (event.id == "tasks"){
@@ -1501,7 +1515,7 @@ class Game extends State{
   
   ArrayList<String> keyboardEvent(String eventType, char _key){
     if (_key == ESC){
-      newState = "menu";
+      getPanel("pause screen").visible = !getPanel("pause screen").visible;
     }
     if (eventType == "keyTyped"){
       if (key == ' '){
