@@ -419,7 +419,7 @@ class Game extends State{
       }
       checkTasks();
     }
-    if (valid){
+    if (!changeTurn && valid){
       this.totals = totalResources();
       ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
       rs.updateNet(totals);
@@ -726,6 +726,12 @@ class Game extends State{
     TextBox t = ((TextBox)(getElement("turn number", "bottom bar")));
     t.setColour(players[turn].colour);
     t.setText("Turn "+turnNumber);
+    
+    this.totals = totalResources();
+    ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
+    rs.updateNet(totals);
+    rs.updateStockpile(players[turn].resources);
+    
     if (turn == 0)
       turnNumber ++;
   }
@@ -810,13 +816,13 @@ class Game extends State{
     boolean t = true;
     for (int i=0; i<NUMRESOURCES;i++){
       if (available[i] < required[i]){
-        t = false;
+        t = false; //<>//
         rs.flash(i);
       }
     }
     return t;
   }
-  void spendRes(Player player, float[] required){ //<>//
+  void spendRes(Player player, float[] required){
     for (int i=0; i<NUMRESOURCES;i++){
       player.resources[i] -= required[i];
     }
@@ -947,16 +953,16 @@ class Game extends State{
     cellSelected = false;
     map.unselectCell();
     getPanel("land management").setVisible(false);
-    getPanel("party management").setVisible(false);
+    getPanel("party management").setVisible(false); //<>//
     map.cancelMoveNodes();
     moving = false;
-    //map.setWidth(round(width-bezel*2));
+    //map.setWidth(round(width-bezel*2)); //<>//
     ((Text)getElement("turns remaining", "party management")).setText("");
   }
-   //<>//
+  
   void moveParty(int px, int py){
     moveParty(px, py, false);
-  } //<>//
+  }
   
   void moveParty(int px, int py, boolean splitting){
     
@@ -1037,13 +1043,13 @@ class Game extends State{
             // merge cells battle
             int overflow = ((Battle) map.parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, p.getUnitNumber());
             if(cellFollow){
-              selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
+              selectCell((int)path.get(node)[0], (int)path.get(node)[1], false); //<>//
               stillThere = false;
             }
             if (overflow>0){
               p.setUnitNumber(overflow);
               map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
-            } else { //<>//
+            } else {
               if (splitting){
                 splittedParty = null;
                 splitting = false;
