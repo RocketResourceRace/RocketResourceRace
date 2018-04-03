@@ -3,6 +3,8 @@
 class NotificationManager extends Element{
   ArrayList<Notification> notifications;
   int bgColour, textColour, displayNots, notHeight, topOffset, scroll;
+  Notification lastSelected;
+  
   NotificationManager(int x, int y, int w, int h, int bgColour, int textColour, int displayNots){
     this.x = x;
     this.y = y;
@@ -13,9 +15,8 @@ class NotificationManager extends Element{
     this.displayNots = displayNots;
     this.notHeight = h/displayNots;
     this.notifications = new ArrayList<Notification>();
-    this.scroll = 1;
-    for (int i=0; i<15; i++)
-    post("i"+i, 20, 30, i);
+    this.scroll = 0;
+    lastSelected = null;
   }
   
   boolean moveOver(){
@@ -61,8 +62,15 @@ class NotificationManager extends Element{
     ArrayList<String> events = new ArrayList<String>();
     if (eventType == "mouseClicked"){
       int hovering = findMouseOver();
-      if (hovering >=0 && mouseX<x+notHeight){
-        dismiss(hovering+scroll);
+      if (hovering >=0){
+        if (mouseX<x+notHeight){
+          dismiss(hovering+scroll);
+          events.add("notification dismissed");
+        }
+        else{
+          lastSelected = notifications.get(hovering+scroll);
+          events.add("notification selected");
+        }
       }
     }
     return events;
@@ -117,7 +125,6 @@ class NotificationManager extends Element{
       textSize(8*TextScale);
       textAlign(LEFT, CENTER);
       text(notifications.get(i+scroll).name, x+notHeight+5, y+topOffset+i*notHeight+notHeight/2);
-      
       textAlign(RIGHT, CENTER);
       text("Turn "+notifications.get(i+scroll).turn, x-notHeight+w, y+topOffset+i*notHeight+notHeight/2);
     }

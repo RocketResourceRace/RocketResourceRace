@@ -595,33 +595,43 @@ class Game extends State{
               case "Clear Forest":
                 map.terrain[y][x] = GRASS;
                 players[turn].resources[WOOD]+=100;
+                notificationManager.post("Forest Cleared", x, y, turn);
                 break;
               case "Build Farm":
                 map.buildings[y][x] = new Building(FARM);
+                notificationManager.post("Farm Built", x, y, turn);
                 break;
               case "Build Sawmill":
                 map.buildings[y][x] = new Building(SAWMILL);
+                notificationManager.post("Sawmill Built", x, y, turn);
                 break;
               case "Build Homes":
                 map.buildings[y][x] = new Building(HOMES);
+                notificationManager.post("Homes Built", x, y, turn);
                 break;
               case "Build Factory":
                 map.buildings[y][x] = new Building(FACTORY);
+                notificationManager.post("Factory Built", x, y, turn);
                 break;
               case "Build Mine":
                 map.buildings[y][x] = new Building(MINE);
+                notificationManager.post("Mine Built", x, y, turn);
                 break;
               case "Build Smelter":
                 map.buildings[y][x] = new Building(SMELTER);
+                notificationManager.post("Smelter Built", x, y, turn);
                 break;
               case "Build Rocket Factory":
                 map.buildings[y][x] = new Building(ROCKET_FACTORY);
+                notificationManager.post("Rocket Factory Built", x, y, turn);
                 break;
               case "Build Big Factory":
                 map.buildings[y][x] = new Building(BIG_FACTORY);
+                notificationManager.post("Big Factory Built", x, y, turn);
                 break;
               case "Demolish":
                 reclaimRes(players[turn], buildingCosts[5]);
+                notificationManager.post("Building Demolished", x, y, turn);
                 map.buildings[y][x] = null;
                 break;
               case "Construction Mid":
@@ -806,7 +816,7 @@ class Game extends State{
   void partyMovementPointsReset(){
     for (int y=0; y<mapHeight; y++){
       for (int x=0; x<mapWidth; x++){
-        if (map.parties[y][x] != null){
+        if (map.parties[y][x] != null){ //<>//
           if (map.parties[y][x].player != 2){
             map.parties[y][x].setMovementPoints(MOVEMENTPOINTS);
           }
@@ -816,7 +826,7 @@ class Game extends State{
   }
   void changeTurn(){
     changeTurn = true;
-  } //<>//
+  }
   boolean sufficientResources(float[] available, float[] required){
     for (int i=0; i<NUMRESOURCES;i++){
       if (available[i] < required[i]){
@@ -943,22 +953,27 @@ class Game extends State{
             b.setText(">");
         }
         else if (event.id == "end game button"){
-          newState = "menu";
+          newState = "menu"; //<>//
         }
         else if (event.id == "main menu button"){
-          newState = "menu";
+          newState = "menu"; //<>//
         }
         else if (event.id == "desktop button"){
           exit();
         }
         else if (event.id == "resume button"){
           getPanel("pause screen").visible = false;
-        } //<>//
+        }
       }
       if (event.type == "valueChanged"){
-        if (event.id == "tasks"){ //<>//
+        if (event.id == "tasks"){
           postEvent(new ChangeTask(cellX, cellY, ((DropDown)getElement("tasks", "party management")).getSelected()));
         }
+      }
+      if (event.type == "notification selected"){
+        int x = notificationManager.lastSelected.x, y = notificationManager.lastSelected.y;
+        map.targetCell(x, y, 100);
+        selectCell(x, y, false);
       }
     }
   }
@@ -1028,7 +1043,7 @@ class Game extends State{
           p = map.parties[py][px];
           if (!moved){
             p.moved();
-            moved = true;
+            moved = true; //<>//
           }
         }
         else if(path.get(node)[0] != px || path.get(node)[1] != py){
@@ -1043,7 +1058,7 @@ class Game extends State{
             }
             if (overflow>0){
               p.setUnitNumber(overflow);
-              map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p; //<>//
+              map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
             } else {
               if (splitting){
                 splittedParty = null;
