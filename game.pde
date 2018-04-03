@@ -230,7 +230,17 @@ class Game extends State{
       if (splittedParty != null){
         splittedParty.target = new int[]{x, y};
         splittedParty.path = getPath(cellX, cellY, x, y, nodes);
-        splittedParty.setPathTurns(1+getMoveTurns(cellX, cellY, x, y, nodes));  
+        int pathTurns;
+        if (cellX==x&&cellY==y){
+          pathTurns = 0;
+        }
+        else if (!canMove(cellX, cellY)){
+          pathTurns = getMoveTurns(cellX, cellY, x, y, nodes);
+        }
+        else{
+          pathTurns = 1+getMoveTurns(cellX, cellY, x, y, nodes);
+        }
+        splittedParty.setPathTurns(pathTurns);
         Collections.reverse(splittedParty.path);
         splittedParty.changeTask("Rest");
         splittedParty.clearActions();
@@ -240,7 +250,17 @@ class Game extends State{
       else {
         parties[cellY][cellX].target = new int[]{x, y};
         parties[cellY][cellX].path = getPath(cellX, cellY, x, y, nodes);
-        parties[cellY][cellX].setPathTurns(1+getMoveTurns(cellX, cellY, x, y, nodes));
+        int pathTurns;
+        if (cellX==x&&cellY==y){
+          pathTurns = 0;
+        }
+        else if (!canMove(cellX, cellY)){
+          pathTurns = getMoveTurns(cellX, cellY, x, y, nodes);
+        }
+        else{
+          pathTurns = 1+getMoveTurns(cellX, cellY, x, y, nodes);
+        }
+        parties[cellY][cellX].setPathTurns(pathTurns);
         Collections.reverse(parties[cellY][cellX].path);
         parties[cellY][cellX].changeTask("Rest");
         parties[cellY][cellX].clearActions();         
@@ -796,7 +816,7 @@ class Game extends State{
     }
     return t;
   }
-  void spendRes(Player player, float[] required){
+  void spendRes(Player player, float[] required){ //<>//
     for (int i=0; i<NUMRESOURCES;i++){
       player.resources[i] -= required[i];
     }
@@ -822,11 +842,23 @@ class Game extends State{
     return null;
   }
   boolean canMove(int x, int y){
-    float points = map.parties[y][x].getMovementPoints();
+    float points;
     int[][] mvs = {{1,0}, {0,1}, {1,1}, {-1,0}, {0,-1}, {-1,-1}, {1,-1}, {-1,1}};
-    for (int[] n : mvs){
-      if (points >= cost(x+n[0], y+n[1], x, y)){
-        return true;
+    
+    if (splittedParty!=null){
+      points = splittedParty.getMovementPoints();
+      for (int[] n : mvs){
+        if (points >= cost(x+n[0], y+n[1], x, y)){
+          return true;
+        }
+      }
+    }
+    else{
+      points = map.parties[y][x].getMovementPoints();
+      for (int[] n : mvs){
+        if (points >= cost(x+n[0], y+n[1], x, y)){
+          return true;
+        }
       }
     }
     return false;
@@ -921,10 +953,10 @@ class Game extends State{
     //map.setWidth(round(width-bezel*2));
     ((Text)getElement("turns remaining", "party management")).setText("");
   }
-  
+   //<>//
   void moveParty(int px, int py){
     moveParty(px, py, false);
-  }
+  } //<>//
   
   void moveParty(int px, int py, boolean splitting){
     
@@ -1011,7 +1043,7 @@ class Game extends State{
             if (overflow>0){
               p.setUnitNumber(overflow);
               map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
-            } else {
+            } else { //<>//
               if (splitting){
                 splittedParty = null;
                 splitting = false;
