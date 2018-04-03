@@ -1,7 +1,7 @@
 
 
 class NotificationManager extends Element{
-  ArrayList<String> notifications;
+  ArrayList<Notification> notifications;
   int bgColour, textColour, displayNots, notHeight, topOffset;
   NotificationManager(int x, int y, int w, int h, int bgColour, int textColour, int displayNots){
     this.x = x;
@@ -12,8 +12,9 @@ class NotificationManager extends Element{
     this.textColour = textColour;
     this.displayNots = displayNots;
     this.notHeight = h/displayNots;
-    this.notifications = new ArrayList<String>();
-    notifications.add("bob");
+    this.notifications = new ArrayList<Notification>();
+    
+    notifications.add(new Notification("Building finished: sawmill", 50, 40, 2));
   }
   
   boolean moveOver(){
@@ -66,7 +67,7 @@ class NotificationManager extends Element{
       }
       rect(x, y+i*notHeight+topOffset, w, notHeight);
       
-      fill(brighten(bgColour, 20));
+      fill(brighten(bgColour, -20));
       if (mouseX<x+notHeight){
         if (hovering == i){
           fill(brighten(bgColour, 80));
@@ -76,13 +77,14 @@ class NotificationManager extends Element{
         }
       }
       rect(x, y+i*notHeight+topOffset, notHeight, notHeight);
-      fill(0);
       strokeWeight(3);
       line(x+5, y+i*notHeight+topOffset+5, x+notHeight-5, y+(i+1)*notHeight+topOffset-5);
       line(x+notHeight-5, y+i*notHeight+topOffset+5, x+5, y+(i+1)*notHeight+topOffset-5);
       
+      fill(textColour);
       textSize(8*TextScale);
-      text(notifications.get());
+      textAlign(LEFT, CENTER);
+      text(notifications.get(i).name, x+notHeight+5, y+topOffset+i*notHeight+notHeight/2);
     }
     popStyle();
   }
