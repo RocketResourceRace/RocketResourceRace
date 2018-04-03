@@ -1,20 +1,23 @@
 
 
 class NotificationManager extends Element{
-  ArrayList<Notification> notifications;
-  int bgColour, textColour, displayNots, notHeight, topOffset, scroll;
+  ArrayList<ArrayList<Notification>> notifications;
+  int bgColour, textColour, displayNots, notHeight, topOffset, scroll, turn;
   Notification lastSelected;
   
-  NotificationManager(int x, int y, int w, int h, int bgColour, int textColour, int displayNots){
+  NotificationManager(int x, int y, int w, int h, int bgColour, int textColour, int displayNots, int turn){
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
+    this.turn = turn;
     this.bgColour = bgColour;
     this.textColour = textColour;
     this.displayNots = displayNots;
     this.notHeight = h/displayNots;
-    this.notifications = new ArrayList<Notification>();
+    this.notifications = new ArrayList<ArrayList<Notification>>();
+    notifications.add(new ArrayList<Notification>());
+    notifications.add(new ArrayList<Notification>());
     this.scroll = 0;
     lastSelected = null;
   }
@@ -29,7 +32,7 @@ class NotificationManager extends Element{
     if (!moveOver()){
       return -1;
     }
-    for (int i=0; i<notifications.size(); i++){
+    for (int i=0; i<notifications.get(turn).size(); i++){
       if (mouseOver(i)){
         return i;
       }
@@ -37,15 +40,19 @@ class NotificationManager extends Element{
     return -1;
   }
   
+  void turnChange(int turn){
+    this.turn = turn;
+    this.scroll = 0;
+  }
   void dismiss(int i){
-    notifications.remove(i);
-    scroll = round(between(0, scroll, notifications.size()-displayNots));
+    notifications.get(turn).remove(i);
+    scroll = round(between(0, scroll, notifications.get(turn).size()-displayNots));
   }
   void post(Notification n){
-    notifications.add(n);
+    notifications.get(turn).add(n);
   }
   void post(String name, int x, int y, int turn){
-    notifications.add(new Notification(name, x, y, turn));
+    notifications.get(turn).add(new Notification(name, x, y, turn));
   }
   
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
@@ -53,7 +60,7 @@ class NotificationManager extends Element{
     if (eventType == "mouseWheel"){
       float count = event.getCount();
       if (moveOver()){
-        scroll = round(between(0, scroll+count, notifications.size()-displayNots));
+        scroll = round(between(0, scroll+count, notifications.get(turn).size()-displayNots));
       }
     }
     return events;
@@ -68,7 +75,7 @@ class NotificationManager extends Element{
           events.add("notification dismissed");
         }
         else{
-          lastSelected = notifications.get(hovering+scroll);
+          lastSelected = notifications.get(turn).get(hovering+scroll);
           events.add("notification selected");
         }
       }
@@ -77,12 +84,11 @@ class NotificationManager extends Element{
   }
   
   boolean empty(){
-    return notifications.size() == 0;
+    return notifications.get(turn).size() == 0;
   }
   
   void draw(){
     if (empty())return;
-    
     pushStyle();
     fill(bgColour);
     rect(x, y, w, h);
@@ -96,7 +102,7 @@ class NotificationManager extends Element{
     text("Notification Manager", x+w/2, y);
     
     int hovering = findMouseOver();
-    for (int i=0; i<min(notifications.size(), displayNots); i++){
+    for (int i=0; i<min(notifications.get(turn).size(), displayNots); i++){
       
       if (hovering == i){
         fill(brighten(bgColour, 20));
@@ -124,13 +130,13 @@ class NotificationManager extends Element{
       fill(textColour);
       textSize(8*TextScale);
       textAlign(LEFT, CENTER);
-      text(notifications.get(i+scroll).name, x+notHeight+5, y+topOffset+i*notHeight+notHeight/2);
+      text(notifications.get(turn).get(i+scroll).name, x+notHeight+5, y+topOffset+i*notHeight+notHeight/2);
       textAlign(RIGHT, CENTER);
-      text("Turn "+notifications.get(i+scroll).turn, x-notHeight+w, y+topOffset+i*notHeight+notHeight/2);
+      text("Turn "+notifications.get(turn).get(i+scroll).turn, x-notHeight+w, y+topOffset+i*notHeight+notHeight/2);
     }
     
     //draw scroll
-    int d = notifications.size() - displayNots;
+    int d = notifications.get(turn).size() - displayNots;
     if (d > 0){
       fill(brighten(bgColour, 100));
       rect(x-20*GUIScale+w, y+topOffset, 20*GUIScale, h-topOffset);

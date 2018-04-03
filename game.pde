@@ -164,7 +164,7 @@ class Game extends State{
   Party splittedParty;
   Game(){
     addElement(".map", new Map(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
-    addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 10));
+    addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 10, turn));
     
     map = (Map)getElement(".map", "default");
     notificationManager = (NotificationManager)getElement("notification manager", "default");
@@ -754,6 +754,8 @@ class Game extends State{
     ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
     rs.updateNet(totals);
     rs.updateStockpile(players[turn].resources);
+    
+    notificationManager.turnChange(turn);
     
     if (turn == 0)
       turnNumber ++;
