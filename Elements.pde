@@ -57,6 +57,15 @@ class NotificationManager extends Element{
     
     int hovering = findMouseOver();
     for (int i=0; i<notifications.size(); i++){
+      
+      if (hovering == i){
+        fill(brighten(bgColour, 20));
+      }
+      else{
+        fill(brighten(bgColour, -10));
+      }
+      rect(x, y+i*notHeight+topOffset, w, notHeight);
+      
       fill(brighten(bgColour, 20));
       if (mouseX<x+notHeight){
         if (hovering == i){
@@ -71,6 +80,9 @@ class NotificationManager extends Element{
       strokeWeight(3);
       line(x+5, y+i*notHeight+topOffset+5, x+notHeight-5, y+(i+1)*notHeight+topOffset-5);
       line(x+notHeight-5, y+i*notHeight+topOffset+5, x+5, y+(i+1)*notHeight+topOffset-5);
+      
+      textSize(8*TextScale);
+      text(notifications.get());
     }
     popStyle();
   }

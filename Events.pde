@@ -1,4 +1,15 @@
 
+class Notification{
+  String name;
+  int x, y, turn;
+  Notification(String name, int x, int y, int turn){
+    this.x = x;
+    this.y = y;
+    this.name = name;
+    this.turn = turn;
+  }
+}
+
 class Event{
   String id, type, panel;
   Event(String id, String panel, String type){
