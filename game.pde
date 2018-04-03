@@ -1458,6 +1458,7 @@ class Game extends State{
     textAlign(CENTER, TOP);
     text("Land Management", cellSelectionX+cellSelectionW/2, cellSelectionY);
     
+    fill(0);
     textAlign(LEFT, TOP);
     float barY = cellSelectionY + 13*TextScale;
     text("Cell Type: "+landTypes[terrain[cellY][cellX]-1], 5+cellSelectionX, barY);
@@ -1473,6 +1474,7 @@ class Game extends State{
     float[] consumption = resourceConsumption(cellX, cellY);
     String pl = resourcesList(production);
     String cl = resourcesList(consumption);
+    fill(0);
     if (!pl.equals("Nothing/Unknown")){
       text("Producing: "+pl, 5+cellSelectionX, barY);
       barY += 13*TextScale;
