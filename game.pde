@@ -162,8 +162,10 @@ class Game extends State{
   float[] totals;
   Party splittedParty;
   Game(){
-    addElement("map", new Map(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
-    map = (Map)getElement("map", "default");
+    addElement(".map", new Map(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
+    addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 10));
+    
+    map = (Map)getElement(".map", "default");
     players = new Player[2];
     totals = new float[resourceNames.length];
     
@@ -175,6 +177,7 @@ class Game extends State{
     addPanel("bottom bar", 0, height-70, width, 70, true, color(150), color(50));
     addPanel("end screen", 0, 0, width, height, false, color(50, 50, 50, 50), color(0));
     addPanel("pause screen", 0, 0, width, height, false, color(50, 50, 50, 50), color(0));
+    
     
     addElement("end game button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2+height/8), (int)(GUIScale*width/8), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "End Game"), "end screen");
     addElement("winner", new Text(width/2, height/2, (int)(TextScale*10), "", color(255), CENTER), "end screen");
@@ -434,6 +437,7 @@ class Game extends State{
     cellSelectionH = round(mapElementHeight);
     getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.15));
     getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.15)+bezel, cellSelectionW, round(cellSelectionH*0.5)-bezel*3);
+    ((NotificationManager)(getElement("notification manager", "default"))).transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.65)-bezel, cellSelectionW, round(cellSelectionH*0.35)-bezel*2);
     ((Button)getElement("move button", "party management")).transform(bezel, round(13*TextScale+bezel), 100, 30);
     ((Slider)getElement("split units", "party management")).transform(round(10*GUIScale+bezel), round(bezel*3+2*TextScale*13), cellSelectionW-2*bezel-round(20*GUIScale),round(TextScale*2*13));
     ((DropDown)getElement("tasks", "party management")).transform(bezel, round(bezel*4+4*TextScale*13), cellSelectionW-2*bezel, 30);
@@ -812,11 +816,11 @@ class Game extends State{
     }
     return true;
   }
-  boolean sufficientResources(float[] available, float[] required, boolean flash){
+  boolean sufficientResources(float[] available, float[] required, boolean flash){ //<>//
     ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
     boolean t = true;
     for (int i=0; i<NUMRESOURCES;i++){
-      if (available[i] < required[i]){ //<>//
+      if (available[i] < required[i]){
         t = false;
         rs.flash(i);
       }
@@ -949,14 +953,14 @@ class Game extends State{
       }
     }
   }
-  void deselectCell(){
+  void deselectCell(){ //<>//
     toolTipSelected = -1;
     cellSelected = false;
-    map.unselectCell();
-    getPanel("land management").setVisible(false); //<>//
+    map.unselectCell(); //<>//
+    getPanel("land management").setVisible(false);
     getPanel("party management").setVisible(false);
     map.cancelMoveNodes();
-    moving = false; //<>//
+    moving = false;
     //map.setWidth(round(width-bezel*2));
     ((Text)getElement("turns remaining", "party management")).setText("");
   }
@@ -1039,11 +1043,11 @@ class Game extends State{
                 map.parties[py][px] = null;
               }
             }
-            map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(movementPoints);
+            map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(movementPoints); //<>//
           } else if (map.parties[path.get(node)[1]][path.get(node)[0]].player == 2){
             // merge cells battle
             int overflow = ((Battle) map.parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, p.getUnitNumber());
-            if(cellFollow){ //<>//
+            if(cellFollow){
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
               stillThere = false;
             }

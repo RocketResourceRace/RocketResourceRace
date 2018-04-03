@@ -1,19 +1,77 @@
 
+
 class NotificationManager extends Element{
   ArrayList<String> notifications;
-  int bgColour, textColour;
-  NotificationManager(int x, int y, int w, int h, int bgColour, int textColour){
+  int bgColour, textColour, displayNots, notHeight, topOffset;
+  NotificationManager(int x, int y, int w, int h, int bgColour, int textColour, int displayNots){
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
     this.bgColour = bgColour;
     this.textColour = textColour;
+    this.displayNots = displayNots;
+    this.notHeight = h/displayNots;
+    this.notifications = new ArrayList<String>();
+    notifications.add("bob");
+  }
+  
+  boolean moveOver(){
+    return mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+yOffset && mouseY <= y+h*notifications.size()+yOffset;
+  }
+  boolean mouseOver(int i){
+    return mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+yOffset+notHeight*i+topOffset && mouseY <= y+notHeight*(i+1)+yOffset+topOffset;
+  }
+  int findMouseOver(){
+    if (!moveOver()){
+      return -1;
+    }
+    for (int i=0; i<notifications.size(); i++){
+      if (mouseOver(i)){
+        return i;
+      }
+    }
+    return -1;
+  }
+  
+  ArrayList<String> mouseEvent(String eventType, int button){
+    ArrayList<String> events = new ArrayList<String>();
+    if (eventType == "mouseMoved"){
+      
+    }
+    return events;
   }
   
   void draw(){
     pushStyle();
+    fill(bgColour);
+    rect(x, y, w, h);
+    textSize(10*TextScale);
+    fill(brighten(bgColour, -50));
+    topOffset = ceil(textAscent()+textDescent());
+    this.notHeight = (h-topOffset)/displayNots;
+    rect(x, y, w, topOffset);
+    fill(textColour);
+    textAlign(CENTER, TOP);
+    text("Notification Manager", x+w/2, y);
     
+    int hovering = findMouseOver();
+    for (int i=0; i<notifications.size(); i++){
+      fill(brighten(bgColour, 20));
+      if (mouseX<x+notHeight){
+        if (hovering == i){
+          fill(brighten(bgColour, 80));
+        }
+        else{
+          fill(brighten(bgColour, -20));
+        }
+      }
+      rect(x, y+i*notHeight+topOffset, notHeight, notHeight);
+      fill(0);
+      strokeWeight(3);
+      line(x+5, y+i*notHeight+topOffset+5, x+notHeight-5, y+(i+1)*notHeight+topOffset-5);
+      line(x+notHeight-5, y+i*notHeight+topOffset+5, x+5, y+(i+1)*notHeight+topOffset-5);
+    }
     popStyle();
   }
 }
