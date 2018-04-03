@@ -2,7 +2,7 @@
 
 class NotificationManager extends Element{
   ArrayList<Notification> notifications;
-  int bgColour, textColour, displayNots, notHeight, topOffset;
+  int bgColour, textColour, displayNots, notHeight, topOffset, scroll;
   NotificationManager(int x, int y, int w, int h, int bgColour, int textColour, int displayNots){
     this.x = x;
     this.y = y;
@@ -13,8 +13,9 @@ class NotificationManager extends Element{
     this.displayNots = displayNots;
     this.notHeight = h/displayNots;
     this.notifications = new ArrayList<Notification>();
-    
-    notifications.add(new Notification("Building finished: sawmill", 50, 40, 2));
+    this.scroll = 1;
+    for(int i=0; i < 12; i++)
+    notifications.add(new Notification("Building finished: sawmill"+i, 50, 40, i));
   }
   
   boolean moveOver(){
@@ -35,10 +36,11 @@ class NotificationManager extends Element{
     return -1;
   }
   
-  ArrayList<String> mouseEvent(String eventType, int button){
+  ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
     ArrayList<String> events = new ArrayList<String>();
-    if (eventType == "mouseMoved"){
-      
+    if (eventType == "mouseWheel"){
+      float count = event.getCount();
+      scroll = round(between(0, scroll+count, notifications.size()-displayNots));
     }
     return events;
   }
@@ -57,7 +59,7 @@ class NotificationManager extends Element{
     text("Notification Manager", x+w/2, y);
     
     int hovering = findMouseOver();
-    for (int i=0; i<notifications.size(); i++){
+    for (int i=0; i<min(notifications.size(), displayNots); i++){
       
       if (hovering == i){
         fill(brighten(bgColour, 20));
@@ -80,12 +82,24 @@ class NotificationManager extends Element{
       strokeWeight(3);
       line(x+5, y+i*notHeight+topOffset+5, x+notHeight-5, y+(i+1)*notHeight+topOffset-5);
       line(x+notHeight-5, y+i*notHeight+topOffset+5, x+5, y+(i+1)*notHeight+topOffset-5);
+      strokeWeight(1);
       
       fill(textColour);
       textSize(8*TextScale);
       textAlign(LEFT, CENTER);
-      text(notifications.get(i).name, x+notHeight+5, y+topOffset+i*notHeight+notHeight/2);
+      text(notifications.get(i+scroll).name, x+notHeight+5, y+topOffset+i*notHeight+notHeight/2);
+      
+      textAlign(RIGHT, CENTER);
+      text("Turn "+notifications.get(i+scroll).turn, x-notHeight+w, y+topOffset+i*notHeight+notHeight/2);
     }
+    
+    //draw scroll
+    int d = notifications.size() - displayNots;
+    if (d > 0){
+      fill(brighten(bgColour, 60));
+      rect(x-notHeight+w, y+(h-topOffset-notHeight)*scroll/d+topOffset, notHeight, notHeight);
+    }
+    
     popStyle();
   }
 }
