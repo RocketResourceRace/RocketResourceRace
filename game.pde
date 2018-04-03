@@ -571,8 +571,9 @@ class Game extends State{
   
   boolean UIHovering(){
    //To avoid doing things while hoving over important stuff
+   NotificationManager nm = ((NotificationManager)(getElement("notification manager", "default")));
    return !((!getPanel("party management").mouseOver() || !getPanel("party management").visible) && (!getPanel("land management").mouseOver() || !getPanel("land management").visible) &&
-   !(((NotificationManager)(getElement("notification manager", "default"))).moveOver()));
+   (!nm.moveOver()||nm.empty()));
   }
   
   void turnChange(){
@@ -815,8 +816,8 @@ class Game extends State{
   }
   void changeTurn(){
     changeTurn = true;
-  }
-  boolean sufficientResources(float[] available, float[] required){ //<>//
+  } //<>//
+  boolean sufficientResources(float[] available, float[] required){
     for (int i=0; i<NUMRESOURCES;i++){
       if (available[i] < required[i]){
         return false;
@@ -952,11 +953,11 @@ class Game extends State{
         }
         else if (event.id == "resume button"){
           getPanel("pause screen").visible = false;
-        }
-      } //<>//
+        } //<>//
+      }
       if (event.type == "valueChanged"){
-        if (event.id == "tasks"){
-          postEvent(new ChangeTask(cellX, cellY, ((DropDown)getElement("tasks", "party management")).getSelected())); //<>//
+        if (event.id == "tasks"){ //<>//
+          postEvent(new ChangeTask(cellX, cellY, ((DropDown)getElement("tasks", "party management")).getSelected()));
         }
       }
     }
@@ -1042,8 +1043,8 @@ class Game extends State{
             }
             if (overflow>0){
               p.setUnitNumber(overflow);
-              map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
-            } else { //<>//
+              map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p; //<>//
+            } else {
               if (splitting){
                 splittedParty = null;
                 splitting = false;

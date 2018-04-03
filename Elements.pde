@@ -68,7 +68,13 @@ class NotificationManager extends Element{
     return events;
   }
   
+  boolean empty(){
+    return notifications.size() == 0;
+  }
+  
   void draw(){
+    if (empty())return;
+    
     pushStyle();
     fill(bgColour);
     rect(x, y, w, h);
