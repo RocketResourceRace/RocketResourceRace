@@ -149,6 +149,7 @@ class Game extends State{
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
+  NotificationManager notificationManager;
   int turn;
   boolean changeTurn = false;
   int winner = -1;
@@ -166,6 +167,7 @@ class Game extends State{
     addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 10));
     
     map = (Map)getElement(".map", "default");
+    notificationManager = (NotificationManager)getElement("notification manager", "default");
     players = new Player[2];
     totals = new float[resourceNames.length];
     
@@ -814,9 +816,9 @@ class Game extends State{
   void changeTurn(){
     changeTurn = true;
   }
-  boolean sufficientResources(float[] available, float[] required){
+  boolean sufficientResources(float[] available, float[] required){ //<>//
     for (int i=0; i<NUMRESOURCES;i++){
-      if (available[i] < required[i]){ //<>//
+      if (available[i] < required[i]){
         return false;
       }
     }
@@ -951,12 +953,12 @@ class Game extends State{
         else if (event.id == "resume button"){
           getPanel("pause screen").visible = false;
         }
-      }
-      if (event.type == "valueChanged"){
-        if (event.id == "tasks"){ //<>//
-          postEvent(new ChangeTask(cellX, cellY, ((DropDown)getElement("tasks", "party management")).getSelected()));
-        }
       } //<>//
+      if (event.type == "valueChanged"){
+        if (event.id == "tasks"){
+          postEvent(new ChangeTask(cellX, cellY, ((DropDown)getElement("tasks", "party management")).getSelected())); //<>//
+        }
+      }
     }
   }
   void deselectCell(){
@@ -1041,9 +1043,9 @@ class Game extends State{
             if (overflow>0){
               p.setUnitNumber(overflow);
               map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
-            } else {
+            } else { //<>//
               if (splitting){
-                splittedParty = null; //<>//
+                splittedParty = null;
                 splitting = false;
               } else{
                 map.parties[py][px] = null;

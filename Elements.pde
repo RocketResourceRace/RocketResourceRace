@@ -14,8 +14,8 @@ class NotificationManager extends Element{
     this.notHeight = h/displayNots;
     this.notifications = new ArrayList<Notification>();
     this.scroll = 1;
-    for(int i=0; i < 12; i++)
-    notifications.add(new Notification("Building finished: sawmill"+i, 50, 40, i));
+    for (int i=0; i<15; i++)
+    post("i"+i, 20, 30, i);
   }
   
   boolean moveOver(){
@@ -36,12 +36,33 @@ class NotificationManager extends Element{
     return -1;
   }
   
+  void dismiss(int i){
+    notifications.remove(i);
+    scroll = round(between(0, scroll, notifications.size()-displayNots));
+  }
+  void post(Notification n){
+    notifications.add(n);
+  }
+  void post(String name, int x, int y, int turn){
+    notifications.add(new Notification(name, x, y, turn));
+  }
+  
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
     ArrayList<String> events = new ArrayList<String>();
     if (eventType == "mouseWheel"){
       float count = event.getCount();
       if (moveOver()){
         scroll = round(between(0, scroll+count, notifications.size()-displayNots));
+      }
+    }
+    return events;
+  }
+  ArrayList<String> mouseEvent(String eventType, int button){
+    ArrayList<String> events = new ArrayList<String>();
+    if (eventType == "mouseClicked"){
+      int hovering = findMouseOver();
+      if (hovering >=0 && mouseX<x+notHeight){
+        dismiss(hovering+scroll);
       }
     }
     return events;
@@ -98,10 +119,11 @@ class NotificationManager extends Element{
     //draw scroll
     int d = notifications.size() - displayNots;
     if (d > 0){
-      fill(brighten(bgColour, 60));
-      rect(x-notHeight+w, y+(h-topOffset-notHeight)*scroll/d+topOffset, notHeight, notHeight);
+      fill(brighten(bgColour, 100));
+      rect(x-20*GUIScale+w, y+topOffset, 20*GUIScale, h-topOffset);
+      fill(brighten(bgColour, -20));
+      rect(x-20*GUIScale+w, y+(h-topOffset-notHeight)*scroll/d+topOffset, 20*GUIScale, notHeight);
     }
-    
     popStyle();
   }
 }
