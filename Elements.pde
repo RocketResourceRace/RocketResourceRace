@@ -19,7 +19,7 @@ class NotificationManager extends Element{
   }
   
   boolean moveOver(){
-    return mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+yOffset && mouseY <= y+h*notifications.size()+yOffset;
+    return mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+yOffset && mouseY <= y+h+yOffset;
   }
   boolean mouseOver(int i){
     return mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+yOffset+notHeight*i+topOffset && mouseY <= y+notHeight*(i+1)+yOffset+topOffset;
@@ -122,7 +122,7 @@ class NotificationManager extends Element{
       fill(brighten(bgColour, 100));
       rect(x-20*GUIScale+w, y+topOffset, 20*GUIScale, h-topOffset);
       fill(brighten(bgColour, -20));
-      rect(x-20*GUIScale+w, y+(h-topOffset-notHeight)*scroll/d+topOffset, 20*GUIScale, notHeight);
+      rect(x-20*GUIScale+w, y+(h-topOffset-(h-topOffset)/(d+1))*scroll/d+topOffset, 20*GUIScale, (h-topOffset)/(d+1));
     }
     popStyle();
   }
