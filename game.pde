@@ -1134,7 +1134,7 @@ class Game extends State{
         }
       }
       if (eventType == "mouseReleased"){
-        if (parties[cellY][cellX].player == turn){
+        if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn){
           if (moving){
             int x = floor(map.scaleXInv(mouseX));
             int y = floor(map.scaleYInv(mouseY));
