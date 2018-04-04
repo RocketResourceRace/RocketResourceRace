@@ -1129,7 +1129,6 @@ class Game extends State{
         break;
       }
       if (tx==px&&ty==py){
-        notificationManager.post("Party Arrived", px, py, turnNumber, turn);
         p.path = null;
       }
     }
