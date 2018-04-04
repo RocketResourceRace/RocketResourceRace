@@ -51,10 +51,10 @@ class NotificationManager extends Element{
     scroll = round(between(0, scroll, notifications.get(turn).size()-displayNots));
   }
   void post(Notification n, int turn){
-    notifications.get(turn).add(n);
+    notifications.get(turn).add(0, n);
   }
   void post(String name, int x, int y, int turnNum, int turn){
-    notifications.get(turn).add(new Notification(name, x, y, turnNum));
+    notifications.get(turn).add(0, new Notification(name, x, y, turnNum));
   }
   
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
