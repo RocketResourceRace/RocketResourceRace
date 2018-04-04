@@ -548,6 +548,9 @@ class Button extends Element{
     this.text = text;
     setLines(text);
   }
+  void setColour(int colour){
+    this.bgColour = colour;
+  }
   String getText(){
     return this.text;
   }

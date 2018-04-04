@@ -424,13 +424,31 @@ class Game extends State{
       }
       checkTasks();
     }
-    if (!changeTurn && valid){
-      this.totals = totalResources();
-      ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
-      rs.updateNet(totals);
-      rs.updateStockpile(players[turn].resources);
+    if (valid){
+      if (!changeTurn){
+        this.totals = totalResources();
+        ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
+        rs.updateNet(totals);
+        rs.updateStockpile(players[turn].resources);
+      }
+      if (anyIdle(turn)){
+        ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
+      }
+      else{
+        ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
+      }
     }
     return valid;
+  }
+  boolean anyIdle(int turn){
+    for (int x=0; x<mapWidth; x++){
+      for (int y=0; y<mapWidth; y++){
+        if (parties[y][x] != null && parties[y][x].player == turn && isIdle(x, y)){
+          return true;
+        }
+      }
+    }
+    return false;
   }
   void updateCellSelection(){
     cellSelectionX = round((width-400-bezel*2)/GUIScale)+bezel*2;     
@@ -808,7 +826,7 @@ class Game extends State{
     }
     drawPanels();
     if(players[0].resources[ROCKET_PROGRESS]!=-1||players[1].resources[ROCKET_PROGRESS]!=-1){
-      drawRocketProgressBar();
+      drawRocketProgressBar(); //<>//
     }
     if (cellSelected){
       drawCellManagement();
@@ -858,7 +876,7 @@ class Game extends State{
   }
   void spendRes(Player player, float[] required){
     for (int i=0; i<NUMRESOURCES;i++){
-      player.resources[i] -= required[i];
+      player.resources[i] -= required[i]; //<>//
     }
   }
   void reclaimRes(Player player, float[] required){
@@ -915,28 +933,43 @@ class Game extends State{
   void clearPrevIdle(){
     prevIdle.clear();
   }
+  boolean isIdle(int x, int y){
+    return (parties[y][x].task == "Rest" && canMove(x, y));
+  }
   
   int[] findIdle(int player){
+    int[] backup = {-1, -1};
     for (int y=0; y<mapHeight; y++){
       for (int x=0; x<mapWidth; x++){
-        if (parties[y][x] != null && parties[y][x].player == player && (parties[y][x].task == "Rest" && !inPrevIdle(x, y))){
-          prevIdle.add(new Integer[]{x, y});
-          println(x, y);
-          return new int[]{x, y};
+        if (parties[y][x] != null && parties[y][x].player == player && isIdle(x, y)){
+          if (inPrevIdle(x, y)){
+            backup = new int[]{x, y};
+          }
+          else{
+            prevIdle.add(new Integer[]{x, y});
+            return new int[]{x, y};
+          }
         }
       }
     }
     clearPrevIdle();
-    return findIdle(player);
+    if (backup[0] == -1){
+      return backup;
+    }
+    else{
+      return findIdle(player);
+    }
   }
   
   void elementEvent(ArrayList<Event> events){
     for (Event event : events){
-      if (event.type == "clicked"){
+      if (event.type == "clicked"){ //<>//
         if (event.id == "idle party finder"){
           int[] t = findIdle(turn);
-          selectCell(t[0], t[1], false);
-          map.targetCell(t[0], t[1], 64);
+          if (t[0] != -1){ //<>//
+            selectCell(t[0], t[1], false);
+            map.targetCell(t[0], t[1], 64);
+          }
         }
         else if (event.id == "end turn"){
           postEvent(new EndTurn());
@@ -997,10 +1030,10 @@ class Game extends State{
     moving = false;
     //map.setWidth(round(width-bezel*2));
     ((Text)getElement("turns remaining", "party management")).setText("");
-  }
+  } //<>//
   
   void moveParty(int px, int py){
-    moveParty(px, py, false);
+    moveParty(px, py, false); //<>//
   }
   
   void moveParty(int px, int py, boolean splitting){
@@ -1020,7 +1053,7 @@ class Game extends State{
       return;
     int tx = p.target[0];
     int ty = p.target[1];
-    if (px == tx && py == ty){
+    if (px == tx && py == ty){ //<>//
       if (splitting){
         if(parties[py][px] == null){
           parties[py][px] = p;
@@ -1091,7 +1124,7 @@ class Game extends State{
               p.setUnitNumber(overflow);
               map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
             } else {
-              if (splitting){
+              if (splitting){ //<>//
                 splittedParty = null;
                 splitting = false;
               } else{
@@ -1655,6 +1688,13 @@ class Game extends State{
     rs.updateNet(totals);
     rs.updateStockpile(players[turn].resources);
     getPanel("pause screen").visible = false;
+    
+    if (anyIdle(turn)){
+      ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
+    }
+    else{
+      ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
+    }
   }
   int cost(int x, int y, int prevX, int prevY){
     float mult = 1;
