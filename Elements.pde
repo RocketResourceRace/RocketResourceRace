@@ -4,6 +4,7 @@ class NotificationManager extends Element{
   ArrayList<ArrayList<Notification>> notifications;
   int bgColour, textColour, displayNots, notHeight, topOffset, scroll, turn;
   Notification lastSelected;
+  boolean scrolling;
   
   NotificationManager(int x, int y, int w, int h, int bgColour, int textColour, int displayNots, int turn){
     this.x = x;
@@ -20,6 +21,7 @@ class NotificationManager extends Element{
     notifications.add(new ArrayList<Notification>());
     this.scroll = 0;
     lastSelected = null;
+    scrolling = false;
   }
   
   boolean moveOver(){
@@ -60,13 +62,28 @@ class NotificationManager extends Element{
     if (eventType == "mouseWheel"){
       float count = event.getCount();
       if (moveOver()){
-        scroll = round(between(0, scroll+count, notifications.get(turn).size()-displayNots));
+        scroll = round(between(0, (mouseY-y-topOffset)*(notifications.get(turn).size()-displayNots+1)/(h-topOffset), notifications.get(turn).size()-displayNots));
       }
     }
     return events;
   }
   ArrayList<String> mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
+    if (eventType == "mousePressed"){
+      if (moveOver() && mouseX>x+w-20*GUIScale && mouseY > topOffset && notifications.get(turn).size() > displayNots){
+        scrolling = true;
+        scroll = round(between(0, (mouseY-y-topOffset)*(notifications.get(turn).size()-displayNots+1)/(h-topOffset), notifications.get(turn).size()-displayNots));
+      }
+      else{
+        scrolling = false;
+      }
+    }
+    if (eventType == "mouseDragged"){
+      if (scrolling && notifications.get(turn).size() > displayNots){
+        scroll = round(between(0, (mouseY-y-topOffset)*(notifications.get(turn).size()-displayNots+1)/(h-topOffset), notifications.get(turn).size()-displayNots));
+      }
+      
+    }
     if (eventType == "mouseClicked"){
       int hovering = findMouseOver();
       if (hovering >=0){
