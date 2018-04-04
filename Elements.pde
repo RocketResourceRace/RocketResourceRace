@@ -41,6 +41,9 @@ class NotificationManager extends Element{
     }
     return -1;
   }
+  boolean hoveringDismissAll(){
+    return x<mouseX&&mouseX<x+notHeight&&y<mouseY&&mouseY<y+topOffset; 
+  }
   
   void turnChange(int turn){
     this.turn = turn;
@@ -49,6 +52,9 @@ class NotificationManager extends Element{
   void dismiss(int i){
     notifications.get(turn).remove(i);
     scroll = round(between(0, scroll, notifications.get(turn).size()-displayNots));
+  }
+  void dismissAll(){
+    notifications.get(turn).clear();
   }
   void post(Notification n, int turn){
     notifications.get(turn).add(0, n);
@@ -96,6 +102,9 @@ class NotificationManager extends Element{
           events.add("notification selected");
         }
       }
+      else if (mouseX<x+notHeight && hoveringDismissAll()){
+        dismissAll();
+      }
     }
     return events;
   }
@@ -117,6 +126,18 @@ class NotificationManager extends Element{
     fill(textColour);
     textAlign(CENTER, TOP);
     text("Notification Manager", x+w/2, y);
+    
+    if (hoveringDismissAll()){
+      fill(brighten(bgColour, 80));
+    }
+    else{
+      fill(brighten(bgColour, -20));
+    }
+    rect(x, y, notHeight, topOffset);
+    strokeWeight(3);
+    line(x+5, y+5, x+notHeight-5, y+topOffset-5);
+    line(x+notHeight-5, y+5, x+5, y+topOffset-5);
+    strokeWeight(1);
     
     int hovering = findMouseOver();
     for (int i=0; i<min(notifications.get(turn).size(), displayNots); i++){
