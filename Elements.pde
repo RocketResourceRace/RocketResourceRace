@@ -91,7 +91,7 @@ class NotificationManager extends Element{
           dismiss(hovering+scroll);
           events.add("notification dismissed");
         }
-        else{
+        else if (!(notifications.get(turn).size() > displayNots) || !(mouseX>x+w-20*GUIScale)){
           lastSelected = notifications.get(turn).get(hovering+scroll);
           events.add("notification selected");
         }
