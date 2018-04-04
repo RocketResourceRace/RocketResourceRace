@@ -62,7 +62,7 @@ class NotificationManager extends Element{
     if (eventType == "mouseWheel"){
       float count = event.getCount();
       if (moveOver()){
-        scroll = round(between(0, (mouseY-y-topOffset)*(notifications.get(turn).size()-displayNots+1)/(h-topOffset), notifications.get(turn).size()-displayNots));
+        scroll = round(between(0, scroll+count, notifications.get(turn).size()-displayNots));
       }
     }
     return events;
