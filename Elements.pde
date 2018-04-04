@@ -1,5 +1,192 @@
 
 
+class NotificationManager extends Element{
+  ArrayList<ArrayList<Notification>> notifications;
+  int bgColour, textColour, displayNots, notHeight, topOffset, scroll, turn;
+  Notification lastSelected;
+  boolean scrolling;
+  
+  NotificationManager(int x, int y, int w, int h, int bgColour, int textColour, int displayNots, int turn){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.turn = turn;
+    this.bgColour = bgColour;
+    this.textColour = textColour;
+    this.displayNots = displayNots;
+    this.notHeight = h/displayNots;
+    this.notifications = new ArrayList<ArrayList<Notification>>();
+    notifications.add(new ArrayList<Notification>());
+    notifications.add(new ArrayList<Notification>());
+    this.scroll = 0;
+    lastSelected = null;
+    scrolling = false;
+  }
+  
+  boolean moveOver(){
+    return mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+yOffset && mouseY <= y+h+yOffset;
+  }
+  boolean mouseOver(int i){
+    return mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+yOffset+notHeight*i+topOffset && mouseY <= y+notHeight*(i+1)+yOffset+topOffset;
+  }
+  int findMouseOver(){
+    if (!moveOver()){
+      return -1;
+    }
+    for (int i=0; i<notifications.get(turn).size(); i++){
+      if (mouseOver(i)){
+        return i;
+      }
+    }
+    return -1;
+  }
+  boolean hoveringDismissAll(){
+    return x<mouseX&&mouseX<x+notHeight&&y<mouseY&&mouseY<y+topOffset; 
+  }
+  
+  void turnChange(int turn){
+    this.turn = turn;
+    this.scroll = 0;
+  }
+  void dismiss(int i){
+    notifications.get(turn).remove(i);
+    scroll = round(between(0, scroll, notifications.get(turn).size()-displayNots));
+  }
+  void dismissAll(){
+    notifications.get(turn).clear();
+  }
+  void post(Notification n, int turn){
+    notifications.get(turn).add(0, n);
+  }
+  void post(String name, int x, int y, int turnNum, int turn){
+    notifications.get(turn).add(0, new Notification(name, x, y, turnNum));
+  }
+  
+  ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
+    ArrayList<String> events = new ArrayList<String>();
+    if (eventType == "mouseWheel"){
+      float count = event.getCount();
+      if (moveOver()){
+        scroll = round(between(0, scroll+count, notifications.get(turn).size()-displayNots));
+      }
+    }
+    return events;
+  }
+  ArrayList<String> mouseEvent(String eventType, int button){
+    ArrayList<String> events = new ArrayList<String>();
+    if (eventType == "mousePressed"){
+      if (moveOver() && mouseX>x+w-20*GUIScale && mouseY > topOffset && notifications.get(turn).size() > displayNots){
+        scrolling = true;
+        scroll = round(between(0, (mouseY-y-topOffset)*(notifications.get(turn).size()-displayNots+1)/(h-topOffset), notifications.get(turn).size()-displayNots));
+      }
+      else{
+        scrolling = false;
+      }
+    }
+    if (eventType == "mouseDragged"){
+      if (scrolling && notifications.get(turn).size() > displayNots){
+        scroll = round(between(0, (mouseY-y-topOffset)*(notifications.get(turn).size()-displayNots+1)/(h-topOffset), notifications.get(turn).size()-displayNots));
+      }
+      
+    }
+    if (eventType == "mouseClicked"){
+      int hovering = findMouseOver();
+      if (hovering >=0){
+        if (mouseX<x+notHeight){
+          dismiss(hovering+scroll);
+          events.add("notification dismissed");
+        }
+        else if (!(notifications.get(turn).size() > displayNots) || !(mouseX>x+w-20*GUIScale)){
+          lastSelected = notifications.get(turn).get(hovering+scroll);
+          events.add("notification selected");
+        }
+      }
+      else if (mouseX<x+notHeight && hoveringDismissAll()){
+        dismissAll();
+      }
+    }
+    return events;
+  }
+  
+  boolean empty(){
+    return notifications.get(turn).size() == 0;
+  }
+  
+  void draw(){
+    if (empty())return;
+    pushStyle();
+    fill(bgColour);
+    rect(x, y, w, h);
+    textSize(10*TextScale);
+    fill(brighten(bgColour, -50));
+    topOffset = ceil(textAscent()+textDescent());
+    this.notHeight = (h-topOffset)/displayNots;
+    rect(x, y, w, topOffset);
+    fill(textColour);
+    textAlign(CENTER, TOP);
+    text("Notification Manager", x+w/2, y);
+    
+    if (hoveringDismissAll()){
+      fill(brighten(bgColour, 80));
+    }
+    else{
+      fill(brighten(bgColour, -20));
+    }
+    rect(x, y, notHeight, topOffset);
+    strokeWeight(3);
+    line(x+5, y+5, x+notHeight-5, y+topOffset-5);
+    line(x+notHeight-5, y+5, x+5, y+topOffset-5);
+    strokeWeight(1);
+    
+    int hovering = findMouseOver();
+    for (int i=0; i<min(notifications.get(turn).size(), displayNots); i++){
+      
+      if (hovering == i){
+        fill(brighten(bgColour, 20));
+      }
+      else{
+        fill(brighten(bgColour, -10));
+      }
+      rect(x, y+i*notHeight+topOffset, w, notHeight);
+      
+      fill(brighten(bgColour, -20));
+      if (mouseX<x+notHeight){
+        if (hovering == i){
+          fill(brighten(bgColour, 80));
+        }
+        else{
+          fill(brighten(bgColour, -20));
+        }
+      }
+      rect(x, y+i*notHeight+topOffset, notHeight, notHeight);
+      strokeWeight(3);
+      line(x+5, y+i*notHeight+topOffset+5, x+notHeight-5, y+(i+1)*notHeight+topOffset-5);
+      line(x+notHeight-5, y+i*notHeight+topOffset+5, x+5, y+(i+1)*notHeight+topOffset-5);
+      strokeWeight(1);
+      
+      fill(textColour);
+      textSize(8*TextScale);
+      textAlign(LEFT, CENTER);
+      text(notifications.get(turn).get(i+scroll).name, x+notHeight+5, y+topOffset+i*notHeight+notHeight/2);
+      textAlign(RIGHT, CENTER);
+      text("Turn "+notifications.get(turn).get(i+scroll).turn, x-notHeight+w, y+topOffset+i*notHeight+notHeight/2);
+    }
+    
+    //draw scroll
+    int d = notifications.get(turn).size() - displayNots;
+    if (d > 0){
+      fill(brighten(bgColour, 100));
+      rect(x-20*GUIScale+w, y+topOffset, 20*GUIScale, h-topOffset);
+      fill(brighten(bgColour, -20));
+      rect(x-20*GUIScale+w, y+(h-topOffset-(h-topOffset)/(d+1))*scroll/d+topOffset, 20*GUIScale, (h-topOffset)/(d+1));
+    }
+    popStyle();
+  }
+}
+
+
+
 class TextBox extends Element{
   int textSize, bgColour, textColour;
   String text;
@@ -362,6 +549,9 @@ class Button extends Element{
   void setText(String text){
     this.text = text;
     setLines(text);
+  }
+  void setColour(int colour){
+    this.bgColour = colour;
   }
   String getText(){
     return this.text;

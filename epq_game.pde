@@ -37,6 +37,10 @@ color brighten(color old, int off){
   return color(between(0, red(old)+off, 255), between(0, green(old)+off, 255), between(0, blue(old)+off, 255));
 }
 
+String roundDp(String val, int dps){
+  return (new BigDecimal(""+val).divide(new BigDecimal("1"), dps, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
+}
+
 void doubleClick(){
   if (millis() - lastClickTime < DOUBLECLICKWAIT){
     mouseEvent("mouseDoubleClicked", mouseButton);

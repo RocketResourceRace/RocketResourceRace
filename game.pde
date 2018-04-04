@@ -3,8 +3,8 @@ class Game extends State{
   final int buttonW = 120;
   final int buttonH = 50;
   final int bezel = 10;
-  final int mapElementWidth = round(width-bezel*2);
-  final int mapElementHeight = round(height-bezel*4-buttonH);
+  final int mapElementWidth = round(width);
+  final int mapElementHeight = round(height-bezel*2-buttonH);
   final int[] terrainCosts = new int[]{16, 12, 8, 12, 28};
   final int MOVEMENTPOINTS = 64;
   final int DEFENDCOST = 32;
@@ -149,6 +149,7 @@ class Game extends State{
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
+  NotificationManager notificationManager;
   int turn;
   boolean changeTurn = false;
   int winner = -1;
@@ -162,8 +163,11 @@ class Game extends State{
   float[] totals;
   Party splittedParty;
   Game(){
-    addElement("map", new Map(bezel, bezel, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
-    map = (Map)getElement("map", "default");
+    addElement(".map", new Map(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
+    addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 10, turn));
+    
+    map = (Map)getElement(".map", "default");
+    notificationManager = (NotificationManager)getElement("notification manager", "default");
     players = new Player[2];
     totals = new float[resourceNames.length];
     
@@ -175,6 +179,7 @@ class Game extends State{
     addPanel("bottom bar", 0, height-70, width, 70, true, color(150), color(50));
     addPanel("end screen", 0, 0, width, height, false, color(50, 50, 50, 50), color(0));
     addPanel("pause screen", 0, 0, width, height, false, color(50, 50, 50, 50), color(0));
+    
     
     addElement("end game button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2+height/8), (int)(GUIScale*width/8), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "End Game"), "end screen");
     addElement("winner", new Text(width/2, height/2, (int)(TextScale*10), "", color(255), CENTER), "end screen");
@@ -419,21 +424,40 @@ class Game extends State{
       }
       checkTasks();
     }
-    if (!changeTurn && valid){
-      this.totals = totalResources();
-      ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
-      rs.updateNet(totals);
-      rs.updateStockpile(players[turn].resources);
+    if (valid){
+      if (!changeTurn){
+        this.totals = totalResources();
+        ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
+        rs.updateNet(totals);
+        rs.updateStockpile(players[turn].resources);
+      }
+      if (anyIdle(turn)){
+        ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
+      }
+      else{
+        ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
+      }
     }
     return valid;
+  }
+  boolean anyIdle(int turn){
+    for (int x=0; x<mapWidth; x++){
+      for (int y=0; y<mapWidth; y++){
+        if (parties[y][x] != null && parties[y][x].player == turn && isIdle(x, y)){
+          return true;
+        }
+      }
+    }
+    return false;
   }
   void updateCellSelection(){
     cellSelectionX = round((width-400-bezel*2)/GUIScale)+bezel*2;     
     cellSelectionY = bezel*2;
     cellSelectionW = width-cellSelectionX-bezel*2;
     cellSelectionH = round(mapElementHeight);
-    getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.3));
-    getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.3)+bezel, cellSelectionW, round(cellSelectionH*0.7)-bezel*3);
+    getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.15));
+    getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.15)+bezel, cellSelectionW, round(cellSelectionH*0.5)-bezel*3);
+    ((NotificationManager)(getElement("notification manager", "default"))).transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.65)-bezel, cellSelectionW, round(cellSelectionH*0.35)-bezel*2);
     ((Button)getElement("move button", "party management")).transform(bezel, round(13*TextScale+bezel), 100, 30);
     ((Slider)getElement("split units", "party management")).transform(round(10*GUIScale+bezel), round(bezel*3+2*TextScale*13), cellSelectionW-2*bezel-round(20*GUIScale),round(TextScale*2*13));
     ((DropDown)getElement("tasks", "party management")).transform(bezel, round(bezel*4+4*TextScale*13), cellSelectionW-2*bezel, 30);
@@ -563,6 +587,13 @@ class Game extends State{
     }
   }
   
+  boolean UIHovering(){
+   //To avoid doing things while hoving over important stuff
+   NotificationManager nm = ((NotificationManager)(getElement("notification manager", "default")));
+   return !((!getPanel("party management").mouseOver() || !getPanel("party management").visible) && (!getPanel("land management").mouseOver() || !getPanel("land management").visible) &&
+   (!nm.moveOver()||nm.empty()));
+  }
+  
   void turnChange(){
     float[] totalResourceRequirements = new float[NUMRESOURCES];
     for (int y=0; y<mapHeight; y++){
@@ -582,33 +613,43 @@ class Game extends State{
               case "Clear Forest":
                 map.terrain[y][x] = GRASS;
                 players[turn].resources[WOOD]+=100;
+                notificationManager.post("Forest Cleared", x, y, turnNumber, turn);
                 break;
               case "Build Farm":
                 map.buildings[y][x] = new Building(FARM);
+                notificationManager.post("Farm Built", x, y, turnNumber, turn);
                 break;
               case "Build Sawmill":
                 map.buildings[y][x] = new Building(SAWMILL);
+                notificationManager.post("Sawmill Built", x, y, turnNumber, turn);
                 break;
               case "Build Homes":
                 map.buildings[y][x] = new Building(HOMES);
+                notificationManager.post("Homes Built", x, y, turnNumber, turn);
                 break;
               case "Build Factory":
                 map.buildings[y][x] = new Building(FACTORY);
+                notificationManager.post("Factory Built", x, y, turnNumber, turn);
                 break;
               case "Build Mine":
                 map.buildings[y][x] = new Building(MINE);
+                notificationManager.post("Mine Built", x, y, turnNumber, turn);
                 break;
               case "Build Smelter":
                 map.buildings[y][x] = new Building(SMELTER);
+                notificationManager.post("Smelter Built", x, y, turnNumber, turn);
                 break;
               case "Build Rocket Factory":
                 map.buildings[y][x] = new Building(ROCKET_FACTORY);
+                notificationManager.post("Rocket Factory Built", x, y, turnNumber, turn);
                 break;
               case "Build Big Factory":
                 map.buildings[y][x] = new Building(BIG_FACTORY);
+                notificationManager.post("Big Factory Built", x, y, turnNumber, turn);
                 break;
               case "Demolish":
                 reclaimRes(players[turn], buildingCosts[5]);
+                notificationManager.post("Building Demolished", x, y, turnNumber, turn);
                 map.buildings[y][x] = null;
                 break;
               case "Construction Mid":
@@ -674,8 +715,15 @@ class Game extends State{
                     }
                   } else if(resourceAmountsAvailable[0]<1){
                     map.parties[y][x].setUnitNumber(floor(map.parties[y][x].getUnitNumber()-(1-resourceAmountsAvailable[0])*taskOutcomes[task][resource]*map.parties[y][x].getUnitNumber()));
+                    if (map.parties[y][x].getUnitNumber() == 0)
+                      notificationManager.post("Party Starved", x, y, turnNumber, turn);
+                    else
+                      notificationManager.post("Party Starving", x, y, turnNumber, turn);
                   } else{
                     map.parties[y][x].setUnitNumber(ceil(map.parties[y][x].getUnitNumber()+taskOutcomes[task][resource]*(float)map.parties[y][x].getUnitNumber()));
+                    if (map.parties[y][x].getUnitNumber() == 1000){
+                      notificationManager.post("Party Full", x, y, turnNumber, turn);
+                    }
                   }
                   
                 }
@@ -694,6 +742,7 @@ class Game extends State{
         for (int x=0; x<mapWidth; x++){
           if (map.parties[y][x] != null){
             if (map.parties[y][x].player == turn){
+              notificationManager.post("Rocket Produced", x, y, turnNumber, turn);
               if(map.parties[y][x].getTask()=="Produce Rocket"){
                 map.parties[y][x].changeTask("Rest");
                 map.buildings[y][x].image_id=1;
@@ -732,6 +781,8 @@ class Game extends State{
     rs.updateNet(totals);
     rs.updateStockpile(players[turn].resources);
     
+    notificationManager.turnChange(turn);
+    
     if (turn == 0)
       turnNumber ++;
   }
@@ -769,12 +820,13 @@ class Game extends State{
   }
   
   String update(){
+    background(100);
     if (changeTurn){  
       turnChange();
     }
     drawPanels();
     if(players[0].resources[ROCKET_PROGRESS]!=-1||players[1].resources[ROCKET_PROGRESS]!=-1){
-      drawRocketProgressBar();
+      drawRocketProgressBar(); //<>//
     }
     if (cellSelected){
       drawCellManagement();
@@ -792,7 +844,7 @@ class Game extends State{
   void partyMovementPointsReset(){
     for (int y=0; y<mapHeight; y++){
       for (int x=0; x<mapWidth; x++){
-        if (map.parties[y][x] != null){
+        if (map.parties[y][x] != null){ //<>//
           if (map.parties[y][x].player != 2){
             map.parties[y][x].setMovementPoints(MOVEMENTPOINTS);
           }
@@ -816,7 +868,7 @@ class Game extends State{
     boolean t = true;
     for (int i=0; i<NUMRESOURCES;i++){
       if (available[i] < required[i]){
-        t = false; //<>//
+        t = false;
         rs.flash(i);
       }
     }
@@ -824,7 +876,7 @@ class Game extends State{
   }
   void spendRes(Player player, float[] required){
     for (int i=0; i<NUMRESOURCES;i++){
-      player.resources[i] -= required[i];
+      player.resources[i] -= required[i]; //<>//
     }
   }
   void reclaimRes(Player player, float[] required){
@@ -881,28 +933,43 @@ class Game extends State{
   void clearPrevIdle(){
     prevIdle.clear();
   }
+  boolean isIdle(int x, int y){
+    return (parties[y][x].task == "Rest" && canMove(x, y));
+  }
   
   int[] findIdle(int player){
+    int[] backup = {-1, -1};
     for (int y=0; y<mapHeight; y++){
       for (int x=0; x<mapWidth; x++){
-        if (parties[y][x] != null && parties[y][x].player == player && (parties[y][x].task == "Rest" && !inPrevIdle(x, y))){
-          prevIdle.add(new Integer[]{x, y});
-          println(x, y);
-          return new int[]{x, y};
+        if (parties[y][x] != null && parties[y][x].player == player && isIdle(x, y)){
+          if (inPrevIdle(x, y)){
+            backup = new int[]{x, y};
+          }
+          else{
+            prevIdle.add(new Integer[]{x, y});
+            return new int[]{x, y};
+          }
         }
       }
     }
     clearPrevIdle();
-    return findIdle(player);
+    if (backup[0] == -1){
+      return backup;
+    }
+    else{
+      return findIdle(player);
+    }
   }
   
   void elementEvent(ArrayList<Event> events){
     for (Event event : events){
-      if (event.type == "clicked"){
+      if (event.type == "clicked"){ //<>//
         if (event.id == "idle party finder"){
           int[] t = findIdle(turn);
-          selectCell(t[0], t[1], false);
-          map.targetCell(t[0], t[1], 64);
+          if (t[0] != -1){ //<>//
+            selectCell(t[0], t[1], false);
+            map.targetCell(t[0], t[1], 64);
+          }
         }
         else if (event.id == "end turn"){
           postEvent(new EndTurn());
@@ -929,10 +996,10 @@ class Game extends State{
             b.setText(">");
         }
         else if (event.id == "end game button"){
-          newState = "menu";
+          newState = "menu"; //<>//
         }
         else if (event.id == "main menu button"){
-          newState = "menu";
+          newState = "menu"; //<>//
         }
         else if (event.id == "desktop button"){
           exit();
@@ -946,6 +1013,11 @@ class Game extends State{
           postEvent(new ChangeTask(cellX, cellY, ((DropDown)getElement("tasks", "party management")).getSelected()));
         }
       }
+      if (event.type == "notification selected"){
+        int x = notificationManager.lastSelected.x, y = notificationManager.lastSelected.y;
+        map.targetCell(x, y, 100);
+        selectCell(x, y, false);
+      }
     }
   }
   void deselectCell(){
@@ -953,15 +1025,15 @@ class Game extends State{
     cellSelected = false;
     map.unselectCell();
     getPanel("land management").setVisible(false);
-    getPanel("party management").setVisible(false); //<>//
+    getPanel("party management").setVisible(false);
     map.cancelMoveNodes();
     moving = false;
-    //map.setWidth(round(width-bezel*2)); //<>//
+    //map.setWidth(round(width-bezel*2));
     ((Text)getElement("turns remaining", "party management")).setText("");
-  }
+  } //<>//
   
   void moveParty(int px, int py){
-    moveParty(px, py, false);
+    moveParty(px, py, false); //<>//
   }
   
   void moveParty(int px, int py, boolean splitting){
@@ -981,7 +1053,7 @@ class Game extends State{
       return;
     int tx = p.target[0];
     int ty = p.target[1];
-    if (px == tx && py == ty){
+    if (px == tx && py == ty){ //<>//
       if (splitting){
         if(parties[py][px] == null){
           parties[py][px] = p;
@@ -1014,13 +1086,14 @@ class Game extends State{
           p = map.parties[py][px];
           if (!moved){
             p.moved();
-            moved = true;
+            moved = true; //<>//
           }
         }
         else if(path.get(node)[0] != px || path.get(node)[1] != py){
           p.clearPath();
           if (map.parties[path.get(node)[1]][path.get(node)[0]].player == turn){
             // merge cells
+            notificationManager.post("Parties Merged", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
             int movementPoints = min(map.parties[path.get(node)[1]][path.get(node)[0]].getMovementPoints(), p.getMovementPoints()-cost);
             int overflow = map.parties[path.get(node)[1]][path.get(node)[0]].changeUnitNumber(p.getUnitNumber());
             if(cellFollow){
@@ -1041,16 +1114,17 @@ class Game extends State{
             map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(movementPoints);
           } else if (map.parties[path.get(node)[1]][path.get(node)[0]].player == 2){
             // merge cells battle
+            notificationManager.post("Battle Reinforced", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
             int overflow = ((Battle) map.parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, p.getUnitNumber());
             if(cellFollow){
-              selectCell((int)path.get(node)[0], (int)path.get(node)[1], false); //<>//
+              selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
               stillThere = false;
             }
             if (overflow>0){
               p.setUnitNumber(overflow);
               map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
             } else {
-              if (splitting){
+              if (splitting){ //<>//
                 splittedParty = null;
                 splitting = false;
               } else{
@@ -1060,6 +1134,8 @@ class Game extends State{
             }
           }
           else{
+            notificationManager.post("Battle Started", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
+            notificationManager.post("Battle Started", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, map.parties[path.get(node)[1]][path.get(node)[0]].player);
             p.subMovementPoints(cost);
             map.parties[path.get(node)[1]][path.get(node)[0]] = new Battle(p, map.parties[path.get(node)[1]][path.get(node)[0]]);
             map.parties[path.get(node)[1]][path.get(node)[0]] = ((Battle)map.parties[path.get(node)[1]][path.get(node)[0]]).doBattle();
@@ -1119,7 +1195,7 @@ class Game extends State{
   ArrayList<String> mouseEvent(String eventType, int button){
     if (button == RIGHT){
       if (eventType == "mousePressed"){
-        if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn && cellSelected){
+        if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn && cellSelected && !UIHovering()){
           if (map.mouseOver()){
             if (moving){
               map.cancelPath();
@@ -1134,7 +1210,7 @@ class Game extends State{
         }
       }
       if (eventType == "mouseReleased"){
-        if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn){
+        if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn && !UIHovering()){
           if (moving){
             int x = floor(map.scaleXInv(mouseX));
             int y = floor(map.scaleYInv(mouseY));
@@ -1148,7 +1224,7 @@ class Game extends State{
     }
     if (button == LEFT){
       if (eventType == "mouseClicked"){
-        if (activePanel == "default" && ((!getPanel("party management").mouseOver() || !getPanel("party management").visible) && (!getPanel("land management").mouseOver() || !getPanel("land management").visible))){
+        if (activePanel == "default" && !UIHovering()){
           if (map.mouseOver()){
             if (moving){
               //int x = floor(map.scaleXInv(mouseX));
@@ -1235,7 +1311,7 @@ class Game extends State{
       else if(((Button)getElement("move button", "party management")).mouseOver()&& getPanel("party management").visible){
         toolTipSelected = 16;
       }
-      else if (moving&&map.mouseOver() && ((!getPanel("party management").mouseOver() || !getPanel("party management").visible) && (!getPanel("land management").mouseOver() || !getPanel("land management").visible))){
+      else if (moving&&map.mouseOver() && !UIHovering()){
           Node [][] nodes = map.moveNodes;
           int x = floor(map.scaleXInv(mouseX));
           int y = floor(map.scaleYInv(mouseY));
@@ -1273,6 +1349,7 @@ class Game extends State{
         map.cancelPath();
         toolTipSelected = -1;
       }
+      map.mapActive = !UIHovering();
     }
     return new ArrayList<String>();
   }
@@ -1406,7 +1483,7 @@ class Game extends State{
     
     textAlign(LEFT, CENTER);
     textSize(8*TextScale);
-    float barY = cellSelectionY + 13*TextScale + cellSelectionH*0.3 + bezel*2;
+    float barY = cellSelectionY + 13*TextScale + cellSelectionH*0.15 + bezel*2;
     text("Movement Points Remaining: "+parties[cellY][cellX].getMovementPoints(turn) + "/"+MOVEMENTPOINTS, 120+cellSelectionX, barY);
     barY += 13*TextScale;
     text("Units: "+parties[cellY][cellX].getUnitNumber(turn) + "/1000", 120+cellSelectionX, barY);
@@ -1424,12 +1501,14 @@ class Game extends State{
     boolean notNothing = false;
     for (int i=0; i<NUMRESOURCES;i++){
       if (resources[i]>0){
-        returnString += getResourceString(resources[i])+ " " +resourceNames[i]+ ", "; 
+        returnString += roundDp(""+resources[i], 1)+ " " +resourceNames[i]+ ", "; 
         notNothing = true;
       }
     }
     if (!notNothing)
       returnString += "Nothing/Unknown";
+    else if(returnString.length()-2 > 0)
+      returnString = returnString.substring(0, returnString.length()-2);
     return returnString;
   }
   
@@ -1455,6 +1534,7 @@ class Game extends State{
     textAlign(CENTER, TOP);
     text("Land Management", cellSelectionX+cellSelectionW/2, cellSelectionY);
     
+    fill(0);
     textAlign(LEFT, TOP);
     float barY = cellSelectionY + 13*TextScale;
     text("Cell Type: "+landTypes[terrain[cellY][cellX]-1], 5+cellSelectionX, barY);
@@ -1468,15 +1548,22 @@ class Game extends State{
     }
     float[] production = resourceProduction(cellX, cellY);
     float[] consumption = resourceConsumption(cellX, cellY);
-    text("Producing: "+resourcesList(production), 5+cellSelectionX, barY);
-    barY += 13*TextScale;
-    fill(255,0,0);
-    text("Consuming: "+resourcesList(consumption), 5+cellSelectionX, barY);
-    barY += 13*TextScale;
+    String pl = resourcesList(production);
+    String cl = resourcesList(consumption);
+    fill(0);
+    if (!pl.equals("Nothing/Unknown")){
+      text("Producing: "+pl, 5+cellSelectionX, barY);
+      barY += 13*TextScale;
+    }
+    if (!cl.equals("Nothing/Unknown")){
+      fill(255,0,0);
+      text("Consuming: "+cl, 5+cellSelectionX, barY);
+      barY += 13*TextScale;
+    }
   }
   
   String getResourceString(float amount){
-    String tempString = (new BigDecimal(""+amount).divide(new BigDecimal("1"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
+    String tempString = roundDp(""+amount, 1);
     if (amount >= 0){
       fill(0);
       tempString = "+"+tempString;
@@ -1601,6 +1688,13 @@ class Game extends State{
     rs.updateNet(totals);
     rs.updateStockpile(players[turn].resources);
     getPanel("pause screen").visible = false;
+    
+    if (anyIdle(turn)){
+      ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
+    }
+    else{
+      ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
+    }
   }
   int cost(int x, int y, int prevX, int prevY){
     float mult = 1;
