@@ -595,43 +595,43 @@ class Game extends State{
               case "Clear Forest":
                 map.terrain[y][x] = GRASS;
                 players[turn].resources[WOOD]+=100;
-                notificationManager.post("Forest Cleared", x, y, turn);
+                notificationManager.post("Forest Cleared", x, y, turnNumber, turn);
                 break;
               case "Build Farm":
                 map.buildings[y][x] = new Building(FARM);
-                notificationManager.post("Farm Built", x, y, turn);
+                notificationManager.post("Farm Built", x, y, turnNumber, turn);
                 break;
               case "Build Sawmill":
                 map.buildings[y][x] = new Building(SAWMILL);
-                notificationManager.post("Sawmill Built", x, y, turn);
+                notificationManager.post("Sawmill Built", x, y, turnNumber, turn);
                 break;
               case "Build Homes":
                 map.buildings[y][x] = new Building(HOMES);
-                notificationManager.post("Homes Built", x, y, turn);
+                notificationManager.post("Homes Built", x, y, turnNumber, turn);
                 break;
               case "Build Factory":
                 map.buildings[y][x] = new Building(FACTORY);
-                notificationManager.post("Factory Built", x, y, turn);
+                notificationManager.post("Factory Built", x, y, turnNumber, turn);
                 break;
               case "Build Mine":
                 map.buildings[y][x] = new Building(MINE);
-                notificationManager.post("Mine Built", x, y, turn);
+                notificationManager.post("Mine Built", x, y, turnNumber, turn);
                 break;
               case "Build Smelter":
                 map.buildings[y][x] = new Building(SMELTER);
-                notificationManager.post("Smelter Built", x, y, turn);
+                notificationManager.post("Smelter Built", x, y, turnNumber, turn);
                 break;
               case "Build Rocket Factory":
                 map.buildings[y][x] = new Building(ROCKET_FACTORY);
-                notificationManager.post("Rocket Factory Built", x, y, turn);
+                notificationManager.post("Rocket Factory Built", x, y, turnNumber, turn);
                 break;
               case "Build Big Factory":
                 map.buildings[y][x] = new Building(BIG_FACTORY);
-                notificationManager.post("Big Factory Built", x, y, turn);
+                notificationManager.post("Big Factory Built", x, y, turnNumber, turn);
                 break;
               case "Demolish":
                 reclaimRes(players[turn], buildingCosts[5]);
-                notificationManager.post("Building Demolished", x, y, turn);
+                notificationManager.post("Building Demolished", x, y, turnNumber, turn);
                 map.buildings[y][x] = null;
                 break;
               case "Construction Mid":
@@ -697,8 +697,15 @@ class Game extends State{
                     }
                   } else if(resourceAmountsAvailable[0]<1){
                     map.parties[y][x].setUnitNumber(floor(map.parties[y][x].getUnitNumber()-(1-resourceAmountsAvailable[0])*taskOutcomes[task][resource]*map.parties[y][x].getUnitNumber()));
+                    if (map.parties[y][x].getUnitNumber() == 0)
+                      notificationManager.post("Party Starved", x, y, turnNumber, turn);
+                    else
+                      notificationManager.post("Party Starving", x, y, turnNumber, turn);
                   } else{
                     map.parties[y][x].setUnitNumber(ceil(map.parties[y][x].getUnitNumber()+taskOutcomes[task][resource]*(float)map.parties[y][x].getUnitNumber()));
+                    if (map.parties[y][x].getUnitNumber() == 1000){
+                      notificationManager.post("Party Full", x, y, turnNumber, turn);
+                    }
                   }
                   
                 }
@@ -717,6 +724,7 @@ class Game extends State{
         for (int x=0; x<mapWidth; x++){
           if (map.parties[y][x] != null){
             if (map.parties[y][x].player == turn){
+              notificationManager.post("Rocket Produced", x, y, turnNumber, turn);
               if(map.parties[y][x].getTask()=="Produce Rocket"){
                 map.parties[y][x].changeTask("Rest");
                 map.buildings[y][x].image_id=1;
@@ -1052,6 +1060,7 @@ class Game extends State{
           p.clearPath();
           if (map.parties[path.get(node)[1]][path.get(node)[0]].player == turn){
             // merge cells
+            notificationManager.post("Parties Merged", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
             int movementPoints = min(map.parties[path.get(node)[1]][path.get(node)[0]].getMovementPoints(), p.getMovementPoints()-cost);
             int overflow = map.parties[path.get(node)[1]][path.get(node)[0]].changeUnitNumber(p.getUnitNumber());
             if(cellFollow){
@@ -1072,6 +1081,7 @@ class Game extends State{
             map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(movementPoints);
           } else if (map.parties[path.get(node)[1]][path.get(node)[0]].player == 2){
             // merge cells battle
+            notificationManager.post("Battle Reinforced", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
             int overflow = ((Battle) map.parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, p.getUnitNumber());
             if(cellFollow){
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
@@ -1091,6 +1101,8 @@ class Game extends State{
             }
           }
           else{
+            notificationManager.post("Battle Started", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
+            notificationManager.post("Battle Started", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, map.parties[path.get(node)[1]][path.get(node)[0]].player);
             p.subMovementPoints(cost);
             map.parties[path.get(node)[1]][path.get(node)[0]] = new Battle(p, map.parties[path.get(node)[1]][path.get(node)[0]]);
             map.parties[path.get(node)[1]][path.get(node)[0]] = ((Battle)map.parties[path.get(node)[1]][path.get(node)[0]]).doBattle();
@@ -1117,6 +1129,7 @@ class Game extends State{
         break;
       }
       if (tx==px&&ty==py){
+        notificationManager.post("Party Arrived", px, py, turnNumber, turn);
         p.path = null;
       }
     }
