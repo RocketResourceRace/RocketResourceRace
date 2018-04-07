@@ -726,8 +726,9 @@ class Game extends State{
                     else
                       notificationManager.post("Party Starving", x, y, turnNumber, turn);
                   } else{
+                    int prev = map.parties[y][x].getUnitNumber();
                     map.parties[y][x].setUnitNumber(ceil(map.parties[y][x].getUnitNumber()+taskOutcomes[task][resource]*(float)map.parties[y][x].getUnitNumber()));
-                    if (map.parties[y][x].getUnitNumber() == 1000){
+                    if (prev != 1000 && map.parties[y][x].getUnitNumber() == 1000 && map.parties[y][x].task == "Super Rest"){
                       notificationManager.post("Party Full", x, y, turnNumber, turn);
                     }
                   }
@@ -832,7 +833,7 @@ class Game extends State{
     }
     drawPanels();
     if(players[0].resources[ROCKET_PROGRESS]!=-1||players[1].resources[ROCKET_PROGRESS]!=-1){
-      drawRocketProgressBar(); //<>//
+      drawRocketProgressBar();
     }
     if (cellSelected){
       drawCellManagement();
@@ -850,7 +851,7 @@ class Game extends State{
   void partyMovementPointsReset(){
     for (int y=0; y<mapHeight; y++){
       for (int x=0; x<mapWidth; x++){
-        if (map.parties[y][x] != null){ //<>//
+        if (map.parties[y][x] != null){
           if (map.parties[y][x].player != 2){
             map.parties[y][x].setMovementPoints(MOVEMENTPOINTS);
           }
