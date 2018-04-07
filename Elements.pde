@@ -271,24 +271,39 @@ class ResourceSummary extends Element{
   void toggleExpand(){
     expanded = !expanded;
   }
+  String prefix(String v){
+    float i = Float.parseFloat(v);
+    if (i >= 1000000)
+      return (new BigDecimal(v).divide(new BigDecimal("1000000"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString()+"M";
+    else if(i >= 1000)
+      return (new BigDecimal(v).divide(new BigDecimal("1000"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString()+"K";
+      
+    return (new BigDecimal(v).divide(new BigDecimal("1"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
+  }
   
   String getResString(int i){
     return resNames[i];
   }
   String getStockString(int i){
-    String tempString = (new BigDecimal(""+stockPile[i]).divide(new BigDecimal("1"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
+    String tempString = prefix(""+stockPile[i]);
     return tempString;
   }
   String getNetString(int i){
-    String tempString = (new BigDecimal(""+net[i]).divide(new BigDecimal("1"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
+    String tempString = prefix(""+net[i]);
     if (net[i] >= 0){
       return "+"+tempString;
     }
     return tempString;
   }
   int columnWidth(int i){
+    int m=0;
     textSize(10*TextScale);
-    return ceil(textWidth(getResString(i)));
+    m = max(m, ceil(textWidth(getResString(i))));
+    textSize(8*TextScale);
+    m = max(m, ceil(textWidth(getStockString(i))));
+    textSize(8*TextScale);
+    m = max(m, ceil(textWidth(getNetString(i))));
+    return m;
   }
   int totalWidth(){
     int startRes;
