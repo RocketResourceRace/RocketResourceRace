@@ -316,7 +316,7 @@ class ResourceSummary extends Element{
   
   void draw(){
     int cw = 0, startRes;
-    int w, yLevel;
+    int w, yLevel, tw = totalWidth();
     if (expanded){
       startRes = numRes-1;
     }
@@ -325,6 +325,8 @@ class ResourceSummary extends Element{
     }
     pushStyle();
     textAlign(LEFT, TOP);
+    fill(120);
+    rect(width-tw-x+xOffset-GAP/2, y+yOffset, tw, h);
     rectMode(CORNERS);
     for (int i=startRes; i>=0; i--){
       w = columnWidth(i);

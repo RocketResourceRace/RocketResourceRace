@@ -669,7 +669,13 @@ class Game extends State{
           } 
           else {
             if(map.parties[y][x].player==2){
+              int player = ((Battle) map.parties[y][x]).party1.player;
+              int otherPlayer = ((Battle) map.parties[y][x]).party2.player;
               map.parties[y][x] = ((Battle)map.parties[y][x]).doBattle();
+              if(map.parties[y][x].player != 2){
+                notificationManager.post("Battle Ended. Player "+str(map.parties[y][x].player+1)+" won", x, y, turnNumber, player);
+                notificationManager.post("Battle Ended. Player "+str(map.parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
+              }
             }
           }
         }
@@ -1100,15 +1106,18 @@ class Game extends State{
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
               stillThere = false;
             }
+            if (splitting){
+              splittedParty = null;
+              splitting = false;
+            } else{
+              map.parties[py][px] = null;
+            }
             if (overflow>0){
-              p.setUnitNumber(overflow);
-              map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
-            } else {
-              if (splitting){
-                splittedParty = null;
-                splitting = false;
-              } else{
-                map.parties[py][px] = null;
+              if(map.parties[path.get(node-1)[1]][path.get(node-1)[0]]==null){
+                p.setUnitNumber(overflow);
+                map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
+              } else {
+                map.parties[path.get(node-1)[1]][path.get(node-1)[0]].changeUnitNumber(overflow);
               }
             }
             map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(movementPoints);
@@ -1120,25 +1129,35 @@ class Game extends State{
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
               stillThere = false;
             }
-            if (overflow>0){
-              p.setUnitNumber(overflow);
-              map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
-            } else {
-              if (splitting){ //<>//
+              if (splitting){
                 splittedParty = null;
                 splitting = false;
               } else{
-
                 map.parties[py][px] = null;
               }
-            }
+            if (overflow>0){
+              if(map.parties[path.get(node-1)[1]][path.get(node-1)[0]]==null){
+                p.setUnitNumber(overflow);
+                map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
+              } else {
+                map.parties[path.get(node-1)[1]][path.get(node-1)[0]].changeUnitNumber(overflow);
+              }
+            } //<>//
           }
           else{
-            notificationManager.post("Battle Started", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
-            notificationManager.post("Battle Started", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, map.parties[path.get(node)[1]][path.get(node)[0]].player);
+            int x, y;
+            x = path.get(node)[0];
+            y = path.get(node)[1];
+            int otherPlayer = map.parties[y][x].player;
+            notificationManager.post("Battle Started", x, y, turnNumber, turn);
+            notificationManager.post("Battle Started", x, y, turnNumber, otherPlayer);
             p.subMovementPoints(cost);
-            map.parties[path.get(node)[1]][path.get(node)[0]] = new Battle(p, map.parties[path.get(node)[1]][path.get(node)[0]]);
-            map.parties[path.get(node)[1]][path.get(node)[0]] = ((Battle)map.parties[path.get(node)[1]][path.get(node)[0]]).doBattle();
+            map.parties[y][x] = new Battle(p, map.parties[y][x]);
+            map.parties[y][x] = ((Battle)map.parties[y][x]).doBattle();
+            if(map.parties[y][x].player != 2){
+              notificationManager.post("Battle Ended. Player "+str(map.parties[y][x].player+1)+" won", x, y, turnNumber, turn);
+              notificationManager.post("Battle Ended. Player "+str(map.parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
+            }
             if(cellFollow){
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
               stillThere = false;
@@ -1334,7 +1353,10 @@ class Game extends State{
               }
               else {
                 //Attack
-                int chance = getChanceOfBattleSuccess(map.parties[cellY][cellX], map.parties[y][x]);
+                Party tempAttacker = map.parties[cellY][cellX].clone();
+                int units = round(((Slider)getElement("split units", "party management")).getValue());
+                tempAttacker.setUnitNumber(units);
+                int chance = getChanceOfBattleSuccess(tempAttacker, map.parties[y][x]);
                 tooltipText[12] = attackToolTipRaw.replace("/p", str(chance));
                 toolTipSelected = 12;
               }
