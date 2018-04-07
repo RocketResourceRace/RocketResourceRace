@@ -1353,7 +1353,10 @@ class Game extends State{
               }
               else {
                 //Attack
-                int chance = getChanceOfBattleSuccess(map.parties[cellY][cellX], map.parties[y][x]);
+                Party tempAttacker = map.parties[cellY][cellX].clone();
+                int units = round(((Slider)getElement("split units", "party management")).getValue());
+                tempAttacker.setUnitNumber(units);
+                int chance = getChanceOfBattleSuccess(tempAttacker, map.parties[y][x]);
                 tooltipText[12] = attackToolTipRaw.replace("/p", str(chance));
                 toolTipSelected = 12;
               }
