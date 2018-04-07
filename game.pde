@@ -1830,8 +1830,8 @@ class Game extends State{
       player1 = generatePartyPosition(mapWidth/4);
       player2 = generatePartyPosition(3*mapWidth/4);
     }
-    parties[(int)player1.y][(int)player1.x] = new Party(0, 1000, "Rest", MOVEMENTPOINTS);
-    parties[(int)player2.y][(int)player2.x] = new Party(1, 1000, "Rest", MOVEMENTPOINTS);
+    parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "Rest", MOVEMENTPOINTS);
+    parties[(int)player2.y][(int)player2.x] = new Party(1, 100, "Rest", MOVEMENTPOINTS);
     
     return  new PVector[]{player1, player2};
   }
