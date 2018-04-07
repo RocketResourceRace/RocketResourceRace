@@ -42,7 +42,7 @@ String roundDp(String val, int dps){
   return (new BigDecimal(""+val).divide(new BigDecimal("1"), dps, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
 }
 
-int findJSONIndex(JSONArray j, String id){
+int JSONIndex(JSONArray j, String id){
   for (int i=0; i<j.size(); i++){
     if (j.getJSONObject(i).getString("id").equals(id)){
       return i;
@@ -165,8 +165,9 @@ void loadImages(){
   for (int i=0; i<gameData.getJSONArray("terrain").size(); i++){
     JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
     tileImages.put(tileType.getString("id"), loadImage(tileType.getString("img")));
-    if (!tileType.isNull("low img"))
-      tileImages.put(tileType.getString("id"), loadImage(tileType.getString("low img")));
+    if (!tileType.isNull("low img")){
+      lowImages.put(tileType.getString("id"), loadImage(tileType.getString("low img")));
+    }
   }
 }
 

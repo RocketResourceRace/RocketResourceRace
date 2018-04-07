@@ -3,29 +3,39 @@
   "terrain":[
     {
       "id": "water",
+      "display name": "Water",
       "img": "data/water.png",
       "low img": "data/water_low.png",
+      "weighting": 1,
       "movement cost": 16
     },
     {
       "id": "sand",
+      "display name": "Desert",
       "img": "data/sand.png",
+      "weighting": 1,
       "movement cost": 12
     },
     {
       "id": "grass",
+      "display name": "Grassland",
       "img": "data/grass.png",
+      "weighting": 3,
       "movement cost": 8
     },
     {
       "id": "forest",
+      "display name": "Forest",
       "img": "data/forest.png",
       "low img": "data/forest_low.png",
+      "weighting": 1,
       "movement cost": 12
     },
     {
-      "id": "hill",
+      "id": "hills",
+      "display name": "Hills",
       "img": "data/hill.png",
+      "weighting": 1,
       "movement cost": 28
     },
   ]

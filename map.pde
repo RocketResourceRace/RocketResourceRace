@@ -272,7 +272,7 @@ class Map extends Element{
     
     for (int i=0; i<gameData.getJSONArray("terrain").size(); i++){
       JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
-      if(blockSize<24&&lowImages.containsKey(tileType.getString("id"))){
+      if(blockSize<24&&!tileType.isNull("low img")){
         tempTileImages[i] = lowImages.get(tileType.getString("id")).copy();
         tempTileImages[i].resize(ceil(blockSize), 0);
       } else {
