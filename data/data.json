@@ -1,0 +1,32 @@
+
+{
+  "terrain":[
+    {
+      "id": "water",
+      "img": "data/water.png",
+      "low img": "data/water_low.png",
+      "movement cost": 16
+    },
+    {
+      "id": "sand",
+      "img": "data/sand.png",
+      "movement cost": 12
+    },
+    {
+      "id": "grass",
+      "img": "data/grass.png",
+      "movement cost": 8
+    },
+    {
+      "id": "forest",
+      "img": "data/forest.png",
+      "low img": "data/forest_low.png",
+      "movement cost": 12
+    },
+    {
+      "id": "hill",
+      "img": "data/hill.png",
+      "movement cost": 28
+    },
+  ]
+}

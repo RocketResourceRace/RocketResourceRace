@@ -270,12 +270,13 @@ class Map extends Element{
     if (blockSize <= 0)
       return;
     
-    for (int i=0; i<NUMOFGROUNDTYPES; i++){
-      if(blockSize<24&&lowImages.containsKey(i)){
-        tempTileImages[i] = lowImages.get(i).copy();
+    for (int i=0; i<gameData.getJSONArray("terrain").size(); i++){
+      JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
+      if(blockSize<24&&lowImages.containsKey(tileType.getString("id"))){
+        tempTileImages[i] = lowImages.get(tileType.getString("id")).copy();
         tempTileImages[i].resize(ceil(blockSize), 0);
       } else {
-        tempTileImages[i] = tileImages[i].copy();
+        tempTileImages[i] = tileImages.get(tileType.getString("id")).copy();
         tempTileImages[i].resize(ceil(blockSize), 0);
       }
     }

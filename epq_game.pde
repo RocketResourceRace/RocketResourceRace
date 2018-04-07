@@ -17,6 +17,7 @@ HashMap<String, SoundFile> sfx;
 float volume = 0.5;
 int prevT;
 boolean soundOn = true;
+JSONObject gameData;
 
 // Event-driven methods
 void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}
@@ -39,6 +40,15 @@ color brighten(color old, int off){
 
 String roundDp(String val, int dps){
   return (new BigDecimal(""+val).divide(new BigDecimal("1"), dps, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
+}
+
+int findJSONIndex(JSONArray j, String id){
+  for (int i=0; i<j.size(); i++){
+    if (j.getJSONObject(i).getString("id").equals(id)){
+      return i;
+    }
+  }
+  return -1;
 }
 
 void doubleClick(){
@@ -105,11 +115,11 @@ int completeSmooth = 5;
 
 color[] playerColours = new color[]{color(0, 0, 255), color(255, 0, 0)};
 
-PImage[] tileImages;
+HashMap<String, PImage> tileImages;
 PImage[][] buildingImages;
 PImage[] partyImages;
 HashMap<String, PImage> taskImages;
-HashMap<Integer, PImage> lowImages;
+HashMap<String, PImage> lowImages;
 
 void changeSetting(String id, String newValue){
   settings.set(id, newValue);
@@ -149,10 +159,22 @@ void loadSounds(){
   }
 }
 
+void loadImages(){
+  tileImages = new HashMap<String, PImage>();
+  lowImages = new HashMap<String, PImage>();
+  for (int i=0; i<gameData.getJSONArray("terrain").size(); i++){
+    JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
+    tileImages.put(tileType.getString("id"), loadImage(tileType.getString("img")));
+    if (!tileType.isNull("low img"))
+      tileImages.put(tileType.getString("id"), loadImage(tileType.getString("low img")));
+  }
+}
+
 
 float halfScreenWidth;
 float halfScreenHeight;
 void setup(){
+  gameData = loadJSONObject("data.json");
   settings = new StringDict();
   //if
   settingsReadFile = createReader("settings.txt");
@@ -163,16 +185,9 @@ void setup(){
   TextScale = float(settings.get("text_scale"));
   mapSize = int(settings.get("mapSize"));
   volume = float(settings.get("volume"));
-  tileImages = new PImage[]{
-    loadImage("data/water.png"),
-    loadImage("data/sand.png"),
-    loadImage("data/grass.png"),
-    loadImage("data/forest.png"),
-    loadImage("data/hill.png"),
-  };
-  lowImages = new HashMap<Integer, PImage>();
-  lowImages.put(3, loadImage("data/forest_low.png"));
-  lowImages.put(0, loadImage("data/water_low.png"));
+  
+  loadImages();
+  
   buildingImages = new PImage[][]{
     {loadImage("data/construction_start.png"),
     loadImage("data/construction_mid.png"),
