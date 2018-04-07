@@ -430,12 +430,13 @@ class Game extends State{
         ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
         rs.updateNet(totals);
         rs.updateStockpile(players[turn].resources);
-      }
-      if (anyIdle(turn)){
-        ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
-      }
-      else{
-        ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
+        
+        if (anyIdle(turn)){
+          ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
+        }
+        else{
+          ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
+        }
       }
     }
     return valid;
@@ -789,6 +790,13 @@ class Game extends State{
     rs.updateStockpile(players[turn].resources);
     
     notificationManager.turnChange(turn);
+    
+    if (anyIdle(turn)){
+      ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
+    }
+    else{
+      ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
+    }
     
     if (turn == 0)
       turnNumber ++;
