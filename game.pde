@@ -1712,6 +1712,8 @@ class Game extends State{
     rs.updateStockpile(players[turn].resources);
     getPanel("pause screen").visible = false;
     
+    notificationManager.reset();
+    
     if (anyIdle(turn)){
       ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
     }

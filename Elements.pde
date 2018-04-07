@@ -54,7 +54,14 @@ class NotificationManager extends Element{
     scroll = round(between(0, scroll, notifications.get(turn).size()-displayNots));
   }
   void dismissAll(){
+    // Dismisses all notification for the current player
     notifications.get(turn).clear();
+  }
+  void reset(){
+    // Clears all notificaitions for all players
+    notifications.clear();
+    notifications.add(new ArrayList<Notification>());
+    notifications.add(new ArrayList<Notification>());
   }
   void post(Notification n, int turn){
     notifications.get(turn).add(0, n);
