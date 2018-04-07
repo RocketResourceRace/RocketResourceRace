@@ -430,12 +430,13 @@ class Game extends State{
         ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
         rs.updateNet(totals);
         rs.updateStockpile(players[turn].resources);
-      }
-      if (anyIdle(turn)){
-        ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
-      }
-      else{
-        ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
+        
+        if (anyIdle(turn)){
+          ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
+        }
+        else{
+          ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
+        }
       }
     }
     return valid;
@@ -726,8 +727,9 @@ class Game extends State{
                     else
                       notificationManager.post("Party Starving", x, y, turnNumber, turn);
                   } else{
+                    int prev = map.parties[y][x].getUnitNumber();
                     map.parties[y][x].setUnitNumber(ceil(map.parties[y][x].getUnitNumber()+taskOutcomes[task][resource]*(float)map.parties[y][x].getUnitNumber()));
-                    if (map.parties[y][x].getUnitNumber() == 1000){
+                    if (prev != 1000 && map.parties[y][x].getUnitNumber() == 1000 && map.parties[y][x].task == "Super Rest"){
                       notificationManager.post("Party Full", x, y, turnNumber, turn);
                     }
                   }
@@ -789,6 +791,13 @@ class Game extends State{
     
     notificationManager.turnChange(turn);
     
+    if (anyIdle(turn)){
+      ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
+    }
+    else{
+      ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
+    }
+    
     if (turn == 0)
       turnNumber ++;
   }
@@ -832,7 +841,7 @@ class Game extends State{
     }
     drawPanels();
     if(players[0].resources[ROCKET_PROGRESS]!=-1||players[1].resources[ROCKET_PROGRESS]!=-1){
-      drawRocketProgressBar(); //<>//
+      drawRocketProgressBar();
     }
     if (cellSelected){
       drawCellManagement();
@@ -850,7 +859,7 @@ class Game extends State{
   void partyMovementPointsReset(){
     for (int y=0; y<mapHeight; y++){
       for (int x=0; x<mapWidth; x++){
-        if (map.parties[y][x] != null){ //<>//
+        if (map.parties[y][x] != null){
           if (map.parties[y][x].player != 2){
             map.parties[y][x].setMovementPoints(MOVEMENTPOINTS);
           }
@@ -1710,6 +1719,8 @@ class Game extends State{
     rs.updateNet(totals);
     rs.updateStockpile(players[turn].resources);
     getPanel("pause screen").visible = false;
+    
+    notificationManager.reset();
     
     if (anyIdle(turn)){
       ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
