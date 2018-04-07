@@ -1106,15 +1106,18 @@ class Game extends State{
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
               stillThere = false;
             }
+            if (splitting){
+              splittedParty = null;
+              splitting = false;
+            } else{
+              map.parties[py][px] = null;
+            }
             if (overflow>0){
-              p.setUnitNumber(overflow);
-              map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
-            } else {
-              if (splitting){
-                splittedParty = null;
-                splitting = false;
-              } else{
-                map.parties[py][px] = null;
+              if(map.parties[path.get(node-1)[1]][path.get(node-1)[0]]==null){
+                p.setUnitNumber(overflow);
+                map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
+              } else {
+                map.parties[path.get(node-1)[1]][path.get(node-1)[0]].changeUnitNumber(overflow);
               }
             }
             map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(movementPoints);
@@ -1126,18 +1129,20 @@ class Game extends State{
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
               stillThere = false;
             }
-            if (overflow>0){
-              p.setUnitNumber(overflow);
-              map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
-            } else {
-              if (splitting){ //<>//
+              if (splitting){
                 splittedParty = null;
                 splitting = false;
               } else{
-
                 map.parties[py][px] = null;
               }
-            }
+            if (overflow>0){
+              if(map.parties[path.get(node-1)[1]][path.get(node-1)[0]]==null){
+                p.setUnitNumber(overflow);
+                map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
+              } else {
+                map.parties[path.get(node-1)[1]][path.get(node-1)[0]].changeUnitNumber(overflow);
+              }
+            } //<>//
           }
           else{
             int x, y;
@@ -1825,8 +1830,8 @@ class Game extends State{
       player1 = generatePartyPosition(mapWidth/4);
       player2 = generatePartyPosition(3*mapWidth/4);
     }
-    parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "Rest", MOVEMENTPOINTS);
-    parties[(int)player2.y][(int)player2.x] = new Party(1, 100, "Rest", MOVEMENTPOINTS);
+    parties[(int)player1.y][(int)player1.x] = new Party(0, 1000, "Rest", MOVEMENTPOINTS);
+    parties[(int)player2.y][(int)player2.x] = new Party(1, 1000, "Rest", MOVEMENTPOINTS);
     
     return  new PVector[]{player1, player2};
   }
