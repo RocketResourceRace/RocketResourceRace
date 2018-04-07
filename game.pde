@@ -669,7 +669,13 @@ class Game extends State{
           } 
           else {
             if(map.parties[y][x].player==2){
+              int player = ((Battle) map.parties[y][x]).party1.player;
+              int otherPlayer = ((Battle) map.parties[y][x]).party2.player;
               map.parties[y][x] = ((Battle)map.parties[y][x]).doBattle();
+              if(map.parties[y][x].player != 2){
+                notificationManager.post("Battle Ended. Player "+str(map.parties[y][x].player+1)+" won", x, y, turnNumber, player);
+                notificationManager.post("Battle Ended. Player "+str(map.parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
+              }
             }
           }
         }
@@ -1134,11 +1140,19 @@ class Game extends State{
             }
           }
           else{
-            notificationManager.post("Battle Started", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
-            notificationManager.post("Battle Started", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, map.parties[path.get(node)[1]][path.get(node)[0]].player);
+            int x, y;
+            x = path.get(node)[0];
+            y = path.get(node)[1];
+            int otherPlayer = map.parties[y][x].player;
+            notificationManager.post("Battle Started", x, y, turnNumber, turn);
+            notificationManager.post("Battle Started", x, y, turnNumber, otherPlayer);
             p.subMovementPoints(cost);
-            map.parties[path.get(node)[1]][path.get(node)[0]] = new Battle(p, map.parties[path.get(node)[1]][path.get(node)[0]]);
-            map.parties[path.get(node)[1]][path.get(node)[0]] = ((Battle)map.parties[path.get(node)[1]][path.get(node)[0]]).doBattle();
+            map.parties[y][x] = new Battle(p, map.parties[y][x]);
+            map.parties[y][x] = ((Battle)map.parties[y][x]).doBattle();
+            if(map.parties[y][x].player != 2){
+              notificationManager.post("Battle Ended. Player "+str(map.parties[y][x].player+1)+" won", x, y, turnNumber, turn);
+              notificationManager.post("Battle Ended. Player "+str(map.parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
+            }
             if(cellFollow){
               selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
               stillThere = false;
