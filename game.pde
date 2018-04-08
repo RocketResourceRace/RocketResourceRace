@@ -194,6 +194,11 @@ class Game extends State{
     addElement("turn number", new TextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", color(0,0,255), 0), "bottom bar");
     prevIdle = new ArrayList<Integer[]>();
   }     
+  JSONArray TaskInitialCost(String type){
+    // Find initial cost for task (such as for buildings, 'Build Farm')
+    return findJSONObject(gameData.getJSONArray("tasks"), type).getJSONArray("initialCost");
+  }
+  
   int terrainIndex(String terrain){
     int k = JSONIndex(gameData.getJSONArray("terrain"), terrain);
     if (k>=0){

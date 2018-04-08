@@ -65,6 +65,7 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
+      "initital cost": [{"id":"wood", "quantity":200}],
       "action":{
         "type": "Build Farm",
         "turns": 3
@@ -78,6 +79,7 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
+      "initital cost": [{"id":"wood", "quantity":200}],
       "action":{
         "type": "Build Sawmill",
         "turns": 5
@@ -91,6 +93,7 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
+      "initital cost": [{"id":"wood", "quantity":200}],
       "action":{
         "type": "Build Homes",
         "turns": 3
@@ -104,6 +107,7 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
+      "initital cost": [{"id":"wood", "quantity":200}],
       "action":{
         "type": "Build Factory",
         "turns": 8
@@ -117,6 +121,7 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
+      "initital cost": [{"id":"wood", "quantity":200}],
       "action":{
         "type": "Build Mine",
         "turns": 6
@@ -130,6 +135,7 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
+      "initital cost": [{"id":"wood", "quantity":200}],
       "action":{
         "type": "Build Smelter",
         "turns": 8
@@ -143,6 +149,7 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
+      "initital cost": [{"id":"wood", "quantity":200}],
       "action":{
         "type": "Build Big Factory",
         "turns": 12
@@ -156,6 +163,7 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
+      "initital cost": [{"id":"wood", "quantity":200}],
       "action":{
         "type": "Build Rocket Factory",
         "turns": 18
@@ -301,58 +309,81 @@
     {
       "id": "Homes",
       "img": "house.png",
-      "resource cost": [
-        {"id": "wood", "quantity": 200}
-      ]
     },
     {
       "id": "Farm",
       "img": "farm.png",
-      "resource cost": [
-        {"id": "wood", "quantity": 200}
-      ]
     },
     {
       "id": "Mine",
       "img": "mine.png",
-      "resource cost": [
-        {"id": "wood", "quantity": 200}
-      ]
     },
     {
       "id": "Smelter",
       "img": "smelter.png",
-      "resource cost": [
-        {"id": "wood", "quantity": 200}
-      ]
     },
     {
       "id": "Factory",
       "img": "factory.png",
-      "resource cost": [
-        {"id": "wood", "quantity": 200}
-      ]
     },
     {
       "id": "Big Factory",
       "img": "big_factory.png",
-      "resource cost": [
-        {"id": "wood", "quantity": 200}
-      ]
     },
     {
       "id": "Rocket Factory",
       "img": "rocket_factory_empty.png",
-      "resource cost": [
-        {"id": "wood", "quantity": 200}
-      ]
     },
     {
       "id": "Sawmill",
       "img": "sawmill.png",
-      "resource cost": [
-        {"id": "wood", "quantity": 200}
-      ]
     }
+  ],
+
+  "resources":[
+    {
+      "id": "food",
+      "resource manager": 2
+    },
+    {
+      "id": "wood",
+      "resource manager": 2
+    },
+    {
+      "id": "stone",
+      "resource manager": 2
+    },
+    {
+      "id": "metal",
+      "resource manager": 2
+    },
+    {
+      "id": "energy",
+      "resource manager": 2
+    },
+    {
+      "id": "concrete",
+      "resource manager": 1
+    },
+    {
+      "id": "cable",
+      "resource manager": 1
+    },
+    {
+      "id": "rocket parts",
+      "resource manager": 1
+    },
+    {
+      "id": "ore",
+      "resource manager": 1
+    },
+    {
+      "id": "rocket progress",
+      "resource manager": 0
+    },
+    {
+      "id": "units",
+      "resource manager": 0
+    },
   ]
 }
