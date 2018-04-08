@@ -507,20 +507,22 @@ class Game extends State{
       correctTerrain = js.isNull("terrain") ^ JSONContainsStr(js.getJSONArray("terrain"), terrainString(terrain[cellY][cellX]));
       correctBuilding = false;
       
-      if (js.isNull("buildings")){
-        if (js.getString("id").equals("Demolish") && buildings[cellY][cellX] != null)
-          correctBuilding = true;
-        else if(!js.getString("id").equals("Demolish"))
-          correctBuilding = true;
-      }
-      else{
-        if (js.getJSONArray("buildings").size() > 0){
-          if (buildings[cellY][cellX] != null)
-          if (buildings[cellY][cellX] != null && JSONContainsStr(js.getJSONArray("buildings"), buildingString(buildings[cellY][cellX].type)))
+      if (js.isNull("auto enabled")||!js.getBoolean("auto enabled")){
+        if (js.isNull("buildings")){
+          if (js.getString("id").equals("Demolish") && buildings[cellY][cellX] != null)
+            correctBuilding = true;
+          else if(!js.getString("id").equals("Demolish"))
             correctBuilding = true;
         }
-        else if (buildings[cellY][cellX] == null){
-          correctBuilding = true;
+        else{
+          if (js.getJSONArray("buildings").size() > 0){
+            if (buildings[cellY][cellX] != null)
+            if (buildings[cellY][cellX] != null && JSONContainsStr(js.getJSONArray("buildings"), buildingString(buildings[cellY][cellX].type)))
+              correctBuilding = true;
+          }
+          else if (buildings[cellY][cellX] == null){
+            correctBuilding = true;
+          }
         }
       }
       

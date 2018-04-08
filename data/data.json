@@ -66,8 +66,99 @@
         {"id": "food","quantity":0.2}
       ],
       "action":{
-        "type": "build farm",
+        "type": "Build Farm",
         "turns": 3
+      }
+    },
+    {
+      "id": "Build Sawmill",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["forest"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "action":{
+        "type": "Build Sawmill",
+        "turns": 5
+      }
+    },
+    {
+      "id": "Build Homes",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand", "hills"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "action":{
+        "type": "Build Homes",
+        "turns": 3
+      }
+    },
+    {
+      "id": "Build Factory",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "action":{
+        "type": "Build Factory",
+        "turns": 8
+      }
+    },
+    {
+      "id": "Build Mine",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["hills"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "action":{
+        "type": "Build Mine",
+        "turns": 6
+      }
+    },
+    {
+      "id": "Build Smelter",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "action":{
+        "type": "Build Smelter",
+        "turns": 8
+      }
+    },
+    {
+      "id": "Build Big Factory",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "action":{
+        "type": "Build Big Factory",
+        "turns": 12
+      }
+    },
+    {
+      "id": "Build Rocket Factory",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "action":{
+        "type": "Build Rocket Factory",
+        "turns": 18
       }
     },
     {
@@ -78,6 +169,19 @@
       "strength": 3
     },
     {
+      "id": "Battle",
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "auto enabled": true
+    },
+    {
+      "id": "Defend",
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+    },
+    {
       "id": "Clear Forest",
       "consumption":[
         {"id": "food","quantity":0.2}
@@ -86,7 +190,8 @@
       "action":{
         "type": "Clear Forest",
         "turns": 2
-      }
+      },
+      "buildings": []
     },
     {
       "id": "Work Farm",
