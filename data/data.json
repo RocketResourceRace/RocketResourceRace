@@ -176,10 +176,12 @@
       "auto enabled": true
     },
     {
-      "id": "Defend",
+      "id": "Super Rest",
       "consumption":[
-        {"id": "food","quantity":0.2}
+        {"id": "food","quantity":0.6}
       ],
+      "production": {"id": "civilians", "quantity":0.1},
+      "buildings": ["homes"]
     },
     {
       "id": "Clear Forest",
@@ -200,9 +202,98 @@
       ],
       "consumption":[
         {"id": "food","quantity":0.2},
-        {"id": "wood","quantity":0.02}
+        {"id": "wood","quantity":0.01}
       ],
       "buildings":["Farm"]
+    },
+    {
+      "id": "Produce Ore",
+      "production":[
+        {"id": "ore","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.02}
+      ],
+      "buildings":["Mine"]
+    },
+    {
+      "id": "Produce Metal",
+      "production":[
+        {"id": "metal","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.02}
+      ],
+      "buildings":["Smelter"]
+    },
+    {
+      "id": "Produce Concrete",
+      "production":[
+        {"id": "concrete","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.1}
+      ],
+      "buildings":["Factory"]
+    },
+    {
+      "id": "Produce Cable",
+      "production":[
+        {"id": "cable","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.02}
+      ],
+      "buildings":["Mine"]
+    },
+    {
+      "id": "Produce Wood",
+      "production":[
+        {"id": "wood","quantity":0.2}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+      ],
+      "buildings":["Sawmill"]
+    },
+    {
+      "id": "Produce Rocket Parts",
+      "production":[
+        {"id": "rocket parts","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "metal","quantity":1}
+      ],
+      "buildings":["Rocket Factory"]
+    },
+    {
+      "id": "Produce Rocket",
+      "production":[
+        {"id": "rocket progress","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "rocket parts","quantity":1},
+        {"id": "cable","quantity":0.1},
+        {"id": "concrete","quantity":1}
+      ],
+      "buildings":["Rocket Factory"]
+    },
+    {
+      "id": "Produce Ore",
+      "production":[
+        {"id": "ore","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.02}
+      ],
+      "buildings":["Mine"]
     }
   ],
 
@@ -217,6 +308,48 @@
     {
       "id": "Farm",
       "img": "farm.png",
+      "resource cost": [
+        {"id": "wood", "quantity": 200}
+      ]
+    },
+    {
+      "id": "Mine",
+      "img": "mine.png",
+      "resource cost": [
+        {"id": "wood", "quantity": 200}
+      ]
+    },
+    {
+      "id": "Smelter",
+      "img": "smelter.png",
+      "resource cost": [
+        {"id": "wood", "quantity": 200}
+      ]
+    },
+    {
+      "id": "Factory",
+      "img": "factory.png",
+      "resource cost": [
+        {"id": "wood", "quantity": 200}
+      ]
+    },
+    {
+      "id": "Big Factory",
+      "img": "big_factory.png",
+      "resource cost": [
+        {"id": "wood", "quantity": 200}
+      ]
+    },
+    {
+      "id": "Rocket Factory",
+      "img": "rocket_factory_empty.png",
+      "resource cost": [
+        {"id": "wood", "quantity": 200}
+      ]
+    },
+    {
+      "id": "Sawmill",
+      "img": "sawmill.png",
       "resource cost": [
         {"id": "wood", "quantity": 200}
       ]
