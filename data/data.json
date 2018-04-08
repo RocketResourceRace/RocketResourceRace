@@ -3,7 +3,7 @@
   "initial conditions":{
     "resources":[{"id":"food", "quantity":500},
                  {"id":"wood", "quantity":500},
-                 {"id":"rocket progress", "quantity":-1}]
+                 {"id":"rocket progress", "quantity":0}]
   },
   "terrain":[
     {
@@ -51,6 +51,9 @@
       "consumption":[
         {"id": "food","quantity":0.1}
       ],
+      "production":[
+        {"id": "civilians","quantity":0.1}
+      ]
     },
     {
       "id": "Demolish",

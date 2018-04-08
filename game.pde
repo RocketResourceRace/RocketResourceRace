@@ -46,7 +46,6 @@ class Game extends State{
   };
   String[] tasks;
   String[] buildingTypes;
-  final float[] buildingTimes = {0, 3, 2, 5, 8, 8, 4, 12, 12};
   float[][] taskCosts;
   float[][] taskOutcomes;
   int numResources;
@@ -135,10 +134,11 @@ class Game extends State{
       tasks[i] = js.getString("id");
       if (!js.isNull("production"))
         for (int r=0; r<js.getJSONArray("production").size(); r++)
-          taskOutcomes[i][r] = js.getJSONArray("production").getJSONObject(r).getInt("quantity");
+          taskOutcomes[i][r] = js.getJSONArray("production").getJSONObject(r).getFloat("quantity");
       if (!js.isNull("consumption"))
-        for (int r=0; r<js.getJSONArray("consumption").size(); r++)
-          taskCosts[i][r] = js.getJSONArray("consumption").getJSONObject(r).getInt("quantity");
+        for (int r=0; r<js.getJSONArray("consumption").size(); r++){
+          taskCosts[i][r] = js.getJSONArray("consumption").getJSONObject(r).getFloat("quantity");
+        }
     }
   }
   void initialiseResources(){
@@ -164,6 +164,15 @@ class Game extends State{
     if (ja == null)print("invalid task type, ", type);
     return ja;
   }
+  int taskTurns(String task){
+    JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task);
+    if (jo==null){
+      print("invalid task type", task);
+      return 0;
+    }
+    if (jo.isNull("action"))return 0;
+    return jo.getJSONObject("action").getInt("turns");
+  }
   Action taskAction(String task){
     JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task).getJSONObject("action");
     if (jo != null)
@@ -176,7 +185,7 @@ class Game extends State{
       return null;
     }
     for (int i=0; i<ja.size(); i++){
-      costs[getResIndex(ja.getJSONObject(i).getString("id"))] = ja.getJSONObject(i).getInt("quantity");
+      costs[getResIndex(ja.getJSONObject(i).getString("id"))] = ja.getJSONObject(i).getFloat("quantity");
     }
     return costs;
   }
@@ -339,9 +348,10 @@ class Game extends State{
         if (a != null && a.type != null){
           float[] co = buildingCost(parties[cellY][cellX].getTask());
           if (sufficientResources(players[turn].resources, co, true)){
+            print(1);
             parties[cellY][cellX].clearActions();         
             ((Text)getElement("turns remaining", "party management")).setText("");
-            parties[cellY][cellX].addAction(taskAction(parties[cellY][cellX].getTask()));
+            parties[cellY][cellX].addAction(taskAction(parties[cellY][cellX].getTask()));  
             if (sum(co)>0){
               spendRes(players[turn], co);
               buildings[cellY][cellX] = new Building(buildingIndex("Construction"));
@@ -598,7 +608,7 @@ class Game extends State{
           if (map.parties[y][x].player == turn){
             float productivity = 1;
             for (int task=0; task<tasks.length;task++){
-              if(map.parties[y][x].getTask()==tasks[task]){
+              if(map.parties[y][x].getTask().equals(tasks[task])){
                 for(int resource = 0; resource < numResources; resource++){
                   if(taskCosts[task][resource]>0){
                     if(resource==0){
@@ -611,7 +621,7 @@ class Game extends State{
               }
             }
             for (int task=0; task<tasks.length;task++){
-              if(map.parties[y][x].getTask()==tasks[task]){
+              if(map.parties[y][x].getTask().equals(tasks[task])){
                 for(int resource = 0; resource < numResources; resource++){
                   if(resource!=getResIndex("civilians")){
                     if(tasks[task]=="Produce Rocket"){
@@ -621,8 +631,8 @@ class Game extends State{
                     if(tasks[task]=="Produce Rocket"){
                       break;
                     }
-                  } else if(resourceAmountsAvailable[0]<1){
-                    map.parties[y][x].setUnitNumber(floor(map.parties[y][x].getUnitNumber()-(1-resourceAmountsAvailable[0])*taskOutcomes[task][resource]*map.parties[y][x].getUnitNumber()));
+                  } else if(resourceAmountsAvailable[getResIndex("food")]<1){
+                    map.parties[y][x].setUnitNumber(floor(map.parties[y][x].getUnitNumber()-(1-resourceAmountsAvailable[getResIndex("food")])*taskOutcomes[task][resource]*map.parties[y][x].getUnitNumber()));
                     if (map.parties[y][x].getUnitNumber() == 0)
                       notificationManager.post("Party Starved", x, y, turnNumber, turn);
                     else
@@ -783,7 +793,7 @@ class Game extends State{
     ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
     boolean t = true;
     for (int i=0; i<numResources;i++){
-      if (available[i] < required[i]){
+      if (available[i] < required[i] && !buildingString(i).equals("rocket progress")){
         t = false;
         rs.flash(i);
       }
@@ -1190,43 +1200,43 @@ class Game extends State{
         switch (((DropDown)getElement("tasks", "party management")).findMouseOver()){
           case "Defend":toolTipSelected = 0;break;
           case "Build Farm":
-            tooltipText[1] = String.format(farmToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[buildingIndex("Farm")]));
+            tooltipText[1] = String.format(farmToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Farm")));
             toolTipSelected = 1;
             break;
           case "Build Sawmill":
-            tooltipText[6] = String.format(sawmillToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[buildingIndex("Sawmill")])); //<>//
+            tooltipText[6] = String.format(sawmillToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Sawmill"))); //<>//
             toolTipSelected = 6;
             break;
           case "Build Homes":
-            tooltipText[3] = String.format(homesToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[buildingIndex("Homes")]));
+            tooltipText[3] = String.format(homesToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Homes")));
             toolTipSelected = 3;
             break;
           case "Build Factory":
-            tooltipText[5] = String.format(factoryToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[buildingIndex("Factory")]));
+            tooltipText[5] = String.format(factoryToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Factory")));
             toolTipSelected = 5;
             break;
           case "Build Big Factory":
-            tooltipText[18] = String.format(factoryToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[buildingIndex("Big Factory")]));
+            tooltipText[18] = String.format(factoryToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Big Factory")));
             toolTipSelected = 18;
             break;
           case "Clear Forest":
-            tooltipText[8] = String.format(clearForestToolTipRaw,parties[cellY][cellX].calcTurns(2));
+            tooltipText[8] = String.format(clearForestToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Clear Forest")));
             toolTipSelected = 8;
             break;
           case "Build Mine":
-            tooltipText[2] = String.format(mineToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[buildingIndex("Mine")]));
+            tooltipText[2] = String.format(mineToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Mine")));
             toolTipSelected = 2;
             break;
           case "Build Smelter":
-            tooltipText[4] = String.format(smelterToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[buildingIndex("Smelter")]));
+            tooltipText[4] = String.format(smelterToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Smelter")));
             toolTipSelected = 4;
             break;
           case "Build Rocket Factory":
-            tooltipText[7] = String.format(rocketFactoryToolTipRaw,parties[cellY][cellX].calcTurns(buildingTimes[buildingIndex("Rocket Factory")]));
+            tooltipText[7] = String.format(rocketFactoryToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Rocket Factory")));
             toolTipSelected = 7;
             break;
           case "Demolish":
-            tooltipText[9] = String.format(demolishingToolTipRaw,parties[cellY][cellX].calcTurns(2));
+            tooltipText[9] = String.format(demolishingToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Demolish")));
             toolTipSelected = 9;
             break;
           case "Rest":toolTipSelected = 10;break;
@@ -1509,10 +1519,11 @@ class Game extends State{
   void drawRocketProgressBar(){
     int x, y, w, h;
     String progressMessage;
-    boolean both = players[0].resources[getResIndex("rocket progress")] != -1 && players[1].resources[getResIndex("rocket progress")] != -1;
+    boolean both = players[0].resources[getResIndex("rocket progress")] != 0 && players[1].resources[getResIndex("rocket progress")] != 0;
+    if (players[0].resources[getResIndex("rocket progress")] ==0 && players[1].resources[getResIndex("rocket progress")] == 0)return;
     int progress = int(players[turn].resources[getResIndex("rocket progress")]);
     color fillColour;
-    if(progress == -1){
+    if(progress == 0){
       progress = int(players[(turn+1)%2].resources[getResIndex("rocket progress")]);
       progressMessage = "";
       fillColour = playerColours[(turn+1)%2];
