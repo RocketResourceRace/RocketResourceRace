@@ -51,6 +51,15 @@ int JSONIndex(JSONArray j, String id){
   return -1;
 }
 
+JSONObject findJSONObject(JSONArray j, String id){
+  for (int i=0; i<j.size(); i++){
+    if (j.getJSONObject(i).getString("id").equals(id)){
+      return j.getJSONObject(i);
+    }
+  }
+  return null;
+}
+
 void doubleClick(){
   if (millis() - lastClickTime < DOUBLECLICKWAIT){
     mouseEvent("mouseDoubleClicked", mouseButton);

@@ -5,7 +5,6 @@ class Game extends State{
   final int bezel = 10;
   final int mapElementWidth = round(width);
   final int mapElementHeight = round(height-bezel*2-buttonH);
-  final int[] terrainCosts = new int[]{16, 12, 8, 12, 28};
   final int MOVEMENTPOINTS = 64;
   final int DEFENDCOST = 32;
   final float [] STARTINGRESOURCES = new float[]{500, 500, 0, 0, 0, 0, 0, 0, 0, -1};
@@ -1738,7 +1737,7 @@ class Game extends State{
       mult = 1.41;
     }
     if (0<x && x<mapSize && 0<y && y<mapSize){
-      return round(float(terrainCosts[terrain[y][x]-1])*mult);
+      return round(gameData.getJSONArray("terrain").getJSONObject(terrain[y][x]-1).getInt("movement cost")*mult);
     }
     //Not a valid location
     return -1;
@@ -1899,8 +1898,8 @@ class Game extends State{
   
   int[][] generateMap(PVector[] playerStarts){
     HashMap<Integer, Float> groundWeightings = new HashMap();
-    for (Integer i=1; i<gameData.getJSONArray("terrain").size(); i++){
-      groundWeightings.put(i, gameData.getJSONArray("terrain").getJSONObject(i).getFloat("weighting"));
+    for (Integer i=1; i<gameData.getJSONArray("terrain").size()+1; i++){
+      groundWeightings.put(i, gameData.getJSONArray("terrain").getJSONObject(i-1).getFloat("weighting"));
     }
     
     float totalWeighting = 0;
