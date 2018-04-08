@@ -35,8 +35,86 @@
       "id": "hills",
       "display name": "Hills",
       "img": "data/hill.png",
-      "weighting": 1,
+      "weighting": 0,
       "movement cost": 28
     },
+  ],
+
+  "tasks":[
+    {
+      "id": "Rest",
+      "consumption":[
+        {"id": "food","quantity":0.1}
+      ],
+    },
+    {
+      "id": "Demolish",
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "action":{
+        "type": "Demolish",
+        "turns": 3
+      }
+    },
+    {
+      "id": "Build Farm",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "action":{
+        "type": "build farm",
+        "turns": 3
+      }
+    },
+    {
+      "id": "Defend",
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "strength": 3
+    },
+    {
+      "id": "Clear Forest",
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "terrain":["forest"],
+      "action":{
+        "type": "Clear Forest",
+        "turns": 2
+      }
+    },
+    {
+      "id": "Work Farm",
+      "production":[
+        {"id": "food","quantity":0.4}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.02}
+      ],
+      "buildings":["Farm"]
+    }
+  ],
+
+  "buildings":[
+    {
+      "id": "Homes",
+      "img": "house.png",
+      "resource cost": [
+        {"id": "wood", "quantity": 200}
+      ]
+    },
+    {
+      "id": "Farm",
+      "img": "farm.png",
+      "resource cost": [
+        {"id": "wood", "quantity": 200}
+      ]
+    }
   ]
 }

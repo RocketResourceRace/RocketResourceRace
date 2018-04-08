@@ -60,6 +60,17 @@ JSONObject findJSONObject(JSONArray j, String id){
   return null;
 }
 
+boolean JSONContainsStr(JSONArray j, String id){
+  if (id == null || j == null)
+    return false;
+  for (int i=0; i<j.size(); i++){
+    if (j.getString(i).equals(id)){
+      return true;
+    }
+  }
+  return false;
+}
+
 void doubleClick(){
   if (millis() - lastClickTime < DOUBLECLICKWAIT){
     mouseEvent("mouseDoubleClicked", mouseButton);

@@ -12,7 +12,6 @@ class Game extends State{
     "Rest", "Work Farm", "Defend", "Demolish", 
     "Build Farm", "Build Sawmill", "Build Homes", "Build Factory", "Build Mine", "Build Smelter", "Build Big Factory", "Build Rocket Factory", 
     "Clear Forest", "Battle", "Super Rest", "Produce Ore", "Produce Metal", "Produce Concrete", "Produce Cable", "Produce Wood", "Produce Rocket Parts", "Produce Rocket", "Launch Rocket"};
-  //final String[] landTypes = {"Water", "Sand", "Grass", "Forest", "Hills"};
   final String[] buildingTypes = {"Homes", "Farm", "Mine", "Smelter", "Factory", "Sawmill", "Big Factory", "Rocket Factory"};
   final int CONSTRUCTION = 0;
   final int HOMES = 1;
@@ -202,6 +201,24 @@ class Game extends State{
     }
     print("Invalid terrain type, "+terrain);
     return -1;
+  }
+  String terrainString(int terrainI){
+    return gameData.getJSONArray("terrain").getJSONObject(terrainI-1).getString("id");
+  }     
+  int buildingIndex(String building){
+    int k = JSONIndex(gameData.getJSONArray("buildings"), building);
+    if (k>=0){
+      return k+1;
+    }
+    print("Invalid building type, "+building);
+    return -1;
+  }
+  String buildingString(int buildingI){
+    if (gameData.getJSONArray("buildings").isNull(buildingI-1)){
+      println("invalid building string ", buildingI-1);
+      return null;
+    }
+    return gameData.getJSONArray("buildings").getJSONObject(buildingI-1).getString("id");
   }
   boolean postEvent(GameEvent event){
     boolean valid = true;
@@ -477,73 +494,36 @@ class Game extends State{
   //settings
   
   void checkTasks(){     
-    resetAvailableTasks();     
-    if(parties[cellY][cellX].player==2){
-      makeTaskAvailable("Battle");
+    resetAvailableTasks();
+    boolean correctTerrain, correctBuilding;
+    JSONObject js;
+    
+    if(parties[cellY][cellX].hasActions()){
+      makeTaskAvailable(parties[cellY][cellX].currentAction());
     }
-    else {
-      makeTaskAvailable("Rest");
-      int cellTerrain = terrain[cellY][cellX];
-      if(parties[cellY][cellX].hasActions()){
-        makeTaskAvailable(parties[cellY][cellX].currentAction());
-      }
-      if (parties[cellY][cellX].getMovementPoints() >= DEFENDCOST && cellTerrain != terrainIndex("water"))
-        makeTaskAvailable("Defend");
-      if (buildings[cellY][cellX] != null){
-        if (buildings[cellY][cellX].type==FARM){
-          makeTaskAvailable("Work Farm");
-        }
-        if (buildings[cellY][cellX].type==HOMES){
-          makeTaskAvailable("Super Rest");
-        }
-        if (buildings[cellY][cellX].type==MINE){
-          makeTaskAvailable("Produce Ore");
-        }
-        if (buildings[cellY][cellX].type==SMELTER){
-          makeTaskAvailable("Produce Metal");
-        }
-        if (buildings[cellY][cellX].type==FACTORY){
-          makeTaskAvailable("Produce Concrete");
-          makeTaskAvailable("Produce Cable");
-        }  
-        if (buildings[cellY][cellX].type==SAWMILL){
-          makeTaskAvailable("Produce Wood");
-        }
-        if (buildings[cellY][cellX].type==BIG_FACTORY){
-          makeTaskAvailable("Produce Rocket Parts");
-        }
-        if (buildings[cellY][cellX].type==ROCKET_FACTORY){
-          if (players[turn].resources[ROCKET_PROGRESS]>=1000){
-            makeTaskAvailable("Launch Rocket");
-          } else {
-            makeTaskAvailable("Produce Rocket");
-          }
-        }
-        makeTaskAvailable("Demolish");
-      }
+    
+    for(int i=0; i<gameData.getJSONArray("tasks").size(); i++){
+      js = gameData.getJSONArray("tasks").getJSONObject(i);
+      correctTerrain = js.isNull("terrain") ^ JSONContainsStr(js.getJSONArray("terrain"), terrainString(terrain[cellY][cellX]));
+      correctBuilding = false;
+      
+      if (js.isNull("buildings"))
+        correctBuilding = true;
       else{
-        if (cellTerrain == terrainIndex("grass")){
-          makeTaskAvailable("Build Farm");  
+        if (js.getJSONArray("buildings").size() > 0){
+          if (buildings[cellY][cellX] != null)
+          if (buildings[cellY][cellX] != null && JSONContainsStr(js.getJSONArray("buildings"), buildingString(buildings[cellY][cellX].type)))
+            correctBuilding = true;
         }
-        else if (cellTerrain == terrainIndex("forest")){
-          makeTaskAvailable("Clear Forest");
-          if (parties[cellY][cellX].getTask() != "Clear Forest")
-            makeTaskAvailable("Build Sawmill");
-        }
-        if (cellTerrain != terrainIndex("water") && cellTerrain != terrainIndex("forest")){ 
-          makeTaskAvailable("Build Homes");
-        }  
-        if (cellTerrain != terrainIndex("water") && cellTerrain != terrainIndex("forest") && cellTerrain != terrainIndex("forest")){
-          makeTaskAvailable("Build Factory");
-          makeTaskAvailable("Build Big Factory");
-          makeTaskAvailable("Build Smelter");
-          makeTaskAvailable("Build Rocket Factory");
-        }
-        if (cellTerrain == terrainIndex("hills")){
-          makeTaskAvailable("Build Mine");
-        }
-      }  
-    }  
+        else if (buildings[cellY][cellX] == null)
+          correctBuilding = true;
+      }
+      
+      if (correctTerrain && correctBuilding){
+        makeTaskAvailable(js.getString("id"));
+      }
+    }
+    
     ((DropDown)getElement("tasks", "party management")).select(parties[cellY][cellX].getTask());
   }
   
