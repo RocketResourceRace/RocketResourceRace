@@ -238,8 +238,8 @@ class Map extends Element{
 
     // Terrain
 
-    PImage[] tempTileImages = new PImage[NUMOFGROUNDTYPES];
-    PImage[][] tempBuildingImages = new PImage[NUMOFBUILDINGTYPES][];
+    PImage[] tempTileImages = new PImage[gameData.getJSONArray("terrain").size()];
+    PImage[][] tempBuildingImages = new PImage[gameData.getJSONArray("buildings").size()][];
     PImage[] tempPartyImages = new PImage[3];
     HashMap<String, PImage> tempTaskImages = new HashMap<String, PImage>();
     if (frameStartTime == 0){
@@ -280,10 +280,11 @@ class Map extends Element{
         tempTileImages[i].resize(ceil(blockSize), 0);
       }
     }
-    for (int i=0; i<NUMOFBUILDINGTYPES; i++){
-      tempBuildingImages[i] = new PImage[buildingImages[i].length];
-      for (int j=0; j<buildingImages[i].length; j++){
-        tempBuildingImages[i][j] = buildingImages[i][j].copy();
+    for (int i=0; i<gameData.getJSONArray("buildings").size(); i++){
+      JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
+      tempBuildingImages[i] = new PImage[buildingImages.get(buildingType.get("id")).length];
+      for (int j=0; j<buildingImages.get(buildingType.get("id")).length; j++){
+        tempBuildingImages[i][j] = buildingImages.get(buildingType.get("id"))[j].copy();
         tempBuildingImages[i][j].resize(ceil(blockSize*48/64), 0);
       }
     }
@@ -340,7 +341,7 @@ class Map extends Element{
            c = new PVector(scaleX(x), scaleY(y));
            int border = round((64-48)*blockSize/(2*64));
            int imgSize = round(blockSize*48/60);
-           drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, tempBuildingImages[buildings[y][x].type][buildings[y][x].image_id]);
+           drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, tempBuildingImages[buildings[y][x].type-1][buildings[y][x].image_id]);
          }
          //Parties
          if(parties[y][x]!=null){

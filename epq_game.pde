@@ -136,7 +136,7 @@ int completeSmooth = 5;
 color[] playerColours = new color[]{color(0, 0, 255), color(255, 0, 0)};
 
 HashMap<String, PImage> tileImages;
-PImage[][] buildingImages;
+HashMap<String, PImage[]> buildingImages;
 PImage[] partyImages;
 HashMap<String, PImage> taskImages;
 HashMap<String, PImage> lowImages;
@@ -182,6 +182,7 @@ void loadSounds(){
 void loadImages(){
   tileImages = new HashMap<String, PImage>();
   lowImages = new HashMap<String, PImage>();
+  buildingImages = new HashMap<String, PImage[]>();
   for (int i=0; i<gameData.getJSONArray("terrain").size(); i++){
     JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
     tileImages.put(tileType.getString("id"), loadImage(tileType.getString("img")));
@@ -189,6 +190,21 @@ void loadImages(){
       lowImages.put(tileType.getString("id"), loadImage(tileType.getString("low img")));
     }
   }
+  for (int i=0; i<gameData.getJSONArray("buildings").size(); i++){
+    JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
+    PImage[] p = new PImage[buildingType.getJSONArray("img").size()];
+    for (int i2=0; i2< buildingType.getJSONArray("img").size(); i2++)
+      p[i2] = loadImage(buildingType.getJSONArray("img").getString(i2));
+    buildingImages.put(buildingType.getString("id"), p);
+  }
+}
+
+
+float sum(float[] l){
+  float c=0;
+  for (int i=0; i<l.length; i++)
+    c += l[i];
+  return c;
 }
 
 
@@ -209,25 +225,12 @@ void setup(){
   
   loadImages();
   
-  buildingImages = new PImage[][]{
-    {loadImage("data/construction_start.png"),
-    loadImage("data/construction_mid.png"),
-    loadImage("data/construction_end.png")},
-    {loadImage("data/house.png")},
-    {loadImage("data/farm.png")},
-    {loadImage("data/mine.png")},
-    {loadImage("data/smelter.png")},
-    {loadImage("data/factory.png")},
-    {loadImage("data/sawmill.png")},
-    {loadImage("data/big_factory.png")},
-    {loadImage("data/rocket_factory_empty.png"),
-    loadImage("data/rocket_factory_full.png")}
-  };
   partyImages = new PImage[]{
     loadImage("data/blue_flag.png"),
     loadImage("data/red_flag.png"),
     loadImage("data/battle.png")
   };
+  
   taskImages = new HashMap<String, PImage>();
   taskImages.put("Work Farm", loadImage("data/task_farm.png"));
   taskImages.put("Defend", loadImage("data/task_defend.png"));
