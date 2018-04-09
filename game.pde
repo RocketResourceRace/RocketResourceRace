@@ -134,10 +134,10 @@ class Game extends State{
       tasks[i] = js.getString("id");
       if (!js.isNull("production"))
         for (int r=0; r<js.getJSONArray("production").size(); r++)
-          taskOutcomes[i][r] = js.getJSONArray("production").getJSONObject(r).getFloat("quantity");
+          taskOutcomes[i][getResIndex(js.getJSONArray("production").getJSONObject(r).getString("id"))] = js.getJSONArray("production").getJSONObject(r).getFloat("quantity");
       if (!js.isNull("consumption"))
         for (int r=0; r<js.getJSONArray("consumption").size(); r++){
-          taskCosts[i][r] = js.getJSONArray("consumption").getJSONObject(r).getFloat("quantity");
+          taskCosts[i][getResIndex(js.getJSONArray("consumption").getJSONObject(r).getString("id"))] = js.getJSONArray("consumption").getJSONObject(r).getFloat("quantity");
         }
     }
   }
@@ -157,6 +157,9 @@ class Game extends State{
   
   int getResIndex(String s){
     return JSONIndex(gameData.getJSONArray("resources"), s);
+  }
+  String getResString(int r){
+    return gameData.getJSONArray("resources").getJSONObject(r).getString("id");
   }
   JSONArray taskInitialCost(String type){
     // Find initial cost for task (such as for buildings, 'Build Farm')
@@ -513,7 +516,7 @@ class Game extends State{
         if (map.parties[y][x] != null){
           if (map.parties[y][x].player == turn){
             for (int i=0; i<tasks.length;i++){
-              if(map.parties[y][x].getTask()==tasks[i]){
+              if(map.parties[y][x].getTask().equals(tasks[i])){
                 for(int resource = 0; resource < numResources; resource++){
                   totalResourceRequirements[resource]+=taskCosts[i][resource]*map.parties[y][x].getUnitNumber();
                 }
@@ -1356,7 +1359,7 @@ class Game extends State{
       if (map.parties[y][x].player == turn){
         float productivity = 1;
         for (int task=0; task<tasks.length;task++){
-          if(map.parties[y][x].getTask()==tasks[task]){ 
+          if(map.parties[y][x].getTask().equals(tasks[task])){ 
             for(int resource = 0; resource < numResources; resource++){
               if(taskCosts[task][resource]>0){ 
                 productivity = min(productivity, resourceAmountsAvailable[resource]);
@@ -1365,7 +1368,7 @@ class Game extends State{
           }
         }
         for (int task=0; task<tasks.length;task++){
-          if(map.parties[y][x].getTask()==tasks[task]){ 
+          if(map.parties[y][x].getTask().equals(tasks[task])){ 
             for(int resource = 0; resource < numResources; resource++){  
               if(resource<numResources-1){
                 production[resource] = (taskOutcomes[task][resource])*productivity*map.parties[y][x].getUnitNumber();
@@ -1392,7 +1395,7 @@ class Game extends State{
       if (map.parties[y][x].player == turn){
         float productivity = 1;
         for (int task=0; task<tasks.length;task++){
-          if(map.parties[y][x].getTask()==tasks[task]){
+          if(map.parties[y][x].getTask().equals(tasks[task])){
             for(int resource = 0; resource < numResources; resource++){
               if(taskCosts[task][resource]>0){
                 productivity = min(productivity, resourceAmountsAvailable[resource]);
@@ -1401,7 +1404,7 @@ class Game extends State{
           }
         }
         for (int task=0; task<tasks.length;task++){
-          if(map.parties[y][x].getTask()==tasks[task]){
+          if(map.parties[y][x].getTask().equals(tasks[task])){
             for(int resource = 0; resource < numResources; resource++){
               if(resource<numResources-1){
                 production[resource] = (taskCosts[task][resource])*productivity*map.parties[y][x].getUnitNumber();
