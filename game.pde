@@ -782,7 +782,7 @@ class Game extends State{
   }
   void reclaimRes(Player player, float[] required){
     //reclaim half cost of building
-    for (int i=0; i<numResources;i++){
+    for (int i=0; i<numResources;i++){ //<>//
       player.resources[i] += required[i]/2;
     }
   }
@@ -800,7 +800,7 @@ class Game extends State{
     }
     return null;
   }
-  boolean canMove(int x, int y){
+  boolean canMove(int x, int y){ //<>//
     float points;
     int[][] mvs = {{1,0}, {0,1}, {1,1}, {-1,0}, {0,-1}, {-1,-1}, {1,-1}, {-1,1}};
     
@@ -869,10 +869,10 @@ class Game extends State{
           int[] t = findIdle(turn);
           if (t[0] != -1){ //<>//
             selectCell(t[0], t[1], false);
-            map.targetCell(t[0], t[1], 64);
+            map.targetCell(t[0], t[1], 64); //<>//
           }
         }
-        else if (event.id == "end turn"){
+        else if (event.id == "end turn"){ //<>//
           postEvent(new EndTurn());
         }
         else if (event.id == "move button"){
@@ -890,7 +890,7 @@ class Game extends State{
           ResourceSummary r = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
           Button b = ((Button)(getElement("resource expander", "bottom bar")));
           r.toggleExpand();
-          b.transform(width-r.totalWidth()-50, bezel, 30, 30);
+          b.transform(width-r.totalWidth()-50, bezel, 30, 30); //<>//
           if (b.getText() == ">")
             b.setText("<");
           else
@@ -902,13 +902,13 @@ class Game extends State{
         else if (event.id == "main menu button"){
           newState = "menu"; //<>//
         }
-        else if (event.id == "desktop button"){
+        else if (event.id == "desktop button"){ //<>//
           exit(); //<>//
         }
-        else if (event.id == "resume button"){
+        else if (event.id == "resume button"){ //<>//
           getPanel("pause screen").visible = false;
         }
-      }
+      } //<>//
       if (event.type == "valueChanged"){
         if (event.id == "tasks"){
           postEvent(new ChangeTask(cellX, cellY, ((DropDown)getElement("tasks", "party management")).getSelected()));
@@ -936,10 +936,10 @@ class Game extends State{
   void moveParty(int px, int py){
     moveParty(px, py, false); //<>//
   }
-  
+   //<>//
   void moveParty(int px, int py, boolean splitting){
     
-    Party p;
+    Party p; //<>//
     
     if (splitting){
       p = splittedParty;
@@ -959,7 +959,7 @@ class Game extends State{
         if(parties[py][px] == null){
           parties[py][px] = p;
         } else {
-          parties[py][px].changeUnitNumber(p.getUnitNumber());
+          parties[py][px].changeUnitNumber(p.getUnitNumber()); //<>//
         }
       }
       p.path = null;
@@ -969,18 +969,18 @@ class Game extends State{
     ArrayList <int[]> path = p.path;
     int i=0;   //<>//
     boolean moved = false;
-    for (int node=1; node<path.size(); node++){
+    for (int node=1; node<path.size(); node++){ //<>//
       int cost = cost(path.get(node)[0], path.get(node)[1], px, py);
       if (p.getMovementPoints() >= cost){
-        if (map.parties[path.get(node)[1]][path.get(node)[0]] == null){ //<>//
+        if (map.parties[path.get(node)[1]][path.get(node)[0]] == null){ //<>// //<>//
           // empty cell
           p.subMovementPoints(cost);
           map.parties[path.get(node)[1]][path.get(node)[0]] = p; //<>//
           if (splitting){
-            splittedParty = null;
+            splittedParty = null; //<>//
             splitting = false;
           } else{
-            map.parties[py][px] = null;
+            map.parties[py][px] = null; //<>//
           }
           px = path.get(node)[0];
           py = path.get(node)[1];
@@ -992,7 +992,7 @@ class Game extends State{
         }
         else if(path.get(node)[0] != px || path.get(node)[1] != py){
           p.clearPath();
-          if (map.parties[path.get(node)[1]][path.get(node)[0]].player == turn){
+          if (map.parties[path.get(node)[1]][path.get(node)[0]].player == turn){ //<>//
             // merge cells
             notificationManager.post("Parties Merged", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
             int movementPoints = min(map.parties[path.get(node)[1]][path.get(node)[0]].getMovementPoints(), p.getMovementPoints()-cost);
@@ -1010,10 +1010,10 @@ class Game extends State{
             if (overflow>0){
               if(map.parties[path.get(node-1)[1]][path.get(node-1)[0]]==null){ //<>//
                 p.setUnitNumber(overflow);
-                map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
+                map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p; //<>//
               } else {
                 map.parties[path.get(node-1)[1]][path.get(node-1)[0]].changeUnitNumber(overflow);
-              }
+              } //<>//
             }
             map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(movementPoints);
           } else if (map.parties[path.get(node)[1]][path.get(node)[0]].player == 2){
@@ -1042,12 +1042,12 @@ class Game extends State{
           else{ //<>//
             int x, y;
             x = path.get(node)[0];
-            y = path.get(node)[1]; //<>//
+            y = path.get(node)[1]; //<>// //<>//
             int otherPlayer = map.parties[y][x].player;
-            notificationManager.post("Battle Started", x, y, turnNumber, turn);
+            notificationManager.post("Battle Started", x, y, turnNumber, turn); //<>//
             notificationManager.post("Battle Started", x, y, turnNumber, otherPlayer);
             p.subMovementPoints(cost);
-            map.parties[y][x] = new Battle(p, map.parties[y][x]);
+            map.parties[y][x] = new Battle(p, map.parties[y][x]); //<>//
             map.parties[y][x] = ((Battle)map.parties[y][x]).doBattle();
             if(map.parties[y][x].player != 2){
               notificationManager.post("Battle Ended. Player "+str(map.parties[y][x].player+1)+" won", x, y, turnNumber, turn);
@@ -1067,7 +1067,7 @@ class Game extends State{
               map.buildings[path.get(node)[1]][path.get(node)[0]] = null;
             }
           }
-          break;
+          break; //<>//
         }
         i++;
       }
@@ -1076,11 +1076,11 @@ class Game extends State{
         break;
       }
       if (tx==px&&ty==py){ //<>//
-        p.path = null;
-      }
+        p.path = null; //<>//
+      } //<>//
     }
     
-    if(cellFollow&&stillThere){
+    if(cellFollow&&stillThere){ //<>//
       selectCell((int)px, (int)py, false);
     }
   }
@@ -1100,13 +1100,113 @@ class Game extends State{
       int cost = cost(path.get(node)[0], path.get(node)[1], path.get(node-1)[0], path.get(node-1)[1]);
       if (movementPoints < cost){
         turns += 1;
-        movementPoints = gameData.getJSONObject("game options").getInt("movement points");
+        movementPoints = gameData.getJSONObject("game options").getInt("movement points"); //<>//
       }
       movementPoints -= cost;
     }
     return turns;
   }
+  void refreshTooltip(){
+    if (((DropDown)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible){
+      switch (((DropDown)getElement("tasks", "party management")).findMouseOver()){
+        case "Defend":toolTipSelected = 0;break;
+        case "Build Farm":
+          tooltipText[1] = String.format(farmToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Farm")));
+          toolTipSelected = 1;
+          break;
+        case "Build Sawmill":
+          tooltipText[6] = String.format(sawmillToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Sawmill"))); //<>//
+          toolTipSelected = 6;
+          break;
+        case "Build Homes":
+          tooltipText[3] = String.format(homesToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Homes")));
+          toolTipSelected = 3;
+          break;
+        case "Build Factory":
+          tooltipText[5] = String.format(factoryToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Factory")));
+          toolTipSelected = 5;
+          break;
+        case "Build Big Factory":
+          tooltipText[18] = String.format(factoryToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Big Factory")));
+          toolTipSelected = 18;
+          break;
+        case "Clear Forest":
+          tooltipText[8] = String.format(clearForestToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Clear Forest")));
+          toolTipSelected = 8;
+          break;
+        case "Build Mine":
+          tooltipText[2] = String.format(mineToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Mine")));
+          toolTipSelected = 2;
+          break;
+        case "Build Smelter":
+          tooltipText[4] = String.format(smelterToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Smelter")));
+          toolTipSelected = 4;
+          break;
+        case "Build Rocket Factory":
+          tooltipText[7] = String.format(rocketFactoryToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Rocket Factory")));
+          toolTipSelected = 7;
+          break;
+        case "Demolish":
+          tooltipText[9] = String.format(demolishingToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Demolish")));
+          toolTipSelected = 9;
+          break;
+        case "Rest":toolTipSelected = 10;break; //<>//
+        case "Super Rest":toolTipSelected = 14;break;
+        default: toolTipSelected = -1;break;
+      }
+    }
+    else if(((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").visible){
+      toolTipSelected = 15;
+    }
+    else if(((Button)getElement("move button", "party management")).mouseOver()&& getPanel("party management").visible){
+      toolTipSelected = 16;
+    }
+    else if (moving&&map.mouseOver() && !UIHovering()){
+      Node [][] nodes = map.moveNodes;
+      int x = floor(map.scaleXInv(mouseX));
+      int y = floor(map.scaleYInv(mouseY));
+      if (x < mapWidth && y<mapHeight && x>=0 && y>=0 && nodes[y][x] != null && !(cellX == x && cellY == y)){
+        if (parties[cellY][cellX] != null){
+          map.updatePath(getPath(cellX, cellY, x, y, map.moveNodes));
+        }
+        if(map.parties[y][x]==null){
+          //Moving into empty tile
+          if (nodes[y][x].cost>gameData.getJSONObject("game options").getInt("movement points"))
+            tooltipText[13] = turnsToolTipRaw.replace("/i", str(getMoveTurns(cellX, cellY, x, y, nodes)));
+          else
+            tooltipText[13] = "Move";
+            toolTipSelected = 13;
+        }
+        else {
+          if (map.parties[y][x].player == turn){
+            //merge parties
+            toolTipSelected = 11;
+          }
+          else {
+            //Attack
+            Party tempAttacker = map.parties[cellY][cellX].clone(); //<>//
+            int units = round(((Slider)getElement("split units", "party management")).getValue());
+            tempAttacker.setUnitNumber(units);
+            int chance = getChanceOfBattleSuccess(tempAttacker, map.parties[y][x]);
+            tooltipText[12] = attackToolTipRaw.replace("/p", str(chance));
+            toolTipSelected = 12;
+          }
+        } 
+      }
+      else{
+        map.cancelPath();
+        toolTipSelected = -1;
+      }
+    } 
+    else{
+      map.cancelPath();
+      toolTipSelected = -1;
+    }
+    map.mapActive = !UIHovering();
+  }
+  
   ArrayList<String> mouseEvent(String eventType, int button){
+    refreshTooltip();
     if (button == RIGHT){
       if (eventType == "mousePressed"){
         if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn && cellSelected && !UIHovering()){
@@ -1169,104 +1269,6 @@ class Game extends State{
           }
         }
       }
-    }
-    if (eventType == "mouseMoved" || (button==RIGHT&&eventType == "mouseDragged")){
-      if (((DropDown)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible){
-        switch (((DropDown)getElement("tasks", "party management")).findMouseOver()){
-          case "Defend":toolTipSelected = 0;break;
-          case "Build Farm":
-            tooltipText[1] = String.format(farmToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Farm")));
-            toolTipSelected = 1;
-            break;
-          case "Build Sawmill":
-            tooltipText[6] = String.format(sawmillToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Sawmill"))); //<>//
-            toolTipSelected = 6;
-            break;
-          case "Build Homes":
-            tooltipText[3] = String.format(homesToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Homes")));
-            toolTipSelected = 3;
-            break;
-          case "Build Factory":
-            tooltipText[5] = String.format(factoryToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Factory")));
-            toolTipSelected = 5;
-            break;
-          case "Build Big Factory":
-            tooltipText[18] = String.format(factoryToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Big Factory")));
-            toolTipSelected = 18;
-            break;
-          case "Clear Forest":
-            tooltipText[8] = String.format(clearForestToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Clear Forest")));
-            toolTipSelected = 8;
-            break;
-          case "Build Mine":
-            tooltipText[2] = String.format(mineToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Mine")));
-            toolTipSelected = 2;
-            break;
-          case "Build Smelter":
-            tooltipText[4] = String.format(smelterToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Smelter")));
-            toolTipSelected = 4;
-            break;
-          case "Build Rocket Factory":
-            tooltipText[7] = String.format(rocketFactoryToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Rocket Factory")));
-            toolTipSelected = 7;
-            break;
-          case "Demolish":
-            tooltipText[9] = String.format(demolishingToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Demolish")));
-            toolTipSelected = 9;
-            break;
-          case "Rest":toolTipSelected = 10;break;
-          case "Super Rest":toolTipSelected = 14;break;
-          default: toolTipSelected = -1;break;
-        }
-      }
-      else if(((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").visible){
-        toolTipSelected = 15;
-      }
-      else if(((Button)getElement("move button", "party management")).mouseOver()&& getPanel("party management").visible){
-        toolTipSelected = 16;
-      }
-      else if (moving&&map.mouseOver() && !UIHovering()){
-          Node [][] nodes = map.moveNodes;
-          int x = floor(map.scaleXInv(mouseX));
-          int y = floor(map.scaleYInv(mouseY));
-          if (x < mapWidth && y<mapHeight && x>=0 && y>=0 && nodes[y][x] != null && !(cellX == x && cellY == y)){
-            if (parties[cellY][cellX] != null){
-              map.updatePath(getPath(cellX, cellY, x, y, map.moveNodes));
-            }
-            if(map.parties[y][x]==null){
-              //Moving into empty tile
-              if (nodes[y][x].cost>gameData.getJSONObject("game options").getInt("movement points"))
-                tooltipText[13] = turnsToolTipRaw.replace("/i", str(getMoveTurns(cellX, cellY, x, y, nodes)));
-              else
-                tooltipText[13] = "Move";
-                toolTipSelected = 13;
-            }
-            else {
-              if (map.parties[y][x].player == turn){
-                //merge parties
-                toolTipSelected = 11;
-              }
-              else {
-                //Attack
-                Party tempAttacker = map.parties[cellY][cellX].clone();
-                int units = round(((Slider)getElement("split units", "party management")).getValue());
-                tempAttacker.setUnitNumber(units);
-                int chance = getChanceOfBattleSuccess(tempAttacker, map.parties[y][x]);
-                tooltipText[12] = attackToolTipRaw.replace("/p", str(chance));
-                toolTipSelected = 12;
-              }
-            } 
-          }
-          else{
-            map.cancelPath();
-            toolTipSelected = -1;
-          }
-        } 
-      else{
-        map.cancelPath();
-        toolTipSelected = -1;
-      }
-      map.mapActive = !UIHovering();
     }
     return new ArrayList<String>();
   }
@@ -1557,6 +1559,7 @@ class Game extends State{
   }
   
   ArrayList<String> keyboardEvent(String eventType, char _key){
+    refreshTooltip();
     if (_key == ESC){
       getPanel("pause screen").visible = !getPanel("pause screen").visible;
     }
