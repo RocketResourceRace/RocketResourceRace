@@ -57,6 +57,7 @@
     },
     {
       "id": "Demolish",
+      "img": "data/task_demolish.png",
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
@@ -67,6 +68,7 @@
     },
     {
       "id": "Build Farm",
+      "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
       "terrain": ["grass"],
@@ -81,6 +83,7 @@
     },
     {
       "id": "Build Sawmill",
+      "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
       "terrain": ["forest"],
@@ -95,6 +98,7 @@
     },
     {
       "id": "Build Homes",
+      "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
       "terrain": ["grass", "sand", "hills"],
@@ -109,6 +113,7 @@
     },
     {
       "id": "Build Factory",
+      "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
       "terrain": ["grass", "sand"],
@@ -123,6 +128,7 @@
     },
     {
       "id": "Build Mine",
+      "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
       "terrain": ["hills"],
@@ -137,6 +143,7 @@
     },
     {
       "id": "Build Smelter",
+      "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
       "terrain": ["grass", "sand"],
@@ -151,6 +158,7 @@
     },
     {
       "id": "Build Big Factory",
+      "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
       "terrain": ["grass", "sand"],
@@ -165,6 +173,7 @@
     },
     {
       "id": "Build Rocket Factory",
+      "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
       "terrain": ["grass", "sand"],
@@ -179,6 +188,7 @@
     },
     {
       "id": "Defend",
+      "img": "data/task_defend.png",
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
@@ -193,6 +203,7 @@
     },
     {
       "id": "Super Rest",
+      "img": "data/task_super_rest.png",
       "consumption":[
         {"id": "food","quantity":0.6}
       ],
@@ -201,6 +212,7 @@
     },
     {
       "id": "Clear Forest",
+      "img": "data/task_clear_forest.png",
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
@@ -213,17 +225,18 @@
     },
     {
       "id": "Work Farm",
+      "img": "data/task_farm.png",
       "production":[
-        {"id": "food","quantity":0.4}
+        {"id": "food","quantity":0.3}
       ],
       "consumption":[
-        {"id": "food","quantity":0.2},
         {"id": "wood","quantity":0.01}
       ],
       "buildings":["Farm"]
     },
     {
       "id": "Produce Ore",
+      "img": "data/task_produce.png",
       "production":[
         {"id": "ore","quantity":0.1}
       ],
@@ -235,6 +248,7 @@
     },
     {
       "id": "Produce Metal",
+      "img": "data/task_produce.png",
       "production":[
         {"id": "metal","quantity":0.1}
       ],
@@ -246,6 +260,7 @@
     },
     {
       "id": "Produce Concrete",
+      "img": "data/task_produce.png",
       "production":[
         {"id": "concrete","quantity":0.05}
       ],
@@ -257,6 +272,7 @@
     },
     {
       "id": "Produce Cable",
+      "img": "data/task_produce.png",
       "production":[
         {"id": "cable","quantity":0.05}
       ],
@@ -268,6 +284,7 @@
     },
     {
       "id": "Produce Wood",
+      "img": "data/task_produce.png",
       "production":[
         {"id": "wood","quantity":0.2}
       ],
@@ -278,6 +295,7 @@
     },
     {
       "id": "Produce Rocket Parts",
+      "img": "data/task_produce.png",
       "production":[
         {"id": "rocket parts","quantity":0.1}
       ],
@@ -289,6 +307,7 @@
     },
     {
       "id": "Produce Rocket",
+      "img": "data/task_produce.png",
       "production":[
         {"id": "rocket progress","quantity":0.1}
       ],
@@ -300,17 +319,6 @@
       ],
       "buildings":["Rocket Factory"]
     },
-    {
-      "id": "Produce Ore",
-      "production":[
-        {"id": "ore","quantity":0.1}
-      ],
-      "consumption":[
-        {"id": "food","quantity":0.2},
-        {"id": "wood","quantity":0.02}
-      ],
-      "buildings":["Mine"]
-    }
   ],
 
   "buildings":[

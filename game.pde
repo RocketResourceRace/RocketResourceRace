@@ -164,7 +164,6 @@ class Game extends State{
   JSONArray taskInitialCost(String type){
     // Find initial cost for task (such as for buildings, 'Build Farm')
     JSONArray ja = findJSONObject(gameData.getJSONArray("tasks"), type).getJSONArray("initial cost");
-    if (ja == null)print("invalid task type, ", type);
     return ja;
   }
   int taskTurns(String task){

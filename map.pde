@@ -379,10 +379,9 @@ class Map extends Element{
              }
              int imgSize = round(blockSize);
              drawCroppedImage(floor(c.x), floor(c.y), imgSize, imgSize, tempPartyImages[parties[y][x].player]);
-             for (String task: taskImages.keySet()){
-               if (parties[y][x].task.contains(task)){
-                 drawCroppedImage(floor(c.x+13*blockSize/32), floor(c.y+blockSize/2), ceil(3*blockSize/16), ceil(3*blockSize/16), tempTaskImages.get(task));
-               }
+             JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), parties[y][x].task);
+             if (jo != null && !jo.isNull("img")){
+               drawCroppedImage(floor(c.x+13*blockSize/32), floor(c.y+blockSize/2), ceil(3*blockSize/16), ceil(3*blockSize/16), tempTaskImages.get(parties[y][x].task));
              }
            }
          }

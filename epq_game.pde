@@ -180,22 +180,35 @@ void loadSounds(){
 }
 
 void loadImages(){
-  tileImages = new HashMap<String, PImage>();
-  lowImages = new HashMap<String, PImage>();
-  buildingImages = new HashMap<String, PImage[]>();
-  for (int i=0; i<gameData.getJSONArray("terrain").size(); i++){
-    JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
-    tileImages.put(tileType.getString("id"), loadImage(tileType.getString("img")));
-    if (!tileType.isNull("low img")){
-      lowImages.put(tileType.getString("id"), loadImage(tileType.getString("low img")));
+  try{
+    tileImages = new HashMap<String, PImage>();
+    lowImages = new HashMap<String, PImage>();
+    buildingImages = new HashMap<String, PImage[]>();
+    taskImages = new HashMap<String, PImage>();
+    for (int i=0; i<gameData.getJSONArray("terrain").size(); i++){
+      JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
+      tileImages.put(tileType.getString("id"), loadImage(tileType.getString("img")));
+      if (!tileType.isNull("low img")){
+        lowImages.put(tileType.getString("id"), loadImage(tileType.getString("low img")));
+      }
+    }
+    for (int i=0; i<gameData.getJSONArray("buildings").size(); i++){
+      JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
+      PImage[] p = new PImage[buildingType.getJSONArray("img").size()];
+      for (int i2=0; i2< buildingType.getJSONArray("img").size(); i2++)
+        p[i2] = loadImage(buildingType.getJSONArray("img").getString(i2));
+      buildingImages.put(buildingType.getString("id"), p);
+    }
+    for (int i=0; i<gameData.getJSONArray("tasks").size(); i++){
+      JSONObject task = gameData.getJSONArray("tasks").getJSONObject(i);
+      if (!task.isNull("img")){
+        taskImages.put(task.getString("id"), loadImage(task.getString("img")));
+      }
     }
   }
-  for (int i=0; i<gameData.getJSONArray("buildings").size(); i++){
-    JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
-    PImage[] p = new PImage[buildingType.getJSONArray("img").size()];
-    for (int i2=0; i2< buildingType.getJSONArray("img").size(); i2++)
-      p[i2] = loadImage(buildingType.getJSONArray("img").getString(i2));
-    buildingImages.put(buildingType.getString("id"), p);
+  catch (Exception e){
+    println("Error loading images");
+    println(e);
   }
 }
 
@@ -230,15 +243,6 @@ void setup(){
     loadImage("data/red_flag.png"),
     loadImage("data/battle.png")
   };
-  
-  taskImages = new HashMap<String, PImage>();
-  taskImages.put("Work Farm", loadImage("data/task_farm.png"));
-  taskImages.put("Defend", loadImage("data/task_defend.png"));
-  taskImages.put("Demolish", loadImage("data/task_demolish.png"));
-  taskImages.put("Forest", loadImage("data/task_clear_forest.png"));
-  taskImages.put("Build", loadImage("data/task_construction.png"));
-  taskImages.put("Super", loadImage("data/task_super_rest.png"));
-  taskImages.put("Produce", loadImage("data/task_produce.png"));
   states = new HashMap<String, State>();
   addState("menu", new Menu());
   addState("map", new Game());
