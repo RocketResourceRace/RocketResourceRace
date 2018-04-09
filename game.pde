@@ -325,7 +325,12 @@ class Game extends State{
       }
       jo = findJSONObject(gameData.getJSONArray("tasks"), parties[cellY][cellX].getTask());
       if (!jo.isNull("movement points")){
-        parties[cellY][cellX].subMovementPoints(jo.getInt("movement points"));
+        if (parties[cellY][cellX].getMovementPoints()-jo.getInt("movement points") >= 0){
+          parties[cellY][cellX].subMovementPoints(jo.getInt("movement points"));
+        }
+        else{
+          parties[cellY][cellX].changeTask("Rest");
+        }
       }
       
       else if (parties[cellY][cellX].getTask() == "Launch Rocket"){
