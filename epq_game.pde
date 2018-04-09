@@ -17,6 +17,7 @@ HashMap<String, SoundFile> sfx;
 float volume = 0.5;
 int prevT;
 boolean soundOn = true;
+JSONObject gameData;
 
 // Event-driven methods
 void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}
@@ -39,6 +40,35 @@ color brighten(color old, int off){
 
 String roundDp(String val, int dps){
   return (new BigDecimal(""+val).divide(new BigDecimal("1"), dps, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
+}
+
+int JSONIndex(JSONArray j, String id){
+  for (int i=0; i<j.size(); i++){
+    if (j.getJSONObject(i).getString("id").equals(id)){
+      return i;
+    }
+  }
+  return -1;
+}
+
+JSONObject findJSONObject(JSONArray j, String id){
+  for (int i=0; i<j.size(); i++){
+    if (j.getJSONObject(i).getString("id").equals(id)){
+      return j.getJSONObject(i);
+    }
+  }
+  return null;
+}
+
+boolean JSONContainsStr(JSONArray j, String id){
+  if (id == null || j == null)
+    return false;
+  for (int i=0; i<j.size(); i++){
+    if (j.getString(i).equals(id)){
+      return true;
+    }
+  }
+  return false;
 }
 
 void doubleClick(){
@@ -105,11 +135,11 @@ int completeSmooth = 5;
 
 color[] playerColours = new color[]{color(0, 0, 255), color(255, 0, 0)};
 
-PImage[] tileImages;
-PImage[][] buildingImages;
+HashMap<String, PImage> tileImages;
+HashMap<String, PImage[]> buildingImages;
 PImage[] partyImages;
 HashMap<String, PImage> taskImages;
-HashMap<Integer, PImage> lowImages;
+HashMap<String, PImage> lowImages;
 
 void changeSetting(String id, String newValue){
   settings.set(id, newValue);
@@ -149,10 +179,52 @@ void loadSounds(){
   }
 }
 
+void loadImages(){
+  try{
+    tileImages = new HashMap<String, PImage>();
+    lowImages = new HashMap<String, PImage>();
+    buildingImages = new HashMap<String, PImage[]>();
+    taskImages = new HashMap<String, PImage>();
+    for (int i=0; i<gameData.getJSONArray("terrain").size(); i++){
+      JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
+      tileImages.put(tileType.getString("id"), loadImage(tileType.getString("img")));
+      if (!tileType.isNull("low img")){
+        lowImages.put(tileType.getString("id"), loadImage(tileType.getString("low img")));
+      }
+    }
+    for (int i=0; i<gameData.getJSONArray("buildings").size(); i++){
+      JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
+      PImage[] p = new PImage[buildingType.getJSONArray("img").size()];
+      for (int i2=0; i2< buildingType.getJSONArray("img").size(); i2++)
+        p[i2] = loadImage(buildingType.getJSONArray("img").getString(i2));
+      buildingImages.put(buildingType.getString("id"), p);
+    }
+    for (int i=0; i<gameData.getJSONArray("tasks").size(); i++){
+      JSONObject task = gameData.getJSONArray("tasks").getJSONObject(i);
+      if (!task.isNull("img")){
+        taskImages.put(task.getString("id"), loadImage(task.getString("img")));
+      }
+    }
+  }
+  catch (Exception e){
+    println("Error loading images");
+    println(e);
+  }
+}
+
+
+float sum(float[] l){
+  float c=0;
+  for (int i=0; i<l.length; i++)
+    c += l[i];
+  return c;
+}
+
 
 float halfScreenWidth;
 float halfScreenHeight;
 void setup(){
+  gameData = loadJSONObject("data.json");
   settings = new StringDict();
   //if
   settingsReadFile = createReader("settings.txt");
@@ -163,43 +235,14 @@ void setup(){
   TextScale = float(settings.get("text_scale"));
   mapSize = int(settings.get("mapSize"));
   volume = float(settings.get("volume"));
-  tileImages = new PImage[]{
-    loadImage("data/water.png"),
-    loadImage("data/sand.png"),
-    loadImage("data/grass.png"),
-    loadImage("data/forest.png"),
-    loadImage("data/hill.png"),
-  };
-  lowImages = new HashMap<Integer, PImage>();
-  lowImages.put(3, loadImage("data/forest_low.png"));
-  lowImages.put(0, loadImage("data/water_low.png"));
-  buildingImages = new PImage[][]{
-    {loadImage("data/construction_start.png"),
-    loadImage("data/construction_mid.png"),
-    loadImage("data/construction_end.png")},
-    {loadImage("data/house.png")},
-    {loadImage("data/farm.png")},
-    {loadImage("data/mine.png")},
-    {loadImage("data/smelter.png")},
-    {loadImage("data/factory.png")},
-    {loadImage("data/sawmill.png")},
-    {loadImage("data/big_factory.png")},
-    {loadImage("data/rocket_factory_empty.png"),
-    loadImage("data/rocket_factory_full.png")}
-  };
+  
+  loadImages();
+  
   partyImages = new PImage[]{
     loadImage("data/blue_flag.png"),
     loadImage("data/red_flag.png"),
     loadImage("data/battle.png")
   };
-  taskImages = new HashMap<String, PImage>();
-  taskImages.put("Work Farm", loadImage("data/task_farm.png"));
-  taskImages.put("Defend", loadImage("data/task_defend.png"));
-  taskImages.put("Demolish", loadImage("data/task_demolish.png"));
-  taskImages.put("Forest", loadImage("data/task_clear_forest.png"));
-  taskImages.put("Build", loadImage("data/task_construction.png"));
-  taskImages.put("Super", loadImage("data/task_super_rest.png"));
-  taskImages.put("Produce", loadImage("data/task_produce.png"));
   states = new HashMap<String, State>();
   addState("menu", new Menu());
   addState("map", new Game());

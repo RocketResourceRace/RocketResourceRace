@@ -24,10 +24,13 @@ class Event{
 
 class Action{
   float turns, initialTurns;
-  String type;
-  Action(String type, float turns){
+  String type, notification, terrain, building;
+  Action(String type, String notification, float turns, String building, String terrain){
     this.type = type;
     this.turns = turns;
+    this.notification = notification;
+    this.building = building;
+    this.terrain = terrain;
     initialTurns = turns;
   }
 }

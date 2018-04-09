@@ -1,0 +1,433 @@
+
+{
+  "game options":{
+    "starting resources":[{"id":"food", "quantity":500},
+                          {"id":"wood", "quantity":500}],
+    "movement points": 64
+  },
+  "terrain":[
+    {
+      "id": "water",
+      "display name": "Water",
+      "img": "data/water.png",
+      "low img": "data/water_low.png",
+      "weighting": 1,
+      "movement cost": 16
+    },
+    {
+      "id": "sand",
+      "display name": "Desert",
+      "img": "data/sand.png",
+      "weighting": 1,
+      "movement cost": 12
+    },
+    {
+      "id": "grass",
+      "display name": "Grassland",
+      "img": "data/grass.png",
+      "weighting": 3,
+      "movement cost": 8
+    },
+    {
+      "id": "forest",
+      "display name": "Forest",
+      "img": "data/forest.png",
+      "low img": "data/forest_low.png",
+      "weighting": 1,
+      "movement cost": 12
+    },
+    {
+      "id": "hills",
+      "display name": "Hills",
+      "img": "data/hill.png",
+      "weighting": 0,
+      "movement cost": 28
+    },
+  ],
+
+  "tasks":[
+    {
+      "id": "Rest",
+      "consumption":[
+        {"id": "food","quantity":0.1}
+      ],
+      "production":[
+        {"id": "civilians","quantity":0.02}
+      ]
+    },
+    {
+      "id": "Demolish",
+      "img": "data/task_demolish.png",
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "action":{
+        "type": "Demolish",
+        "notification": "Building Demolished",
+        "turns": 3,
+        "building": ""
+      }
+    },
+    {
+      "id": "Build Farm",
+      "img": "data/task_construction.png",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":200}],
+      "action":{
+        "type": "Build Farm",
+        "notification": "Farm Built",
+        "turns": 3,
+        "building": "Farm"
+      }
+    },
+    {
+      "id": "Build Sawmill",
+      "img": "data/task_construction.png",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["forest"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":200}],
+      "action":{
+        "type": "Build Sawmill",
+        "notification": "Sawmill Built",
+        "turns": 5,
+        "building": "Sawmill"
+      }
+    },
+    {
+      "id": "Build Homes",
+      "img": "data/task_construction.png",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand", "hills"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":200}],
+      "action":{
+        "type": "Build Homes",
+        "notification": "Homes Built",
+        "turns": 3,
+        "building": "Homes"
+      }
+    },
+    {
+      "id": "Build Factory",
+      "img": "data/task_construction.png",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":200}],
+      "action":{
+        "type": "Build Factory",
+        "notification": "Factory Built",
+        "turns": 8,
+        "building": "Factory"
+      }
+    },
+    {
+      "id": "Build Mine",
+      "img": "data/task_construction.png",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["hills"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":200}],
+      "action":{
+        "type": "Build Mine",
+        "notification": "Mine Built",
+        "turns": 6,
+        "building": "Mine"
+      }
+    },
+    {
+      "id": "Build Smelter",
+      "img": "data/task_construction.png",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":200}],
+      "action":{
+        "type": "Build Smelter",
+        "notification": "Smelter Built",
+        "turns": 8,
+        "building": "Smelter"
+      }
+    },
+    {
+      "id": "Build Big Factory",
+      "img": "data/task_construction.png",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":200}],
+      "action":{
+        "type": "Build Big Factory",
+        "notification": "Big Factory Built",
+        "turns": 12,
+        "building": "Big Factory"
+      }
+    },
+    {
+      "id": "Build Rocket Factory",
+      "img": "data/task_construction.png",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":200}],
+      "action":{
+        "type": "Build Rocket Factory",
+        "notification": "Rocket Factory Built",
+        "turns": 18,
+        "building": "Rocket Factory"
+      }
+    },
+    {
+      "id": "Defend",
+      "img": "data/task_defend.png",
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "movement points": 32,
+      "strength": 3
+    },
+    {
+      "id": "Battle",
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "auto enabled": true
+    },
+    {
+      "id": "Super Rest",
+      "img": "data/task_super_rest.png",
+      "consumption":[
+        {"id": "food","quantity":0.6}
+      ],
+      "production": [{"id": "civilians", "quantity":0.1}],
+      "buildings": ["Homes"]
+    },
+    {
+      "id": "Clear Forest",
+      "img": "data/task_clear_forest.png",
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "terrain":["forest"],
+      "action":{
+        "type": "Clear Forest",
+        "notification": "Forest Cleared",
+        "turns": 2,
+        "terrain": "grass"
+      },
+      "buildings": []
+    },
+    {
+      "id": "Work Farm",
+      "img": "data/task_farm.png",
+      "production":[
+        {"id": "food","quantity":0.3}
+      ],
+      "consumption":[
+        {"id": "wood","quantity":0.01}
+      ],
+      "buildings":["Farm"]
+    },
+    {
+      "id": "Produce Ore",
+      "img": "data/task_produce.png",
+      "production":[
+        {"id": "ore","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.02}
+      ],
+      "buildings":["Mine"]
+    },
+    {
+      "id": "Produce Metal",
+      "img": "data/task_produce.png",
+      "production":[
+        {"id": "metal","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.02}
+      ],
+      "buildings":["Smelter"]
+    },
+    {
+      "id": "Produce Concrete",
+      "img": "data/task_produce.png",
+      "production":[
+        {"id": "concrete","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.1}
+      ],
+      "buildings":["Factory"]
+    },
+    {
+      "id": "Produce Cable",
+      "img": "data/task_produce.png",
+      "production":[
+        {"id": "cable","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.02}
+      ],
+      "buildings":["Factory"]
+    },
+    {
+      "id": "Produce Wood",
+      "img": "data/task_produce.png",
+      "production":[
+        {"id": "wood","quantity":0.2}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+      ],
+      "buildings":["Sawmill"]
+    },
+    {
+      "id": "Produce Rocket Parts",
+      "img": "data/task_produce.png",
+      "production":[
+        {"id": "rocket parts","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "metal","quantity":1}
+      ],
+      "buildings":["Big Factory"]
+    },
+    {
+      "id": "Produce Rocket",
+      "img": "data/task_produce.png",
+      "production":[
+        {"id": "rocket progress","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "rocket parts","quantity":1},
+        {"id": "cable","quantity":0.1},
+        {"id": "concrete","quantity":1}
+      ],
+      "buildings":["Rocket Factory"]
+    },
+  ],
+
+  "buildings":[
+    {
+      "id": "Homes",
+      "img": ["house.png"],
+    },
+    {
+      "id": "Farm",
+      "img": ["farm.png"],
+    },
+    {
+      "id": "Mine",
+      "img": ["mine.png"],
+    },
+    {
+      "id": "Smelter",
+      "img": ["smelter.png"],
+    },
+    {
+      "id": "Factory",
+      "img": ["factory.png"],
+    },
+    {
+      "id": "Big Factory",
+      "img": ["big_factory.png"],
+    },
+    {
+      "id": "Rocket Factory",
+      "img": ["rocket_factory_empty.png",
+              "rocket_factory_full.png"],
+    },
+    {
+      "id": "Sawmill",
+      "img": ["sawmill.png"],
+    },
+    {
+      "id": "Construction",
+      "img": ["construction_start.png",
+              "construction_mid.png",
+              "construction_end.png"]
+    }
+  ],
+
+  "resources":[
+    {
+      "id": "food",
+      "resource manager": 2
+    },
+    {
+      "id": "wood",
+      "resource manager": 2
+    },
+    {
+      "id": "stone",
+      "resource manager": 2
+    },
+    {
+      "id": "metal",
+      "resource manager": 2
+    },
+    {
+      "id": "energy",
+      "resource manager": 2
+    },
+    {
+      "id": "concrete",
+      "resource manager": 1
+    },
+    {
+      "id": "cable",
+      "resource manager": 1
+    },
+    {
+      "id": "rocket parts",
+      "resource manager": 1
+    },
+    {
+      "id": "ore",
+      "resource manager": 1
+    },
+    {
+      "id": "rocket progress",
+      "resource manager": 0
+    },
+    {
+      "id": "civilians",
+      "resource manager": 0
+    },
+  ]
+}

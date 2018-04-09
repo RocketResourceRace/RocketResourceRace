@@ -313,16 +313,11 @@ class ResourceSummary extends Element{
     return m;
   }
   int totalWidth(){
-    int startRes;
-    if (expanded){
-      startRes = numRes-1;
-    }
-    else{
-      startRes = 3;
-    }
     int tot = 0;
-    for (int i=startRes; i>=0; i--)
-      tot += columnWidth(i)+GAP;
+    for (int i=numRes-1; i>=0; i--){
+      if (gameData.getJSONArray("resources").getJSONObject(i).getInt("resource manager") <= ((expanded) ? 0:1)) continue;
+        tot += columnWidth(i)+GAP;
+    }
     return tot;
   }
   
@@ -337,20 +332,15 @@ class ResourceSummary extends Element{
   }
   
   void draw(){
-    int cw = 0, startRes;
+    int cw = 0;
     int w, yLevel, tw = totalWidth();
-    if (expanded){
-      startRes = numRes-1;
-    }
-    else{
-      startRes = 3;
-    }
     pushStyle();
     textAlign(LEFT, TOP);
     fill(120);
     rect(width-tw-x+xOffset-GAP/2, y+yOffset, tw, h);
     rectMode(CORNERS);
-    for (int i=startRes; i>=0; i--){
+    for (int i=numRes-1; i>=0; i--){
+      if (gameData.getJSONArray("resources").getJSONObject(i).getInt("resource manager") <= ((expanded) ? 0:1)) continue;
       w = columnWidth(i);
       fill(getFill(i));
       textSize(10*TextScale);

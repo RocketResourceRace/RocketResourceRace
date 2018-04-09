@@ -37,13 +37,13 @@ class Party{
     pathTurns = 0;
   }
   void changeTask(String task){
-    switch(task){
-      case "Garrison": strength = 5; break;
-      case "Defend": strength = 3; break;
-      case "Rest": strength = 1.5; break;
-      case "default": strength = 1; break;
-    }
     this.task = task;
+    JSONObject jTask = findJSONObject(gameData.getJSONArray("tasks"), this.getTask());
+    if (!jTask.isNull("strength")){
+      this.strength = jTask.getInt("strength");
+    }
+    else
+      this.strength = 1.5;
   }
   void setPathTurns(int v){
     pathTurns = v;
@@ -80,23 +80,23 @@ class Party{
     //Use this to calculate the number of turns a task will take for this party
     return ceil(turnsCost/(sqrt(unitNumber)/10));
   }
-  String progressAction(){
+  Action progressAction(){
     if (actions.size() == 0){
-      return "";
+      return null;
     }
     else if (actions.get(0).turns-sqrt((float)unitNumber)/10 <= 0){
-      return actions.get(0).type;
+      return actions.get(0);
     }
     else{
       actions.get(0).turns -= sqrt((float)unitNumber)/10;
       if (actions.get(0).type.contains("Build")) {
         if (actions.get(0).turns-sqrt((float)unitNumber)/10 <= 0){
-          return "Construction End";
+          return new Action("Construction End", "Construction End", 0, null, null);
         } else {
-          return "Construction Mid";
+          return new Action("Construction Mid", "Construction Mid", 0, null, null);
         }
       }
-      return "";
+      return null;
     }
   }
   void clearCurrentAction(){
