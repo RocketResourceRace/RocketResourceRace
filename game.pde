@@ -350,7 +350,6 @@ class Game extends State{
         if (a != null && a.type != null){
           float[] co = buildingCost(parties[cellY][cellX].getTask());
           if (sufficientResources(players[turn].resources, co, true)){
-            print(1);
             parties[cellY][cellX].clearActions();         
             ((Text)getElement("turns remaining", "party management")).setText("");
             parties[cellY][cellX].addAction(taskAction(parties[cellY][cellX].getTask()));  

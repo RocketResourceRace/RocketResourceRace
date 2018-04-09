@@ -2,8 +2,7 @@
 {
   "initial conditions":{
     "resources":[{"id":"food", "quantity":500},
-                 {"id":"wood", "quantity":500},
-                 {"id":"rocket progress", "quantity":0}]
+                 {"id":"wood", "quantity":500},]
   },
   "terrain":[
     {
@@ -280,7 +279,7 @@
         {"id": "food","quantity":0.2},
         {"id": "wood","quantity":0.02}
       ],
-      "buildings":["Mine"]
+      "buildings":["Factory"]
     },
     {
       "id": "Produce Wood",
@@ -303,7 +302,7 @@
         {"id": "food","quantity":0.2},
         {"id": "metal","quantity":1}
       ],
-      "buildings":["Rocket Factory"]
+      "buildings":["Big Factory"]
     },
     {
       "id": "Produce Rocket",
