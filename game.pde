@@ -178,7 +178,7 @@ class Game extends State{
   Action taskAction(String task){
     JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task).getJSONObject("action");
     if (jo != null)
-      return new Action(task, jo.getInt("turns"));
+      return new Action(task, jo.getString("notification"), jo.getInt("turns"), jo.getString("building"), jo.getString("terrain"));
     return null;
   }
   float[] JSONToCost(JSONArray ja){
@@ -311,9 +311,10 @@ class Game extends State{
       String task = m.task;
       parties[cellY][cellX].clearPath();
       parties[cellY][cellX].target = null;
-      if (parties[cellY][cellX].getTask() == "Defend"){
+      JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), parties[cellY][cellX].getTask());
+      if (!jo.isNull("movement points")){
         //Changing from defending
-        parties[cellY][cellX].setMovementPoints(min(parties[cellY][cellX].getMovementPoints()+DEFENDCOST, MOVEMENTPOINTS));
+        parties[cellY][cellX].setMovementPoints(min(parties[cellY][cellX].getMovementPoints()+jo.getInt("movement points"), MOVEMENTPOINTS));
       }
       parties[cellY][cellX].changeTask(task);
       if (parties[cellY][cellX].getTask() == "Rest"){
@@ -324,8 +325,9 @@ class Game extends State{
         moving = false;
         map.cancelMoveNodes();
       }
-      if (parties[cellY][cellX].getTask() == "Defend"){
-        parties[cellY][cellX].subMovementPoints(DEFENDCOST);
+      jo = findJSONObject(gameData.getJSONArray("tasks"), parties[cellY][cellX].getTask());
+      if (!jo.isNull("movement points")){
+        parties[cellY][cellX].subMovementPoints(jo.getInt("movement points"));
       }
       
       else if (parties[cellY][cellX].getTask() == "Launch Rocket"){
@@ -520,61 +522,34 @@ class Game extends State{
                 }
               }
             }
-            String action = map.parties[y][x].progressAction();
-            switch (action){
-              //-1 building types
-              case "Clear Forest":
-                map.terrain[y][x] = terrainIndex("grass");
-                players[turn].resources[getResIndex("wood")]+=100;
-                notificationManager.post("Forest Cleared", x, y, turnNumber, turn);
-                break;
-              case "Build Farm":
-                map.buildings[y][x] = new Building(buildingIndex("Farm"));
-                notificationManager.post("Farm Built", x, y, turnNumber, turn);
-                break;
-              case "Build Sawmill":
-                map.buildings[y][x] = new Building(buildingIndex("Sawmill"));
-                notificationManager.post("Sawmill Built", x, y, turnNumber, turn);
-                break;
-              case "Build Homes":
-                map.buildings[y][x] = new Building(buildingIndex("Homes"));
-                notificationManager.post("Homes Built", x, y, turnNumber, turn);
-                break;
-              case "Build Factory":
-                map.buildings[y][x] = new Building(buildingIndex("Factory"));
-                notificationManager.post("Factory Built", x, y, turnNumber, turn);
-                break;
-              case "Build Mine":
-                map.buildings[y][x] = new Building(buildingIndex("Mine"));
-                notificationManager.post("Mine Built", x, y, turnNumber, turn);
-                break;
-              case "Build Smelter":
-                map.buildings[y][x] = new Building(buildingIndex("Smelter"));
-                notificationManager.post("Smelter Built", x, y, turnNumber, turn);
-                break;
-              case "Build Rocket Factory":
-                map.buildings[y][x] = new Building(buildingIndex("Rocket Factory"));
-                notificationManager.post("Rocket Factory Built", x, y, turnNumber, turn);
-                break;
-              case "Build Big Factory":
-                map.buildings[y][x] = new Building(buildingIndex("Big Factory"));
-                notificationManager.post("Big Factory Built", x, y, turnNumber, turn);
-                break;
-              case "Demolish":
-                //reclaimRes(players[turn], buildingCosts[5]);
-                notificationManager.post("Building Demolished", x, y, turnNumber, turn);
-                map.buildings[y][x] = null;
-                break;
-              case "Construction Mid":
-                map.buildings[y][x].image_id = 1;
-                action = "";
-                break;
-              case "Construction End":
-                map.buildings[y][x].image_id = 2;
-                action = "";
-                break;
+            Action action = map.parties[y][x].progressAction();
+            if (action != null){
+              if (!action.type.equals("Construction Mid") && !action.type.equals("Construction End"))
+                notificationManager.post(action.notification, x, y, turnNumber, turn);
+              if (action.building != null){
+                if (action.building.equals(""))
+                  buildings[y][x] = null;
+                else
+                  buildings[y][x] = new Building(buildingIndex(action.building));
+              }
+              if (action.terrain != null){
+                if (terrain[y][x] == terrainIndex("Forest"))
+                  players[turn].resources[getResIndex("wood")]+=100;
+                terrain[y][x] = terrainIndex(action.terrain);
+              }
+              switch (action.type){
+                //-1 building types
+                case "Construction Mid":
+                  map.buildings[y][x].image_id = 1;
+                  action = null;
+                  break;
+                case "Construction End":
+                  map.buildings[y][x].image_id = 2;
+                  action = null;
+                  break;
+              }
             }
-            if (action != ""){
+            if (action != null){
               map.parties[y][x].clearCurrentAction();
               map.parties[y][x].changeTask("Rest");
             }
@@ -633,11 +608,12 @@ class Game extends State{
                       break;
                     }
                   } else if(resourceAmountsAvailable[getResIndex("food")]<1){
-                    map.parties[y][x].setUnitNumber(floor(map.parties[y][x].getUnitNumber()-(1-resourceAmountsAvailable[getResIndex("food")])*taskOutcomes[task][resource]*map.parties[y][x].getUnitNumber()));
+                    float lost = (1-resourceAmountsAvailable[getResIndex("food")])*taskOutcomes[task][resource]*map.parties[y][x].getUnitNumber();
+                    map.parties[y][x].setUnitNumber(floor(map.parties[y][x].getUnitNumber()-lost));
                     if (map.parties[y][x].getUnitNumber() == 0)
                       notificationManager.post("Party Starved", x, y, turnNumber, turn);
                     else
-                      notificationManager.post("Party Starving", x, y, turnNumber, turn);
+                      notificationManager.post(String.format("Party Starving - %d lost", ceil(lost)), x, y, turnNumber, turn);
                   } else{
                     int prev = map.parties[y][x].getUnitNumber();
                     map.parties[y][x].setUnitNumber(ceil(map.parties[y][x].getUnitNumber()+taskOutcomes[task][resource]*(float)map.parties[y][x].getUnitNumber()));
@@ -1368,7 +1344,7 @@ class Game extends State{
         for (int task=0; task<tasks.length;task++){
           if(map.parties[y][x].getTask().equals(tasks[task])){ 
             for(int resource = 0; resource < numResources; resource++){  
-              if(resource<numResources-1){
+              if(resource<numResources){
                 production[resource] = (taskOutcomes[task][resource])*productivity*map.parties[y][x].getUnitNumber();
               }
             }
@@ -1404,7 +1380,7 @@ class Game extends State{
         for (int task=0; task<tasks.length;task++){
           if(map.parties[y][x].getTask().equals(tasks[task])){
             for(int resource = 0; resource < numResources; resource++){
-              if(resource<numResources-1){
+              if(resource<numResources){
                 production[resource] = (taskCosts[task][resource])*productivity*map.parties[y][x].getUnitNumber();
               }
             }

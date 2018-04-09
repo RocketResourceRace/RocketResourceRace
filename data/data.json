@@ -51,7 +51,7 @@
         {"id": "food","quantity":0.1}
       ],
       "production":[
-        {"id": "civilians","quantity":0.1}
+        {"id": "civilians","quantity":0.02}
       ]
     },
     {
@@ -62,7 +62,9 @@
       ],
       "action":{
         "type": "Demolish",
-        "turns": 3
+        "notification": "Building Demolished",
+        "turns": 3,
+        "building": ""
       }
     },
     {
@@ -77,7 +79,9 @@
       "initial cost": [{"id":"wood", "quantity":200}],
       "action":{
         "type": "Build Farm",
-        "turns": 3
+        "notification": "Farm Built",
+        "turns": 3,
+        "building": "Farm"
       }
     },
     {
@@ -92,7 +96,9 @@
       "initial cost": [{"id":"wood", "quantity":200}],
       "action":{
         "type": "Build Sawmill",
-        "turns": 5
+        "notification": "Sawmill Built",
+        "turns": 5,
+        "building": "Sawmill"
       }
     },
     {
@@ -107,7 +113,9 @@
       "initial cost": [{"id":"wood", "quantity":200}],
       "action":{
         "type": "Build Homes",
-        "turns": 3
+        "notification": "Homes Built",
+        "turns": 3,
+        "building": "Homes"
       }
     },
     {
@@ -122,7 +130,9 @@
       "initial cost": [{"id":"wood", "quantity":200}],
       "action":{
         "type": "Build Factory",
-        "turns": 8
+        "notification": "Factory Built",
+        "turns": 8,
+        "building": "Factory"
       }
     },
     {
@@ -137,7 +147,9 @@
       "initial cost": [{"id":"wood", "quantity":200}],
       "action":{
         "type": "Build Mine",
-        "turns": 6
+        "notification": "Mine Built",
+        "turns": 6,
+        "building": "Mine"
       }
     },
     {
@@ -152,7 +164,9 @@
       "initial cost": [{"id":"wood", "quantity":200}],
       "action":{
         "type": "Build Smelter",
-        "turns": 8
+        "notification": "Smelter Built",
+        "turns": 8,
+        "building": "Smelter"
       }
     },
     {
@@ -167,7 +181,9 @@
       "initial cost": [{"id":"wood", "quantity":200}],
       "action":{
         "type": "Build Big Factory",
-        "turns": 12
+        "notification": "Big Factory Built",
+        "turns": 12,
+        "building": "Big Factory"
       }
     },
     {
@@ -182,7 +198,9 @@
       "initial cost": [{"id":"wood", "quantity":200}],
       "action":{
         "type": "Build Rocket Factory",
-        "turns": 18
+        "notification": "Rocket Factory Built",
+        "turns": 18,
+        "building": "Rocket Factory"
       }
     },
     {
@@ -191,6 +209,7 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
+      "movement points": 32,
       "strength": 3
     },
     {
@@ -218,7 +237,9 @@
       "terrain":["forest"],
       "action":{
         "type": "Clear Forest",
-        "turns": 2
+        "notification": "Forest Cleared",
+        "turns": 2,
+        "terrain": "grass"
       },
       "buildings": []
     },

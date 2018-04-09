@@ -80,23 +80,23 @@ class Party{
     //Use this to calculate the number of turns a task will take for this party
     return ceil(turnsCost/(sqrt(unitNumber)/10));
   }
-  String progressAction(){
+  Action progressAction(){
     if (actions.size() == 0){
-      return "";
+      return null;
     }
     else if (actions.get(0).turns-sqrt((float)unitNumber)/10 <= 0){
-      return actions.get(0).type;
+      return actions.get(0);
     }
     else{
       actions.get(0).turns -= sqrt((float)unitNumber)/10;
       if (actions.get(0).type.contains("Build")) {
         if (actions.get(0).turns-sqrt((float)unitNumber)/10 <= 0){
-          return "Construction End";
+          return new Action("Construction End", "Construction End", 0, null, null);
         } else {
-          return "Construction Mid";
+          return new Action("Construction Mid", "Construction Mid", 0, null, null);
         }
       }
-      return "";
+      return null;
     }
   }
   void clearCurrentAction(){
