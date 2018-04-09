@@ -5,8 +5,6 @@ class Game extends State{
   final int bezel = 10;
   final int mapElementWidth = round(width);
   final int mapElementHeight = round(height-bezel*2-buttonH);
-  final int MOVEMENTPOINTS = 64;
-  final int DEFENDCOST = 32;
   
   final String attackToolTipRaw = "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a /p% chance of winning this battle.";
   final String turnsToolTipRaw = "Move /i Turns";
@@ -149,7 +147,7 @@ class Game extends State{
     for (int i=0; i<numResources; i++){
       js = gameData.getJSONArray("resources").getJSONObject(i);
       resourceNames[i] = js.getString("id");
-      JSONObject sr = findJSONObject(gameData.getJSONObject("initial conditions").getJSONArray("resources"), resourceNames[i]);
+      JSONObject sr = findJSONObject(gameData.getJSONObject("game options").getJSONArray("starting resources"), resourceNames[i]);
       if (sr != null)
         startingResources[i] = sr.getFloat("quantity");
     }
@@ -314,7 +312,7 @@ class Game extends State{
       JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), parties[cellY][cellX].getTask());
       if (!jo.isNull("movement points")){
         //Changing from defending
-        parties[cellY][cellX].setMovementPoints(min(parties[cellY][cellX].getMovementPoints()+jo.getInt("movement points"), MOVEMENTPOINTS));
+        parties[cellY][cellX].setMovementPoints(min(parties[cellY][cellX].getMovementPoints()+jo.getInt("movement points"), gameData.getJSONObject("game options").getInt("movement points")));
       }
       parties[cellY][cellX].changeTask(task);
       if (parties[cellY][cellX].getTask() == "Rest"){
@@ -749,7 +747,7 @@ class Game extends State{
       for (int x=0; x<mapWidth; x++){
         if (map.parties[y][x] != null){
           if (map.parties[y][x].player != 2){
-            map.parties[y][x].setMovementPoints(MOVEMENTPOINTS);
+            map.parties[y][x].setMovementPoints(gameData.getJSONObject("game options").getInt("movement points"));
           }
         }
       }
@@ -1102,7 +1100,7 @@ class Game extends State{
       int cost = cost(path.get(node)[0], path.get(node)[1], path.get(node-1)[0], path.get(node-1)[1]);
       if (movementPoints < cost){
         turns += 1;
-        movementPoints = MOVEMENTPOINTS;
+        movementPoints = gameData.getJSONObject("game options").getInt("movement points");
       }
       movementPoints -= cost;
     }
@@ -1237,7 +1235,7 @@ class Game extends State{
             }
             if(map.parties[y][x]==null){
               //Moving into empty tile
-              if (nodes[y][x].cost>MOVEMENTPOINTS)
+              if (nodes[y][x].cost>gameData.getJSONObject("game options").getInt("movement points"))
                 tooltipText[13] = turnsToolTipRaw.replace("/i", str(getMoveTurns(cellX, cellY, x, y, nodes)));
               else
                 tooltipText[13] = "Move";
@@ -1403,7 +1401,7 @@ class Game extends State{
     textAlign(LEFT, CENTER);
     textSize(8*TextScale);
     float barY = cellSelectionY + 13*TextScale + cellSelectionH*0.15 + bezel*2;
-    text("Movement Points Remaining: "+parties[cellY][cellX].getMovementPoints(turn) + "/"+MOVEMENTPOINTS, 120+cellSelectionX, barY);
+    text("Movement Points Remaining: "+parties[cellY][cellX].getMovementPoints(turn) + "/"+gameData.getJSONObject("game options").getInt("movement points"), 120+cellSelectionX, barY);
     barY += 13*TextScale;
     text("Units: "+parties[cellY][cellX].getUnitNumber(turn) + "/1000", 120+cellSelectionX, barY);
     barY += 13*TextScale;
@@ -1664,7 +1662,7 @@ class Game extends State{
           int newCost = cost(nx, ny, curMinNodes.get(0)[0], curMinNodes.get(0)[1]);
           int prevCost = curMinCosts.get(0);
           int totalNewCost = prevCost+newCost;
-          if (totalNewCost < MOVEMENTPOINTS*100){
+          if (totalNewCost < gameData.getJSONObject("game options").getInt("movement points")*100){
             if (nodes[ny][nx] == null){
               nodes[ny][nx] = new Node(totalNewCost, false, curMinNodes.get(0)[0], curMinNodes.get(0)[1]);
               if (!sticky){
@@ -1733,8 +1731,8 @@ class Game extends State{
       player1 = generatePartyPosition(mapWidth/4);
       player2 = generatePartyPosition(3*mapWidth/4);
     }
-    parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "Rest", MOVEMENTPOINTS);
-    parties[(int)player2.y][(int)player2.x] = new Party(1, 100, "Rest", MOVEMENTPOINTS);
+    parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "Rest", gameData.getJSONObject("game options").getInt("movement points"));
+    parties[(int)player2.y][(int)player2.x] = new Party(1, 100, "Rest", gameData.getJSONObject("game options").getInt("movement points"));
     
     return  new PVector[]{player1, player2};
   }

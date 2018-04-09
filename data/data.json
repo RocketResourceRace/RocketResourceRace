@@ -1,8 +1,9 @@
 
 {
-  "initial conditions":{
-    "resources":[{"id":"food", "quantity":500},
-                 {"id":"wood", "quantity":500},]
+  "game options":{
+    "starting resources":[{"id":"food", "quantity":500},
+                          {"id":"wood", "quantity":500}],
+    "movement points": 64
   },
   "terrain":[
     {
