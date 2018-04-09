@@ -795,7 +795,7 @@ class Game extends State{
     Collections.shuffle(locs);
     for (int i=0; i<4; i++){
       if (parties[locs.get(i)[1]][locs.get(i)[0]] == null && terrain[locs.get(i)[1]][locs.get(i)[0]] != 1){
-        return locs.get(i); //<>// //<>//
+        return locs.get(i);  //<>//
       }
     }
     return null;
@@ -964,10 +964,10 @@ class Game extends State{
       }
       p.path = null;
       return;
-    } //<>// //<>//
+    }  //<>//
     
     ArrayList <int[]> path = p.path;
-    int i=0; //<>// //<>// //<>//
+    int i=0;   //<>//
     boolean moved = false;
     for (int node=1; node<path.size(); node++){
       int cost = cost(path.get(node)[0], path.get(node)[1], px, py);
@@ -1071,7 +1071,7 @@ class Game extends State{
         }
         i++;
       }
-      else{ //<>// //<>//
+      else{  //<>//
         p.path = new ArrayList(path.subList(i, path.size())); //<>//
         break;
       }

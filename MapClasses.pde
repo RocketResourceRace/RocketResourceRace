@@ -37,13 +37,13 @@ class Party{
     pathTurns = 0;
   }
   void changeTask(String task){
-    switch(task){
-      case "Garrison": strength = 5; break;
-      case "Defend": strength = 3; break;
-      case "Rest": strength = 1.5; break;
-      case "default": strength = 1; break;
-    }
     this.task = task;
+    JSONObject jTask = findJSONObject(gameData.getJSONArray("tasks"), this.getTask());
+    if (!jTask.isNull("strength")){
+      this.strength = jTask.getInt("strength");
+    }
+    else
+      this.strength = 1.5;
   }
   void setPathTurns(int v){
     pathTurns = v;
