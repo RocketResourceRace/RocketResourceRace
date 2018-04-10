@@ -110,13 +110,13 @@ class Tooltip extends Element{
     if (!jo.isNull("action")){
       t += String.format("Turns: %d\n", jo.getJSONObject("action").getInt("turns"));
     }
-    if (t.charAt(t.length()-1)!='\n' || t.charAt(t.length()-2)!='\n')
+    if (t.length()>2 && (t.charAt(t.length()-1)!='\n' || t.charAt(t.length()-2)!='\n'))
       t += "\n";
     if (!jo.isNull("production")){
-      t += "Production/Turn:\n"+getResourceList(jo.getJSONArray("production"));
+      t += "Production/Turn/Unit:\n"+getResourceList(jo.getJSONArray("production"));
     }
     if (!jo.isNull("consumption")){
-      t += "Consumption/Turn:\n"+getResourceList(jo.getJSONArray("consumption"));
+      t += "Consumption/Turn/Unit:\n"+getResourceList(jo.getJSONArray("consumption"));
     }
     //Strip
     setText(t.replaceAll("\\s+$", ""));

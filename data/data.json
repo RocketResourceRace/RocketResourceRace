@@ -293,7 +293,8 @@
       ],
       "consumption":[
         {"id": "food","quantity":0.2},
-        {"id": "wood","quantity":0.02}
+        {"id": "wood","quantity":0.02},
+        {"id": "ore","quantity":0.1}
       ],
       "buildings":["Smelter"]
     },

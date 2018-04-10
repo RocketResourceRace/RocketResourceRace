@@ -762,7 +762,7 @@ class Game extends State{
     prevIdle.clear();
   }
   boolean isIdle(int x, int y){
-    return (parties[y][x].task == "Rest" && canMove(x, y));
+    return (parties[y][x].task.equals("Rest") && canMove(x, y) && (parties[y][x].path==null||parties[y][x].path!=null&&parties[y][x].path.size()==0));
   }
   
   int[] findIdle(int player){
