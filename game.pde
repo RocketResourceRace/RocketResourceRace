@@ -461,7 +461,7 @@ class Game extends State{
                   buildings[y][x] = new Building(buildingIndex(action.building));
               }
               if (action.terrain != null){
-                if (terrain[y][x] == terrainIndex("Forest"))
+                if (terrain[y][x] == terrainIndex("forest"))
                   players[turn].resources[getResIndex("wood")]+=100;
                 terrain[y][x] = terrainIndex(action.terrain);
               }
