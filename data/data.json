@@ -48,6 +48,7 @@
   "tasks":[
     {
       "id": "Rest",
+      "description": "This is the default state for parties\nParties can only move when they are resting.",
       "consumption":[
         {"id": "food","quantity":0.1}
       ],
@@ -57,6 +58,7 @@
     },
     {
       "id": "Demolish",
+      "description": "Demolish the building on this tile.",
       "img": "data/task_demolish.png",
       "consumption":[
         {"id": "food","quantity":0.2}
@@ -70,6 +72,7 @@
     },
     {
       "id": "Build Farm",
+      "description": "Farms can produce food, which units need to survive.",
       "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
@@ -77,7 +80,7 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
-      "initial cost": [{"id":"wood", "quantity":200}],
+      "initial cost": [{"id":"wood", "quantity":100}],
       "action":{
         "type": "Build Farm",
         "notification": "Farm Built",
@@ -87,6 +90,7 @@
     },
     {
       "id": "Build Sawmill",
+      "description": "Farms can produce wood, which can be\nused to create buildings and work farms.",
       "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
@@ -104,6 +108,7 @@
     },
     {
       "id": "Build Homes",
+      "description": "Homes can produce civilians, which are the basic unit.",
       "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
@@ -121,6 +126,7 @@
     },
     {
       "id": "Build Factory",
+      "description": "Factories can produce concrete and cable.",
       "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
@@ -128,7 +134,8 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
-      "initial cost": [{"id":"wood", "quantity":200}],
+      "initial cost": [{"id":"wood", "quantity":2000},
+                       {"id":"metal", "quantity":1000}],
       "action":{
         "type": "Build Factory",
         "notification": "Factory Built",
@@ -138,6 +145,7 @@
     },
     {
       "id": "Build Mine",
+      "description": "Mines can produce ore, which can be smelted into metal.",
       "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
@@ -145,7 +153,7 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
-      "initial cost": [{"id":"wood", "quantity":200}],
+      "initial cost": [{"id":"wood", "quantity":500}],
       "action":{
         "type": "Build Mine",
         "notification": "Mine Built",
@@ -155,6 +163,7 @@
     },
     {
       "id": "Build Smelter",
+      "description": "Smelters can produce metal from ore.",
       "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
@@ -172,6 +181,7 @@
     },
     {
       "id": "Build Big Factory",
+      "description": "Big Factories can produce rocket parts,\nwhich allow you to build a rocket.",
       "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
@@ -179,7 +189,8 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
-      "initial cost": [{"id":"wood", "quantity":200}],
+      "initial cost": [{"id":"wood", "quantity":1000},
+                       {"id":"iron", "quantity":5000}],
       "action":{
         "type": "Build Big Factory",
         "notification": "Big Factory Built",
@@ -189,6 +200,7 @@
     },
     {
       "id": "Build Rocket Factory",
+      "description": "Rocket Factories can produce Rockets, which allows you to win.",
       "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
@@ -196,7 +208,8 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
-      "initial cost": [{"id":"wood", "quantity":200}],
+      "initial cost": [{"id":"wood", "quantity":3000},
+                       {"id":"iron", "quantity":10000}],
       "action":{
         "type": "Build Rocket Factory",
         "notification": "Rocket Factory Built",
@@ -429,5 +442,15 @@
       "id": "civilians",
       "resource manager": 0
     },
-  ]
+  ],
+
+  "tooltips":{
+    "move button": "A party can only move if it has enough\nmovement points",
+    "moving": "Move party",
+    "moving splitting": "Move the units selected",
+    "moving turns": "%d turns",
+    "merging": "merge units with party",
+    "attacking": "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a %d% chance of winning this battle.",
+    "turns remaining": "The rate that an action is completed is affected\nby the number of units in a party\n(a square root relationship)."
+  }
 }

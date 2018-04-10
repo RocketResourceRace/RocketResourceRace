@@ -1,5 +1,149 @@
 
 
+class Tooltip extends Element{
+  boolean visible;
+  String text;
+  
+  Tooltip(){
+    hide();
+    setText("");
+  }
+  
+  void show(){
+    visible = true;
+  }
+  void hide(){
+    visible = false;
+  }
+  
+  ArrayList<String> getLines(String s){
+    int j = 0;
+    ArrayList<String> lines = new ArrayList<String>();
+    for (int i=0; i<s.length(); i++){
+      if(s.charAt(i) == '\n'){
+        lines.add(s.substring(j, i));
+        j=i+1;
+      }
+    }
+    lines.add(s.substring(j, s.length()));
+    return lines;
+  }
+  float maxWidthLine(ArrayList<String> lines){
+    float ml = 0;
+    for (int i=0; i<lines.size(); i++){
+      if (textWidth(lines.get(i)) > ml){
+        ml = textWidth(lines.get(i));
+      }
+    }
+    return ml;
+  }
+  void setText(String text){
+    this.text = text;
+  }
+  //String resourcesList(float[] resources){
+  //  String returnString = "";
+  //  boolean notNothing = false;
+  //  for (int i=0; i<numResources;i++){
+  //    if (resources[i]>0){
+  //      returnString += roundDp(""+resources[i], 1)+ " " +resourceNames[i]+ ", "; 
+  //      notNothing = true;
+  //    }
+  //  }
+  //  if (!notNothing)
+  //    returnString += "Nothing/Unknown";
+  //  else if(returnString.length()-2 > 0)
+  //    returnString = returnString.substring(0, returnString.length()-2);
+  //  return returnString;
+  //}
+  String getResourceList(JSONArray resArray){
+    String returnString = "";
+    for (int i=0; i<resArray.size(); i++){
+      JSONObject jo = resArray.getJSONObject(i);
+      returnString += String.format("  %s %s\n", roundDp(""+jo.getFloat("quantity"),2), jo.getString("id"));
+    }
+    return returnString;
+  }
+  
+  void setMoving(int turns, boolean splitting){
+    //Tooltip text if moving. Turns is the number of turns in move
+    JSONObject jo = gameData.getJSONObject("tooltips");
+    String t;
+    if (splitting){
+      t = jo.getString("moving splitting");
+    }
+    else{
+      t = jo.getString("moving");
+    }
+    if (turns > 0){
+      t += String.format(jo.getString("moving turns"), turns);
+    }
+    setText(t);
+  }
+  void setAttacking(float chance){
+    JSONObject jo = gameData.getJSONObject("tooltips");
+    setText(String.format(jo.getString("attacking"), chance));
+  }
+  void setTurnsRemaining(){
+    JSONObject jo = gameData.getJSONObject("tooltips");
+    setText(jo.getString("turns remaining"));
+  }
+  void setMoveButton(){
+    JSONObject jo = gameData.getJSONObject("tooltips");
+    setText(jo.getString("move button"));
+  }
+  void setMerging(){
+    JSONObject jo = gameData.getJSONObject("tooltips");
+    setText(jo.getString("merging"));
+  }
+  void setTask(String task){
+    JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task);
+    String t="";
+    if (!jo.isNull("description")){
+      t += jo.getString("description")+"\n\n";
+    }
+    if (!jo.isNull("initial cost")){
+      t += String.format("Initial Resource Cost:\n%s\n", getResourceList(jo.getJSONArray("initial cost")));
+    }
+    if(!jo.isNull("movement points")){
+      t += String.format("Movement Points: %d\n",jo.getInt("movement points"));
+    }
+    if (!jo.isNull("action")){
+      t += String.format("Turns: %d\n", jo.getJSONObject("action").getInt("turns"));
+    }
+    if (t.charAt(t.length()-1)!='\n' || t.charAt(t.length()-2)!='\n')
+      t += "\n";
+    if (!jo.isNull("production")){
+      t += "Production/Turn:\n"+getResourceList(jo.getJSONArray("production"));
+    }
+    if (!jo.isNull("consumption")){
+      t += "Consumption/Turn:\n"+getResourceList(jo.getJSONArray("consumption"));
+    }
+    //Strip
+    setText(t.replaceAll("\\s+$", ""));
+  }
+  
+  void draw(){
+    if (visible && text.length() > 0){
+      ArrayList<String> lines = getLines(text); 
+      textSize(8*TextScale);
+      int tw = ceil(maxWidthLine(lines))+4;
+      int gap = ceil(textAscent()+textDescent());
+      int th = ceil(textAscent()+textDescent())*lines.size();
+      int tx = round(between(0, mouseX-tw/2, width-tw));
+      int ty = round(between(0, mouseY+20, height-th-20));
+      fill(255, 200);
+      stroke(0);
+      rectMode(CORNER);
+      rect(tx, ty, tw, th);
+      fill(0);
+      textAlign(LEFT, TOP);
+      for (int i=0; i<lines.size(); i++){
+        text(lines.get(i), tx+2, ty+i*gap);
+      }
+    }
+  }
+}
+
 class NotificationManager extends Element{
   ArrayList<ArrayList<Notification>> notifications;
   int bgColour, textColour, displayNots, notHeight, topOffset, scroll, turn;

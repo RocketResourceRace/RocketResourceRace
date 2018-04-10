@@ -15,9 +15,9 @@ class Menu extends State{
     color bColour = color(100, 100, 100);
     color sColour = color(150, 150, 150);
     
-    addPanel("settings", 0, 0, width, height, true, color(255, 255, 255, 255), color(0));
-    addPanel("startup", 0, 0, width, height, true, color(255, 255, 255, 255), color(0));
-    addPanel("new game", 0, 0, width, height, true, color(255, 255, 255, 255), color(0));
+    addPanel("settings", 0, 0, width, height, true, true, color(255, 255, 255, 255), color(0));
+    addPanel("startup", 0, 0, width, height, true, true, color(255, 255, 255, 255), color(0));
+    addPanel("new game", 0, 0, width, height, true, true, color(255, 255, 255, 255), color(0));
     hidePanels();
     getPanel("startup").visible = true;
     currentPanel = "startup";
