@@ -219,6 +219,7 @@
     },
     {
       "id": "Defend",
+      "description": "Defending increases the strength of the party in battle.",
       "img": "data/task_defend.png",
       "consumption":[
         {"id": "food","quantity":0.2}
@@ -228,6 +229,7 @@
     },
     {
       "id": "Battle",
+      "description": "This party is currently engaged in battle.",
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
@@ -235,6 +237,7 @@
     },
     {
       "id": "Super Rest",
+      "description": "Super Rest produces civilians faster than rest.",
       "img": "data/task_super_rest.png",
       "consumption":[
         {"id": "food","quantity":0.6}
@@ -244,6 +247,7 @@
     },
     {
       "id": "Clear Forest",
+      "description": "Clear a forrest tile and add 100 wood to stockpile.",
       "img": "data/task_clear_forest.png",
       "consumption":[
         {"id": "food","quantity":0.2}
@@ -259,6 +263,7 @@
     },
     {
       "id": "Work Farm",
+      "description": "Produce food from farm.",
       "img": "data/task_farm.png",
       "production":[
         {"id": "food","quantity":0.3}
@@ -341,6 +346,7 @@
     },
     {
       "id": "Produce Rocket",
+      "description": "Needed to launch rocket.",
       "img": "data/task_produce.png",
       "production":[
         {"id": "rocket progress","quantity":0.1}
@@ -351,6 +357,13 @@
         {"id": "cable","quantity":0.1},
         {"id": "concrete","quantity":1}
       ],
+      "buildings":["Rocket Factory"]
+    },
+    {
+      "id": "Launch Rocket",
+      "description": "Attempt to win the game.",
+      "img": "data/task_produce.png",
+      "initial cost":[{"id":"rocket progress", "quantity":"1000"}],
       "buildings":["Rocket Factory"]
     },
   ],
