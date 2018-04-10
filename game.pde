@@ -1455,6 +1455,13 @@ class Game extends State{
       if (key == ' '){
         postEvent(new EndTurn());
       }
+      else if (key == 'i'){
+        int[] t = findIdle(turn);
+        if (t[0] != -1){ 
+          selectCell(t[0], t[1], false);
+          map.targetCell(t[0], t[1], 64); 
+        }
+      }
     }
     return new ArrayList<String>();
   }
