@@ -48,6 +48,7 @@
   "tasks":[
     {
       "id": "Rest",
+      "description": "This is the default state for parties\nParties can only move when they are resting.",
       "consumption":[
         {"id": "food","quantity":0.1}
       ],
@@ -57,6 +58,7 @@
     },
     {
       "id": "Demolish",
+      "description": "Demolish the building on this tile.",
       "img": "data/task_demolish.png",
       "consumption":[
         {"id": "food","quantity":0.2}
@@ -70,6 +72,7 @@
     },
     {
       "id": "Build Farm",
+      "description": "Farms can produce food, which units need to survive.",
       "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
@@ -87,6 +90,7 @@
     },
     {
       "id": "Build Sawmill",
+      "description": "Farms can produce wood, which can be\nused to create buildings and work farms.",
       "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
@@ -104,6 +108,7 @@
     },
     {
       "id": "Build Homes",
+      "description": "Homes can produce civilians, which are the basic unit.",
       "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
@@ -121,6 +126,7 @@
     },
     {
       "id": "Build Factory",
+      "description": "Factories can produce concrete and cable.",
       "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
@@ -138,6 +144,7 @@
     },
     {
       "id": "Build Mine",
+      "description": "Mines can produce ore, which can be smelted into metal.",
       "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
@@ -155,6 +162,7 @@
     },
     {
       "id": "Build Smelter",
+      "description": "Smelters can produce metal from ore.",
       "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
@@ -172,6 +180,7 @@
     },
     {
       "id": "Build Big Factory",
+      "description": "Big Factories can produce rocket parts,\nwhich allow you to build a rocket.",
       "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
@@ -189,6 +198,7 @@
     },
     {
       "id": "Build Rocket Factory",
+      "description": "Rocket Factories can produce Rockets, which allows you to win.",
       "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],

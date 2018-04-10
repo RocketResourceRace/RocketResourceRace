@@ -99,17 +99,19 @@ class Tooltip extends Element{
     JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task);
     String t="";
     if (!jo.isNull("description")){
-      t += jo.getString("description");
+      t += jo.getString("description")+"\n\n";
     }
     if (!jo.isNull("initial cost")){
-      t += "Initial Cost:\n"+getResourceList(jo.getJSONArray("initial cost"));
+      t += String.format("Initial Resource Cost:%s\n", getResourceList(jo.getJSONArray("initial cost")));
     }
     if(!jo.isNull("movement points")){
-      
+      t += String.format("Movement Points: %d\n",jo.getInt("movement points"));
     }
     if (!jo.isNull("action")){
       t += String.format("Turns: %d\n", jo.getJSONObject("action").getInt("turns"));
     }
+    if (t.charAt(t.length()-1)!='\n' || t.charAt(t.length()-2)!='\n')
+      t += "\n";
     if (!jo.isNull("production")){
       t += "Production/Turn:\n"+getResourceList(jo.getJSONArray("production"));
     }
