@@ -6,42 +6,6 @@ class Game extends State{
   final int mapElementWidth = round(width);
   final int mapElementHeight = round(height-bezel*2-buttonH);
   
-  final String attackToolTipRaw = "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a /p% chance of winning this battle.";
-  final String turnsToolTipRaw = "Move /i Turns";
-  final String farmToolTipRaw = "The farm produces food when worked.\nCosts: 50 wood.\nConsumes: Nothing.\nProduces: 4 food/worker.\nThis party will take %d turns to build it";
-  final String mineToolTipRaw = "The mine produces ore when worked.\nCosts: 200 wood.\nConsumes: 1 wood/worker.\nProduces: 1 ore/worker.\nThis party will take %d turns to build it";
-  final String homesToolTipRaw = "Homes create new units when worked.\nCosts: 100 wood.\nConsumes: 2 wood/worker.\nThis party will take %d turns to build it";
-  final String smelterToolTipRaw = "The smelter produces metal when worked.\nCosts: 200 wood.\nConsumes: 10 wood/worker.\nProduces: 0.1 iron/worker.\nThis party will take %d turns to build it";
-  final String factoryToolTipRaw = "The factory produces parts when worked.\nCosts: 200 wood.\nConsumes: 10 wood/worker.\nThis party will take %d turns to build it";
-  final String bigFactoryToolTipRaw = "The big factory produces rocket parts when worked.\nCosts: 200 metal.\nConsumes: 1 metal/worker.\nThis party will take %d turns to build it";
-  final String sawmillToolTipRaw = "The sawmill produces wood when worked.\nCosts: 200 wood.\nConsumes: 10 wood/worker.\nProduces: 0.5 wood/worker.\nThis party will take %d turns to build it";
-  final String rocketFactoryToolTipRaw = "The rocket factory produces a rocket when worked.\nCosts: 1000 metal and 1000 concrete.\nConsumes: 10 cable and 10 rocket parts /worker.\nProduces: rockets\nThis party will take %d turns to build it";
-  final String clearForestToolTipRaw = "Clearing a forest adds 100 wood to stockpile.\nThe tile is turned to grassland\nThis party will take %d turns to build it";
-  final String demolishingToolTipRaw = "Demolishing destroys the building on this tile.\nThis party will take %d turns to build it";
-  
-  
-  String[] tooltipText = {
-    "Defending improves fighting\neffectiveness against enemy parties\nCosts: 32 movement points.",
-    "farm",
-    "mine",
-    "homes",
-    "smelter",
-    "factory",
-    "sawmill",
-    "rocket factory",
-    "clear forest",
-    "demolishing",
-    "While a unit is at rest it can move and attack.",
-    "Merge parties.\nThis action will create a single party from two.\nThe new party has no action points this turn.",
-    "Attack enemy party.",
-    "Move.",
-    "Super Rest adds more units to a party each turn.",
-    "The rate that an action is completed is affected\nby the number of units in a party\n(a square root relationship).\nThe turn time for 100 units is given for tasks.",
-    "A party must be at rest to move",
-    "This splits the number of units selected.\nCan only split when movement points > 0.",
-    "",
-    "big factory"
-  };
   String[] tasks;
   String[] buildingTypes;
   float[][] taskCosts;
@@ -56,6 +20,7 @@ class Game extends State{
   Party[][] parties;
   Building[][] buildings;
   NotificationManager notificationManager;
+  Tooltip tooltip;
   int turn;
   boolean changeTurn = false;
   int winner = -1;
@@ -64,32 +29,35 @@ class Game extends State{
   int cellX, cellY, cellSelectionX, cellSelectionY, cellSelectionW, cellSelectionH;
   boolean cellSelected=false, moving=false;
   color partyManagementColour;
-  int toolTipSelected;
   ArrayList<Integer[]> prevIdle;
   float[] totals;
   Party splittedParty;
+  
   Game(){
     initialiseResources();
     initialiseTasks();
     initialiseBuildings();
     
-    addElement(".map", new Map(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
-    addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 10, turn));
+    addElement("2map", new Map(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
+    addElement("1notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 10, turn));
     
-    map = (Map)getElement(".map", "default");
-    notificationManager = (NotificationManager)getElement("notification manager", "default");
+    map = (Map)getElement("2map", "default");
+    notificationManager = (NotificationManager)getElement("1notification manager", "default");
     players = new Player[2];
     totals = new float[resourceNames.length];
     
     // Initial positions will be focused on starting party
     players[0] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, startingResources, color(0,0,255));
     players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, startingResources, color(255,0,0));
-    addPanel("land management", 0, 0, width, height, false, color(50, 200, 50), color(0));
-    addPanel("party management", 0, 0, width, height, false, color(70, 70, 220), color(0));
-    addPanel("bottom bar", 0, height-70, width, 70, true, color(150), color(50));
-    addPanel("end screen", 0, 0, width, height, false, color(50, 50, 50, 50), color(0));
-    addPanel("pause screen", 0, 0, width, height, false, color(50, 50, 50, 50), color(0));
+    addPanel("land management", 0, 0, width, height, false, true, color(50, 200, 50), color(0));
+    addPanel("party management", 0, 0, width, height, false, true, color(70, 70, 220), color(0));
+    addPanel("bottom bar", 0, height-70, width, 70, true, true, color(150), color(50));
+    addPanel("end screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
+    addPanel("pause screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
+    addPanel("overlay", 0, 0, width, height, true, false, color(255,255), color(255, 255));
     
+    addElement("0tooltip", new Tooltip(), "overlay");
+    tooltip = (Tooltip)getElement("0tooltip", "overlay");
     
     addElement("end game button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2+height/8), (int)(GUIScale*width/8), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "End Game"), "end screen");
     addElement("winner", new Text(width/2, height/2, (int)(TextScale*10), "", color(255), CENTER), "end screen");
@@ -400,7 +368,7 @@ class Game extends State{
     cellSelectionH = round(mapElementHeight);
     getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.15));
     getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.15)+bezel, cellSelectionW, round(cellSelectionH*0.5)-bezel*3);
-    ((NotificationManager)(getElement("notification manager", "default"))).transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.65)-bezel, cellSelectionW, round(cellSelectionH*0.35)-bezel*2);
+    ((NotificationManager)(getElement("1notification manager", "default"))).transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.65)-bezel, cellSelectionW, round(cellSelectionH*0.35)-bezel*2);
     ((Button)getElement("move button", "party management")).transform(bezel, round(13*TextScale+bezel), 100, 30);
     ((Slider)getElement("split units", "party management")).transform(round(10*GUIScale+bezel), round(bezel*3+2*TextScale*13), cellSelectionW-2*bezel-round(20*GUIScale),round(TextScale*2*13));
     ((DropDown)getElement("tasks", "party management")).transform(bezel, round(bezel*4+4*TextScale*13), cellSelectionW-2*bezel, 30);
@@ -457,52 +425,10 @@ class Game extends State{
     ((DropDown)getElement("tasks", "party management")).select(parties[cellY][cellX].getTask());
   }
   
-  
-  ArrayList<String> getLines(String s){
-    int j = 0;
-    ArrayList<String> lines = new ArrayList<String>();
-    for (int i=0; i<s.length(); i++){
-      if(s.charAt(i) == '\n'){
-        lines.add(s.substring(j, i));
-        j=i+1;
-      }
-    }
-    lines.add(s.substring(j, s.length()));
-    return lines;
-  }
-  
-  float maxWidthLine(ArrayList<String> lines){
-    float ml = 0;
-    for (int i=0; i<lines.size(); i++){
-      if (textWidth(lines.get(i)) > ml){
-        ml = textWidth(lines.get(i));
-      }
-    }
-    return ml;
-  }
-  
-  void drawToolTip(){
-    ArrayList<String> lines = getLines(tooltipText[toolTipSelected]); 
-    textSize(8*TextScale);
-    int tw = ceil(maxWidthLine(lines))+4;
-    int gap = ceil(textAscent()+textDescent());
-    int th = ceil(textAscent()+textDescent())*lines.size();
-    int tx = round(between(0, mouseX-tw/2, width-tw));
-    int ty = round(between(0, mouseY+20, height-th-20));
-    fill(255, 200);
-    stroke(0);
-    rectMode(CORNER);
-    rect(tx, ty, tw, th);
-    fill(0);
-    textAlign(LEFT, TOP);
-    for (int i=0; i<lines.size(); i++){
-      text(lines.get(i), tx+2, ty+i*gap);
-    }
-  }
-  
   boolean UIHovering(){
    //To avoid doing things while hoving over important stuff
    NotificationManager nm = ((NotificationManager)(getElement("notification manager", "default")));
+   if (nm == null)return false;
    return !((!getPanel("party management").mouseOver() || !getPanel("party management").visible) && (!getPanel("land management").mouseOver() || !getPanel("land management").visible) &&
    (!nm.moveOver()||nm.empty()));
   }
@@ -734,9 +660,6 @@ class Game extends State{
       if(parties[cellY][cellX] != null && getPanel("party management").visible)
         drawPartyManagement();
     }
-    if (toolTipSelected >= 0){
-      drawToolTip();
-    }
     if (checkForPlayerWin()){
       this.getPanel("end screen").visible = true;
     }
@@ -922,7 +845,7 @@ class Game extends State{
     }
   }
   void deselectCell(){
-    toolTipSelected = -1;
+    tooltip.hide();
     cellSelected = false;
     map.unselectCell();
     getPanel("land management").setVisible(false);
@@ -1106,60 +1029,21 @@ class Game extends State{
     }
     return turns;
   }
+  int splitUnitsNum(){
+    return round(((Slider)getElement("split units", "party management")).getValue());
+  }
   void refreshTooltip(){
     if (((DropDown)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible){
-      switch (((DropDown)getElement("tasks", "party management")).findMouseOver()){
-        case "Defend":toolTipSelected = 0;break;
-        case "Build Farm":
-          tooltipText[1] = String.format(farmToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Farm")));
-          toolTipSelected = 1;
-          break;
-        case "Build Sawmill":
-          tooltipText[6] = String.format(sawmillToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Sawmill"))); //<>//
-          toolTipSelected = 6;
-          break;
-        case "Build Homes":
-          tooltipText[3] = String.format(homesToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Homes")));
-          toolTipSelected = 3;
-          break;
-        case "Build Factory":
-          tooltipText[5] = String.format(factoryToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Factory")));
-          toolTipSelected = 5;
-          break;
-        case "Build Big Factory":
-          tooltipText[18] = String.format(factoryToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Big Factory")));
-          toolTipSelected = 18;
-          break;
-        case "Clear Forest":
-          tooltipText[8] = String.format(clearForestToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Clear Forest")));
-          toolTipSelected = 8;
-          break;
-        case "Build Mine":
-          tooltipText[2] = String.format(mineToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Mine")));
-          toolTipSelected = 2;
-          break;
-        case "Build Smelter":
-          tooltipText[4] = String.format(smelterToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Smelter")));
-          toolTipSelected = 4;
-          break;
-        case "Build Rocket Factory":
-          tooltipText[7] = String.format(rocketFactoryToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Build Rocket Factory")));
-          toolTipSelected = 7;
-          break;
-        case "Demolish":
-          tooltipText[9] = String.format(demolishingToolTipRaw,parties[cellY][cellX].calcTurns(taskTurns("Demolish")));
-          toolTipSelected = 9;
-          break;
-        case "Rest":toolTipSelected = 10;break; //<>//
-        case "Super Rest":toolTipSelected = 14;break;
-        default: toolTipSelected = -1;break;
-      }
+      tooltip.setTask(((DropDown)getElement("tasks", "party management")).findMouseOver());
+      tooltip.show(); //<>// //<>//
     }
     else if(((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").visible){
-      toolTipSelected = 15;
+      tooltip.setTurnsRemaining();
+      tooltip.show();
     }
     else if(((Button)getElement("move button", "party management")).mouseOver()&& getPanel("party management").visible){
-      toolTipSelected = 16;
+      tooltip.setMoveButton();
+      tooltip.show();
     }
     else if (moving&&map.mouseOver() && !UIHovering()){
       Node [][] nodes = map.moveNodes;
@@ -1171,36 +1055,36 @@ class Game extends State{
         }
         if(map.parties[y][x]==null){
           //Moving into empty tile
-          if (nodes[y][x].cost>gameData.getJSONObject("game options").getInt("movement points"))
-            tooltipText[13] = turnsToolTipRaw.replace("/i", str(getMoveTurns(cellX, cellY, x, y, nodes)));
-          else
-            tooltipText[13] = "Move";
-            toolTipSelected = 13;
+          int turns = getMoveTurns(cellX, cellY, x, y, nodes);
+          boolean splitting = splitUnitsNum()!=parties[cellY][cellX].getUnitNumber();
+          tooltip.setMoving(turns, splitting);
+          tooltip.show();
         }
         else {
           if (map.parties[y][x].player == turn){
             //merge parties
-            toolTipSelected = 11;
+            tooltip.setMerging();
+            tooltip.show();
           }
           else {
             //Attack
             Party tempAttacker = map.parties[cellY][cellX].clone(); //<>//
-            int units = round(((Slider)getElement("split units", "party management")).getValue());
+            int units = round(splitUnitsNum());
             tempAttacker.setUnitNumber(units);
             int chance = getChanceOfBattleSuccess(tempAttacker, map.parties[y][x]);
-            tooltipText[12] = attackToolTipRaw.replace("/p", str(chance));
-            toolTipSelected = 12;
+            tooltip.setAttacking(chance);
+            tooltip.show();
           }
         } 
       }
       else{
         map.cancelPath();
-        toolTipSelected = -1;
+        tooltip.hide();
       }
     } 
     else{
       map.cancelPath();
-      toolTipSelected = -1;
+      tooltip.hide();
     }
     map.mapActive = !UIHovering();
   }
@@ -1287,7 +1171,7 @@ class Game extends State{
     if(raw){
       selectCell(x, y);
     } else if (cellInBounds(x, y)){
-      toolTipSelected = -1;
+        tooltip.hide();
       cellX = x;
       cellY = y;
       cellSelected = true;
@@ -1598,7 +1482,7 @@ class Game extends State{
     deselectCell();
     turn = 0;
     turnNumber = 0;
-    toolTipSelected=-1;
+    tooltip.hide();
     winner = -1;
     this.totals = totalResources();
     TextBox t = ((TextBox)(getElement("turn number", "bottom bar")));

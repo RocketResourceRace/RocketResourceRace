@@ -5,7 +5,7 @@ class State{
   
   State(){
     panels = new ArrayList<Panel>();
-    addPanel("default", 0, 0, width, height, true, color(255, 255), color(0));
+    addPanel("default", 0, 0, width, height, true, true, color(255, 255), color(0));
     newState = "";
     activePanel = "default";
   }
@@ -31,9 +31,9 @@ class State{
       panel.visible = false;
     }
   }
-  void addPanel(String id, int x, int y, int w, int h, Boolean visible, color bgColour, color strokeColour){
+  void addPanel(String id, int x, int y, int w, int h, Boolean visible, Boolean blockEvent, color bgColour, color strokeColour){
     // Adds new panel to front
-    panels.add(new Panel(id, x, y, w, h, visible, bgColour, strokeColour));
+    panels.add(new Panel(id, x, y, w, h, visible, blockEvent, bgColour, strokeColour));
     panelToTop(id);
   }
   void addPanel(String id, int x, int y, int w, int h, Boolean visible, String fileName, color strokeColour){
@@ -113,7 +113,7 @@ class State{
     mouseEvent(eventType, button);
     if (eventType == "mousePressed"){
       for (int i=0; i<panels.size(); i++){
-        if (panels.get(i).mouseOver()&& panels.get(i).visible){
+        if (panels.get(i).mouseOver()&& panels.get(i).visible&&panels.get(i).blockEvent){
           activePanel = panels.get(i).id;
           break;
         }
@@ -168,16 +168,17 @@ class Panel{
   HashMap<String, Element> elements;
   String id;
   PImage img;
-  Boolean visible = true;
+  Boolean visible, blockEvent;
   private int x, y, w, h;
   private color bgColour, strokeColour;
   
-  Panel(String id, int x, int y, int w, int h, Boolean visible, color bgColour, color strokeColour){
+  Panel(String id, int x, int y, int w, int h, Boolean visible, Boolean blockEvent, color bgColour, color strokeColour){
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
     this.visible = visible;
+    this.blockEvent = blockEvent;
     this.id = id;
     this.bgColour = bgColour;
     this.strokeColour = strokeColour;
