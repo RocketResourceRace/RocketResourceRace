@@ -48,6 +48,7 @@ int JSONIndex(JSONArray j, String id){
       return i;
     }
   }
+  println("invalid id,", id);
   return -1;
 }
 

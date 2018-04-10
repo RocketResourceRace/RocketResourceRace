@@ -190,7 +190,7 @@
         {"id": "food","quantity":0.2}
       ],
       "initial cost": [{"id":"wood", "quantity":1000},
-                       {"id":"iron", "quantity":5000}],
+                       {"id":"metal", "quantity":5000}],
       "action":{
         "type": "Build Big Factory",
         "notification": "Big Factory Built",
@@ -209,7 +209,7 @@
         {"id": "food","quantity":0.2}
       ],
       "initial cost": [{"id":"wood", "quantity":3000},
-                       {"id":"iron", "quantity":10000}],
+                       {"id":"metal", "quantity":10000}],
       "action":{
         "type": "Build Rocket Factory",
         "notification": "Rocket Factory Built",
