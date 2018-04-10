@@ -102,7 +102,7 @@ class Tooltip extends Element{
       t += jo.getString("description")+"\n\n";
     }
     if (!jo.isNull("initial cost")){
-      t += String.format("Initial Resource Cost:%s\n", getResourceList(jo.getJSONArray("initial cost")));
+      t += String.format("Initial Resource Cost:\n%s\n", getResourceList(jo.getJSONArray("initial cost")));
     }
     if(!jo.isNull("movement points")){
       t += String.format("Movement Points: %d\n",jo.getInt("movement points"));

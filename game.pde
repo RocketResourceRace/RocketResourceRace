@@ -427,8 +427,7 @@ class Game extends State{
   
   boolean UIHovering(){
    //To avoid doing things while hoving over important stuff
-   NotificationManager nm = ((NotificationManager)(getElement("notification manager", "default")));
-   if (nm == null)return false;
+   NotificationManager nm = ((NotificationManager)(getElement("1notification manager", "default")));
    return !((!getPanel("party management").mouseOver() || !getPanel("party management").visible) && (!getPanel("land management").mouseOver() || !getPanel("land management").visible) &&
    (!nm.moveOver()||nm.empty()));
   }

@@ -80,7 +80,7 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
-      "initial cost": [{"id":"wood", "quantity":200}],
+      "initial cost": [{"id":"wood", "quantity":100}],
       "action":{
         "type": "Build Farm",
         "notification": "Farm Built",
@@ -134,7 +134,8 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
-      "initial cost": [{"id":"wood", "quantity":200}],
+      "initial cost": [{"id":"wood", "quantity":2000},
+                       {"id":"metal", "quantity":1000}],
       "action":{
         "type": "Build Factory",
         "notification": "Factory Built",
@@ -152,7 +153,7 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
-      "initial cost": [{"id":"wood", "quantity":200}],
+      "initial cost": [{"id":"wood", "quantity":500}],
       "action":{
         "type": "Build Mine",
         "notification": "Mine Built",
@@ -188,7 +189,8 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
-      "initial cost": [{"id":"wood", "quantity":200}],
+      "initial cost": [{"id":"wood", "quantity":1000},
+                       {"id":"iron", "quantity":5000}],
       "action":{
         "type": "Build Big Factory",
         "notification": "Big Factory Built",
@@ -206,7 +208,8 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
-      "initial cost": [{"id":"wood", "quantity":200}],
+      "initial cost": [{"id":"wood", "quantity":3000},
+                       {"id":"iron", "quantity":10000}],
       "action":{
         "type": "Build Rocket Factory",
         "notification": "Rocket Factory Built",
