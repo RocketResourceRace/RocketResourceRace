@@ -704,12 +704,12 @@ class Game extends State{
   }
   void spendRes(Player player, float[] required){
     for (int i=0; i<numResources;i++){
-      player.resources[i] -= required[i]; //<>//
+      player.resources[i] -= required[i]; 
     }
   }
   void reclaimRes(Player player, float[] required){
     //reclaim half cost of building
-    for (int i=0; i<numResources;i++){ //<>//
+    for (int i=0; i<numResources;i++){ 
       player.resources[i] += required[i]/2;
     }
   }
@@ -722,12 +722,12 @@ class Game extends State{
     Collections.shuffle(locs);
     for (int i=0; i<4; i++){
       if (parties[locs.get(i)[1]][locs.get(i)[0]] == null && terrain[locs.get(i)[1]][locs.get(i)[0]] != 1){
-        return locs.get(i);  //<>//
+        return locs.get(i);  
       }
     }
     return null;
   }
-  boolean canMove(int x, int y){ //<>//
+  boolean canMove(int x, int y){ 
     float points;
     int[][] mvs = {{1,0}, {0,1}, {1,1}, {-1,0}, {0,-1}, {-1,-1}, {1,-1}, {-1,1}};
     
@@ -791,15 +791,15 @@ class Game extends State{
   
   void elementEvent(ArrayList<Event> events){
     for (Event event : events){
-      if (event.type == "clicked"){ //<>//
+      if (event.type == "clicked"){ 
         if (event.id == "idle party finder"){
           int[] t = findIdle(turn);
-          if (t[0] != -1){ //<>//
+          if (t[0] != -1){ 
             selectCell(t[0], t[1], false);
-            map.targetCell(t[0], t[1], 64); //<>//
+            map.targetCell(t[0], t[1], 64); 
           }
         }
-        else if (event.id == "end turn"){ //<>//
+        else if (event.id == "end turn"){ 
           postEvent(new EndTurn());
         }
         else if (event.id == "move button"){
@@ -812,30 +812,30 @@ class Game extends State{
               map.cancelMoveNodes();
             }
           }
-        } //<>//
+        } 
         else if (event.id == "resource expander"){
           ResourceSummary r = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
           Button b = ((Button)(getElement("resource expander", "bottom bar")));
           r.toggleExpand();
-          b.transform(width-r.totalWidth()-50, bezel, 30, 30); //<>//
+          b.transform(width-r.totalWidth()-50, bezel, 30, 30); 
           if (b.getText() == ">")
             b.setText("<");
           else
             b.setText(">");
         }
         else if (event.id == "end game button"){
-          newState = "menu"; //<>//
+          newState = "menu"; 
         }
         else if (event.id == "main menu button"){
-          newState = "menu"; //<>//
+          newState = "menu"; 
         }
-        else if (event.id == "desktop button"){ //<>//
-          exit(); //<>//
+        else if (event.id == "desktop button"){ 
+          exit(); 
         }
-        else if (event.id == "resume button"){ //<>//
+        else if (event.id == "resume button"){ 
           getPanel("pause screen").visible = false;
         }
-      } //<>//
+      } 
       if (event.type == "valueChanged"){
         if (event.id == "tasks"){
           postEvent(new ChangeTask(cellX, cellY, ((DropDown)getElement("tasks", "party management")).getSelected()));
@@ -858,15 +858,15 @@ class Game extends State{
     moving = false;
     //map.setWidth(round(width-bezel*2));
     ((Text)getElement("turns remaining", "party management")).setText("");
-  } //<>//
+  } 
   
   void moveParty(int px, int py){
-    moveParty(px, py, false); //<>//
+    moveParty(px, py, false); 
   }
-   //<>//
+   
   void moveParty(int px, int py, boolean splitting){
     
-    Party p; //<>//
+    Party p; 
     
     if (splitting){
       p = splittedParty;
@@ -881,45 +881,45 @@ class Game extends State{
       return;
     int tx = p.target[0];
     int ty = p.target[1];
-    if (px == tx && py == ty){ //<>//
+    if (px == tx && py == ty){ 
       if (splitting){
         if(parties[py][px] == null){
           parties[py][px] = p;
         } else {
-          parties[py][px].changeUnitNumber(p.getUnitNumber()); //<>//
+          parties[py][px].changeUnitNumber(p.getUnitNumber()); 
         }
       }
       p.path = null;
       return;
-    }  //<>//
+    }  
     
     ArrayList <int[]> path = p.path;
-    int i=0;   //<>//
+    int i=0;   
     boolean moved = false;
-    for (int node=1; node<path.size(); node++){ //<>//
+    for (int node=1; node<path.size(); node++){ 
       int cost = cost(path.get(node)[0], path.get(node)[1], px, py);
       if (p.getMovementPoints() >= cost){
-        if (map.parties[path.get(node)[1]][path.get(node)[0]] == null){ //<>// //<>//
+        if (map.parties[path.get(node)[1]][path.get(node)[0]] == null){  
           // empty cell
           p.subMovementPoints(cost);
-          map.parties[path.get(node)[1]][path.get(node)[0]] = p; //<>//
+          map.parties[path.get(node)[1]][path.get(node)[0]] = p; 
           if (splitting){
-            splittedParty = null; //<>//
+            splittedParty = null; 
             splitting = false;
           } else{
-            map.parties[py][px] = null; //<>//
+            map.parties[py][px] = null; 
           }
           px = path.get(node)[0];
           py = path.get(node)[1];
           p = map.parties[py][px];
           if (!moved){
             p.moved();
-            moved = true; //<>//
+            moved = true; 
           }
         }
         else if(path.get(node)[0] != px || path.get(node)[1] != py){
           p.clearPath();
-          if (map.parties[path.get(node)[1]][path.get(node)[0]].player == turn){ //<>//
+          if (map.parties[path.get(node)[1]][path.get(node)[0]].player == turn){ 
             // merge cells
             notificationManager.post("Parties Merged", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
             int movementPoints = min(map.parties[path.get(node)[1]][path.get(node)[0]].getMovementPoints(), p.getMovementPoints()-cost);
@@ -932,15 +932,15 @@ class Game extends State{
               splittedParty = null;
               splitting = false;
             } else{
-              map.parties[py][px] = null; //<>//
+              map.parties[py][px] = null; 
             }
             if (overflow>0){
-              if(map.parties[path.get(node-1)[1]][path.get(node-1)[0]]==null){ //<>//
+              if(map.parties[path.get(node-1)[1]][path.get(node-1)[0]]==null){ 
                 p.setUnitNumber(overflow);
-                map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p; //<>//
+                map.parties[path.get(node-1)[1]][path.get(node-1)[0]] = p; 
               } else {
                 map.parties[path.get(node-1)[1]][path.get(node-1)[0]].changeUnitNumber(overflow);
-              } //<>//
+              } 
             }
             map.parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(movementPoints);
           } else if (map.parties[path.get(node)[1]][path.get(node)[0]].player == 2){
@@ -964,17 +964,17 @@ class Game extends State{
               } else {
                 map.parties[path.get(node-1)[1]][path.get(node-1)[0]].changeUnitNumber(overflow);
               }
-            } //<>//
+            } 
           }
-          else{ //<>//
+          else{ 
             int x, y;
             x = path.get(node)[0];
-            y = path.get(node)[1]; //<>// //<>//
+            y = path.get(node)[1];  
             int otherPlayer = map.parties[y][x].player;
-            notificationManager.post("Battle Started", x, y, turnNumber, turn); //<>//
+            notificationManager.post("Battle Started", x, y, turnNumber, turn); 
             notificationManager.post("Battle Started", x, y, turnNumber, otherPlayer);
             p.subMovementPoints(cost);
-            map.parties[y][x] = new Battle(p, map.parties[y][x]); //<>//
+            map.parties[y][x] = new Battle(p, map.parties[y][x]); 
             map.parties[y][x] = ((Battle)map.parties[y][x]).doBattle();
             if(map.parties[y][x].player != 2){
               notificationManager.post("Battle Ended. Player "+str(map.parties[y][x].player+1)+" won", x, y, turnNumber, turn);
@@ -989,25 +989,25 @@ class Game extends State{
                 splitting = false;
               } else{
                 map.parties[py][px] = null;
-              } //<>//
+              } 
             if(map.buildings[path.get(node)[1]][path.get(node)[0]]!=null&&map.buildings[path.get(node)[1]][path.get(node)[0]].type==0){
               map.buildings[path.get(node)[1]][path.get(node)[0]] = null;
             }
           }
-          break; //<>//
+          break; 
         }
         i++;
       }
-      else{  //<>//
-        p.path = new ArrayList(path.subList(i, path.size())); //<>//
+      else{  
+        p.path = new ArrayList(path.subList(i, path.size())); 
         break;
       }
-      if (tx==px&&ty==py){ //<>//
-        p.path = null; //<>//
-      } //<>//
+      if (tx==px&&ty==py){ 
+        p.path = null; 
+      } 
     }
     
-    if(cellFollow&&stillThere){ //<>//
+    if(cellFollow&&stillThere){ 
       selectCell((int)px, (int)py, false);
     }
   }
@@ -1022,24 +1022,24 @@ class Game extends State{
       
     int turns = 0;
     ArrayList <int[]> path = getPath(startX, startY, targetX, targetY, nodes);
-    Collections.reverse(path); //<>//
+    Collections.reverse(path); 
     for (int node=1; node<path.size(); node++){
       int cost = cost(path.get(node)[0], path.get(node)[1], path.get(node-1)[0], path.get(node-1)[1]);
       if (movementPoints < cost){
         turns += 1;
-        movementPoints = gameData.getJSONObject("game options").getInt("movement points"); //<>//
+        movementPoints = gameData.getJSONObject("game options").getInt("movement points"); 
       }
       movementPoints -= cost;
     }
     return turns;
   }
   int splitUnitsNum(){
-    return round(((Slider)getElement("split units", "party management")).getValue());
+    return round(((Slider)getElement("split units", "party management")).getValue()); //<>//
   }
   void refreshTooltip(){
     if (((DropDown)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible){
       tooltip.setTask(((DropDown)getElement("tasks", "party management")).findMouseOver());
-      tooltip.show(); //<>// //<>//
+      tooltip.show();  
     }
     else if(((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").visible){
       tooltip.setTurnsRemaining();
@@ -1067,12 +1067,12 @@ class Game extends State{
         else {
           if (map.parties[y][x].player == turn){
             //merge parties
-            tooltip.setMerging();
+            tooltip.setMerging(); //<>//
             tooltip.show();
           }
           else {
             //Attack
-            Party tempAttacker = map.parties[cellY][cellX].clone(); //<>//
+            Party tempAttacker = map.parties[cellY][cellX].clone(); 
             int units = round(splitUnitsNum());
             tempAttacker.setUnitNumber(units);
             int chance = getChanceOfBattleSuccess(tempAttacker, map.parties[y][x]);
@@ -1128,12 +1128,12 @@ class Game extends State{
       if (eventType == "mouseClicked"){
         if (activePanel == "default" && !UIHovering()){
           if (map.mouseOver()){
-            if (moving){
+            if (moving){ //<>//
               //int x = floor(map.scaleXInv(mouseX));
               //int y = floor(map.scaleYInv(mouseY));
               //postEvent(new Move(cellX, cellY, x, y));
               //map.cancelPath();
-              if (mousePressed){ //<>//
+              if (mousePressed){ 
                 map.cancelPath();
                 moving = false;
                 map.cancelMoveNodes();
