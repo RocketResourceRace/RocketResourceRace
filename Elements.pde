@@ -55,6 +55,14 @@ class Tooltip extends Element{
   //    returnString = returnString.substring(0, returnString.length()-2);
   //  return returnString;
   //}
+  String getResourceList(JSONArray resArray){
+    String returnString = "";
+    for (int i=0; i<resArray.size(); i++){
+      JSONObject jo = resArray.getJSONObject(i);
+      returnString += String.format("  %s %s\n", roundDp(""+jo.getFloat("quantity"),2), jo.getString("id"));
+    }
+    return returnString;
+  }
   
   void setMoving(int turns, boolean splitting){
     //Tooltip text if moving. Turns is the number of turns in move
@@ -93,16 +101,23 @@ class Tooltip extends Element{
     if (!jo.isNull("description")){
       t += jo.getString("description");
     }
-    //if (!jo.isNull("initial cost")){
-    //  t += jo.getString("description");
-    //}
-    //if (!jo.isNull("production")){
-    //  t += jo.getString("description");
-    //}
-    //if (!jo.isNull("consumption")){
-    //  t += jo.getString("description");
-    //}
-    setText(t);
+    if (!jo.isNull("initial cost")){
+      t += "Initial Cost:\n"+getResourceList(jo.getJSONArray("initial cost"));
+    }
+    if(!jo.isNull("movement points")){
+      
+    }
+    if (!jo.isNull("action")){
+      t += String.format("Turns: %d\n", jo.getJSONObject("action").getInt("turns"));
+    }
+    if (!jo.isNull("production")){
+      t += "Production/Turn:\n"+getResourceList(jo.getJSONArray("production"));
+    }
+    if (!jo.isNull("consumption")){
+      t += "Consumption/Turn:\n"+getResourceList(jo.getJSONArray("consumption"));
+    }
+    //Strip
+    setText(t.replaceAll("\\s+$", ""));
   }
   
   void draw(){
