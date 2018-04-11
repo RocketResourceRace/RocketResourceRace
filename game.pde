@@ -1448,7 +1448,7 @@ class Game extends State{
   
   ArrayList<String> keyboardEvent(String eventType, char _key){
     refreshTooltip();
-    if (_key == ESC){
+    if (eventType == "keyPressed" && _key == ESC){
       getPanel("pause screen").visible = !getPanel("pause screen").visible;
     }
     if (eventType == "keyTyped"){
