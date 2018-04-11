@@ -1284,12 +1284,12 @@ class Game extends State{
     fill(partyManagementColour);
     rect(cellSelectionX, pp.y, cellSelectionW, 13*TextScale);
     fill(255);
-    textSize(10*TextScale);
+      textFont(getFont(10*TextScale));
     textAlign(CENTER, TOP);
     text("Party Management", cellSelectionX+cellSelectionW/2, pp.y);
     
     textAlign(LEFT, CENTER);
-    textSize(8*TextScale);
+    textFont(getFont(8*TextScale));
     float barY = cellSelectionY + 13*TextScale + cellSelectionH*0.15 + bezel*2;
     text("Movement Points Remaining: "+parties[cellY][cellX].getMovementPoints(turn) + "/"+gameData.getJSONObject("game options").getInt("movement points"), 120+cellSelectionX, barY);
     barY += 13*TextScale;
@@ -1337,7 +1337,7 @@ class Game extends State{
     fill(0, 150, 0);
     rect(cellSelectionX, cellSelectionY, cellSelectionW, 13*TextScale);
     fill(255);
-    textSize(10*TextScale);
+    textFont(getFont(10*TextScale));
     textAlign(CENTER, TOP);
     text("Land Management", cellSelectionX+cellSelectionW/2, cellSelectionY);
     
@@ -1437,7 +1437,7 @@ class Game extends State{
       fill(fillColour);
       rect(x, y, w, h);
     }
-    textSize(10*TextScale);
+    textFont(getFont(10*TextScale));
     textAlign(CENTER, BOTTOM);
     fill(200);
     int tw = ceil((textWidth(progressMessage)));

@@ -391,7 +391,7 @@ class Map extends Element{
          if(parties[y][x]!=null){
            c = new PVector(scaleX(x), scaleY(y));
            if(c.x<xPos+elementWidth&&c.y+blockSize/8>yPos&&c.y<yPos+elementHeight){
-             textSize(blockSize/7);
+              textFont(getFont(blockSize/7));
              fill(255);
              textAlign(CENTER, CENTER);
              if(parties[y][x].actions.size() > 0 && parties[y][x].actions.get(0).initialTurns>0){
@@ -419,7 +419,7 @@ class Map extends Element{
                  fill(50, 150);
                  rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
                    fill(255);
-                 textSize(8*TextScale);
+                  textFont(getFont(8*TextScale));
                  textAlign(CENTER, CENTER);
                  String s = ""+moveNodes[y1][x].cost;
                  s = s.substring(0, min(s.length(), 3));

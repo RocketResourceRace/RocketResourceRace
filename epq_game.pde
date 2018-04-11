@@ -18,6 +18,7 @@ float volume = 0.5;
 int prevT;
 boolean soundOn = true;
 JSONObject gameData;
+HashMap<Integer, PFont> fonts;
 
 // Event-driven methods
 void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}
@@ -213,6 +214,17 @@ void loadImages(){
   }
 }
 
+PFont getFont(float size){
+  PFont f=fonts.get(round(size));
+  if (f == null){
+    fonts.put(round(size), createFont("GillSans", size));
+    return fonts.get(round(size));
+  }
+  else{
+    return f;
+  }
+}
+
 
 float sum(float[] l){
   float c=0;
@@ -225,6 +237,7 @@ float sum(float[] l){
 float halfScreenWidth;
 float halfScreenHeight;
 void setup(){
+  fonts = new HashMap<Integer, PFont>();
   gameData = loadJSONObject("data.json");
   settings = new StringDict();
   //if
@@ -248,8 +261,10 @@ void setup(){
   addState("menu", new Menu());
   addState("map", new Game());
   activeState = "menu";
-  fullScreen();
+  fullScreen(P3D);
+  noSmooth();
   noStroke();
+  hint(DISABLE_OPTIMIZED_STROKE);
   halfScreenWidth = width/2;
   halfScreenHeight= height/2;
 }
