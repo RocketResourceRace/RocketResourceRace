@@ -79,9 +79,9 @@ class Tooltip extends Element{
     }
     setText(t);
   }
-  void setAttacking(float chance){
+  void setAttacking(int chance){
     JSONObject jo = gameData.getJSONObject("tooltips");
-    setText(String.format(jo.getString("attacking"), round(chance)));
+    setText(String.format(jo.getString("attacking"), chance));
   }
   void setTurnsRemaining(){
     JSONObject jo = gameData.getJSONObject("tooltips");
