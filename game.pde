@@ -1036,7 +1036,7 @@ class Game extends State{
     return turns;
   }
   int splitUnitsNum(){
-    return round(((Slider)getElement("split units", "party management")).getValue()); //<>//
+    return round(((Slider)getElement("split units", "party management")).getValue()); //<>// //<>//
   }
   void refreshTooltip(){
     if (((DropDown)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible){
@@ -1069,7 +1069,7 @@ class Game extends State{
         else {
           if (map.parties[y][x].player == turn){
             //merge parties
-            tooltip.setMerging(); //<>//
+            tooltip.setMerging(); //<>// //<>//
             tooltip.show();
           }
           else {
@@ -1130,7 +1130,7 @@ class Game extends State{
       if (eventType == "mouseClicked"){
         if (activePanel == "default" && !UIHovering()){
           if (map.mouseOver()){
-            if (moving){ //<>//
+            if (moving){ //<>// //<>//
               //int x = floor(map.scaleXInv(mouseX));
               //int y = floor(map.scaleYInv(mouseY));
               //postEvent(new Move(cellX, cellY, x, y));
@@ -1166,6 +1166,7 @@ class Game extends State{
     x = floor(map.scaleXInv(x));
     y = floor(map.scaleYInv(y));
     selectCell(x, y, false);
+    println(x, y);
   }
   
   boolean cellInBounds(int x, int y){
