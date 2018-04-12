@@ -10,7 +10,7 @@ class Map3D extends Element{
   float targetZoom, zoom, tilt, rot;
   Boolean zooming, panning, mapActive;
   Node[][] moveNodes;
-  float blockSize = 32;
+  float blockSize = 16;
   
   Map3D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight){
     this.x = x;
@@ -22,7 +22,8 @@ class Map3D extends Element{
     this.buildings = buildings;
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
-    blockSize = 64;
+    blockSize = 32;
+    zoom = height/2;
     focusedX = round(mapWidth*blockSize/2);
     focusedY = round(mapHeight*blockSize/2);
   }
@@ -52,35 +53,34 @@ class Map3D extends Element{
     for (int i=0; i<gameData.getJSONArray("terrain").size(); i++){
       JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
       tempTileImages[i] = tileImages.get(tileType.getString("id")).copy();
+      tempTileImages[i].resize(graphicsRes, graphicsRes);
     }
     float[][] heights = new float[mapHeight*2+1][mapWidth*2];
-    PGraphics[] tempTerrain = new PGraphics[mapHeight];
-    for(int y=0; y<mapHeight; y++){
-      tempTerrain[y] = createGraphics(round(mapWidth*64), round(64));
-      tempTerrain[y].beginDraw();
-      for (int x=0; x<mapWidth; x++){
-        tempTerrain[y].image(tempTileImages[terrain[y][x]-1], x*64, 0);
-      }
-      tempTerrain[y].endDraw();
-    }
-    
+    PGraphics tempTerrain;
     for(int y=0; y<mapHeight*2+1; y++){
       for (int x=0; x<mapWidth*2; x++){
-        heights[y][x] = noise(x, y)*blockSize*0.5;
+        heights[y][x] = noise(x, y)*blockSize*0.0;
       }
     }
     
     tiles = createShape(GROUP);
     textureMode(IMAGE);
+    PShape t;
     for(int y=0; y<mapHeight; y++){
-      PShape t = createShape();
-      //textureWrap(CLAMP);
-      t.setTexture(tempTerrain[y]);
+      tempTerrain = createGraphics(round(mapWidth*graphicsRes), round(graphicsRes));
+      tempTerrain.beginDraw();
+      for (int x=0; x<mapWidth; x++){
+        tempTerrain.image(tempTileImages[terrain[y][x]-1], x*graphicsRes, 0);
+      }
+      tempTerrain.endDraw();
+      
+      t = createShape();
+      t.setTexture(tempTerrain);
       t.beginShape(TRIANGLE_STRIP);
       for (int x=0; x<mapWidth; x++){
         //translate();
-        t.vertex(x*blockSize, y*blockSize, heights[y][x], x*blockSize, 0);   
-        t.vertex(x*blockSize, (y+1)*blockSize, heights[y+1][x], x*blockSize, blockSize);
+        t.vertex(x*blockSize, y*blockSize, heights[y][x], x*graphicsRes, 0);   
+        t.vertex(x*blockSize, (y+1)*blockSize, heights[y+1][x], x*graphicsRes, graphicsRes);
       }
       t.endShape();
       tiles.addChild(t);
@@ -99,7 +99,7 @@ class Map3D extends Element{
         focusedY -= mouseY-pmouseY;
       }
       else if (mouseButton != RIGHT){
-        tilt += (mouseY-pmouseY)*0.01;
+        tilt = between(0, tilt-(mouseY-pmouseY)*0.01, PI/4);
       }
     }
     return new ArrayList<String>();
@@ -109,7 +109,7 @@ class Map3D extends Element{
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
     if (eventType == "mouseWheel"){
       float count = event.getCount();
-      zoom += count*200;
+      zoom = between(height/4, zoom+zoom*count*0.15, min(mapHeight*blockSize, height*4));
     }
     return new ArrayList<String>();
   }
@@ -117,8 +117,7 @@ class Map3D extends Element{
   void draw(){
     pushStyle();
     hint(ENABLE_DEPTH_TEST);
-    camera(focusedX+width/2, focusedY+height/2, (height+zoom), focusedX+width/2, focusedY+height/2, 0, 0, 1, 0);
-    rotateX(tilt);
+    camera(focusedX+width/2, focusedY+height/2, zoom, focusedX+width/2, focusedY+height/2, 0, 0, 1, 0);
     shape(tiles);
     camera();
     hint(DISABLE_DEPTH_TEST);
