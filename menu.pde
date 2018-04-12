@@ -1,13 +1,15 @@
-// <Menu Level> <Order> <Name>
+
 
 
 class Menu extends State{
   PImage BGimg;
+  PShape bg;
   String currentPanel, newPanel;
   
   Menu(){
     BGimg = loadImage("data/menu_background.jpeg");
-    BGimg.resize(width, height);
+    bg = createShape(RECT, 0, 0, width, height);
+    bg.setTexture(BGimg);
     
     int buttonW = (int)(300.0*GUIScale);
     int buttonH = (int)(70.0*GUIScale);
@@ -52,7 +54,7 @@ class Menu extends State{
   }
   
   String update(){
-    background(BGimg);
+    shape(bg);
     if(((ToggleButton)getElement("background dimming", "settings")).getState()){
       pushStyle();
       fill(currentColour());

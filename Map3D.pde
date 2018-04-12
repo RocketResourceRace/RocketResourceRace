@@ -201,6 +201,7 @@ class Map3D extends Element{
   }
   
   void draw(){
+    background(#7ED7FF);
     frameTime = millis()-prevT;
     prevT = millis();
     PVector p = focusedV.copy().rotate(-rot).mult(frameTime);
