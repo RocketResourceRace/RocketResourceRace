@@ -19,7 +19,7 @@ int prevT;
 boolean soundOn = true;
 JSONObject gameData;
 HashMap<Integer, PFont> fonts;
-int graphicsRes = 32;
+int graphicsRes = 64;
 
 // Event-driven methods
 void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}
