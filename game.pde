@@ -301,7 +301,6 @@ class Game extends State{
         }
       } else if (jo.getString("id").equals("Launch Rocket")){
         int rocketBehaviour = int(random(10));
-        println(rocketBehaviour);
         buildings[cellY][cellX].image_id=0;
         //Rocket Launch Animation with behaviour
         if (rocketBehaviour > 6){
@@ -1036,7 +1035,7 @@ class Game extends State{
     for (int node=1; node<path.size(); node++){
       int cost = cost(path.get(node)[0], path.get(node)[1], path.get(node-1)[0], path.get(node-1)[1]);
       if (movementPoints < cost){
-        turns += 1; //<>//
+        turns += 1;
         movementPoints = gameData.getJSONObject("game options").getInt("movement points"); 
       }
       movementPoints -= cost;
@@ -1069,7 +1068,7 @@ class Game extends State{
         }
         if(map.parties[y][x]==null){
           //Moving into empty tile
-          int turns = getMoveTurns(cellX, cellY, x, y, nodes); //<>//
+          int turns = getMoveTurns(cellX, cellY, x, y, nodes);
           boolean splitting = splitUnitsNum()!=parties[cellY][cellX].getUnitNumber();
           tooltip.setMoving(turns, splitting);
           tooltip.show();
@@ -1130,7 +1129,7 @@ class Game extends State{
             map.cancelPath();
             moving = false;
             map.cancelMoveNodes();
-          } //<>//
+          }
         }
       }
     }
