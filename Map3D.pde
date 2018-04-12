@@ -87,9 +87,24 @@ class Map3D extends Element{
     }
     popStyle();
   }
-  
-  void setZoom(int zoom){
-    this.zoom = zoom;
+  float getObjectWidth(){
+    return mapWidth*blockSize;
+  }
+  float getObjectHeight(){
+    return mapHeight*blockSize;
+  }
+  void setZoom(float zoom){
+    this.zoom =  between(height/4, zoom, min(mapHeight*blockSize, height*4));
+  }
+  void setTilt(float tilt){
+    this.tilt = between(0.01, tilt, 3*PI/8);
+  }
+  void setRot(float rot){
+    this.rot = rot;
+  }
+  void setFocused(float focusedX, float focusedY){
+    this.focusedX = round(between(-width/2, focusedX, getObjectWidth()-width/2));
+    this.focusedY = round(between(-height/2, focusedY, getObjectHeight()-height/2));
   }
   
   ArrayList<String> mouseEvent(String eventType, int button){
@@ -99,7 +114,8 @@ class Map3D extends Element{
         focusedY -= mouseY-pmouseY;
       }
       else if (mouseButton != RIGHT){
-        tilt = between(0, tilt-(mouseY-pmouseY)*0.01, PI/4);
+        setTilt(tilt-(mouseY-pmouseY)*0.01);
+        setRot(rot-(mouseX-pmouseX)*0.01);
       }
     }
     return new ArrayList<String>();
@@ -109,15 +125,21 @@ class Map3D extends Element{
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
     if (eventType == "mouseWheel"){
       float count = event.getCount();
-      zoom = between(height/4, zoom+zoom*count*0.15, min(mapHeight*blockSize, height*4));
+      setZoom(zoom+zoom*count*0.15);
     }
     return new ArrayList<String>();
   }
   
   void draw(){
+    // Check camera ok
+    setZoom(zoom);
+    setRot(rot);
+    setTilt(tilt);
+    setFocused(focusedX, focusedY);
+    
     pushStyle();
     hint(ENABLE_DEPTH_TEST);
-    camera(focusedX+width/2, focusedY+height/2, zoom, focusedX+width/2, focusedY+height/2, 0, 0, 1, 0);
+    camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
     shape(tiles);
     camera();
     hint(DISABLE_DEPTH_TEST);
