@@ -299,22 +299,22 @@ class Game extends State{
         else{
           parties[cellY][cellX].changeTask("Rest");
         }
-      }
-      
-      else if (parties[cellY][cellX].getTask() == "Launch Rocket"){
+      } else if (jo.getString("id").equals("Launch Rocket")){
         int rocketBehaviour = int(random(10));
+        println(rocketBehaviour);
         buildings[cellY][cellX].image_id=0;
         //Rocket Launch Animation with behaviour
         if (rocketBehaviour > 6){
           winner = turn;
         } 
         else {
-          players[turn].resources[getResIndex("rocket parts")] = 0;
+          players[turn].resources[getResIndex("rocket progress")] = 0;
+          parties[cellY][cellX].changeTask("Rest");
         }
       } 
-      else if (parties[cellY][cellX].getTask() == "Produce Rocket"){
-        if(players[turn].resources[getResIndex("rocket parts")]==-1){
-          players[turn].resources[getResIndex("rocket parts")] = 0;
+      else if (parties[cellY][cellX].getTask().equals("Produce Rocket")){
+        if(players[turn].resources[getResIndex("rocket progress")]==-1){
+          players[turn].resources[getResIndex("rocket progress")] = 0;
         }
       }
       
