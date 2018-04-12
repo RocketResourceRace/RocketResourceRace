@@ -237,6 +237,7 @@ float sum(float[] l){
 float halfScreenWidth;
 float halfScreenHeight;
 void setup(){
+  frameRate(1000);
   fonts = new HashMap<Integer, PFont>();
   gameData = loadJSONObject("data.json");
   settings = new StringDict();
@@ -286,6 +287,12 @@ void draw(){
     states.get(newState).enterState();
     activeState = newState;
   }
+  textFont(getFont(10));
+  textAlign(LEFT, TOP);
+  fill(255,0,0);
+  text(frameRate, 0, 0);
+  
+  
 }
 
 State getActiveState(){
