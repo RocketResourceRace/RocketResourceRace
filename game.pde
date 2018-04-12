@@ -24,7 +24,7 @@ class Game extends State{
   int turn;
   boolean changeTurn = false;
   int winner = -1;
-  Map map;
+  Map3D map;
   Player[] players;
   int cellX, cellY, cellSelectionX, cellSelectionY, cellSelectionW, cellSelectionH;
   boolean cellSelected=false, moving=false;
@@ -38,17 +38,18 @@ class Game extends State{
     initialiseTasks();
     initialiseBuildings();
     
-    addElement("2map", new Map(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
+    //addElement("2map", new Map(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
+    addElement("2map", new Map3D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
     addElement("1notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 10, turn));
     
-    map = (Map)getElement("2map", "default");
+    map = (Map3D)getElement("2map", "default");
     notificationManager = (NotificationManager)getElement("1notification manager", "default");
     players = new Player[2];
     totals = new float[resourceNames.length];
     
     // Initial positions will be focused on starting party
-    players[0] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, startingResources, color(0,0,255));
-    players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, startingResources, color(255,0,0));
+    players[0] = new Player(map.focusedX, map.focusedY, map.zoom, startingResources, color(0,0,255));
+    players[1] = new Player(map.focusedX, map.focusedY, map.zoom, startingResources, color(255,0,0));
     addPanel("land management", 0, 0, width, height, false, true, color(50, 200, 50), color(0));
     addPanel("party management", 0, 0, width, height, false, true, color(70, 70, 220), color(0));
     addPanel("bottom bar", 0, height-70, width, 70, true, true, color(150), color(50));
@@ -78,6 +79,7 @@ class Game extends State{
     addElement("resource expander", new Button(resSummaryX-50, bezel, 30, 30, color(150), color(50), color(0), 10, CENTER, "<"), "bottom bar");
     addElement("turn number", new TextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", color(0,0,255), 0), "bottom bar");
     prevIdle = new ArrayList<Integer[]>();
+    
   }     
   
   void initialiseBuildings(){
@@ -580,17 +582,17 @@ class Game extends State{
     float mapXOffset;
     float mapYOffset;
     if (map.panning){
-      mapXOffset = map.targetXOffset;
-      mapYOffset = map.targetYOffset;
+      mapXOffset = map.focusedX;
+      mapYOffset = map.focusedY;
     } else {
-      mapXOffset = map.mapXOffset;
-      mapYOffset = map.mapYOffset;
+      mapXOffset = map.focusedX;
+      mapYOffset = map.focusedY;
     }
     float blockSize;
     if (map.zooming){
-      blockSize = map.targetBlockSize;
+      blockSize = map.targetZoom;
     } else{
-      blockSize = map.blockSize;
+      blockSize = map.zoom;
     }
     players[turn].saveSettings(mapXOffset, mapYOffset, blockSize, cellX, cellY, cellSelected);
     turn = (turn + 1)%2;
@@ -651,7 +653,7 @@ class Game extends State{
   }
   
   String update(){
-    background(100);
+    //background(100);
     if (changeTurn){  
       turnChange();
     }
@@ -1513,6 +1515,7 @@ class Game extends State{
     else{
       ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
     }
+    map.generateShape();
   }
   int cost(int x, int y, int prevX, int prevY){
     float mult = 1;

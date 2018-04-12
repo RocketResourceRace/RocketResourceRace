@@ -264,6 +264,7 @@ void setup(){
   fullScreen(P3D);
   noSmooth();
   noStroke();
+  lights();
   hint(DISABLE_OPTIMIZED_STROKE);
   halfScreenWidth = width/2;
   halfScreenHeight= height/2;
