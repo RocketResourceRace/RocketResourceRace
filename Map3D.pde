@@ -7,9 +7,9 @@ class Map3D extends Element{
   Building[][] buildings;
   int[][] terrain;
   Party[][] parties;
-  PShape tiles;
+  PShape tiles, blueFlag, redFlag;
   PImage[] tempTileImages;
-  float targetZoom, zoom, zoomv, tilt, tiltv, rot, rotv, focusedX, focusedY, heldX, heldY;
+  float targetZoom, zoom, zoomv, tilt, tiltv, rot, rotv, focusedX, focusedY;
   PVector focusedV, heldPos;
   Boolean zooming, panning, mapActive, cellSelected;
   Node[][] moveNodes;
@@ -27,6 +27,7 @@ class Map3D extends Element{
     this.mapHeight = mapHeight;
     blockSize = 32;
     zoom = height/2;
+    tilt = PI/3;
     focusedX = round(mapWidth*blockSize/2);
     focusedY = round(mapHeight*blockSize/2);
     focusedV = new PVector(0, 0);
@@ -107,6 +108,13 @@ class Map3D extends Element{
       t.endShape();
       tiles.addChild(t);
     }
+    
+    blueFlag = loadShape("blueflag.obj");
+    blueFlag.rotateX(PI/2);
+    blueFlag.scale(3);
+    redFlag = loadShape("redflag.obj");
+    redFlag.rotateX(PI/2);
+    redFlag.scale(3);
     popStyle();
   }
   
@@ -142,36 +150,38 @@ class Map3D extends Element{
   ArrayList<String> mouseEvent(String eventType, int button){
     if (eventType.equals("mouseDragged")){
       if (mouseButton == LEFT){
-        if (heldPos != null){
+        //if (heldPos != null){
           
-          camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
-          PVector newHeldPos = MousePosOnObject(mouseX, mouseY);
-          camera();
-          focusedX = heldX-(newHeldPos.x-heldPos.x);
-          focusedY = heldY-(newHeldPos.y-heldPos.y);
+          //camera(prevFx+width/2+zoom*sin(tilt)*sin(rot), prevFy+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), prevFy+width/2, focusedY+height/2, 0, 0, 0, -1);
+          //PVector newHeldPos = MousePosOnObject(mouseX, mouseY);
+          //camera();
+          //focusedX = heldX-(newHeldPos.x-heldPos.x);
+          //focusedY = heldY-(newHeldPos.y-heldPos.y);
+          //prevFx = heldX-(newHeldPos.x-heldPos.x);
+          //prevFy = heldY-(newHeldPos.y-heldPos.y);
           //heldPos.x = newHeldPos.x;
           //heldPos.y = newHeldPos.y;
-        }
+        //}
       }
       else if (mouseButton != RIGHT){
         setTilt(tilt-(mouseY-pmouseY)*0.01);
         setRot(rot-(mouseX-pmouseX)*0.01);
       }
     }
-    else if (eventType.equals("mousePressed")){
-      if (button == LEFT){
-        camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
-        heldPos = MousePosOnObject(mouseX, mouseY);
-        heldX = focusedX;
-        heldY = focusedY;
-        camera();
-      }
-    }
-    else if (eventType.equals("mouseReleased")){
-      if (button == LEFT){
-        heldPos = null;
-      }
-    }
+    //else if (eventType.equals("mousePressed")){
+    //  if (button == LEFT){
+    //    camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
+    //    heldPos = MousePosOnObject(mouseX, mouseY);
+    //    heldX = focusedX;
+    //    heldY = focusedY;
+    //    camera();
+    //  }
+    //}
+    //else if (eventType.equals("mouseReleased")){
+    //  if (button == LEFT){
+    //    heldPos = null;
+    //  }
+    //}
     return new ArrayList<String>();
   }
   
@@ -279,6 +289,21 @@ class Map3D extends Element{
       PShape s = createShape(RECT, selectedCellX*blockSize, selectedCellY*blockSize, blockSize, blockSize);
       translate(0,0,1);
       shape(s);
+    }
+    
+    for (int x=0; x<mapWidth; x++){
+      for (int y=0; y<mapHeight; y++){
+        if (parties[y][x] != null && parties[y][x].player == 0){
+          pushMatrix();
+          translate((x+0.5)*blockSize, (y+0.5)*blockSize, 30);
+          shape(blueFlag);
+          popMatrix();
+        }
+        if (parties[y][x] != null && parties[y][x].player == 1){
+          translate((x+0.5)*blockSize, (y+0.5)*blockSize, 30);
+          shape(redFlag);
+        }
+      }
     }
     
     camera();
