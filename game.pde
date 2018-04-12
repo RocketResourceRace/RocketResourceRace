@@ -391,7 +391,7 @@ class Game extends State{
   
   void checkTasks(){     
     resetAvailableTasks();
-    boolean correctTerrain, correctBuilding;
+    boolean correctTerrain, correctBuilding, enoughResources;
     JSONObject js;
     
     if(parties[cellY][cellX].hasActions()){
@@ -402,6 +402,15 @@ class Game extends State{
       js = gameData.getJSONArray("tasks").getJSONObject(i);
       correctTerrain = js.isNull("terrain") ^ JSONContainsStr(js.getJSONArray("terrain"), terrainString(terrain[cellY][cellX]));
       correctBuilding = false;
+      enoughResources = true;
+      if (!js.isNull("initial cost")){
+        for (int j=0; j<js.getJSONArray("initial cost").size(); j++){
+          JSONObject initialCost = js.getJSONArray("initial cost").getJSONObject(j);
+          if (players[turn].resources[getResIndex(initialCost.getString("id"))]<(initialCost.getInt("quantity"))){
+            enoughResources = false;
+          }
+        }
+      }
       
       if (js.isNull("auto enabled")||!js.getBoolean("auto enabled")){
         if (js.isNull("buildings")){
@@ -422,7 +431,7 @@ class Game extends State{
         }
       }
       
-      if (correctTerrain && correctBuilding){
+      if (correctTerrain && correctBuilding && enoughResources){
         makeTaskAvailable(js.getString("id"));
       }
     }
@@ -560,14 +569,14 @@ class Game extends State{
         }
       }
     }
-    if (players[turn].resources[getResIndex("rocket parts")] > 1000){
+    if (players[turn].resources[getResIndex("rocket progress")] > 1000){
       //display indicator saying rocket produced
       for (int y=0; y<mapHeight; y++){
         for (int x=0; x<mapWidth; x++){
           if (map.parties[y][x] != null){
             if (map.parties[y][x].player == turn){
-              notificationManager.post("Rocket Produced", x, y, turnNumber, turn);
               if(map.parties[y][x].getTask()=="Produce Rocket"){
+                notificationManager.post("Rocket Produced", x, y, turnNumber, turn);
                 map.parties[y][x].changeTask("Rest");
                 map.buildings[y][x].image_id=1;
               }
@@ -1027,7 +1036,7 @@ class Game extends State{
     for (int node=1; node<path.size(); node++){
       int cost = cost(path.get(node)[0], path.get(node)[1], path.get(node-1)[0], path.get(node-1)[1]);
       if (movementPoints < cost){
-        turns += 1;
+        turns += 1; //<>//
         movementPoints = gameData.getJSONObject("game options").getInt("movement points"); 
       }
       movementPoints -= cost;
@@ -1060,7 +1069,7 @@ class Game extends State{
         }
         if(map.parties[y][x]==null){
           //Moving into empty tile
-          int turns = getMoveTurns(cellX, cellY, x, y, nodes);
+          int turns = getMoveTurns(cellX, cellY, x, y, nodes); //<>//
           boolean splitting = splitUnitsNum()!=parties[cellY][cellX].getUnitNumber();
           tooltip.setMoving(turns, splitting);
           tooltip.show();
@@ -1121,7 +1130,7 @@ class Game extends State{
             map.cancelPath();
             moving = false;
             map.cancelMoveNodes();
-          }
+          } //<>//
         }
       }
     }
