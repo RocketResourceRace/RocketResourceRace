@@ -655,6 +655,7 @@ class Game extends State{
     if (changeTurn){  
       turnChange();
     }
+    
     drawPanels();
     if(players[0].resources[getResIndex("rocket progress")]!=-1||players[1].resources[getResIndex("rocket progress")]!=-1){
       drawRocketProgressBar();
