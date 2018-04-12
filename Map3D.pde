@@ -8,7 +8,7 @@ class Map3D extends Element{
   Party[][] parties;
   PShape tiles;
   PImage[] tempTileImages;
-  float targetZoom, zoom, tilt, tiltv, rot, rotv, focusedX, focusedY;
+  float targetZoom, zoom, zoomv, tilt, tiltv, rot, rotv, focusedX, focusedY;
   PVector focusedV;
   Boolean zooming, panning, mapActive;
   Node[][] moveNodes;
@@ -158,6 +158,12 @@ class Map3D extends Element{
       if (_key == 'c'){
         tiltv -= ROTSPEED;
       }
+      if (_key == 'f'){
+        zoomv += PANSPEED;
+      }
+      if (_key == 'r'){
+        zoomv -= PANSPEED;
+      }
     }
     else if (eventType.equals("keyReleased")){
       if (_key == 'q'){
@@ -184,6 +190,12 @@ class Map3D extends Element{
       if (_key == 'd'){
         focusedV.x = 0;
       }
+      if (_key == 'f'){
+        zoomv = 0;
+      }
+      if (_key == 'r'){
+        zoomv = 0;
+      }
     }
     return new ArrayList<String>();
   }
@@ -196,6 +208,7 @@ class Map3D extends Element{
     focusedY += p.y;
     rot += rotv*frameTime;
     tilt += tiltv*frameTime;
+    zoom += zoomv*frameTime;
     
     // Check camera ok
     setZoom(zoom);
