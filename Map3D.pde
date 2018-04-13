@@ -14,6 +14,7 @@ class Map3D extends Element{
   Boolean zooming, panning, mapActive, cellSelected;
   Node[][] moveNodes;
   float blockSize = 16;
+  ArrayList<int[]> drawPath;
   
   Map3D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight){
     this.x = x;
@@ -33,10 +34,23 @@ class Map3D extends Element{
     focusedV = new PVector(0, 0);
     heldPos = null;
     cellSelected = false;
+    panning = false;
+    zooming = false;
   }
-  
-  void updateMoveNodes(Node[][] nodes){}
-  void cancelMoveNodes(){}
+   
+    
+  void updateMoveNodes(Node[][] nodes){      
+    moveNodes = nodes;
+  }
+  void updatePath(ArrayList<int[]> nodes){
+    drawPath = nodes;
+  }
+  void cancelMoveNodes(){
+    moveNodes = null;
+  }
+  void cancelPath(){
+    drawPath = null;
+  }
   void loadSettings(float mapXOffset, float mapYOffset, float blockSize){}
   float[] targetCell(int x, int y, float zoom){return new float[2];
   }
@@ -59,8 +73,6 @@ class Map3D extends Element{
     PVector mo = MousePosOnObject(mouseX, mouseY);
     return (mo.y)/getObjectHeight()*mapHeight;
   }
-  void updatePath(ArrayList<int[]> n){};
-  void cancelPath(){}
   void reset(int mapWidth, int mapHeight, int [][] terrain, Party[][] parties, Building[][] buildings) {
     this.terrain = terrain;
     this.parties = parties;
@@ -265,7 +277,7 @@ class Map3D extends Element{
     background(#7ED7FF);
     frameTime = millis()-prevT;
     prevT = millis();
-    PVector p = focusedV.copy().rotate(-rot).mult(frameTime);
+    PVector p = focusedV.copy().rotate(-rot).mult(frameTime*pow(zoom,0.5)/20);
     focusedX += p.x;
     focusedY += p.y;
     rot += rotv*frameTime;
