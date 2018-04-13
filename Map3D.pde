@@ -2,12 +2,13 @@
 class Map3D extends Element{
   final int thickness = 10;
   final float PANSPEED = 0.5, ROTSPEED = 0.002;
+  final int FORESTDENSITY = 5;
   int x, y, w, h, mapWidth, mapHeight, prevT, frameTime;
   int selectedCellX, selectedCellY;
   Building[][] buildings;
   int[][] terrain;
   Party[][] parties;
-  PShape tiles, blueFlag, redFlag;
+  PShape tiles, blueFlag, redFlag, trees;
   HashMap<String, PShape[]> buildingObjs;
   PImage[] tempTileImages;
   float targetZoom, zoom, zoomv, tilt, tiltv, rot, rotv, focusedX, focusedY;
@@ -102,6 +103,7 @@ class Map3D extends Element{
     
     tiles = createShape(GROUP);
     textureMode(IMAGE);
+    trees = createShape(GROUP);
     PShape t;
     for(int y=0; y<mapHeight; y++){
       tempTerrain = createGraphics(round(mapWidth*graphicsRes), round(graphicsRes));
@@ -113,15 +115,27 @@ class Map3D extends Element{
       
       t = createShape();
       t.setTexture(tempTerrain);
+      PShape tempTree;
       t.beginShape(TRIANGLE_STRIP);
+      resetMatrix();
       for (int x=0; x<mapWidth; x++){
-        //translate();
         t.vertex(x*blockSize, y*blockSize, heights[y][x], x*graphicsRes, 0);   
         t.vertex(x*blockSize, (y+1)*blockSize, heights[y+1][x], x*graphicsRes, graphicsRes);
+        if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest")+1){
+          for (int i1=0; i1<FORESTDENSITY; i1++){
+            tempTree = loadShape("tree.obj");
+            tempTree.rotateX(PI/2);
+            tempTree.translate(x*blockSize+random(blockSize), y*blockSize+random(blockSize));
+            trees.addChild(tempTree);
+          }
+        }
       }
       t.endShape();
       tiles.addChild(t);
     }
+    
+    
+    resetMatrix();
     
     blueFlag = loadShape("blueflag.obj");
     blueFlag.rotateX(PI/2);
@@ -287,6 +301,7 @@ class Map3D extends Element{
   }
   
   void draw(){
+    //lights();
     background(#7ED7FF);
     frameTime = millis()-prevT;
     prevT = millis();
@@ -302,12 +317,11 @@ class Map3D extends Element{
     setRot(rot);
     setTilt(tilt);
     setFocused(focusedX, focusedY);
-    
     pushStyle();
     hint(ENABLE_DEPTH_TEST);
     camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
     shape(tiles);
-    
+    shape(trees);
     if (cellSelected){
       fill(0, 100);
       stroke(0);
@@ -343,8 +357,9 @@ class Map3D extends Element{
       }
     }
     
-    camera();
     hint(DISABLE_DEPTH_TEST);
+    camera();
+    noLights();
     popStyle();
     
   }

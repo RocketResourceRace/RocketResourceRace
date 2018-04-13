@@ -264,10 +264,9 @@ void setup(){
   addState("map", new Game());
   activeState = "menu";
   fullScreen(P3D);
-  noSmooth();
+  //noSmooth();
   noStroke();
-  //lights();
-  hint(DISABLE_OPTIMIZED_STROKE);
+  //hint(DISABLE_OPTIMIZED_STROKE);
   halfScreenWidth = width/2;
   halfScreenHeight= height/2;
 }
