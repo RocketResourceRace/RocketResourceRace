@@ -8,6 +8,7 @@ class Map3D extends Element{
   int[][] terrain;
   Party[][] parties;
   PShape tiles, blueFlag, redFlag;
+  HashMap<String, PShape[]> buildingObjs;
   PImage[] tempTileImages;
   float targetZoom, zoom, zoomv, tilt, tiltv, rot, rotv, focusedX, focusedY;
   PVector focusedV, heldPos;
@@ -36,6 +37,7 @@ class Map3D extends Element{
     cellSelected = false;
     panning = false;
     zooming = false;
+    buildingObjs = new HashMap<String, PShape[]>();
   }
    
     
@@ -127,6 +129,16 @@ class Map3D extends Element{
     redFlag = loadShape("redflag.obj");
     redFlag.rotateX(PI/2);
     redFlag.scale(3);
+    
+    for (int i=0; i<gameData.getJSONArray("buildings").size(); i++){
+      JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
+      if (!buildingType.isNull("obj")){
+        buildingObjs.put(buildingType.getString("id"), new PShape[buildingType.getJSONArray("obj").size()]);
+        for (int j=0; j<buildingType.getJSONArray("obj").size(); j++){
+          buildingObjs.get(buildingType.getString("id"))[j] = loadShape(buildingType.getJSONArray("obj").getString(j));
+        }
+      }
+    }
     popStyle();
   }
   
@@ -312,8 +324,15 @@ class Map3D extends Element{
           popMatrix();
         }
         if (parties[y][x] != null && parties[y][x].player == 1){
+          pushMatrix();
           translate((x+0.5)*blockSize, (y+0.5)*blockSize, 30);
           shape(redFlag);
+          popMatrix();
+        }
+        if (buildings[y][x] != null){
+          if (buildingObjs.get(buildingString(buildings[y][x].type)) != null){
+            shape(buildingObjs.get(buildingString(buildings[y][x].type))[buildings[y][x].image_id]);
+          }
         }
       }
     }
@@ -322,6 +341,14 @@ class Map3D extends Element{
     hint(DISABLE_DEPTH_TEST);
     popStyle();
     
+  }
+  
+  String buildingString(int buildingI){
+    if (gameData.getJSONArray("buildings").isNull(buildingI-1)){
+      println("invalid building string ", buildingI-1);
+      return null;
+    }
+    return gameData.getJSONArray("buildings").getJSONObject(buildingI-1).getString("id");
   }
   
   boolean mouseOver(){
