@@ -136,6 +136,7 @@ class Map3D extends Element{
         buildingObjs.put(buildingType.getString("id"), new PShape[buildingType.getJSONArray("obj").size()]);
         for (int j=0; j<buildingType.getJSONArray("obj").size(); j++){
           buildingObjs.get(buildingType.getString("id"))[j] = loadShape(buildingType.getJSONArray("obj").getString(j));
+          buildingObjs.get(buildingType.getString("id"))[j].rotateX(PI/2);
         }
       }
     }
