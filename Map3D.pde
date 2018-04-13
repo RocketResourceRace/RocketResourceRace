@@ -311,9 +311,11 @@ class Map3D extends Element{
     if (cellSelected){
       fill(0, 100);
       stroke(0);
+      pushMatrix();
       PShape s = createShape(RECT, selectedCellX*blockSize, selectedCellY*blockSize, blockSize, blockSize);
       translate(0,0,1);
       shape(s);
+      popMatrix();
     }
     
     for (int x=0; x<mapWidth; x++){
