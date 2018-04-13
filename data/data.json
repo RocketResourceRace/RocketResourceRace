@@ -2,7 +2,11 @@
 {
   "game options":{
     "starting resources":[{"id":"food", "quantity":500},
-                          {"id":"wood", "quantity":500}],
+                          {"id":"wood", "quantity":500},
+                          {"id":"rocket parts", "quantity": 0},
+                          {"id":"cable", "quantity": 0},
+                          {"id":"metal", "quantity": 0},
+                          {"id":"concrete", "quantity": 0}],
     "movement points": 64
   },
   "terrain":[
@@ -364,7 +368,7 @@
       "id": "Launch Rocket",
       "description": "Attempt to win the game.",
       "img": "data/task_produce.png",
-      "initial cost":[{"id":"rocket progress", "quantity":"1000"}],
+      "initial cost":[{"id":"rocket progress", "quantity":1000}],
       "buildings":["Rocket Factory"]
     },
   ],
@@ -468,7 +472,7 @@
     "moving splitting": "Move the units selected",
     "moving turns": "%d turns",
     "merging": "merge units with party",
-    "attacking": "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a %d% chance of winning this battle.",
+    "attacking": "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a %d%% chance of winning this battle.",
     "turns remaining": "The rate that an action is completed is affected\nby the number of units in a party\n(a square root relationship)."
   }
 }
