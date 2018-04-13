@@ -332,7 +332,10 @@ class Map3D extends Element{
         }
         if (buildings[y][x] != null){
           if (buildingObjs.get(buildingString(buildings[y][x].type)) != null){
+            pushMatrix();
+            translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16);
             shape(buildingObjs.get(buildingString(buildings[y][x].type))[buildings[y][x].image_id]);
+            popMatrix();
           }
         }
       }

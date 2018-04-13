@@ -377,6 +377,7 @@
     {
       "id": "Farm",
       "img": ["farm.png"],
+      "obj": ["construction.obj"]
     },
     {
       "id": "Mine",
@@ -407,7 +408,10 @@
       "id": "Construction",
       "img": ["construction_start.png",
               "construction_mid.png",
-              "construction_end.png"]
+              "construction_end.png"],
+      "obj": ["construction.obj",
+              "construction.obj",
+              "construction.obj"]
     }
   ],
 
