@@ -409,9 +409,9 @@
       "img": ["construction_start.png",
               "construction_mid.png",
               "construction_end.png"],
-      "obj": ["construction.obj",
-              "construction.obj",
-              "construction.obj"]
+      "obj": ["construction-start.obj",
+              "construction-mid.obj",
+              "construction-end.obj"]
     }
   ],
 
