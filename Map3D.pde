@@ -1,8 +1,10 @@
 
+
 class Map3D extends Element{
   final int thickness = 10;
   final float PANSPEED = 0.5, ROTSPEED = 0.002;
-  final int FORESTDENSITY = 1;
+  final int FORESTDENSITY = 10;
+  final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 6, LEAVESH = 20;
   int x, y, w, h, mapWidth, mapHeight, prevT, frameTime;
   int selectedCellX, selectedCellY;
   Building[][] buildings;
@@ -83,6 +85,28 @@ class Map3D extends Element{
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
   }
+  PShape generateTrees(int cellX, int cellY, int num, int vertices){
+    PShape shapes = createShape(GROUP);
+    colorMode(HSB, 100);
+    for (int i=0; i<num; i++){
+      float x = random(0, blockSize), y = random(0, blockSize);
+      int leafColour = color(random(35, 40), random(90, 100), random(30, 60));
+      PShape leaves = createShape();
+      leaves.beginShape(TRIANGLES);
+      leaves.fill(leafColour);
+      
+      // create cylinder
+      for (int j=0; j<vertices; j++){
+        leaves.vertex(x+cos(j*TWO_PI/vertices), y+sin(j*TWO_PI/vertices), STUMPH);
+        leaves.vertex(x, y, STUMPH+LEAVESH);
+        leaves.vertex(x+cos((j+1)*TWO_PI/vertices)*LEAVESR, y+sin((j+1)*TWO_PI/vertices)*LEAVESR, STUMPH);
+      }
+      leaves.endShape(CLOSE);
+      shapes.addChild(leaves);
+    }
+    colorMode(RGB);
+    return shapes;
+  }
   void generateShape(){
     pushStyle();
     noFill();
@@ -123,12 +147,9 @@ class Map3D extends Element{
         t.vertex(x*blockSize, y*blockSize, heights[y][x], x*graphicsRes, 0);   
         t.vertex(x*blockSize, (y+1)*blockSize, heights[y+1][x], x*graphicsRes, graphicsRes);
         if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest")+1){
-          for (int i1=0; i1<FORESTDENSITY; i1++){
-            tempTree = loadShape("tree.obj");
-            tempTree.rotateX(PI/2);
-            tempTree.translate(x*blockSize+random(blockSize), y*blockSize+random(blockSize));
-            trees.addChild(tempTree);
-          }
+          PShape cellTree = generateTrees(x, y, FORESTDENSITY, 8);
+          cellTree.translate((x-0.5)*blockSize+random(blockSize), (y-0.5)*blockSize+random(blockSize));
+          trees.addChild(cellTree);
         }
       }
       t.vertex(mapWidth*blockSize, y*blockSize, heights[y][mapWidth], mapWidth*graphicsRes, 0);   
