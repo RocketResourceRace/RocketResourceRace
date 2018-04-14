@@ -3,8 +3,8 @@
 class Map3D extends Element{
   final int thickness = 10;
   final float PANSPEED = 0.5, ROTSPEED = 0.002;
-  final int FORESTDENSITY = 10;
-  final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 6, LEAVESH = 20;
+  final int FORESTDENSITY = 20;
+  final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 6, LEAVESH = 20, TREERANDOMNESS=0.3;
   int x, y, w, h, mapWidth, mapHeight, prevT, frameTime;
   int selectedCellX, selectedCellY;
   Building[][] buildings;
@@ -98,7 +98,7 @@ class Map3D extends Element{
       // create cylinder
       for (int j=0; j<vertices; j++){
         leaves.vertex(x+cos(j*TWO_PI/vertices), y+sin(j*TWO_PI/vertices), STUMPH);
-        leaves.vertex(x, y, STUMPH+LEAVESH);
+        leaves.vertex(x, y, STUMPH+LEAVESH*random(1-TREERANDOMNESS, 1+TREERANDOMNESS));
         leaves.vertex(x+cos((j+1)*TWO_PI/vertices)*LEAVESR, y+sin((j+1)*TWO_PI/vertices)*LEAVESR, STUMPH);
       }
       leaves.endShape(CLOSE);
@@ -147,8 +147,8 @@ class Map3D extends Element{
         t.vertex(x*blockSize, y*blockSize, heights[y][x], x*graphicsRes, 0);   
         t.vertex(x*blockSize, (y+1)*blockSize, heights[y+1][x], x*graphicsRes, graphicsRes);
         if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest")+1){
-          PShape cellTree = generateTrees(x, y, FORESTDENSITY, 8);
-          cellTree.translate((x-0.5)*blockSize+random(blockSize), (y-0.5)*blockSize+random(blockSize));
+          PShape cellTree = generateTrees(x, y, FORESTDENSITY, 16);
+          cellTree.translate((x)*blockSize, (y)*blockSize);
           trees.addChild(cellTree);
         }
       }
