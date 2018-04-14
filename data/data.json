@@ -377,11 +377,11 @@
     {
       "id": "Homes",
       "img": ["house.png"],
+      "obj": ["houses.obj"]
     },
     {
       "id": "Farm",
       "img": ["farm.png"],
-      "obj": ["construction.obj"]
     },
     {
       "id": "Mine",
