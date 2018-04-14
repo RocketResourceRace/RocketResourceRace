@@ -95,11 +95,12 @@ class Map3D extends Element{
     }
     float[][] heights = new float[mapHeight*2+1][mapWidth*2];
     PGraphics tempTerrain;
-    for(int y=0; y<mapHeight*2+1; y++){
-      for (int x=0; x<mapWidth*2; x++){
-        heights[y][x] = noise(x, y)*blockSize*0.0;
-      }
-    }
+    //float noiseScale = 0.1;
+    //for(int y=0; y<mapHeight*2+1; y++){
+    //  for (int x=0; x<mapWidth*2; x++){
+    //    heights[y][x] = noise(x*noiseScale, y*noiseScale)*blockSize*0.2;
+    //  }
+    //}
     
     tiles = createShape(GROUP);
     textureMode(IMAGE);
