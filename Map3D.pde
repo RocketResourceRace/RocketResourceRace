@@ -19,6 +19,7 @@ class Map3D extends Element{
   Node[][] moveNodes;
   float blockSize = 16;
   ArrayList<int[]> drawPath;
+  HashMap<Integer, Integer> forestTiles;
   
   Map3D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight){
     this.x = x;
@@ -41,6 +42,7 @@ class Map3D extends Element{
     panning = false;
     zooming = false;
     buildingObjs = new HashMap<String, PShape[]>();
+    forestTiles = new HashMap<Integer, Integer>();
   }
    
     
@@ -85,7 +87,21 @@ class Map3D extends Element{
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
   }
-  PShape generateTrees(int cellX, int cellY, int num, int vertices){
+  
+  void addTreeTile(int cellX, int cellY, int i){
+    forestTiles.put(cellX+cellY*mapWidth, i);
+  }
+  void removeTreeTile(int cellX, int cellY){
+    trees.removeChild(forestTiles.get(cellX+cellY*mapWidth));
+    for (Integer i: forestTiles.keySet()){
+      if (forestTiles.get(i) > forestTiles.get(cellX+cellY*mapWidth)){
+        forestTiles.put(i, forestTiles.get(i)-1);
+      }
+    }
+    forestTiles.remove(cellX+cellY*mapWidth);
+  }
+  
+  PShape generateTrees(int num, int vertices){
     PShape shapes = createShape(GROUP);
     colorMode(HSB, 100);
     for (int i=0; i<num; i++){
@@ -130,6 +146,7 @@ class Map3D extends Element{
     textureMode(IMAGE);
     trees = createShape(GROUP);
     PShape t;
+    int numTreeTiles=0;
     for(int y=0; y<mapHeight; y++){
       tempTerrain = createGraphics(round((1+mapWidth)*graphicsRes), round(graphicsRes));
       tempTerrain.beginDraw();
@@ -140,16 +157,16 @@ class Map3D extends Element{
       
       t = createShape();
       t.setTexture(tempTerrain);
-      PShape tempTree;
       t.beginShape(TRIANGLE_STRIP);
       resetMatrix();
       for (int x=0; x<mapWidth; x++){
         t.vertex(x*blockSize, y*blockSize, heights[y][x], x*graphicsRes, 0);   
         t.vertex(x*blockSize, (y+1)*blockSize, heights[y+1][x], x*graphicsRes, graphicsRes);
         if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest")+1){
-          PShape cellTree = generateTrees(x, y, FORESTDENSITY, 16);
+          PShape cellTree = generateTrees(FORESTDENSITY, 16);
           cellTree.translate((x)*blockSize, (y)*blockSize);
           trees.addChild(cellTree);
+          addTreeTile(x, y, numTreeTiles++);
         }
       }
       t.vertex(mapWidth*blockSize, y*blockSize, heights[y][mapWidth], mapWidth*graphicsRes, 0);   

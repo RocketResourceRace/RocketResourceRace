@@ -471,8 +471,10 @@ class Game extends State{
                   buildings[y][x] = new Building(buildingIndex(action.building));
               }
               if (action.terrain != null){
-                if (terrain[y][x] == terrainIndex("forest"))
+                if (terrain[y][x] == terrainIndex("forest")){
                   players[turn].resources[getResIndex("wood")]+=100;
+                  map.removeTreeTile(x, y);
+                }
                 terrain[y][x] = terrainIndex(action.terrain);
               }
               switch (action.type){
@@ -1043,7 +1045,7 @@ class Game extends State{
       movementPoints -= cost;
     }
     return turns;
-  }
+  } //<>//
   int splitUnitsNum(){
     return round(((Slider)getElement("split units", "party management")).getValue());
   }
@@ -1076,7 +1078,7 @@ class Game extends State{
           tooltip.show();
         }
         else {
-          if (map.parties[y][x].player == turn){
+          if (map.parties[y][x].player == turn){ //<>//
             //merge parties
             tooltip.setMerging();
             tooltip.show();
@@ -1137,7 +1139,7 @@ class Game extends State{
     }
     if (button == LEFT){
       if (eventType == "mouseClicked"){
-        if (activePanel == "default" && !UIHovering()){
+        if (activePanel == "default" && !UIHovering()){ //<>//
           if (map.mouseOver()){
             if (moving){
               //int x = floor(map.scaleXInv(mouseX));
