@@ -2,7 +2,7 @@
 class Map3D extends Element{
   final int thickness = 10;
   final float PANSPEED = 0.5, ROTSPEED = 0.002;
-  final int FORESTDENSITY = 5;
+  final int FORESTDENSITY = 1;
   int x, y, w, h, mapWidth, mapHeight, prevT, frameTime;
   int selectedCellX, selectedCellY;
   Building[][] buildings;
