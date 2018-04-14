@@ -10,7 +10,7 @@ class Map3D extends Element{
   Building[][] buildings;
   int[][] terrain;
   Party[][] parties;
-  PShape tiles, blueFlag, redFlag, trees;
+  PShape tiles, blueFlag, redFlag, trees, selectTile;
   HashMap<String, PShape[]> buildingObjs;
   PImage[] tempTileImages;
   float targetZoom, zoom, zoomv, tilt, tiltv, rot, rotv, focusedX, focusedY;
@@ -156,6 +156,7 @@ class Map3D extends Element{
       t.vertex(mapWidth*blockSize, (y+1)*blockSize, heights[y+1][mapWidth], mapWidth*graphicsRes, graphicsRes);
       t.endShape();
       tiles.addChild(t);
+      
     }
     
     
@@ -178,6 +179,12 @@ class Map3D extends Element{
         }
       }
     }
+    
+    stroke(0);
+    strokeWeight(2);
+    //fill(0, 100);
+    selectTile = createShape(RECT, 0, 0, blockSize, blockSize);
+    selectTile.setFill(color(0));
     popStyle();
   }
   
@@ -325,8 +332,8 @@ class Map3D extends Element{
   }
   
   void draw(){
-    //lights();
     background(#7ED7FF);
+    
     frameTime = millis()-prevT;
     prevT = millis();
     PVector p = focusedV.copy().rotate(-rot).mult(frameTime*pow(zoom,0.5)/20);
@@ -344,15 +351,21 @@ class Map3D extends Element{
     pushStyle();
     hint(ENABLE_DEPTH_TEST);
     camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
+    
+    lights();
+    directionalLight(255, 255, 251, 0, -1, -1);
+    //ambientLight(100, 100, 100);
+    
     shape(tiles);
     shape(trees);
+    
     if (cellSelected){
-      fill(0, 100);
-      stroke(0);
       pushMatrix();
-      PShape s = createShape(RECT, selectedCellX*blockSize, selectedCellY*blockSize, blockSize, blockSize);
-      translate(0,0,1);
-      shape(s);
+      stroke(0);
+      strokeWeight(3);
+      noFill();
+      translate(selectedCellX*blockSize, selectedCellY*blockSize,1);
+      shape(selectTile);
       popMatrix();
     }
     
@@ -385,7 +398,6 @@ class Map3D extends Element{
     camera();
     noLights();
     popStyle();
-    
   }
   
   String buildingString(int buildingI){
