@@ -1528,7 +1528,7 @@ class Game extends State{
     if (x!=prevX && y!=prevY){
       mult = 1.41;
     }
-    if (0<x && x<mapSize && 0<y && y<mapSize){
+    if (0<=x && x<mapSize && 0<=y && y<mapSize){
       return round(gameData.getJSONArray("terrain").getJSONObject(terrain[y][x]-1).getInt("movement cost")*mult);
     }
     //Not a valid location
@@ -1564,7 +1564,7 @@ class Game extends State{
       for (int[] mv : mvs){
         int nx = curMinNodes.get(0)[0]+mv[0];
         int ny = curMinNodes.get(0)[1]+mv[1];
-        if (0 < nx && nx < w && 0 < ny && ny < h){
+        if (0 <= nx && nx < w && 0 <= ny && ny < h){
           boolean sticky = map.parties[ny][nx] != null;
           int newCost = cost(nx, ny, curMinNodes.get(0)[0], curMinNodes.get(0)[1]);
           int prevCost = curMinCosts.get(0);
