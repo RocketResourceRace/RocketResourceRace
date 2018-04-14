@@ -1047,7 +1047,7 @@ class Game extends State{
   int splitUnitsNum(){
     return round(((Slider)getElement("split units", "party management")).getValue());
   }
-  void refreshTooltip(){
+  void refreshTooltip(){ //<>//
     if (((DropDown)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible){
       tooltip.setTask(((DropDown)getElement("tasks", "party management")).findMouseOver());
       tooltip.show();  
@@ -1080,7 +1080,7 @@ class Game extends State{
             //merge parties
             tooltip.setMerging();
             tooltip.show();
-          }
+          } //<>//
           else {
             //Attack
             Party tempAttacker = map.parties[cellY][cellX].clone(); 
@@ -1141,7 +1141,7 @@ class Game extends State{
           if (map.mouseOver()){
             if (moving){
               //int x = floor(map.scaleXInv(mouseX));
-              //int y = floor(map.scaleYInv(mouseY));
+              //int y = floor(map.scaleYInv(mouseY)); //<>//
               //postEvent(new Move(cellX, cellY, x, y));
               //map.cancelPath();
               if (mousePressed){ 
@@ -1532,7 +1532,7 @@ class Game extends State{
     if (x!=prevX && y!=prevY){
       mult = 1.41;
     }
-    if (0<x && x<mapSize && 0<y && y<mapSize){
+    if (0<=x && x<mapSize && 0<=y && y<mapSize){
       return round(gameData.getJSONArray("terrain").getJSONObject(terrain[y][x]-1).getInt("movement cost")*mult);
     }
     //Not a valid location
@@ -1568,7 +1568,7 @@ class Game extends State{
       for (int[] mv : mvs){
         int nx = curMinNodes.get(0)[0]+mv[0];
         int ny = curMinNodes.get(0)[1]+mv[1];
-        if (0 < nx && nx < w && 0 < ny && ny < h){
+        if (0 <= nx && nx < w && 0 <= ny && ny < h){
           boolean sticky = map.parties[ny][nx] != null;
           int newCost = cost(nx, ny, curMinNodes.get(0)[0], curMinNodes.get(0)[1]);
           int prevCost = curMinCosts.get(0);
@@ -1786,18 +1786,12 @@ class Game extends State{
       }
       terrain[coord[1]][coord[0]] = terrain[y][x];
     }
-    for (int y=0; y<mapHeight; y++){
-      for(int x=0; x<mapWidth; x++){
-        if(terrain[y][x] == terrainIndex("grass") && random(0,1) > 0.75){
-          terrain[y][x] = terrainIndex("hills");
-        }
-      }      
-    }
     terrain = smoothMap(initialSmooth, 2, terrain);
     terrain = smoothMap(completeSmooth, 1, terrain);
+    float noiseScale = 0.15;
     for (int y=0; y<mapHeight; y++){
       for(int x=0; x<mapWidth; x++){
-        if(terrain[y][x] == terrainIndex("grass") && random(0,1) > 0.9){
+        if(terrain[y][x] == terrainIndex("grass") && noise(x*noiseScale, y*noiseScale) > 0.6){
           terrain[y][x] = terrainIndex("hills");
         }
       }      
