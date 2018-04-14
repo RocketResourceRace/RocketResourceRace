@@ -107,7 +107,7 @@ class Map3D extends Element{
     trees = createShape(GROUP);
     PShape t;
     for(int y=0; y<mapHeight; y++){
-      tempTerrain = createGraphics(round(mapWidth*graphicsRes), round(graphicsRes));
+      tempTerrain = createGraphics(round((1+mapWidth)*graphicsRes), round(graphicsRes));
       tempTerrain.beginDraw();
       for (int x=0; x<mapWidth; x++){
         tempTerrain.image(tempTileImages[terrain[y][x]-1], x*graphicsRes, 0);
@@ -131,6 +131,8 @@ class Map3D extends Element{
           }
         }
       }
+      t.vertex(mapWidth*blockSize, y*blockSize, heights[y][mapWidth], mapWidth*graphicsRes, 0);   
+      t.vertex(mapWidth*blockSize, (y+1)*blockSize, heights[y+1][mapWidth], mapWidth*graphicsRes, graphicsRes);
       t.endShape();
       tiles.addChild(t);
     }
