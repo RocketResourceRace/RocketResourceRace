@@ -382,6 +382,7 @@
     {
       "id": "Farm",
       "img": ["farm.png"],
+      "obj": ["farm.obj"]
     },
     {
       "id": "Mine",
