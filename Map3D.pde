@@ -14,6 +14,7 @@ class Map3D extends Element{
   final float PANSPEED = 0.5, ROTSPEED = 0.002;
   final int FORESTDENSITY = 20;
   final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3;
+  final float HILLRAISE = 1.5;
   int x, y, w, h, mapWidth, mapHeight, prevT, frameTime;
   int selectedCellX, selectedCellY;
   Building[][] buildings;
@@ -147,7 +148,15 @@ class Map3D extends Element{
     PGraphics tempTerrain;
     for(int y=0; y<mapHeight+1; y++){
       for (int x=0; x<mapWidth+1; x++){
-        heights[y][x] = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*10;
+        if (y<mapHeight && x<mapHeight && terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
+          heights[y][x] = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*3*HILLRAISE;
+          heights[y+1][x] = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*3*HILLRAISE;
+          heights[y][x+1] = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*3*HILLRAISE;
+          heights[y+1][x+1] = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*3*HILLRAISE;
+        }
+        else if (heights[y][x] == 0){
+          heights[y][x] = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*3;
+        }
       }
     }
     
