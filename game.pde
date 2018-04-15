@@ -1715,7 +1715,6 @@ class Game extends State{
     //  terrain[0][x] = terrainIndex("water");
     //  terrain[mapHeight-1][x] = terrainIndex("water");
     //}
-    println(waterLevel);
     for(int i=0;i<groundSpawns;i++){
       int type = getRandomGroundType(groundWeightings, totalWeighting);
       int x = (int)random(mapWidth-2)+1;
