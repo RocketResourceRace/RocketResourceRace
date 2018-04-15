@@ -37,7 +37,7 @@
       "display name": "Forest",
       "img": "data/grass.png",
       "low img": "data/forest_low.png",
-      "weighting": 1,
+      "weighting": 2,
       "movement cost": 12
     },
     {
