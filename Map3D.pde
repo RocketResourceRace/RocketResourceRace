@@ -119,6 +119,7 @@ class Map3D extends Element{
       float x = random(0, blockSize), y = random(0, blockSize);
       int leafColour = color(random(35, 40), random(90, 100), random(30, 60));
       PShape leaves = createShape();
+      leaves.setShininess(0.1);
       leaves.beginShape(TRIANGLES);
       leaves.fill(leafColour);
       
@@ -144,10 +145,10 @@ class Map3D extends Element{
       tempTileImages[i] = tileImages.get(tileType.getString("id")).copy();
       tempTileImages[i].resize(graphicsRes, graphicsRes);
     }
-    heights = new float[mapHeight+1][mapWidth+1];
+    heights = new float[ceil(mapHeight*blockSize+1)][ceil(mapWidth*blockSize+1)];
     PGraphics tempTerrain;
-    for(int y=0; y<mapHeight+1; y++){
-      for (int x=0; x<mapWidth+1; x++){
+    for(int y=0; y<mapHeight*blockSize+1; y++){
+      for (int x=0; x<mapWidth*blockSize+1; x++){
         if (y<mapHeight && x<mapHeight && terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
           heights[y][x] = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*3*HILLRAISE;
           heights[y+1][x] = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*3*HILLRAISE;
@@ -175,6 +176,9 @@ class Map3D extends Element{
       
       t = createShape();
       t.setTexture(tempTerrain);
+      //t.setShininess(0.1);
+      //t.setEmissive(color(0, 20, 20));
+      //t.setSpecular(color(0, 20, 20));
       t.beginShape(TRIANGLE_STRIP);
       resetMatrix();
       for (int x=0; x<mapWidth; x++){
@@ -389,10 +393,12 @@ class Map3D extends Element{
     hint(ENABLE_DEPTH_TEST);
     camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
     
-    lights();
-    directionalLight(150, 150, 140, 0, -1, -1);
-    directionalLight(50, 50, 60, 0, 1, -1);
-    //ambientLight(100, 100, 100);
+    //lights();
+    //lightFalloff(1, 0, 0);
+    directionalLight(200, 200, 200, 0, -1, -1);
+    directionalLight(150,150, 150, 0.1, 1, -1);
+    ambientLight(20, 80, 80);
+    //noLights();
     
     shape(trees);
     if (cellSelected){
