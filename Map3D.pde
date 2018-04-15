@@ -9,6 +9,7 @@ class Map3D extends Element{
   int selectedCellX, selectedCellY;
   Building[][] buildings;
   int[][] terrain;
+  float[][] heights;
   Party[][] parties;
   PShape tiles, blueFlag, redFlag, trees, selectTile;
   HashMap<String, PShape[]> buildingObjs;
@@ -133,14 +134,14 @@ class Map3D extends Element{
       tempTileImages[i] = tileImages.get(tileType.getString("id")).copy();
       tempTileImages[i].resize(graphicsRes, graphicsRes);
     }
-    float[][] heights = new float[mapHeight*2+1][mapWidth*2];
+    heights = new float[mapHeight+1][mapWidth+1];
     PGraphics tempTerrain;
-    //float noiseScale = 0.1;
-    //for(int y=0; y<mapHeight*2+1; y++){
-    //  for (int x=0; x<mapWidth*2; x++){
-    //    heights[y][x] = noise(x*noiseScale, y*noiseScale)*blockSize*0.2;
-    //  }
-    //}
+    float noiseScale = 0.15;
+    for(int y=0; y<mapHeight+1; y++){
+      for (int x=0; x<mapWidth+1; x++){
+        heights[y][x] = noise(x*noiseScale, y*noiseScale)*blockSize*2-blockSize;
+      }
+    }
     
     tiles = createShape(GROUP);
     textureMode(IMAGE);
@@ -164,7 +165,7 @@ class Map3D extends Element{
         t.vertex(x*blockSize, (y+1)*blockSize, heights[y+1][x], x*graphicsRes, graphicsRes);
         if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest")+1){
           PShape cellTree = generateTrees(FORESTDENSITY, 16);
-          cellTree.translate((x)*blockSize, (y)*blockSize);
+          cellTree.translate((x)*blockSize, (y)*blockSize, groundHeightAt(x, y));
           trees.addChild(cellTree);
           addTreeTile(x, y, numTreeTiles++);
         }
@@ -200,8 +201,6 @@ class Map3D extends Element{
     stroke(0);
     strokeWeight(2);
     //fill(0, 100);
-    selectTile = createShape(RECT, 0, 0, blockSize, blockSize);
-    selectTile.setFill(color(0));
     popStyle();
   }
   
@@ -348,6 +347,10 @@ class Map3D extends Element{
     return new ArrayList<String>();
   }
   
+  float groundHeightAt(int x, int y){
+    return min(new float[]{heights[y][x], heights[y+1][x], heights[y][x+1], heights[y+1][x+1]});
+  }
+  
   void draw(){
     background(#7ED7FF);
     
@@ -381,7 +384,14 @@ class Map3D extends Element{
       stroke(0);
       strokeWeight(3);
       noFill();
-      translate(selectedCellX*blockSize, selectedCellY*blockSize,1);
+      selectTile = createShape();
+      selectTile.beginShape();
+      selectTile.vertex(selectedCellX*blockSize, selectedCellY*blockSize, heights[selectedCellY][selectedCellX]);
+      selectTile.vertex((selectedCellX+1)*blockSize, selectedCellY*blockSize, heights[selectedCellY][selectedCellX+1]);
+      selectTile.vertex((selectedCellX+1)*blockSize, (selectedCellY+1)*blockSize, heights[selectedCellY+1][selectedCellX+1]);
+      selectTile.vertex(selectedCellX*blockSize, (selectedCellY+1)*blockSize, heights[selectedCellY+1][selectedCellX]);
+      selectTile.endShape(CLOSE);
+      selectTile.setFill(color(0));
       shape(selectTile);
       popMatrix();
     }
@@ -390,20 +400,20 @@ class Map3D extends Element{
       for (int y=0; y<mapHeight; y++){
         if (parties[y][x] != null && parties[y][x].player == 0){
           pushMatrix();
-          translate((x+0.5)*blockSize, (y+0.5)*blockSize, 30);
+          translate((x+0.5)*blockSize, (y+0.5)*blockSize, 30+groundHeightAt(x, y));
           shape(blueFlag);
           popMatrix();
         }
         if (parties[y][x] != null && parties[y][x].player == 1){
           pushMatrix();
-          translate((x+0.5)*blockSize, (y+0.5)*blockSize, 30);
+          translate((x+0.5)*blockSize, (y+0.5)*blockSize, 30+groundHeightAt(x, y));
           shape(redFlag);
           popMatrix();
         }
         if (buildings[y][x] != null){
           if (buildingObjs.get(buildingString(buildings[y][x].type)) != null){
             pushMatrix();
-            translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16);
+            translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundHeightAt(x, y));
             shape(buildingObjs.get(buildingString(buildings[y][x].type))[buildings[y][x].image_id]);
             popMatrix();
           }
