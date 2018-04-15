@@ -1730,7 +1730,7 @@ class Game extends State{
       if(noise(x*MAPNOISESCALE, y*MAPNOISESCALE)<waterLevel){
         i--;
       } else {
-        terrain[y][x] = type+1;
+        terrain[y][x] = type;
       }
     }
     
