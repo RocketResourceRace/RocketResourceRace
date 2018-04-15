@@ -1727,7 +1727,7 @@ class Game extends State{
       int type = getRandomGroundType(groundWeightings, totalWeighting);
       int x = (int)random(mapWidth);
       int y = (int)random(mapHeight);
-      if(noise(x*MAPNOISESCALE, y*MAPNOISESCALE)<waterLevel){
+      if(isWater(x, y)){
         i--;
       } else {
         terrain[y][x] = type;
@@ -1737,7 +1737,7 @@ class Game extends State{
     ArrayList<int[]> order = new ArrayList<int[]>();
     for (int y=0; y<mapHeight;y++){
       for (int x=0; x<mapWidth;x++){
-        if(noise(x*MAPNOISESCALE, y*MAPNOISESCALE)<waterLevel){
+        if(isWater(x, y)){
           terrain[y][x] = terrainIndex("water");
         } else {
           order.add(new int[] {x, y});
