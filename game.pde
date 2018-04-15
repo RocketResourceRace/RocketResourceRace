@@ -1629,7 +1629,6 @@ class Game extends State{
   }
   boolean startInvalid(PVector p1, PVector p2){
     if(p1.dist(p2)<mapWidth/8||noise(p1.x*MAPNOISESCALE, p1.y*MAPNOISESCALE)<waterLevel||noise(p2.x*MAPNOISESCALE, p2.y*MAPNOISESCALE)<waterLevel){
-      println("bad");
       return true;
     }
     return false;
