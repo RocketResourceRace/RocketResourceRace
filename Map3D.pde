@@ -4,7 +4,7 @@ class Map3D extends Element{
   final int thickness = 10;
   final float PANSPEED = 0.5, ROTSPEED = 0.002;
   final int FORESTDENSITY = 20;
-  final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 6, LEAVESH = 20, TREERANDOMNESS=0.3;
+  final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3;
   int x, y, w, h, mapWidth, mapHeight, prevT, frameTime;
   int selectedCellX, selectedCellY;
   Building[][] buildings;
@@ -182,10 +182,10 @@ class Map3D extends Element{
     
     blueFlag = loadShape("blueflag.obj");
     blueFlag.rotateX(PI/2);
-    blueFlag.scale(3);
+    blueFlag.scale(2.6, 3, 3);
     redFlag = loadShape("redflag.obj");
     redFlag.rotateX(PI/2);
-    redFlag.scale(3);
+    redFlag.scale(2.6, 3, 3);
     
     for (int i=0; i<gameData.getJSONArray("buildings").size(); i++){
       JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
@@ -373,12 +373,11 @@ class Map3D extends Element{
     camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
     
     lights();
-    directionalLight(255, 255, 251, 0, -1, -1);
+    directionalLight(150, 150, 140, 0, -1, -1);
+    directionalLight(50, 50, 60, 0, 1, -1);
     //ambientLight(100, 100, 100);
     
-    shape(tiles);
     shape(trees);
-    
     if (cellSelected){
       pushMatrix();
       stroke(0);
@@ -393,20 +392,31 @@ class Map3D extends Element{
       selectTile.endShape(CLOSE);
       selectTile.setFill(color(0));
       shape(selectTile);
+      strokeWeight(1);
+      if (parties[selectedCellY][selectedCellX] != null){
+        translate(blockSize/2, blockSize/2, 32);
+        box(blockSize, blockSize, 64);
+      }
+      else{
+        translate(blockSize/2, blockSize/2, 16);
+        box(blockSize, blockSize, 32);
+      }
       popMatrix();
     }
+    
+    shape(tiles);
     
     for (int x=0; x<mapWidth; x++){
       for (int y=0; y<mapHeight; y++){
         if (parties[y][x] != null && parties[y][x].player == 0){
           pushMatrix();
-          translate((x+0.5)*blockSize, (y+0.5)*blockSize, 30+groundHeightAt(x, y));
+          translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundHeightAt(x, y));
           shape(blueFlag);
           popMatrix();
         }
         if (parties[y][x] != null && parties[y][x].player == 1){
           pushMatrix();
-          translate((x+0.5)*blockSize, (y+0.5)*blockSize, 30+groundHeightAt(x, y));
+          translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundHeightAt(x, y));
           shape(redFlag);
           popMatrix();
         }
