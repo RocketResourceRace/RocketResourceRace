@@ -1,22 +1,22 @@
-boolean isWater(int x, int y){
+boolean isWater(int x, int y) {
   return max(new float[]{
-    noise(x*MAPNOISESCALE, y*MAPNOISESCALE),
-    noise((x+1)*MAPNOISESCALE, y*MAPNOISESCALE),
-    noise(x*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
-    noise((x+1)*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
+    noise(x*MAPNOISESCALE, y*MAPNOISESCALE), 
+    noise((x+1)*MAPNOISESCALE, y*MAPNOISESCALE), 
+    noise(x*MAPNOISESCALE, (y+1)*MAPNOISESCALE), 
+    noise((x+1)*MAPNOISESCALE, (y+1)*MAPNOISESCALE), 
     })<waterLevel;
 }
 
 
 
-class Map3D extends Element{
+class Map3D extends Element {
   final int thickness = 10;
   final float PANSPEED = 0.5, ROTSPEED = 0.002;
   final int FORESTDENSITY = 20;
   final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3;
   final float HILLRAISE = 1.5;
   final float GROUNDHEIGHT = 5;
-  final float VERTICESPERTILE = 8;
+  final float VERTICESPERTILE = 4;
   int x, y, w, h, mapWidth, mapHeight, prevT, frameTime;
   int selectedCellX, selectedCellY;
   Building[][] buildings;
@@ -32,8 +32,8 @@ class Map3D extends Element{
   float blockSize = 16;
   ArrayList<int[]> drawPath;
   HashMap<Integer, Integer> forestTiles;
-  
-  Map3D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight){
+
+  Map3D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
     this.x = x;
     this.y = y;
     this.w = w;
@@ -56,39 +56,41 @@ class Map3D extends Element{
     buildingObjs = new HashMap<String, PShape[]>();
     forestTiles = new HashMap<Integer, Integer>();
   }
-   
-    
-  void updateMoveNodes(Node[][] nodes){      
+
+
+  void updateMoveNodes(Node[][] nodes) {      
     moveNodes = nodes;
   }
-  void updatePath(ArrayList<int[]> nodes){
+  void updatePath(ArrayList<int[]> nodes) {
     drawPath = nodes;
   }
-  void cancelMoveNodes(){
+  void cancelMoveNodes() {
     moveNodes = null;
   }
-  void cancelPath(){
+  void cancelPath() {
     drawPath = null;
   }
-  void loadSettings(float mapXOffset, float mapYOffset, float blockSize){}
-  float[] targetCell(int x, int y, float zoom){return new float[2];
+  void loadSettings(float mapXOffset, float mapYOffset, float blockSize) {
   }
-  
-  
-  void selectCell(int x, int y){
+  float[] targetCell(int x, int y, float zoom) {
+    return new float[2];
+  }
+
+
+  void selectCell(int x, int y) {
     cellSelected = true;
     selectedCellX = x;
     selectedCellY = y;
   }
-  void unselectCell(){
+  void unselectCell() {
     cellSelected = false;
   }
-  
-  float scaleXInv(int x){
+
+  float scaleXInv(int x) {
     PVector mo = MousePosOnObject(mouseX, mouseY);
     return (mo.x)/getObjectWidth()*mapWidth;
   }
-  float scaleYInv(int y){
+  float scaleYInv(int y) {
     PVector mo = MousePosOnObject(mouseX, mouseY);
     return (mo.y)/getObjectHeight()*mapHeight;
   }
@@ -99,33 +101,33 @@ class Map3D extends Element{
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
   }
-  
-  void addTreeTile(int cellX, int cellY, int i){
+
+  void addTreeTile(int cellX, int cellY, int i) {
     forestTiles.put(cellX+cellY*mapWidth, i);
   }
-  void removeTreeTile(int cellX, int cellY){
+  void removeTreeTile(int cellX, int cellY) {
     trees.removeChild(forestTiles.get(cellX+cellY*mapWidth));
-    for (Integer i: forestTiles.keySet()){
-      if (forestTiles.get(i) > forestTiles.get(cellX+cellY*mapWidth)){
+    for (Integer i : forestTiles.keySet()) {
+      if (forestTiles.get(i) > forestTiles.get(cellX+cellY*mapWidth)) {
         forestTiles.put(i, forestTiles.get(i)-1);
       }
     }
     forestTiles.remove(cellX+cellY*mapWidth);
   }
-  
-  PShape generateTrees(int num, int vertices){
+
+  PShape generateTrees(int num, int vertices) {
     PShape shapes = createShape(GROUP);
     colorMode(HSB, 100);
-    for (int i=0; i<num; i++){
+    for (int i=0; i<num; i++) {
       float x = random(0, blockSize), y = random(0, blockSize);
       int leafColour = color(random(35, 40), random(90, 100), random(30, 60));
       PShape leaves = createShape();
       leaves.setShininess(0.1);
       leaves.beginShape(TRIANGLES);
       leaves.fill(leafColour);
-      
+
       // create cylinder
-      for (int j=0; j<vertices; j++){
+      for (int j=0; j<vertices; j++) {
         leaves.vertex(x+cos(j*TWO_PI/vertices), y+sin(j*TWO_PI/vertices), STUMPH);
         leaves.vertex(x, y, STUMPH+LEAVESH*random(1-TREERANDOMNESS, 1+TREERANDOMNESS));
         leaves.vertex(x+cos((j+1)*TWO_PI/vertices)*LEAVESR, y+sin((j+1)*TWO_PI/vertices)*LEAVESR, STUMPH);
@@ -136,56 +138,41 @@ class Map3D extends Element{
     colorMode(RGB);
     return shapes;
   }
-  
-  float getHeight(float x, float y){
-    if (y<mapHeight && x<mapHeight && terrain[floor(y)][floor(x)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
+
+  float getHeight(float x, float y) {
+    if (y<mapHeight && x<mapHeight && terrain[floor(y)][floor(x)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1) {
       return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT*HILLRAISE;
-    }
-    else{
+    } else {
       return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT;
     }
   }
-  
-  void generateShape(){
+
+  void generateShape() {
     pushStyle();
     noFill();
     noStroke();
     tempTileImages = new PImage[gameData.getJSONArray("terrain").size()];
-    for (int i=0; i<gameData.getJSONArray("terrain").size(); i++){
+    for (int i=0; i<gameData.getJSONArray("terrain").size(); i++) {
       JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
       tempTileImages[i] = tileImages.get(tileType.getString("id")).copy();
       tempTileImages[i].resize(graphicsRes, graphicsRes);
     }
-    //heights = new float[ceil(mapHeight*blockSize+1)][ceil(mapWidth*blockSize+1)];
     PGraphics tempTerrain;
-    //for(int y=0; y<mapHeight*VERTICESPERTILE+1; y++){
-    //  for (int x=0; x<mapWidth*VERTICESPERTILE+1; x++){
-    //    if (y<mapHeight && x<mapHeight && terrain[floor(y/VERTICESPERTILE)][floor(x/VERTICESPERTILE)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
-    //      heights[y][x] = (max(noise(x*MAPNOISESCALE/VERTICESPERTILE, y*MAPNOISESCALE/VERTICESPERTILE), waterLevel)-waterLevel)*blockSize*3*HILLRAISE;
-    //      heights[y+1][x] = (max(noise(x*MAPNOISESCALE/VERTICESPERTILE, y*MAPNOISESCALE/VERTICESPERTILE), waterLevel)-waterLevel)*blockSize*3*HILLRAISE;
-    //      heights[y][x+1] = (max(noise(x*MAPNOISESCALE/VERTICESPERTILE, y*MAPNOISESCALE/VERTICESPERTILE), waterLevel)-waterLevel)*blockSize*3*HILLRAISE;
-    //      heights[y+1][x+1] = (max(noise(x*MAPNOISESCALE/VERTICESPERTILE, y*MAPNOISESCALE/VERTICESPERTILE), waterLevel)-waterLevel)*blockSize*3*HILLRAISE;
-    //    }
-    //    else if (heights[y][x] == 0){
-    //      heights[y][x] = (max(noise(x*MAPNOISESCALE/VERTICESPERTILE, y*MAPNOISESCALE/VERTICESPERTILE), waterLevel)-waterLevel)*blockSize*3;
-    //    }
-    //  }
-    //}
-    
+
     tiles = createShape(GROUP);
     textureMode(IMAGE);
     trees = createShape(GROUP);
     PShape t;
     int numTreeTiles=0;
-    for(int y=0; y<mapHeight; y++){
+    for (int y=0; y<mapHeight; y++) {
       tempTerrain = createGraphics(round((1+mapWidth)*graphicsRes), round(graphicsRes));
       tempTerrain.beginDraw();
-      for (int x=0; x<mapWidth; x++){
+      for (int x=0; x<mapWidth; x++) {
         tempTerrain.image(tempTileImages[terrain[y][x]-1], x*graphicsRes, 0);
       }
       tempTerrain.endDraw();
-      
-      for (int y1=0; y1<VERTICESPERTILE; y1++){
+
+      for (int y1=0; y1<VERTICESPERTILE; y1++) {
         t = createShape();
         t.setTexture(tempTerrain);
         //t.setShininess(0.1);
@@ -193,9 +180,9 @@ class Map3D extends Element{
         //t.setSpecular(color(0, 20, 20));
         t.beginShape(TRIANGLE_STRIP);
         resetMatrix();
-        for (int x=0; x<mapWidth; x++){
+        for (int x=0; x<mapWidth; x++) {
           //int x1=(int)VERTICESPERTILE;
-          for (int x1=0; x1<VERTICESPERTILE; x1++){
+          for (int x1=0; x1<VERTICESPERTILE; x1++) {
             t.vertex((x+x1/VERTICESPERTILE)*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(x+x1/VERTICESPERTILE, (y+y1/VERTICESPERTILE)), (x+x1/VERTICESPERTILE)*graphicsRes, y1*graphicsRes/VERTICESPERTILE);   
             t.vertex((x+x1/VERTICESPERTILE)*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, getHeight(x+x1/VERTICESPERTILE, y+(1+y1)/VERTICESPERTILE), (x+x1/VERTICESPERTILE)*graphicsRes, (y1+1)*graphicsRes/VERTICESPERTILE);
           }
@@ -205,45 +192,44 @@ class Map3D extends Element{
         t.endShape();
         tiles.addChild(t);
       }
-      for (int x=0; x<mapWidth; x++){
-        if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest")+1){
+      for (int x=0; x<mapWidth; x++) {
+        if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest")+1) {
           PShape cellTree = generateTrees(FORESTDENSITY, 16);
           cellTree.translate((x)*blockSize, (y)*blockSize, groundHeightAt(x, y));
           trees.addChild(cellTree);
           addTreeTile(x, y, numTreeTiles++);
         }
       }
-      
     }
-    
-    
+
+
     resetMatrix();
-    
+
     blueFlag = loadShape("blueflag.obj");
     blueFlag.rotateX(PI/2);
     blueFlag.scale(2.6, 3, 3);
     redFlag = loadShape("redflag.obj");
     redFlag.rotateX(PI/2);
     redFlag.scale(2.6, 3, 3);
-    
-    for (int i=0; i<gameData.getJSONArray("buildings").size(); i++){
+
+    for (int i=0; i<gameData.getJSONArray("buildings").size(); i++) {
       JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
-      if (!buildingType.isNull("obj")){
+      if (!buildingType.isNull("obj")) {
         buildingObjs.put(buildingType.getString("id"), new PShape[buildingType.getJSONArray("obj").size()]);
-        for (int j=0; j<buildingType.getJSONArray("obj").size(); j++){
+        for (int j=0; j<buildingType.getJSONArray("obj").size(); j++) {
           buildingObjs.get(buildingType.getString("id"))[j] = loadShape(buildingType.getJSONArray("obj").getString(j));
           buildingObjs.get(buildingType.getString("id"))[j].rotateX(PI/2);
         }
       }
     }
-    
+
     stroke(0);
     strokeWeight(2);
     //fill(0, 100);
     popStyle();
   }
-  
-  PVector MousePosOnObject(int mx, int my){
+
+  PVector MousePosOnObject(int mx, int my) {
     camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
     PVector floorPos = new PVector(focusedX+width/2, focusedY+height/2, 0); 
     PVector floorDir = new PVector(0, 0, -1);
@@ -251,44 +237,43 @@ class Map3D extends Element{
     camera();
     return mousePos;
   }
-  
-  float getObjectWidth(){
+
+  float getObjectWidth() {
     return mapWidth*blockSize;
   }
-  float getObjectHeight(){
+  float getObjectHeight() {
     return mapHeight*blockSize;
   }
-  void setZoom(float zoom){
+  void setZoom(float zoom) {
     this.zoom =  between(height/4, zoom, min(mapHeight*blockSize, height*4));
   }
-  void setTilt(float tilt){
+  void setTilt(float tilt) {
     this.tilt = between(0.01, tilt, 3*PI/8);
   }
-  void setRot(float rot){
+  void setRot(float rot) {
     this.rot = rot;
   }
-  void setFocused(float focusedX, float focusedY){
+  void setFocused(float focusedX, float focusedY) {
     this.focusedX = between(-width/2, focusedX, getObjectWidth()-width/2);
     this.focusedY = between(-height/2, focusedY, getObjectHeight()-height/2);
   }
-  
-  ArrayList<String> mouseEvent(String eventType, int button){
-    if (eventType.equals("mouseDragged")){
-      if (mouseButton == LEFT){
+
+  ArrayList<String> mouseEvent(String eventType, int button) {
+    if (eventType.equals("mouseDragged")) {
+      if (mouseButton == LEFT) {
         //if (heldPos != null){
-          
-          //camera(prevFx+width/2+zoom*sin(tilt)*sin(rot), prevFy+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), prevFy+width/2, focusedY+height/2, 0, 0, 0, -1);
-          //PVector newHeldPos = MousePosOnObject(mouseX, mouseY);
-          //camera();
-          //focusedX = heldX-(newHeldPos.x-heldPos.x);
-          //focusedY = heldY-(newHeldPos.y-heldPos.y);
-          //prevFx = heldX-(newHeldPos.x-heldPos.x);
-          //prevFy = heldY-(newHeldPos.y-heldPos.y);
-          //heldPos.x = newHeldPos.x;
-          //heldPos.y = newHeldPos.y;
+
+        //camera(prevFx+width/2+zoom*sin(tilt)*sin(rot), prevFy+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), prevFy+width/2, focusedY+height/2, 0, 0, 0, -1);
+        //PVector newHeldPos = MousePosOnObject(mouseX, mouseY);
+        //camera();
+        //focusedX = heldX-(newHeldPos.x-heldPos.x);
+        //focusedY = heldY-(newHeldPos.y-heldPos.y);
+        //prevFx = heldX-(newHeldPos.x-heldPos.x);
+        //prevFy = heldY-(newHeldPos.y-heldPos.y);
+        //heldPos.x = newHeldPos.x;
+        //heldPos.y = newHeldPos.y;
         //}
-      }
-      else if (mouseButton != RIGHT){
+      } else if (mouseButton != RIGHT) {
         setTilt(tilt-(mouseY-pmouseY)*0.01);
         setRot(rot-(mouseX-pmouseX)*0.01);
       }
@@ -309,101 +294,100 @@ class Map3D extends Element{
     //}
     return new ArrayList<String>();
   }
-  
-  
-  ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
-    if (eventType == "mouseWheel"){
+
+
+  ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event) {
+    if (eventType == "mouseWheel") {
       float count = event.getCount();
       setZoom(zoom+zoom*count*0.15);
     }
     return new ArrayList<String>();
   }
-  ArrayList<String> keyboardEvent(String eventType, char _key){
-    if (eventType.equals("keyPressed")){
-      if (_key == 'w'){
+  ArrayList<String> keyboardEvent(String eventType, char _key) {
+    if (eventType.equals("keyPressed")) {
+      if (_key == 'w') {
         focusedV.y -= PANSPEED;
       }
-      if (_key == 's'){
+      if (_key == 's') {
         focusedV.y += PANSPEED;
       }
-      if (_key == 'a'){
+      if (_key == 'a') {
         focusedV.x -= PANSPEED;
       }
-      if (_key == 'd'){
+      if (_key == 'd') {
         focusedV.x += PANSPEED;
       }
-      if (_key == 'q'){
+      if (_key == 'q') {
         rotv += ROTSPEED;
       }
-      if (_key == 'e'){
+      if (_key == 'e') {
         rotv -= ROTSPEED;
       }
-      if (_key == 'x'){
+      if (_key == 'x') {
         tiltv += ROTSPEED;
       }
-      if (_key == 'c'){
+      if (_key == 'c') {
         tiltv -= ROTSPEED;
       }
-      if (_key == 'f'){
+      if (_key == 'f') {
         zoomv += PANSPEED;
       }
-      if (_key == 'r'){
+      if (_key == 'r') {
         zoomv -= PANSPEED;
       }
-    }
-    else if (eventType.equals("keyReleased")){
-      if (_key == 'q'){
+    } else if (eventType.equals("keyReleased")) {
+      if (_key == 'q') {
         rotv = 0;
       }
-      if (_key == 'e'){
+      if (_key == 'e') {
         rotv = 0;
       }
-      if (_key == 'x'){
+      if (_key == 'x') {
         tiltv = 0;
       }
-      if (_key == 'c'){
+      if (_key == 'c') {
         tiltv = 0;
       }
-      if (_key == 'w'){
+      if (_key == 'w') {
         focusedV.y = 0;
       }
-      if (_key == 's'){
+      if (_key == 's') {
         focusedV.y = 0;
       }
-      if (_key == 'a'){
+      if (_key == 'a') {
         focusedV.x = 0;
       }
-      if (_key == 'd'){
+      if (_key == 'd') {
         focusedV.x = 0;
       }
-      if (_key == 'f'){
+      if (_key == 'f') {
         zoomv = 0;
       }
-      if (_key == 'r'){
+      if (_key == 'r') {
         zoomv = 0;
       }
     }
     return new ArrayList<String>();
   }
-  
-  float groundHeightAt(int x1, int y1){
+
+  float groundHeightAt(int x1, int y1) {
     int x = floor(x1);
     int y = floor(y1);
     return min(new float[]{getHeight(x, y), getHeight(x+1, y), getHeight(x, y+1), getHeight(x+1, y+1)});
   }
-  
-  void draw(){
+
+  void draw() {
     background(#7ED7FF);
-    
+
     frameTime = millis()-prevT;
     prevT = millis();
-    PVector p = focusedV.copy().rotate(-rot).mult(frameTime*pow(zoom,0.5)/20);
+    PVector p = focusedV.copy().rotate(-rot).mult(frameTime*pow(zoom, 0.5)/20);
     focusedX += p.x;
     focusedY += p.y;
     rot += rotv*frameTime;
     tilt += tiltv*frameTime;
     zoom += zoomv*frameTime;
-    
+
     // Check camera ok
     setZoom(zoom);
     setRot(rot);
@@ -412,16 +396,16 @@ class Map3D extends Element{
     pushStyle();
     hint(ENABLE_DEPTH_TEST);
     camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
-    
+
     //lights();
     //lightFalloff(1, 0, 0);
     directionalLight(200, 200, 200, 0, -1, -1);
-    directionalLight(150,150, 150, 0.1, 1, -1);
+    directionalLight(150, 150, 150, 0.1, 1, -1);
     ambientLight(20, 80, 80);
     //noLights();
-    
+
     shape(trees);
-    if (cellSelected){
+    if (cellSelected) {
       pushMatrix();
       stroke(0);
       strokeWeight(3);
@@ -437,35 +421,34 @@ class Map3D extends Element{
       shape(selectTile);
       strokeWeight(1);
       translate(selectedCellX*blockSize, (selectedCellY)*blockSize, groundHeightAt(selectedCellX, selectedCellY));
-      if (parties[selectedCellY][selectedCellX] != null){
+      if (parties[selectedCellY][selectedCellX] != null) {
         translate(blockSize/2, blockSize/2, 32);
         box(blockSize, blockSize, 64);
-      }
-      else{
+      } else {
         translate(blockSize/2, blockSize/2, 16);
         box(blockSize, blockSize, 32);
       }
       popMatrix();
     }
-    
+
     shape(tiles);
-    
-    for (int x=0; x<mapWidth; x++){
-      for (int y=0; y<mapHeight; y++){
-        if (parties[y][x] != null && parties[y][x].player == 0){
+
+    for (int x=0; x<mapWidth; x++) {
+      for (int y=0; y<mapHeight; y++) {
+        if (parties[y][x] != null && parties[y][x].player == 0) {
           pushMatrix();
           translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundHeightAt(x, y));
           shape(blueFlag);
           popMatrix();
         }
-        if (parties[y][x] != null && parties[y][x].player == 1){
+        if (parties[y][x] != null && parties[y][x].player == 1) {
           pushMatrix();
           translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundHeightAt(x, y));
           shape(redFlag);
           popMatrix();
         }
-        if (buildings[y][x] != null){
-          if (buildingObjs.get(buildingString(buildings[y][x].type)) != null){
+        if (buildings[y][x] != null) {
+          if (buildingObjs.get(buildingString(buildings[y][x].type)) != null) {
             pushMatrix();
             translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundHeightAt(x, y));
             shape(buildingObjs.get(buildingString(buildings[y][x].type))[buildings[y][x].image_id]);
@@ -474,47 +457,47 @@ class Map3D extends Element{
         }
       }
     }
-    
+
     hint(DISABLE_DEPTH_TEST);
     camera();
     noLights();
     popStyle();
   }
-  
-  String buildingString(int buildingI){
-    if (gameData.getJSONArray("buildings").isNull(buildingI-1)){
+
+  String buildingString(int buildingI) {
+    if (gameData.getJSONArray("buildings").isNull(buildingI-1)) {
       println("invalid building string ", buildingI-1);
       return null;
     }
     return gameData.getJSONArray("buildings").getJSONObject(buildingI-1).getString("id");
   }
-  
-  boolean mouseOver(){
+
+  boolean mouseOver() {
     return mouseX > x && mouseX < x+w && mouseY > y && mouseY < y+h;
   }
-  
-  
-  
+
+
+
   // Ray Tracing Code Below is an example by Bontempos
   // https://forum.processing.org/two/discussion/21644/picking-in-3d-through-ray-tracing-method
-  
+
   // Function that calculates the coordinates on the floor surface corresponding to the screen coordinates
   PVector getUnProjectedPointOnFloor(float screen_x, float screen_y, PVector floorPosition, PVector floorDirection) {
-   
+
     PVector f = floorPosition.get(); // Position of the floor
     PVector n = floorDirection.get(); // The direction of the floor ( normal vector )
     PVector w = unProject(screen_x, screen_y, -1.0); // 3 -dimensional coordinate corresponding to a point on the screen
     PVector e = getEyePosition(); // Viewpoint position
-   
+
     // Computing the intersection of  
     f.sub(e);
     w.sub(e);
     w.mult( n.dot(f)/n.dot(w) );
     w.add(e);
-   
+
     return w;
   }
-   
+
   // Function to get the position of the viewpoint in the current coordinate system
   PVector getEyePosition() {
     camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
@@ -526,30 +509,30 @@ class Map3D extends Element{
   PVector unProject(float winX, float winY, float winZ) {
     PMatrix3D mat = getMatrixLocalToWindow();  
     mat.invert();
-   
+
     float[] in = {winX, winY, winZ, 1.0f};
     float[] out = new float[4];
     mat.mult(in, out);  // Do not use PMatrix3D.mult(PVector, PVector)
-   
+
     if (out[3] == 0 ) {
       return null;
     }
-   
+
     PVector result = new PVector(out[0]/out[3], out[1]/out[3], out[2]/out[3]);  
     return result;
   }
-   
+
   //Function to compute the transformation matrix to the window coordinate system from the local coordinate system
   PMatrix3D getMatrixLocalToWindow() {
     PMatrix3D projection = ((PGraphics3D)g).projection; 
     PMatrix3D modelview = ((PGraphics3D)g).modelview;   
-   
+
     // viewport transf matrix
     PMatrix3D viewport = new PMatrix3D();
     viewport.m00 = viewport.m03 = width/2;
     viewport.m11 = -height/2;
     viewport.m13 =  height/2;
-   
+
     // Calculate the transformation matrix to the window coordinate system from the local coordinate system
     viewport.apply(projection);
     viewport.apply(modelview);
