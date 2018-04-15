@@ -414,6 +414,8 @@ class Map3D extends Element {
   void applyCamera(){
     float fov = PI/3.0;
     float cameraZ = (height/2.0) / tan(fov/2.0);
+    perspective(fov, float(width)/float(height), cameraZ/100.0, cameraZ*10.0);
+    camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
   }
 
   void draw() {
