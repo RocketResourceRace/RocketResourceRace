@@ -1045,11 +1045,11 @@ class Game extends State{
       movementPoints -= cost;
     }
     return turns;
-  } //<>//
+  }
   int splitUnitsNum(){
     return round(((Slider)getElement("split units", "party management")).getValue());
   }
-  void refreshTooltip(){ //<>//
+  void refreshTooltip(){
     if (((DropDown)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible){
       tooltip.setTask(((DropDown)getElement("tasks", "party management")).findMouseOver());
       tooltip.show();  
@@ -1078,11 +1078,11 @@ class Game extends State{
           tooltip.show();
         }
         else {
-          if (map.parties[y][x].player == turn){ //<>//
+          if (map.parties[y][x].player == turn){
             //merge parties
             tooltip.setMerging();
             tooltip.show();
-          } //<>//
+          }
           else {
             //Attack
             Party tempAttacker = map.parties[cellY][cellX].clone(); 
@@ -1139,11 +1139,11 @@ class Game extends State{
     }
     if (button == LEFT){
       if (eventType == "mouseClicked"){
-        if (activePanel == "default" && !UIHovering()){ //<>//
+        if (activePanel == "default" && !UIHovering()){
           if (map.mouseOver()){
             if (moving){
               //int x = floor(map.scaleXInv(mouseX));
-              //int y = floor(map.scaleYInv(mouseY)); //<>//
+              //int y = floor(map.scaleYInv(mouseY));
               //postEvent(new Move(cellX, cellY, x, y));
               //map.cancelPath();
               if (mousePressed){ 
