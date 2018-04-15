@@ -266,7 +266,7 @@ void setup(){
   activeState = "menu";
   fullScreen(P3D);
   //noSmooth();
-  smooth(10);
+  smooth();
   noStroke();
   //hint(DISABLE_OPTIMIZED_STROKE);
   halfScreenWidth = width/2;

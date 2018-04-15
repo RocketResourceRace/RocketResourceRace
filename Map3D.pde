@@ -14,15 +14,16 @@ class Map3D extends Element {
   final float PANSPEED = 0.5, ROTSPEED = 0.002;
   final int FORESTDENSITY = 20;
   final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3;
-  final float HILLRAISE = 1.5;
+  final float HILLRAISE = 1.2;
   final float GROUNDHEIGHT = 5;
   final float VERTICESPERTILE = 4;
+  final int WATERDETAIL = 100;
   int x, y, w, h, mapWidth, mapHeight, prevT, frameTime;
   int selectedCellX, selectedCellY;
   Building[][] buildings;
   int[][] terrain;
   Party[][] parties;
-  PShape tiles, blueFlag, redFlag, trees, selectTile;
+  PShape tiles, blueFlag, redFlag, trees, selectTile, water;
   HashMap<String, PShape[]> buildingObjs;
   PImage[] tempTileImages;
   float targetZoom, zoom, zoomv, tilt, tiltv, rot, rotv, focusedX, focusedY;
@@ -114,6 +115,40 @@ class Map3D extends Element {
     }
     forestTiles.remove(cellX+cellY*mapWidth);
   }
+  
+  void generateWater(int vertices){
+    water = createShape(GROUP);
+    PShape w;
+    float scale = getObjectWidth()/vertices;
+    for (int y = 0; y < vertices+1; y++){
+      w = createShape();
+      w.setShininess(10);
+      w.setSpecular(10);
+      w.beginShape(TRIANGLE_STRIP);
+      w.fill(color(0, 50, 150));
+      for(int x = 0; x < vertices; x++){
+        w.vertex(x*scale, y*scale, 1);
+        w.vertex(x*scale, (y+1)*scale, 1);
+      }
+      w.endShape(CLOSE);
+      water.addChild(w);
+    }
+  }
+  
+  float getWaveHeight(float x, float y, float t){
+    return sin(t/1000+y)+cos(t/1000+x)+2;
+  }
+  
+  void updateWater(int vertices){
+    float scale = getObjectWidth()/vertices;
+    for (int y = 0; y < vertices+1; y++){
+      PShape w = water.getChild(y);
+      for(int x = 0; x < vertices*2; x++){
+        PVector v = w.getVertex(x);
+        w.setVertex(x, v.x, v.y, getWaveHeight(v.x, v.y, millis()));
+      }
+    }
+  }
 
   PShape generateTrees(int num, int vertices) {
     PShape shapes = createShape(GROUP);
@@ -140,7 +175,10 @@ class Map3D extends Element {
   }
 
   float getHeight(float x, float y) {
-    if (y<mapHeight && x<mapHeight && terrain[floor(y)][floor(x)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1) {
+    if (y<mapHeight && x<mapWidth && y+VERTICESPERTILE/blockSize<mapHeight && x+VERTICESPERTILE/blockSize<mapHeight && y-VERTICESPERTILE/blockSize>=0 && x-VERTICESPERTILE/blockSize>=0 &&
+    terrain[floor(y)][floor(x)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 &&
+    terrain[floor(y+VERTICESPERTILE/blockSize)][floor(x+VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 && 
+    terrain[floor(y-VERTICESPERTILE/blockSize)][floor(x-VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
       return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT*HILLRAISE;
     } else {
       return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT;
@@ -201,10 +239,9 @@ class Map3D extends Element {
         }
       }
     }
-
-
     resetMatrix();
-
+    generateWater(WATERDETAIL);
+    
     blueFlag = loadShape("blueflag.obj");
     blueFlag.rotateX(PI/2);
     blueFlag.scale(2.6, 3, 3);
@@ -430,8 +467,9 @@ class Map3D extends Element {
       }
       popMatrix();
     }
-
     shape(tiles);
+    updateWater(WATERDETAIL);
+    shape(water);
 
     for (int x=0; x<mapWidth; x++) {
       for (int y=0; y<mapHeight; y++) {
