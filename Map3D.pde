@@ -136,10 +136,9 @@ class Map3D extends Element{
     }
     heights = new float[mapHeight+1][mapWidth+1];
     PGraphics tempTerrain;
-    float noiseScale = 0.15;
     for(int y=0; y<mapHeight+1; y++){
       for (int x=0; x<mapWidth+1; x++){
-        heights[y][x] = (max(noise(x*noiseScale, y*noiseScale), waterLevel)-waterLevel)*blockSize;
+        heights[y][x] = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize;
       }
     }
     
