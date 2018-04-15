@@ -15,7 +15,7 @@
       "display name": "Water",
       "img": "data/water.png",
       "low img": "data/water_low.png",
-      "weighting": 1,
+      "weighting": 0,
       "movement cost": 16
     },
     {

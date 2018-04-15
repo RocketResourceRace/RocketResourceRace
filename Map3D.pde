@@ -139,7 +139,7 @@ class Map3D extends Element{
     float noiseScale = 0.15;
     for(int y=0; y<mapHeight+1; y++){
       for (int x=0; x<mapWidth+1; x++){
-        heights[y][x] = noise(x*noiseScale, y*noiseScale)*blockSize*2-blockSize;
+        heights[y][x] = (max(noise(x*noiseScale, y*noiseScale), waterLevel)-waterLevel)*blockSize;
       }
     }
     

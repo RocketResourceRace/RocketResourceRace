@@ -1707,27 +1707,22 @@ class Game extends State{
     
     int [][] terrain = new int[mapHeight][mapWidth];
     
-    for(int y=0; y<mapHeight; y++){
-      terrain[y][0] = terrainIndex("water");
-      terrain[y][mapWidth-1] = terrainIndex("water");
-    }
-    for(int x=1; x<mapWidth-1; x++){
-      terrain[0][x] = terrainIndex("water");
-      terrain[mapHeight-1][x] = terrainIndex("water");
-    }
+    //for(int y=0; y<mapHeight; y++){
+    //  terrain[y][0] = terrainIndex("water");
+    //  terrain[y][mapWidth-1] = terrainIndex("water");
+    //}
+    //for(int x=1; x<mapWidth-1; x++){
+    //  terrain[0][x] = terrainIndex("water");
+    //  terrain[mapHeight-1][x] = terrainIndex("water");
+    //}
+    println(waterLevel);
     for(int i=0;i<groundSpawns;i++){
       int type = getRandomGroundType(groundWeightings, totalWeighting);
       int x = (int)random(mapWidth-2)+1;
       int y = (int)random(mapHeight-2)+1;
       terrain[y][x] = type;
-      // Water will be type 1
-      if (type==terrainIndex("water")){
-        for (int y1=y-waterLevel+1;y1<y+waterLevel;y1++){
-         for (int x1 = x-waterLevel+1; x1<x+waterLevel;x1++){
-           if (y1 < mapHeight && y1 >= 0 && x1 < mapWidth && x1 >= 0)
-             terrain[y1][x1] = type;
-         }
-        }
+      if(noise(x*MAPNOISESCALE, y*MAPNOISESCALE)<waterLevel){
+        terrain[y][x] = terrainIndex("water");
       }
     }
     for (PVector playerStart: playerStarts){

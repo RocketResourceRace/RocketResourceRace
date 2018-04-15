@@ -20,6 +20,7 @@ boolean soundOn = true;
 JSONObject gameData;
 HashMap<Integer, PFont> fonts;
 int graphicsRes = 32;
+float MAPNOISESCALE = 0.15;
 
 // Event-driven methods
 void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}
@@ -128,7 +129,7 @@ void setVolume(float x){
 int NUMOFGROUNDTYPES = 5;
 int NUMOFBUILDINGTYPES = 9;
 int groundSpawns = 100;
-int waterLevel = 3;
+float waterLevel = 0.5;
 int TILESIZE = 1;
 int MAPWIDTH = 100;
 int MAPHEIGHT = 100;
