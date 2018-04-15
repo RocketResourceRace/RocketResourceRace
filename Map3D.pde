@@ -15,6 +15,7 @@ class Map3D extends Element{
   final int FORESTDENSITY = 20;
   final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3;
   final float HILLRAISE = 1.5;
+  final float GROUNDHEIGHT = 5;
   final float VERTICESPERTILE = 4;
   int x, y, w, h, mapWidth, mapHeight, prevT, frameTime;
   int selectedCellX, selectedCellY;
@@ -137,12 +138,12 @@ class Map3D extends Element{
   }
   
   float getHeight(float x, float y){
-    if (y<mapHeight && x<mapHeight && terrain[floor(y)][floor(x)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
-      return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*3*HILLRAISE;
-    }
-    else{
-      return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*3;
-    }
+    //if (y<mapHeight && x<mapHeight && terrain[floor(y)][floor(x)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
+    //  return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*3*HILLRAISE;
+    //}
+    //else{
+      return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT;
+    //}
   }
   
   void generateShape(){
