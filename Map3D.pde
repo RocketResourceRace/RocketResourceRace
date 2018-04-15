@@ -17,7 +17,6 @@ class Map3D extends Element {
   final float HILLRAISE = 1.2;
   final float GROUNDHEIGHT = 5;
   final float VERTICESPERTILE = 4;
-  final int WATERDETAIL = 100;
   int x, y, w, h, mapWidth, mapHeight, prevT, frameTime;
   int selectedCellX, selectedCellY;
   Building[][] buildings;
@@ -116,56 +115,56 @@ class Map3D extends Element {
     forestTiles.remove(cellX+cellY*mapWidth);
   }
   
-  void generateWater(int vertices){
-    water = createShape(GROUP);
-    PShape w;
-    float scale = getObjectWidth()/vertices;
-    for (int y = 0; y < vertices+1; y++){
-      w = createShape();
-      w.setShininess(10);
-      w.setSpecular(10);
-      w.beginShape(TRIANGLE_STRIP);
-      w.fill(color(0, 50, 150));
-      for(int x = 0; x < vertices; x++){
-        w.vertex(x*scale, y*scale, 1);
-        w.vertex(x*scale, (y+1)*scale, 1);
-      }
-      w.endShape(CLOSE);
-      water.addChild(w);
-    }
-  }
+  // void generateWater(int vertices){
+  //  water = createShape(GROUP);
+  //  PShape w;
+  //  float scale = getObjectWidth()/vertices;
+  //  w = createShape();
+  //  w.setShininess(10);
+  //  w.setSpecular(10);
+  //  w.beginShape(TRIANGLE_STRIP);
+  //  w.fill(color(0, 50, 150));
+  //  for(int x = 0; x < vertices; x++){
+  //    w.vertex(x*scale, y*scale, 1);
+  //    w.vertex(x*scale, (y+1)*scale, 1);
+  //  }
+  //  w.endShape(CLOSE);
+  //  water.addChild(w);
+  //}
   
   float getWaveHeight(float x, float y, float t){
     return sin(t/1000+y)+cos(t/1000+x)+2;
   }
   
-  void updateWater(int vertices){
-    float scale = getObjectWidth()/vertices;
-    for (int y = 0; y < vertices+1; y++){
-      PShape w = water.getChild(y);
-      for(int x = 0; x < vertices*2; x++){
-        PVector v = w.getVertex(x);
-        w.setVertex(x, v.x, v.y, getWaveHeight(v.x, v.y, millis()));
-      }
-    }
-  }
+  //void updateWater(int vertices){
+  //  float scale = getObjectWidth()/vertices;
+  //  for (int y = 0; y < vertices+1; y++){
+  //    PShape w = water.getChild(y);
+  //    for(int x = 0; x < vertices*2; x++){
+  //      PVector v = w.getVertex(x);
+  //      w.setVertex(x, v.x, v.y, getWaveHeight(v.x, v.y, millis()));
+  //    }
+  //  }
+  //}
 
-  PShape generateTrees(int num, int vertices) {
+  PShape generateTrees(int num, int vertices, float x1, float y1) {
     PShape shapes = createShape(GROUP);
     colorMode(HSB, 100);
     for (int i=0; i<num; i++) {
       float x = random(0, blockSize), y = random(0, blockSize);
+      float h = getHeight((x1+x)/blockSize, (y1+y)/blockSize);
+      if (h <= 0) continue;
       int leafColour = color(random(35, 40), random(90, 100), random(30, 60));
       PShape leaves = createShape();
       leaves.setShininess(0.1);
       leaves.beginShape(TRIANGLES);
       leaves.fill(leafColour);
 
-      // create cylinder
+      // create tree
       for (int j=0; j<vertices; j++) {
-        leaves.vertex(x+cos(j*TWO_PI/vertices), y+sin(j*TWO_PI/vertices), STUMPH);
-        leaves.vertex(x, y, STUMPH+LEAVESH*random(1-TREERANDOMNESS, 1+TREERANDOMNESS));
-        leaves.vertex(x+cos((j+1)*TWO_PI/vertices)*LEAVESR, y+sin((j+1)*TWO_PI/vertices)*LEAVESR, STUMPH);
+        leaves.vertex(x+cos(j*TWO_PI/vertices), y+sin(j*TWO_PI/vertices), STUMPH+h);
+        leaves.vertex(x, y, STUMPH+LEAVESH*random(1-TREERANDOMNESS, 1+TREERANDOMNESS)+h);
+        leaves.vertex(x+cos((j+1)*TWO_PI/vertices)*LEAVESR, y+sin((j+1)*TWO_PI/vertices)*LEAVESR, STUMPH+h);
       }
       leaves.endShape(CLOSE);
       shapes.addChild(leaves);
@@ -232,15 +231,14 @@ class Map3D extends Element {
       }
       for (int x=0; x<mapWidth; x++) {
         if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest")+1) {
-          PShape cellTree = generateTrees(FORESTDENSITY, 16);
-          cellTree.translate((x)*blockSize, (y)*blockSize, groundHeightAt(x, y));
+          PShape cellTree = generateTrees(FORESTDENSITY, 16, x*blockSize, y*blockSize);
+          cellTree.translate((x)*blockSize, (y)*blockSize, 0);
           trees.addChild(cellTree);
           addTreeTile(x, y, numTreeTiles++);
         }
       }
     }
     resetMatrix();
-    generateWater(WATERDETAIL);
     
     blueFlag = loadShape("blueflag.obj");
     blueFlag.rotateX(PI/2);
@@ -436,9 +434,10 @@ class Map3D extends Element {
 
     //lights();
     //lightFalloff(1, 0, 0);
-    directionalLight(200, 200, 200, 0, -1, -1);
-    directionalLight(150, 150, 150, 0.1, 1, -1);
+    directionalLight(200, 200, 200, 0, -0.1, -1);
+    directionalLight(100, 100, 100, 0.1, 1, -1);
     ambientLight(20, 80, 80);
+    lightSpecular(102, 102, 102);
     //noLights();
 
     shape(trees);
@@ -468,8 +467,10 @@ class Map3D extends Element {
       popMatrix();
     }
     shape(tiles);
-    updateWater(WATERDETAIL);
-    shape(water);
+    //updateWater(WATERDETAIL);
+    fill(20, 100, 200);
+    translate(0,0,0.1);
+    rect(0,0,getObjectWidth(), getObjectHeight());
 
     for (int x=0; x<mapWidth; x++) {
       for (int y=0; y<mapHeight; y++) {
