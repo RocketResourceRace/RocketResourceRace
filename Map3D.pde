@@ -393,6 +393,7 @@ class Map3D extends Element{
       selectTile.setFill(color(0));
       shape(selectTile);
       strokeWeight(1);
+      translate(selectedCellX*blockSize, (selectedCellY)*blockSize, min(new float[]{heights[selectedCellY][selectedCellX], heights[selectedCellY+1][selectedCellX], heights[selectedCellY][selectedCellX+1], heights[selectedCellY+1][selectedCellX+1]}));
       if (parties[selectedCellY][selectedCellX] != null){
         translate(blockSize/2, blockSize/2, 32);
         box(blockSize, blockSize, 64);
