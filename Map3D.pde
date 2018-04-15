@@ -138,7 +138,10 @@ class Map3D extends Element{
     PGraphics tempTerrain;
     for(int y=0; y<mapHeight+1; y++){
       for (int x=0; x<mapWidth+1; x++){
-        heights[y][x] = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*10;
+        heights[y][x] = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*3;
+        if (y<mapHeight && x<mapHeight && terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
+          heights[y][x] *= 2;
+        }
       }
     }
     
