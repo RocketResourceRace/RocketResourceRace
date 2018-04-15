@@ -138,12 +138,12 @@ class Map3D extends Element{
   }
   
   float getHeight(float x, float y){
-    //if (y<mapHeight && x<mapHeight && terrain[floor(y)][floor(x)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
-    //  return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*3*HILLRAISE;
-    //}
-    //else{
+    if (y<mapHeight && x<mapHeight && terrain[floor(y)][floor(x)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
+      return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT*HILLRAISE;
+    }
+    else{
       return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT;
-    //}
+    }
   }
   
   void generateShape(){

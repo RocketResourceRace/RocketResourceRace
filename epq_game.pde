@@ -132,7 +132,7 @@ float waterLevel = 0.5;
 int TILESIZE = 1;
 int MAPWIDTH = 100;
 int MAPHEIGHT = 100;
-float MAPNOISESCALE = 0.05;
+float MAPNOISESCALE = 0.1;
 
 int initialSmooth = 7;
 int completeSmooth = 5;
