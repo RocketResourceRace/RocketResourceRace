@@ -20,7 +20,6 @@ boolean soundOn = true;
 JSONObject gameData;
 HashMap<Integer, PFont> fonts;
 int graphicsRes = 32;
-float MAPNOISESCALE = 0.1;
 
 // Event-driven methods
 void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}
@@ -133,6 +132,7 @@ float waterLevel = 0.5;
 int TILESIZE = 1;
 int MAPWIDTH = 100;
 int MAPHEIGHT = 100;
+float MAPNOISESCALE = 0.05;
 
 int initialSmooth = 7;
 int completeSmooth = 5;
