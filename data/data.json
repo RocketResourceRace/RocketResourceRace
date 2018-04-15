@@ -15,7 +15,7 @@
       "display name": "Water",
       "img": "data/water.png",
       "low img": "data/water_low.png",
-      "weighting": 1,
+      "weighting": 0,
       "movement cost": 16
     },
     {
@@ -35,9 +35,9 @@
     {
       "id": "forest",
       "display name": "Forest",
-      "img": "data/forest.png",
+      "img": "data/grass.png",
       "low img": "data/forest_low.png",
-      "weighting": 1,
+      "weighting": 2,
       "movement cost": 12
     },
     {
@@ -377,10 +377,12 @@
     {
       "id": "Homes",
       "img": ["house.png"],
+      "obj": ["houses.obj"]
     },
     {
       "id": "Farm",
       "img": ["farm.png"],
+      "obj": ["farm.obj"]
     },
     {
       "id": "Mine",
@@ -411,7 +413,10 @@
       "id": "Construction",
       "img": ["construction_start.png",
               "construction_mid.png",
-              "construction_end.png"]
+              "construction_end.png"],
+      "obj": ["construction-start.obj",
+              "construction-mid.obj",
+              "construction-end.obj"]
     }
   ],
 

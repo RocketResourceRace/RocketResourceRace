@@ -24,7 +24,7 @@ class Game extends State{
   int turn;
   boolean changeTurn = false;
   int winner = -1;
-  Map map;
+  Map3D map;
   Player[] players;
   int cellX, cellY, cellSelectionX, cellSelectionY, cellSelectionW, cellSelectionH;
   boolean cellSelected=false, moving=false;
@@ -38,17 +38,18 @@ class Game extends State{
     initialiseTasks();
     initialiseBuildings();
     
-    addElement("2map", new Map(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
+    //addElement("2map", new Map(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
+    addElement("2map", new Map3D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
     addElement("1notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 10, turn));
     
-    map = (Map)getElement("2map", "default");
+    map = (Map3D)getElement("2map", "default");
     notificationManager = (NotificationManager)getElement("1notification manager", "default");
     players = new Player[2];
     totals = new float[resourceNames.length];
     
     // Initial positions will be focused on starting party
-    players[0] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, startingResources, color(0,0,255));
-    players[1] = new Player(map.mapXOffset, map.mapYOffset, map.blockSize, startingResources, color(255,0,0));
+    players[0] = new Player(map.focusedX, map.focusedY, map.zoom, startingResources, color(0,0,255));
+    players[1] = new Player(map.focusedX, map.focusedY, map.zoom, startingResources, color(255,0,0));
     addPanel("land management", 0, 0, width, height, false, true, color(50, 200, 50), color(0));
     addPanel("party management", 0, 0, width, height, false, true, color(70, 70, 220), color(0));
     addPanel("bottom bar", 0, height-70, width, 70, true, true, color(150), color(50));
@@ -78,6 +79,7 @@ class Game extends State{
     addElement("resource expander", new Button(resSummaryX-50, bezel, 30, 30, color(150), color(50), color(0), 10, CENTER, "<"), "bottom bar");
     addElement("turn number", new TextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", color(0,0,255), 0), "bottom bar");
     prevIdle = new ArrayList<Integer[]>();
+    
   }     
   
   void initialiseBuildings(){
@@ -469,8 +471,10 @@ class Game extends State{
                   buildings[y][x] = new Building(buildingIndex(action.building));
               }
               if (action.terrain != null){
-                if (terrain[y][x] == terrainIndex("forest"))
+                if (terrain[y][x] == terrainIndex("forest")){
                   players[turn].resources[getResIndex("wood")]+=100;
+                  map.removeTreeTile(x, y);
+                }
                 terrain[y][x] = terrainIndex(action.terrain);
               }
               switch (action.type){
@@ -588,17 +592,17 @@ class Game extends State{
     float mapXOffset;
     float mapYOffset;
     if (map.panning){
-      mapXOffset = map.targetXOffset;
-      mapYOffset = map.targetYOffset;
+      mapXOffset = map.focusedX;
+      mapYOffset = map.focusedY;
     } else {
-      mapXOffset = map.mapXOffset;
-      mapYOffset = map.mapYOffset;
+      mapXOffset = map.focusedX;
+      mapYOffset = map.focusedY;
     }
     float blockSize;
     if (map.zooming){
-      blockSize = map.targetBlockSize;
+      blockSize = map.targetZoom;
     } else{
-      blockSize = map.blockSize;
+      blockSize = map.zoom;
     }
     players[turn].saveSettings(mapXOffset, mapYOffset, blockSize, cellX, cellY, cellSelected);
     turn = (turn + 1)%2;
@@ -659,7 +663,7 @@ class Game extends State{
   }
   
   String update(){
-    background(100);
+    //background(100);
     if (changeTurn){  
       turnChange();
     }
@@ -1043,9 +1047,9 @@ class Game extends State{
     return turns;
   }
   int splitUnitsNum(){
-    return round(((Slider)getElement("split units", "party management")).getValue()); //<>//
+    return round(((Slider)getElement("split units", "party management")).getValue());
   }
-  void refreshTooltip(){ //<>//
+  void refreshTooltip(){
     if (((DropDown)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible){
       tooltip.setTask(((DropDown)getElement("tasks", "party management")).findMouseOver());
       tooltip.show();  
@@ -1076,9 +1080,9 @@ class Game extends State{
         else {
           if (map.parties[y][x].player == turn){
             //merge parties
-            tooltip.setMerging(); //<>//
+            tooltip.setMerging();
             tooltip.show();
-          } //<>//
+          }
           else {
             //Attack
             Party tempAttacker = map.parties[cellY][cellX].clone(); 
@@ -1137,9 +1141,9 @@ class Game extends State{
       if (eventType == "mouseClicked"){
         if (activePanel == "default" && !UIHovering()){
           if (map.mouseOver()){
-            if (moving){ //<>//
+            if (moving){
               //int x = floor(map.scaleXInv(mouseX));
-              //int y = floor(map.scaleYInv(mouseY)); //<>//
+              //int y = floor(map.scaleYInv(mouseY));
               //postEvent(new Move(cellX, cellY, x, y));
               //map.cancelPath();
               if (mousePressed){ 
@@ -1173,6 +1177,7 @@ class Game extends State{
     x = floor(map.scaleXInv(x));
     y = floor(map.scaleYInv(y));
     selectCell(x, y, false);
+    println(x, y);
   }
   
   boolean cellInBounds(int x, int y){
@@ -1293,12 +1298,12 @@ class Game extends State{
     fill(partyManagementColour);
     rect(cellSelectionX, pp.y, cellSelectionW, 13*TextScale);
     fill(255);
-    textSize(10*TextScale);
+      textFont(getFont(10*TextScale));
     textAlign(CENTER, TOP);
     text("Party Management", cellSelectionX+cellSelectionW/2, pp.y);
     
     textAlign(LEFT, CENTER);
-    textSize(8*TextScale);
+    textFont(getFont(8*TextScale));
     float barY = cellSelectionY + 13*TextScale + cellSelectionH*0.15 + bezel*2;
     text("Movement Points Remaining: "+parties[cellY][cellX].getMovementPoints(turn) + "/"+gameData.getJSONObject("game options").getInt("movement points"), 120+cellSelectionX, barY);
     barY += 13*TextScale;
@@ -1346,7 +1351,7 @@ class Game extends State{
     fill(0, 150, 0);
     rect(cellSelectionX, cellSelectionY, cellSelectionW, 13*TextScale);
     fill(255);
-    textSize(10*TextScale);
+    textFont(getFont(10*TextScale));
     textAlign(CENTER, TOP);
     text("Land Management", cellSelectionX+cellSelectionW/2, cellSelectionY);
     
@@ -1446,7 +1451,7 @@ class Game extends State{
       fill(fillColour);
       rect(x, y, w, h);
     }
-    textSize(10*TextScale);
+    textFont(getFont(10*TextScale));
     textAlign(CENTER, BOTTOM);
     fill(200);
     int tw = ceil((textWidth(progressMessage)));
@@ -1522,6 +1527,7 @@ class Game extends State{
     else{
       ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
     }
+    map.generateShape();
   }
   int cost(int x, int y, int prevX, int prevY){
     float mult = 1;
@@ -1622,21 +1628,23 @@ class Game extends State{
     return costs.size();
   }
   boolean startInvalid(PVector p1, PVector p2){
-    if(p1.dist(p2)<mapWidth/4){
+    if(p1.dist(p2)<mapWidth/8||noise(p1.x*MAPNOISESCALE, p1.y*MAPNOISESCALE)<waterLevel||noise(p2.x*MAPNOISESCALE, p2.y*MAPNOISESCALE)<waterLevel){
       return true;
     }
     return false;
   }
-  PVector generatePartyPosition(int xOffset){
-    return new PVector(int(random(xOffset-mapWidth/8, xOffset+mapWidth/8)), int(random(mapHeight/4, 3*mapHeight/4)));
+  PVector generatePartyPosition(){
+    return new PVector(int(random(0, mapWidth)), int(random(0, mapHeight)));
   }
   
   PVector[] generateStartingParties(){
-    PVector player1 = generatePartyPosition(mapWidth/4);
-    PVector player2 = generatePartyPosition(3*mapWidth/4);
-    while(startInvalid(player1, player2)){
-      player1 = generatePartyPosition(mapWidth/4);
-      player2 = generatePartyPosition(3*mapWidth/4);
+    PVector player1 = generatePartyPosition();
+    PVector player2 = generatePartyPosition();
+    int counter = 0;
+    while(startInvalid(player1, player2)&&counter<100){
+      counter++;
+      player1 = generatePartyPosition();
+      player2 = generatePartyPosition();
     }
     parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "Rest", gameData.getJSONObject("game options").getInt("movement points"));
     parties[(int)player2.y][(int)player2.x] = new Party(1, 100, "Rest", gameData.getJSONObject("game options").getInt("movement points"));
@@ -1654,21 +1662,27 @@ class Game extends State{
     Collections.shuffle(order);
     int[][] newMap = new int[mapHeight][mapWidth];
     for (int[] coord: order){
-      int[] counts = new int[NUMOFGROUNDTYPES+1];
-      for (int y1=coord[1]-distance+1;y1<coord[1]+distance;y1++){
-       for (int x1 = coord[0]-distance+1; x1<coord[0]+distance;x1++){
-         if (y1<mapHeight&&y1>=0&&x1<mapWidth&&x1>=0){
-           counts[terrain[y1][x1]]+=1;
-         }
-       }
-      }
-      int highest = terrain[coord[1]][coord[0]];
-      for (int i=firstType; i<=NUMOFGROUNDTYPES;i++){
-        if (counts[i] > counts[highest]){
-          highest = i;
+      if(terrain[coord[1]][coord[0]]==terrainIndex("water")){
+        newMap[coord[1]][coord[0]] = terrain[coord[1]][coord[0]];
+      } else {
+        int[] counts = new int[NUMOFGROUNDTYPES+1];
+        for (int y1=coord[1]-distance+1;y1<coord[1]+distance;y1++){
+          for (int x1 = coord[0]-distance+1; x1<coord[0]+distance;x1++){
+            if (y1<mapHeight&&y1>=0&&x1<mapWidth&&x1>=0){
+              if(terrain[y1][x1]!=terrainIndex("water")){
+                counts[terrain[y1][x1]]+=1;
+              }
+            }
+          }
         }
+        int highest = terrain[coord[1]][coord[0]];
+        for (int i=firstType; i<=NUMOFGROUNDTYPES;i++){
+          if (counts[i] > counts[highest]){
+            highest = i;
+          }
+        }
+        newMap[coord[1]][coord[0]] = highest;
       }
-      newMap[coord[1]][coord[0]] = highest;
     }
     return newMap;
   }
@@ -1701,53 +1715,40 @@ class Game extends State{
     
     int [][] terrain = new int[mapHeight][mapWidth];
     
-    for(int y=0; y<mapHeight; y++){
-      terrain[y][0] = terrainIndex("water");
-      terrain[y][mapWidth-1] = terrainIndex("water");
-    }
-    for(int x=1; x<mapWidth-1; x++){
-      terrain[0][x] = terrainIndex("water");
-      terrain[mapHeight-1][x] = terrainIndex("water");
-    }
+    //for(int y=0; y<mapHeight; y++){
+    //  terrain[y][0] = terrainIndex("water");
+    //  terrain[y][mapWidth-1] = terrainIndex("water");
+    //}
+    //for(int x=1; x<mapWidth-1; x++){
+    //  terrain[0][x] = terrainIndex("water");
+    //  terrain[mapHeight-1][x] = terrainIndex("water");
+    //}
     for(int i=0;i<groundSpawns;i++){
       int type = getRandomGroundType(groundWeightings, totalWeighting);
-      int x = (int)random(mapWidth-2)+1;
-      int y = (int)random(mapHeight-2)+1;
-      terrain[y][x] = type;
-      // Water will be type 1
-      if (type==terrainIndex("water")){
-        for (int y1=y-waterLevel+1;y1<y+waterLevel;y1++){
-         for (int x1 = x-waterLevel+1; x1<x+waterLevel;x1++){
-           if (y1 < mapHeight && y1 >= 0 && x1 < mapWidth && x1 >= 0)
-             terrain[y1][x1] = type;
-         }
-        }
+      int x = (int)random(mapWidth);
+      int y = (int)random(mapHeight);
+      if(isWater(x, y)){
+        i--;
+      } else {
+        terrain[y][x] = type;
       }
     }
-    for (PVector playerStart: playerStarts){
-      int type = (int)random(NUMOFGROUNDTYPES-2)+2;
-      int x = (int)playerStart.x;
-      int y = (int)playerStart.y;
-      terrain[y][x] = type;
-      // Player spawns will act as water but without water
-      for (int y1=y-5;y1<y+4;y1++){
-       for (int x1 = x-5; x1<x+4;x1++){
-         if (y1 < mapHeight && y1 >= 0 && x1 < mapWidth && x1 >= 0)
-           terrain[y1][x1] = type;
-       }
-      }
-    }
+    
     ArrayList<int[]> order = new ArrayList<int[]>();
-    for (int y=1; y<mapHeight-1;y++){
-      for (int x=1; x<mapWidth-1;x++){
-        order.add(new int[] {x, y});
+    for (int y=0; y<mapHeight;y++){
+      for (int x=0; x<mapWidth;x++){
+        if(isWater(x, y)){
+          terrain[y][x] = terrainIndex("water");
+        } else {
+          order.add(new int[] {x, y});
+        }
       }
     }
     Collections.shuffle(order);
     for (int[] coord: order){
       int x = coord[0];
       int y = coord[1];
-      while (terrain[y][x] == 0){
+      while (terrain[y][x] == 0||terrain[y][x]==terrainIndex("water")){
         int direction = (int) random(8);
         switch(direction){
           case 0:
@@ -1784,18 +1785,12 @@ class Game extends State{
     }
     terrain = smoothMap(initialSmooth, 2, terrain);
     terrain = smoothMap(completeSmooth, 1, terrain);
-    float noiseScale = 0.15;
     for (int y=0; y<mapHeight; y++){
       for(int x=0; x<mapWidth; x++){
-        if(terrain[y][x] == terrainIndex("grass") && noise(x*noiseScale, y*noiseScale) > 0.6){
+        if(terrain[y][x] == terrainIndex("grass") && noise(x*MAPNOISESCALE, y*MAPNOISESCALE) > 0.5+waterLevel/2.0){
           terrain[y][x] = terrainIndex("hills");
         }
       }      
-    }
-    for (int i =0; i<playerStarts.length;i++){
-      while (terrain[int(playerStarts[i].y)][int(playerStarts[i].x)]==terrainIndex("water")){
-        playerStarts[i] = generatePartyPosition(int((i+0.5)*(mapWidth/playerStarts.length)));
-      }
     }
     return terrain;
   }

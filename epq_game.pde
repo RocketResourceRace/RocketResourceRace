@@ -18,6 +18,8 @@ float volume = 0.5;
 int prevT;
 boolean soundOn = true;
 JSONObject gameData;
+HashMap<Integer, PFont> fonts;
+int graphicsRes = 32;
 
 // Event-driven methods
 void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}
@@ -126,10 +128,11 @@ void setVolume(float x){
 int NUMOFGROUNDTYPES = 5;
 int NUMOFBUILDINGTYPES = 9;
 int groundSpawns = 100;
-int waterLevel = 3;
+float waterLevel = 0.5;
 int TILESIZE = 1;
 int MAPWIDTH = 100;
 int MAPHEIGHT = 100;
+float MAPNOISESCALE = 0.1;
 
 int initialSmooth = 7;
 int completeSmooth = 5;
@@ -213,6 +216,17 @@ void loadImages(){
   }
 }
 
+PFont getFont(float size){
+  PFont f=fonts.get(round(size));
+  if (f == null){
+    fonts.put(round(size), createFont("GillSans", size));
+    return fonts.get(round(size));
+  }
+  else{
+    return f;
+  }
+}
+
 
 float sum(float[] l){
   float c=0;
@@ -225,6 +239,8 @@ float sum(float[] l){
 float halfScreenWidth;
 float halfScreenHeight;
 void setup(){
+  frameRate(1000);
+  fonts = new HashMap<Integer, PFont>();
   gameData = loadJSONObject("data.json");
   settings = new StringDict();
   //if
@@ -248,8 +264,11 @@ void setup(){
   addState("menu", new Menu());
   addState("map", new Game());
   activeState = "menu";
-  fullScreen();
+  fullScreen(P3D);
+  //noSmooth();
+  smooth();
   noStroke();
+  //hint(DISABLE_OPTIMIZED_STROKE);
   halfScreenWidth = width/2;
   halfScreenHeight= height/2;
 }
@@ -270,6 +289,12 @@ void draw(){
     states.get(newState).enterState();
     activeState = newState;
   }
+  textFont(getFont(10));
+  textAlign(LEFT, TOP);
+  fill(255,0,0);
+  text(frameRate, 0, 0);
+  
+  
 }
 
 State getActiveState(){

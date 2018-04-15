@@ -124,14 +124,14 @@ class Tooltip extends Element{
   
   void draw(){
     if (visible && text.length() > 0){
-      ArrayList<String> lines = getLines(text); 
-      textSize(8*TextScale);
+      ArrayList<String> lines = getLines(text);
+      textFont(getFont(8*TextScale));
       int tw = ceil(maxWidthLine(lines))+4;
       int gap = ceil(textAscent()+textDescent());
       int th = ceil(textAscent()+textDescent())*lines.size();
       int tx = round(between(0, mouseX-tw/2, width-tw));
       int ty = round(between(0, mouseY+20, height-th-20));
-      fill(255, 200);
+      fill(200, 230);
       stroke(0);
       rectMode(CORNER);
       rect(tx, ty, tw, th);
@@ -269,7 +269,7 @@ class NotificationManager extends Element{
     pushStyle();
     fill(bgColour);
     rect(x, y, w, h);
-    textSize(10*TextScale);
+    textFont(getFont(10*TextScale));
     fill(brighten(bgColour, -50));
     topOffset = ceil(textAscent()+textDescent());
     this.notHeight = (h-topOffset)/displayNots;
@@ -317,7 +317,7 @@ class NotificationManager extends Element{
       strokeWeight(1);
       
       fill(textColour);
-      textSize(8*TextScale);
+      textFont(getFont(8*TextScale));
       textAlign(LEFT, CENTER);
       text(notifications.get(turn).get(i+scroll).name, x+notHeight+5, y+topOffset+i*notHeight+notHeight/2);
       textAlign(RIGHT, CENTER);
@@ -362,7 +362,7 @@ class TextBox extends Element{
   void setText(String text){
     this.text = text;
     if (autoSizing){
-      textSize(textSize*TextScale);
+      textFont(getFont(textSize*TextScale));
       this.w = ceil(textWidth(text))+10;
     }
   }
@@ -376,7 +376,7 @@ class TextBox extends Element{
   
   void draw(){
     pushStyle();
-    textSize(textSize*TextScale);
+      textFont(getFont(textSize*TextScale));
     textAlign(CENTER, CENTER);
     rectMode(CORNER);
     if (bgColour != color(255, 255)){
@@ -448,11 +448,11 @@ class ResourceSummary extends Element{
   }
   int columnWidth(int i){
     int m=0;
-    textSize(10*TextScale);
+    textFont(getFont(10*TextScale));
     m = max(m, ceil(textWidth(getResString(i))));
-    textSize(8*TextScale);
+    textFont(getFont(8*TextScale));
     m = max(m, ceil(textWidth(getStockString(i))));
-    textSize(8*TextScale);
+    textFont(getFont(8*TextScale));
     m = max(m, ceil(textWidth(getNetString(i))));
     return m;
   }
@@ -487,18 +487,18 @@ class ResourceSummary extends Element{
       if (gameData.getJSONArray("resources").getJSONObject(i).getInt("resource manager") <= ((expanded) ? 0:1)) continue;
       w = columnWidth(i);
       fill(getFill(i));
-      textSize(10*TextScale);
+      textFont(getFont(10*TextScale));
       rect(width-cw+xOffset+x-GAP/2, yOffset+y, width-cw+xOffset+x-GAP/2-(w+GAP), yOffset+y+textAscent()+textDescent());
       cw += w+GAP;
       line(width-cw+xOffset+x-GAP/2, yOffset+y, width-cw+xOffset+x-GAP/2, yOffset+y+h);
       fill(0);
       
       yLevel=0;
-      textSize(10*TextScale);
+      textFont(getFont(10*TextScale));
       text(getResString(i), width-cw+xOffset, y+yOffset);
       yLevel += textAscent()+textDescent();
       
-      textSize(8*TextScale);
+      textFont(getFont(8*TextScale));
       text(getStockString(i), width-cw+xOffset, y+yOffset+yLevel);
       yLevel += textAscent()+textDescent();
       
@@ -506,7 +506,7 @@ class ResourceSummary extends Element{
         fill(255,0,0);
       else
         fill(0,255,0);
-      textSize(8*TextScale);
+      textFont(getFont(8*TextScale));
       text(getNetString(i), width-cw+xOffset, y+yOffset+yLevel);
       yLevel += textAscent()+textDescent();
     }
@@ -594,7 +594,7 @@ class DropDown extends Element{
     }
   }
   int getH(){
-    textSize(textSize*TextScale);
+    textFont(getFont(textSize*TextScale));
     return ceil(textAscent() + textDescent());
   }
   boolean optionAvailable(int i){
@@ -733,7 +733,7 @@ class Button extends Element{
     noTint();
     fill(textColour);
     textAlign(textAlign, TOP);
-    textSize(textSize*TextScale);
+    textFont(getFont(textSize*TextScale));
     if (lines.size() == 1){
       padding = h/10;
     }
@@ -837,7 +837,7 @@ class Slider extends Element{
     visible = false;
   }
   void scaleKnob(){
-    textSize(8*TextScale);
+    textFont(getFont(8*TextScale));
     this.knobSize = textWidth(""+getInc(new BigDecimal(""+upper)));
   }
   void transform(int x, int y, int w, int h){
@@ -921,7 +921,7 @@ class Slider extends Element{
     }
     for(int i=0; i<=major; i++){
       fill(scaleColour);
-      textSize(10*TextScale);
+      textFont(getFont(10*TextScale));
       textAlign(CENTER);
       text(getInc((new BigDecimal(""+i).multiply(range).divide(new BigDecimal(""+major), 15, BigDecimal.ROUND_HALF_EVEN).add(lower))).toPlainString(), xOffset+x+w*i/major, y+yOffset+padding);
       line(xOffset+x+w*i/major, y+yOffset+padding, xOffset+x+w*i/major, y+yOffset+h);
@@ -934,7 +934,7 @@ class Slider extends Element{
       fill(KnobColour);
     }
     
-    textSize(TextScale*8);
+    textFont(getFont(8*TextScale));
     textAlign(CENTER);
     rectMode(CENTER);
     this.knobSize = max(this.knobSize, textWidth(""+getInc(value)));
@@ -948,7 +948,7 @@ class Slider extends Element{
     line(x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight/2+yOffset+padding/2, x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight+yOffset+padding/2);
     stroke(0);
     fill(0);
-    textSize(12*TextScale);
+      textFont(getFont(12*TextScale));
     textAlign(LEFT, BOTTOM);
     text(name, x+xOffset, y+yOffset);
     popStyle();
@@ -979,7 +979,7 @@ class Text extends Element{
     this.text = text;
   }
   void calcSize(){
-    textSize(size*TextScale);
+    textFont(getFont(size*TextScale));
     this.w = ceil(textWidth(text));
     this.h = ceil(textAscent()+textDescent());
   }
@@ -989,7 +989,7 @@ class Text extends Element{
       textFont(font);
     }
     textAlign(align, TOP);
-    textSize(size*TextScale);
+    textFont(getFont(size*TextScale));
     fill(colour);
     text(text, x+xOffset, y+yOffset);
   }
@@ -1056,7 +1056,7 @@ class TextEntry extends Element{
     }
     
     // Draw the text
-    textSize(textSize*TextScale);
+      textFont(getFont(textSize*TextScale));
     textAlign(textAlign);
     fill(textColour);
     text(text.toString(), x+xOffset+5, y+yOffset+(h-textSize*TextScale)/2, w, h);
@@ -1069,7 +1069,7 @@ class TextEntry extends Element{
     }
     if (name != null){
       fill(0);
-      textSize(10);
+      textFont(getFont(10*TextScale));
       textAlign(LEFT);
       text(name, x, y-12);
     }
@@ -1090,7 +1090,7 @@ class TextEntry extends Element{
   int getCursorPos(int mx, int my){
     int i=0;
     for(; i<text.length(); i++){
-      textSize(textSize*TextScale);
+      textFont(getFont(textSize*TextScale));
       if (textWidth(text.substring(0, i)) + x > mx)
         break;
     }
@@ -1248,7 +1248,7 @@ class ToggleButton extends Element{
       rect(x+w/2, y, w/2, h);
     }
     fill(0);
-    textSize(8*TextScale);
+    textFont(getFont(8*TextScale));
     textAlign(LEFT, BOTTOM);
     text(name, x, y);
     popStyle();
