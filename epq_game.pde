@@ -20,7 +20,7 @@ boolean soundOn = true;
 JSONObject gameData;
 HashMap<Integer, PFont> fonts;
 int graphicsRes = 32;
-float MAPNOISESCALE = 0.15;
+float MAPNOISESCALE = 0.1;
 
 // Event-driven methods
 void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}

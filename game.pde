@@ -1628,21 +1628,24 @@ class Game extends State{
     return costs.size();
   }
   boolean startInvalid(PVector p1, PVector p2){
-    if(p1.dist(p2)<mapWidth/4){
+    if(p1.dist(p2)<mapWidth/8||noise(p1.x*MAPNOISESCALE, p1.y*MAPNOISESCALE)<waterLevel||noise(p2.x*MAPNOISESCALE, p2.y*MAPNOISESCALE)<waterLevel){
+      println("bad");
       return true;
     }
     return false;
   }
-  PVector generatePartyPosition(int xOffset){
-    return new PVector(int(random(xOffset-mapWidth/8, xOffset+mapWidth/8)), int(random(mapHeight/4, 3*mapHeight/4)));
+  PVector generatePartyPosition(){
+    return new PVector(int(random(0, mapWidth)), int(random(0, mapHeight)));
   }
   
   PVector[] generateStartingParties(){
-    PVector player1 = generatePartyPosition(mapWidth/4);
-    PVector player2 = generatePartyPosition(3*mapWidth/4);
-    while(startInvalid(player1, player2)){
-      player1 = generatePartyPosition(mapWidth/4);
-      player2 = generatePartyPosition(3*mapWidth/4);
+    PVector player1 = generatePartyPosition();
+    PVector player2 = generatePartyPosition();
+    int counter = 0;
+    while(startInvalid(player1, player2)&&counter<100){
+      counter++;
+      player1 = generatePartyPosition();
+      player2 = generatePartyPosition();
     }
     parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "Rest", gameData.getJSONObject("game options").getInt("movement points"));
     parties[(int)player2.y][(int)player2.x] = new Party(1, 100, "Rest", gameData.getJSONObject("game options").getInt("movement points"));
@@ -1660,21 +1663,27 @@ class Game extends State{
     Collections.shuffle(order);
     int[][] newMap = new int[mapHeight][mapWidth];
     for (int[] coord: order){
-      int[] counts = new int[NUMOFGROUNDTYPES+1];
-      for (int y1=coord[1]-distance+1;y1<coord[1]+distance;y1++){
-       for (int x1 = coord[0]-distance+1; x1<coord[0]+distance;x1++){
-         if (y1<mapHeight&&y1>=0&&x1<mapWidth&&x1>=0){
-           counts[terrain[y1][x1]]+=1;
-         }
-       }
-      }
-      int highest = terrain[coord[1]][coord[0]];
-      for (int i=firstType; i<=NUMOFGROUNDTYPES;i++){
-        if (counts[i] > counts[highest]){
-          highest = i;
+      if(terrain[coord[1]][coord[0]]==terrainIndex("water")){
+        newMap[coord[1]][coord[0]] = terrain[coord[1]][coord[0]];
+      } else {
+        int[] counts = new int[NUMOFGROUNDTYPES+1];
+        for (int y1=coord[1]-distance+1;y1<coord[1]+distance;y1++){
+          for (int x1 = coord[0]-distance+1; x1<coord[0]+distance;x1++){
+            if (y1<mapHeight&&y1>=0&&x1<mapWidth&&x1>=0){
+              if(terrain[y1][x1]!=terrainIndex("water")){
+                counts[terrain[y1][x1]]+=1;
+              }
+            }
+          }
         }
+        int highest = terrain[coord[1]][coord[0]];
+        for (int i=firstType; i<=NUMOFGROUNDTYPES;i++){
+          if (counts[i] > counts[highest]){
+            highest = i;
+          }
+        }
+        newMap[coord[1]][coord[0]] = highest;
       }
-      newMap[coord[1]][coord[0]] = highest;
     }
     return newMap;
   }
@@ -1719,35 +1728,28 @@ class Game extends State{
       int type = getRandomGroundType(groundWeightings, totalWeighting);
       int x = (int)random(mapWidth);
       int y = (int)random(mapHeight);
-      terrain[y][x] = type;
       if(noise(x*MAPNOISESCALE, y*MAPNOISESCALE)<waterLevel){
-        terrain[y][x] = terrainIndex("water");
+        i--;
+      } else {
+        terrain[y][x] = type+1;
       }
     }
-    for (PVector playerStart: playerStarts){
-      int type = (int)random(NUMOFGROUNDTYPES-2)+2;
-      int x = (int)playerStart.x;
-      int y = (int)playerStart.y;
-      terrain[y][x] = type;
-      // Player spawns will act as water but without water
-      for (int y1=y-5;y1<y+4;y1++){
-       for (int x1 = x-5; x1<x+4;x1++){
-         if (y1 < mapHeight && y1 >= 0 && x1 < mapWidth && x1 >= 0)
-           terrain[y1][x1] = type;
-       }
-      }
-    }
+    
     ArrayList<int[]> order = new ArrayList<int[]>();
-    for (int y=1; y<mapHeight-1;y++){
-      for (int x=1; x<mapWidth-1;x++){
-        order.add(new int[] {x, y});
+    for (int y=0; y<mapHeight;y++){
+      for (int x=0; x<mapWidth;x++){
+        if(noise(x*MAPNOISESCALE, y*MAPNOISESCALE)<waterLevel){
+          terrain[y][x] = terrainIndex("water");
+        } else {
+          order.add(new int[] {x, y});
+        }
       }
     }
     Collections.shuffle(order);
     for (int[] coord: order){
       int x = coord[0];
       int y = coord[1];
-      while (terrain[y][x] == 0){
+      while (terrain[y][x] == 0||terrain[y][x]==terrainIndex("water")){
         int direction = (int) random(8);
         switch(direction){
           case 0:
@@ -1784,18 +1786,12 @@ class Game extends State{
     }
     terrain = smoothMap(initialSmooth, 2, terrain);
     terrain = smoothMap(completeSmooth, 1, terrain);
-    float noiseScale = 0.15;
     for (int y=0; y<mapHeight; y++){
       for(int x=0; x<mapWidth; x++){
-        if(terrain[y][x] == terrainIndex("grass") && noise(x*noiseScale, y*noiseScale) > 0.6){
+        if(terrain[y][x] == terrainIndex("grass") && noise(x*MAPNOISESCALE, y*MAPNOISESCALE) > 0.5+waterLevel/2.0){
           terrain[y][x] = terrainIndex("hills");
         }
       }      
-    }
-    for (int i =0; i<playerStarts.length;i++){
-      while (terrain[int(playerStarts[i].y)][int(playerStarts[i].x)]==terrainIndex("water")){
-        playerStarts[i] = generatePartyPosition(int((i+0.5)*(mapWidth/playerStarts.length)));
-      }
     }
     return terrain;
   }
