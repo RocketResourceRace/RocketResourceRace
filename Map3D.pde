@@ -1,3 +1,12 @@
+boolean isWater(int x, int y){
+  return max(new float[]{
+    noise(x*MAPNOISESCALE, y*MAPNOISESCALE),
+    noise((x+1)*MAPNOISESCALE, y*MAPNOISESCALE),
+    noise(x*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
+    noise((x+1)*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
+    })<waterLevel;
+}
+
 
 
 class Map3D extends Element{
