@@ -265,7 +265,7 @@ class Map3D extends Element {
   }
 
   PVector MousePosOnObject(int mx, int my) {
-    camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
+    applyCamera();
     PVector floorPos = new PVector(focusedX+width/2, focusedY+height/2, 0); 
     PVector floorDir = new PVector(0, 0, -1);
     PVector mousePos = getUnProjectedPointOnFloor( mouseX, mouseY, floorPos, floorDir);
@@ -410,6 +410,11 @@ class Map3D extends Element {
     int y = floor(y1);
     return min(new float[]{getHeight(x, y), getHeight(x+1, y), getHeight(x, y+1), getHeight(x+1, y+1)});
   }
+  
+  void applyCamera(){
+    float fov = PI/3.0;
+    float cameraZ = (height/2.0) / tan(fov/2.0);
+  }
 
   void draw() {
     background(#7ED7FF);
@@ -430,7 +435,7 @@ class Map3D extends Element {
     setFocused(focusedX, focusedY);
     pushStyle();
     hint(ENABLE_DEPTH_TEST);
-    camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
+    applyCamera();
 
     //lights();
     //lightFalloff(1, 0, 0);
@@ -539,7 +544,7 @@ class Map3D extends Element {
 
   // Function to get the position of the viewpoint in the current coordinate system
   PVector getEyePosition() {
-    camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
+    applyCamera();
     PMatrix3D mat = (PMatrix3D)getMatrix(); //Get the model view matrix
     mat.invert();
     return new PVector( mat.m03, mat.m13, mat.m23 );

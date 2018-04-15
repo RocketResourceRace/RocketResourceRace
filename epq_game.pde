@@ -128,7 +128,7 @@ void setVolume(float x){
 int NUMOFGROUNDTYPES = 5;
 int NUMOFBUILDINGTYPES = 9;
 int groundSpawns = 100;
-float waterLevel = 0.5;
+float waterLevel = 0.35;
 int TILESIZE = 1;
 int MAPWIDTH = 100;
 int MAPHEIGHT = 100;
