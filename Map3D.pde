@@ -15,7 +15,7 @@ class Map3D extends Element{
   final int FORESTDENSITY = 20;
   final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3;
   final float HILLRAISE = 1.5;
-  final float VERTICESPERTILE = 4;
+  final float VERTICESPERTILE = 8;
   int x, y, w, h, mapWidth, mapHeight, prevT, frameTime;
   int selectedCellX, selectedCellY;
   Building[][] buildings;
@@ -195,8 +195,8 @@ class Map3D extends Element{
         for (int x=0; x<mapWidth; x++){
           //int x1=(int)VERTICESPERTILE;
           for (int x1=0; x1<VERTICESPERTILE; x1++){
-            t.vertex((x+x1/VERTICESPERTILE)*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(x+x1/VERTICESPERTILE, (y+y1/VERTICESPERTILE)), (x+x1/VERTICESPERTILE)*graphicsRes, 0);   
-            t.vertex((x+x1/VERTICESPERTILE)*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, getHeight(x+x1/VERTICESPERTILE, y+(1+y1)/VERTICESPERTILE), (x+x1/VERTICESPERTILE)*graphicsRes, graphicsRes);
+            t.vertex((x+x1/VERTICESPERTILE)*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(x+x1/VERTICESPERTILE, (y+y1/VERTICESPERTILE)), (x+x1/VERTICESPERTILE)*graphicsRes, y1*graphicsRes/VERTICESPERTILE);   
+            t.vertex((x+x1/VERTICESPERTILE)*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, getHeight(x+x1/VERTICESPERTILE, y+(1+y1)/VERTICESPERTILE), (x+x1/VERTICESPERTILE)*graphicsRes, (y1+1)*graphicsRes/VERTICESPERTILE);
           }
         }
         //t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(mapWidth, y), mapWidth*graphicsRes, 0);   
