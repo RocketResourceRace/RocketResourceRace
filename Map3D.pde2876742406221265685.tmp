@@ -15,7 +15,7 @@ class Map3D extends Element{
   final int FORESTDENSITY = 20;
   final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3;
   final float HILLRAISE = 1.5;
-  final float VERTICESPERTILE = 4;
+  final float VERTICESPERTILE = 2;
   int x, y, w, h, mapWidth, mapHeight, prevT, frameTime;
   int selectedCellX, selectedCellY;
   Building[][] buildings;
@@ -183,28 +183,16 @@ class Map3D extends Element{
         tempTerrain.image(tempTileImages[terrain[y][x]-1], x*graphicsRes, 0);
       }
       tempTerrain.endDraw();
-      
-      for (int y1=0; y1<VERTICESPERTILE; y1++){
-        t = createShape();
-        t.setTexture(tempTerrain);
-        //t.setShininess(0.1);
-        //t.setEmissive(color(0, 20, 20));
-        //t.setSpecular(color(0, 20, 20));
-        t.beginShape(TRIANGLE_STRIP);
-        resetMatrix();
-        for (int x=0; x<mapWidth; x++){
-          //int x1=(int)VERTICESPERTILE;
-          for (int x1=0; x1<VERTICESPERTILE; x1++){
-            t.vertex((x+x1/VERTICESPERTILE)*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(x+x1/VERTICESPERTILE, (y+y1/VERTICESPERTILE)), (x+x1/VERTICESPERTILE)*graphicsRes, 0);   
-            t.vertex((x+x1/VERTICESPERTILE)*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, getHeight(x+x1/VERTICESPERTILE, y+(1+y1)/VERTICESPERTILE), (x+x1/VERTICESPERTILE)*graphicsRes, graphicsRes);
-          }
-        }
-        //t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(mapWidth, y), mapWidth*graphicsRes, 0);   
-        //t.vertex(mapWidth*blockSize, (y+1+y1/VERTICESPERTILE)*blockSize, getHeight(mapWidth, y+1), mapWidth*graphicsRes, graphicsRes);
-        t.endShape();
-        tiles.addChild(t);
-      }
+      t = createShape();
+      t.setTexture(tempTerrain);
+      //t.setShininess(0.1);
+      //t.setEmissive(color(0, 20, 20));
+      //t.setSpecular(color(0, 20, 20));
+      t.beginShape(TRIANGLE_STRIP);
+      resetMatrix();
       for (int x=0; x<mapWidth; x++){
+        t.vertex(x*blockSize, y*blockSize, getHeight(x, y), x*graphicsRes, 0);   
+        t.vertex(x*blockSize, (y+1)*blockSize, getHeight(x, y), x*graphicsRes, graphicsRes);
         if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest")+1){
           PShape cellTree = generateTrees(FORESTDENSITY, 16);
           cellTree.translate((x)*blockSize, (y)*blockSize, groundHeightAt(x, y));
@@ -212,7 +200,6 @@ class Map3D extends Element{
           addTreeTile(x, y, numTreeTiles++);
         }
       }
-      
     }
     
     
