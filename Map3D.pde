@@ -226,6 +226,8 @@ class Map3D extends Element {
         //t.setSpecular(color(0, 20, 20));
         t.beginShape(TRIANGLE_STRIP);
         resetMatrix();
+        t.vertex(0, (y+y1/VERTICESPERTILE)*blockSize, 0, 0, y1*graphicsRes/VERTICESPERTILE);
+        t.vertex(0, (y+(1+y1)/VERTICESPERTILE)*blockSize, 0, 0, (y1+1)*graphicsRes/VERTICESPERTILE);
         for (int x=0; x<mapWidth; x++) {
           //int x1=(int)VERTICESPERTILE;
           for (int x1=0; x1<VERTICESPERTILE; x1++) {
@@ -233,8 +235,10 @@ class Map3D extends Element {
             t.vertex((x+x1/VERTICESPERTILE)*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, getHeight(x+x1/VERTICESPERTILE, y+(1+y1)/VERTICESPERTILE), (x+x1/VERTICESPERTILE)*graphicsRes, (y1+1)*graphicsRes/VERTICESPERTILE);
           }
         }
-        //t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(mapWidth, y), mapWidth*graphicsRes, 0);   
-        //t.vertex(mapWidth*blockSize, (y+1+y1/VERTICESPERTILE)*blockSize, getHeight(mapWidth, y+1), mapWidth*graphicsRes, graphicsRes);
+        //t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(x+1, (y+y1/VERTICESPERTILE)), mapWidth*graphicsRes, y1*graphicsRes/VERTICESPERTILE);   
+        //t.vertex(mapWidth*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, getHeight(x+1, y+(1+y1)/VERTICESPERTILE), mapWidth*graphicsRes, (y1+1)*graphicsRes/VERTICESPERTILE);
+        //t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, 0, mapWidth*graphicsRes, y1*graphicsRes/VERTICESPERTILE);
+        //t.vertex(mapWidth*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, 0, mapWidth*graphicsRes, (y1+1)*graphicsRes/VERTICESPERTILE);
         t.endShape();
         tiles.addChild(t);
       }
