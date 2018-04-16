@@ -1787,7 +1787,7 @@ class Game extends State{
     terrain = smoothMap(completeSmooth, 1, terrain);
     for (int y=0; y<mapHeight; y++){
       for(int x=0; x<mapWidth; x++){
-        if(terrain[y][x] == terrainIndex("grass") && noise(x*MAPNOISESCALE, y*MAPNOISESCALE) > 0.5+waterLevel/2.0){
+        if(terrain[y][x] == terrainIndex("grass") && noise((x+0.5)*MAPNOISESCALE, (y+0.5)*MAPNOISESCALE) > 0.5+waterLevel/2.0){
           terrain[y][x] = terrainIndex("hills");
         }
       }      

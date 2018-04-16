@@ -1,10 +1,11 @@
 boolean isWater(int x, int y) {
   return max(new float[]{
-    noise(x*MAPNOISESCALE, y*MAPNOISESCALE), 
-    noise((x+1)*MAPNOISESCALE, y*MAPNOISESCALE), 
-    noise(x*MAPNOISESCALE, (y+1)*MAPNOISESCALE), 
-    noise((x+1)*MAPNOISESCALE, (y+1)*MAPNOISESCALE), 
+    noise(x*MAPNOISESCALE, y*MAPNOISESCALE),
+    noise((x+1)*MAPNOISESCALE, y*MAPNOISESCALE),
+    noise(x*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
+    noise((x+1)*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
     })<waterLevel;
+  //return noise((x+0.5)*MAPNOISESCALE, (y+0.5)*MAPNOISESCALE)<waterLevel;
 }
 
 
@@ -181,6 +182,8 @@ class Map3D extends Element {
       return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT*HILLRAISE;
     } else {
       return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT;
+      //float h = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel);
+      //return (max(h-(0.5+waterLevel/2.0), 0)*(1000)+h)*blockSize*GROUNDHEIGHT;
     }
   }
 
