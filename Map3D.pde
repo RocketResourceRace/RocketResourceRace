@@ -13,11 +13,11 @@ boolean isWater(int x, int y) {
 class Map3D extends Element {
   final int thickness = 10;
   final float PANSPEED = 0.5, ROTSPEED = 0.002;
-  final int FORESTDENSITY = 20;
+  final int FORESTDENSITY = 10;
   final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3;
   final float HILLRAISE = 1.05;
   final float GROUNDHEIGHT = 5;
-  final float VERTICESPERTILE = 4;
+  final float VERTICESPERTILE = 2;
   int x, y, w, h, mapWidth, mapHeight, prevT, frameTime;
   int selectedCellX, selectedCellY;
   Building[][] buildings;

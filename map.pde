@@ -282,9 +282,9 @@ class Map extends Element{
     }
     for (int i=0; i<gameData.getJSONArray("buildings").size(); i++){
       JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
-      tempBuildingImages[i] = new PImage[buildingImages.get(buildingType.get("id")).length];
-      for (int j=0; j<buildingImages.get(buildingType.get("id")).length; j++){
-        tempBuildingImages[i][j] = buildingImages.get(buildingType.get("id"))[j].copy();
+      tempBuildingImages[i] = new PImage[buildingImages.get(buildingType.getString("id")).length];
+      for (int j=0; j<buildingImages.get(buildingType.getString("id")).length; j++){
+        tempBuildingImages[i][j] = buildingImages.get(buildingType.getString("id"))[j].copy();
         tempBuildingImages[i][j].resize(ceil(blockSize*48/64), 0);
       }
     }
