@@ -281,7 +281,7 @@ class Map3D extends Element {
   }
 
   PVector MousePosOnObject(int mx, int my) {
-    applyCamera();
+    applyCameraPerspective();
     PVector floorPos = new PVector(focusedX+width/2, focusedY+height/2, 0); 
     PVector floorDir = new PVector(0, 0, -1);
     PVector mousePos = getUnProjectedPointOnFloor( mouseX, mouseY, floorPos, floorDir);
@@ -427,25 +427,35 @@ class Map3D extends Element {
     return min(new float[]{getHeight(x, y), getHeight(x+1, y), getHeight(x, y+1), getHeight(x+1, y+1)});
   }
   
-  void applyCamera(){
+  void applyCameraPerspective(){
     float fov = PI/3.0;
     float cameraZ = (height/2.0) / tan(fov/2.0);
     perspective(fov, float(width)/float(height), cameraZ/100.0, cameraZ*10.0);
+    applyCamera();
+  }
+  
+  
+  void applyCameraPerspective(PGraphics canvas){
+    float fov = PI/3.0;
+    float cameraZ = (height/2.0) / tan(fov/2.0);
+    canvas.perspective(fov, float(width)/float(height), cameraZ/100.0, cameraZ*10.0);
+    applyCamera(canvas);
+  }
+  
+  
+  void applyCamera(){
     camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
   }
   
   
   void applyCamera(PGraphics canvas){
-    float fov = PI/3.0;
-    float cameraZ = (height/2.0) / tan(fov/2.0);
-    canvas.perspective(fov, float(width)/float(height), cameraZ/100.0, cameraZ*10.0);
     canvas.camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
   }
   
 
   void draw() {
-    //shader(toon);
 
+    // Update camera position and orientation
     frameTime = millis()-prevT;
     prevT = millis();
     PVector p = focusedV.copy().rotate(-rot).mult(frameTime*pow(zoom, 0.5)/20);
@@ -464,19 +474,25 @@ class Map3D extends Element {
     pushStyle();
     hint(ENABLE_DEPTH_TEST);
     
-    // Render 3D stuff from normal camera view onto refraction canvas
+    // Render 3D stuff from normal camera view onto refraction canvas for refraction effect in water
     refractionCanvas.beginDraw();
     refractionCanvas.background(#7ED7FF);
+    float fov = PI/3.0;
+    float cameraZ = (height/2.0) / tan(fov/2.0);
     applyCamera(refractionCanvas);
+    refractionCanvas.perspective(fov, float(width)/float(height), 1, 100);
     renderScene(refractionCanvas);
+    refractionCanvas.camera();
     refractionCanvas.endDraw();
     
     // Render 3D stuff from normal camera view
     canvas.beginDraw();
     canvas.background(#7ED7FF);
-    applyCamera(canvas);
+    applyCameraPerspective(canvas);
     renderWater(canvas);
     renderScene(canvas);
+    //canvas.box(0, 0, getObjectWidth(), getObjectHeight(), 1, 100);
+    canvas.camera();
     canvas.endDraw();
     
     
@@ -600,7 +616,7 @@ class Map3D extends Element {
 
   // Function to get the position of the viewpoint in the current coordinate system
   PVector getEyePosition() {
-    applyCamera();
+    applyCameraPerspective();
     PMatrix3D mat = (PMatrix3D)getMatrix(); //Get the model view matrix
     mat.invert();
     return new PVector( mat.m03, mat.m13, mat.m23 );
