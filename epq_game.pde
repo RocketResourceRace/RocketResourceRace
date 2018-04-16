@@ -133,7 +133,7 @@ int TILESIZE = 1;
 int MAPWIDTH = 100;
 int MAPHEIGHT = 100;
 float MAPNOISESCALE = 0.1;
-int VERTICESPERTILE = 2;
+float VERTICESPERTILE = 2;
 
 int initialSmooth = 7;
 int completeSmooth = 5;
