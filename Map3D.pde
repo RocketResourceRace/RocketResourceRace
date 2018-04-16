@@ -33,6 +33,7 @@ class Map3D extends Element {
   float blockSize = 16;
   ArrayList<int[]> drawPath;
   HashMap<Integer, Integer> forestTiles;
+  PGraphics canvas;
 
   Map3D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
     this.x = x;
@@ -56,6 +57,7 @@ class Map3D extends Element {
     zooming = false;
     buildingObjs = new HashMap<String, PShape[]>();
     forestTiles = new HashMap<Integer, Integer>();
+    canvas = createGraphics(width, height, P3D);
   }
 
 
@@ -420,10 +422,18 @@ class Map3D extends Element {
     perspective(fov, float(width)/float(height), cameraZ/100.0, cameraZ*10.0);
     camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
   }
+  
+  
+  void applyCamera(PGraphics canvas){
+    float fov = PI/3.0;
+    float cameraZ = (height/2.0) / tan(fov/2.0);
+    canvas.perspective(fov, float(width)/float(height), cameraZ/100.0, cameraZ*10.0);
+    canvas.camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
+  }
+  
 
   void draw() {
-    background(#7ED7FF);
-    shader(toon);
+    //shader(toon);
 
     frameTime = millis()-prevT;
     prevT = millis();
@@ -441,17 +451,33 @@ class Map3D extends Element {
     setFocused(focusedX, focusedY);
     pushStyle();
     hint(ENABLE_DEPTH_TEST);
-    applyCamera();
 
     //lights();
     //lightFalloff(1, 0, 0);
-    directionalLight(200, 200, 200, 0, -0.1, -1);
-    directionalLight(100, 100, 100, 0.1, 1, -1);
-    ambientLight(20, 80, 80);
-    lightSpecular(102, 102, 102);
-    //noLights();
+    
+    canvas.beginDraw();
+    renderScene(canvas);
+    canvas.endDraw();
 
-    shape(trees);
+    hint(DISABLE_DEPTH_TEST);
+    camera();
+    noLights();
+    resetShader();
+    popStyle();
+    image(canvas, 0, 0);
+  }
+  
+  void renderScene(PGraphics canvas){
+    
+    canvas.background(#7ED7FF);
+    applyCamera(canvas);
+    
+    canvas.directionalLight(200, 200, 200, 0, -0.1, -1);
+    canvas.directionalLight(100, 100, 100, 0.1, 1, -1);
+    canvas.ambientLight(20, 80, 80);
+    canvas.lightSpecular(102, 102, 102);
+    //noLights();
+    canvas.shape(trees);
     if (cellSelected) {
       pushMatrix();
       stroke(0);
@@ -465,54 +491,48 @@ class Map3D extends Element {
       selectTile.vertex(selectedCellX*blockSize, (selectedCellY+1)*blockSize, getHeight(selectedCellX, selectedCellY+1));
       selectTile.endShape(CLOSE);
       selectTile.setFill(color(0));
-      shape(selectTile);
+      canvas.shape(selectTile);
       strokeWeight(1);
       translate(selectedCellX*blockSize, (selectedCellY)*blockSize, groundHeightAt(selectedCellX, selectedCellY));
       if (parties[selectedCellY][selectedCellX] != null) {
         translate(blockSize/2, blockSize/2, 32);
-        box(blockSize, blockSize, 64);
+        canvas.box(blockSize, blockSize, 64);
       } else {
         translate(blockSize/2, blockSize/2, 16);
-        box(blockSize, blockSize, 32);
+        canvas.box(blockSize, blockSize, 32);
       }
       popMatrix();
     }
-    shape(tiles);
+    canvas.shape(tiles);
     //updateWater(WATERDETAIL);
     fill(20, 100, 200);
     translate(0,0,0.1);
-    rect(0,0,getObjectWidth(), getObjectHeight());
+    canvas.rect(0,0,getObjectWidth(), getObjectHeight());
 
     for (int x=0; x<mapWidth; x++) {
       for (int y=0; y<mapHeight; y++) {
         if (parties[y][x] != null && parties[y][x].player == 0) {
           pushMatrix();
           translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundHeightAt(x, y));
-          shape(blueFlag);
+          canvas.shape(blueFlag);
           popMatrix();
         }
         if (parties[y][x] != null && parties[y][x].player == 1) {
           pushMatrix();
           translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundHeightAt(x, y));
-          shape(redFlag);
+          canvas.shape(redFlag);
           popMatrix();
         }
         if (buildings[y][x] != null) {
           if (buildingObjs.get(buildingString(buildings[y][x].type)) != null) {
             pushMatrix();
             translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundHeightAt(x, y));
-            shape(buildingObjs.get(buildingString(buildings[y][x].type))[buildings[y][x].image_id]);
+            canvas.shape(buildingObjs.get(buildingString(buildings[y][x].type))[buildings[y][x].image_id]);
             popMatrix();
           }
         }
       }
     }
-
-    hint(DISABLE_DEPTH_TEST);
-    camera();
-    noLights();
-    resetShader();
-    popStyle();
   }
 
   String buildingString(int buildingI) {
