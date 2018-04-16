@@ -466,13 +466,16 @@ class Map3D extends Element {
     
     // Render 3D stuff from normal camera view onto refraction canvas
     refractionCanvas.beginDraw();
+    refractionCanvas.background(#7ED7FF);
     applyCamera(refractionCanvas);
     renderScene(refractionCanvas);
     refractionCanvas.endDraw();
     
     // Render 3D stuff from normal camera view
     canvas.beginDraw();
+    canvas.background(#7ED7FF);
     applyCamera(canvas);
+    renderWater(canvas);
     renderScene(canvas);
     canvas.endDraw();
     
@@ -491,17 +494,16 @@ class Map3D extends Element {
   }
   
   void renderWater(PGraphics canvas){
-    canvas.background(#7ED7FF);
-    
     //Draw water
+    canvas.pushMatrix();
     canvas.fill(20, 100, 200);
-    canvas.translate(0,0,0.1);
+    canvas.translate(0,0,1);
     canvas.rect(0,0,getObjectWidth(), getObjectHeight());
+    canvas.popMatrix();
   }
   
   void renderScene(PGraphics canvas){
-    canvas.background(#7ED7FF);
-    
+    canvas.pushMatrix();
     canvas.directionalLight(200, 200, 200, 0, -0.1, -1);
     canvas.directionalLight(100, 100, 100, 0.1, 1, -1);
     canvas.ambientLight(20, 80, 80);
@@ -559,6 +561,7 @@ class Map3D extends Element {
         }
       }
     }
+    canvas.popMatrix();
   }
 
   String buildingString(int buildingI) {
