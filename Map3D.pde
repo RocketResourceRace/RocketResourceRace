@@ -39,7 +39,7 @@ class Map3D extends Element {
   float blockSize = 16;
   ArrayList<int[]> drawPath;
   HashMap<Integer, Integer> forestTiles;
-  PGraphics canvas;
+  PGraphics canvas, refractionCanvas;
 
   Map3D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
     this.x = x;
@@ -64,6 +64,7 @@ class Map3D extends Element {
     buildingObjs = new HashMap<String, PShape[]>();
     forestTiles = new HashMap<Integer, Integer>();
     canvas = createGraphics(width, height, P3D);
+    refractionCanvas = createGraphics(width/4, height/4, P3D);
   }
 
 
@@ -459,35 +460,53 @@ class Map3D extends Element {
     setRot(rot);
     setTilt(tilt);
     setFocused(focusedX, focusedY);
+    
     pushStyle();
     hint(ENABLE_DEPTH_TEST);
-
-    //lights();
-    //lightFalloff(1, 0, 0);
     
+    // Render 3D stuff from normal camera view onto refraction canvas
+    refractionCanvas.beginDraw();
+    applyCamera(refractionCanvas);
+    renderScene(refractionCanvas);
+    refractionCanvas.endDraw();
+    
+    // Render 3D stuff from normal camera view
     canvas.beginDraw();
+    applyCamera(canvas);
     renderScene(canvas);
     canvas.endDraw();
-
+    
+    
+    //Remove all 3D effects for GUI rendering
     hint(DISABLE_DEPTH_TEST);
     camera();
     noLights();
     resetShader();
     popStyle();
+    
+    //draw the scene to the screen
     image(canvas, 0, 0);
+    image(refractionCanvas, 0, 0);
+    
+  }
+  
+  void renderWater(PGraphics canvas){
+    canvas.background(#7ED7FF);
+    
+    //Draw water
+    canvas.fill(20, 100, 200);
+    canvas.translate(0,0,0.1);
+    canvas.rect(0,0,getObjectWidth(), getObjectHeight());
   }
   
   void renderScene(PGraphics canvas){
-    
     canvas.background(#7ED7FF);
-    applyCamera(canvas);
     
     canvas.directionalLight(200, 200, 200, 0, -0.1, -1);
     canvas.directionalLight(100, 100, 100, 0.1, 1, -1);
     canvas.ambientLight(20, 80, 80);
     canvas.lightSpecular(102, 102, 102);
     //noLights();
-    canvas.shape(trees);
     if (cellSelected) {
       canvas.pushMatrix();
       canvas.stroke(0);
@@ -514,11 +533,8 @@ class Map3D extends Element {
       canvas.popMatrix();
     }
     canvas.shape(tiles);
-    //updateWater(WATERDETAIL);
-    canvas.fill(20, 100, 200);
-    canvas.translate(0,0,0.1);
-    canvas.rect(0,0,getObjectWidth(), getObjectHeight());
-
+    canvas.shape(trees);
+    
     for (int x=0; x<mapWidth; x++) {
       for (int y=0; y<mapHeight; y++) {
         if (parties[y][x] != null && parties[y][x].player == 0) {
