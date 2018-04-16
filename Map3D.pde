@@ -423,6 +423,7 @@ class Map3D extends Element {
 
   void draw() {
     background(#7ED7FF);
+    shader(toon);
 
     frameTime = millis()-prevT;
     prevT = millis();
@@ -510,6 +511,7 @@ class Map3D extends Element {
     hint(DISABLE_DEPTH_TEST);
     camera();
     noLights();
+    resetShader();
     popStyle();
   }
 
