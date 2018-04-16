@@ -489,10 +489,10 @@ class Map3D extends Element {
     //noLights();
     canvas.shape(trees);
     if (cellSelected) {
-      pushMatrix();
-      stroke(0);
-      strokeWeight(3);
-      noFill();
+      canvas.pushMatrix();
+      canvas.stroke(0);
+      canvas.strokeWeight(3);
+      canvas.noFill();
       selectTile = createShape();
       selectTile.beginShape();
       selectTile.vertex(selectedCellX*blockSize, selectedCellY*blockSize, getHeight(selectedCellX, selectedCellY));
@@ -502,43 +502,43 @@ class Map3D extends Element {
       selectTile.endShape(CLOSE);
       selectTile.setFill(color(0));
       canvas.shape(selectTile);
-      strokeWeight(1);
-      translate(selectedCellX*blockSize, (selectedCellY)*blockSize, groundHeightAt(selectedCellX, selectedCellY));
+      canvas.strokeWeight(1);
+      canvas.translate(selectedCellX*blockSize, (selectedCellY)*blockSize, groundHeightAt(selectedCellX, selectedCellY));
       if (parties[selectedCellY][selectedCellX] != null) {
-        translate(blockSize/2, blockSize/2, 32);
+        canvas.translate(blockSize/2, blockSize/2, 32);
         canvas.box(blockSize, blockSize, 64);
       } else {
-        translate(blockSize/2, blockSize/2, 16);
+        canvas.translate(blockSize/2, blockSize/2, 16);
         canvas.box(blockSize, blockSize, 32);
       }
-      popMatrix();
+      canvas.popMatrix();
     }
     canvas.shape(tiles);
     //updateWater(WATERDETAIL);
-    fill(20, 100, 200);
-    translate(0,0,0.1);
+    canvas.fill(20, 100, 200);
+    canvas.translate(0,0,0.1);
     canvas.rect(0,0,getObjectWidth(), getObjectHeight());
 
     for (int x=0; x<mapWidth; x++) {
       for (int y=0; y<mapHeight; y++) {
         if (parties[y][x] != null && parties[y][x].player == 0) {
-          pushMatrix();
-          translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundHeightAt(x, y));
+          canvas.pushMatrix();
+          canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundHeightAt(x, y));
           canvas.shape(blueFlag);
-          popMatrix();
+          canvas.popMatrix();
         }
         if (parties[y][x] != null && parties[y][x].player == 1) {
-          pushMatrix();
-          translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundHeightAt(x, y));
+          canvas.pushMatrix();
+          canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundHeightAt(x, y));
           canvas.shape(redFlag);
-          popMatrix();
+          canvas.popMatrix();
         }
         if (buildings[y][x] != null) {
           if (buildingObjs.get(buildingString(buildings[y][x].type)) != null) {
-            pushMatrix();
-            translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundHeightAt(x, y));
+            canvas.pushMatrix();
+            canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundHeightAt(x, y));
             canvas.shape(buildingObjs.get(buildingString(buildings[y][x].type))[buildings[y][x].image_id]);
-            popMatrix();
+            canvas.popMatrix();
           }
         }
       }
