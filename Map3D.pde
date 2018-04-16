@@ -1,11 +1,18 @@
 boolean isWater(int x, int y) {
-  return max(new float[]{
-    noise(x*MAPNOISESCALE, y*MAPNOISESCALE),
-    noise((x+1)*MAPNOISESCALE, y*MAPNOISESCALE),
-    noise(x*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
-    noise((x+1)*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
-    })<waterLevel;
-  //return noise((x+0.5)*MAPNOISESCALE, (y+0.5)*MAPNOISESCALE)<waterLevel;
+  //return max(new float[]{
+  //  noise(x*MAPNOISESCALE, y*MAPNOISESCALE),
+  //  noise((x+1)*MAPNOISESCALE, y*MAPNOISESCALE),
+  //  noise(x*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
+  //  noise((x+1)*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
+  //  })<waterLevel;
+  for (float y1 = y; y1<=y+1;y1+=1.0/VERTICESPERTILE){
+    for (float x1 = x; x1<=x+1;x1+=1.0/VERTICESPERTILE){
+      if(noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE)>waterLevel){
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 
@@ -17,7 +24,6 @@ class Map3D extends Element {
   final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3;
   final float HILLRAISE = 1.05;
   final float GROUNDHEIGHT = 5;
-  final float VERTICESPERTILE = 2;
   int x, y, w, h, mapWidth, mapHeight, prevT, frameTime;
   int selectedCellX, selectedCellY;
   Building[][] buildings;
@@ -222,6 +228,8 @@ class Map3D extends Element {
         //t.setSpecular(color(0, 20, 20));
         t.beginShape(TRIANGLE_STRIP);
         resetMatrix();
+        t.vertex(0, (y+y1/VERTICESPERTILE)*blockSize, 0, 0, y1*graphicsRes/VERTICESPERTILE);
+        t.vertex(0, (y+(1+y1)/VERTICESPERTILE)*blockSize, 0, 0, (y1+1)*graphicsRes/VERTICESPERTILE);
         for (int x=0; x<mapWidth; x++) {
           //int x1=(int)VERTICESPERTILE;
           for (int x1=0; x1<VERTICESPERTILE; x1++) {
@@ -229,8 +237,10 @@ class Map3D extends Element {
             t.vertex((x+x1/VERTICESPERTILE)*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, getHeight(x+x1/VERTICESPERTILE, y+(1+y1)/VERTICESPERTILE), (x+x1/VERTICESPERTILE)*graphicsRes, (y1+1)*graphicsRes/VERTICESPERTILE);
           }
         }
-        //t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(mapWidth, y), mapWidth*graphicsRes, 0);   
-        //t.vertex(mapWidth*blockSize, (y+1+y1/VERTICESPERTILE)*blockSize, getHeight(mapWidth, y+1), mapWidth*graphicsRes, graphicsRes);
+        //t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(x+1, (y+y1/VERTICESPERTILE)), mapWidth*graphicsRes, y1*graphicsRes/VERTICESPERTILE);   
+        //t.vertex(mapWidth*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, getHeight(x+1, y+(1+y1)/VERTICESPERTILE), mapWidth*graphicsRes, (y1+1)*graphicsRes/VERTICESPERTILE);
+        //t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, 0, mapWidth*graphicsRes, y1*graphicsRes/VERTICESPERTILE);
+        //t.vertex(mapWidth*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, 0, mapWidth*graphicsRes, (y1+1)*graphicsRes/VERTICESPERTILE);
         t.endShape();
         tiles.addChild(t);
       }
