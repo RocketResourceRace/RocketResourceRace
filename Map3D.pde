@@ -1,18 +1,18 @@
 boolean isWater(int x, int y) {
-  return max(new float[]{
-    noise(x*MAPNOISESCALE, y*MAPNOISESCALE),
-    noise((x+1)*MAPNOISESCALE, y*MAPNOISESCALE),
-    noise(x*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
-    noise((x+1)*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
-    })<waterLevel;
-  //for (int y1 = y; y1<y+1;y1+=1.0/VERTICESPERTILE){
-  //  for (int x1 = x; x1<x+1;x1+=1.0/VERTICESPERTILE){
-  //    if(noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE)>waterLevel){
-  //      return false;
-  //    }
-  //  }
-  //}
-  //return true;
+  //return max(new float[]{
+  //  noise(x*MAPNOISESCALE, y*MAPNOISESCALE),
+  //  noise((x+1)*MAPNOISESCALE, y*MAPNOISESCALE),
+  //  noise(x*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
+  //  noise((x+1)*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
+  //  })<waterLevel;
+  for (float y1 = y; y1<=y+1;y1+=1.0/VERTICESPERTILE){
+    for (float x1 = x; x1<=x+1;x1+=1.0/VERTICESPERTILE){
+      if(noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE)>waterLevel){
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 
