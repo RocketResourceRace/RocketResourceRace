@@ -1,11 +1,18 @@
 boolean isWater(int x, int y) {
-  return max(new float[]{
-    noise(x*MAPNOISESCALE, y*MAPNOISESCALE),
-    noise((x+1)*MAPNOISESCALE, y*MAPNOISESCALE),
-    noise(x*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
-    noise((x+1)*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
-    })<waterLevel;
-  //return noise((x+0.5)*MAPNOISESCALE, (y+0.5)*MAPNOISESCALE)<waterLevel;
+  //return max(new float[]{
+  //  noise(x*MAPNOISESCALE, y*MAPNOISESCALE),
+  //  noise((x+1)*MAPNOISESCALE, y*MAPNOISESCALE),
+  //  noise(x*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
+  //  noise((x+1)*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
+  //  })<waterLevel;
+  for (int y1 = y; y1<y+1;y1+=1.0/VERTICESPERTILE){
+    for (int x1 = x; x1<x+1;x1+=1.0/VERTICESPERTILE){
+      if(noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE)>waterLevel){
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 
@@ -17,7 +24,6 @@ class Map3D extends Element {
   final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3;
   final float HILLRAISE = 1.05;
   final float GROUNDHEIGHT = 5;
-  final float VERTICESPERTILE = 2;
   int x, y, w, h, mapWidth, mapHeight, prevT, frameTime;
   int selectedCellX, selectedCellY;
   Building[][] buildings;
