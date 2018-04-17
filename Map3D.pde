@@ -207,6 +207,9 @@ class Map3D extends Element {
       tempTileImages[i].resize(graphicsRes, graphicsRes);
     }
     PGraphics tempTerrain;
+    
+    water = createShape(RECT, 0, 0, getObjectWidth(), getObjectHeight());
+    water.translate(0, 0, 0.1);
 
     tiles = createShape(GROUP);
     textureMode(IMAGE);
@@ -452,6 +455,10 @@ class Map3D extends Element {
     canvas.camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
   }
   
+  void applyInvCamera(PGraphics canvas){
+    canvas.camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), -zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
+  }
+  
 
   void draw() {
 
@@ -480,10 +487,14 @@ class Map3D extends Element {
     float fov = PI/3.0;
     float cameraZ = (height/2.0) / tan(fov/2.0);
     applyCamera(refractionCanvas);
-    refractionCanvas.perspective(fov, float(width)/float(height), 1, 100);
+    //refractionCanvas.perspective(fov, float(width)/float(height), 1, 100);
+    refractionCanvas.shader(toon);
     renderScene(refractionCanvas);
+    refractionCanvas.resetShader();
     refractionCanvas.camera();
     refractionCanvas.endDraw();
+    
+    //water.setTexture(refractionCanvas);
     
     // Render 3D stuff from normal camera view
     canvas.beginDraw();
@@ -512,9 +523,7 @@ class Map3D extends Element {
   void renderWater(PGraphics canvas){
     //Draw water
     canvas.pushMatrix();
-    canvas.fill(20, 100, 200);
-    canvas.translate(0,0,1);
-    canvas.rect(0,0,getObjectWidth(), getObjectHeight());
+    canvas.shape(water);
     canvas.popMatrix();
   }
   
