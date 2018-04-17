@@ -235,10 +235,10 @@ class Map3D extends Element {
             t.vertex((x+x1/VERTICESPERTILE)*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, getHeight(x+x1/VERTICESPERTILE, y+(1+y1)/VERTICESPERTILE), (x+x1/VERTICESPERTILE)*graphicsRes, (y1+1)*graphicsRes/VERTICESPERTILE);
           }
         }
-        //t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(x+1, (y+y1/VERTICESPERTILE)), mapWidth*graphicsRes, y1*graphicsRes/VERTICESPERTILE);   
-        //t.vertex(mapWidth*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, getHeight(x+1, y+(1+y1)/VERTICESPERTILE), mapWidth*graphicsRes, (y1+1)*graphicsRes/VERTICESPERTILE);
-        //t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, 0, mapWidth*graphicsRes, y1*graphicsRes/VERTICESPERTILE);
-        //t.vertex(mapWidth*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, 0, mapWidth*graphicsRes, (y1+1)*graphicsRes/VERTICESPERTILE);
+        t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(mapWidth, (y+y1/VERTICESPERTILE)), mapWidth*graphicsRes, (y1/VERTICESPERTILE)*graphicsRes);   
+        t.vertex(mapWidth*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, getHeight(mapWidth, y+(1.0+y1)/VERTICESPERTILE), mapWidth*graphicsRes, ((y1+1.0)/VERTICESPERTILE)*graphicsRes);
+        //t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, 0, mapWidth*graphicsRes, (y1/VERTICESPERTILE)*graphicsRes);   
+        //t.vertex(mapWidth*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, 0, mapWidth*graphicsRes, ((y1+1.0)/VERTICESPERTILE)*graphicsRes);
         t.endShape();
         tiles.addChild(t);
       }
