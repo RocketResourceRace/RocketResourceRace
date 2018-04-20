@@ -402,9 +402,9 @@ class Game extends State{
     for(int i=0; i<gameData.getJSONArray("tasks").size(); i++){
       js = gameData.getJSONArray("tasks").getJSONObject(i);
       if (!js.isNull("terrain"))
-        correctTerrain = js.isNull("terrain") ^ JSONContainsStr(js.getJSONArray("terrain"), terrainString(terrain[cellY][cellX]));
+        correctTerrain = JSONContainsStr(js.getJSONArray("terrain"), terrainString(terrain[cellY][cellX]));
       else 
-        correctTerrain = false;
+        correctTerrain = true;
       correctBuilding = false;
       enoughResources = true;
       if (!js.isNull("initial cost")){
@@ -1045,11 +1045,11 @@ class Game extends State{
         turns += 1;
         movementPoints = gameData.getJSONObject("game options").getInt("movement points"); 
       }
-      movementPoints -= cost; //<>//
+      movementPoints -= cost; //<>// //<>//
     }
     return turns;
   }
-  int splitUnitsNum(){ //<>//
+  int splitUnitsNum(){ //<>// //<>//
     return round(((Slider)getElement("split units", "party management")).getValue());
   }
   void refreshTooltip(){
@@ -1078,11 +1078,11 @@ class Game extends State{
           int turns = getMoveTurns(cellX, cellY, x, y, nodes);
           boolean splitting = splitUnitsNum()!=parties[cellY][cellX].getUnitNumber();
           tooltip.setMoving(turns, splitting);
-          tooltip.show(); //<>//
+          tooltip.show(); //<>// //<>//
         }
         else {
           if (map.parties[y][x].player == turn){
-            //merge parties //<>//
+            //merge parties //<>// //<>//
             tooltip.setMerging();
             tooltip.show();
           }
@@ -1139,11 +1139,11 @@ class Game extends State{
           }
         }
       }
-    } //<>//
+    } //<>// //<>//
     if (button == LEFT){
       if (eventType == "mouseClicked"){
         if (activePanel == "default" && !UIHovering()){
-          if (map.mouseOver()){ //<>//
+          if (map.mouseOver()){ //<>// //<>//
             if (moving){
               //int x = floor(map.scaleXInv(mouseX));
               //int y = floor(map.scaleYInv(mouseY));
