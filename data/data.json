@@ -391,6 +391,7 @@
     {
       "id": "Smelter",
       "img": ["smelter.png"],
+      "obj": ["smelter.obj"]
     },
     {
       "id": "Factory",
