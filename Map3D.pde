@@ -418,10 +418,15 @@ class Map3D extends Element {
     return new ArrayList<String>();
   }
 
-  float groundHeightAt(int x1, int y1) {
+  float groundMinHeightAt(int x1, int y1) {
     int x = floor(x1);
     int y = floor(y1);
     return min(new float[]{getHeight(x, y), getHeight(x+1, y), getHeight(x, y+1), getHeight(x+1, y+1)});
+  }
+  float groundMaxHeightAt(int x1, int y1) {
+    int x = floor(x1);
+    int y = floor(y1);
+    return max(new float[]{getHeight(x, y), getHeight(x+1, y), getHeight(x, y+1), getHeight(x+1, y+1)});
   }
   
   void applyCamera(){
@@ -476,7 +481,7 @@ class Map3D extends Element {
       selectTile.setFill(color(0));
       shape(selectTile);
       strokeWeight(1);
-      translate(selectedCellX*blockSize, (selectedCellY)*blockSize, groundHeightAt(selectedCellX, selectedCellY));
+      translate(selectedCellX*blockSize, (selectedCellY)*blockSize, groundMinHeightAt(selectedCellX, selectedCellY));
       if (parties[selectedCellY][selectedCellX] != null) {
         translate(blockSize/2, blockSize/2, 32);
         box(blockSize, blockSize, 64);
@@ -496,20 +501,20 @@ class Map3D extends Element {
       for (int y=0; y<mapHeight; y++) {
         if (parties[y][x] != null && parties[y][x].player == 0) {
           pushMatrix();
-          translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundHeightAt(x, y));
+          translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundMinHeightAt(x, y));
           shape(blueFlag);
           popMatrix();
         }
         if (parties[y][x] != null && parties[y][x].player == 1) {
           pushMatrix();
-          translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundHeightAt(x, y));
+          translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundMinHeightAt(x, y));
           shape(redFlag);
           popMatrix();
         }
         if (buildings[y][x] != null) {
           if (buildingObjs.get(buildingString(buildings[y][x].type)) != null) {
             pushMatrix();
-            translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundHeightAt(x, y));
+            translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMaxHeightAt(x, y));
             shape(buildingObjs.get(buildingString(buildings[y][x].type))[buildings[y][x].image_id]);
             popMatrix();
           }
