@@ -20,6 +20,7 @@ boolean soundOn = true;
 JSONObject gameData;
 HashMap<Integer, PFont> fonts;
 int graphicsRes = 32;
+PShader toon;
 
 // Event-driven methods
 void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}
@@ -272,6 +273,8 @@ void setup(){
   //hint(DISABLE_OPTIMIZED_STROKE);
   halfScreenWidth = width/2;
   halfScreenHeight= height/2;
+  toon = loadShader("ToonFrag.glsl", "ToonVert.glsl");
+  toon.set("fraction", 1.0);
 }
 boolean smoothed = false;
 
