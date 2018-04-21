@@ -29,7 +29,7 @@ class Map3D extends Element {
   Building[][] buildings;
   int[][] terrain;
   Party[][] parties;
-  PShape tiles, blueFlag, redFlag, trees, selectTile, water;
+  PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water;
   HashMap<String, PShape[]> buildingObjs;
   PImage[] tempTileImages;
   float targetZoom, zoom, zoomv, tilt, tiltv, rot, rotv, focusedX, focusedY;
@@ -259,6 +259,8 @@ class Map3D extends Element {
     redFlag = loadShape("redflag.obj");
     redFlag.rotateX(PI/2);
     redFlag.scale(2.6, 3, 3);
+    battle = loadShape("battle.obj");
+    battle.rotateX(PI/2);
 
     for (int i=0; i<gameData.getJSONArray("buildings").size(); i++) {
       JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
@@ -504,11 +506,15 @@ class Map3D extends Element {
           translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundMinHeightAt(x, y));
           shape(blueFlag);
           popMatrix();
-        }
-        if (parties[y][x] != null && parties[y][x].player == 1) {
+        } else if (parties[y][x] != null && parties[y][x].player == 1) {
           pushMatrix();
           translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundMinHeightAt(x, y));
           shape(redFlag);
+          popMatrix();
+        } else if (parties[y][x] != null && parties[y][x].player == 2) {
+          pushMatrix();
+          translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMaxHeightAt(x, y));
+          shape(battle);
           popMatrix();
         }
         if (buildings[y][x] != null) {
