@@ -175,12 +175,33 @@
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
-      "initial cost": [{"id":"wood", "quantity":200}],
+      "initial cost": [
+        {"id":"wood", "quantity":200},
+        {"id":"stone", "quantity":300}
+      ],
       "action":{
         "type": "Build Smelter",
         "notification": "Smelter Built",
         "turns": 8,
         "building": "Smelter"
+      }
+    },
+    {
+      "id": "Build Quarry",
+      "description": "Quarries can mine stone.",
+      "img": "data/task_construction.png",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand", "hill"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":200}],
+      "action":{
+        "type": "Build Quarry",
+        "notification": "Quarry Built",
+        "turns": 4,
+        "building": "Quarry"
       }
     },
     {
@@ -278,6 +299,18 @@
       "buildings":["Farm"]
     },
     {
+      "id": "Produce Stone",
+      "img": "data/task_produce.png",
+      "production":[
+        {"id": "stone","quantity":0.5}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.02}
+      ],
+      "buildings":["Quarry"]
+    },
+    {
       "id": "Produce Ore",
       "img": "data/task_produce.png",
       "production":[
@@ -310,7 +343,7 @@
       ],
       "consumption":[
         {"id": "food","quantity":0.2},
-        {"id": "wood","quantity":0.1}
+        {"id": "stone","quantity":0.1}
       ],
       "buildings":["Factory"]
     },
@@ -322,7 +355,7 @@
       ],
       "consumption":[
         {"id": "food","quantity":0.2},
-        {"id": "wood","quantity":0.02}
+        {"id": "metal","quantity":0.02}
       ],
       "buildings":["Factory"]
     },
@@ -359,8 +392,7 @@
       "consumption":[
         {"id": "food","quantity":0.2},
         {"id": "rocket parts","quantity":1},
-        {"id": "cable","quantity":0.1},
-        {"id": "concrete","quantity":1}
+        {"id": "cable","quantity":0.1}
       ],
       "buildings":["Rocket Factory"]
     },
@@ -406,6 +438,10 @@
     {
       "id": "Sawmill",
       "img": ["sawmill.png"],
+    },
+    {
+      "id": "Quarry",
+      "img": ["quarry.png"],
     },
     {
       "id": "Construction",
