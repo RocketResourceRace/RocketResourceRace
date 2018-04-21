@@ -516,7 +516,7 @@ class Map3D extends Element {
     
     //draw the scene to the screen
     image(canvas, 0, 0);
-    image(refractionCanvas, 0, 0);
+    //image(refractionCanvas, 0, 0);
     
   }
   
