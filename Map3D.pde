@@ -29,7 +29,7 @@ class Map3D extends Element {
   Building[][] buildings;
   int[][] terrain;
   Party[][] parties;
-  PShape tiles, blueFlag, redFlag, trees, selectTile, water;
+  PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water;
   HashMap<String, PShape[]> buildingObjs;
   PImage[] tempTileImages;
   float targetZoom, zoom, zoomv, tilt, tiltv, rot, rotv, focusedX, focusedY;
@@ -241,10 +241,10 @@ class Map3D extends Element {
             t.vertex((x+x1/VERTICESPERTILE)*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, getHeight(x+x1/VERTICESPERTILE, y+(1+y1)/VERTICESPERTILE), (x+x1/VERTICESPERTILE)*graphicsRes, (y1+1)*graphicsRes/VERTICESPERTILE);
           }
         }
-        //t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(x+1, (y+y1/VERTICESPERTILE)), mapWidth*graphicsRes, y1*graphicsRes/VERTICESPERTILE);   
-        //t.vertex(mapWidth*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, getHeight(x+1, y+(1+y1)/VERTICESPERTILE), mapWidth*graphicsRes, (y1+1)*graphicsRes/VERTICESPERTILE);
-        //t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, 0, mapWidth*graphicsRes, y1*graphicsRes/VERTICESPERTILE);
-        //t.vertex(mapWidth*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, 0, mapWidth*graphicsRes, (y1+1)*graphicsRes/VERTICESPERTILE);
+        t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(mapWidth, (y+y1/VERTICESPERTILE)), mapWidth*graphicsRes, (y1/VERTICESPERTILE)*graphicsRes);   
+        t.vertex(mapWidth*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, getHeight(mapWidth, y+(1.0+y1)/VERTICESPERTILE), mapWidth*graphicsRes, ((y1+1.0)/VERTICESPERTILE)*graphicsRes);
+        //t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, 0, mapWidth*graphicsRes, (y1/VERTICESPERTILE)*graphicsRes);   
+        //t.vertex(mapWidth*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, 0, mapWidth*graphicsRes, ((y1+1.0)/VERTICESPERTILE)*graphicsRes);
         t.endShape();
         tiles.addChild(t);
       }
@@ -265,6 +265,8 @@ class Map3D extends Element {
     redFlag = loadShape("redflag.obj");
     redFlag.rotateX(PI/2);
     redFlag.scale(2.6, 3, 3);
+    battle = loadShape("battle.obj");
+    battle.rotateX(PI/2);
 
     for (int i=0; i<gameData.getJSONArray("buildings").size(); i++) {
       JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
@@ -424,10 +426,15 @@ class Map3D extends Element {
     return new ArrayList<String>();
   }
 
-  float groundHeightAt(int x1, int y1) {
+  float groundMinHeightAt(int x1, int y1) {
     int x = floor(x1);
     int y = floor(y1);
     return min(new float[]{getHeight(x, y), getHeight(x+1, y), getHeight(x, y+1), getHeight(x+1, y+1)});
+  }
+  float groundMaxHeightAt(int x1, int y1) {
+    int x = floor(x1);
+    int y = floor(y1);
+    return max(new float[]{getHeight(x, y), getHeight(x+1, y), getHeight(x, y+1), getHeight(x+1, y+1)});
   }
   
   void applyCameraPerspective(){
@@ -549,7 +556,7 @@ class Map3D extends Element {
       selectTile.setFill(color(0));
       canvas.shape(selectTile);
       canvas.strokeWeight(1);
-      canvas.translate(selectedCellX*blockSize, (selectedCellY)*blockSize, groundHeightAt(selectedCellX, selectedCellY));
+      canvas.translate(selectedCellX*blockSize, (selectedCellY)*blockSize, groundMinHeightAt(selectedCellX, selectedCellY));
       if (parties[selectedCellY][selectedCellX] != null) {
         canvas.translate(blockSize/2, blockSize/2, 32);
         canvas.box(blockSize, blockSize, 64);
@@ -566,22 +573,26 @@ class Map3D extends Element {
       for (int y=0; y<mapHeight; y++) {
         if (parties[y][x] != null && parties[y][x].player == 0) {
           canvas.pushMatrix();
-          canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundHeightAt(x, y));
+          canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundMinHeightAt(x, y));
           canvas.shape(blueFlag);
           canvas.popMatrix();
-        }
-        if (parties[y][x] != null && parties[y][x].player == 1) {
+        } else if (parties[y][x] != null && parties[y][x].player == 1) {
           canvas.pushMatrix();
-          canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundHeightAt(x, y));
+          canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundMinHeightAt(x, y));
           canvas.shape(redFlag);
+          canvas.popMatrix();
+        } else if (parties[y][x] != null && parties[y][x].player == 2) {
+          canvas.pushMatrix();
+          canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMaxHeightAt(x, y));
+          canvas.shape(battle);
           canvas.popMatrix();
         }
         if (buildings[y][x] != null) {
           if (buildingObjs.get(buildingString(buildings[y][x].type)) != null) {
             canvas.pushMatrix();
-            canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundHeightAt(x, y));
+            canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMaxHeightAt(x, y));
             canvas.shape(buildingObjs.get(buildingString(buildings[y][x].type))[buildings[y][x].image_id]);
-            canvas.popMatrix();
+            canvas.popMatrix
           }
         }
       }
