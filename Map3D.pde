@@ -482,17 +482,17 @@ class Map3D extends Element {
     hint(ENABLE_DEPTH_TEST);
     
     // Render 3D stuff from normal camera view onto refraction canvas for refraction effect in water
-    refractionCanvas.beginDraw();
-    refractionCanvas.background(#7ED7FF);
-    float fov = PI/3.0;
-    float cameraZ = (height/2.0) / tan(fov/2.0);
-    applyCamera(refractionCanvas);
-    //refractionCanvas.perspective(fov, float(width)/float(height), 1, 100);
-    refractionCanvas.shader(toon);
-    renderScene(refractionCanvas);
-    refractionCanvas.resetShader();
-    refractionCanvas.camera();
-    refractionCanvas.endDraw();
+    //refractionCanvas.beginDraw();
+    //refractionCanvas.background(#7ED7FF);
+    //float fov = PI/3.0;
+    //float cameraZ = (height/2.0) / tan(fov/2.0);
+    //applyCamera(refractionCanvas);
+    ////refractionCanvas.perspective(fov, float(width)/float(height), 1, 100);
+    //refractionCanvas.shader(toon);
+    //renderScene(refractionCanvas);
+    //refractionCanvas.resetShader();
+    //refractionCanvas.camera();
+    //refractionCanvas.endDraw();
     
     //water.setTexture(refractionCanvas);
     
@@ -587,6 +587,10 @@ class Map3D extends Element {
       }
     }
     canvas.popMatrix();
+  }
+  
+  void renderTexturedEntities(PGraphics canvas){
+    
   }
 
   String buildingString(int buildingI) {
