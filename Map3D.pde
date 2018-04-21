@@ -592,7 +592,7 @@ class Map3D extends Element {
             canvas.pushMatrix();
             canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMaxHeightAt(x, y));
             canvas.shape(buildingObjs.get(buildingString(buildings[y][x].type))[buildings[y][x].image_id]);
-            canvas.popMatrix
+            canvas.popMatrix();
           }
         }
       }
