@@ -35,7 +35,8 @@
     {
       "id": "forest",
       "display name": "Forest",
-      "img": "data/grass.png",
+      "img": "data/forest.png",
+      "img3d": "data/grass.png",
       "low img": "data/forest_low.png",
       "weighting": 2,
       "movement cost": 12

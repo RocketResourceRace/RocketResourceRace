@@ -290,7 +290,7 @@ class Player{
     this.cellY = cellY;
     this.cellSelected = cellSelected;
   }
-  void loadSettings(Game g, Map3D m){
+  void loadSettings(Game g, Map m){
     m.loadSettings(mapXOffset, mapYOffset, blockSize);
     if(cellSelected){
       g.selectCell((int)this.cellX, (int)this.cellY, false);

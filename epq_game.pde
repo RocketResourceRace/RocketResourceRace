@@ -20,6 +20,7 @@ boolean soundOn = true;
 JSONObject gameData;
 HashMap<Integer, PFont> fonts;
 int graphicsRes = 32;
+boolean mapIs3D;
 PShader toon;
 
 // Event-driven methods
@@ -146,6 +147,7 @@ HashMap<String, PImage[]> buildingImages;
 PImage[] partyImages;
 HashMap<String, PImage> taskImages;
 HashMap<String, PImage> lowImages;
+HashMap<String, PImage> tile3DImages;
 
 void changeSetting(String id, String newValue){
   settings.set(id, newValue);
@@ -189,6 +191,7 @@ void loadImages(){
   try{
     tileImages = new HashMap<String, PImage>();
     lowImages = new HashMap<String, PImage>();
+    tile3DImages = new HashMap<String, PImage>();
     buildingImages = new HashMap<String, PImage[]>();
     taskImages = new HashMap<String, PImage>();
     for (int i=0; i<gameData.getJSONArray("terrain").size(); i++){
@@ -196,6 +199,9 @@ void loadImages(){
       tileImages.put(tileType.getString("id"), loadImage(tileType.getString("img")));
       if (!tileType.isNull("low img")){
         lowImages.put(tileType.getString("id"), loadImage(tileType.getString("low img")));
+      }
+      if(!tileType.isNull("img3d")){
+        tile3DImages.put(tileType.getString("id"), loadImage(tileType.getString("img3d")));
       }
     }
     for (int i=0; i<gameData.getJSONArray("buildings").size(); i++){
@@ -254,6 +260,7 @@ void setup(){
   TextScale = float(settings.get("text_scale"));
   mapSize = int(settings.get("mapSize"));
   volume = float(settings.get("volume"));
+  mapIs3D = boolean(settings.get("map3D"));
   
   loadImages();
   

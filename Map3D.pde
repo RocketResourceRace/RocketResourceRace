@@ -17,7 +17,7 @@ boolean isWater(int x, int y) {
 
 
 
-class Map3D extends Element {
+class Map3D extends Element implements Map{
   final int thickness = 10;
   final float PANSPEED = 0.5, ROTSPEED = 0.002;
   final int FORESTDENSITY = 10;
@@ -66,8 +66,30 @@ class Map3D extends Element {
     canvas = createGraphics(width, height, P3D);
     refractionCanvas = createGraphics(width/4, height/4, P3D);
   }
-
-
+  Node[][] getMoveNodes(){
+    return moveNodes;
+  }
+  boolean isPanning(){
+    return panning;
+  }
+  float getTargetZoom(){
+    return targetZoom;
+  }
+  float getZoom(){
+    return zoom;
+  }
+  boolean isZooming(){
+    return zooming;
+  }
+  float getFocusedX(){
+    return focusedX;
+  }
+  float getFocusedY(){
+    return focusedY;
+  }
+  void setActive(boolean a){
+    this.mapActive = a;
+  }
   void updateMoveNodes(Node[][] nodes) {      
     moveNodes = nodes;
   }
@@ -203,7 +225,11 @@ class Map3D extends Element {
     tempTileImages = new PImage[gameData.getJSONArray("terrain").size()];
     for (int i=0; i<gameData.getJSONArray("terrain").size(); i++) {
       JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
-      tempTileImages[i] = tileImages.get(tileType.getString("id")).copy();
+      if(tile3DImages.containsKey(tileType.getString("id"))){
+        tempTileImages[i] = tile3DImages.get(tileType.getString("id")).copy();
+      } else {
+        tempTileImages[i] = tileImages.get(tileType.getString("id")).copy();
+      }
       tempTileImages[i].resize(graphicsRes, graphicsRes);
     }
     PGraphics tempTerrain;

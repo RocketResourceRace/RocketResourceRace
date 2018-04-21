@@ -236,7 +236,9 @@ class Panel{
     popStyle();
     
     for (Element elem : elements.values()){
-      elem.draw();
+      if(elem.visible){
+        elem.draw();
+      }
     }
   }
   
@@ -258,6 +260,7 @@ class Panel{
 
 class Element{
   boolean active = true;
+  boolean visible = true;
   int xOffset, yOffset;
   int x, y, w, h;
   void draw(){}

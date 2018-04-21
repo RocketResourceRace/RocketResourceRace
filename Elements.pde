@@ -1208,7 +1208,7 @@ class ToggleButton extends Element{
   color bgColour, strokeColour;
   String name;
   boolean on;
-  ToggleButton(int x, int y, int w, int h, color bgColour, color strokeColour, String name){
+  ToggleButton(int x, int y, int w, int h, color bgColour, color strokeColour, boolean value, String name){
     this.x = x;
     this.y = y;
     this.w = w;
@@ -1216,6 +1216,7 @@ class ToggleButton extends Element{
     this.bgColour = bgColour;
     this.strokeColour = strokeColour;
     this.name = name;
+    this.on = value;
   }
   ArrayList<String> mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
