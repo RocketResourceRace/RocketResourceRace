@@ -29,7 +29,7 @@ class Map3D extends Element implements Map{
   Building[][] buildings;
   int[][] terrain;
   Party[][] parties;
-  PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water;
+  PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect;
   HashMap<String, PShape[]> buildingObjs;
   PImage[] tempTileImages;
   float targetZoom, zoom, zoomv, tilt, tiltv, rot, rotv, focusedX, focusedY;
@@ -293,6 +293,24 @@ class Map3D extends Element implements Map{
     redFlag.scale(2.6, 3, 3);
     battle = loadShape("battle.obj");
     battle.rotateX(PI/2);
+    
+    
+    
+    tileRect = createShape();
+    tileRect.beginShape();
+    tileRect.noFill();
+    tileRect.stroke(0);
+    tileRect.strokeWeight(3);
+    int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    int[] curLoc = {0, 0};
+    for (int[] dir : directions){
+      for (int i=0; i<VERTICESPERTILE; i++){
+        tileRect.vertex(curLoc[0]*blockSize/VERTICESPERTILE, curLoc[1]*blockSize/VERTICESPERTILE, 0);
+        curLoc[0] += dir[0];
+        curLoc[1] += dir[1];
+      }
+    }
+    tileRect.endShape(CLOSE);
 
     for (int i=0; i<gameData.getJSONArray("buildings").size(); i++) {
       JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
@@ -309,6 +327,19 @@ class Map3D extends Element implements Map{
     strokeWeight(2);
     //fill(0, 100);
     popStyle();
+  }
+  
+  void updateSelectionRect(int cellX, int cellY){
+    int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    int[] curLoc = {0, 0};
+    int a = 0;
+    for (int[] dir : directions){
+      for (int i=0; i<VERTICESPERTILE; i++){
+        tileRect.setVertex(a++, curLoc[0]*blockSize/VERTICESPERTILE, curLoc[1]*blockSize/VERTICESPERTILE, getHeight(cellX+curLoc[0]/VERTICESPERTILE, cellY+curLoc[1]/VERTICESPERTILE));
+        curLoc[0] += dir[0];
+        curLoc[1] += dir[1];
+      }
+    }
   }
 
   PVector MousePosOnObject(int mx, int my) {
@@ -572,17 +603,11 @@ class Map3D extends Element implements Map{
       canvas.stroke(0);
       canvas.strokeWeight(3);
       canvas.noFill();
-      selectTile = createShape();
-      selectTile.beginShape();
-      selectTile.vertex(selectedCellX*blockSize, selectedCellY*blockSize, getHeight(selectedCellX, selectedCellY));
-      selectTile.vertex((selectedCellX+1)*blockSize, selectedCellY*blockSize, getHeight(selectedCellX+1, selectedCellY));
-      selectTile.vertex((selectedCellX+1)*blockSize, (selectedCellY+1)*blockSize, getHeight(selectedCellX+1, selectedCellY+1));
-      selectTile.vertex(selectedCellX*blockSize, (selectedCellY+1)*blockSize, getHeight(selectedCellX, selectedCellY+1));
-      selectTile.endShape(CLOSE);
-      selectTile.setFill(color(0));
-      canvas.shape(selectTile);
+      canvas.translate(selectedCellX*blockSize, (selectedCellY)*blockSize, 0);
+      updateSelectionRect(selectedCellX, selectedCellY);
+      canvas.shape(tileRect);
+      canvas.translate(0, 0, groundMinHeightAt(selectedCellX, selectedCellY));
       canvas.strokeWeight(1);
-      canvas.translate(selectedCellX*blockSize, (selectedCellY)*blockSize, groundMinHeightAt(selectedCellX, selectedCellY));
       if (parties[selectedCellY][selectedCellX] != null) {
         canvas.translate(blockSize/2, blockSize/2, 32);
         canvas.box(blockSize, blockSize, 64);

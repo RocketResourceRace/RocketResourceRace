@@ -1045,11 +1045,11 @@ class Game extends State{
     Collections.reverse(path);
     for (int node=1; node<path.size(); node++){
       int cost = cost(path.get(node)[0], path.get(node)[1], path.get(node-1)[0], path.get(node-1)[1]);
-      if (movementPoints < cost){
+      if (movementPoints < cost){ //<>//
         turns += 1;
         movementPoints = gameData.getJSONObject("game options").getInt("movement points");
       }
-      movementPoints -= cost; //<>// //<>//
+      movementPoints -= cost; //<>// //<>// //<>//
     }
     return turns;
   }
@@ -1078,11 +1078,11 @@ class Game extends State{
           map.updatePath(getPath(cellX, cellY, x, y, map.getMoveNodes()));
         }
         if(parties[y][x]==null){
-          //Moving into empty tile
+          //Moving into empty tile //<>//
           int turns = getMoveTurns(cellX, cellY, x, y, nodes);
           boolean splitting = splitUnitsNum()!=parties[cellY][cellX].getUnitNumber();
           tooltip.setMoving(turns, splitting);
-          tooltip.show(); //<>// //<>//
+          tooltip.show(); //<>// //<>// //<>//
         }
         else {
           if (parties[y][x].player == turn){
@@ -1139,11 +1139,11 @@ class Game extends State{
             postEvent(new Move(cellX, cellY, x, y));
             map.cancelPath();
             moving = false;
-            map.cancelMoveNodes();
+            map.cancelMoveNodes(); //<>//
           }
         }
       }
-    } //<>// //<>//
+    } //<>// //<>// //<>//
     if (button == LEFT){
       if (eventType == "mouseClicked"){
         if (activePanel == "default" && !UIHovering()){
@@ -1184,19 +1184,19 @@ class Game extends State{
     x = floor(map.scaleXInv(x));
     y = floor(map.scaleYInv(y));
     selectCell(x, y, false);
-    println(x, y);
   }
 
   boolean cellInBounds(int x, int y){
-    return 0<=x&&x<mapWidth&&0<=y&&y<=mapHeight;
+    return 0<=x&&x<mapWidth&&0<=y&&y<mapHeight;
   }
 
   void selectCell(int x, int y, boolean raw){
     deselectCell();
     if(raw){
       selectCell(x, y);
-    } else if (cellInBounds(x, y)){
-        tooltip.hide();
+    } 
+    else if (cellInBounds(x, y)){
+      tooltip.hide();
       cellX = x;
       cellY = y;
       cellSelected = true;
