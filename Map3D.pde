@@ -641,10 +641,24 @@ class Map3D extends Element implements Map{
   boolean mouseOver() {
     return mouseX > x && mouseX < x+w && mouseY > y && mouseY < y+h;
   }
+  
+  float getRayHeightAt(PVector r, PVector s, float targetX){
+    PVector start = s.copy();
+    PVector ray = r.copy();
+    float dz_dx = ray.z/ray.x;
+    return start.z + (targetX - start.x) * dz_dx;
+  }
+  
+  boolean rayPassesThrough(PVector r, PVector s, PVector targetV){
+    PVector start = s.copy();
+    PVector ray = r.copy();
+    start.add(ray);
+    return start.dist(targetV) < blockSize/VERTICESPERTILE;
+  }
+  
+  
 
-
-
-  // Ray Tracing Code Below is an example by Bontempos
+  // Ray Tracing Code Below is an example by Bontempos, modified for height map intersection by Jack Parsons
   // https://forum.processing.org/two/discussion/21644/picking-in-3d-through-ray-tracing-method
 
   // Function that calculates the coordinates on the floor surface corresponding to the screen coordinates
@@ -654,12 +668,23 @@ class Map3D extends Element implements Map{
     PVector n = floorDirection.get(); // The direction of the floor ( normal vector )
     PVector w = unProject(screen_x, screen_y, -1.0); // 3 -dimensional coordinate corresponding to a point on the screen
     PVector e = getEyePosition(); // Viewpoint position
-
+    
     // Computing the intersection of  
     f.sub(e);
     w.sub(e);
     w.mult( n.dot(f)/n.dot(w) );
+    PVector ray = w.copy();
     w.add(e);
+    
+    float acHeight, curX = e.x, curY = e.y;
+    for (int i = 0; i < ray.mag(); i++){
+      curX += ray.x/ray.mag();
+      curY += ray.y/ray.mag();
+      acHeight = getHeight(curX/blockSize, curY/blockSize);
+      if (getRayHeightAt(ray, e, curX) < acHeight+0.01){
+        return new PVector(curX, curY,acHeight);
+      }
+    }
 
     return w;
   }
