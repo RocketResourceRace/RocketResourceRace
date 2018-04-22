@@ -1,1 +1,0 @@
-1046java.lang.IllegalStateException: fullScreen() cannot be used here, see https://processing.org/reference/fullScreen_.html
