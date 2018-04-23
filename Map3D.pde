@@ -30,6 +30,7 @@ class Map3D extends Element implements Map{
   int[][] terrain;
   Party[][] parties;
   PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect;
+  HashMap<String, PShape> taskObjs;
   HashMap<String, PShape[]> buildingObjs;
   PImage[] tempTileImages;
   float targetZoom, zoom, zoomv, tilt, tiltv, rot, rotv, focusedX, focusedY;
@@ -62,6 +63,7 @@ class Map3D extends Element implements Map{
     panning = false;
     zooming = false;
     buildingObjs = new HashMap<String, PShape[]>();
+    taskObjs = new HashMap<String, PShape>();
     forestTiles = new HashMap<Integer, Integer>();
     canvas = createGraphics(width, height, P3D);
     refractionCanvas = createGraphics(width/4, height/4, P3D);
@@ -312,6 +314,15 @@ class Map3D extends Element implements Map{
     }
     tileRect.endShape(CLOSE);
 
+    for (int i=0; i<gameData.getJSONArray("tasks").size(); i++) {
+      JSONObject task = gameData.getJSONArray("tasks").getJSONObject(i);
+      if (!task.isNull("img")) {
+        PShape object = createShape(RECT, 0, 0, blockSize/2, blockSize/2);
+        object.setTexture(taskImages.get(task.getString("id")));
+        taskObjs.put(task.getString("id"), object);
+        taskObjs.get(task.getString("id")).rotateX(-PI/2);
+      }
+    }
     for (int i=0; i<gameData.getJSONArray("buildings").size(); i++) {
       JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
       if (!buildingType.isNull("obj")) {
@@ -622,22 +633,6 @@ class Map3D extends Element implements Map{
     
     for (int x=0; x<mapWidth; x++) {
       for (int y=0; y<mapHeight; y++) {
-        if (parties[y][x] != null && parties[y][x].player == 0) {
-          canvas.pushMatrix();
-          canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundMinHeightAt(x, y));
-          canvas.shape(blueFlag);
-          canvas.popMatrix();
-        } else if (parties[y][x] != null && parties[y][x].player == 1) {
-          canvas.pushMatrix();
-          canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundMinHeightAt(x, y));
-          canvas.shape(redFlag);
-          canvas.popMatrix();
-        } else if (parties[y][x] != null && parties[y][x].player == 2) {
-          canvas.pushMatrix();
-          canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMaxHeightAt(x, y));
-          canvas.shape(battle);
-          canvas.popMatrix();
-        }
         if (buildings[y][x] != null) {
           if (buildingObjs.get(buildingString(buildings[y][x].type)) != null) {
             canvas.pushMatrix();
@@ -645,6 +640,32 @@ class Map3D extends Element implements Map{
             canvas.shape(buildingObjs.get(buildingString(buildings[y][x].type))[buildings[y][x].image_id]);
             canvas.popMatrix();
           }
+        }
+        if(parties[y][x] != null){
+          if (parties[y][x].player == 0) {
+            canvas.pushMatrix();
+            canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundMinHeightAt(x, y));
+            canvas.shape(blueFlag);
+            canvas.popMatrix();
+          } else if (parties[y][x].player == 1) {
+            canvas.pushMatrix();
+            canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundMinHeightAt(x, y));
+            canvas.shape(redFlag);
+            canvas.popMatrix();
+          } else if (parties[y][x].player == 2) {
+            canvas.pushMatrix();
+            canvas.translate((x+0.5)*blockSize, y*blockSize, 16+groundMaxHeightAt(x, y));
+            canvas.shape(battle);
+            canvas.popMatrix();
+          }
+         JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), parties[y][x].task);
+         if (jo != null && !jo.isNull("img")){
+            canvas.pushMatrix();
+            canvas.translate((x+0.25)*blockSize, (y+0.5)*blockSize, blockSize*3+groundMinHeightAt(x, y));
+            canvas.rotateZ(-this.rot);
+            canvas.shape(taskObjs.get(jo.getString("id")));
+            canvas.popMatrix();
+         }
         }
       }
     }
