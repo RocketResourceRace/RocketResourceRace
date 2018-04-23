@@ -313,11 +313,11 @@ class Map3D extends Element implements Map{
       }
     }
     tileRect.endShape(CLOSE);
-
     for (int i=0; i<gameData.getJSONArray("tasks").size(); i++) {
       JSONObject task = gameData.getJSONArray("tasks").getJSONObject(i);
       if (!task.isNull("img")) {
         PShape object = createShape(RECT, 0, 0, blockSize/2, blockSize/2);
+        object.setFill(color(255, 255, 255));
         object.setTexture(taskImages.get(task.getString("id")));
         taskObjs.put(task.getString("id"), object);
         taskObjs.get(task.getString("id")).rotateX(-PI/2);
@@ -334,9 +334,6 @@ class Map3D extends Element implements Map{
       }
     }
 
-    stroke(0);
-    strokeWeight(2);
-    //fill(0, 100);
     popStyle();
   }
   
@@ -603,11 +600,17 @@ class Map3D extends Element implements Map{
   }
   
   void renderScene(PGraphics canvas){
+    
+    
+    canvas.directionalLight(240, 255, 255, 0, -0.1, -1);
+    //canvas.directionalLight(100, 100, 100, 0.1, 1, -1);
+    //canvas.lightSpecular(102, 102, 102);
+    canvas.shape(tiles);
+    canvas.ambientLight(100, 100, 100);
+    canvas.shape(trees);
+    
+    
     canvas.pushMatrix();
-    canvas.directionalLight(200, 200, 200, 0, -0.1, -1);
-    canvas.directionalLight(100, 100, 100, 0.1, 1, -1);
-    canvas.ambientLight(20, 80, 80);
-    canvas.lightSpecular(102, 102, 102);
     //noLights();
     if (cellSelected) {
       canvas.pushMatrix();
@@ -628,13 +631,13 @@ class Map3D extends Element implements Map{
       }
       canvas.popMatrix();
     }
-    canvas.shape(tiles);
-    canvas.shape(trees);
+    
     
     for (int x=0; x<mapWidth; x++) {
       for (int y=0; y<mapHeight; y++) {
         if (buildings[y][x] != null) {
           if (buildingObjs.get(buildingString(buildings[y][x].type)) != null) {
+            canvas.lights();
             canvas.pushMatrix();
             canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMaxHeightAt(x, y));
             canvas.shape(buildingObjs.get(buildingString(buildings[y][x].type))[buildings[y][x].image_id]);
@@ -642,6 +645,7 @@ class Map3D extends Element implements Map{
           }
         }
         if(parties[y][x] != null){
+          canvas.noLights();
           if (parties[y][x].player == 0) {
             canvas.pushMatrix();
             canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundMinHeightAt(x, y));
@@ -660,9 +664,11 @@ class Map3D extends Element implements Map{
           }
          JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), parties[y][x].task);
          if (jo != null && !jo.isNull("img")){
+            canvas.noLights();
             canvas.pushMatrix();
-            canvas.translate((x+0.25)*blockSize, (y+0.5)*blockSize, blockSize*3+groundMinHeightAt(x, y));
+            canvas.translate((x+0.5+sin(rot)*0.25)*blockSize, (y+0.5+cos(rot)*0.25)*blockSize, blockSize*3+groundMinHeightAt(x, y));
             canvas.rotateZ(-this.rot);
+            canvas.translate(-0.25*blockSize, -0.25*blockSize);
             canvas.shape(taskObjs.get(jo.getString("id")));
             canvas.popMatrix();
          }
@@ -670,6 +676,7 @@ class Map3D extends Element implements Map{
       }
     }
     canvas.popMatrix();
+    
   }
   
   void renderTexturedEntities(PGraphics canvas){
