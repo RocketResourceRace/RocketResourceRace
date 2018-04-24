@@ -532,7 +532,7 @@ class Map3D extends Element implements Map{
   }
   
 
-  void draw() {
+  void draw(PGraphics panelCanvas) {
 
     // Update camera position and orientation
     frameTime = millis()-prevT;
@@ -587,7 +587,7 @@ class Map3D extends Element implements Map{
     popStyle();
     
     //draw the scene to the screen
-    image(canvas, 0, 0);
+    panelCanvas.image(canvas, 0, 0);
     //image(refractionCanvas, 0, 0);
     
   }

@@ -273,7 +273,7 @@ void setup(){
   addState("menu", new Menu());
   addState("map", new Game());
   activeState = "menu";
-  fullScreen(P3D);
+  fullScreen(P2D);
   //noSmooth();
   smooth();
   noStroke();
