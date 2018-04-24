@@ -23,6 +23,7 @@ interface Map {
   void selectCell(int x, int y);
   void reset(int mapWidth, int mapHeight, int [][] terrain, Party[][] parties, Building[][] buildings);
   void generateShape();
+  void clearShape();
 }
 
 
@@ -75,6 +76,9 @@ class Map2D extends Element implements Map{
     cancelPath();
   }
   void generateShape(){
+    
+  }
+  void clearShape(){
     
   }
   Node[][] getMoveNodes(){

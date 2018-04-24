@@ -256,6 +256,16 @@ class Map3D extends Element implements Map{
       //return (max(h-(0.5+waterLevel/2.0), 0)*(1000)+h)*blockSize*GROUNDHEIGHT;
     }
   }
+  
+  void clearShape(){
+    // Use to clear references to large objects when exiting state
+    water = null;
+    trees = null;
+    tiles = null;
+    buildingObjs = new HashMap<String, PShape[]>();
+    taskObjs = new HashMap<String, PShape>();
+    forestTiles = new HashMap<Integer, Integer>();
+  }
 
   void generateShape() {
     pushStyle();
