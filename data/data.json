@@ -108,8 +108,9 @@
         "type": "Build Sawmill",
         "notification": "Sawmill Built",
         "turns": 5,
-        "building": "Sawmill"
-      }
+        "building": "Sawmill",
+        "terrain": "grass"
+      },
     },
     {
       "id": "Build Homes",
@@ -410,6 +411,7 @@
     {
       "id": "Sawmill",
       "img": ["sawmill.png"],
+      "obj": ["sawmill.obj"]
     },
     {
       "id": "Construction",
