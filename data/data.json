@@ -118,7 +118,7 @@
       "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
-      "terrain": ["grass", "sand", "hills"],
+      "terrain": ["grass", "sand"],
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
