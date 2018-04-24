@@ -16,6 +16,43 @@ boolean isWater(int x, int y) {
 }
 
 
+float getMaxSteepness(int x, int y){
+  float maxZ, minZ;
+  maxZ = 0;
+  minZ = 1;
+  for (float y1 = y; y1<=y+1;y1+=1.0/VERTICESPERTILE){
+    for (float x1 = x; x1<=x+1;x1+=1.0/VERTICESPERTILE){
+      float z = noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE);
+      if(z>maxZ){
+        maxZ = z;
+      } else if (z<minZ){
+        minZ = z;
+      }
+    }
+  }
+  return maxZ-minZ;
+}
+
+float getDownwardAngle(int x, int y){
+  PVector maxZCoord = new PVector();
+  PVector minZCoord = new PVector();
+  float maxZ = 0;
+  float minZ = 1;
+  for (float y1 = y; y1<=y+1;y1+=1.0/VERTICESPERTILE){
+    for (float x1 = x; x1<=x+1;x1+=1.0/VERTICESPERTILE){
+      float z = noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE);
+      if(z > maxZ){
+        maxZCoord = new PVector(x1, y1);
+        maxZ = z;
+      } else if (z < minZ){
+        minZCoord = new PVector(x1, y1);
+        minZ = z;
+      }
+    }
+  }
+  PVector direction = minZCoord.sub(maxZCoord);
+  return atan2(direction.y, direction.x);
+}
 
 class Map3D extends Element implements Map{
   final int thickness = 10;
@@ -639,7 +676,12 @@ class Map3D extends Element implements Map{
           if (buildingObjs.get(buildingString(buildings[y][x].type)) != null) {
             canvas.lights();
             canvas.pushMatrix();
-            canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMaxHeightAt(x, y));
+            if(buildings[y][x].type==buildingIndex("Mine")){
+              canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMinHeightAt(x, y));
+              canvas.rotateZ(getDownwardAngle(x, y));
+            } else {
+              canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMaxHeightAt(x, y));
+            }
             canvas.shape(buildingObjs.get(buildingString(buildings[y][x].type))[buildings[y][x].image_id]);
             canvas.popMatrix();
           }

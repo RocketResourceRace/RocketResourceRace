@@ -389,6 +389,7 @@
     {
       "id": "Mine",
       "img": ["mine.png"],
+      "obj": ["mine.obj"],
     },
     {
       "id": "Smelter",

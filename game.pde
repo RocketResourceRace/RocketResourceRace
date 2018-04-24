@@ -7,6 +7,14 @@ int terrainIndex(String terrain){
   println("Invalid terrain type, "+terrain);
   return -1;
 }
+int buildingIndex(String building){
+  int k = JSONIndex(gameData.getJSONArray("buildings"), building);
+  if (k>=0){
+    return k+1;
+  }
+  println("Invalid building type, "+building);
+  return -1;
+}
 
 
 class Game extends State{
@@ -174,14 +182,6 @@ class Game extends State{
 
   String terrainString(int terrainI){
     return gameData.getJSONArray("terrain").getJSONObject(terrainI-1).getString("id");
-  }
-  int buildingIndex(String building){
-    int k = JSONIndex(gameData.getJSONArray("buildings"), building);
-    if (k>=0){
-      return k+1;
-    }
-    println("Invalid building type, "+building);
-    return -1;
   }
   String buildingString(int buildingI){
     if (gameData.getJSONArray("buildings").isNull(buildingI-1)){
@@ -1045,15 +1045,15 @@ class Game extends State{
     Collections.reverse(path);
     for (int node=1; node<path.size(); node++){
       int cost = cost(path.get(node)[0], path.get(node)[1], path.get(node-1)[0], path.get(node-1)[1]);
-      if (movementPoints < cost){ //<>//
+      if (movementPoints < cost){ //<>// //<>//
         turns += 1;
         movementPoints = gameData.getJSONObject("game options").getInt("movement points");
       }
-      movementPoints -= cost; //<>// //<>// //<>//
+      movementPoints -= cost; //<>// //<>// //<>// //<>//
     }
     return turns;
   }
-  int splitUnitsNum(){ //<>// //<>//
+  int splitUnitsNum(){ //<>// //<>// //<>//
     return round(((Slider)getElement("split units", "party management")).getValue());
   }
   void refreshTooltip(){
@@ -1078,15 +1078,15 @@ class Game extends State{
           map.updatePath(getPath(cellX, cellY, x, y, map.getMoveNodes()));
         }
         if(parties[y][x]==null){
-          //Moving into empty tile //<>//
+          //Moving into empty tile //<>// //<>//
           int turns = getMoveTurns(cellX, cellY, x, y, nodes);
           boolean splitting = splitUnitsNum()!=parties[cellY][cellX].getUnitNumber();
           tooltip.setMoving(turns, splitting);
-          tooltip.show(); //<>// //<>// //<>//
+          tooltip.show(); //<>// //<>// //<>// //<>//
         }
         else {
           if (parties[y][x].player == turn){
-            //merge parties //<>// //<>//
+            //merge parties //<>// //<>// //<>//
             tooltip.setMerging();
             tooltip.show();
           }
@@ -1139,15 +1139,15 @@ class Game extends State{
             postEvent(new Move(cellX, cellY, x, y));
             map.cancelPath();
             moving = false;
-            map.cancelMoveNodes(); //<>//
+            map.cancelMoveNodes(); //<>// //<>//
           }
         }
       }
-    } //<>// //<>// //<>//
+    } //<>// //<>// //<>// //<>//
     if (button == LEFT){
       if (eventType == "mouseClicked"){
         if (activePanel == "default" && !UIHovering()){
-          if (map.mouseOver()){ //<>// //<>//
+          if (map.mouseOver()){ //<>// //<>// //<>//
             if (moving){
               //int x = floor(map.scaleXInv(mouseX));
               //int y = floor(map.scaleYInv(mouseY));
@@ -1803,7 +1803,7 @@ class Game extends State{
     terrain = smoothMap(completeSmooth, 1, terrain);
     for (int y=0; y<mapHeight; y++){
       for(int x=0; x<mapWidth; x++){
-        if(terrain[y][x] == terrainIndex("grass") && noise((x+0.5)*MAPNOISESCALE, (y+0.5)*MAPNOISESCALE) > 0.5+waterLevel/2.0){
+        if(terrain[y][x] != terrainIndex("water") && (noise((x+0.5)*MAPNOISESCALE, (y+0.5)*MAPNOISESCALE) > 0.5+waterLevel/2.0) || getMaxSteepness(x, y)>HILLSTEEPNESS){
           terrain[y][x] = terrainIndex("hills");
         }
       }
