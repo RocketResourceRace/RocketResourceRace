@@ -33,25 +33,37 @@ float getMaxSteepness(int x, int y){
   return maxZ-minZ;
 }
 
+HashMap<Integer, HashMap<Integer, Float>> downwardAngleCache;
+
 float getDownwardAngle(int x, int y){
-  PVector maxZCoord = new PVector();
-  PVector minZCoord = new PVector();
-  float maxZ = 0;
-  float minZ = 1;
-  for (float y1 = y; y1<=y+1;y1+=1.0/VERTICESPERTILE){
-    for (float x1 = x; x1<=x+1;x1+=1.0/VERTICESPERTILE){
-      float z = noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE);
-      if(z > maxZ){
-        maxZCoord = new PVector(x1, y1);
-        maxZ = z;
-      } else if (z < minZ){
-        minZCoord = new PVector(x1, y1);
-        minZ = z;
+  if(!downwardAngleCache.containsKey(y)){
+    downwardAngleCache.put(y, new HashMap<Integer, Float>());
+  }
+  if(downwardAngleCache.get(y).containsKey(x)){
+    return downwardAngleCache.get(y).get(x);
+  } else {
+    PVector maxZCoord = new PVector();
+    PVector minZCoord = new PVector();
+    float maxZ = 0;
+    float minZ = 1;
+    for (float y1 = y; y1<=y+1;y1+=1.0/VERTICESPERTILE){
+      for (float x1 = x; x1<=x+1;x1+=1.0/VERTICESPERTILE){
+        float z = noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE);
+        if(z > maxZ){
+          maxZCoord = new PVector(x1, y1);
+          maxZ = z;
+        } else if (z < minZ){
+          minZCoord = new PVector(x1, y1);
+          minZ = z;
+        }
       }
     }
+    PVector direction = minZCoord.sub(maxZCoord);
+    float angle = atan2(direction.y, direction.x);
+    
+    downwardAngleCache.get(y).put(x, angle);
+    return angle;
   }
-  PVector direction = minZCoord.sub(maxZCoord);
-  return atan2(direction.y, direction.x);
 }
 
 class Map3D extends Element implements Map{
@@ -104,6 +116,7 @@ class Map3D extends Element implements Map{
     forestTiles = new HashMap<Integer, Integer>();
     canvas = createGraphics(width, height, P3D);
     refractionCanvas = createGraphics(width/4, height/4, P3D);
+    downwardAngleCache = new HashMap<Integer, HashMap<Integer, Float>>();
   }
   Node[][] getMoveNodes(){
     return moveNodes;
