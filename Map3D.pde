@@ -786,7 +786,7 @@ class Map3D extends Element implements Map{
       curX += ray.x/ray.mag();
       curY += ray.y/ray.mag();
       acHeight = getHeight(curX/blockSize, curY/blockSize);
-      if (getRayHeightAt(ray, e, curX) < acHeight+0.01){
+      if (getRayHeightAt(ray, e, curX) < acHeight+0.0001){
         return new PVector(curX, curY,acHeight);
       }
     }
