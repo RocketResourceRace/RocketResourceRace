@@ -332,7 +332,7 @@ class NotificationManager extends Element{
       panelCanvas.fill(brighten(bgColour, -20));
       panelCanvas.rect(x-20*GUIScale+w, y+(h-topOffset-(h-topOffset)/(d+1))*scroll/d+topOffset, 20*GUIScale, (h-topOffset)/(d+1));
     }
-    popStyle();
+    panelCanvas.popStyle();
   }
 }
 
