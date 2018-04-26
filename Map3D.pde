@@ -516,10 +516,10 @@ class Map3D extends Element implements Map{
         focusedV.x += PANSPEED;
       }
       if (_key == 'q') {
-        rotv += ROTSPEED;
+        rotv -= ROTSPEED;
       }
       if (_key == 'e') {
-        rotv -= ROTSPEED;
+        rotv += ROTSPEED;
       }
       if (_key == 'x') {
         tiltv += ROTSPEED;
@@ -547,10 +547,10 @@ class Map3D extends Element implements Map{
         focusedV.x -= PANSPEED;
       }
       if (_key == 'q') {
-        rotv -= ROTSPEED;
+        rotv += ROTSPEED;
       }
       if (_key == 'e') {
-        rotv += ROTSPEED;
+        rotv -= ROTSPEED;
       }
       if (_key == 'x') {
         tiltv -= ROTSPEED;
