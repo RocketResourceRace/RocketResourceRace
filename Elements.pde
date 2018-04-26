@@ -271,7 +271,7 @@ class NotificationManager extends Element{
     panelCanvas.rect(x, y, w, h);
     panelCanvas.textFont(getFont(10*TextScale));
     panelCanvas.fill(brighten(bgColour, -50));
-    topOffset = ceil(textAscent()+textDescent());
+    topOffset = ceil(panelCanvas.textAscent()+panelCanvas.textDescent());
     this.notHeight = (h-topOffset)/displayNots;
     panelCanvas.rect(x, y, w, topOffset);
     panelCanvas.fill(textColour);
@@ -488,7 +488,7 @@ class ResourceSummary extends Element{
       w = columnWidth(i);
       panelCanvas.fill(getFill(i));
       panelCanvas.textFont(getFont(10*TextScale));
-      panelCanvas.rect(width-cw+x-GAP/2, y, width-cw+x-GAP/2-(w+GAP), y+textAscent()+textDescent());
+      panelCanvas.rect(width-cw+x-GAP/2, y, width-cw+x-GAP/2-(w+GAP), y+panelCanvas.textAscent()+panelCanvas.textDescent());
       cw += w+GAP;
       panelCanvas.line(width-cw+x-GAP/2, y, width-cw+x-GAP/2, y+h);
       panelCanvas.fill(0);
@@ -496,11 +496,11 @@ class ResourceSummary extends Element{
       yLevel=0;
       panelCanvas.textFont(getFont(10*TextScale));
       panelCanvas.text(getResString(i), width-cw, y);
-      yLevel += textAscent()+textDescent();
+      yLevel += panelCanvas.textAscent()+panelCanvas.textDescent();
       
       panelCanvas.textFont(getFont(8*TextScale));
       panelCanvas.text(getStockString(i), width-cw, y+yLevel);
-      yLevel += textAscent()+textDescent();
+      yLevel += panelCanvas.textAscent()+panelCanvas.textDescent();
       
       if (net[i] < 0)
         panelCanvas.fill(255,0,0);
@@ -508,7 +508,7 @@ class ResourceSummary extends Element{
         panelCanvas.fill(0,255,0);
       panelCanvas.textFont(getFont(8*TextScale));
       panelCanvas.text(getNetString(i), width-cw, y+yLevel);
-      yLevel += textAscent()+textDescent();
+      yLevel += panelCanvas.textAscent()+panelCanvas.textDescent();
     }
     panelCanvas.popStyle();
   }
