@@ -521,35 +521,35 @@ class Map3D extends Element implements Map{
         zoomv -= PANSPEED;
       }
     } else if (eventType.equals("keyReleased")) {
-      if (_key == 'q') {
-        rotv = 0;
-      }
-      if (_key == 'e') {
-        rotv = 0;
-      }
-      if (_key == 'x') {
-        tiltv = 0;
-      }
-      if (_key == 'c') {
-        tiltv = 0;
-      }
       if (_key == 'w') {
-        focusedV.y = 0;
+        focusedV.y += PANSPEED;
       }
       if (_key == 's') {
-        focusedV.y = 0;
+        focusedV.y -= PANSPEED;
       }
       if (_key == 'a') {
-        focusedV.x = 0;
+        focusedV.x += PANSPEED;
       }
       if (_key == 'd') {
-        focusedV.x = 0;
+        focusedV.x -= PANSPEED;
+      }
+      if (_key == 'q') {
+        rotv -= ROTSPEED;
+      }
+      if (_key == 'e') {
+        rotv += ROTSPEED;
+      }
+      if (_key == 'x') {
+        tiltv -= ROTSPEED;
+      }
+      if (_key == 'c') {
+        tiltv += ROTSPEED;
       }
       if (_key == 'f') {
-        zoomv = 0;
+        zoomv -= PANSPEED;
       }
       if (_key == 'r') {
-        zoomv = 0;
+        zoomv += PANSPEED;
       }
     }
     return new ArrayList<String>();
@@ -663,6 +663,25 @@ class Map3D extends Element implements Map{
     canvas.popMatrix();
   }
   
+  void drawPath(PGraphics panelCanvas){
+    if (drawPath != null){
+      PShape line = createShape();
+      line.beginShape();
+      panelCanvas.pushStyle();
+      panelCanvas.stroke(255,0,0); 
+      for (int i=0; i<drawPath.size()-1;i++){
+        for (int u=0; u<blockSize/8; u++){
+          panelCanvas.pushMatrix();
+          panelCanvas.translate(0, 0, getHeight(drawPath.get(i)[0], drawPath.get(i)[1]));
+          panelCanvas.line(drawPath.get(i)[0]*blockSize+blockSize/2, drawPath.get(i)[1]*blockSize+blockSize/2, drawPath.get(i+1)[0]*blockSize+blockSize/2, drawPath.get(i+1)[1]*blockSize+blockSize/2);
+          panelCanvas.popMatrix();
+        }
+      }
+      line.endShape();
+      panelCanvas.popStyle();
+     }
+  }
+  
   void renderScene(PGraphics canvas){
     
     
@@ -744,6 +763,10 @@ class Map3D extends Element implements Map{
         }
       }
     }
+    canvas.popMatrix();
+    
+    canvas.pushMatrix();
+    drawPath(canvas);
     canvas.popMatrix();
     
   }

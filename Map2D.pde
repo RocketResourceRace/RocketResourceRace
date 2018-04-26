@@ -249,38 +249,38 @@ class Map2D extends Element implements Map{
   }
   ArrayList<String> keyboardEvent(String eventType, char _key){
     if (eventType == "keyPressed"){
-      if (_key == 'a'&&mapVelocity[0]>-mapMaxSpeed){
+      if (_key == 'a'){
         resetTargetZoom();
         resetTarget();
         mapVelocity[0] -= mapMaxSpeed;
       }
-      if (_key == 's'&&mapVelocity[1]<mapMaxSpeed){
+      if (_key == 's'){
         resetTargetZoom();
         resetTarget();
         mapVelocity[1] += mapMaxSpeed;
       }
-      if (_key == 'd'&&mapVelocity[0]<mapMaxSpeed){
+      if (_key == 'd'){
         resetTargetZoom();
         resetTarget();
         mapVelocity[0] += mapMaxSpeed;
       }
-      if (_key == 'w'&&mapVelocity[1]>-mapMaxSpeed){
+      if (_key == 'w'){
         resetTargetZoom();
         resetTarget();
         mapVelocity[1] -= mapMaxSpeed;
       }
     }
     if (eventType == "keyReleased"){
-      if (_key == 'a'&&mapVelocity[0]<0){
+      if (_key == 'a'){
         mapVelocity[0] += mapMaxSpeed;
       }
-      if (_key == 's'&&mapVelocity[1]>0){
+      if (_key == 's'){
         mapVelocity[1] -= mapMaxSpeed;
       }
-      if (_key == 'd'&&mapVelocity[0]>0){
+      if (_key == 'd'){
         mapVelocity[0] -= mapMaxSpeed;
       }
-      if (_key == 'w'&&mapVelocity[1]<0){
+      if (_key == 'w'){
         mapVelocity[1] += mapMaxSpeed;
       }
     }
