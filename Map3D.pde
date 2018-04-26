@@ -78,7 +78,7 @@ class Map3D extends Element implements Map{
   Building[][] buildings;
   int[][] terrain;
   Party[][] parties;
-  PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect;
+  PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect, pathLine;
   HashMap<String, PShape> taskObjs;
   HashMap<String, PShape[]> buildingObjs;
   PImage[] tempTileImages;
@@ -150,7 +150,20 @@ class Map3D extends Element implements Map{
     moveNodes = nodes;
   }
   void updatePath(ArrayList<int[]> nodes) {
+    float x0, y0;
     drawPath = nodes;
+    pathLine = createShape();
+    pathLine.beginShape();
+    pathLine.noFill();
+    pathLine.stroke(255,0,0); 
+    for (int i=0; i<drawPath.size()-1;i++){
+      for (int u=0; u<blockSize/8; u++){
+        x0 = drawPath.get(i)[0]+(drawPath.get(i+1)[0]-drawPath.get(i)[0])*u/8+0.5;
+        y0 = drawPath.get(i)[1]+(drawPath.get(i+1)[1]-drawPath.get(i)[1])*u/8+0.5;
+        pathLine.vertex(x0*blockSize, y0*blockSize, 5+getHeight(x0, y0));
+      }
+    }
+    pathLine.endShape();
   }
   void cancelMoveNodes() {
     moveNodes = null;
@@ -663,27 +676,14 @@ class Map3D extends Element implements Map{
     canvas.popMatrix();
   }
   
-  void drawPath(PGraphics panelCanvas){
+  void drawPath(PGraphics canvas){
+    float x0, y0;
     if (drawPath != null){
-      PShape line = createShape();
-      line.beginShape();
-      panelCanvas.pushStyle();
-      panelCanvas.stroke(255,0,0); 
-      for (int i=0; i<drawPath.size()-1;i++){
-        for (int u=0; u<blockSize/8; u++){
-          panelCanvas.pushMatrix();
-          panelCanvas.translate(0, 0, getHeight(drawPath.get(i)[0], drawPath.get(i)[1]));
-          panelCanvas.line(drawPath.get(i)[0]*blockSize+blockSize/2, drawPath.get(i)[1]*blockSize+blockSize/2, drawPath.get(i+1)[0]*blockSize+blockSize/2, drawPath.get(i+1)[1]*blockSize+blockSize/2);
-          panelCanvas.popMatrix();
-        }
-      }
-      line.endShape();
-      panelCanvas.popStyle();
-     }
+      canvas.shape(pathLine);
+    }
   }
   
   void renderScene(PGraphics canvas){
-    
     
     canvas.directionalLight(240, 255, 255, 0, -0.1, -1);
     //canvas.directionalLight(100, 100, 100, 0.1, 1, -1);
