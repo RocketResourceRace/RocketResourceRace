@@ -615,7 +615,7 @@ class Game extends State{
     } else{
       blockSize = map.getZoom();
     }
-    players[turn].saveSettings(mapXOffset, mapYOffset, blockSize, cellX, cellY, cellSelected);
+    players[turn].saveSettings(map.getTargetOffsetX(), map.getTargetOffsetY(), blockSize, cellX, cellY, cellSelected);
     turn = (turn + 1)%2;
     players[turn].loadSettings(this, map);
     changeTurn = false;

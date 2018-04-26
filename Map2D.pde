@@ -10,6 +10,9 @@ interface Map {
   boolean isZooming();
   float getTargetZoom();
   float getZoom();
+  float getTargetOffsetX();
+  float getTargetOffsetY();
+  float getTargetBlockSize();
   float[] targetCell(int x, int y, float zoom);
   void loadSettings(float x, float y, float bs);
   void unselectCell();
@@ -150,6 +153,15 @@ class Map2D extends Element implements Map{
   void targetZoom(float bs){
     zooming = true;
     targetBlockSize = bs;
+  }
+  float getTargetOffsetX(){
+    return targetXOffset;
+  }
+  float getTargetOffsetY(){
+    return targetYOffset;
+  }
+  float getTargetBlockSize(){
+    return targetBlockSize;
   }
   float [] targetCell(int x, int y, float bs){
     targetBlockSize = bs;

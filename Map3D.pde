@@ -127,6 +127,10 @@ class Map3D extends Element implements Map{
   float getTargetZoom(){
     return targetZoom;
   }
+  
+  float getTargetOffsetX(){return 0;}
+  float getTargetOffsetY(){return 0;}
+  float getTargetBlockSize(){return 0;}
   float getZoom(){
     return zoom;
   }
