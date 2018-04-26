@@ -614,6 +614,11 @@ class Map3D extends Element implements Map{
     // Update camera position and orientation
     frameTime = millis()-prevT;
     prevT = millis();
+    focusedV.x = between(-PANSPEED, focusedV.x, PANSPEED);
+    focusedV.y = between(-PANSPEED, focusedV.y, PANSPEED);
+    rotv = between(-ROTSPEED, rotv, ROTSPEED);
+    tiltv = between(-ROTSPEED, tiltv, ROTSPEED);
+    zoomv = between(-PANSPEED, zoomv, PANSPEED);
     PVector p = focusedV.copy().rotate(-rot).mult(frameTime*pow(zoom, 0.5)/20);
     focusedX += p.x;
     focusedY += p.y;
