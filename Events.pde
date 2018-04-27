@@ -64,7 +64,7 @@ class Split extends GameEvent{
     this.endY = endY;
     this.units = units;
   }
-  
+
 }
 
 class ChangeTask extends GameEvent{
@@ -78,5 +78,5 @@ class ChangeTask extends GameEvent{
 }
 
 class EndTurn extends GameEvent{
-  
+
 }

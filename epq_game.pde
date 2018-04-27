@@ -6,7 +6,7 @@ int mapSize;
 String activeState;
 HashMap<String, State> states;
 int lastClickTime = 0;
-final int DOUBLECLICKWAIT = 500;  
+final int DOUBLECLICKWAIT = 500;
 float GUIScale = 1.0;
 float TextScale = 1.6;
 PrintWriter settingsWriteFile; 
@@ -155,7 +155,7 @@ void changeSetting(String id, String newValue){
 }
 
 void writeSettings(){
-  settingsWriteFile = createWriter("settings.txt"); 
+  settingsWriteFile = createWriter("settings.txt");
   for(String s: settings.keyArray()){
     settingsWriteFile.println(s+" "+settings.get(s));
   }
@@ -298,7 +298,7 @@ boolean smoothed = false;
 void draw(){
   background(255);
   prevT = millis();
-  
+
   String newState = getActiveState().update();
   if (!newState.equals("")){
     for (Panel panel : states.get(newState).panels){
@@ -314,8 +314,8 @@ void draw(){
   textAlign(LEFT, TOP);
   fill(255,0,0);
   text(frameRate, 0, 0);
-  
-  
+
+
 }
 
 State getActiveState(){
