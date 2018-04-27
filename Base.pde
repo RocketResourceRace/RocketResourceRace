@@ -171,6 +171,7 @@ class Panel{
   Boolean visible, blockEvent;
   private int x, y, w, h;
   private color bgColour, strokeColour;
+  PGraphics panelCanvas, elemGraphics;
   
   Panel(String id, int x, int y, int w, int h, Boolean visible, Boolean blockEvent, color bgColour, color strokeColour){
     this.x = x;
@@ -183,6 +184,7 @@ class Panel{
     this.bgColour = bgColour;
     this.strokeColour = strokeColour;
     elements = new HashMap<String, Element>();
+    panelCanvas = createGraphics(w, h, P2D);
   }
   
   Panel(String id, int x, int y, int w, int h, Boolean visible, String fileName, color strokeColour){
@@ -195,6 +197,7 @@ class Panel{
     this.img = loadImage(fileName);
     this.strokeColour = strokeColour;
     elements = new HashMap<String, Element>();
+    panelCanvas = createGraphics(w, h, P2D);
   }
   
   void setOffset(){
@@ -221,23 +224,29 @@ class Panel{
   }
   
   void draw(){
-    pushStyle();
+    panelCanvas.beginDraw();
+    panelCanvas.clear();
+    panelCanvas.pushStyle();
     if (img == null){
       if (bgColour != color(255, 255)){
-        fill(bgColour);
-        stroke(strokeColour);
-        rect(x, y, w, h);
+        panelCanvas.fill(bgColour);
+        panelCanvas.stroke(strokeColour);
+        panelCanvas.rect(0, 0, w, h);
       }
     }
     else{
       //imageMode(CENTER);
-      image(img, x, y, w, h);
+      panelCanvas.image(img, 0, 0, w, h);
     }
-    popStyle();
+    panelCanvas.popStyle();
     
     for (Element elem : elements.values()){
-      elem.draw();
+      if(elem.visible){
+        elem.draw(panelCanvas);
+      }
     }
+    panelCanvas.endDraw();
+    image(panelCanvas, x, y);
   }
   
   int getX(){
@@ -258,21 +267,22 @@ class Panel{
 
 class Element{
   boolean active = true;
-  int xOffset, yOffset;
-  int x, y, w, h;
-  void draw(){}
+  boolean visible = true;
+  int x, y, w, h, xOffset, yOffset;
+  
+  void draw(PGraphics panelCanvas){}
   ArrayList<String> mouseEvent(String eventType, int button){return new ArrayList<String>();}
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){return new ArrayList<String>();}
   ArrayList<String> keyboardEvent(String eventType, char _key){return new ArrayList<String>();}
-  void setOffset(int xOffset, int yOffset){
-    this.xOffset = xOffset;
-    this.yOffset = yOffset;
-  }
   void transform(int x, int y, int w, int h){
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
+  }
+  void setOffset(int xOffset, int yOffset){
+    this.xOffset = xOffset;
+    this.yOffset = yOffset;
   }
   ArrayList<String> _mouseEvent(String eventType, int button){
     return mouseEvent(eventType, button);

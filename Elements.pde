@@ -122,23 +122,23 @@ class Tooltip extends Element{
     setText(t.replaceAll("\\s+$", ""));
   }
   
-  void draw(){
+  void draw(PGraphics panelCanvas){
     if (visible && text.length() > 0){
-      ArrayList<String> lines = getLines(text); 
-      textSize(8*TextScale);
+      ArrayList<String> lines = getLines(text);
+      panelCanvas.textFont(getFont(8*TextScale));
       int tw = ceil(maxWidthLine(lines))+4;
       int gap = ceil(textAscent()+textDescent());
       int th = ceil(textAscent()+textDescent())*lines.size();
-      int tx = round(between(0, mouseX-tw/2, width-tw));
-      int ty = round(between(0, mouseY+20, height-th-20));
-      fill(255, 200);
-      stroke(0);
-      rectMode(CORNER);
-      rect(tx, ty, tw, th);
-      fill(0);
-      textAlign(LEFT, TOP);
+      int tx = round(between(0, mouseX-xOffset-tw/2, width-tw));
+      int ty = round(between(0, mouseY-yOffset+20, height-th-20));
+      panelCanvas.fill(200, 230);
+      panelCanvas.stroke(0);
+      panelCanvas.rectMode(CORNER);
+      panelCanvas.rect(tx, ty, tw, th);
+      panelCanvas.fill(0);
+      panelCanvas.textAlign(LEFT, TOP);
       for (int i=0; i<lines.size(); i++){
-        text(lines.get(i), tx+2, ty+i*gap);
+        panelCanvas.text(lines.get(i), tx+2, ty+i*gap);
       }
     }
   }
@@ -169,10 +169,10 @@ class NotificationManager extends Element{
   }
   
   boolean moveOver(){
-    return mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+yOffset && mouseY <= y+h+yOffset;
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
   }
   boolean mouseOver(int i){
-    return mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+yOffset+notHeight*i+topOffset && mouseY <= y+notHeight*(i+1)+yOffset+topOffset;
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y+notHeight*i+topOffset && mouseY-yOffset <= y+notHeight*(i+1)+topOffset;
   }
   int findMouseOver(){
     if (!moveOver()){
@@ -186,7 +186,7 @@ class NotificationManager extends Element{
     return -1;
   }
   boolean hoveringDismissAll(){
-    return x<mouseX&&mouseX<x+notHeight&&y<mouseY&&mouseY<y+topOffset; 
+    return x<mouseX-xOffset&&mouseX-xOffset<x+notHeight&&y<mouseY-yOffset&&mouseY-yOffset<y+topOffset; 
   }
   
   void turnChange(int turn){
@@ -227,9 +227,9 @@ class NotificationManager extends Element{
   ArrayList<String> mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
     if (eventType == "mousePressed"){
-      if (moveOver() && mouseX>x+w-20*GUIScale && mouseY > topOffset && notifications.get(turn).size() > displayNots){
+      if (moveOver() && mouseX-xOffset>x+w-20*GUIScale && mouseY-yOffset > topOffset && notifications.get(turn).size() > displayNots){
         scrolling = true;
-        scroll = round(between(0, (mouseY-y-topOffset)*(notifications.get(turn).size()-displayNots+1)/(h-topOffset), notifications.get(turn).size()-displayNots));
+        scroll = round(between(0, (mouseY-yOffset-y-topOffset)*(notifications.get(turn).size()-displayNots+1)/(h-topOffset), notifications.get(turn).size()-displayNots));
       }
       else{
         scrolling = false;
@@ -237,23 +237,23 @@ class NotificationManager extends Element{
     }
     if (eventType == "mouseDragged"){
       if (scrolling && notifications.get(turn).size() > displayNots){
-        scroll = round(between(0, (mouseY-y-topOffset)*(notifications.get(turn).size()-displayNots+1)/(h-topOffset), notifications.get(turn).size()-displayNots));
+        scroll = round(between(0, (mouseY-yOffset-y-topOffset)*(notifications.get(turn).size()-displayNots+1)/(h-topOffset), notifications.get(turn).size()-displayNots));
       }
       
     }
     if (eventType == "mouseClicked"){
       int hovering = findMouseOver();
       if (hovering >=0){
-        if (mouseX<x+notHeight){
+        if (mouseX-xOffset<x+notHeight){
           dismiss(hovering+scroll);
           events.add("notification dismissed");
         }
-        else if (!(notifications.get(turn).size() > displayNots) || !(mouseX>x+w-20*GUIScale)){
+        else if (!(notifications.get(turn).size() > displayNots) || !(mouseX-xOffset>x+w-20*GUIScale)){
           lastSelected = notifications.get(turn).get(hovering+scroll);
           events.add("notification selected");
         }
       }
-      else if (mouseX<x+notHeight && hoveringDismissAll()){
+      else if (mouseX-xOffset<x+notHeight && hoveringDismissAll()){
         dismissAll();
       }
     }
@@ -264,75 +264,75 @@ class NotificationManager extends Element{
     return notifications.get(turn).size() == 0;
   }
   
-  void draw(){
+  void draw(PGraphics panelCanvas){
     if (empty())return;
-    pushStyle();
-    fill(bgColour);
-    rect(x, y, w, h);
-    textSize(10*TextScale);
-    fill(brighten(bgColour, -50));
-    topOffset = ceil(textAscent()+textDescent());
+    panelCanvas.pushStyle();
+    panelCanvas.fill(bgColour);
+    panelCanvas.rect(x, y, w, h);
+    panelCanvas.textFont(getFont(10*TextScale));
+    panelCanvas.fill(brighten(bgColour, -50));
+    topOffset = ceil(panelCanvas.textAscent()+panelCanvas.textDescent());
     this.notHeight = (h-topOffset)/displayNots;
-    rect(x, y, w, topOffset);
-    fill(textColour);
-    textAlign(CENTER, TOP);
-    text("Notification Manager", x+w/2, y);
+    panelCanvas.rect(x, y, w, topOffset);
+    panelCanvas.fill(textColour);
+    panelCanvas.textAlign(CENTER, TOP);
+    panelCanvas.text("Notification Manager", x+w/2, y);
     
     if (hoveringDismissAll()){
-      fill(brighten(bgColour, 80));
+      panelCanvas.fill(brighten(bgColour, 80));
     }
     else{
-      fill(brighten(bgColour, -20));
+      panelCanvas.fill(brighten(bgColour, -20));
     }
-    rect(x, y, notHeight, topOffset);
-    strokeWeight(3);
-    line(x+5, y+5, x+notHeight-5, y+topOffset-5);
-    line(x+notHeight-5, y+5, x+5, y+topOffset-5);
-    strokeWeight(1);
+    panelCanvas.rect(x, y, notHeight, topOffset);
+    panelCanvas.strokeWeight(3);
+    panelCanvas.line(x+5, y+5, x+notHeight-5, y+topOffset-5);
+    panelCanvas.line(x+notHeight-5, y+5, x+5, y+topOffset-5);
+    panelCanvas.strokeWeight(1);
     
     int hovering = findMouseOver();
     for (int i=0; i<min(notifications.get(turn).size(), displayNots); i++){
       
       if (hovering == i){
-        fill(brighten(bgColour, 20));
+        panelCanvas.fill(brighten(bgColour, 20));
       }
       else{
-        fill(brighten(bgColour, -10));
+        panelCanvas.fill(brighten(bgColour, -10));
       }
-      rect(x, y+i*notHeight+topOffset, w, notHeight);
+      panelCanvas.rect(x, y+i*notHeight+topOffset, w, notHeight);
       
-      fill(brighten(bgColour, -20));
-      if (mouseX<x+notHeight){
+      panelCanvas.fill(brighten(bgColour, -20));
+      if (mouseX-xOffset<x+notHeight){
         if (hovering == i){
-          fill(brighten(bgColour, 80));
+          panelCanvas.fill(brighten(bgColour, 80));
         }
         else{
-          fill(brighten(bgColour, -20));
+          panelCanvas.fill(brighten(bgColour, -20));
         }
       }
-      rect(x, y+i*notHeight+topOffset, notHeight, notHeight);
-      strokeWeight(3);
-      line(x+5, y+i*notHeight+topOffset+5, x+notHeight-5, y+(i+1)*notHeight+topOffset-5);
-      line(x+notHeight-5, y+i*notHeight+topOffset+5, x+5, y+(i+1)*notHeight+topOffset-5);
-      strokeWeight(1);
+      panelCanvas.rect(x, y+i*notHeight+topOffset, notHeight, notHeight);
+      panelCanvas.strokeWeight(3);
+      panelCanvas.line(x+5, y+i*notHeight+topOffset+5, x+notHeight-5, y+(i+1)*notHeight+topOffset-5);
+      panelCanvas.line(x+notHeight-5, y+i*notHeight+topOffset+5, x+5, y+(i+1)*notHeight+topOffset-5);
+      panelCanvas.strokeWeight(1);
       
-      fill(textColour);
-      textSize(8*TextScale);
-      textAlign(LEFT, CENTER);
-      text(notifications.get(turn).get(i+scroll).name, x+notHeight+5, y+topOffset+i*notHeight+notHeight/2);
-      textAlign(RIGHT, CENTER);
-      text("Turn "+notifications.get(turn).get(i+scroll).turn, x-notHeight+w, y+topOffset+i*notHeight+notHeight/2);
+      panelCanvas.fill(textColour);
+      panelCanvas.textFont(getFont(8*TextScale));
+      panelCanvas.textAlign(LEFT, CENTER);
+      panelCanvas.text(notifications.get(turn).get(i+scroll).name, x+notHeight+5, y+topOffset+i*notHeight+notHeight/2);
+      panelCanvas.textAlign(RIGHT, CENTER);
+      panelCanvas.text("Turn "+notifications.get(turn).get(i+scroll).turn, x-notHeight+w, y+topOffset+i*notHeight+notHeight/2);
     }
     
     //draw scroll
     int d = notifications.get(turn).size() - displayNots;
     if (d > 0){
-      fill(brighten(bgColour, 100));
-      rect(x-20*GUIScale+w, y+topOffset, 20*GUIScale, h-topOffset);
-      fill(brighten(bgColour, -20));
-      rect(x-20*GUIScale+w, y+(h-topOffset-(h-topOffset)/(d+1))*scroll/d+topOffset, 20*GUIScale, (h-topOffset)/(d+1));
+      panelCanvas.fill(brighten(bgColour, 100));
+      panelCanvas.rect(x-20*GUIScale+w, y+topOffset, 20*GUIScale, h-topOffset);
+      panelCanvas.fill(brighten(bgColour, -20));
+      panelCanvas.rect(x-20*GUIScale+w, y+(h-topOffset-(h-topOffset)/(d+1))*scroll/d+topOffset, 20*GUIScale, (h-topOffset)/(d+1));
     }
-    popStyle();
+    panelCanvas.popStyle();
   }
 }
 
@@ -362,7 +362,7 @@ class TextBox extends Element{
   void setText(String text){
     this.text = text;
     if (autoSizing){
-      textSize(textSize*TextScale);
+      textFont(getFont(textSize*TextScale));
       this.w = ceil(textWidth(text))+10;
     }
   }
@@ -374,18 +374,18 @@ class TextBox extends Element{
     bgColour = c;
   }
   
-  void draw(){
-    pushStyle();
-    textSize(textSize*TextScale);
-    textAlign(CENTER, CENTER);
-    rectMode(CORNER);
+  void draw(PGraphics panelCanvas){
+    panelCanvas.pushStyle();
+    panelCanvas.textFont(getFont(textSize*TextScale));
+    panelCanvas.textAlign(CENTER, CENTER);
+    panelCanvas.rectMode(CORNER);
     if (bgColour != color(255, 255)){
-      fill(bgColour);
-      rect(x+xOffset, y+yOffset, w, h);
+      panelCanvas.fill(bgColour);
+      panelCanvas.rect(x, y, w, h);
     }
-    fill(textColour);
-    text(text, x+xOffset+w/2, y+yOffset+h/2);
-    popStyle();
+    panelCanvas.fill(textColour);
+    panelCanvas.text(text, x+w/2, y+h/2);
+    panelCanvas.popStyle();
   }
 }
 
@@ -448,11 +448,11 @@ class ResourceSummary extends Element{
   }
   int columnWidth(int i){
     int m=0;
-    textSize(10*TextScale);
+    textFont(getFont(10*TextScale));
     m = max(m, ceil(textWidth(getResString(i))));
-    textSize(8*TextScale);
+    textFont(getFont(8*TextScale));
     m = max(m, ceil(textWidth(getStockString(i))));
-    textSize(8*TextScale);
+    textFont(getFont(8*TextScale));
     m = max(m, ceil(textWidth(getNetString(i))));
     return m;
   }
@@ -475,42 +475,42 @@ class ResourceSummary extends Element{
     return color(155*(timings[i]-millis())/FLASHTIMES+100, 100, 100);
   }
   
-  void draw(){
+  void draw(PGraphics panelCanvas){
     int cw = 0;
     int w, yLevel, tw = totalWidth();
-    pushStyle();
-    textAlign(LEFT, TOP);
-    fill(120);
-    rect(width-tw-x+xOffset-GAP/2, y+yOffset, tw, h);
-    rectMode(CORNERS);
+    panelCanvas.pushStyle();
+    panelCanvas.textAlign(LEFT, TOP);
+    panelCanvas.fill(120);
+    panelCanvas.rect(width-tw-x-GAP/2, y, tw, h);
+    panelCanvas.rectMode(CORNERS);
     for (int i=numRes-1; i>=0; i--){
       if (gameData.getJSONArray("resources").getJSONObject(i).getInt("resource manager") <= ((expanded) ? 0:1)) continue;
       w = columnWidth(i);
-      fill(getFill(i));
-      textSize(10*TextScale);
-      rect(width-cw+xOffset+x-GAP/2, yOffset+y, width-cw+xOffset+x-GAP/2-(w+GAP), yOffset+y+textAscent()+textDescent());
+      panelCanvas.fill(getFill(i));
+      panelCanvas.textFont(getFont(10*TextScale));
+      panelCanvas.rect(width-cw+x-GAP/2, y, width-cw+x-GAP/2-(w+GAP), y+panelCanvas.textAscent()+panelCanvas.textDescent());
       cw += w+GAP;
-      line(width-cw+xOffset+x-GAP/2, yOffset+y, width-cw+xOffset+x-GAP/2, yOffset+y+h);
-      fill(0);
+      panelCanvas.line(width-cw+x-GAP/2, y, width-cw+x-GAP/2, y+h);
+      panelCanvas.fill(0);
       
       yLevel=0;
-      textSize(10*TextScale);
-      text(getResString(i), width-cw+xOffset, y+yOffset);
-      yLevel += textAscent()+textDescent();
+      panelCanvas.textFont(getFont(10*TextScale));
+      panelCanvas.text(getResString(i), width-cw, y);
+      yLevel += panelCanvas.textAscent()+panelCanvas.textDescent();
       
-      textSize(8*TextScale);
-      text(getStockString(i), width-cw+xOffset, y+yOffset+yLevel);
-      yLevel += textAscent()+textDescent();
+      panelCanvas.textFont(getFont(8*TextScale));
+      panelCanvas.text(getStockString(i), width-cw, y+yLevel);
+      yLevel += panelCanvas.textAscent()+panelCanvas.textDescent();
       
       if (net[i] < 0)
-        fill(255,0,0);
+        panelCanvas.fill(255,0,0);
       else
-        fill(0,255,0);
-      textSize(8*TextScale);
-      text(getNetString(i), width-cw+xOffset, y+yOffset+yLevel);
-      yLevel += textAscent()+textDescent();
+        panelCanvas.fill(0,255,0);
+      panelCanvas.textFont(getFont(8*TextScale));
+      panelCanvas.text(getNetString(i), width-cw, y+yLevel);
+      yLevel += panelCanvas.textAscent()+panelCanvas.textDescent();
     }
-    popStyle();
+    panelCanvas.popStyle();
   }
 }
 
@@ -594,7 +594,7 @@ class DropDown extends Element{
     }
   }
   int getH(){
-    textSize(textSize*TextScale);
+    textFont(getFont(textSize*TextScale));
     return ceil(textAscent() + textDescent());
   }
   boolean optionAvailable(int i){
@@ -605,30 +605,30 @@ class DropDown extends Element{
     }
     return false;
   }
-  void draw(){
-    pushStyle();
+  void draw(PGraphics panelCanvas){
+    panelCanvas.pushStyle();
     h = getH();
-    fill(brighten(bgColour, ONOFFSET));
-    stroke(strokeColour);
-    rect(x+xOffset, y+yOffset, w, h);
-    fill(0);
-    textAlign(LEFT, TOP);
-    text("Current Task: "+options.get(availableOptions.get(0)), x+xOffset+5, y+yOffset);
+    panelCanvas.fill(brighten(bgColour, ONOFFSET));
+    panelCanvas.stroke(strokeColour);
+    panelCanvas.rect(x, y, w, h);
+    panelCanvas.fill(0);
+    panelCanvas.textAlign(LEFT, TOP);
+    panelCanvas.text("Current Task: "+options.get(availableOptions.get(0)), x+5, y);
     
     if (dropped){
       for (int j=1; j< availableOptions.size(); j++){
         if (active && mouseOver(j)){
-          fill(brighten(bgColour, HOVERINGOFFSET));
+          panelCanvas.fill(brighten(bgColour, HOVERINGOFFSET));
         }
         else{
-          fill(bgColour);
+          panelCanvas.fill(bgColour);
         }
-        rect(x+xOffset, y+yOffset+h*j, w, h);
-        fill(0);
-        text(options.get(availableOptions.get(j)), x+xOffset+5, y+yOffset+h*j);
+        panelCanvas.rect(x, y+h*j, w, h);
+        panelCanvas.fill(0);
+        panelCanvas.text(options.get(availableOptions.get(j)), x+5, y+h*j);
       }
     }
-    popStyle();
+    panelCanvas.popStyle();
   }
   
   ArrayList<String> mouseEvent(String eventType, int button){
@@ -650,17 +650,17 @@ class DropDown extends Element{
   
   String findMouseOver(){
     for (int j=0; j<availableOptions.size(); j++){
-      if (mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+h*j+yOffset && mouseY <= y+h*(j+1)+yOffset)
+      if (mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y+h*j && mouseY-yOffset <= y+h*(j+1))
         return options.get(availableOptions.get(j));
     }
     return "";
   }
   
   boolean moveOver(){
-    return mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+yOffset && mouseY <= y+h*availableOptions.size()+yOffset;
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h*availableOptions.size();
   }
   boolean mouseOver(int j){
-    return mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+h*j+yOffset && mouseY <= y+h*(j+1)+yOffset;
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y+h*j && mouseY-yOffset <= y+h*(j+1);
   }
 }
 
@@ -712,41 +712,41 @@ class Button extends Element{
   String getText(){
     return this.text;
   }
-  void draw(){
+  void draw(PGraphics panelCanvas){
     //println(xOffset, yOffset);
     int padding=0;
     float r = red(bgColour), g = green(bgColour), b = blue(bgColour);
-    pushStyle();
-    fill(bgColour);
+    panelCanvas.pushStyle();
+    panelCanvas.fill(bgColour);
     if (state == "off"){
-      fill(bgColour);
+      panelCanvas.fill(bgColour);
     }
     else if (state == "hovering"){
-      fill(min(r+HOVERINGOFFSET, 255), min(g+HOVERINGOFFSET, 255), min(b+HOVERINGOFFSET, 255));
+      panelCanvas.fill(min(r+HOVERINGOFFSET, 255), min(g+HOVERINGOFFSET, 255), min(b+HOVERINGOFFSET, 255));
     }
     else if (state == "on"){
-      fill(min(r+ONOFFSET, 255), min(g+ONOFFSET, 255), min(b+ONOFFSET, 255));
+      panelCanvas.fill(min(r+ONOFFSET, 255), min(g+ONOFFSET, 255), min(b+ONOFFSET, 255));
     }
-    stroke(strokeColour);
-    strokeWeight(3);
-    rect(x+xOffset, y+yOffset, w, h);
-    noTint();
-    fill(textColour);
-    textAlign(textAlign, TOP);
-    textSize(textSize*TextScale);
+    panelCanvas.stroke(strokeColour);
+    panelCanvas.strokeWeight(3);
+    panelCanvas.rect(x, y, w, h);
+    panelCanvas.noTint();
+    panelCanvas.fill(textColour);
+    panelCanvas.textAlign(textAlign, TOP);
+    panelCanvas.textFont(getFont(textSize*TextScale));
     if (lines.size() == 1){
       padding = h/10;
     }
     padding = (lines.size()*(int)(textSize*TextScale)-h/2)/2;
     for (int i=0; i<lines.size(); i++){
       if (textAlign == CENTER){
-        text(lines.get(i), cx+xOffset, y+(h*0.9-textSize*TextScale)/2+yOffset);
+        panelCanvas.text(lines.get(i), cx, y+(h*0.9-textSize*TextScale)/2);
       }
       else{
-        text(lines.get(i), x+xOffset, y + yOffset);
+        panelCanvas.text(lines.get(i), x, y );
       }
     }
-    popStyle();
+    panelCanvas.popStyle();
   }
   
   ArrayList<String> setLines(String s){
@@ -789,7 +789,7 @@ class Button extends Element{
   }
   
   Boolean mouseOver(){
-    return mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+yOffset && mouseY <= y+h+yOffset;
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
   }
 }
 
@@ -837,7 +837,7 @@ class Slider extends Element{
     visible = false;
   }
   void scaleKnob(){
-    textSize(8*TextScale);
+    textFont(getFont(8*TextScale));
     this.knobSize = textWidth(""+getInc(new BigDecimal(""+upper)));
   }
   void transform(int x, int y, int w, int h){
@@ -881,14 +881,14 @@ class Slider extends Element{
     if (button == LEFT){
       if (mouseOver() && eventType == "mousePressed"){
           pressed = true;
-          setValue((new BigDecimal(mouseX-x-xOffset)).divide(new BigDecimal(w), 15, BigDecimal.ROUND_HALF_EVEN).multiply(upper.subtract(lower)).add(lower));
+          setValue((new BigDecimal(mouseX-xOffset-x)).divide(new BigDecimal(w), 15, BigDecimal.ROUND_HALF_EVEN).multiply(upper.subtract(lower)).add(lower));
           events.add("valueChanged");
       }
       else if (eventType == "mouseReleased"){
         pressed = false;
       }
       if (eventType == "mouseDragged" && pressed){
-        setValue((new BigDecimal(mouseX-x-xOffset)).divide(new BigDecimal(w), 15, BigDecimal.ROUND_HALF_EVEN).multiply(upper.subtract(lower)).add(lower));
+        setValue((new BigDecimal(mouseX-xOffset-x)).divide(new BigDecimal(w), 15, BigDecimal.ROUND_HALF_EVEN).multiply(upper.subtract(lower)).add(lower));
         events.add("valueChanged");
       }
     }
@@ -896,62 +896,62 @@ class Slider extends Element{
   }
   
   Boolean mouseOver(){
-    return mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+yOffset && mouseY <= y+h+yOffset;
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
   }
   
   BigDecimal getInc(BigDecimal i){
     return i.stripTrailingZeros();
   }
   
-  void draw(){
+  void draw(PGraphics panelCanvas){
     if (!visible)return;
     BigDecimal range = upper.subtract(lower);
     float r = red(KnobColour), g = green(KnobColour), b = blue(KnobColour);
-    pushStyle();
-    fill(255, 100);
-    stroke(strokeColour, 50);
+    panelCanvas.pushStyle();
+    panelCanvas.fill(255, 100);
+    panelCanvas.stroke(strokeColour, 50);
     //rect(lx, y, lw, h);
     //rect(xOffset+x, y+yOffset+padding+2, w, h-padding);
-    stroke(strokeColour);
+    panelCanvas.stroke(strokeColour);
     
     
     for(int i=0; i<=minor; i++){
-      fill(scaleColour);
-      line(xOffset+x+w*i/minor, y+yOffset+padding+(h-padding)/6, xOffset+x+w*i/minor, y+yOffset+5*(h-padding)/6+padding);
+      panelCanvas.fill(scaleColour);
+      panelCanvas.line(x+w*i/minor, y+padding+(h-padding)/6, x+w*i/minor, y+5*(h-padding)/6+padding);
     }
     for(int i=0; i<=major; i++){
-      fill(scaleColour);
-      textSize(10*TextScale);
-      textAlign(CENTER);
-      text(getInc((new BigDecimal(""+i).multiply(range).divide(new BigDecimal(""+major), 15, BigDecimal.ROUND_HALF_EVEN).add(lower))).toPlainString(), xOffset+x+w*i/major, y+yOffset+padding);
-      line(xOffset+x+w*i/major, y+yOffset+padding, xOffset+x+w*i/major, y+yOffset+h);
+      panelCanvas.fill(scaleColour);
+      panelCanvas.textFont(getFont(10*TextScale));
+      panelCanvas.textAlign(CENTER);
+      panelCanvas.text(getInc((new BigDecimal(""+i).multiply(range).divide(new BigDecimal(""+major), 15, BigDecimal.ROUND_HALF_EVEN).add(lower))).toPlainString(), x+w*i/major, y+padding);
+      panelCanvas.line(x+w*i/major, y+padding, x+w*i/major, y+h);
     }
     
     if (pressed){
-      fill(min(r-PRESSEDOFFSET, 255), min(g-PRESSEDOFFSET, 255), min(b+PRESSEDOFFSET, 255));
+      panelCanvas.fill(min(r-PRESSEDOFFSET, 255), min(g-PRESSEDOFFSET, 255), min(b+PRESSEDOFFSET, 255));
     }
     else{
-      fill(KnobColour);
+      panelCanvas.fill(KnobColour);
     }
     
-    textSize(TextScale*8);
-    textAlign(CENTER);
-    rectMode(CENTER);
+    panelCanvas.textFont(getFont(8*TextScale));
+    panelCanvas.textAlign(CENTER);
+    panelCanvas.rectMode(CENTER);
     this.knobSize = max(this.knobSize, textWidth(""+getInc(value)));
-    rect(x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2+yOffset+padding/2, knobSize, boxHeight);
-    rectMode(CORNER);
-    fill(scaleColour);
-    text(getInc(value).toPlainString(), x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2+boxHeight/4+yOffset+padding/2);
-    stroke(0);
-    textAlign(CENTER);
-    stroke(255, 0, 0);
-    line(x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight/2+yOffset+padding/2, x+value.floatValue()/range.floatValue()*w+xOffset-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight+yOffset+padding/2);
-    stroke(0);
-    fill(0);
-    textSize(12*TextScale);
-    textAlign(LEFT, BOTTOM);
-    text(name, x+xOffset, y+yOffset);
-    popStyle();
+    panelCanvas.rect(x+value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue(), y+h/2+padding/2, knobSize, boxHeight);
+    panelCanvas.rectMode(CORNER);
+    panelCanvas.fill(scaleColour);
+    panelCanvas.text(getInc(value).toPlainString(), x+value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue(), y+h/2+boxHeight/4+padding/2);
+    panelCanvas.stroke(0);
+    panelCanvas.textAlign(CENTER);
+    panelCanvas.stroke(255, 0, 0);
+    panelCanvas.line(x+value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight/2+padding/2, x+value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight+padding/2);
+    panelCanvas.stroke(0);
+    panelCanvas.fill(0);
+    panelCanvas.textFont(getFont(12*TextScale));
+    panelCanvas.textAlign(LEFT, BOTTOM);
+    panelCanvas.text(name, x, y);
+    panelCanvas.popStyle();
   }
 }
 
@@ -979,22 +979,22 @@ class Text extends Element{
     this.text = text;
   }
   void calcSize(){
-    textSize(size*TextScale);
+    textFont(getFont(size*TextScale));
     this.w = ceil(textWidth(text));
     this.h = ceil(textAscent()+textDescent());
   }
-  void draw(){
+  void draw(PGraphics panelCanvas){
     calcSize();
     if (font != null){
-      textFont(font);
+      panelCanvas.textFont(font);
     }
-    textAlign(align, TOP);
-    textSize(size*TextScale);
-    fill(colour);
-    text(text, x+xOffset, y+yOffset);
+    panelCanvas.textAlign(align, TOP);
+    panelCanvas.textFont(getFont(size*TextScale));
+    panelCanvas.fill(colour);
+    panelCanvas.text(text, x, y);
   }
   boolean mouseOver(){
-    return mouseX >= x+xOffset && mouseX <= x+w+xOffset && mouseY >= y+yOffset && mouseY <= y+h+yOffset;
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
   }
 }
 
@@ -1041,40 +1041,40 @@ class TextEntry extends Element{
     deactivate();
   }
   
-  void draw(){
+  void draw(PGraphics panelCanvas){
     boolean showCursor = ((millis()/BLINKTIME)%2==0 || keyPressed) && active;
-    pushStyle();
+    panelCanvas.pushStyle();
     
     // Draw a box behind the text
-    fill(boxColour);
-    stroke(borderColour);
-    rect(x+xOffset, y+yOffset, w, h);
+    panelCanvas.fill(boxColour);
+    panelCanvas.stroke(borderColour);
+    panelCanvas.rect(x, y, w, h);
     // Draw selection box
     if (selected != cursor && active && cursor >= 0 ){
-      fill(selectionColour);
-      rect(x+textWidth(text.substring(0, min(cursor, selected)))+xOffset+5, y+2, textWidth(text.substring(min(cursor, selected)+yOffset, max(cursor, selected))), h-4);
+      panelCanvas.fill(selectionColour);
+      panelCanvas.rect(x+textWidth(text.substring(0, min(cursor, selected)))+5, y+2, textWidth(text.substring(min(cursor, selected), max(cursor, selected))), h-4);
     }
     
     // Draw the text
-    textSize(textSize*TextScale);
-    textAlign(textAlign);
-    fill(textColour);
-    text(text.toString(), x+xOffset+5, y+yOffset+(h-textSize*TextScale)/2, w, h);
+    panelCanvas.textFont(getFont(textSize*TextScale));
+    panelCanvas.textAlign(textAlign);
+    panelCanvas.fill(textColour);
+    panelCanvas.text(text.toString(), x+5, y+(h-textSize*TextScale)/2, w, h);
     
     // Draw cursor
     if (showCursor){
-      fill(0);
-      noStroke();
-      rect(x+textWidth(text.toString().substring(0,cursor))+xOffset+5, y+yOffset+(h-textSize*TextScale)/2, 1, textSize*TextScale);
+      panelCanvas.fill(0);
+      panelCanvas.noStroke();
+      panelCanvas.rect(x+textWidth(text.toString().substring(0,cursor))+5, y+(h-textSize*TextScale)/2, 1, textSize*TextScale);
     }
     if (name != null){
-      fill(0);
-      textSize(10);
-      textAlign(LEFT);
-      text(name, x, y-12);
+      panelCanvas.fill(0);
+      panelCanvas.textFont(getFont(10*TextScale));
+      panelCanvas.textAlign(LEFT);
+      panelCanvas.text(name, x, y-12);
     }
     
-    popStyle();
+    panelCanvas.popStyle();
   }
   
   void resetSelection(){
@@ -1090,21 +1090,21 @@ class TextEntry extends Element{
   int getCursorPos(int mx, int my){
     int i=0;
     for(; i<text.length(); i++){
-      textSize(textSize*TextScale);
+      textFont(getFont(textSize*TextScale));
       if (textWidth(text.substring(0, i)) + x > mx)
         break;
     }
-    if (0 <= i && i <= text.length() && y+yOffset+(h-textSize*TextScale)/2<= my && my <= y+yOffset+(h-textSize*TextScale)/2+textSize*TextScale){
+    if (0 <= i && i <= text.length() && y+(h-textSize*TextScale)/2<= my && my <= y+(h-textSize*TextScale)/2+textSize*TextScale){
       return i;
     }
     return cursor;
   }
   
   void doubleSelectWord(){
-    if (!(y <= mouseY && mouseY <= y+h)){
+    if (!(y <= mouseY-yOffset && mouseY-yOffset <= y+h)){
       return;
     }
-    int c = getCursorPos(mouseX, mouseY);
+    int c = getCursorPos(mouseX-xOffset, mouseY-yOffset);
     int i;
     for (i=min(c, text.length()-1); i>0; i--){
       if (text.charAt(i) == ' '){
@@ -1132,8 +1132,8 @@ class TextEntry extends Element{
     }
     else if (eventType == "mousePressed"){
       if (button == LEFT){
-        cursor = getCursorPos(mouseX, mouseY);
-        selected = getCursorPos(mouseX, mouseY);
+        cursor = getCursorPos(mouseX-xOffset, mouseY-yOffset);
+        selected = getCursorPos(mouseX-xOffset, mouseY-yOffset);
       }
       if(!mouseOver()){
         deactivate();
@@ -1141,7 +1141,7 @@ class TextEntry extends Element{
     }
     else if (eventType == "mouseDragged"){
       if (button == LEFT){
-        selected = getCursorPos(mouseX, mouseY);
+        selected = getCursorPos(mouseX-xOffset, mouseY-yOffset);
       }
     }
     else if (eventType == "mouseDoubleClicked"){
@@ -1196,7 +1196,7 @@ class TextEntry extends Element{
   }
   
   Boolean mouseOver(){
-    return mouseX >= x && mouseX <= x+w && mouseY >= y && mouseY <= y+h;
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
   }
 }
 
@@ -1208,7 +1208,7 @@ class ToggleButton extends Element{
   color bgColour, strokeColour;
   String name;
   boolean on;
-  ToggleButton(int x, int y, int w, int h, color bgColour, color strokeColour, String name){
+  ToggleButton(int x, int y, int w, int h, color bgColour, color strokeColour, boolean value, String name){
     this.x = x;
     this.y = y;
     this.w = w;
@@ -1216,6 +1216,7 @@ class ToggleButton extends Element{
     this.bgColour = bgColour;
     this.strokeColour = strokeColour;
     this.name = name;
+    this.on = value;
   }
   ArrayList<String> mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
@@ -1234,26 +1235,26 @@ class ToggleButton extends Element{
   boolean getState(){
     return on;
   }
-  void draw(){
-    pushStyle();
-    fill(bgColour);
-    stroke(strokeColour);
-    rect(x, y, w, h);
+  void draw(PGraphics panelCanvas){
+    panelCanvas.pushStyle();
+    panelCanvas.fill(bgColour);
+    panelCanvas.stroke(strokeColour);
+    panelCanvas.rect(x, y, w, h);
     if (on){
-      fill(0, 255, 0);
-      rect(x, y, w/2, h);
+      panelCanvas.fill(0, 255, 0);
+      panelCanvas.rect(x, y, w/2, h);
     }
     else{
-      fill(255, 0, 0);
-      rect(x+w/2, y, w/2, h);
+      panelCanvas.fill(255, 0, 0);
+      panelCanvas.rect(x+w/2, y, w/2, h);
     }
-    fill(0);
-    textSize(8*TextScale);
-    textAlign(LEFT, BOTTOM);
-    text(name, x, y);
-    popStyle();
+    panelCanvas.fill(0);
+    panelCanvas.textFont(getFont(8*TextScale));
+    panelCanvas.textAlign(LEFT, BOTTOM);
+    panelCanvas.text(name, x, y);
+    panelCanvas.popStyle();
   }
   Boolean mouseOver(){
-    return mouseX >= x && mouseX <= x+w && mouseY >= y && mouseY <= y+h;
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
   }
 }

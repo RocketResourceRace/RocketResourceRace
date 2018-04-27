@@ -18,6 +18,10 @@ float volume = 0.5;
 int prevT;
 boolean soundOn = true;
 JSONObject gameData;
+HashMap<Integer, PFont> fonts;
+int graphicsRes = 32;
+boolean mapIs3D;
+PShader toon;
 
 // Event-driven methods
 void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}
@@ -126,10 +130,13 @@ void setVolume(float x){
 int NUMOFGROUNDTYPES = 5;
 int NUMOFBUILDINGTYPES = 9;
 int groundSpawns = 100;
-int waterLevel = 3;
+float waterLevel = 0.35;
 int TILESIZE = 1;
 int MAPWIDTH = 100;
 int MAPHEIGHT = 100;
+float MAPNOISESCALE = 0.08;
+float VERTICESPERTILE = 2;
+float HILLSTEEPNESS = 0.1;
 
 int initialSmooth = 7;
 int completeSmooth = 5;
@@ -141,6 +148,7 @@ HashMap<String, PImage[]> buildingImages;
 PImage[] partyImages;
 HashMap<String, PImage> taskImages;
 HashMap<String, PImage> lowImages;
+HashMap<String, PImage> tile3DImages;
 
 void changeSetting(String id, String newValue){
   settings.set(id, newValue);
@@ -184,6 +192,7 @@ void loadImages(){
   try{
     tileImages = new HashMap<String, PImage>();
     lowImages = new HashMap<String, PImage>();
+    tile3DImages = new HashMap<String, PImage>();
     buildingImages = new HashMap<String, PImage[]>();
     taskImages = new HashMap<String, PImage>();
     for (int i=0; i<gameData.getJSONArray("terrain").size(); i++){
@@ -191,6 +200,9 @@ void loadImages(){
       tileImages.put(tileType.getString("id"), loadImage(tileType.getString("img")));
       if (!tileType.isNull("low img")){
         lowImages.put(tileType.getString("id"), loadImage(tileType.getString("low img")));
+      }
+      if(!tileType.isNull("img3d")){
+        tile3DImages.put(tileType.getString("id"), loadImage(tileType.getString("img3d")));
       }
     }
     for (int i=0; i<gameData.getJSONArray("buildings").size(); i++){
@@ -213,6 +225,17 @@ void loadImages(){
   }
 }
 
+PFont getFont(float size){
+  PFont f=fonts.get(round(size));
+  if (f == null){
+    fonts.put(round(size), createFont("GillSans", size));
+    return fonts.get(round(size));
+  }
+  else{
+    return f;
+  }
+}
+
 
 float sum(float[] l){
   float c=0;
@@ -225,8 +248,11 @@ float sum(float[] l){
 float halfScreenWidth;
 float halfScreenHeight;
 void setup(){
-  fullScreen();
+
+  fullScreen(P3D);
   try{
+    frameRate(1000);
+    fonts = new HashMap<Integer, PFont>();
     gameData = loadJSONObject("data.json");
     settings = new StringDict();
     //if
@@ -238,9 +264,10 @@ void setup(){
     TextScale = float(settings.get("text_scale"));
     mapSize = int(settings.get("mapSize"));
     volume = float(settings.get("volume"));
-    
+    mapIs3D = boolean(settings.get("map3D"));
+
     loadImages();
-    
+
     partyImages = new PImage[]{
       loadImage("data/blue_flag.png"),
       loadImage("data/red_flag.png"),
@@ -250,9 +277,14 @@ void setup(){
     addState("menu", new Menu());
     addState("map", new Game());
     activeState = "menu";
+    //noSmooth();
+    smooth();
     noStroke();
+    //hint(DISABLE_OPTIMIZED_STROKE);
     halfScreenWidth = width/2;
     halfScreenHeight= height/2;
+    toon = loadShader("ToonFrag.glsl", "ToonVert.glsl");
+    toon.set("fraction", 1.0);
   }
   catch(Exception e){
     PrintWriter pw = createWriter("error_log");
@@ -278,6 +310,12 @@ void draw(){
     states.get(newState).enterState();
     activeState = newState;
   }
+  textFont(getFont(10));
+  textAlign(LEFT, TOP);
+  fill(255,0,0);
+  text(frameRate, 0, 0);
+  
+  
 }
 
 State getActiveState(){

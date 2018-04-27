@@ -15,7 +15,7 @@
       "display name": "Water",
       "img": "data/water.png",
       "low img": "data/water_low.png",
-      "weighting": 1,
+      "weighting": 0,
       "movement cost": 16
     },
     {
@@ -36,8 +36,9 @@
       "id": "forest",
       "display name": "Forest",
       "img": "data/forest.png",
+      "img3d": "data/grass.png",
       "low img": "data/forest_low.png",
-      "weighting": 1,
+      "weighting": 2,
       "movement cost": 12
     },
     {
@@ -107,8 +108,9 @@
         "type": "Build Sawmill",
         "notification": "Sawmill Built",
         "turns": 5,
-        "building": "Sawmill"
-      }
+        "building": "Sawmill",
+        "terrain": "grass"
+      },
     },
     {
       "id": "Build Homes",
@@ -116,7 +118,7 @@
       "img": "data/task_construction.png",
       "type": "building",
       "buildings":[],
-      "terrain": ["grass", "sand", "hills"],
+      "terrain": ["grass", "sand"],
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
@@ -409,18 +411,22 @@
     {
       "id": "Homes",
       "img": ["house.png"],
+      "obj": ["houses.obj"]
     },
     {
       "id": "Farm",
       "img": ["farm.png"],
+      "obj": ["farm.obj"]
     },
     {
       "id": "Mine",
       "img": ["mine.png"],
+      "obj": ["mine.obj"],
     },
     {
       "id": "Smelter",
       "img": ["smelter.png"],
+      "obj": ["smelter.obj"]
     },
     {
       "id": "Factory",
@@ -438,6 +444,7 @@
     {
       "id": "Sawmill",
       "img": ["sawmill.png"],
+      "obj": ["sawmill.obj"]
     },
     {
       "id": "Quarry",
@@ -447,7 +454,10 @@
       "id": "Construction",
       "img": ["construction_start.png",
               "construction_mid.png",
-              "construction_end.png"]
+              "construction_end.png"],
+      "obj": ["construction-start.obj",
+              "construction-mid.obj",
+              "construction-end.obj"]
     }
   ],
 

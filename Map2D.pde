@@ -1,7 +1,36 @@
 import java.util.Collections;
 
+interface Map {
+  void updateMoveNodes(Node[][] nodes);
+  void cancelMoveNodes();
+  void removeTreeTile(int cellX, int cellY);
+  boolean isPanning();
+  float getFocusedX();
+  float getFocusedY();
+  boolean isZooming();
+  float getTargetZoom();
+  float getZoom();
+  float getTargetOffsetX();
+  float getTargetOffsetY();
+  float getTargetBlockSize();
+  float[] targetCell(int x, int y, float zoom);
+  void loadSettings(float x, float y, float bs);
+  void unselectCell();
+  boolean mouseOver();
+  Node[][] getMoveNodes();
+  float scaleXInv(int x);
+  float scaleYInv(int y);
+  void updatePath(ArrayList<int[]> nodes);
+  void cancelPath();
+  void setActive(boolean a);
+  void selectCell(int x, int y);
+  void reset(int mapWidth, int mapHeight, int [][] terrain, Party[][] parties, Building[][] buildings);
+  void generateShape();
+  void clearShape();
+}
 
-class Map extends Element{
+
+class Map2D extends Element implements Map{
   final int EW, EH, INITIALHOLD=1000;
   int[][] terrain;
   Party[][] parties;
@@ -27,7 +56,7 @@ class Map extends Element{
   Node[][] moveNodes;
   ArrayList<int[]> drawPath;
 
-  Map(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight){
+  Map2D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight){
     xPos = x;
     yPos = y;
     EW = w;
@@ -48,6 +77,36 @@ class Map extends Element{
     frameStartTime = 0;
     cancelMoveNodes();
     cancelPath();
+  }
+  void generateShape(){
+    
+  }
+  void clearShape(){
+    
+  }
+  Node[][] getMoveNodes(){
+    return moveNodes;
+  }
+  float getTargetZoom(){
+    return targetBlockSize;
+  }
+  float getZoom(){
+    return blockSize;
+  }
+  boolean isZooming(){
+    return zooming;
+  }
+  boolean isPanning(){
+    return panning;
+  }
+  float getFocusedX(){
+    return mapXOffset;
+  }
+  float getFocusedY(){
+    return mapYOffset;
+  }
+  void removeTreeTile(int cellX, int cellY) {
+    terrain[cellY][cellX] = terrainIndex("grass");
   }
   void setActive(boolean a){
     this.mapActive = a;
@@ -95,6 +154,15 @@ class Map extends Element{
     zooming = true;
     targetBlockSize = bs;
   }
+  float getTargetOffsetX(){
+    return targetXOffset;
+  }
+  float getTargetOffsetY(){
+    return targetYOffset;
+  }
+  float getTargetBlockSize(){
+    return targetBlockSize;
+  }
   float [] targetCell(int x, int y, float bs){
     targetBlockSize = bs;
     targetXOffset = -(x+0.5)*targetBlockSize+elementWidth/2+xPos;
@@ -103,7 +171,7 @@ class Map extends Element{
     zooming = true;
     return new float[]{targetXOffset, targetYOffset, targetBlockSize};
   }
-  void focusMapMouse(float x, float y){
+  void focusMapMouse(int x, int y){
     // based on mouse click
     if(mouseOver()){
       targetXOffset = -scaleXInv(x)*blockSize+elementWidth/2+xPos;
@@ -181,38 +249,38 @@ class Map extends Element{
   }
   ArrayList<String> keyboardEvent(String eventType, char _key){
     if (eventType == "keyPressed"){
-      if (_key == 'a'&&mapVelocity[0]>-mapMaxSpeed){
+      if (_key == 'a'){
         resetTargetZoom();
         resetTarget();
         mapVelocity[0] -= mapMaxSpeed;
       }
-      if (_key == 's'&&mapVelocity[1]<mapMaxSpeed){
+      if (_key == 's'){
         resetTargetZoom();
         resetTarget();
         mapVelocity[1] += mapMaxSpeed;
       }
-      if (_key == 'd'&&mapVelocity[0]<mapMaxSpeed){
+      if (_key == 'd'){
         resetTargetZoom();
         resetTarget();
         mapVelocity[0] += mapMaxSpeed;
       }
-      if (_key == 'w'&&mapVelocity[1]>-mapMaxSpeed){
+      if (_key == 'w'){
         resetTargetZoom();
         resetTarget();
         mapVelocity[1] -= mapMaxSpeed;
       }
     }
     if (eventType == "keyReleased"){
-      if (_key == 'a'&&mapVelocity[0]<0){
+      if (_key == 'a'){
         mapVelocity[0] += mapMaxSpeed;
       }
-      if (_key == 's'&&mapVelocity[1]>0){
+      if (_key == 's'){
         mapVelocity[1] -= mapMaxSpeed;
       }
-      if (_key == 'd'&&mapVelocity[0]>0){
+      if (_key == 'd'){
         mapVelocity[0] -= mapMaxSpeed;
       }
-      if (_key == 'w'&&mapVelocity[1]<0){
+      if (_key == 'w'){
         mapVelocity[1] += mapMaxSpeed;
       }
     }
@@ -223,18 +291,18 @@ class Map extends Element{
     this.elementWidth = w;
   }
   
-  void drawSelectedCell(PVector c){
+  void drawSelectedCell(PVector c, PGraphics panelCanvas){
    //cell selection
-   stroke(0);
+   panelCanvas.stroke(0);
    if (cellSelected){
      if (max(c.x, xPos)+min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)>xPos && max(c.x, xPos) < elementWidth+xPos && max(c.y, yPos)+min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos)>yPos && max(c.y, yPos) < elementHeight+yPos){
-       fill(50, 100);
-       rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
+       panelCanvas.fill(50, 100);
+       panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize-1, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize-1, yPos+elementHeight-c.y, blockSize+c.y-yPos));
      }
    }
   }
   
-  void draw(){
+  void draw(PGraphics panelCanvas){
 
     // Terrain
 
@@ -282,9 +350,9 @@ class Map extends Element{
     }
     for (int i=0; i<gameData.getJSONArray("buildings").size(); i++){
       JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
-      tempBuildingImages[i] = new PImage[buildingImages.get(buildingType.get("id")).length];
-      for (int j=0; j<buildingImages.get(buildingType.get("id")).length; j++){
-        tempBuildingImages[i][j] = buildingImages.get(buildingType.get("id"))[j].copy();
+      tempBuildingImages[i] = new PImage[buildingImages.get(buildingType.getString("id")).length];
+      for (int j=0; j<buildingImages.get(buildingType.getString("id")).length; j++){
+        tempBuildingImages[i][j] = buildingImages.get(buildingType.getString("id"))[j].copy();
         tempBuildingImages[i][j].resize(ceil(blockSize*48/64), 0);
       }
     }
@@ -296,109 +364,83 @@ class Map extends Element{
       tempTaskImages.put(taskName, taskImages.get(taskName).copy());
       tempTaskImages.get(taskName).resize(ceil(3*blockSize/16), 0);
     }
-    int lx = max(0, -ceil((mapXOffset)/blockSize)+1);
-    int ly = max(0, -ceil((mapYOffset)/blockSize)+1);
-    int hx = min(floor((elementWidth-mapXOffset)/blockSize), mapWidth-1);
-    int hy = min(floor((elementHeight-mapYOffset)/blockSize), mapHeight-1);
+    int lx = max(0, -ceil((mapXOffset)/blockSize));
+    int ly = max(0, -ceil((mapYOffset)/blockSize));
+    int hx = min(floor((elementWidth-mapXOffset)/blockSize)+1, mapWidth);
+    int hy = min(floor((elementHeight-mapYOffset)/blockSize)+1, mapHeight);
+    
+   PVector c;
+   PVector selectedCell = new PVector(scaleX(selectedCellX), scaleY(selectedCellY));
+     
     for(int y=ly;y<hy;y++){
       for (int x=lx; x<hx; x++){
-       float x2 = round(scaleX(x));
-       float y2 = round(scaleY(y));
-       image(tempTileImages[terrain[y][x]-1], x2, y2);
-       }
-     }
-     int x3 = round(scaleX(hx));
-     int y3 = round(scaleY(hy));
-     int topW = min(round(scaleY(ly)-yPos), ceil(blockSize));
-     int bottomW = min(round(yPos+elementHeight-scaleY(hy)), ceil(blockSize));
-     int leftW = min(round(scaleX(lx)-xPos), ceil(blockSize));
-     int rightW = min(round(xPos+elementWidth-scaleX(hx)), ceil(blockSize));
-     for(int y=ly;y<hy;y++){
-       image(tempTileImages[terrain[y][hx]-1].get(0, 0, rightW, ceil(blockSize)), x3,round(scaleY(y)));
-       if (lx > 0)
-       image(tempTileImages[terrain[y][lx-1]-1].get(ceil(blockSize)-leftW, 0, leftW, ceil(blockSize)), xPos, round(scaleY(y)));
-     }
-     for(int x=lx;x<hx;x++){
-       image(tempTileImages[terrain[hy][x]-1].get(0, 0, ceil(blockSize), bottomW), round(scaleX(x)), y3);
-       if (ly > 0)
-       image(tempTileImages[terrain[ly-1][x]-1].get(0, ceil(blockSize)-topW, ceil(blockSize), topW), round(scaleX(x)), yPos);
-     }
-     if (lx > 0 && ly > 0)
-     image(tempTileImages[terrain[ly-1][lx-1]-1].get(ceil(blockSize)-leftW, ceil(blockSize)-topW, leftW, topW), xPos, yPos);
-     image(tempTileImages[terrain[hy][hx]-1].get(0, 0, rightW, bottomW), x3, y3);
-     if (lx > 0)  
-     image(tempTileImages[terrain[hy][lx-1]-1].get(ceil(blockSize)-leftW, 0, leftW, bottomW), xPos, y3);
-     if (ly > 0)
-     image(tempTileImages[terrain[ly-1][hx]-1].get(0, ceil(blockSize)-topW, rightW, topW), x3, yPos);
-
-     PVector c;
-     PVector selectedCell = new PVector(scaleX(selectedCellX), scaleY(selectedCellY));
-
-     for(int y=max(ly-1,1);y<hy+1;y++){
-       for (int x=max(lx-1,1); x<hx+1; x++){
+        float x2 = round(scaleX(x));
+        float y2 = round(scaleY(y));
+        panelCanvas.image(tempTileImages[terrain[y][x]-1], x2, y2);
+        
          //Buildings
          if (buildings[y][x] != null){
            c = new PVector(scaleX(x), scaleY(y));
            int border = round((64-48)*blockSize/(2*64));
            int imgSize = round(blockSize*48/60);
-           drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, tempBuildingImages[buildings[y][x].type-1][buildings[y][x].image_id]);
+           drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, tempBuildingImages[buildings[y][x].type-1][buildings[y][x].image_id], panelCanvas);
          }
          //Parties
          if(parties[y][x]!=null){
            c = new PVector(scaleX(x), scaleY(y));
            if(c.x<xPos+elementWidth&&c.y+blockSize/8>yPos&&c.y<yPos+elementHeight){
-             noStroke();
+             panelCanvas.noStroke();
              if(parties[y][x].player == 2){
                Battle battle = (Battle) parties[y][x];
                if (c.x+blockSize>xPos){
-                 fill(120, 120, 120);
-                 rect(max(c.x, xPos), max(c.y, yPos), max(0, min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y, blockSize/16+c.y-yPos)));
+                 panelCanvas.fill(120, 120, 120);
+                 panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), max(0, min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y, blockSize/16+c.y-yPos)));
                }
                if (c.x+blockSize*parties[y][x].getUnitNumber()/1000>xPos){
-                 fill(playerColours[battle.party1.player]);
-                 rect(max(c.x, xPos), max(c.y, yPos), max(0, min(blockSize*battle.party1.getUnitNumber()/1000, xPos+elementWidth-c.x, blockSize*battle.party1.getUnitNumber()/1000+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y, blockSize/16+c.y-yPos)));
+                 panelCanvas.fill(playerColours[battle.party1.player]);
+                 panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), max(0, min(blockSize*battle.party1.getUnitNumber()/1000, xPos+elementWidth-c.x, blockSize*battle.party1.getUnitNumber()/1000+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y, blockSize/16+c.y-yPos)));
                }
                if (c.x+blockSize>xPos){
-                 fill(120, 120, 120);
-                 rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/16+c.y-yPos)));
+                 panelCanvas.fill(120, 120, 120);
+                 panelCanvas.rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/16+c.y-yPos)));
                }
                if (c.x+blockSize*parties[y][x].getUnitNumber()/1000>xPos){
-                 fill(playerColours[battle.party2.player]);
-                 rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize*battle.party2.getUnitNumber()/1000, xPos+elementWidth-c.x, blockSize*battle.party2.getUnitNumber()/1000+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/8+c.y-yPos)));
+                 panelCanvas.fill(playerColours[battle.party2.player]);
+                 panelCanvas.rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize*battle.party2.getUnitNumber()/1000, xPos+elementWidth-c.x, blockSize*battle.party2.getUnitNumber()/1000+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/8+c.y-yPos)));
                }
                
              } else {
                if (c.x+blockSize>xPos){
-                 fill(120, 120, 120);
-                 rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
+                 panelCanvas.fill(120, 120, 120);
+                 panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
                }
                if (c.x+blockSize*parties[y][x].getUnitNumber()/1000>xPos){
-                 fill(playerColours[parties[y][x].player]);
-                 rect(max(c.x, xPos), max(c.y, yPos), min(blockSize*parties[y][x].getUnitNumber()/1000, xPos+elementWidth-c.x, blockSize*parties[y][x].getUnitNumber()/1000+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
+                 panelCanvas.fill(playerColours[parties[y][x].player]);
+                 panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize*parties[y][x].getUnitNumber()/1000, xPos+elementWidth-c.x, blockSize*parties[y][x].getUnitNumber()/1000+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
                }
              }
              int imgSize = round(blockSize);
-             drawCroppedImage(floor(c.x), floor(c.y), imgSize, imgSize, tempPartyImages[parties[y][x].player]);
+             drawCroppedImage(floor(c.x), floor(c.y), imgSize, imgSize, tempPartyImages[parties[y][x].player], panelCanvas);
              JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), parties[y][x].task);
              if (jo != null && !jo.isNull("img")){
-               drawCroppedImage(floor(c.x+13*blockSize/32), floor(c.y+blockSize/2), ceil(3*blockSize/16), ceil(3*blockSize/16), tempTaskImages.get(parties[y][x].task));
+               drawCroppedImage(floor(c.x+13*blockSize/32), floor(c.y+blockSize/2), ceil(3*blockSize/16), ceil(3*blockSize/16), tempTaskImages.get(parties[y][x].task), panelCanvas);
              }
            }
          }
          if (cellSelected&&y==selectedCellY&&x==selectedCellX){
-           drawSelectedCell(selectedCell);
+           drawSelectedCell(selectedCell, panelCanvas);
          }
          if(parties[y][x]!=null){
            c = new PVector(scaleX(x), scaleY(y));
            if(c.x<xPos+elementWidth&&c.y+blockSize/8>yPos&&c.y<yPos+elementHeight){
-             textSize(blockSize/7);
-             fill(255);
-             textAlign(CENTER, CENTER);
+             panelCanvas.textFont(getFont(blockSize/7));
+             panelCanvas.fill(255);
+             panelCanvas.textAlign(CENTER, CENTER);
              if(parties[y][x].actions.size() > 0 && parties[y][x].actions.get(0).initialTurns>0){
                int totalTurns = parties[y][x].calcTurns(parties[y][x].actions.get(0).initialTurns);
                String turnsLeftString = str(totalTurns-parties[y][x].turnsLeft())+"/"+str(totalTurns);
                if (c.x+textWidth(turnsLeftString) < elementWidth+xPos && c.y+2*(textAscent()+textDescent()) < elementHeight+yPos){
-                 text(turnsLeftString, c.x+blockSize/2, c.y+3*blockSize/4);
+                 panelCanvas.text(turnsLeftString, c.x+blockSize/2, c.y+3*blockSize/4);
                }
              }
            }
@@ -416,17 +458,17 @@ class Map extends Element{
              c = new PVector(scaleX(x), scaleY(y1));
              if (max(c.x, xPos)+min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)>xPos && max(c.x, xPos) < elementWidth+xPos && max(c.y, yPos)+min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos)>yPos && max(c.y, yPos) < elementHeight+yPos){
                if (blockSize > 10*TextScale && moveNodes[y1][x].cost <= parties[selectedCellY][selectedCellX].getMovementPoints()){
-                 fill(50, 150);
-                 rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
-                   fill(255);
-                 textSize(8*TextScale);
-                 textAlign(CENTER, CENTER);
+                 panelCanvas.fill(50, 150);
+                 panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
+                 panelCanvas.fill(255);
+                 panelCanvas.textFont(getFont(8*TextScale));
+                 panelCanvas.textAlign(CENTER, CENTER);
                  String s = ""+moveNodes[y1][x].cost;
                  s = s.substring(0, min(s.length(), 3));
                  BigDecimal cost = new BigDecimal(s);
                  String s2 = cost.stripTrailingZeros().toPlainString();
-                 if (c.x+textWidth(s2) < elementWidth+xPos && c.y+2*(textAscent()+textDescent()) < elementHeight+yPos){
-                   text(s2, c.x+blockSize/2, c.y+blockSize/2);
+                 if (c.x+panelCanvas.textWidth(s2) < elementWidth+xPos && c.y+2*(textAscent()+textDescent()) < elementHeight+yPos){
+                   panelCanvas.text(s2, c.x+blockSize/2, c.y+blockSize/2);
                  }
                }
              }
@@ -438,10 +480,10 @@ class Map extends Element{
      if (drawPath != null){
        for (int i=0; i<drawPath.size()-1;i++){
          if (lx <= drawPath.get(i)[0] && drawPath.get(i)[0] < hx && ly <= drawPath.get(i)[1] && drawPath.get(i)[1] < hy){
-           pushStyle();
-           stroke(255,0,0); 
-           line(scaleX(drawPath.get(i)[0])+blockSize/2, scaleY(drawPath.get(i)[1])+blockSize/2, scaleX(drawPath.get(i+1)[0])+blockSize/2, scaleY(drawPath.get(i+1)[1])+blockSize/2);
-           popStyle();
+           panelCanvas.pushStyle();
+           panelCanvas.stroke(255,0,0); 
+           panelCanvas.line(scaleX(drawPath.get(i)[0])+blockSize/2, scaleY(drawPath.get(i)[1])+blockSize/2, scaleX(drawPath.get(i+1)[0])+blockSize/2, scaleY(drawPath.get(i+1)[1])+blockSize/2);
+           panelCanvas.popStyle();
          }
        }
      }
@@ -450,18 +492,18 @@ class Map extends Element{
        if (path != null){
          for (int i=0; i<path.size()-1;i++){
            if (lx <= path.get(i)[0] && path.get(i)[0] < hx && ly <= path.get(i)[1] && path.get(i)[1] < hy){
-             pushStyle();
-             stroke(100); 
-             line(scaleX(path.get(i)[0])+blockSize/2, scaleY(path.get(i)[1])+blockSize/2, scaleX(path.get(i+1)[0])+blockSize/2, scaleY(path.get(i+1)[1])+blockSize/2);
-             popStyle();
+             panelCanvas.pushStyle();
+             panelCanvas.stroke(100); 
+             panelCanvas.line(scaleX(path.get(i)[0])+blockSize/2, scaleY(path.get(i)[1])+blockSize/2, scaleX(path.get(i+1)[0])+blockSize/2, scaleY(path.get(i+1)[1])+blockSize/2);
+             panelCanvas.popStyle();
            }
          }
        }
      }
 
-     noFill();
-     stroke(0);
-     rect(xPos, yPos, elementWidth, elementHeight);
+     panelCanvas.noFill();
+     panelCanvas.stroke(0);
+     panelCanvas.rect(xPos, yPos, elementWidth, elementHeight);
   }
   int sign(float x){
     if(x > 0){
@@ -472,7 +514,7 @@ class Map extends Element{
     }
     return 0;
   }
-  void drawCroppedImage(int x, int y, int w, int h, PImage img){
+  void drawCroppedImage(int x, int y, int w, int h, PImage img, PGraphics panelCanvas){
     if (x+w>xPos && x<elementWidth+xPos && y+h>yPos && y<elementHeight+yPos){
       int newX = max(min(x, xPos+elementWidth), xPos);
       int newY = max(min(y, yPos+elementHeight), yPos);
@@ -480,7 +522,7 @@ class Map extends Element{
       int imgY = max(0, newY-y, 0);
       int imgW = min(max(elementWidth+xPos-x, -sign(elementWidth+xPos-x)*(x+w-newX)), img.width);
       int imgH = min(max(elementHeight+yPos-y, -sign(elementHeight+yPos-y)*(y+h-newY)), img.height);
-      image(img.get(imgX, imgY, imgW, imgH), newX, newY);
+      panelCanvas.image(img, newX, newY);
     }
   }
   float scaleX(float x){
@@ -489,10 +531,10 @@ class Map extends Element{
   float scaleY(float y){
     return y*blockSize + mapYOffset + yPos;
   }
-  float scaleXInv(float x){
+  float scaleXInv(int x){
     return (x-mapXOffset-xPos)/blockSize;
   }
-  float scaleYInv(float y){
+  float scaleYInv(int y){
     return (y-mapYOffset-yPos)/blockSize;
   }
   boolean mouseOver(){
