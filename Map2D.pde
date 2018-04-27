@@ -32,8 +32,23 @@ interface Map {
   float groundMaxRawHeightAt(int x, int y);
   float groundMinRawHeightAt(int x, int y);
 }
+class BaseMap extends Element{
+  float getRawHeight(float x, float y) {
+    return noise(x*MAPNOISESCALE, y*MAPNOISESCALE);
+  }
+  float groundMinRawHeightAt(int x1, int y1) {
+    int x = floor(x1);
+    int y = floor(y1);
+    return min(new float[]{getRawHeight(x, y), getRawHeight(x+1, y), getRawHeight(x, y+1), getRawHeight(x+1, y+1)});
+  }
+  float groundMaxRawHeightAt(int x1, int y1) {
+    int x = floor(x1);
+    int y = floor(y1);
+    return max(new float[]{getRawHeight(x, y), getRawHeight(x+1, y), getRawHeight(x, y+1), getRawHeight(x+1, y+1)});
+  }
+}
 
-class Map2D extends Element implements Map{
+class Map2D extends BaseMap implements Map{
   final int EW, EH, INITIALHOLD=1000;
   int[][] terrain;
   Party[][] parties;
@@ -317,29 +332,6 @@ class Map2D extends Element implements Map{
        panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize-1, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize-1, yPos+elementHeight-c.y, blockSize+c.y-yPos));
      }
    }
-  }
-  
-  float getRawHeight(float x, float y) {
-    //if (y<mapHeight && x<mapWidth && y+VERTICESPERTILE/blockSize<mapHeight && x+VERTICESPERTILE/blockSize<mapHeight && y-VERTICESPERTILE/blockSize>=0 && x-VERTICESPERTILE/blockSize>=0 &&
-    //terrain[floor(y)][floor(x)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 &&
-    //terrain[floor(y+VERTICESPERTILE/blockSize)][floor(x+VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 && 
-    //terrain[floor(y-VERTICESPERTILE/blockSize)][floor(x-VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
-    //  return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT*HILLRAISE;
-    //} else {
-      return noise(x*MAPNOISESCALE, y*MAPNOISESCALE);
-      //float h = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel);
-      //return (max(h-(0.5+waterLevel/2.0), 0)*(1000)+h)*blockSize*GROUNDHEIGHT;
-    //}
-  }
-  float groundMinRawHeightAt(int x1, int y1) {
-    int x = floor(x1);
-    int y = floor(y1);
-    return min(new float[]{getRawHeight(x, y), getRawHeight(x+1, y), getRawHeight(x, y+1), getRawHeight(x+1, y+1)});
-  }
-  float groundMaxRawHeightAt(int x1, int y1) {
-    int x = floor(x1);
-    int y = floor(y1);
-    return max(new float[]{getRawHeight(x, y), getRawHeight(x+1, y), getRawHeight(x, y+1), getRawHeight(x+1, y+1)});
   }
   
   void draw(PGraphics panelCanvas){
