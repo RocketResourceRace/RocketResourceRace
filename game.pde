@@ -1505,7 +1505,6 @@ class Game extends State{
     parties = new Party[mapHeight][mapWidth];
     buildings = new Building[mapHeight][mapWidth];
     PVector[] playerStarts = generateStartingParties();
-    terrain = generateMap(playerStarts);
     if (mapIs3D){
       map = (Map3D)getElement("3dmap", "default");
       ((Map3D)getElement("3dmap", "default")).visible = true;
@@ -1515,6 +1514,7 @@ class Game extends State{
       ((Map3D)getElement("3dmap", "default")).visible = false;
       ((Map2D)getElement("2dmap", "default")).visible = true;
     }
+    terrain = generateMap(playerStarts);
     map.reset(mapWidth, mapHeight, terrain, parties, buildings);
 
     float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, 42);
@@ -1723,6 +1723,7 @@ class Game extends State{
 
 
   int[][] generateMap(PVector[] playerStarts){
+    float[] heightMap = map.generateNoiseMaps();
     HashMap<Integer, Float> groundWeightings = new HashMap();
     for (Integer i=1; i<gameData.getJSONArray("terrain").size()+1; i++){
       groundWeightings.put(i, gameData.getJSONArray("terrain").getJSONObject(i-1).getFloat("weighting"));
@@ -1807,7 +1808,7 @@ class Game extends State{
     terrain = smoothMap(completeSmooth, 1, terrain);
     for (int y=0; y<mapHeight; y++){
       for(int x=0; x<mapWidth; x++){
-        if(terrain[y][x] != terrainIndex("water") && (noise((x+0.5)*MAPNOISESCALE, (y+0.5)*MAPNOISESCALE) > 0.5+waterLevel/2.0) || getMaxSteepness(x, y)>HILLSTEEPNESS){
+        if(terrain[y][x] != terrainIndex("water") && (map.groundMaxRawHeightAt(x, y) > 0.5+waterLevel/2.0) || getMaxSteepness(x, y)>HILLSTEEPNESS){
           terrain[y][x] = terrainIndex("hills");
         }
       }

@@ -90,6 +90,7 @@ class Map3D extends Element implements Map{
   ArrayList<int[]> drawPath;
   HashMap<Integer, Integer> forestTiles;
   PGraphics canvas, refractionCanvas;
+  float[] heightMap;
 
   Map3D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
     this.x = x;
@@ -117,6 +118,19 @@ class Map3D extends Element implements Map{
     canvas = createGraphics(width, height, P3D);
     refractionCanvas = createGraphics(width/4, height/4, P3D);
     downwardAngleCache = new HashMap<Integer, HashMap<Integer, Float>>();
+    heightMap  = new float[int(w*h*pow(VERTICESPERTILE, 2))];
+  }
+  float[] generateNoiseMaps(){
+    for(int y = 0;y<mapHeight;y++){
+      for(int y1 = 0;y1<VERTICESPERTILE;y1++){
+        for(int x = 0;x<mapWidth;x++){
+          for(int x1 = 0;x1<VERTICESPERTILE;x1++){
+            heightMap[int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*mapWidth+y*pow(VERTICESPERTILE, 2)*mapWidth)] = noise(x+x1/VERTICESPERTILE, y+y1/VERTICESPERTILE);
+          }
+        }
+      }
+    }
+    return heightMap;
   }
   Node[][] getMoveNodes(){
     return moveNodes;
@@ -274,18 +288,6 @@ class Map3D extends Element implements Map{
     return shapes;
   }
 
-  float getHeight(float x, float y) {
-    if (y<mapHeight && x<mapWidth && y+VERTICESPERTILE/blockSize<mapHeight && x+VERTICESPERTILE/blockSize<mapHeight && y-VERTICESPERTILE/blockSize>=0 && x-VERTICESPERTILE/blockSize>=0 &&
-    terrain[floor(y)][floor(x)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 &&
-    terrain[floor(y+VERTICESPERTILE/blockSize)][floor(x+VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 && 
-    terrain[floor(y-VERTICESPERTILE/blockSize)][floor(x-VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
-      return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT*HILLRAISE;
-    } else {
-      return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT;
-      //float h = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel);
-      //return (max(h-(0.5+waterLevel/2.0), 0)*(1000)+h)*blockSize*GROUNDHEIGHT;
-    }
-  }
   
   void clearShape(){
     // Use to clear references to large objects when exiting state
@@ -567,7 +569,40 @@ class Map3D extends Element implements Map{
     }
     return new ArrayList<String>();
   }
-
+  float getRawHeight(float x, float y) {
+    //if (y<mapHeight && x<mapWidth && y+VERTICESPERTILE/blockSize<mapHeight && x+VERTICESPERTILE/blockSize<mapHeight && y-VERTICESPERTILE/blockSize>=0 && x-VERTICESPERTILE/blockSize>=0 &&
+    //terrain[floor(y)][floor(x)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 &&
+    //terrain[floor(y+VERTICESPERTILE/blockSize)][floor(x+VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 && 
+    //terrain[floor(y-VERTICESPERTILE/blockSize)][floor(x-VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
+    //  return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT*HILLRAISE;
+    //} else {
+      return noise(x*MAPNOISESCALE, y*MAPNOISESCALE);
+      //float h = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel);
+      //return (max(h-(0.5+waterLevel/2.0), 0)*(1000)+h)*blockSize*GROUNDHEIGHT;
+    //}
+  }
+  float groundMinRawHeightAt(int x1, int y1) {
+    int x = floor(x1);
+    int y = floor(y1);
+    return min(new float[]{getRawHeight(x, y), getRawHeight(x+1, y), getRawHeight(x, y+1), getRawHeight(x+1, y+1)});
+  }
+  float groundMaxRawHeightAt(int x1, int y1) {
+    int x = floor(x1);
+    int y = floor(y1);
+    return max(new float[]{getRawHeight(x, y), getRawHeight(x+1, y), getRawHeight(x, y+1), getRawHeight(x+1, y+1)});
+  }
+  float getHeight(float x, float y) {
+    //if (y<mapHeight && x<mapWidth && y+VERTICESPERTILE/blockSize<mapHeight && x+VERTICESPERTILE/blockSize<mapHeight && y-VERTICESPERTILE/blockSize>=0 && x-VERTICESPERTILE/blockSize>=0 &&
+    //terrain[floor(y)][floor(x)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 &&
+    //terrain[floor(y+VERTICESPERTILE/blockSize)][floor(x+VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 && 
+    //terrain[floor(y-VERTICESPERTILE/blockSize)][floor(x-VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
+    //  return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT*HILLRAISE;
+    //} else {
+      return (max(getRawHeight(x, y), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT;
+      //float h = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel);
+      //return (max(h-(0.5+waterLevel/2.0), 0)*(1000)+h)*blockSize*GROUNDHEIGHT;
+    //}
+  }
   float groundMinHeightAt(int x1, int y1) {
     int x = floor(x1);
     int y = floor(y1);
