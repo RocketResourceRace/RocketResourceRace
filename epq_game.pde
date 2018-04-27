@@ -248,41 +248,50 @@ float sum(float[] l){
 float halfScreenWidth;
 float halfScreenHeight;
 void setup(){
-  frameRate(1000);
-  fonts = new HashMap<Integer, PFont>();
-  gameData = loadJSONObject("data.json");
-  settings = new StringDict();
-  //if
-  settingsReadFile = createReader("settings.txt");
-  loadSettings();
-  loadSounds();
-  textFont(createFont("GillSans", 32));
-  GUIScale = float(settings.get("gui_scale"));
-  TextScale = float(settings.get("text_scale"));
-  mapSize = int(settings.get("mapSize"));
-  volume = float(settings.get("volume"));
-  mapIs3D = boolean(settings.get("map3D"));
-  
-  loadImages();
-  
-  partyImages = new PImage[]{
-    loadImage("data/blue_flag.png"),
-    loadImage("data/red_flag.png"),
-    loadImage("data/battle.png")
-  };
-  states = new HashMap<String, State>();
-  addState("menu", new Menu());
-  addState("map", new Game());
-  activeState = "menu";
+
   fullScreen(P3D);
-  //noSmooth();
-  smooth();
-  noStroke();
-  //hint(DISABLE_OPTIMIZED_STROKE);
-  halfScreenWidth = width/2;
-  halfScreenHeight= height/2;
-  toon = loadShader("ToonFrag.glsl", "ToonVert.glsl");
-  toon.set("fraction", 1.0);
+  try{
+    frameRate(1000);
+    fonts = new HashMap<Integer, PFont>();
+    gameData = loadJSONObject("data.json");
+    settings = new StringDict();
+    //if
+    settingsReadFile = createReader("settings.txt");
+    loadSettings();
+    loadSounds();
+    textFont(createFont("GillSans", 32));
+    GUIScale = float(settings.get("gui_scale"));
+    TextScale = float(settings.get("text_scale"));
+    mapSize = int(settings.get("mapSize"));
+    volume = float(settings.get("volume"));
+    mapIs3D = boolean(settings.get("map3D"));
+
+    loadImages();
+
+    partyImages = new PImage[]{
+      loadImage("data/blue_flag.png"),
+      loadImage("data/red_flag.png"),
+      loadImage("data/battle.png")
+    };
+    states = new HashMap<String, State>();
+    addState("menu", new Menu());
+    addState("map", new Game());
+    activeState = "menu";
+    //noSmooth();
+    smooth();
+    noStroke();
+    //hint(DISABLE_OPTIMIZED_STROKE);
+    halfScreenWidth = width/2;
+    halfScreenHeight= height/2;
+    toon = loadShader("ToonFrag.glsl", "ToonVert.glsl");
+    toon.set("fraction", 1.0);
+  }
+  catch(Exception e){
+    PrintWriter pw = createWriter("error_log");
+    pw.println(""+millis()+e);
+    pw.flush();
+    pw.close();
+  }
 }
 boolean smoothed = false;
 
