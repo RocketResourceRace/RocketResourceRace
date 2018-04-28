@@ -24,7 +24,7 @@ interface Map {
   void cancelPath();
   void setActive(boolean a);
   void selectCell(int x, int y);
-  void reset(int mapWidth, int mapHeight, int [][] terrain, Party[][] parties, Building[][] buildings);
+  void reset(int [][] terrain, Party[][] parties, Building[][] buildings);
   void generateShape();
   void clearShape();
 }
@@ -34,9 +34,151 @@ class BaseMap extends Element{
   int toMapIndex(int x, int y, int x1, int y1){
     return int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*(mapWidth+1/VERTICESPERTILE)+y*pow(VERTICESPERTILE, 2)*(mapWidth+1/VERTICESPERTILE));
   }
-  void generateNoiseMaps(int mapWidth, int mapHeight){
+  
+  int getRandomGroundType(HashMap<Integer, Float> groundWeightings, float total){
+    float randomNum = random(0, 1);
+    float min = 0;
+    int lastType = 1;
+    for (int type: groundWeightings.keySet()){
+      if(randomNum>min&&randomNum<min+groundWeightings.get(type)/total){
+        return type;
+      }
+      min += groundWeightings.get(type)/total;
+      lastType = type;
+    }
+    return lastType;
+  }
+  int[][] smoothMap(int distance, int firstType, int[][] terrain){
+    ArrayList<int[]> order = new ArrayList<int[]>();
+    for (int y=0; y<mapHeight;y++){
+      for (int x=0; x<mapWidth;x++){
+        order.add(new int[] {x, y});
+      }
+    }
+    Collections.shuffle(order);
+    int[][] newMap = new int[mapHeight][mapWidth];
+    for (int[] coord: order){
+      if(terrain[coord[1]][coord[0]]==terrainIndex("water")){
+        newMap[coord[1]][coord[0]] = terrain[coord[1]][coord[0]];
+      } else {
+        int[] counts = new int[NUMOFGROUNDTYPES+1];
+        for (int y1=coord[1]-distance+1;y1<coord[1]+distance;y1++){
+          for (int x1 = coord[0]-distance+1; x1<coord[0]+distance;x1++){
+            if (y1<mapHeight&&y1>=0&&x1<mapWidth&&x1>=0){
+              if(terrain[y1][x1]!=terrainIndex("water")){
+                counts[terrain[y1][x1]]+=1;
+              }
+            }
+          }
+        }
+        int highest = terrain[coord[1]][coord[0]];
+        for (int i=firstType; i<=NUMOFGROUNDTYPES;i++){
+          if (counts[i] > counts[highest]){
+            highest = i;
+          }
+        }
+        newMap[coord[1]][coord[0]] = highest;
+      }
+    }
+    return newMap;
+  }
+  int[][] generateMap(int mapWidth, int mapHeight){
+    noiseSeed((long)random(100000));
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
+    generateNoiseMaps();
+    HashMap<Integer, Float> groundWeightings = new HashMap();
+    for (Integer i=1; i<gameData.getJSONArray("terrain").size()+1; i++){
+      groundWeightings.put(i, gameData.getJSONArray("terrain").getJSONObject(i-1).getFloat("weighting"));
+    }
+
+    float totalWeighting = 0;
+    for (float weight: groundWeightings.values()){
+      totalWeighting+=weight;
+    }
+
+    int [][] terrain = new int[mapHeight][mapWidth];
+
+    //for(int y=0; y<mapHeight; y++){
+    //  terrain[y][0] = terrainIndex("water");
+    //  terrain[y][mapWidth-1] = terrainIndex("water");
+    //}
+    //for(int x=1; x<mapWidth-1; x++){
+    //  terrain[0][x] = terrainIndex("water");
+    //  terrain[mapHeight-1][x] = terrainIndex("water");
+    //}
+    for(int i=0;i<groundSpawns;i++){
+      int type = getRandomGroundType(groundWeightings, totalWeighting);
+      int x = (int)random(mapWidth);
+      int y = (int)random(mapHeight);
+      if(isWater(x, y)){
+        i--;
+      } else {
+        terrain[y][x] = type;
+      }
+    }
+
+    ArrayList<int[]> order = new ArrayList<int[]>();
+    for (int y=0; y<mapHeight;y++){
+      for (int x=0; x<mapWidth;x++){
+        if(isWater(x, y)){
+          terrain[y][x] = terrainIndex("water");
+        } else {
+          order.add(new int[] {x, y});
+        }
+      }
+    }
+    Collections.shuffle(order);
+    for (int[] coord: order){
+      int x = coord[0];
+      int y = coord[1];
+      while (terrain[y][x] == 0||terrain[y][x]==terrainIndex("water")){
+        int direction = (int) random(8);
+        switch(direction){
+          case 0:
+            x= max(x-1, 0);
+            break;
+          case 1:
+            x = min(x+1, mapWidth-1);
+            break;
+          case 2:
+            y= max(y-1, 0);
+            break;
+          case 3:
+            y = min(y+1, mapHeight-1);
+            break;
+          case 4:
+            x = min(x+1, mapWidth-1);
+            y = min(y+1, mapHeight-1);
+            break;
+          case 5:
+            x = min(x+1, mapWidth-1);
+            y= max(y-1, 0);
+            break;
+          case 6:
+            y= max(y-1, 0);
+            x= max(x-1, 0);
+            break;
+          case 7:
+            y = min(y+1, mapHeight-1);
+            x= max(x-1, 0);
+            break;
+        }
+      }
+      terrain[coord[1]][coord[0]] = terrain[y][x];
+    }
+    terrain = smoothMap(initialSmooth, 2, terrain);
+    terrain = smoothMap(completeSmooth, 1, terrain);
+    for (int y=0; y<mapHeight; y++){
+      for(int x=0; x<mapWidth; x++){
+        if(terrain[y][x] != terrainIndex("water") && (groundMaxRawHeightAt(x, y) > 0.5+WATERLEVEL/2.0) || getMaxSteepness(x, y)>HILLSTEEPNESS){
+          terrain[y][x] = terrainIndex("hills");
+        }
+      }
+    }
+    return terrain;
+  }
+  void generateNoiseMaps(){
     heightMap = new float[int((mapWidth+1/VERTICESPERTILE)*(mapHeight+1/VERTICESPERTILE)*pow(VERTICESPERTILE, 2))];
     for(int y = 0;y<mapHeight;y++){
       for(int y1 = 0;y1<VERTICESPERTILE;y1++){
@@ -188,11 +330,9 @@ class Map2D extends BaseMap implements Map{
     mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth*0.5), elementWidth*0.5);
     mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight*0.5), elementHeight*0.5);
   }
-  void reset(int mapWidth, int mapHeight, int[][] terrain, Party[][] parties, Building[][] buildings){
+  void reset(int[][] terrain, Party[][] parties, Building[][] buildings){
     mapXOffset = 0;
     mapYOffset = 0;
-    this.mapWidth = mapWidth;
-    this.mapHeight = mapHeight;
     this.terrain = terrain;
     this.parties = parties;
     this.buildings = buildings;
