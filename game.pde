@@ -1647,7 +1647,7 @@ class Game extends State{
     return costs.size();
   }
   boolean startInvalid(PVector p1, PVector p2){
-    if(p1.dist(p2)<mapWidth/8||noise(p1.x*MAPNOISESCALE, p1.y*MAPNOISESCALE)<waterLevel||noise(p2.x*MAPNOISESCALE, p2.y*MAPNOISESCALE)<waterLevel){
+    if(p1.dist(p2)<mapWidth/8||noise(p1.x*MAPNOISESCALE, p1.y*MAPNOISESCALE)<WATERLEVEL||noise(p2.x*MAPNOISESCALE, p2.y*MAPNOISESCALE)<WATERLEVEL){
       return true;
     }
     return false;
@@ -1807,7 +1807,7 @@ class Game extends State{
     terrain = smoothMap(completeSmooth, 1, terrain);
     for (int y=0; y<mapHeight; y++){
       for(int x=0; x<mapWidth; x++){
-        if(terrain[y][x] != terrainIndex("water") && (((BaseMap)map).groundMaxRawHeightAt(x, y) > 0.5+waterLevel/2.0) || getMaxSteepness(x, y)>HILLSTEEPNESS){
+        if(terrain[y][x] != terrainIndex("water") && (((BaseMap)map).groundMaxRawHeightAt(x, y) > 0.5+WATERLEVEL/2.0) || ((BaseMap)map).getMaxSteepness(x, y)>HILLSTEEPNESS){
           terrain[y][x] = terrainIndex("hills");
         }
       }

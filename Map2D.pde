@@ -31,25 +31,37 @@ interface Map {
 class BaseMap extends Element{
   float[] heightMap;
   int mapWidth, mapHeight;
+  int toMapIndex(int x, int y, int x1, int y1){
+    return int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*(mapWidth+1/VERTICESPERTILE)+y*pow(VERTICESPERTILE, 2)*(mapWidth+1/VERTICESPERTILE));
+  }
   void generateNoiseMaps(int mapWidth, int mapHeight){
-    heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(VERTICESPERTILE, 2))];
-    for(int y = 0;y<mapHeight+1;y++){
+    heightMap = new float[int((mapWidth+1/VERTICESPERTILE)*(mapHeight+1/VERTICESPERTILE)*pow(VERTICESPERTILE, 2))];
+    println((mapWidth+1/VERTICESPERTILE));
+    for(int y = 0;y<mapHeight;y++){
       for(int y1 = 0;y1<VERTICESPERTILE;y1++){
-        for(int x = 0;x<mapWidth+1;x++){
+        for(int x = 0;x<mapWidth;x++){
           for(int x1 = 0;x1<VERTICESPERTILE;x1++){
-            heightMap[int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*mapWidth+y*pow(VERTICESPERTILE, 2)*mapWidth)] = noise((x+x1/VERTICESPERTILE)*MAPNOISESCALE, (y+y1/VERTICESPERTILE)*MAPNOISESCALE);
+            heightMap[toMapIndex(x, y, x1, y1)] = noise((x+x1/VERTICESPERTILE)*MAPNOISESCALE, (y+y1/VERTICESPERTILE)*MAPNOISESCALE);
           }
         }
+        heightMap[toMapIndex(mapWidth, y, 0, y1)] = noise(((mapWidth+1))*MAPNOISESCALE, (y+y1/VERTICESPERTILE)*MAPNOISESCALE);
+      }
+    }
+    for(int x = 0;x<mapWidth;x++){
+      for(int x1 = 0;x1<VERTICESPERTILE;x1++){
+        heightMap[toMapIndex(x, mapHeight, x1, 0)] = noise((x+x1/VERTICESPERTILE)*MAPNOISESCALE, (mapHeight)*MAPNOISESCALE);
+      }
+    }
+    heightMap[toMapIndex(mapWidth, mapHeight, 0, 0)] = noise(((mapWidth+1))*MAPNOISESCALE, (mapHeight)*MAPNOISESCALE);
+    
+    for (int n=0; n<heightMap.length; n++){
+      if(heightMap[n]==0.0){
+        //println(n);
       }
     }
   }
   float getRawHeight(int x, int y, int x1, int y1) {
-    try{
-      return heightMap[int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*mapWidth+y*pow(VERTICESPERTILE, 2)*mapWidth)];
-    } catch (ArrayIndexOutOfBoundsException e){
-      println(x, y, x1, y1);
-      return 0;
-    }
+    return max(heightMap[int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*(mapWidth+1/VERTICESPERTILE)+y*pow(VERTICESPERTILE, 2)*(mapWidth+1/VERTICESPERTILE))], WATERLEVEL);
   }
   float getRawHeight(int x, int y) {
     return getRawHeight(x, y, 0, 0);
@@ -66,6 +78,23 @@ class BaseMap extends Element{
     int x = floor(x1);
     int y = floor(y1);
     return max(new float[]{getRawHeight(x, y), getRawHeight(x+1, y), getRawHeight(x, y+1), getRawHeight(x+1, y+1)});
+  }
+  
+  float getMaxSteepness(int x, int y){
+    float maxZ, minZ;
+    maxZ = 0;
+    minZ = 1;
+    for (float y1 = y; y1<=y+1;y1+=1.0/VERTICESPERTILE){
+      for (float x1 = x; x1<=x+1;x1+=1.0/VERTICESPERTILE){
+        float z = getRawHeight(x1, y1);
+        if(z>maxZ){
+          maxZ = z;
+        } else if (z<minZ){
+          minZ = z;
+        }
+      }
+    }
+    return maxZ-minZ;
   }
 }
 
@@ -114,7 +143,7 @@ class Map2D extends BaseMap implements Map{
     frameStartTime = 0;
     cancelMoveNodes();
     cancelPath();
-    heightMap = new float[int(mapWidth*mapHeight*pow(VERTICESPERTILE, 2))];
+    heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(VERTICESPERTILE, 2))];
   }
   void generateShape(){
     
@@ -177,7 +206,6 @@ class Map2D extends BaseMap implements Map{
     resetTime = millis();
     frameStartTime = 0;
     cancelMoveNodes();
-    heightMap  = new float[int(mapWidth*mapHeight*pow(VERTICESPERTILE, 2))];
   }
   void loadSettings(float x, float y, float bs){
     targetZoom(bs);

@@ -125,7 +125,7 @@ class Menu extends State{
           writeSettings();
         }
         if (event.id.equals("water level")){
-          waterLevel = ((Slider)getElement("water level", "new game")).getValue();
+          WATERLEVEL = ((Slider)getElement("water level", "new game")).getValue();
           changeSetting("map3D", ""+mapSize);
           writeSettings();
         }

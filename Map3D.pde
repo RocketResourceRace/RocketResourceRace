@@ -7,7 +7,7 @@ boolean isWater(int x, int y) {
   //  })<waterLevel;
   for (float y1 = y; y1<=y+1;y1+=1.0/VERTICESPERTILE){
     for (float x1 = x; x1<=x+1;x1+=1.0/VERTICESPERTILE){
-      if(noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE)>waterLevel){
+      if(noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE)>WATERLEVEL){
         return false;
       }
     }
@@ -16,22 +16,6 @@ boolean isWater(int x, int y) {
 }
 
 
-float getMaxSteepness(int x, int y){
-  float maxZ, minZ;
-  maxZ = 0;
-  minZ = 1;
-  for (float y1 = y; y1<=y+1;y1+=1.0/VERTICESPERTILE){
-    for (float x1 = x; x1<=x+1;x1+=1.0/VERTICESPERTILE){
-      float z = noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE);
-      if(z>maxZ){
-        maxZ = z;
-      } else if (z<minZ){
-        minZ = z;
-      }
-    }
-  }
-  return maxZ-minZ;
-}
 
 HashMap<Integer, HashMap<Integer, Float>> downwardAngleCache;
 
@@ -117,7 +101,7 @@ class Map3D extends BaseMap implements Map{
     canvas = createGraphics(width, height, P3D);
     refractionCanvas = createGraphics(width/4, height/4, P3D);
     downwardAngleCache = new HashMap<Integer, HashMap<Integer, Float>>();
-    heightMap  = new float[int(mapWidth*mapHeight*pow(VERTICESPERTILE, 2))];
+    heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(VERTICESPERTILE, 2))];
   }
   Node[][] getMoveNodes(){
     return moveNodes;
@@ -202,7 +186,6 @@ class Map3D extends BaseMap implements Map{
     this.buildings = buildings;
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
-    heightMap  = new float[int(mapWidth*mapHeight*pow(VERTICESPERTILE, 2))];
   }
 
   void addTreeTile(int cellX, int cellY, int i) {
@@ -564,7 +547,7 @@ class Map3D extends BaseMap implements Map{
     //terrain[floor(y-VERTICESPERTILE/blockSize)][floor(x-VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
     //  return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT*HILLRAISE;
     //} else {
-      return (max(getRawHeight(x, y), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT;
+      return (max(getRawHeight(x, y), WATERLEVEL)-WATERLEVEL)*blockSize*GROUNDHEIGHT;
       //float h = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel);
       //return (max(h-(0.5+waterLevel/2.0), 0)*(1000)+h)*blockSize*GROUNDHEIGHT;
     //}
