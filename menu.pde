@@ -162,7 +162,12 @@ class Menu extends State{
                 newPanel = "settings";
                 break;
               case "new game":
+                loading = false;
                 newPanel = "new game";
+                break;
+              case "load game":
+                newState = "map";
+                loading = true;
                 break;
             }
             break;

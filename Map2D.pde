@@ -1,4 +1,5 @@
 import java.util.Collections;
+import java.nio.ByteBuffer;
 
 interface Map {
   void updateMoveNodes(Node[][] nodes);
@@ -31,6 +32,18 @@ interface Map {
 class BaseMap extends Element{
   float[] heightMap;
   int mapWidth, mapHeight;
+  long heightMapSeed;
+  void saveMap(String filename){
+    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+    buffer.putLong(heightMapSeed);
+    saveBytes(filename, buffer.array());
+  }
+  void loadMap(String filename){
+    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+    buffer.put(loadBytes(filename));
+    buffer.flip();//need flip 
+    heightMapSeed = buffer.getLong();
+  }
   int toMapIndex(int x, int y, int x1, int y1){
     return int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*(mapWidth+1/VERTICESPERTILE)+y*pow(VERTICESPERTILE, 2)*(mapWidth+1/VERTICESPERTILE));
   }
@@ -83,7 +96,12 @@ class BaseMap extends Element{
     return newMap;
   }
   int[][] generateMap(int mapWidth, int mapHeight){
-    noiseSeed((long)random(100000));
+    if(loading){
+      loadMap("test.dat");
+    } else {
+      heightMapSeed = (long)random(Long.MIN_VALUE, Long.MAX_VALUE);
+    }
+    noiseSeed(heightMapSeed);
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
     generateNoiseMaps();

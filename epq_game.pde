@@ -22,6 +22,7 @@ HashMap<Integer, PFont> fonts;
 int graphicsRes = 32;
 boolean mapIs3D;
 PShader toon;
+boolean loading = false;
 
 // Event-driven methods
 void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}
