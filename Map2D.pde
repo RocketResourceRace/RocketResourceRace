@@ -36,7 +36,6 @@ class BaseMap extends Element{
   }
   void generateNoiseMaps(int mapWidth, int mapHeight){
     heightMap = new float[int((mapWidth+1/VERTICESPERTILE)*(mapHeight+1/VERTICESPERTILE)*pow(VERTICESPERTILE, 2))];
-    println((mapWidth+1/VERTICESPERTILE));
     for(int y = 0;y<mapHeight;y++){
       for(int y1 = 0;y1<VERTICESPERTILE;y1++){
         for(int x = 0;x<mapWidth;x++){
@@ -53,12 +52,6 @@ class BaseMap extends Element{
       }
     }
     heightMap[toMapIndex(mapWidth, mapHeight, 0, 0)] = noise(((mapWidth+1))*MAPNOISESCALE, (mapHeight)*MAPNOISESCALE);
-    
-    for (int n=0; n<heightMap.length; n++){
-      if(heightMap[n]==0.0){
-        //println(n);
-      }
-    }
   }
   float getRawHeight(int x, int y, int x1, int y1) {
     return max(heightMap[int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*(mapWidth+1/VERTICESPERTILE)+y*pow(VERTICESPERTILE, 2)*(mapWidth+1/VERTICESPERTILE))], WATERLEVEL);

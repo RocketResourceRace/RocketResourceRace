@@ -1722,6 +1722,7 @@ class Game extends State{
 
 
   int[][] generateMap(PVector[] playerStarts){
+    noiseSeed((long)random(100000));
     ((BaseMap)map).generateNoiseMaps(mapWidth, mapHeight);
     HashMap<Integer, Float> groundWeightings = new HashMap();
     for (Integer i=1; i<gameData.getJSONArray("terrain").size()+1; i++){
