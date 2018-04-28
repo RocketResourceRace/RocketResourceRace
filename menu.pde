@@ -23,10 +23,6 @@ class Menu extends State{
     currentPanel = "startup";
     newPanel = currentPanel;
     activePanel = currentPanel;
-    addElement("new game", new Button(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "New Game"), "startup");
-    addElement("load game", new Button(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Load Game"), "startup");
-    addElement("settings", new Button(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Settings"), "startup");
-    addElement("exit", new Button(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Exit"), "startup");
 
     addElement("gui scale", new Slider(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0.5, GUIScale, 1.5, 10, 50, 0.01, true, "GUI Scale"), "settings");
     addElement("volume", new Slider(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0, volume, 1, 10, 50, 0.05, true, "Volume"), "settings");
@@ -47,7 +43,7 @@ class Menu extends State{
   }
   
   void loadMenuPanels(){
-    jsManager.loadMenuElements(this, "startup", GUIScale);
+    jsManager.loadMenuElements(this, GUIScale);
   }
   
   color currentColour(){

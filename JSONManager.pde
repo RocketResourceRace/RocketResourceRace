@@ -23,10 +23,19 @@ class JSONManager{
     return null;
   }
   
-  void loadMenuElements(State state, String panelID, float guiScale){
+  void loadMenuElements(State state, float guiScale){
+     JSONArray panels = menu.getJSONArray("states");
+     for (int i=0; i<panels.size(); i++){
+       JSONObject panel = panels.getJSONObject(i);
+       state.addPanel(panel.getString("id"), 0, 0, width, height, true, true, color(255, 255, 255, 255), color(0));
+       loadPanelMenuElements(state, panel.getString("id"), guiScale);
+     }
+  }
+  
+  void loadPanelMenuElements(State state, String panelID, float guiScale){
     // Load in the elements from JSON menu into panel
-    int bgColour, strokeColour, textColour, textSize;
-    float x, y, w, h, scale;
+    int bgColour, strokeColour, textColour, textSize, major, minor;
+    float x, y, w, h, scale, lower, defaultValue, upper, step;
     String type, id, text;
     JSONArray elements = findJSONObject(menu.getJSONArray("states"), panelID).getJSONArray("elements");
     
@@ -47,14 +56,14 @@ class JSONManager{
       
       // Optional attributes
       if (elem.isNull("bg colour")){
-        bgColour = color(150);
+        bgColour = color(100);
       }
       else{
         bgColour = elem.getInt("bg colour");
       }
       
       if (elem.isNull("stroke colour")){
-        strokeColour = color(0);
+        strokeColour = color(150);
       }
       else{
         strokeColour = elem.getInt("stroke colour");
@@ -81,10 +90,56 @@ class JSONManager{
         text = elem.getString("text");
       }
       
+      if (elem.isNull("lower")){
+        lower = 0;
+      }
+      else{
+        lower = elem.getFloat("lower");
+      }
+      
+      if (elem.isNull("upper")){
+        upper = 1;
+      }
+      else{
+        upper = elem.getFloat("upper");
+      }
+      
+      if (elem.isNull("default value")){
+        defaultValue = 0.5;
+      }
+      else{
+        defaultValue = elem.getFloat("default value");
+      }
+      
+      if (elem.isNull("major")){
+        major = 2;
+      }
+      else{
+        major = elem.getInt("major");
+      }
+      
+      if (elem.isNull("minor")){
+        minor = 1;
+      }
+      else{
+        minor = elem.getInt("minor");
+      }
+      
+      if (elem.isNull("step")){
+        step = 0.5;
+      }
+      else{
+        step = elem.getInt("step");
+      }
+      
       switch (type){
         case "button":
-          //println((int)x, (int)y, (int)w, (int)h, bgColour, strokeColour, textColour, textSize, CENTER, text, panelID);
           state.addElement(id, new Button((int)x, (int)y, (int)w, (int)h, bgColour, strokeColour, textColour, textSize, CENTER, text), panelID);
+          break;
+        case "slider":
+        println((int)x, (int)y, (int)w, (int)h, color(50), bgColour, strokeColour, color(0), lower, defaultValue, upper, major, minor, step, true, text, panelID);
+        //int x, int y, int w, int h, color KnobColour, color bgColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name
+          state.addElement(id, new Slider((int)x, (int)y, (int)w, (int)h, color(50), bgColour, strokeColour, color(0), lower, defaultValue, upper, major, minor, step, true, text), panelID);
           break;
       }
     }

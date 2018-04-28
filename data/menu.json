@@ -5,41 +5,65 @@
       "id": "startup",
       "elements":[
         {
-          "id": "New Game",
+          "id": "new game",
           "type": "button",
-          "x": -2,
+          "x": -6,
           "y": 0,
-          "w": 10,
+          "w": 12,
           "h": 3,
           "text": "New Game",
         },
         {
-          "id": "Load Game",
+          "id": "load game",
           "type": "button",
-          "x": -2,
+          "x": -6,
           "y": 4,
-          "w": 10,
+          "w": 12,
           "h": 3,
           "text": "Load Game",
         },
         {
-          "id": "Settings",
+          "id": "settings",
           "type": "button",
-          "x": -2,
+          "x": -6,
           "y": 8,
-          "w": 10,
+          "w": 12,
           "h": 3,
           "text": "Settings",
         },
         {
-          "id": "Exit",
+          "id": "exit",
           "type": "button",
-          "x": -2,
+          "x": -6,
           "y": 12,
-          "w": 10,
+          "w": 12,
           "h": 3,
           "text": "Exit",
         },
+      ]
+    },
+    
+    {
+      "id": "settings",
+      "elements":[
+        {
+          "id": "graphics options",
+          "type": "button",
+          "x": -6,
+          "y": 0,
+          "w": 12,
+          "h": 3,
+          "text": "Graphics Options",
+        },
+          {
+            "id": "slider",
+            "type": "slider",
+            "x": -6,
+            "y": 8,
+            "w": 12,
+            "h": 3,
+            "text": "Graphics Options",
+          },
       ]
     }
   ]
