@@ -23,6 +23,8 @@ int graphicsRes = 32;
 boolean mapIs3D;
 PShader toon;
 
+JSONManager jsManager;
+
 // Event-driven methods
 void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}
 void mouseDragged(){mouseEvent("mouseDragged", mouseButton);}
@@ -273,6 +275,7 @@ void setup(){
       loadImage("data/red_flag.png"),
       loadImage("data/battle.png")
     };
+    jsManager = new JSONManager();
     states = new HashMap<String, State>();
     addState("menu", new Menu());
     addState("map", new Game());

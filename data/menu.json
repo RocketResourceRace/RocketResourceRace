@@ -1,1 +1,46 @@
 
+{
+  "states":[
+    {
+      "id": "startup",
+      "elements":[
+        {
+          "id": "New Game",
+          "type": "button",
+          "x": -2,
+          "y": 0,
+          "w": 10,
+          "h": 3,
+          "text": "New Game",
+        },
+        {
+          "id": "Load Game",
+          "type": "button",
+          "x": -2,
+          "y": 4,
+          "w": 10,
+          "h": 3,
+          "text": "Load Game",
+        },
+        {
+          "id": "Settings",
+          "type": "button",
+          "x": -2,
+          "y": 8,
+          "w": 10,
+          "h": 3,
+          "text": "Settings",
+        },
+        {
+          "id": "Exit",
+          "type": "button",
+          "x": -2,
+          "y": 12,
+          "w": 10,
+          "h": 3,
+          "text": "Exit",
+        },
+      ]
+    }
+  ]
+}

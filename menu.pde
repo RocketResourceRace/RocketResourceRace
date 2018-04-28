@@ -5,12 +5,10 @@ class Menu extends State{
   PImage BGimg;
   PShape bg;
   String currentPanel, newPanel;
-  
   Menu(){
     BGimg = loadImage("data/menu_background.jpeg");
     bg = createShape(RECT, 0, 0, width, height);
     bg.setTexture(BGimg);
-    
     int buttonW = (int)(300.0*GUIScale);
     int buttonH = (int)(70.0*GUIScale);
     int buttonP = (int)(50.0*GUIScale);
@@ -25,12 +23,11 @@ class Menu extends State{
     currentPanel = "startup";
     newPanel = currentPanel;
     activePanel = currentPanel;
-    
     addElement("new game", new Button(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "New Game"), "startup");
     addElement("load game", new Button(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Load Game"), "startup");
     addElement("settings", new Button(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Settings"), "startup");
     addElement("exit", new Button(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Exit"), "startup");
-    
+
     addElement("gui scale", new Slider(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0.5, GUIScale, 1.5, 10, 50, 0.01, true, "GUI Scale"), "settings");
     addElement("volume", new Slider(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0, volume, 1, 10, 50, 0.05, true, "Volume"), "settings");
     addElement("text scale", new Slider(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0.8, TextScale, 2.4, 8, 8*5, 0.05, true, "Text Scale"), "settings");
@@ -45,6 +42,12 @@ class Menu extends State{
     addElement("water level", new Slider(width-buttonW*2-buttonP*2, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(150), color(0), 0.0, 0.5, 0.75, 5, 5, 0.01, true, "Water Level"), "new game");
     addElement("ground spawns", new Slider(width-buttonW*2-buttonP*2, buttonH*3+buttonP*4, buttonW, buttonH, color(0, 255, 0), bColour, color(150), color(0), 50, 100, 300, 5, 25, 10, true, "Ground Spawns"), "new game");
     addElement("back", new Button(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Back"), "new game");
+    
+    loadMenuPanels();
+  }
+  
+  void loadMenuPanels(){
+    jsManager.loadMenuElements(this, "startup", GUIScale);
   }
   
   color currentColour(){
