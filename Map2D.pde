@@ -97,7 +97,7 @@ class BaseMap extends Element{
   }
   int[][] generateMap(int mapWidth, int mapHeight){
     if(loading){
-      loadMap("test.dat");
+      loadMap("saves/test.dat");
     } else {
       heightMapSeed = (long)random(Long.MIN_VALUE, Long.MAX_VALUE);
     }

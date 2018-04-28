@@ -850,7 +850,7 @@ class Game extends State{
           newState = "menu";
         }
         else if (event.id == "main menu button"){
-          ((BaseMap)map).saveMap("test.dat");
+          ((BaseMap)map).saveMap("saves/test.dat");
           newState = "menu";
         }
         else if (event.id == "desktop button"){
