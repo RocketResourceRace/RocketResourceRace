@@ -5,6 +5,8 @@ class Menu extends State{
   PImage BGimg;
   PShape bg;
   String currentPanel, newPanel;
+  HashMap<String, String> stateChangers;
+  
   Menu(){
     BGimg = loadImage("data/menu_background.jpeg");
     bg = createShape(RECT, 0, 0, width, height);
@@ -44,6 +46,7 @@ class Menu extends State{
   
   void loadMenuPanels(){
     jsManager.loadMenuElements(this, GUIScale);
+    stateChangers = jsManager.getChangeStateButtons();
   }
   
   color currentColour(){
@@ -151,40 +154,16 @@ class Menu extends State{
         }
       }
       if (event.type.equals("clicked")){
-        switch (currentPanel){
-          case "startup":
-            switch (event.id){
-              case "exit":
-                exit();
-                break;
-              case "settings":
-                newPanel = "settings";
-                break;
-              case "new game":
-                newPanel = "new game";
-                break;
-            }
-            break;
-          case "settings":
-            switch (event.id){
-              case "back":
-                newPanel = "startup";
-                scaleGUI();
-                break;
-            }
-            break;
-          case "new game":
-            switch (event.id){
-              case "back":
-                newPanel = "startup";
-                break;
-              case "start":
-                newState = "map";
-                break;
-            }
-            break;
+        if (stateChangers.get(event.id) != null){
+          newPanel = stateChangers.get(event.id);
+          loadMenuPanels();
         }
-        
+        else if (event.id.equals("start")){
+          newState = "map";
+        }
+        else if (event.id.equals("exit")){
+          exit();
+        }
       }
     }
   }

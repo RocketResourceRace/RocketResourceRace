@@ -12,6 +12,7 @@
           "w": 12,
           "h": 3,
           "text": "New Game",
+          "new state": "new game",
         },
         {
           "id": "load game",
@@ -30,6 +31,7 @@
           "w": 12,
           "h": 3,
           "text": "Settings",
+          "new state": "settings",
         },
         {
           "id": "exit",
@@ -55,15 +57,50 @@
           "h": 3,
           "text": "Graphics Options",
         },
-          {
-            "id": "slider",
-            "type": "slider",
-            "x": -6,
-            "y": 8,
-            "w": 12,
-            "h": 3,
-            "text": "Graphics Options",
-          },
+        {
+          "id": "sound options",
+          "type": "button",
+          "x": -6,
+          "y": 4,
+          "w": 12,
+          "h": 3,
+          "text": "Sound Options",
+        },
+        {
+          "id": "game options",
+          "type": "button",
+          "x": -6,
+          "y": 8,
+          "w": 12,
+          "h": 3,
+          "text": "Game Options",
+        },
+        
+        {
+          "id": "back",
+          "type": "button",
+          "x": -6,
+          "y": 12,
+          "w": 12,
+          "h": 3,
+          "text": "Back",
+          "new state": "startup"
+        },
+      ]
+    },
+    
+    {
+      "id": "new game",
+      "elements":[
+        {
+          "id": "start",
+          "type": "button",
+          "x": -6,
+          "y": 0,
+          "w": 12,
+          "h": 3,
+          "text": "Start Game",
+        },
       ]
     }
   ]

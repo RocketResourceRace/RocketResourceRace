@@ -12,3 +12,4 @@ settings.txt
 /build
 *.tmp
 error_log
+data/settings.json

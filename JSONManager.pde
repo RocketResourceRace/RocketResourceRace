@@ -1,12 +1,25 @@
 
 
 class JSONManager{
-  JSONObject menu;
+  JSONObject menu, gameData, settings;
   
   JSONManager(){
     try{
       menu = loadJSONObject("menu.json");
       gameData = loadJSONObject("data.json");
+      
+      try{
+        settings = loadJSONObject("settings.json");
+      }
+      catch (Exception e){
+        println("creating new settings file");
+        PrintWriter w = createWriter("data/settings.json");
+        w.print("{}\n");
+        w.flush();
+        w.close();
+        println("Finished creating new settings file");
+        settings = loadJSONObject("settings.json");
+      }
     }
     catch(Exception e){
       println("Error loading JSON");
@@ -23,7 +36,23 @@ class JSONManager{
     return null;
   }
   
+  HashMap<String, String> getChangeStateButtons(){
+    // Store all the buttons that when clicked change the state
+    HashMap returnHash = new HashMap<String, String>();
+     JSONArray panels = menu.getJSONArray("states");
+     for (int i=0; i<panels.size(); i++){
+       JSONArray panelElems = panels.getJSONObject(i).getJSONArray("elements");
+       for (int j=0; j<panelElems.size(); j++){
+         if (!panelElems.getJSONObject(j).isNull("new state")){
+           returnHash.put(panelElems.getJSONObject(j).getString("id"), panelElems.getJSONObject(j).getString("new state"));
+         }
+       }
+     }
+    return returnHash;
+  }
+  
   void loadMenuElements(State state, float guiScale){
+    // Load all the menu panels in to menu state
      JSONArray panels = menu.getJSONArray("states");
      for (int i=0; i<panels.size(); i++){
        JSONObject panel = panels.getJSONObject(i);
@@ -137,8 +166,6 @@ class JSONManager{
           state.addElement(id, new Button((int)x, (int)y, (int)w, (int)h, bgColour, strokeColour, textColour, textSize, CENTER, text), panelID);
           break;
         case "slider":
-        println((int)x, (int)y, (int)w, (int)h, color(50), bgColour, strokeColour, color(0), lower, defaultValue, upper, major, minor, step, true, text, panelID);
-        //int x, int y, int w, int h, color KnobColour, color bgColour, color strokeColour, color scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name
           state.addElement(id, new Slider((int)x, (int)y, (int)w, (int)h, color(50), bgColour, strokeColour, color(0), lower, defaultValue, upper, major, minor, step, true, text), panelID);
           break;
       }
