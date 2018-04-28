@@ -23,7 +23,6 @@ class Game extends State{
   final int bezel = 10;
   final int mapElementWidth = round(width);
   final int mapElementHeight = round(height-bezel*2-buttonH);
-
   String[] tasks;
   String[] buildingTypes;
   float[][] taskCosts;
@@ -142,7 +141,7 @@ class Game extends State{
         startingResources[i] = sr.getFloat("quantity");
     }
   }
-  
+
   void leaveState(){
     map.clearShape();
   }
@@ -1045,19 +1044,19 @@ class Game extends State{
       return -1;
 
     int turns = 0;
-    ArrayList <int[]> path = getPath(startX, startY, targetX, targetY, nodes); //<>// //<>//
+    ArrayList <int[]> path = getPath(startX, startY, targetX, targetY, nodes); //<>// //<>// //<>//
     Collections.reverse(path);
     for (int node=1; node<path.size(); node++){
       int cost = cost(path.get(node)[0], path.get(node)[1], path.get(node-1)[0], path.get(node-1)[1]);
-      if (movementPoints < cost){ //<>// //<>// //<>// //<>//
+      if (movementPoints < cost){ //<>// //<>// //<>// //<>// //<>//
         turns += 1;
         movementPoints = gameData.getJSONObject("game options").getInt("movement points");
       }
-      movementPoints -= cost; //<>// //<>// //<>// //<>// //<>// //<>//
+      movementPoints -= cost; //<>// //<>// //<>// //<>// //<>// //<>// //<>//
     }
     return turns;
   }
-  int splitUnitsNum(){ //<>// //<>// //<>// //<>//
+  int splitUnitsNum(){ //<>// //<>// //<>// //<>// //<>//
     return round(((Slider)getElement("split units", "party management")).getValue());
   }
   void refreshTooltip(){
@@ -1078,19 +1077,19 @@ class Game extends State{
       int x = floor(map.scaleXInv(mouseX));
       int y = floor(map.scaleYInv(mouseY));
       if (x < mapWidth && y<mapHeight && x>=0 && y>=0 && nodes[y][x] != null && !(cellX == x && cellY == y)){
-        if (parties[cellY][cellX] != null){ //<>// //<>//
+        if (parties[cellY][cellX] != null){ //<>// //<>// //<>//
           map.updatePath(getPath(cellX, cellY, x, y, map.getMoveNodes()));
         }
         if(parties[y][x]==null){
-          //Moving into empty tile //<>// //<>// //<>// //<>//
+          //Moving into empty tile //<>// //<>// //<>// //<>// //<>//
           int turns = getMoveTurns(cellX, cellY, x, y, nodes);
           boolean splitting = splitUnitsNum()!=parties[cellY][cellX].getUnitNumber();
           tooltip.setMoving(turns, splitting);
-          tooltip.show(); //<>// //<>// //<>// //<>// //<>// //<>//
+          tooltip.show(); //<>// //<>// //<>// //<>// //<>// //<>// //<>//
         }
         else {
           if (parties[y][x].player == turn){
-            //merge parties //<>// //<>// //<>// //<>//
+            //merge parties //<>// //<>// //<>// //<>// //<>//
             tooltip.setMerging();
             tooltip.show();
           }
@@ -1139,19 +1138,19 @@ class Game extends State{
         if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn && !UIHovering()){
           if (moving){
             int x = floor(map.scaleXInv(mouseX));
-            int y = floor(map.scaleYInv(mouseY)); //<>// //<>//
+            int y = floor(map.scaleYInv(mouseY)); //<>// //<>// //<>//
             postEvent(new Move(cellX, cellY, x, y));
             map.cancelPath();
             moving = false;
-            map.cancelMoveNodes(); //<>// //<>// //<>// //<>//
+            map.cancelMoveNodes(); //<>// //<>// //<>// //<>// //<>//
           }
         }
       }
-    } //<>// //<>// //<>// //<>// //<>// //<>//
+    } //<>// //<>// //<>// //<>// //<>// //<>// //<>//
     if (button == LEFT){
       if (eventType == "mouseClicked"){
         if (activePanel == "default" && !UIHovering()){
-          if (map.mouseOver()){ //<>// //<>// //<>// //<>//
+          if (map.mouseOver()){ //<>// //<>// //<>// //<>// //<>//
             if (moving){
               //int x = floor(map.scaleXInv(mouseX));
               //int y = floor(map.scaleYInv(mouseY));
@@ -1198,7 +1197,7 @@ class Game extends State{
     deselectCell();
     if(raw){
       selectCell(x, y);
-    } 
+    }
     else if (cellInBounds(x, y)){
       tooltip.hide();
       cellX = x;
@@ -1723,7 +1722,7 @@ class Game extends State{
 
 
   int[][] generateMap(PVector[] playerStarts){
-    float[] heightMap = map.generateNoiseMaps();
+    ((BaseMap)map).generateNoiseMaps(mapWidth, mapHeight);
     HashMap<Integer, Float> groundWeightings = new HashMap();
     for (Integer i=1; i<gameData.getJSONArray("terrain").size()+1; i++){
       groundWeightings.put(i, gameData.getJSONArray("terrain").getJSONObject(i-1).getFloat("weighting"));
@@ -1808,7 +1807,7 @@ class Game extends State{
     terrain = smoothMap(completeSmooth, 1, terrain);
     for (int y=0; y<mapHeight; y++){
       for(int x=0; x<mapWidth; x++){
-        if(terrain[y][x] != terrainIndex("water") && (map.groundMaxRawHeightAt(x, y) > 0.5+waterLevel/2.0) || getMaxSteepness(x, y)>HILLSTEEPNESS){
+        if(terrain[y][x] != terrainIndex("water") && (((BaseMap)map).groundMaxRawHeightAt(x, y) > 0.5+waterLevel/2.0) || getMaxSteepness(x, y)>HILLSTEEPNESS){
           terrain[y][x] = terrainIndex("hills");
         }
       }

@@ -73,7 +73,7 @@ class Map3D extends BaseMap implements Map{
   final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3;
   final float HILLRAISE = 1.05;
   final float GROUNDHEIGHT = 5;
-  int x, y, w, h, mapWidth, mapHeight, prevT, frameTime;
+  int x, y, w, h, prevT, frameTime;
   int selectedCellX, selectedCellY;
   Building[][] buildings;
   int[][] terrain;
@@ -90,7 +90,6 @@ class Map3D extends BaseMap implements Map{
   ArrayList<int[]> drawPath;
   HashMap<Integer, Integer> forestTiles;
   PGraphics canvas, refractionCanvas;
-  float[] heightMap;
 
   Map3D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
     this.x = x;
@@ -118,19 +117,7 @@ class Map3D extends BaseMap implements Map{
     canvas = createGraphics(width, height, P3D);
     refractionCanvas = createGraphics(width/4, height/4, P3D);
     downwardAngleCache = new HashMap<Integer, HashMap<Integer, Float>>();
-    heightMap  = new float[int(w*h*pow(VERTICESPERTILE, 2))];
-  }
-  float[] generateNoiseMaps(){
-    for(int y = 0;y<mapHeight;y++){
-      for(int y1 = 0;y1<VERTICESPERTILE;y1++){
-        for(int x = 0;x<mapWidth;x++){
-          for(int x1 = 0;x1<VERTICESPERTILE;x1++){
-            heightMap[int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*mapWidth+y*pow(VERTICESPERTILE, 2)*mapWidth)] = noise(x+x1/VERTICESPERTILE, y+y1/VERTICESPERTILE);
-          }
-        }
-      }
-    }
-    return heightMap;
+    heightMap  = new float[int(mapWidth*mapHeight*pow(VERTICESPERTILE, 2))];
   }
   Node[][] getMoveNodes(){
     return moveNodes;
@@ -215,6 +202,7 @@ class Map3D extends BaseMap implements Map{
     this.buildings = buildings;
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
+    heightMap  = new float[int(mapWidth*mapHeight*pow(VERTICESPERTILE, 2))];
   }
 
   void addTreeTile(int cellX, int cellY, int i) {

@@ -27,14 +27,35 @@ interface Map {
   void reset(int mapWidth, int mapHeight, int [][] terrain, Party[][] parties, Building[][] buildings);
   void generateShape();
   void clearShape();
-  float[] generateNoiseMaps();
-  float getRawHeight(float x, float y);
-  float groundMaxRawHeightAt(int x, int y);
-  float groundMinRawHeightAt(int x, int y);
 }
 class BaseMap extends Element{
-  float getRawHeight(float x, float y) {
-    return noise(x*MAPNOISESCALE, y*MAPNOISESCALE);
+  float[] heightMap;
+  int mapWidth, mapHeight;
+  void generateNoiseMaps(int mapWidth, int mapHeight){
+    heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(VERTICESPERTILE, 2))];
+    for(int y = 0;y<mapHeight+1;y++){
+      for(int y1 = 0;y1<VERTICESPERTILE;y1++){
+        for(int x = 0;x<mapWidth+1;x++){
+          for(int x1 = 0;x1<VERTICESPERTILE;x1++){
+            heightMap[int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*mapWidth+y*pow(VERTICESPERTILE, 2)*mapWidth)] = noise((x+x1/VERTICESPERTILE)*MAPNOISESCALE, (y+y1/VERTICESPERTILE)*MAPNOISESCALE);
+          }
+        }
+      }
+    }
+  }
+  float getRawHeight(int x, int y, int x1, int y1) {
+    try{
+      return heightMap[int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*mapWidth+y*pow(VERTICESPERTILE, 2)*mapWidth)];
+    } catch (ArrayIndexOutOfBoundsException e){
+      println(x, y, x1, y1);
+      return 0;
+    }
+  }
+  float getRawHeight(int x, int y) {
+    return getRawHeight(x, y, 0, 0);
+  }
+  float getRawHeight(float x, float y){
+    return getRawHeight(int(x), int(y), round((x-int(x))*VERTICESPERTILE), round((y-int(y))*VERTICESPERTILE));
   }
   float groundMinRawHeightAt(int x1, int y1) {
     int x = floor(x1);
@@ -53,8 +74,6 @@ class Map2D extends BaseMap implements Map{
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
-  int mapWidth;
-  int mapHeight;
   float blockSize, targetBlockSize;
   float mapXOffset, mapYOffset, targetXOffset, targetYOffset, panningSpeed, resetTime;
   boolean panning=false, zooming=false;
@@ -73,7 +92,6 @@ class Map2D extends BaseMap implements Map{
   color partyManagementColour;
   Node[][] moveNodes;
   ArrayList<int[]> drawPath;
-  float[] heightMap;
 
   Map2D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight){
     xPos = x;
@@ -96,19 +114,7 @@ class Map2D extends BaseMap implements Map{
     frameStartTime = 0;
     cancelMoveNodes();
     cancelPath();
-    heightMap  = new float[int(w*h*pow(VERTICESPERTILE, 2))];
-  }
-  float[] generateNoiseMaps(){
-    for(int y = 0;y<mapHeight;y++){
-      for(int y1 = 0;y1<VERTICESPERTILE;y1++){
-        for(int x = 0;x<mapWidth;x++){
-          for(int x1 = 0;x1<VERTICESPERTILE;x1++){
-            heightMap[int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*mapWidth+y*pow(VERTICESPERTILE, 2)*mapWidth)] = noise(x+x1/VERTICESPERTILE, y+y1/VERTICESPERTILE);
-          }
-        }
-      }
-    }
-    return heightMap;
+    heightMap = new float[int(mapWidth*mapHeight*pow(VERTICESPERTILE, 2))];
   }
   void generateShape(){
     
@@ -171,6 +177,7 @@ class Map2D extends BaseMap implements Map{
     resetTime = millis();
     frameStartTime = 0;
     cancelMoveNodes();
+    heightMap  = new float[int(mapWidth*mapHeight*pow(VERTICESPERTILE, 2))];
   }
   void loadSettings(float x, float y, float bs){
     targetZoom(bs);
