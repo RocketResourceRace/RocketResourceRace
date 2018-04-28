@@ -5,7 +5,7 @@ class Menu extends State{
   PImage BGimg;
   PShape bg;
   String currentPanel, newPanel;
-  HashMap<String, String> stateChangers;
+  HashMap<String, String> stateChangers, settingChangers;
   
   Menu(){
     BGimg = loadImage("data/menu_background.jpeg");
@@ -47,6 +47,7 @@ class Menu extends State{
   void loadMenuPanels(){
     jsManager.loadMenuElements(this, GUIScale);
     stateChangers = jsManager.getChangeStateButtons();
+    settingChangers = jsManager.getChangeSettingButtons();
   }
   
   color currentColour(){
@@ -110,6 +111,17 @@ class Menu extends State{
   
   void elementEvent(ArrayList<Event> events){
     for (Event event:events){
+      if (settingChangers.get(event.id) != null && event.panel != null){
+        String type = jsManager.getElementType(event.panel, event.id);
+        switch (type){
+          case "slider":
+            jsManager.saveSetting(settingChangers.get(event.id), ((Slider)getElement(event.id, event.panel)).getValue());
+            break;
+          case "toggle button":
+            jsManager.saveSetting(settingChangers.get(event.id), ((ToggleButton)getElement(event.id, event.panel)).getState());
+            break;
+        }
+      }
       if (event.type.equals("valueChanged")){
         if (event.id.equals("gui scale")){
           GUIScale = ((Slider)getElement("gui scale", "settings")).getValue();

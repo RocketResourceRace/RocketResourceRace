@@ -15,9 +15,10 @@ class Event{
   Event(String id, String panel, String type){
     this.id = id;
     this.type = type;
+    this.panel = panel;
   }
   String info(){
-    return "id:"+id+", type:"+type;
+    return "id:"+id+", type:"+type+", panel:"+panel;
   }
 }
 

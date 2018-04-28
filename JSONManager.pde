@@ -26,6 +26,44 @@ class JSONManager{
     }
   }
   
+  void saveSetting(String id, float val){
+    // Save the setting to settings and write settings to file
+    settings.setFloat(id, val);
+    saveJSONObject(settings, "data/settings.json");
+  }
+  
+  void saveSetting(String id, String val){
+    // Save the setting to settings and write settings to file
+    settings.setString(id, val);
+    saveJSONObject(settings, "data/settings.json");
+  }
+  
+  void saveSetting(String id, boolean val){
+    // Save the setting to settings and write settings to file
+    settings.setBoolean(id, val);
+    saveJSONObject(settings, "data/settings.json");
+  }
+  
+  int loadIntSetting(String id){
+    // Load a setting that is an int
+    return  settings.getInt(id);
+  }
+  
+  float loadFloatSetting(String id){
+    // Load a setting that is an float
+    return  settings.getFloat(id);
+  }
+  
+  String loadStringSetting(String id){
+    // Load a setting that is an string
+    return  settings.getString(id);
+  }
+  
+  boolean loadBooleanSetting(String id){
+    // Load a setting that is an string
+    return  settings.getBoolean(id);
+  }
+  
   JSONObject findJSONObject(JSONArray j, String id){
     // search for a json object in a json array with correct id
     for (int i=0; i<j.size(); i++){
@@ -34,6 +72,13 @@ class JSONManager{
       }
     }
     return null;
+  }
+  
+  String getElementType(String panel, String element){
+    print(panel);
+    JSONArray elems = findJSONObject(menu.getJSONArray("states"), panel).getJSONArray("elements");
+    print(1);
+    return findJSONObject(elems, element).getString("type");
   }
   
   HashMap<String, String> getChangeStateButtons(){
@@ -45,6 +90,21 @@ class JSONManager{
        for (int j=0; j<panelElems.size(); j++){
          if (!panelElems.getJSONObject(j).isNull("new state")){
            returnHash.put(panelElems.getJSONObject(j).getString("id"), panelElems.getJSONObject(j).getString("new state"));
+         }
+       }
+     }
+    return returnHash;
+  }
+  
+  HashMap<String, String> getChangeSettingButtons(){
+    // Store all the buttons that when clicked change a setting
+    HashMap returnHash = new HashMap<String, String>();
+     JSONArray panels = menu.getJSONArray("states");
+     for (int i=0; i<panels.size(); i++){
+       JSONArray panelElems = panels.getJSONObject(i).getJSONArray("elements");
+       for (int j=0; j<panelElems.size(); j++){
+         if (!panelElems.getJSONObject(j).isNull("setting")){
+           returnHash.put(panelElems.getJSONObject(j).getString("id"), panelElems.getJSONObject(j).getString("setting"));
          }
        }
      }
@@ -158,7 +218,7 @@ class JSONManager{
         step = 0.5;
       }
       else{
-        step = elem.getInt("step");
+        step = elem.getFloat("step");
       }
       
       switch (type){

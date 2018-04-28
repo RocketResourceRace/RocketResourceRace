@@ -75,7 +75,6 @@
           "h": 3,
           "text": "Game Options",
         },
-        
         {
           "id": "back",
           "type": "button",
@@ -100,6 +99,48 @@
           "w": 12,
           "h": 3,
           "text": "Start Game",
+        },
+        {
+          "id": "water level",
+          "type": "slider",
+          "x": -6,
+          "y": 4,
+          "w": 12,
+          "h": 3,
+          "text": "Water Level",
+          "setting": "water level",
+          "lower": 0,
+          "upper": 5,
+          "step": 0.5,
+          "minor": 10,
+          "major": 5,
+          "default value": 3
+        },
+        {
+          "id": "map size",
+          "type": "slider",
+          "x": -6,
+          "y": 8,
+          "w": 12,
+          "h": 3,
+          "text": "Map Size",
+          "setting": "map size",
+          "lower": 50,
+          "upper": 300,
+          "step": 10,
+          "minor": 25,
+          "major": 5,
+          "default value": 50
+        },
+        {
+          "id": "back",
+          "type": "button",
+          "x": -6,
+          "y": 12,
+          "w": 12,
+          "h": 3,
+          "text": "Back",
+          "new state": "startup"
         },
       ]
     }
