@@ -35,6 +35,8 @@ class BaseMap extends Element{
     return int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*(mapWidth+1/VERTICESPERTILE)+y*pow(VERTICESPERTILE, 2)*(mapWidth+1/VERTICESPERTILE));
   }
   void generateNoiseMaps(int mapWidth, int mapHeight){
+    this.mapWidth = mapWidth;
+    this.mapHeight = mapHeight;
     heightMap = new float[int((mapWidth+1/VERTICESPERTILE)*(mapHeight+1/VERTICESPERTILE)*pow(VERTICESPERTILE, 2))];
     for(int y = 0;y<mapHeight;y++){
       for(int y1 = 0;y1<VERTICESPERTILE;y1++){
