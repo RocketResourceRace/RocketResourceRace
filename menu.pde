@@ -11,15 +11,6 @@ class Menu extends State{
     BGimg = loadImage("data/menu_background.jpeg");
     bg = createShape(RECT, 0, 0, width, height);
     bg.setTexture(BGimg);
-    int buttonW = (int)(300.0*GUIScale);
-    int buttonH = (int)(70.0*GUIScale);
-    int buttonP = (int)(50.0*GUIScale);
-    color bColour = color(100, 100, 100);
-    color sColour = color(150, 150, 150);
-    
-    //addPanel("settings", 0, 0, width, height, true, true, color(255, 255, 255, 255), color(0));
-    //addPanel("startup", 0, 0, width, height, true, true, color(255, 255, 255, 255), color(0));
-    //addPanel("new game", 0, 0, width, height, true, true, color(255, 255, 255, 255), color(0));
     
     loadMenuPanels();
     hidePanels();
@@ -72,32 +63,6 @@ class Menu extends State{
     drawPanels();
     return getNewState();
   }
-  
-  //void scaleGUI(){
-  //  int buttonW = (int)(300.0*GUIScale);
-  //  int buttonH = (int)(70.0*GUIScale);
-  //  int buttonP = (int)(50.0*GUIScale);
-    
-  //  getElement("new game", "startup").transform(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH);
-  //  getElement("load game", "startup").transform(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH);
-  //  getElement("settings", "startup").transform(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH);
-  //  getElement("exit", "startup").transform(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH);
-    
-  //  getElement("gui scale", "settings").transform(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH);
-  //  getElement("volume", "settings").transform(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH);
-  //  getElement("text scale", "settings").transform(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH);
-  //  getElement("back", "settings").transform(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH);
-  //  getElement("background dimming", "settings").transform(width-(buttonW+buttonP)*2, buttonH*0+buttonP*1, buttonW/2, buttonH/2);
-    
-  //  getElement("start", "new game").transform(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH);
-  //  getElement("save name", "new game").transform(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH);
-  //  getElement("map size", "new game").transform(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH);
-  //  getElement("map 3d", "new game").transform(width-buttonW-buttonP, buttonH*2+buttonP*4, buttonW/2, buttonH/2);
-  //  getElement("smoothing", "new game").transform(width-buttonW*2-buttonP*2, buttonH*1+buttonP*2, buttonW, buttonH);
-  //  getElement("water level", "new game").transform(width-buttonW*2-buttonP*2, buttonH*2+buttonP*3, buttonW, buttonH);
-  //  getElement("ground spawns", "new game").transform(width-buttonW*2-buttonP*2, buttonH*3+buttonP*4, buttonW, buttonH);
-  //  getElement("back", "new game").transform(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH);
-  //}
   
   void changeMenuPanel(){
     panelToTop(newPanel);
