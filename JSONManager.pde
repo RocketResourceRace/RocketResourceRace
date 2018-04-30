@@ -75,36 +75,36 @@ class JSONManager{
   }
   
   String getElementType(String panel, String element){
-    print(panel);
     JSONArray elems = findJSONObject(menu.getJSONArray("states"), panel).getJSONArray("elements");
-    print(1);
     return findJSONObject(elems, element).getString("type");
   }
   
-  HashMap<String, String> getChangeStateButtons(){
+  HashMap<String, String[]> getChangeStateButtons(){
     // Store all the buttons that when clicked change the state
-    HashMap returnHash = new HashMap<String, String>();
+    HashMap returnHash = new HashMap<String, String[]>();
      JSONArray panels = menu.getJSONArray("states");
      for (int i=0; i<panels.size(); i++){
-       JSONArray panelElems = panels.getJSONObject(i).getJSONArray("elements");
+       JSONObject panel = panels.getJSONObject(i);
+       JSONArray panelElems = panel.getJSONArray("elements");
        for (int j=0; j<panelElems.size(); j++){
          if (!panelElems.getJSONObject(j).isNull("new state")){
-           returnHash.put(panelElems.getJSONObject(j).getString("id"), panelElems.getJSONObject(j).getString("new state"));
+           returnHash.put(panelElems.getJSONObject(j).getString("id"), new String[]{panelElems.getJSONObject(j).getString("new state"), panel.getString("id")});
          }
        }
      }
     return returnHash;
   }
   
-  HashMap<String, String> getChangeSettingButtons(){
+  HashMap<String, String[]> getChangeSettingButtons(){
     // Store all the buttons that when clicked change a setting
-    HashMap returnHash = new HashMap<String, String>();
+    HashMap returnHash = new HashMap<String, String[]>();
      JSONArray panels = menu.getJSONArray("states");
      for (int i=0; i<panels.size(); i++){
-       JSONArray panelElems = panels.getJSONObject(i).getJSONArray("elements");
+       JSONObject panel = panels.getJSONObject(i);
+       JSONArray panelElems = panel.getJSONArray("elements");
        for (int j=0; j<panelElems.size(); j++){
          if (!panelElems.getJSONObject(j).isNull("setting")){
-           returnHash.put(panelElems.getJSONObject(j).getString("id"), panelElems.getJSONObject(j).getString("setting"));
+           returnHash.put(panelElems.getJSONObject(j).getString("id"), new String[]{panelElems.getJSONObject(j).getString("setting"), panel.getString("id")});
          }
        }
      }
