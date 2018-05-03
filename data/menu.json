@@ -66,6 +66,7 @@
           "w": 12,
           "h": 3,
           "text": "Sound Options",
+          "new state": "sound options"
         },
         {
           "id": "game options",
@@ -176,45 +177,28 @@
     },
 
     {
-      "id": "startup",
+      "id": "sound options",
       "elements":[
         {
-          "id": "new game",
-          "type": "button",
+          "id": "sound on",
+          "flags": ["autosave"],
+          "type": "tickbox",
           "x": -6,
           "y": 0,
           "w": 12,
-          "h": 3,
-          "text": "New Game",
-          "new state": "new game",
+          "h": 1,
+          "text": "Sound on/off",
+          "setting" : "sound on"
         },
         {
-          "id": "load game",
-          "type": "button",
-          "x": -6,
-          "y": 4,
-          "w": 12,
-          "h": 3,
-          "text": "Load Game",
-        },
-        {
-          "id": "settings",
-          "type": "button",
-          "x": -6,
-          "y": 8,
-          "w": 12,
-          "h": 3,
-          "text": "Settings",
-          "new state": "settings",
-        },
-        {
-          "id": "exit",
+          "id": "settings back",
           "type": "button",
           "x": -6,
           "y": 12,
           "w": 12,
           "h": 3,
-          "text": "Exit",
+          "text": "Back",
+          "new state": "settings",
         },
       ]
     },
@@ -224,5 +208,6 @@
     {"id": "gui scale", "value": 1.0, "type": "float"},
     {"id": "water level", "value": 3.0, "type": "float"},
     {"id": "map size", "value": 75, "type": "int"},
+    {"id": "sound on", "value": true, "type": "boolean"},
   ]
 }

@@ -28,22 +28,42 @@ class JSONManager{
     }
   }
   
+  void saveSetting(String id, int val){
+    // Save the setting to settings and write settings to file
+    settings.setInt(id, val);
+  }
+  
   void saveSetting(String id, float val){
     // Save the setting to settings and write settings to file
     settings.setFloat(id, val);
-    saveJSONObject(settings, "data/settings.json");
   }
   
   void saveSetting(String id, String val){
     // Save the setting to settings and write settings to file
     settings.setString(id, val);
-    saveJSONObject(settings, "data/settings.json");
   }
   
   void saveSetting(String id, boolean val){
     // Save the setting to settings and write settings to file
     settings.setBoolean(id, val);
+  }
+  
+  void writeSettings(){
     saveJSONObject(settings, "data/settings.json");
+  }
+  
+  boolean hasFlag(String panelID, String elemID, String flag){
+    JSONObject panel = findJSONObject(menu.getJSONArray("states"), panelID);
+    JSONObject elem = findJSONObject(panel.getJSONArray("elements"), elemID);
+    JSONArray flags = elem.getJSONArray("flags");
+    if (flags != null){
+      for (int i=0; i<flags.size(); i++){
+        if (flags.getString(i).equals(flag)){
+          return true;
+        }
+      }
+    }
+    return false;
   }
   
   void loadDefaultSettings(){
@@ -59,6 +79,9 @@ class JSONManager{
       }
       if (setting.getString("type").equals("string")){
         saveSetting(setting.getString("id"), setting.getString("value"));
+      }
+      if (setting.getString("type").equals("boolean")){
+        saveSetting(setting.getString("id"), setting.getBoolean("value"));
       }
     }
   }
@@ -77,6 +100,9 @@ class JSONManager{
         }
         if (setting.getString("type").equals("string")){
           saveSetting(setting.getString("id"), setting.getString("value"));
+        }
+        if (setting.getString("type").equals("boolean")){
+          saveSetting(setting.getString("id"), setting.getBoolean("value"));
         }
       }
     }
@@ -253,7 +279,6 @@ class JSONManager{
       else{
         step = elem.getFloat("step");
       }
-      
       switch (type){
         case "button":
           state.addElement(id, new Button((int)x, (int)y, (int)w, (int)h, bgColour, strokeColour, textColour, textSize, CENTER, text), panelID);
@@ -265,6 +290,17 @@ class JSONManager{
           else{
             state.addElement(id, new Slider((int)x, (int)y, (int)w, (int)h, color(50), bgColour, strokeColour, color(0), lower, elem.getFloat("default value"), upper, major, minor, step, true, text), panelID);
           }
+          break;
+        case "tickbox":
+          if (elem.isNull("default value")){
+            state.addElement(id, new Tickbox((int)x, (int)y, (int)w, (int)h, loadBooleanSetting(id), text), panelID);
+          }
+          else{
+            state.addElement(id, new Tickbox((int)x, (int)y, (int)w, (int)h, elem.getBoolean("default value"), text), panelID);
+          }
+          break;
+        default:
+          println("invalid JSON type:", type);
           break;
       }
     }

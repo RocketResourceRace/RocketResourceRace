@@ -77,7 +77,7 @@ class Menu extends State{
   
   void elementEvent(ArrayList<Event> events){
     for (Event event:events){
-      if (settingChangers.get(event.id) != null && event.panel != null){
+      if (event.type.equals("valueChanged") && settingChangers.get(event.id) != null && event.panel != null){
         String type = jsManager.getElementType(event.panel, event.id);
         switch (type){
           case "slider":
@@ -86,12 +86,21 @@ class Menu extends State{
           case "toggle button":
             jsManager.saveSetting(settingChangers.get(event.id)[0], ((ToggleButton)getElement(event.id, event.panel)).getState());
             break;
+          case "tickbox":
+            jsManager.saveSetting(settingChangers.get(event.id)[0], ((Tickbox)getElement(event.id, event.panel)).getState());
+            break;
+        }
+        if (jsManager.hasFlag(event.panel, event.id, "autosave")){
+          jsManager.writeSettings();
         }
       }
       if (event.type.equals("clicked")){
         if (stateChangers.get(event.id) != null && stateChangers.get(event.id)[0] != null ){
           newPanel = stateChangers.get(event.id)[0];
-          //loadMenuPanels();
+          if (event.id.equals("apply")){
+            jsManager.writeSettings();
+            loadMenuPanels();
+          }
         }
         else if (event.id.equals("start")){
           newState = "map";

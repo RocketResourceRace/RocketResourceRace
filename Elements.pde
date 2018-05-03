@@ -1,5 +1,57 @@
 
 
+
+class Tickbox extends Element{
+  boolean val;
+  String name;
+  
+  Tickbox(int x, int y, int w, int h, boolean defaultVal, String name){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.val = defaultVal;
+    this.name = name;
+  }
+  
+  void toggle(){
+    val = !val;
+  }
+  
+  ArrayList<String> mouseEvent(String eventType, int button){
+    ArrayList<String> events = new ArrayList<String>();
+    if (eventType.equals("mouseClicked")){
+      if (moveOver()){
+        toggle();
+        events.add("valueChanged");
+      }
+    }
+    return events;
+  }
+  
+  boolean getState(){
+    return val;
+  }
+  
+  boolean moveOver(){
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+h && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
+  }
+  
+  void draw(PGraphics panelCanvas){
+    panelCanvas.pushStyle();
+    
+    panelCanvas.fill(color(255));
+    panelCanvas.stroke(color(0));
+    panelCanvas.rect(x, y, h*GUIScale, h*GUIScale);
+    if (val){
+      panelCanvas.line(x, y, x+h*GUIScale, y+h*GUIScale);
+      panelCanvas.line(x+h*GUIScale, y, x, y+h*GUIScale);
+    }
+    
+    panelCanvas.popStyle();
+  }
+}
+
 class Tooltip extends Element{
   boolean visible;
   String text;
