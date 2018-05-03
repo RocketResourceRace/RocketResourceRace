@@ -20,9 +20,11 @@ class JSONManager{
         println("Finished creating new settings file");
         settings = loadJSONObject("settings.json");
       }
+      loadInitialSettings();
     }
     catch(Exception e){
       println("Error loading JSON");
+      println(e);
     }
   }
   
@@ -42,6 +44,42 @@ class JSONManager{
     // Save the setting to settings and write settings to file
     settings.setBoolean(id, val);
     saveJSONObject(settings, "data/settings.json");
+  }
+  
+  void loadDefaultSettings(){
+    // Reset all the settings to their default values
+    JSONArray defaultSettings = menu.getJSONArray("default settings");
+    for (int i=0; i<defaultSettings.size(); i++){
+      JSONObject setting = defaultSettings.getJSONObject(i);
+      if (setting.getString("type").equals("int")){
+        saveSetting(setting.getString("id"), setting.getInt("value"));
+      }
+      if (setting.getString("type").equals("float")){
+        saveSetting(setting.getString("id"), setting.getFloat("value"));
+      }
+      if (setting.getString("type").equals("string")){
+        saveSetting(setting.getString("id"), setting.getString("value"));
+      }
+    }
+  }
+  
+  void loadInitialSettings(){
+    // Set all the settings to either the default value, or the value already set
+    JSONArray defaultSettings = menu.getJSONArray("default settings");
+    for (int i=0; i<defaultSettings.size(); i++){
+      JSONObject setting = defaultSettings.getJSONObject(i);
+      if (settings.get(setting.getString("id")) == null){
+        if (setting.getString("type").equals("int")){
+          saveSetting(setting.getString("id"), setting.getInt("value"));
+        }
+        if (setting.getString("type").equals("float")){
+          saveSetting(setting.getString("id"), setting.getFloat("value"));
+        }
+        if (setting.getString("type").equals("string")){
+          saveSetting(setting.getString("id"), setting.getString("value"));
+        }
+      }
+    }
   }
   
   int loadIntSetting(String id){
@@ -123,6 +161,8 @@ class JSONManager{
   
   void loadPanelMenuElements(State state, String panelID, float guiScale){
     // Load in the elements from JSON menu into panel
+    // NOTE: "default value" in elements object means value is not saved to setting (and if not defined will be saved)
+    
     int bgColour, strokeColour, textColour, textSize, major, minor;
     float x, y, w, h, scale, lower, defaultValue, upper, step;
     String type, id, text;
@@ -193,13 +233,6 @@ class JSONManager{
         upper = elem.getFloat("upper");
       }
       
-      if (elem.isNull("default value")){
-        defaultValue = 0.5;
-      }
-      else{
-        defaultValue = elem.getFloat("default value");
-      }
-      
       if (elem.isNull("major")){
         major = 2;
       }
@@ -226,7 +259,12 @@ class JSONManager{
           state.addElement(id, new Button((int)x, (int)y, (int)w, (int)h, bgColour, strokeColour, textColour, textSize, CENTER, text), panelID);
           break;
         case "slider":
-          state.addElement(id, new Slider((int)x, (int)y, (int)w, (int)h, color(50), bgColour, strokeColour, color(0), lower, defaultValue, upper, major, minor, step, true, text), panelID);
+          if (elem.isNull("default value")){
+            state.addElement(id, new Slider((int)x, (int)y, (int)w, (int)h, color(50), bgColour, strokeColour, color(0), lower, loadFloatSetting(id), upper, major, minor, step, true, text), panelID);
+          }
+          else{
+            state.addElement(id, new Slider((int)x, (int)y, (int)w, (int)h, color(50), bgColour, strokeColour, color(0), lower, elem.getFloat("default value"), upper, major, minor, step, true, text), panelID);
+          }
           break;
       }
     }
