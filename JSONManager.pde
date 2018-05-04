@@ -19,6 +19,8 @@ class JSONManager{
         w.close();
         println("Finished creating new settings file");
         settings = loadJSONObject("settings.json");
+        println("loading settings... ");
+        loadDefaultSettings();
       }
       loadInitialSettings();
     }
@@ -74,14 +76,17 @@ class JSONManager{
       if (setting.getString("type").equals("int")){
         saveSetting(setting.getString("id"), setting.getInt("value"));
       }
-      if (setting.getString("type").equals("float")){
+      else if (setting.getString("type").equals("float")){
         saveSetting(setting.getString("id"), setting.getFloat("value"));
       }
-      if (setting.getString("type").equals("string")){
+      else if (setting.getString("type").equals("string")){
         saveSetting(setting.getString("id"), setting.getString("value"));
       }
-      if (setting.getString("type").equals("boolean")){
+      else if (setting.getString("type").equals("boolean")){
         saveSetting(setting.getString("id"), setting.getBoolean("value"));
+      }
+      else{
+        print("invalid setting type");
       }
     }
   }
@@ -95,17 +100,21 @@ class JSONManager{
         if (setting.getString("type").equals("int")){
           saveSetting(setting.getString("id"), setting.getInt("value"));
         }
-        if (setting.getString("type").equals("float")){
+        else if (setting.getString("type").equals("float")){
           saveSetting(setting.getString("id"), setting.getFloat("value"));
         }
-        if (setting.getString("type").equals("string")){
+        else if (setting.getString("type").equals("string")){
           saveSetting(setting.getString("id"), setting.getString("value"));
         }
-        if (setting.getString("type").equals("boolean")){
+        else if (setting.getString("type").equals("boolean")){
           saveSetting(setting.getString("id"), setting.getBoolean("value"));
+        }
+        else{
+          print("invalid setting type");
         }
       }
     }
+    writeSettings();
   }
   
   int loadIntSetting(String id){
@@ -162,17 +171,17 @@ class JSONManager{
   HashMap<String, String[]> getChangeSettingButtons(){
     // Store all the buttons that when clicked change a setting
     HashMap returnHash = new HashMap<String, String[]>();
-     JSONArray panels = menu.getJSONArray("states");
-     for (int i=0; i<panels.size(); i++){
-       JSONObject panel = panels.getJSONObject(i);
-       JSONArray panelElems = panel.getJSONArray("elements");
-       for (int j=0; j<panelElems.size(); j++){
-         if (!panelElems.getJSONObject(j).isNull("setting")){
-           returnHash.put(panelElems.getJSONObject(j).getString("id"), new String[]{panelElems.getJSONObject(j).getString("setting"), panel.getString("id")});
-         }
+   JSONArray panels = menu.getJSONArray("states");
+   for (int i=0; i<panels.size(); i++){
+     JSONObject panel = panels.getJSONObject(i);
+     JSONArray panelElems = panel.getJSONArray("elements");
+     for (int j=0; j<panelElems.size(); j++){
+       if (!panelElems.getJSONObject(j).isNull("setting")){
+         returnHash.put(panelElems.getJSONObject(j).getString("id"), new String[]{panelElems.getJSONObject(j).getString("setting"), panel.getString("id")});
        }
      }
-    return returnHash;
+   }
+  return returnHash;
   }
   
   void loadMenuElements(State state, float guiScale){
@@ -285,10 +294,10 @@ class JSONManager{
           break;
         case "slider":
           if (elem.isNull("default value")){
-            state.addElement(id, new Slider((int)x, (int)y, (int)w, (int)h, color(50), bgColour, strokeColour, color(0), lower, loadFloatSetting(id), upper, major, minor, step, true, text), panelID);
+            state.addElement(id, new Slider((int)x, (int)y, (int)w, (int)h, color(150), bgColour, strokeColour, color(0), lower, loadFloatSetting(id), upper, major, minor, step, true, text), panelID);
           }
           else{
-            state.addElement(id, new Slider((int)x, (int)y, (int)w, (int)h, color(50), bgColour, strokeColour, color(0), lower, elem.getFloat("default value"), upper, major, minor, step, true, text), panelID);
+            state.addElement(id, new Slider((int)x, (int)y, (int)w, (int)h, color(150), bgColour, strokeColour, color(0), lower, elem.getFloat("default value"), upper, major, minor, step, true, text), panelID);
           }
           break;
         case "tickbox":
@@ -300,7 +309,7 @@ class JSONManager{
           }
           break;
         default:
-          println("invalid JSON type:", type);
+          println("invalid element type:", type);
           break;
       }
     }

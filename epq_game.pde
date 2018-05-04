@@ -22,7 +22,7 @@ HashMap<Integer, PFont> fonts;
 int graphicsRes = 32;
 boolean mapIs3D;
 PShader toon;
-
+//Deal with apply thing
 JSONManager jsManager;
 
 // Event-driven methods

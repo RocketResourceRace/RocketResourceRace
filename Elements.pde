@@ -44,10 +44,13 @@ class Tickbox extends Element{
     panelCanvas.stroke(color(0));
     panelCanvas.rect(x, y, h*GUIScale, h*GUIScale);
     if (val){
-      panelCanvas.line(x, y, x+h*GUIScale, y+h*GUIScale);
-      panelCanvas.line(x+h*GUIScale, y, x, y+h*GUIScale);
+      panelCanvas.line(x+1, y+1, x+h*GUIScale-1, y+h*GUIScale-1);
+      panelCanvas.line(x+h*GUIScale-1, y+1, x+1, y+h*GUIScale-1);
     }
-    
+    panelCanvas.fill(0);
+    panelCanvas.textAlign(LEFT, CENTER);
+    panelCanvas.textSize(8*TextScale);
+    panelCanvas.text(name, x+h*GUIScale+5, y+h*GUIScale/2);
     panelCanvas.popStyle();
   }
 }
@@ -179,8 +182,8 @@ class Tooltip extends Element{
       ArrayList<String> lines = getLines(text);
       panelCanvas.textFont(getFont(8*TextScale));
       int tw = ceil(maxWidthLine(lines))+4;
-      int gap = ceil(textAscent()+textDescent());
-      int th = ceil(textAscent()+textDescent())*lines.size();
+      int gap = ceil(panelCanvas.textAscent()+panelCanvas.textDescent());
+      int th = ceil(panelCanvas.textAscent()+panelCanvas.textDescent())*lines.size();
       int tx = round(between(0, mouseX-xOffset-tw/2, width-tw));
       int ty = round(between(0, mouseY-yOffset+20, height-th-20));
       panelCanvas.fill(200, 230);
@@ -415,7 +418,7 @@ class TextBox extends Element{
     this.text = text;
     if (autoSizing){
       textFont(getFont(textSize*TextScale));
-      this.w = ceil(textWidth(text))+10;
+      this.w = ceil(panelCanvas.textWidth(text))+10;
     }
   }
   String getText(){
@@ -580,7 +583,7 @@ class DropDown extends Element{
     this.y = y;
     this.w = w;
     this.textSize = textSize;
-    this.h = getH();
+    this.h = 10;
     this.bgColour = bgColour;
     this.strokeColour = strokeColour;
     removeAllOptions();
@@ -645,9 +648,9 @@ class DropDown extends Element{
       }
     }
   }
-  int getH(){
+  int getH(PGraphics panelCanvas){
     textFont(getFont(textSize*TextScale));
-    return ceil(textAscent() + textDescent());
+    return ceil(panelCanvas.textAscent() + panelCanvas.textDescent());
   }
   boolean optionAvailable(int i){
     for (int option : availableOptions){
@@ -659,7 +662,7 @@ class DropDown extends Element{
   }
   void draw(PGraphics panelCanvas){
     panelCanvas.pushStyle();
-    h = getH();
+    h = getH(panelCanvas);
     panelCanvas.fill(brighten(bgColour, ONOFFSET));
     panelCanvas.stroke(strokeColour);
     panelCanvas.rect(x, y, w, h);
@@ -1030,13 +1033,13 @@ class Text extends Element{
   void setText(String text){
     this.text = text;
   }
-  void calcSize(){
-    textFont(getFont(size*TextScale));
-    this.w = ceil(textWidth(text));
-    this.h = ceil(textAscent()+textDescent());
+  void calcSize(PGraphics panelCanvas){
+    panelCanvas.textFont(getFont(size*TextScale));
+    this.w = ceil(panelCanvas.textWidth(text));
+    this.h = ceil(panelCanvas.textAscent()+panelCanvas.textDescent());
   }
   void draw(PGraphics panelCanvas){
-    calcSize();
+    calcSize(panelCanvas);
     if (font != null){
       panelCanvas.textFont(font);
     }
