@@ -1502,9 +1502,6 @@ class Game extends State{
     Text winnerMessage = ((Text)this.getElement("winner", "end screen"));
     winnerMessage.setText("Winner: player /w");
 
-    parties = new Party[mapHeight][mapWidth];
-    buildings = new Building[mapHeight][mapWidth];
-    PVector[] playerStarts = generateStartingParties();
     if (mapIs3D){
       map = (Map3D)getElement("3dmap", "default");
       ((Map3D)getElement("3dmap", "default")).visible = true;
@@ -1514,8 +1511,15 @@ class Game extends State{
       ((Map3D)getElement("3dmap", "default")).visible = false;
       ((Map2D)getElement("2dmap", "default")).visible = true;
     }
-    terrain = ((BaseMap)map).generateMap(mapWidth, mapHeight);
-    map.reset(terrain, parties, buildings);
+    ((BaseMap)map).generateMap(mapWidth, mapHeight);
+    terrain = ((BaseMap)map).terrain; 
+    mapWidth = ((BaseMap)map).mapWidth;
+    mapHeight = ((BaseMap)map).mapHeight;
+    mapSize = mapWidth;
+    parties = new Party[mapHeight][mapWidth];
+    buildings = new Building[mapHeight][mapWidth];
+    PVector[] playerStarts = generateStartingParties();
+    map.reset(parties, buildings);
 
     float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, 42);
     players[1] = new Player(conditions2[0], conditions2[1], 42, startingResources.clone(), color(255,0,0));

@@ -25,7 +25,7 @@ interface Map {
   void cancelPath();
   void setActive(boolean a);
   void selectCell(int x, int y);
-  void reset(int [][] terrain, Party[][] parties, Building[][] buildings);
+  void reset(Party[][] parties, Building[][] buildings);
   void generateShape();
   void clearShape();
 }
@@ -33,16 +33,38 @@ class BaseMap extends Element{
   float[] heightMap;
   int mapWidth, mapHeight;
   long heightMapSeed;
+  int[][] terrain;
+  Party[][] parties;
+  Building[][] buildings;
   void saveMap(String filename){
-    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+    ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*2+Long.BYTES+Integer.BYTES*mapWidth*mapHeight);
+    buffer.putInt(mapWidth);
+    buffer.putInt(mapHeight);
     buffer.putLong(heightMapSeed);
+    for (int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        buffer.putInt(terrain[y][x]);
+      }
+    }
     saveBytes(filename, buffer.array());
   }
   void loadMap(String filename){
-    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
-    buffer.put(loadBytes(filename));
-    buffer.flip();//need flip 
+    byte tempBuffer[] = loadBytes(filename);
+    ByteBuffer sizeBuffer = ByteBuffer.allocate(Integer.BYTES*2);
+    sizeBuffer.put(Arrays.copyOfRange(tempBuffer, 0, Integer.BYTES*2));
+    sizeBuffer.flip();//need flip
+    mapWidth = sizeBuffer.getInt();
+    mapHeight = sizeBuffer.getInt();
+    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES+Integer.BYTES*mapWidth*mapHeight);
+    buffer.put(Arrays.copyOfRange(tempBuffer, Integer.BYTES*2, Integer.BYTES*2+Long.BYTES+Integer.BYTES*mapWidth*mapHeight));
+    buffer.flip();//need flip
     heightMapSeed = buffer.getLong();
+    terrain = new int[mapHeight][mapWidth];
+    for (int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        terrain[y][x] = buffer.getInt();
+      }
+    }
   }
   int toMapIndex(int x, int y, int x1, int y1){
     return int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*(mapWidth+1/VERTICESPERTILE)+y*pow(VERTICESPERTILE, 2)*(mapWidth+1/VERTICESPERTILE));
@@ -95,16 +117,7 @@ class BaseMap extends Element{
     }
     return newMap;
   }
-  int[][] generateMap(int mapWidth, int mapHeight){
-    if(loading){
-      loadMap("saves/test.dat");
-    } else {
-      heightMapSeed = (long)random(Long.MIN_VALUE, Long.MAX_VALUE);
-    }
-    noiseSeed(heightMapSeed);
-    this.mapWidth = mapWidth;
-    this.mapHeight = mapHeight;
-    generateNoiseMaps();
+  void generateTerrain(){
     HashMap<Integer, Float> groundWeightings = new HashMap();
     for (Integer i=1; i<gameData.getJSONArray("terrain").size()+1; i++){
       groundWeightings.put(i, gameData.getJSONArray("terrain").getJSONObject(i-1).getFloat("weighting"));
@@ -114,17 +127,6 @@ class BaseMap extends Element{
     for (float weight: groundWeightings.values()){
       totalWeighting+=weight;
     }
-
-    int [][] terrain = new int[mapHeight][mapWidth];
-
-    //for(int y=0; y<mapHeight; y++){
-    //  terrain[y][0] = terrainIndex("water");
-    //  terrain[y][mapWidth-1] = terrainIndex("water");
-    //}
-    //for(int x=1; x<mapWidth-1; x++){
-    //  terrain[0][x] = terrainIndex("water");
-    //  terrain[mapHeight-1][x] = terrainIndex("water");
-    //}
     for(int i=0;i<groundSpawns;i++){
       int type = getRandomGroundType(groundWeightings, totalWeighting);
       int x = (int)random(mapWidth);
@@ -194,7 +196,21 @@ class BaseMap extends Element{
         }
       }
     }
-    return terrain;
+  }
+  void generateMap(int mapWidth, int mapHeight){
+    terrain = new int[mapHeight][mapWidth];
+    this.mapWidth = mapWidth;
+    this.mapHeight = mapHeight;
+    if(loading){
+      loadMap("saves/test.dat");
+      noiseSeed(heightMapSeed);
+      generateNoiseMaps();
+    } else {
+      heightMapSeed = (long)random(Long.MIN_VALUE, Long.MAX_VALUE);
+      noiseSeed(heightMapSeed);
+      generateNoiseMaps();
+      generateTerrain();
+    }
   }
   void generateNoiseMaps(){
     heightMap = new float[int((mapWidth+1/VERTICESPERTILE)*(mapHeight+1/VERTICESPERTILE)*pow(VERTICESPERTILE, 2))];
@@ -255,9 +271,6 @@ class BaseMap extends Element{
 
 class Map2D extends BaseMap implements Map{
   final int EW, EH, INITIALHOLD=1000;
-  int[][] terrain;
-  Party[][] parties;
-  Building[][] buildings;
   float blockSize, targetBlockSize;
   float mapXOffset, mapYOffset, targetXOffset, targetYOffset, panningSpeed, resetTime;
   boolean panning=false, zooming=false;
@@ -348,10 +361,9 @@ class Map2D extends BaseMap implements Map{
     mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth*0.5), elementWidth*0.5);
     mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight*0.5), elementHeight*0.5);
   }
-  void reset(int[][] terrain, Party[][] parties, Building[][] buildings){
+  void reset(Party[][] parties, Building[][] buildings){
     mapXOffset = 0;
     mapYOffset = 0;
-    this.terrain = terrain;
     this.parties = parties;
     this.buildings = buildings;
     blockSize = min(elementWidth/(float)mapWidth, elementWidth/10);
