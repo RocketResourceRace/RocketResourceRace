@@ -411,16 +411,19 @@ class TextBox extends Element{
     this.textSize = textSize;
     this.bgColour = bgColour;
     this.textColour = textColour;
-    setText(text);
+    setText("");
   }
   
   void setText(String text){
     this.text = text;
+  }
+  
+  void updateWidth(PGraphics panelCanvas){
     if (autoSizing){
-      textFont(getFont(textSize*TextScale));
       this.w = ceil(panelCanvas.textWidth(text))+10;
     }
   }
+  
   String getText(){
     return text;
   }
@@ -434,6 +437,7 @@ class TextBox extends Element{
     panelCanvas.textFont(getFont(textSize*TextScale));
     panelCanvas.textAlign(CENTER, CENTER);
     panelCanvas.rectMode(CORNER);
+    updateWidth(panelCanvas);
     if (bgColour != color(255, 255)){
       panelCanvas.fill(bgColour);
       panelCanvas.rect(x, y, w, h);
@@ -883,7 +887,6 @@ class Slider extends Element{
     this.step = new BigDecimal(""+step);
     this.value = new BigDecimal(""+value);
     this.name = name;
-    scaleKnob();
   }
   void show(){
     visible = true;
@@ -891,9 +894,9 @@ class Slider extends Element{
   void hide(){
     visible = false;
   }
-  void scaleKnob(){
-    textFont(getFont(8*TextScale));
-    this.knobSize = textWidth(""+getInc(new BigDecimal(""+upper)));
+  void scaleKnob(PGraphics panelCanvas, BigDecimal value){
+    panelCanvas.textFont(getFont(8*TextScale));
+    this.knobSize = max(this.knobSize, panelCanvas.textWidth(""+getInc(value)));
   }
   void transform(int x, int y, int w, int h){
     this.lx = x;
@@ -909,7 +912,6 @@ class Slider extends Element{
     this.upper = new BigDecimal(""+upper);
     this.lower = new BigDecimal(""+lower);
     this.value = new BigDecimal(""+value);
-    scaleKnob();
   }
   
   void setValue(BigDecimal value){
@@ -992,7 +994,7 @@ class Slider extends Element{
     panelCanvas.textFont(getFont(8*TextScale));
     panelCanvas.textAlign(CENTER);
     panelCanvas.rectMode(CENTER);
-    this.knobSize = max(this.knobSize, textWidth(""+getInc(value)));
+    scaleKnob(panelCanvas, value);
     panelCanvas.rect(x+value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue(), y+h/2+padding/2, knobSize, boxHeight);
     panelCanvas.rectMode(CORNER);
     panelCanvas.fill(scaleColour);

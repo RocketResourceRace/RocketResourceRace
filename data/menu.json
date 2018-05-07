@@ -152,7 +152,7 @@
           "id": "gui scale",
           "type": "slider",
           "x": -6,
-          "y": 8,
+          "y": 4,
           "w": 12,
           "h": 3,
           "text": "GUI Scale",
