@@ -14,7 +14,6 @@ BufferedReader settingsReadFile;
 StringDict settings;
 final String LETTERSNUMBERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890/\\_ ";
 HashMap<String, SoundFile> sfx;
-float volume = 0.5;
 int prevT;
 JSONObject gameData;
 HashMap<Integer, PFont> fonts;
@@ -117,15 +116,10 @@ void keyboardEvent(String eventType, char _key){
   getActiveState()._keyboardEvent(eventType, _key);
 }
 
-void setVolume(float x){
-  if (0<=x && x<=1){
-    volume = x;
-    for (SoundFile fect:sfx.values()){
-      fect.amp(volume);
-    }
-    return;
+void setVolume(){
+  for (SoundFile fect:sfx.values()){
+    fect.amp(jsManager.loadFloatSetting("volume"));
   }
-  print("invalid volume");
 }
 
 int NUMOFGROUNDTYPES = 5;
@@ -264,7 +258,6 @@ void setup(){
     GUIScale = float(settings.get("gui_scale"));
     TextScale = float(settings.get("text_scale"));
     mapSize = int(settings.get("mapSize"));
-    volume = float(settings.get("volume"));
     mapIs3D = boolean(settings.get("map3D"));
 
     loadImages();

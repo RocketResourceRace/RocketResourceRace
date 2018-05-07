@@ -96,6 +96,9 @@ class Menu extends State{
         if (event.id.equals("sound on")){
           loadSounds();
         }
+        if (event.id.equals("volume")){
+          setVolume();
+        }
       }
       if (event.type.equals("clicked")){
         if (stateChangers.get(event.id) != null && stateChangers.get(event.id)[0] != null ){
