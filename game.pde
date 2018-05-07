@@ -1506,7 +1506,7 @@ class Game extends State{
     buildings = new Building[mapHeight][mapWidth];
     PVector[] playerStarts = generateStartingParties();
     terrain = generateMap(playerStarts);
-    if (mapIs3D){
+    if (jsManager.loadBooleanSetting("map is 3d")){
       map = (Map3D)getElement("3dmap", "default");
       ((Map3D)getElement("3dmap", "default")).visible = true;
       ((Map2D)getElement("2dmap", "default")).visible = false;

@@ -28,7 +28,7 @@ class Menu extends State{
     //addElement("start", new Button(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Start"), "new game");
     //addElement("save name", new TextEntry(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, LEFT, color(0), color(100, 100, 100), color(150, 150, 150), LETTERSNUMBERS, "Save Name"), "new game");
     //addElement("map size", new Slider(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(150), color(0), 50, mapSize, 300, 5, 25, 10, true, "Map Size"), "new game");
-    //addElement("map 3d", new ToggleButton(width-buttonW*2-buttonP*2, buttonH, buttonW/2, buttonH/2, bColour, color(0), mapIs3D, "Map 3D"), "new game");
+    //addElement("map 3d", new ToggleButton(width-buttonW*2-buttonP*2, buttonH, buttonW/2, buttonH/2, bColour, color(0), jsManager.loadBooleanSetting("map is 3d"), "Map 3D"), "new game");
     //addElement("smoothing", new Slider(width-buttonW*2-buttonP*2, buttonH*1+buttonP*2, buttonW, buttonH, color(0, 255, 0), bColour, color(150), color(0), 0, 6, 20, 4, 20, 1, true, "Smoothing"), "new game");
     //addElement("water level", new Slider(width-buttonW*2-buttonP*2, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(150), color(0), 0.0, 0.5, 0.75, 5, 5, 0.01, true, "Water Level"), "new game");
     //addElement("ground spawns", new Slider(width-buttonW*2-buttonP*2, buttonH*3+buttonP*4, buttonW, buttonH, color(0, 255, 0), bColour, color(150), color(0), 50, 100, 300, 5, 25, 10, true, "Ground Spawns"), "new game");
@@ -117,6 +117,9 @@ class Menu extends State{
         if (jsManager.hasFlag(event.panel, event.id, "autosave")){
           saveMenuSetting(event.id, event);
           jsManager.writeSettings();
+          if (event.id.equals("framerate cap")){
+            setFrameRateCap();
+          }
         }
         if (event.id.equals("sound on")){
           loadSounds();

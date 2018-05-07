@@ -6,16 +6,12 @@ String activeState;
 HashMap<String, State> states;
 int lastClickTime = 0;
 final int DOUBLECLICKWAIT = 500;
-PrintWriter settingsWriteFile; 
-BufferedReader settingsReadFile;
-StringDict settings;
 final String LETTERSNUMBERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890/\\_ ";
 HashMap<String, SoundFile> sfx;
 int prevT;
 JSONObject gameData;
 HashMap<Integer, PFont> fonts;
 int graphicsRes = 32;
-boolean mapIs3D;
 PShader toon;
 //Deal with apply thing
 JSONManager jsManager;
@@ -87,19 +83,6 @@ float sigmoid(float x){
   return 1-2/(exp(x)+1);
 }
 
-void createFile(){
-  changeSetting("gui_scale", "1.0");
-  changeSetting("text_scale", "1.6");
-  changeSetting("volume", "0.5");
-  changeSetting("mapSize", "100");
-  changeSetting("sound", "1");
-  changeSetting("water level", "");
-  changeSetting("smoothing", "8");
-  changeSetting("ground spawns", "");
-  writeSettings();
-}
-
-
 void mouseEvent(String eventType, int button){
   getActiveState()._mouseEvent(eventType, button);
 }
@@ -116,6 +99,15 @@ void keyboardEvent(String eventType, char _key){
 void setVolume(){
   for (SoundFile fect:sfx.values()){
     fect.amp(jsManager.loadFloatSetting("volume"));
+  }
+}
+
+void setFrameRateCap(){
+  if (jsManager.loadBooleanSetting("framerate cap")){
+    frameRate(60);
+  }
+  else{
+    frameRate(1000);
   }
 }
 
@@ -142,36 +134,6 @@ HashMap<String, PImage> taskImages;
 HashMap<String, PImage> lowImages;
 HashMap<String, PImage> tile3DImages;
 
-void changeSetting(String id, String newValue){
-  settings.set(id, newValue);
-}
-
-void writeSettings(){
-  settingsWriteFile = createWriter("settings.txt");
-  for(String s: settings.keyArray()){
-    settingsWriteFile.println(s+" "+settings.get(s));
-  }
-  settingsWriteFile.flush();  // Writes the remaining data to the file
-  settingsWriteFile.close();  // Finishes the file
-}
-
-void loadSettings(){
-  String line;
-  String[] args;
-  try{
-    while ((line = settingsReadFile.readLine()) != null) {
-      args = line.split(" ");
-      settings.set(args[0], args[1]);
-    }
-  }
-  catch (IOException e) {
-    e.printStackTrace();
-    print("Ignore that message");
-  }
-  catch (Exception e){
-    createFile();
-  }
-}
 void loadSounds(){
   if(jsManager.loadBooleanSetting("sound on")){
     sfx = new HashMap<String, SoundFile>();
@@ -242,17 +204,12 @@ void setup(){
 
   fullScreen(P3D);
   try{
-    frameRate(1000);
     fonts = new HashMap<Integer, PFont>();
     gameData = loadJSONObject("data.json");
     jsManager = new JSONManager();
-    settings = new StringDict();
-    //if
-    settingsReadFile = createReader("settings.txt");
-    loadSettings();
     loadSounds();
+    setFrameRateCap();
     textFont(createFont("GillSans", 32));
-    mapIs3D = boolean(settings.get("map3D"));
 
     loadImages();
 

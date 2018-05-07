@@ -197,6 +197,17 @@
           "major": 6,
         },
         {
+          "id": "framerate cap",
+          "flags": ["autosave"],
+          "type": "tickbox",
+          "x": -6,
+          "y": 0,
+          "w": 12,
+          "h": 1,
+          "text": "Framerate Cap",
+          "setting" : "framerate cap"
+        },
+        {
           "id": "apply",
           "type": "button",
           "x": 7,
@@ -279,5 +290,7 @@
     {"id": "volume", "value": 0.75, "type": "float"},
     {"id": "text scale", "value": 1.6, "type": "float"},
     {"id": "smoothing", "value": 3, "type": "int"},
+    {"id": "map is 3d", "value": true, "type": "boolean"},
+    {"id": "framerate cap", "value": true, "type": "boolean"},
   ]
 }
