@@ -836,7 +836,7 @@ class Button extends Element{
       }
       if (eventType == "mousePressed"){
         state = "on";
-        if(soundOn){
+        if(jsManager.loadBooleanSetting("sound on")){
           sfx.get("click3").play();
         }
       }

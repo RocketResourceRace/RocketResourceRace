@@ -93,6 +93,9 @@ class Menu extends State{
         if (jsManager.hasFlag(event.panel, event.id, "autosave")){
           jsManager.writeSettings();
         }
+        if (event.id.equals("sound on")){
+          loadSounds();
+        }
       }
       if (event.type.equals("clicked")){
         if (stateChangers.get(event.id) != null && stateChangers.get(event.id)[0] != null ){

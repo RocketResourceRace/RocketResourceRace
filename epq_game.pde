@@ -16,7 +16,6 @@ final String LETTERSNUMBERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw
 HashMap<String, SoundFile> sfx;
 float volume = 0.5;
 int prevT;
-boolean soundOn = true;
 JSONObject gameData;
 HashMap<Integer, PFont> fonts;
 int graphicsRes = 32;
@@ -183,8 +182,7 @@ void loadSettings(){
   }
 }
 void loadSounds(){
-  soundOn = !(Integer.parseInt(settings.get("sound"))==0);
-  if(soundOn){
+  if(jsManager.loadBooleanSetting("sound on")){
     sfx = new HashMap<String, SoundFile>();
     sfx.put("click3", new SoundFile(this, "click3.wav"));
   }
@@ -256,6 +254,7 @@ void setup(){
     frameRate(1000);
     fonts = new HashMap<Integer, PFont>();
     gameData = loadJSONObject("data.json");
+    jsManager = new JSONManager();
     settings = new StringDict();
     //if
     settingsReadFile = createReader("settings.txt");
@@ -275,7 +274,6 @@ void setup(){
       loadImage("data/red_flag.png"),
       loadImage("data/battle.png")
     };
-    jsManager = new JSONManager();
     states = new HashMap<String, State>();
     addState("menu", new Menu());
     addState("map", new Game());
