@@ -209,7 +209,7 @@ class Map2D extends Element implements Map{
       float count = event.getCount();
       if(mouseOver() && mapActive){
         float zoom = pow(0.9, count);
-        float newBlockSize = max(min(blockSize*zoom, (float)elementWidth/10), (float)elementWidth/(float)mapSize);
+        float newBlockSize = max(min(blockSize*zoom, (float)elementWidth/10), (float)elementWidth/(float)jsManager.loadIntSetting("map size"));
         if (blockSize != newBlockSize){
           mapXOffset = scaleX(((mouseX-mapXOffset-xPos)/blockSize))-xPos-((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
           mapYOffset = scaleY(((mouseY-mapYOffset-yPos)/blockSize))-yPos-((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);

@@ -1011,7 +1011,7 @@ class Slider extends Element{
     panelCanvas.line(x+value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight/2+padding/2, x+value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight+padding/2);
     panelCanvas.stroke(0);
     panelCanvas.fill(0);
-    panelCanvas.textFont(getFont(12*jsManager.loadFloatSetting("text scale")));
+    panelCanvas.textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
     panelCanvas.textAlign(LEFT, BOTTOM);
     panelCanvas.text(name, x, y);
     panelCanvas.popStyle();

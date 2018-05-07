@@ -32,8 +32,8 @@ class Game extends State{
   String[] resourceNames;
   float [] startingResources;
   int turnNumber;
-  int mapHeight = mapSize;
-  int mapWidth = mapSize;
+  int mapHeight = jsManager.loadIntSetting("map size");
+  int mapWidth = jsManager.loadIntSetting("map size");
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
@@ -1492,8 +1492,8 @@ class Game extends State{
   }
 
   void enterState(){
-    mapWidth = mapSize;
-    mapHeight = mapSize;
+    mapWidth = jsManager.loadIntSetting("map size");
+    mapHeight = jsManager.loadIntSetting("map size");
     updateCellSelection();
 
     clearPrevIdle();
@@ -1554,7 +1554,7 @@ class Game extends State{
     if (x!=prevX && y!=prevY){
       mult = 1.41;
     }
-    if (0<=x && x<mapSize && 0<=y && y<mapSize){
+    if (0<=x && x<jsManager.loadIntSetting("map size") && 0<=y && y<jsManager.loadIntSetting("map size")){
       return round(gameData.getJSONArray("terrain").getJSONObject(terrain[y][x]-1).getInt("movement cost")*mult);
     }
     //Not a valid location

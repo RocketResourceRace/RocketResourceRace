@@ -2,7 +2,6 @@ import java.math.BigDecimal;
 import processing.sound.*;
 import java.util.Arrays;
 
-int mapSize;
 String activeState;
 HashMap<String, State> states;
 int lastClickTime = 0;
@@ -253,7 +252,6 @@ void setup(){
     loadSettings();
     loadSounds();
     textFont(createFont("GillSans", 32));
-    mapSize = int(settings.get("mapSize"));
     mapIs3D = boolean(settings.get("map3D"));
 
     loadImages();
