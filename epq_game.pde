@@ -7,7 +7,6 @@ String activeState;
 HashMap<String, State> states;
 int lastClickTime = 0;
 final int DOUBLECLICKWAIT = 500;
-float TextScale = 1.6;
 PrintWriter settingsWriteFile; 
 BufferedReader settingsReadFile;
 StringDict settings;
@@ -254,7 +253,6 @@ void setup(){
     loadSettings();
     loadSounds();
     textFont(createFont("GillSans", 32));
-    TextScale = float(settings.get("text_scale"));
     mapSize = int(settings.get("mapSize"));
     mapIs3D = boolean(settings.get("map3D"));
 

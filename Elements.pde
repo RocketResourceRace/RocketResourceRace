@@ -52,7 +52,7 @@ class Tickbox extends Element{
     }
     panelCanvas.fill(0);
     panelCanvas.textAlign(LEFT, CENTER);
-    panelCanvas.textSize(8*TextScale);
+    panelCanvas.textSize(8*jsManager.loadFloatSetting("text scale"));
     panelCanvas.text(name, x+h*jsManager.loadFloatSetting("gui scale")+5, y+h*jsManager.loadFloatSetting("gui scale")/2);
     panelCanvas.popStyle();
   }
@@ -183,7 +183,7 @@ class Tooltip extends Element{
   void draw(PGraphics panelCanvas){
     if (visible && text.length() > 0){
       ArrayList<String> lines = getLines(text);
-      panelCanvas.textFont(getFont(8*TextScale));
+      panelCanvas.textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
       int tw = ceil(maxWidthLine(lines))+4;
       int gap = ceil(panelCanvas.textAscent()+panelCanvas.textDescent());
       int th = ceil(panelCanvas.textAscent()+panelCanvas.textDescent())*lines.size();
@@ -327,7 +327,7 @@ class NotificationManager extends Element{
     panelCanvas.pushStyle();
     panelCanvas.fill(bgColour);
     panelCanvas.rect(x, y, w, h);
-    panelCanvas.textFont(getFont(10*TextScale));
+    panelCanvas.textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
     panelCanvas.fill(brighten(bgColour, -50));
     topOffset = ceil(panelCanvas.textAscent()+panelCanvas.textDescent());
     this.notHeight = (h-topOffset)/displayNots;
@@ -375,7 +375,7 @@ class NotificationManager extends Element{
       panelCanvas.strokeWeight(1);
       
       panelCanvas.fill(textColour);
-      panelCanvas.textFont(getFont(8*TextScale));
+      panelCanvas.textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
       panelCanvas.textAlign(LEFT, CENTER);
       panelCanvas.text(notifications.get(turn).get(i+scroll).name, x+notHeight+5, y+topOffset+i*notHeight+notHeight/2);
       panelCanvas.textAlign(RIGHT, CENTER);
@@ -437,7 +437,7 @@ class TextBox extends Element{
   
   void draw(PGraphics panelCanvas){
     panelCanvas.pushStyle();
-    panelCanvas.textFont(getFont(textSize*TextScale));
+    panelCanvas.textFont(getFont(textSize*jsManager.loadFloatSetting("text scale")));
     panelCanvas.textAlign(CENTER, CENTER);
     panelCanvas.rectMode(CORNER);
     updateWidth(panelCanvas);
@@ -510,11 +510,11 @@ class ResourceSummary extends Element{
   }
   int columnWidth(int i){
     int m=0;
-    textFont(getFont(10*TextScale));
+    textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
     m = max(m, ceil(textWidth(getResString(i))));
-    textFont(getFont(8*TextScale));
+    textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
     m = max(m, ceil(textWidth(getStockString(i))));
-    textFont(getFont(8*TextScale));
+    textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
     m = max(m, ceil(textWidth(getNetString(i))));
     return m;
   }
@@ -549,18 +549,18 @@ class ResourceSummary extends Element{
       if (gameData.getJSONArray("resources").getJSONObject(i).getInt("resource manager") <= ((expanded) ? 0:1)) continue;
       w = columnWidth(i);
       panelCanvas.fill(getFill(i));
-      panelCanvas.textFont(getFont(10*TextScale));
+      panelCanvas.textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
       panelCanvas.rect(width-cw+x-GAP/2, y, width-cw+x-GAP/2-(w+GAP), y+panelCanvas.textAscent()+panelCanvas.textDescent());
       cw += w+GAP;
       panelCanvas.line(width-cw+x-GAP/2, y, width-cw+x-GAP/2, y+h);
       panelCanvas.fill(0);
       
       yLevel=0;
-      panelCanvas.textFont(getFont(10*TextScale));
+      panelCanvas.textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
       panelCanvas.text(getResString(i), width-cw, y);
       yLevel += panelCanvas.textAscent()+panelCanvas.textDescent();
       
-      panelCanvas.textFont(getFont(8*TextScale));
+      panelCanvas.textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
       panelCanvas.text(getStockString(i), width-cw, y+yLevel);
       yLevel += panelCanvas.textAscent()+panelCanvas.textDescent();
       
@@ -568,7 +568,7 @@ class ResourceSummary extends Element{
         panelCanvas.fill(255,0,0);
       else
         panelCanvas.fill(0,255,0);
-      panelCanvas.textFont(getFont(8*TextScale));
+      panelCanvas.textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
       panelCanvas.text(getNetString(i), width-cw, y+yLevel);
       yLevel += panelCanvas.textAscent()+panelCanvas.textDescent();
     }
@@ -656,7 +656,7 @@ class DropDown extends Element{
     }
   }
   int getH(PGraphics panelCanvas){
-    textFont(getFont(textSize*TextScale));
+    textFont(getFont(textSize*jsManager.loadFloatSetting("text scale")));
     return ceil(panelCanvas.textAscent() + panelCanvas.textDescent());
   }
   boolean optionAvailable(int i){
@@ -795,14 +795,14 @@ class Button extends Element{
     panelCanvas.noTint();
     panelCanvas.fill(textColour);
     panelCanvas.textAlign(textAlign, TOP);
-    panelCanvas.textFont(getFont(textSize*TextScale));
+    panelCanvas.textFont(getFont(textSize*jsManager.loadFloatSetting("text scale")));
     if (lines.size() == 1){
       padding = h/10;
     }
-    padding = (lines.size()*(int)(textSize*TextScale)-h/2)/2;
+    padding = (lines.size()*(int)(textSize*jsManager.loadFloatSetting("text scale"))-h/2)/2;
     for (int i=0; i<lines.size(); i++){
       if (textAlign == CENTER){
-        panelCanvas.text(lines.get(i), cx, y+(h*0.9-textSize*TextScale)/2);
+        panelCanvas.text(lines.get(i), cx, y+(h*0.9-textSize*jsManager.loadFloatSetting("text scale"))/2);
       }
       else{
         panelCanvas.text(lines.get(i), x, y );
@@ -898,7 +898,7 @@ class Slider extends Element{
     visible = false;
   }
   void scaleKnob(PGraphics panelCanvas, BigDecimal value){
-    panelCanvas.textFont(getFont(8*TextScale));
+    panelCanvas.textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
     this.knobSize = max(this.knobSize, panelCanvas.textWidth(""+getInc(value)));
   }
   void transform(int x, int y, int w, int h){
@@ -984,7 +984,7 @@ class Slider extends Element{
     }
     for(int i=0; i<=major; i++){
       panelCanvas.fill(scaleColour);
-      panelCanvas.textFont(getFont(10*TextScale));
+      panelCanvas.textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
       panelCanvas.textAlign(CENTER);
       panelCanvas.text(getInc((new BigDecimal(""+i).multiply(range).divide(new BigDecimal(""+major), 15, BigDecimal.ROUND_HALF_EVEN).add(lower))).toPlainString(), x+w*i/major, y+padding);
       panelCanvas.line(x+w*i/major, y+padding, x+w*i/major, y+h);
@@ -997,7 +997,7 @@ class Slider extends Element{
       panelCanvas.fill(KnobColour);
     }
     
-    panelCanvas.textFont(getFont(8*TextScale));
+    panelCanvas.textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
     panelCanvas.textAlign(CENTER);
     panelCanvas.rectMode(CENTER);
     scaleKnob(panelCanvas, value);
@@ -1011,7 +1011,7 @@ class Slider extends Element{
     panelCanvas.line(x+value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight/2+padding/2, x+value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight+padding/2);
     panelCanvas.stroke(0);
     panelCanvas.fill(0);
-    panelCanvas.textFont(getFont(12*TextScale));
+    panelCanvas.textFont(getFont(12*jsManager.loadFloatSetting("text scale")));
     panelCanvas.textAlign(LEFT, BOTTOM);
     panelCanvas.text(name, x, y);
     panelCanvas.popStyle();
@@ -1042,7 +1042,7 @@ class Text extends Element{
     this.text = text;
   }
   void calcSize(PGraphics panelCanvas){
-    panelCanvas.textFont(getFont(size*TextScale));
+    panelCanvas.textFont(getFont(size*jsManager.loadFloatSetting("text scale")));
     this.w = ceil(panelCanvas.textWidth(text));
     this.h = ceil(panelCanvas.textAscent()+panelCanvas.textDescent());
   }
@@ -1052,7 +1052,7 @@ class Text extends Element{
       panelCanvas.textFont(font);
     }
     panelCanvas.textAlign(align, TOP);
-    panelCanvas.textFont(getFont(size*TextScale));
+    panelCanvas.textFont(getFont(size*jsManager.loadFloatSetting("text scale")));
     panelCanvas.fill(colour);
     panelCanvas.text(text, x, y);
   }
@@ -1119,20 +1119,20 @@ class TextEntry extends Element{
     }
     
     // Draw the text
-    panelCanvas.textFont(getFont(textSize*TextScale));
+    panelCanvas.textFont(getFont(textSize*jsManager.loadFloatSetting("text scale")));
     panelCanvas.textAlign(textAlign);
     panelCanvas.fill(textColour);
-    panelCanvas.text(text.toString(), x+5, y+(h-textSize*TextScale)/2, w, h);
+    panelCanvas.text(text.toString(), x+5, y+(h-textSize*jsManager.loadFloatSetting("text scale"))/2, w, h);
     
     // Draw cursor
     if (showCursor){
       panelCanvas.fill(0);
       panelCanvas.noStroke();
-      panelCanvas.rect(x+textWidth(text.toString().substring(0,cursor))+5, y+(h-textSize*TextScale)/2, 1, textSize*TextScale);
+      panelCanvas.rect(x+textWidth(text.toString().substring(0,cursor))+5, y+(h-textSize*jsManager.loadFloatSetting("text scale"))/2, 1, textSize*jsManager.loadFloatSetting("text scale"));
     }
     if (name != null){
       panelCanvas.fill(0);
-      panelCanvas.textFont(getFont(10*TextScale));
+      panelCanvas.textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
       panelCanvas.textAlign(LEFT);
       panelCanvas.text(name, x, y-12);
     }
@@ -1153,11 +1153,11 @@ class TextEntry extends Element{
   int getCursorPos(int mx, int my){
     int i=0;
     for(; i<text.length(); i++){
-      textFont(getFont(textSize*TextScale));
+      textFont(getFont(textSize*jsManager.loadFloatSetting("text scale")));
       if (textWidth(text.substring(0, i)) + x > mx)
         break;
     }
-    if (0 <= i && i <= text.length() && y+(h-textSize*TextScale)/2<= my && my <= y+(h-textSize*TextScale)/2+textSize*TextScale){
+    if (0 <= i && i <= text.length() && y+(h-textSize*jsManager.loadFloatSetting("text scale"))/2<= my && my <= y+(h-textSize*jsManager.loadFloatSetting("text scale"))/2+textSize*jsManager.loadFloatSetting("text scale")){
       return i;
     }
     return cursor;
@@ -1315,7 +1315,7 @@ class ToggleButton extends Element{
       panelCanvas.rect(x+w/2, y, w/2, h);
     }
     panelCanvas.fill(0);
-    panelCanvas.textFont(getFont(8*TextScale));
+    panelCanvas.textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
     panelCanvas.textAlign(LEFT, BOTTOM);
     panelCanvas.text(name, x, y);
     panelCanvas.popStyle();

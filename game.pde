@@ -80,12 +80,12 @@ class Game extends State{
     addElement("0tooltip", new Tooltip(), "overlay");
     tooltip = (Tooltip)getElement("0tooltip", "overlay");
 
-    addElement("end game button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2+height/8), (int)(jsManager.loadFloatSetting("gui scale")*width/8), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "End Game"), "end screen");
-    addElement("winner", new Text(width/2, height/2, (int)(TextScale*10), "", color(255), CENTER), "end screen");
+    addElement("end game button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2+height/8), (int)(jsManager.loadFloatSetting("gui scale")*width/8), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(jsManager.loadFloatSetting("text scale")*10), CENTER, "End Game"), "end screen");
+    addElement("winner", new Text(width/2, height/2, (int)(jsManager.loadFloatSetting("text scale")*10), "", color(255), CENTER), "end screen");
 
-    addElement("main menu button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2-height/24), (int)(jsManager.loadFloatSetting("gui scale")*width/6), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "Exit to Main Menu"), "pause screen");
-    addElement("desktop button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2+height/24), (int)(jsManager.loadFloatSetting("gui scale")*width/6), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "Exit to Desktop"), "pause screen");
-    addElement("resume button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2-3*height/24), (int)(jsManager.loadFloatSetting("gui scale")*width/6), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "Resume"), "pause screen");
+    addElement("main menu button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2-height/24), (int)(jsManager.loadFloatSetting("gui scale")*width/6), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(jsManager.loadFloatSetting("text scale")*10), CENTER, "Exit to Main Menu"), "pause screen");
+    addElement("desktop button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2+height/24), (int)(jsManager.loadFloatSetting("gui scale")*width/6), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(jsManager.loadFloatSetting("text scale")*10), CENTER, "Exit to Desktop"), "pause screen");
+    addElement("resume button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2-3*height/24), (int)(jsManager.loadFloatSetting("gui scale")*width/6), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(jsManager.loadFloatSetting("text scale")*10), CENTER, "Resume"), "pause screen");
 
     addElement("turns remaining", new Text(bezel*2+220, bezel*4+30+30, 8, "", color(255), LEFT), "party management");
     addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
@@ -383,10 +383,10 @@ class Game extends State{
     getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.15));
     getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.15)+bezel, cellSelectionW, round(cellSelectionH*0.5)-bezel*3);
     ((NotificationManager)(getElement("4notification manager", "default"))).transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.65)-bezel, cellSelectionW, round(cellSelectionH*0.35)-bezel*2);
-    ((Button)getElement("move button", "party management")).transform(bezel, round(13*TextScale+bezel), 100, 30);
-    ((Slider)getElement("split units", "party management")).transform(round(10*jsManager.loadFloatSetting("gui scale")+bezel), round(bezel*3+2*TextScale*13), cellSelectionW-2*bezel-round(20*jsManager.loadFloatSetting("gui scale")),round(TextScale*2*13));
-    ((DropDown)getElement("tasks", "party management")).transform(bezel, round(bezel*4+4*TextScale*13), cellSelectionW-2*bezel, 30);
-    ((Text)getElement("turns remaining", "party management")).translate(100+bezel*2, round(13*TextScale*2 + bezel*3));
+    ((Button)getElement("move button", "party management")).transform(bezel, round(13*jsManager.loadFloatSetting("text scale")+bezel), 100, 30);
+    ((Slider)getElement("split units", "party management")).transform(round(10*jsManager.loadFloatSetting("gui scale")+bezel), round(bezel*3+2*jsManager.loadFloatSetting("text scale")*13), cellSelectionW-2*bezel-round(20*jsManager.loadFloatSetting("gui scale")),round(jsManager.loadFloatSetting("text scale")*2*13));
+    ((DropDown)getElement("tasks", "party management")).transform(bezel, round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13), cellSelectionW-2*bezel, 30);
+    ((Text)getElement("turns remaining", "party management")).translate(100+bezel*2, round(13*jsManager.loadFloatSetting("text scale")*2 + bezel*3));
   }
 
   void makeTaskAvailable(String task){
@@ -1307,19 +1307,19 @@ class Game extends State{
     Panel pp = getPanel("party management");
     pushStyle();
     fill(partyManagementColour);
-    rect(cellSelectionX, pp.y, cellSelectionW, 13*TextScale);
+    rect(cellSelectionX, pp.y, cellSelectionW, 13*jsManager.loadFloatSetting("text scale"));
     fill(255);
-      textFont(getFont(10*TextScale));
+      textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
     textAlign(CENTER, TOP);
     text("Party Management", cellSelectionX+cellSelectionW/2, pp.y);
 
     textAlign(LEFT, CENTER);
-    textFont(getFont(8*TextScale));
-    float barY = cellSelectionY + 13*TextScale + cellSelectionH*0.15 + bezel*2;
+    textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
+    float barY = cellSelectionY + 13*jsManager.loadFloatSetting("text scale") + cellSelectionH*0.15 + bezel*2;
     text("Movement Points Remaining: "+parties[cellY][cellX].getMovementPoints(turn) + "/"+gameData.getJSONObject("game options").getInt("movement points"), 120+cellSelectionX, barY);
-    barY += 13*TextScale;
+    barY += 13*jsManager.loadFloatSetting("text scale");
     text("Units: "+parties[cellY][cellX].getUnitNumber(turn) + "/1000", 120+cellSelectionX, barY);
-    barY += 13*TextScale;
+    barY += 13*jsManager.loadFloatSetting("text scale");
     if (parties[cellY][cellX].pathTurns > 0){
       ((Text)getElement("turns remaining", "party management")).setText("Turns Remaining: "+ parties[cellY][cellX].pathTurns);
     }
@@ -1360,23 +1360,23 @@ class Game extends State{
   void drawCellManagement(){
     pushStyle();
     fill(0, 150, 0);
-    rect(cellSelectionX, cellSelectionY, cellSelectionW, 13*TextScale);
+    rect(cellSelectionX, cellSelectionY, cellSelectionW, 13*jsManager.loadFloatSetting("text scale"));
     fill(255);
-    textFont(getFont(10*TextScale));
+    textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
     textAlign(CENTER, TOP);
     text("Land Management", cellSelectionX+cellSelectionW/2, cellSelectionY);
 
     fill(0);
     textAlign(LEFT, TOP);
-    float barY = cellSelectionY + 13*TextScale;
+    float barY = cellSelectionY + 13*jsManager.loadFloatSetting("text scale");
     text("Cell Type: "+gameData.getJSONArray("terrain").getJSONObject(terrain[cellY][cellX]-1).getString("display name"), 5+cellSelectionX, barY);
-    barY += 13*TextScale;
+    barY += 13*jsManager.loadFloatSetting("text scale");
     if (buildings[cellY][cellX] != null){
       if (buildings[cellY][cellX].type != 0)
         text("Building: "+buildingTypes[buildings[cellY][cellX].type-1], 5+cellSelectionX, barY);
       else
         text("Building: Construction Site", 5+cellSelectionX, barY);
-      barY += 13*TextScale;
+      barY += 13*jsManager.loadFloatSetting("text scale");
     }
     float[] production = resourceProduction(cellX, cellY);
     float[] consumption = resourceConsumption(cellX, cellY);
@@ -1385,12 +1385,12 @@ class Game extends State{
     fill(0);
     if (!pl.equals("Nothing/Unknown")){
       text("Producing: "+pl, 5+cellSelectionX, barY);
-      barY += 13*TextScale;
+      barY += 13*jsManager.loadFloatSetting("text scale");
     }
     if (!cl.equals("Nothing/Unknown")){
       fill(255,0,0);
       text("Consuming: "+cl, 5+cellSelectionX, barY);
-      barY += 13*TextScale;
+      barY += 13*jsManager.loadFloatSetting("text scale");
     }
   }
 
@@ -1462,11 +1462,11 @@ class Game extends State{
       fill(fillColour);
       rect(x, y, w, h);
     }
-    textFont(getFont(10*TextScale));
+    textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
     textAlign(CENTER, BOTTOM);
     fill(200);
     int tw = ceil((textWidth(progressMessage)));
-    rect(width/2 -tw/2, y-10*TextScale, tw, 10*TextScale);
+    rect(width/2 -tw/2, y-10*jsManager.loadFloatSetting("text scale"), tw, 10*jsManager.loadFloatSetting("text scale"));
     fill(0);
     text(progressMessage, width/2, y);
   }

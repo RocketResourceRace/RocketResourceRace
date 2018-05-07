@@ -21,7 +21,7 @@ class Menu extends State{
 
     //addElement("gui scale", new Slider(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0.5, jsManager.loadFloatSetting("gui scale"), 1.5, 10, 50, 0.01, true, "GUI Scale"), "settings");
     //addElement("volume", new Slider(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0, volume, 1, 10, 50, 0.05, true, "Volume"), "settings");
-    //addElement("text scale", new Slider(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0.8, TextScale, 2.4, 8, 8*5, 0.05, true, "Text Scale"), "settings");
+    //addElement("text scale", new Slider(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0.8, jsManager.loadFloatSetting("text scale"), 2.4, 8, 8*5, 0.05, true, "Text Scale"), "settings");
     //addElement("back", new Button(width-buttonW-buttonP, buttonH*4+buttonP*5, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Back"), "settings");
     //addElement("background dimming", new ToggleButton(width-(buttonW+buttonP)*2, buttonH*0+buttonP*1, buttonW/2, buttonH/2, bColour, sColour, false, "Background Dimming"), "settings");
   

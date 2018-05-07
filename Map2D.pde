@@ -457,11 +457,11 @@ class Map2D extends Element implements Map{
            if (moveNodes[y1][x] != null){
              c = new PVector(scaleX(x), scaleY(y1));
              if (max(c.x, xPos)+min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)>xPos && max(c.x, xPos) < elementWidth+xPos && max(c.y, yPos)+min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos)>yPos && max(c.y, yPos) < elementHeight+yPos){
-               if (blockSize > 10*TextScale && moveNodes[y1][x].cost <= parties[selectedCellY][selectedCellX].getMovementPoints()){
+               if (blockSize > 10*jsManager.loadFloatSetting("text scale") && moveNodes[y1][x].cost <= parties[selectedCellY][selectedCellX].getMovementPoints()){
                  panelCanvas.fill(50, 150);
                  panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
                  panelCanvas.fill(255);
-                 panelCanvas.textFont(getFont(8*TextScale));
+                 panelCanvas.textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
                  panelCanvas.textAlign(CENTER, CENTER);
                  String s = ""+moveNodes[y1][x].cost;
                  s = s.substring(0, min(s.length(), 3));
