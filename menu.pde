@@ -19,7 +19,7 @@ class Menu extends State{
     newPanel = currentPanel;
     activePanel = currentPanel;
 
-    //addElement("gui scale", new Slider(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0.5, GUIScale, 1.5, 10, 50, 0.01, true, "GUI Scale"), "settings");
+    //addElement("gui scale", new Slider(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0.5, jsManager.loadFloatSetting("gui scale"), 1.5, 10, 50, 0.01, true, "GUI Scale"), "settings");
     //addElement("volume", new Slider(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0, volume, 1, 10, 50, 0.05, true, "Volume"), "settings");
     //addElement("text scale", new Slider(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0.8, TextScale, 2.4, 8, 8*5, 0.05, true, "Text Scale"), "settings");
     //addElement("back", new Button(width-buttonW-buttonP, buttonH*4+buttonP*5, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Back"), "settings");
@@ -37,7 +37,7 @@ class Menu extends State{
   }
   
   void loadMenuPanels(){
-    jsManager.loadMenuElements(this, GUIScale);
+    jsManager.loadMenuElements(this, jsManager.loadFloatSetting("gui scale"));
     stateChangers = jsManager.getChangeStateButtons();
     settingChangers = jsManager.getChangeSettingButtons();
   }
@@ -75,22 +75,47 @@ class Menu extends State{
     activePanel = newPanel;
   }
   
+  void saveMenuSetting(String id, Event event){
+    if (settingChangers.get(id) != null){
+      String type = jsManager.getElementType(event.panel, id);
+      switch (type){
+        case "slider":
+          jsManager.saveSetting(settingChangers.get(id)[0], ((Slider)getElement(id, event.panel)).getValue());
+          break;
+        case "toggle button":
+          jsManager.saveSetting(settingChangers.get(id)[0], ((ToggleButton)getElement(id, event.panel)).getState());
+          break;
+        case "tickbox":
+          jsManager.saveSetting(settingChangers.get(id)[0], ((Tickbox)getElement(id, event.panel)).getState());
+          break;
+      }
+    }
+  }
+  
+  void revertChanges(String panel){
+    for (String id : getPanel(panel).elements.keySet()){
+      if (!jsManager.hasFlag(panel, id, "autosave") && settingChangers.get(id) != null){
+        String type = jsManager.getElementType(panel, id);
+        switch (type){
+          case "slider":
+            ((Slider)getElement(id, panel)).setValue(jsManager.loadFloatSetting(id));
+            break;
+          case "toggle button":
+            ((ToggleButton)getElement(id, panel)).setState(jsManager.loadBooleanSetting(id));
+            break;
+          case "tickbox":
+            ((Tickbox)getElement(id, panel)).setState(jsManager.loadBooleanSetting(id));
+            break;
+        }
+      }
+    }
+  }
+  
   void elementEvent(ArrayList<Event> events){
     for (Event event:events){
       if (event.type.equals("valueChanged") && settingChangers.get(event.id) != null && event.panel != null){
-        String type = jsManager.getElementType(event.panel, event.id);
-        switch (type){
-          case "slider":
-            jsManager.saveSetting(settingChangers.get(event.id)[0], ((Slider)getElement(event.id, event.panel)).getValue());
-            break;
-          case "toggle button":
-            jsManager.saveSetting(settingChangers.get(event.id)[0], ((ToggleButton)getElement(event.id, event.panel)).getState());
-            break;
-          case "tickbox":
-            jsManager.saveSetting(settingChangers.get(event.id)[0], ((Tickbox)getElement(event.id, event.panel)).getState());
-            break;
-        }
         if (jsManager.hasFlag(event.panel, event.id, "autosave")){
+          saveMenuSetting(event.id, event);
           jsManager.writeSettings();
         }
         if (event.id.equals("sound on")){
@@ -103,10 +128,19 @@ class Menu extends State{
       if (event.type.equals("clicked")){
         if (stateChangers.get(event.id) != null && stateChangers.get(event.id)[0] != null ){
           newPanel = stateChangers.get(event.id)[0];
-          if (event.id.equals("apply")){
-            jsManager.writeSettings();
-            loadMenuPanels();
+          revertChanges(event.panel);
+        }
+        else if (event.id.equals("apply")){
+          for (String id : getPanel(event.panel).elements.keySet()){
+            if (!jsManager.hasFlag(event.panel, id, "autosave")){
+              saveMenuSetting(id, event);
+            }
           }
+          jsManager.writeSettings();
+          loadMenuPanels();
+        }
+        else if (event.id.equals("revert")){
+          revertChanges(event.panel);
         }
         else if (event.id.equals("start")){
           newState = "map";

@@ -32,6 +32,9 @@ class Tickbox extends Element{
   boolean getState(){
     return val;
   }
+  void setState(boolean state){
+    val = state;
+  }
   
   boolean moveOver(){
     return mouseX-xOffset >= x && mouseX-xOffset <= x+h && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
@@ -42,15 +45,15 @@ class Tickbox extends Element{
     
     panelCanvas.fill(color(255));
     panelCanvas.stroke(color(0));
-    panelCanvas.rect(x, y, h*GUIScale, h*GUIScale);
+    panelCanvas.rect(x, y, h*jsManager.loadFloatSetting("gui scale"), h*jsManager.loadFloatSetting("gui scale"));
     if (val){
-      panelCanvas.line(x+1, y+1, x+h*GUIScale-1, y+h*GUIScale-1);
-      panelCanvas.line(x+h*GUIScale-1, y+1, x+1, y+h*GUIScale-1);
+      panelCanvas.line(x+1, y+1, x+h*jsManager.loadFloatSetting("gui scale")-1, y+h*jsManager.loadFloatSetting("gui scale")-1);
+      panelCanvas.line(x+h*jsManager.loadFloatSetting("gui scale")-1, y+1, x+1, y+h*jsManager.loadFloatSetting("gui scale")-1);
     }
     panelCanvas.fill(0);
     panelCanvas.textAlign(LEFT, CENTER);
     panelCanvas.textSize(8*TextScale);
-    panelCanvas.text(name, x+h*GUIScale+5, y+h*GUIScale/2);
+    panelCanvas.text(name, x+h*jsManager.loadFloatSetting("gui scale")+5, y+h*jsManager.loadFloatSetting("gui scale")/2);
     panelCanvas.popStyle();
   }
 }
@@ -282,7 +285,7 @@ class NotificationManager extends Element{
   ArrayList<String> mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
     if (eventType == "mousePressed"){
-      if (moveOver() && mouseX-xOffset>x+w-20*GUIScale && mouseY-yOffset > topOffset && notifications.get(turn).size() > displayNots){
+      if (moveOver() && mouseX-xOffset>x+w-20*jsManager.loadFloatSetting("gui scale") && mouseY-yOffset > topOffset && notifications.get(turn).size() > displayNots){
         scrolling = true;
         scroll = round(between(0, (mouseY-yOffset-y-topOffset)*(notifications.get(turn).size()-displayNots+1)/(h-topOffset), notifications.get(turn).size()-displayNots));
       }
@@ -303,7 +306,7 @@ class NotificationManager extends Element{
           dismiss(hovering+scroll);
           events.add("notification dismissed");
         }
-        else if (!(notifications.get(turn).size() > displayNots) || !(mouseX-xOffset>x+w-20*GUIScale)){
+        else if (!(notifications.get(turn).size() > displayNots) || !(mouseX-xOffset>x+w-20*jsManager.loadFloatSetting("gui scale"))){
           lastSelected = notifications.get(turn).get(hovering+scroll);
           events.add("notification selected");
         }
@@ -383,9 +386,9 @@ class NotificationManager extends Element{
     int d = notifications.get(turn).size() - displayNots;
     if (d > 0){
       panelCanvas.fill(brighten(bgColour, 100));
-      panelCanvas.rect(x-20*GUIScale+w, y+topOffset, 20*GUIScale, h-topOffset);
+      panelCanvas.rect(x-20*jsManager.loadFloatSetting("gui scale")+w, y+topOffset, 20*jsManager.loadFloatSetting("gui scale"), h-topOffset);
       panelCanvas.fill(brighten(bgColour, -20));
-      panelCanvas.rect(x-20*GUIScale+w, y+(h-topOffset-(h-topOffset)/(d+1))*scroll/d+topOffset, 20*GUIScale, (h-topOffset)/(d+1));
+      panelCanvas.rect(x-20*jsManager.loadFloatSetting("gui scale")+w, y+(h-topOffset-(h-topOffset)/(d+1))*scroll/d+topOffset, 20*jsManager.loadFloatSetting("gui scale"), (h-topOffset)/(d+1));
     }
     panelCanvas.popStyle();
   }
@@ -913,6 +916,9 @@ class Slider extends Element{
     this.lower = new BigDecimal(""+lower);
     this.value = new BigDecimal(""+value);
   }
+  void setValue(float value){
+    setValue(new BigDecimal(""+value));
+  }
   
   void setValue(BigDecimal value){
     if (value.compareTo(lower) < 0){
@@ -1291,6 +1297,9 @@ class ToggleButton extends Element{
   }
   boolean getState(){
     return on;
+  }
+  void setState(boolean state){
+    on = state;
   }
   void draw(PGraphics panelCanvas){
     panelCanvas.pushStyle();

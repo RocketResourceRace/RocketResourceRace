@@ -80,12 +80,12 @@ class Game extends State{
     addElement("0tooltip", new Tooltip(), "overlay");
     tooltip = (Tooltip)getElement("0tooltip", "overlay");
 
-    addElement("end game button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2+height/8), (int)(GUIScale*width/8), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "End Game"), "end screen");
+    addElement("end game button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2+height/8), (int)(jsManager.loadFloatSetting("gui scale")*width/8), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "End Game"), "end screen");
     addElement("winner", new Text(width/2, height/2, (int)(TextScale*10), "", color(255), CENTER), "end screen");
 
-    addElement("main menu button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2-height/24), (int)(GUIScale*width/6), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "Exit to Main Menu"), "pause screen");
-    addElement("desktop button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2+height/24), (int)(GUIScale*width/6), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "Exit to Desktop"), "pause screen");
-    addElement("resume button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2-3*height/24), (int)(GUIScale*width/6), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "Resume"), "pause screen");
+    addElement("main menu button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2-height/24), (int)(jsManager.loadFloatSetting("gui scale")*width/6), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "Exit to Main Menu"), "pause screen");
+    addElement("desktop button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2+height/24), (int)(jsManager.loadFloatSetting("gui scale")*width/6), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "Exit to Desktop"), "pause screen");
+    addElement("resume button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2-3*height/24), (int)(jsManager.loadFloatSetting("gui scale")*width/6), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "Resume"), "pause screen");
 
     addElement("turns remaining", new Text(bezel*2+220, bezel*4+30+30, 8, "", color(255), LEFT), "party management");
     addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
@@ -376,7 +376,7 @@ class Game extends State{
     return false;
   }
   void updateCellSelection(){
-    cellSelectionX = round((width-400-bezel*2)/GUIScale)+bezel*2;
+    cellSelectionX = round((width-400-bezel*2)/jsManager.loadFloatSetting("gui scale"))+bezel*2;
     cellSelectionY = bezel*2;
     cellSelectionW = width-cellSelectionX-bezel*2;
     cellSelectionH = round(mapElementHeight);
@@ -384,7 +384,7 @@ class Game extends State{
     getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.15)+bezel, cellSelectionW, round(cellSelectionH*0.5)-bezel*3);
     ((NotificationManager)(getElement("4notification manager", "default"))).transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.65)-bezel, cellSelectionW, round(cellSelectionH*0.35)-bezel*2);
     ((Button)getElement("move button", "party management")).transform(bezel, round(13*TextScale+bezel), 100, 30);
-    ((Slider)getElement("split units", "party management")).transform(round(10*GUIScale+bezel), round(bezel*3+2*TextScale*13), cellSelectionW-2*bezel-round(20*GUIScale),round(TextScale*2*13));
+    ((Slider)getElement("split units", "party management")).transform(round(10*jsManager.loadFloatSetting("gui scale")+bezel), round(bezel*3+2*TextScale*13), cellSelectionW-2*bezel-round(20*jsManager.loadFloatSetting("gui scale")),round(TextScale*2*13));
     ((DropDown)getElement("tasks", "party management")).transform(bezel, round(bezel*4+4*TextScale*13), cellSelectionW-2*bezel, 30);
     ((Text)getElement("turns remaining", "party management")).translate(100+bezel*2, round(13*TextScale*2 + bezel*3));
   }
