@@ -1648,7 +1648,7 @@ class Game extends State{
     return costs.size();
   }
   boolean startInvalid(PVector p1, PVector p2){
-    if(p1.dist(p2)<mapWidth/8||noise(p1.x*MAPNOISESCALE, p1.y*MAPNOISESCALE)<waterLevel||noise(p2.x*MAPNOISESCALE, p2.y*MAPNOISESCALE)<waterLevel){
+    if(p1.dist(p2)<mapWidth/8||noise(p1.x*MAPNOISESCALE, p1.y*MAPNOISESCALE)<jsManager.loadIntSetting("water level")||noise(p2.x*MAPNOISESCALE, p2.y*MAPNOISESCALE)<jsManager.loadIntSetting("water level")){
       return true;
     }
     return false;
@@ -1743,7 +1743,7 @@ class Game extends State{
     //  terrain[0][x] = terrainIndex("water");
     //  terrain[mapHeight-1][x] = terrainIndex("water");
     //}
-    for(int i=0;i<groundSpawns;i++){
+    for(int i=0;i<jsManager.loadIntSetting("ground spawns");i++){
       int type = getRandomGroundType(groundWeightings, totalWeighting);
       int x = (int)random(mapWidth);
       int y = (int)random(mapHeight);
@@ -1803,11 +1803,11 @@ class Game extends State{
       }
       terrain[coord[1]][coord[0]] = terrain[y][x];
     }
-    terrain = smoothMap(initialSmooth, 2, terrain);
-    terrain = smoothMap(completeSmooth, 1, terrain);
+    terrain = smoothMap(jsManager.loadIntSetting("smoothing"), 2, terrain);
+    terrain = smoothMap(jsManager.loadIntSetting("smoothing")+2, 1, terrain);
     for (int y=0; y<mapHeight; y++){
       for(int x=0; x<mapWidth; x++){
-        if(terrain[y][x] != terrainIndex("water") && (noise((x+0.5)*MAPNOISESCALE, (y+0.5)*MAPNOISESCALE) > 0.5+waterLevel/2.0) || getMaxSteepness(x, y)>HILLSTEEPNESS){
+        if(terrain[y][x] != terrainIndex("water") && (noise((x+0.5)*MAPNOISESCALE, (y+0.5)*MAPNOISESCALE) > 0.5+jsManager.loadIntSetting("water level")/2.0) || getMaxSteepness(x, y)>HILLSTEEPNESS){
           terrain[y][x] = terrainIndex("hills");
         }
       }

@@ -13,7 +13,7 @@ JSONObject gameData;
 HashMap<Integer, PFont> fonts;
 int graphicsRes = 32;
 PShader toon;
-//Deal with apply thing
+
 JSONManager jsManager;
 
 // Event-driven methods
@@ -113,17 +113,12 @@ void setFrameRateCap(){
 
 int NUMOFGROUNDTYPES = 5;
 int NUMOFBUILDINGTYPES = 9;
-int groundSpawns = 100;
-float waterLevel = 0.35;
 int TILESIZE = 1;
 int MAPWIDTH = 100;
 int MAPHEIGHT = 100;
 float MAPNOISESCALE = 0.08;
 float VERTICESPERTILE = 2;
 float HILLSTEEPNESS = 0.1;
-
-int initialSmooth = 7;
-int completeSmooth = 5;
 
 color[] playerColours = new color[]{color(0, 0, 255), color(255, 0, 0)};
 
