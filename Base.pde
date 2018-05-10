@@ -31,6 +31,11 @@ class State{
       panel.visible = false;
     }
   }
+  
+  void resetPanels(){
+    panels.clear();
+  }
+  
   void addPanel(String id, int x, int y, int w, int h, Boolean visible, Boolean blockEvent, color bgColour, color strokeColour){
     // Adds new panel to front
     panels.add(new Panel(id, x, y, w, h, visible, blockEvent, bgColour, strokeColour));

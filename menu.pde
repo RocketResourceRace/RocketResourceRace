@@ -12,10 +12,8 @@ class Menu extends State{
     bg = createShape(RECT, 0, 0, width, height);
     bg.setTexture(BGimg);
     
-    loadMenuPanels();
-    hidePanels();
-    getPanel("startup").visible = true;
     currentPanel = "startup";
+    loadMenuPanels();
     newPanel = currentPanel;
     activePanel = currentPanel;
 
@@ -37,7 +35,10 @@ class Menu extends State{
   }
   
   void loadMenuPanels(){
+    resetPanels();
     jsManager.loadMenuElements(this, jsManager.loadFloatSetting("gui scale"));
+    hidePanels();
+    getPanel(currentPanel).setVisible(true);
     stateChangers = jsManager.getChangeStateButtons();
     settingChangers = jsManager.getChangeSettingButtons();
   }
