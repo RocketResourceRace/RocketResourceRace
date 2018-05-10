@@ -201,6 +201,7 @@ class JSONManager{
     int bgColour, strokeColour, textColour, textSize, major, minor;
     float x, y, w, h, scale, lower, defaultValue, upper, step;
     String type, id, text;
+    String[] options;
     JSONArray elements = findJSONObject(menu.getJSONArray("states"), panelID).getJSONArray("elements");
     
     scale = 20 * guiScale;
@@ -288,6 +289,15 @@ class JSONManager{
       else{
         step = elem.getFloat("step");
       }
+      
+      if (elem.isNull("options")){
+        options = new String[0];
+      }
+      else{
+        options = elem.getJSONArray("options").getStringArray();
+      }
+      
+      // Check if there is a defualt value. If not try loading from settings
       switch (type){
         case "button":
           state.addElement(id, new Button((int)x, (int)y, (int)w, (int)h, bgColour, strokeColour, textColour, textSize, CENTER, text), panelID);
@@ -307,6 +317,24 @@ class JSONManager{
           else{
             state.addElement(id, new Tickbox((int)x, (int)y, (int)w, (int)h, elem.getBoolean("default value"), text), panelID);
           }
+          break;
+        case "dropdown":
+          DropDown dd = new DropDown((int)x, (int)y, (int)w, (int)h, bgColour);
+          dd.setOptions(options);
+          if (elem.isNull("default value")){
+            switch (elem.getString("options type")){
+              case "strings":
+                dd.setValue(loadStringSetting(id));
+                break;
+              case "floats":
+                dd.setValue(""+loadFloatSetting(id));
+                break;
+            }
+          }
+          else{
+            dd.setValue(elem.getString("default value"));
+          }
+          state.addElement(id, dd, panelID);
           break;
         default:
           println("invalid element type:", type);

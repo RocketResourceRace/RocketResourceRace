@@ -179,7 +179,7 @@
         },
       ]
     },
-    
+
     {
       "id": "load game",
       "elements":[
@@ -228,6 +228,18 @@
           "step": 0.05,
           "minor": 24,
           "major": 6,
+        },
+        {
+          "id": "forest density",
+          "type": "dropdown",
+          "x": -18,
+          "y": 8,
+          "w": 12,
+          "h": 3,
+          "text": "Forest Density",
+          "setting": "forest density",
+          "options": ["3", "5", "10", "20"],
+          "options type": "floats",
         },
         {
           "id": "framerate cap",
@@ -326,5 +338,6 @@
     {"id": "map is 3d", "value": true, "type": "boolean"},
     {"id": "framerate cap", "value": true, "type": "boolean"},
     {"id": "ground spawns", "value": 100, "type": "int"},
+    {"id": "tree density", "value": 5, "type": "int"},
   ]
 }

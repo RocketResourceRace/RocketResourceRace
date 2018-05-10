@@ -16,22 +16,6 @@ class Menu extends State{
     loadMenuPanels();
     newPanel = currentPanel;
     activePanel = currentPanel;
-
-    //addElement("gui scale", new Slider(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0.5, jsManager.loadFloatSetting("gui scale"), 1.5, 10, 50, 0.01, true, "GUI Scale"), "settings");
-    //addElement("volume", new Slider(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0, volume, 1, 10, 50, 0.05, true, "Volume"), "settings");
-    //addElement("text scale", new Slider(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(150, 150, 150), color(0), 0.8, jsManager.loadFloatSetting("text scale"), 2.4, 8, 8*5, 0.05, true, "Text Scale"), "settings");
-    //addElement("back", new Button(width-buttonW-buttonP, buttonH*4+buttonP*5, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Back"), "settings");
-    //addElement("background dimming", new ToggleButton(width-(buttonW+buttonP)*2, buttonH*0+buttonP*1, buttonW/2, buttonH/2, bColour, sColour, false, "Background Dimming"), "settings");
-  
-    //addElement("start", new Button(width-buttonW-buttonP, buttonH*0+buttonP*1, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Start"), "new game");
-    //addElement("save name", new TextEntry(width-buttonW-buttonP, buttonH*1+buttonP*2, buttonW, buttonH, LEFT, color(0), color(100, 100, 100), color(150, 150, 150), LETTERSNUMBERS, "Save Name"), "new game");
-    //addElement("map size", new Slider(width-buttonW-buttonP, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(150), color(0), 50, mapSize, 300, 5, 25, 10, true, "Map Size"), "new game");
-    //addElement("map 3d", new ToggleButton(width-buttonW*2-buttonP*2, buttonH, buttonW/2, buttonH/2, bColour, color(0), jsManager.loadBooleanSetting("map is 3d"), "Map 3D"), "new game");
-    //addElement("smoothing", new Slider(width-buttonW*2-buttonP*2, buttonH*1+buttonP*2, buttonW, buttonH, color(0, 255, 0), bColour, color(150), color(0), 0, 6, 20, 4, 20, 1, true, "Smoothing"), "new game");
-    //addElement("water level", new Slider(width-buttonW*2-buttonP*2, buttonH*2+buttonP*3, buttonW, buttonH, color(0, 255, 0), bColour, color(150), color(0), 0.0, 0.5, 0.75, 5, 5, 0.01, true, "Water Level"), "new game");
-    //addElement("ground spawns", new Slider(width-buttonW*2-buttonP*2, buttonH*3+buttonP*4, buttonW, buttonH, color(0, 255, 0), bColour, color(150), color(0), 50, 100, 300, 5, 25, 10, true, "Ground Spawns"), "new game");
-    //addElement("back", new Button(width-buttonW-buttonP, buttonH*3+buttonP*4, buttonW, buttonH, bColour, sColour, color(255), 25, CENTER, "Back"), "new game");
-    
   }
   
   void loadMenuPanels(){

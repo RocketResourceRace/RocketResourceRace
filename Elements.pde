@@ -1,6 +1,60 @@
 
 
 
+class DropDown extends Element{
+  String[] options;  // Either strings or floats
+  int selected, bgColour;
+  
+  DropDown(int x, int y, int w, int h, int bgColour){
+    // h here means the height of one dropper
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.bgColour = bgColour;
+  }
+  
+  void setOptions(String[] options){
+    this.options = options;
+  }
+  
+  void setValue(String value){
+    for (int i=0; i < options.length; i++){
+      if (value.equals(options[i])){
+        selected = i;
+        return;
+      }
+    }
+    println("Invalid value");
+  }
+  
+  void draw(PGraphics panelCanvas){
+    panelCanvas.pushStyle();
+    
+    // draw selected option
+    panelCanvas.stroke(color(0));
+    panelCanvas.fill(brighten(bgColour, -50));
+    panelCanvas.rect(x, y, w, h);
+    panelCanvas.fill(color(0));
+    panelCanvas.text(options[selected], x, y);
+    
+    for (int i=0; i < options.length; i++){
+      panelCanvas.fill(bgColour);
+      panelCanvas.rect(x, y, w, h);
+      if (i == selected){
+        fill(color(brighten(bgColour, -20)));
+      }
+      else{
+        fill(0);
+      }
+      panelCanvas.text(options[selected], x, y);
+    }
+    
+    panelCanvas.popStyle();
+  }
+}
+
+
 class Tickbox extends Element{
   boolean val;
   String name;
@@ -578,14 +632,14 @@ class ResourceSummary extends Element{
 
 
 
-class DropDown extends Element{
+class TaskManager extends Element{
   ArrayList<String> options;
   ArrayList<Integer> availableOptions;
   int textSize;
   boolean dropped;
   color bgColour, strokeColour;
   private final int HOVERINGOFFSET = 80, ONOFFSET = -50;
-  DropDown(int x, int y, int w, int textSize, color bgColour, color strokeColour, String[] options){
+  TaskManager(int x, int y, int w, int textSize, color bgColour, color strokeColour, String[] options){
     this.x = x;
     this.y = y;
     this.w = w;
