@@ -180,9 +180,8 @@ class Map3D extends BaseMap implements Map{
     PVector mo = MousePosOnObject(mouseX, mouseY);
     return (mo.y)/getObjectHeight()*mapHeight;
   }
-  void reset(Party[][] parties, Building[][] buildings) {
+  void reset(Party[][] parties) {
     this.parties = parties;
-    this.buildings = buildings;
   }
 
   void addTreeTile(int cellX, int cellY, int i) {

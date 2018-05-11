@@ -25,7 +25,7 @@ interface Map {
   void cancelPath();
   void setActive(boolean a);
   void selectCell(int x, int y);
-  void reset(Party[][] parties, Building[][] buildings);
+  void reset(Party[][] parties);
   void generateShape();
   void clearShape();
 }
@@ -37,7 +37,7 @@ class BaseMap extends Element{
   Party[][] parties;
   Building[][] buildings;
   void saveMap(String filename){
-    ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*2+Long.BYTES+Integer.BYTES*mapWidth*mapHeight);
+    ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*2+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3);
     buffer.putInt(mapWidth);
     buffer.putInt(mapHeight);
     buffer.putLong(heightMapSeed);
@@ -46,23 +46,46 @@ class BaseMap extends Element{
         buffer.putInt(terrain[y][x]);
       }
     }
+    for (int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        if(buildings[y][x]==null){
+          buffer.putInt(-1);
+          buffer.putInt(-1);
+        } else {
+          buffer.putInt(buildings[y][x].type);
+          buffer.putInt(buildings[y][x].image_id);
+        }
+      }
+    }
     saveBytes(filename, buffer.array());
   }
   void loadMap(String filename){
     byte tempBuffer[] = loadBytes(filename);
-    ByteBuffer sizeBuffer = ByteBuffer.allocate(Integer.BYTES*2);
-    sizeBuffer.put(Arrays.copyOfRange(tempBuffer, 0, Integer.BYTES*2));
+    int sizeSize = Integer.BYTES*2;
+    ByteBuffer sizeBuffer = ByteBuffer.allocate(sizeSize);
+    sizeBuffer.put(Arrays.copyOfRange(tempBuffer, 0, sizeSize));
     sizeBuffer.flip();//need flip
     mapWidth = sizeBuffer.getInt();
     mapHeight = sizeBuffer.getInt();
-    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES+Integer.BYTES*mapWidth*mapHeight);
-    buffer.put(Arrays.copyOfRange(tempBuffer, Integer.BYTES*2, Integer.BYTES*2+Long.BYTES+Integer.BYTES*mapWidth*mapHeight));
+    int dataSize = Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3;
+    ByteBuffer buffer = ByteBuffer.allocate(dataSize);
+    buffer.put(Arrays.copyOfRange(tempBuffer, sizeSize, sizeSize+dataSize));
     buffer.flip();//need flip
     heightMapSeed = buffer.getLong();
     terrain = new int[mapHeight][mapWidth];
+    buildings = new Building[mapHeight][mapWidth];
     for (int y=0; y<mapHeight; y++){
       for (int x=0; x<mapWidth; x++){
         terrain[y][x] = buffer.getInt();
+      }
+    }
+    for (int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        int type = buffer.getInt();
+        int image_id = buffer.getInt();
+        if(type!=-1){
+          buildings[y][x] = new Building(type, image_id);
+        }
       }
     }
   }
@@ -199,6 +222,7 @@ class BaseMap extends Element{
   }
   void generateMap(int mapWidth, int mapHeight){
     terrain = new int[mapHeight][mapWidth];
+    buildings = new Building[mapHeight][mapWidth];
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
     if(loading){
@@ -361,11 +385,10 @@ class Map2D extends BaseMap implements Map{
     mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth*0.5), elementWidth*0.5);
     mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight*0.5), elementHeight*0.5);
   }
-  void reset(Party[][] parties, Building[][] buildings){
+  void reset(Party[][] parties){
     mapXOffset = 0;
     mapYOffset = 0;
     this.parties = parties;
-    this.buildings = buildings;
     blockSize = min(elementWidth/(float)mapWidth, elementWidth/10);
     setPanningSpeed(0.02);
     resetTime = millis();

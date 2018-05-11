@@ -5,8 +5,11 @@ class Building{
   int type;
   int image_id;
   Building(int type){
+    this(type, 0);
+  }
+  Building(int type, int image_id){
     this.type = type;
-    this.image_id = 0;
+    this.image_id = image_id;
   }
 }
 
