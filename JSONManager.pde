@@ -200,9 +200,10 @@ class JSONManager{
     
     int bgColour, strokeColour, textColour, textSize, major, minor;
     float x, y, w, h, scale, lower, defaultValue, upper, step;
-    String type, id, text;
+    String type, id, text, setting;
     String[] options;
     JSONArray elements = findJSONObject(menu.getJSONArray("states"), panelID).getJSONArray("elements");
+    
     
     scale = 20 * guiScale;
     
@@ -225,6 +226,13 @@ class JSONManager{
       }
       else{
         bgColour = elem.getInt("bg colour");
+      }
+      
+      if (elem.isNull("setting")){
+        setting = "";
+      }
+      else{
+        setting = elem.getString("setting");
       }
       
       if (elem.isNull("stroke colour")){
@@ -304,7 +312,7 @@ class JSONManager{
           break;
         case "slider":
           if (elem.isNull("default value")){
-            state.addElement(id, new Slider((int)x, (int)y, (int)w, (int)h, color(150), bgColour, strokeColour, color(0), lower, loadFloatSetting(id), upper, major, minor, step, true, text), panelID);
+            state.addElement(id, new Slider((int)x, (int)y, (int)w, (int)h, color(150), bgColour, strokeColour, color(0), lower, loadFloatSetting(setting), upper, major, minor, step, true, text), panelID);
           }
           else{
             state.addElement(id, new Slider((int)x, (int)y, (int)w, (int)h, color(150), bgColour, strokeColour, color(0), lower, elem.getFloat("default value"), upper, major, minor, step, true, text), panelID);
@@ -312,7 +320,7 @@ class JSONManager{
           break;
         case "tickbox":
           if (elem.isNull("default value")){
-            state.addElement(id, new Tickbox((int)x, (int)y, (int)w, (int)h, loadBooleanSetting(id), text), panelID);
+            state.addElement(id, new Tickbox((int)x, (int)y, (int)w, (int)h, loadBooleanSetting(setting), text), panelID);
           }
           else{
             state.addElement(id, new Tickbox((int)x, (int)y, (int)w, (int)h, elem.getBoolean("default value"), text), panelID);
@@ -324,13 +332,13 @@ class JSONManager{
           if (elem.isNull("default value")){
             switch (dd.optionTypes){
               case "floats":
-                dd.setSelected(""+jsManager.loadFloatSetting(id));
+                dd.setSelected(""+jsManager.loadFloatSetting(setting));
                 break;
               case "strings":
-                dd.setSelected(jsManager.loadStringSetting(id));
+                dd.setSelected(jsManager.loadStringSetting(setting));
                 break;
               case "ints":
-                dd.setSelected(""+jsManager.loadIntSetting(id));
+                dd.setSelected(""+jsManager.loadIntSetting(setting));
                 break;
             }
           }

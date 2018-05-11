@@ -253,6 +253,17 @@
           "setting" : "framerate cap"
         },
         {
+          "id": "3d map",
+          "flags": ["autosave"],
+          "type": "tickbox",
+          "x": -6,
+          "y": -2,
+          "w": 12,
+          "h": 1,
+          "text": "3D Map",
+          "setting" : "map is 3d"
+        },
+        {
           "id": "apply",
           "type": "button",
           "x": 7,
