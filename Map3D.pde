@@ -4,10 +4,10 @@ boolean isWater(int x, int y) {
   //  noise((x+1)*MAPNOISESCALE, y*MAPNOISESCALE),
   //  noise(x*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
   //  noise((x+1)*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
-  //  })<jsManager.loadIntSetting("water level");
+  //  })<jsManager.loadFloatSetting("water level");
   for (float y1 = y; y1<=y+1;y1+=1.0/VERTICESPERTILE){
     for (float x1 = x; x1<=x+1;x1+=1.0/VERTICESPERTILE){
-      if(noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE)>jsManager.loadIntSetting("water level")){
+      if(noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE)>jsManager.loadFloatSetting("water level")){
         return false;
       }
     }
@@ -279,11 +279,11 @@ class Map3D extends Element implements Map{
     terrain[floor(y)][floor(x)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 &&
     terrain[floor(y+VERTICESPERTILE/blockSize)][floor(x+VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 &&
     terrain[floor(y-VERTICESPERTILE/blockSize)][floor(x-VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
-      return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), jsManager.loadIntSetting("water level"))-jsManager.loadIntSetting("water level"))*blockSize*GROUNDHEIGHT*HILLRAISE;
+      return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), jsManager.loadFloatSetting("water level"))-jsManager.loadFloatSetting("water level"))*blockSize*GROUNDHEIGHT*HILLRAISE;
     } else {
-      return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), jsManager.loadIntSetting("water level"))-jsManager.loadIntSetting("water level"))*blockSize*GROUNDHEIGHT;
-      //float h = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), jsManager.loadIntSetting("water level"))-jsManager.loadIntSetting("water level"));
-      //return (max(h-(0.5+jsManager.loadIntSetting("water level")/2.0), 0)*(1000)+h)*blockSize*GROUNDHEIGHT;
+      return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), jsManager.loadFloatSetting("water level"))-jsManager.loadFloatSetting("water level"))*blockSize*GROUNDHEIGHT;
+      //float h = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), jsManager.loadFloatSetting("water level"))-jsManager.loadFloatSetting("water level"));
+      //return (max(h-(0.5+jsManager.loadFloatSetting("water level")/2.0), 0)*(1000)+h)*blockSize*GROUNDHEIGHT;
     }
   }
 
