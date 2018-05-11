@@ -73,6 +73,19 @@ class Menu extends State{
         case "tickbox":
           jsManager.saveSetting(settingChangers.get(id)[0], ((Tickbox)getElement(id, event.panel)).getState());
           break;
+        case "dropdown":
+          switch (((DropDown)getElement(id, event.panel)).optionTypes){
+            case "floats":
+              jsManager.saveSetting(settingChangers.get(id)[0], ((DropDown)getElement(id, event.panel)).getFloatVal());
+              break;
+            case "strings":
+              jsManager.saveSetting(settingChangers.get(id)[0], ((DropDown)getElement(id, event.panel)).getStrVal());
+              break;
+            case "ints":
+              jsManager.saveSetting(settingChangers.get(id)[0], ((DropDown)getElement(id, event.panel)).getIntVal());
+              break;
+          }
+          break;
       }
     }
   }
@@ -90,6 +103,19 @@ class Menu extends State{
             break;
           case "tickbox":
             ((Tickbox)getElement(id, panel)).setState(jsManager.loadBooleanSetting(id));
+            break;
+          case "dropdown":
+            switch (((DropDown)getElement(id, panel)).optionTypes){
+              case "floats":
+                ((DropDown)getElement(id, panel)).setSelected(""+jsManager.loadFloatSetting(id));
+                break;
+              case "strings":
+                ((DropDown)getElement(id, panel)).setSelected(""+jsManager.loadStringSetting(id));
+                break;
+              case "ints":
+                ((DropDown)getElement(id, panel)).setSelected(""+jsManager.loadIntSetting(id));
+                break;
+            }
             break;
         }
       }

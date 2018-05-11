@@ -4,11 +4,11 @@
 class DropDown extends Element{
   String[] options;  // Either strings or floats
   int selected, bgColour;
-  String name;
+  String name, optionTypes;
   boolean expanded;
   
-  DropDown(int x, int y, int w, int h, int bgColour, String name){
-    // h here means the height of one dropper
+  DropDown(int x, int y, int w, int h, int bgColour, String name, String optionTypes){
+    // h here means the height of one dropper box
     this.x = x;
     this.y = y;
     this.w = w;
@@ -16,6 +16,7 @@ class DropDown extends Element{
     this.bgColour = bgColour;
     this.name = name;
     this.expanded = false;
+    this.optionTypes = optionTypes;
   }
   
   void setOptions(String[] options){
@@ -29,7 +30,7 @@ class DropDown extends Element{
         return;
       }
     }
-    println("Invalid value");
+    println("Invalid value", value);
   }
   
   void draw(PGraphics panelCanvas){
@@ -92,17 +93,27 @@ class DropDown extends Element{
     if (eventType.equals("mouseClicked")){
       int hovering = hoveringOption();
       if (moveOver()){
-        events.add("valueChanged");
         if (hovering == -1){
           toggleExpanded();
         }
         else{
+          events.add("valueChanged");
           selected = hovering;
           contract();
         }
       }
     }
     return events;
+  }
+  
+  void setSelected(String s){
+    for (int i=0; i < options.length; i++){
+      if (options[i].equals(s)){
+        selected = i;
+        return;
+      }
+    }
+    print("invalid selected:", s);
   }
   
   void contract(){
@@ -115,6 +126,18 @@ class DropDown extends Element{
   
   void toggleExpanded(){
     expanded = !expanded;
+  }
+  
+  int getIntVal(){
+    return Integer.parseInt(options[selected]);
+  }
+  
+  String getStrVal(){
+    return options[selected];
+  }
+  
+  float getFloatVal(){
+    return Float.parseFloat(options[selected]);
   }
   
   boolean moveOver(){

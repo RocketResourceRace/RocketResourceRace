@@ -239,7 +239,7 @@
           "text": "Forest Density",
           "setting": "forest density",
           "options": ["3", "5", "10", "20"],
-          "options type": "floats",
+          "options type": "ints",
         },
         {
           "id": "framerate cap",

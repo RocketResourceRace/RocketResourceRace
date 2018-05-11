@@ -319,19 +319,20 @@ class JSONManager{
           }
           break;
         case "dropdown":
-          DropDown dd = new DropDown((int)x, (int)y, (int)w, (int)h, bgColour, text);
+          DropDown dd = new DropDown((int)x, (int)y, (int)w, (int)h, bgColour, text, elem.getString("options type"));
           dd.setOptions(options);
-          println(loadFloatSetting(id));
           if (elem.isNull("default value")){
-            switch (elem.getString("options type")){
-              case "strings":
-                dd.setValue(loadStringSetting(id));
-                break;
+            switch (dd.optionTypes){
               case "floats":
-                dd.setValue(""+loadFloatSetting(id));
+                dd.setSelected(""+jsManager.loadFloatSetting(id));
+                break;
+              case "strings":
+                dd.setSelected(jsManager.loadStringSetting(id));
+                break;
+              case "ints":
+                dd.setSelected(""+jsManager.loadIntSetting(id));
                 break;
             }
-            println(2);
           }
           else{
             dd.setValue(elem.getString("default value"));
