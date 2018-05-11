@@ -321,6 +321,7 @@ class JSONManager{
         case "dropdown":
           DropDown dd = new DropDown((int)x, (int)y, (int)w, (int)h, bgColour);
           dd.setOptions(options);
+          println(loadFloatSetting(id));
           if (elem.isNull("default value")){
             switch (elem.getString("options type")){
               case "strings":
@@ -330,6 +331,7 @@ class JSONManager{
                 dd.setValue(""+loadFloatSetting(id));
                 break;
             }
+            println(2);
           }
           else{
             dd.setValue(elem.getString("default value"));

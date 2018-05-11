@@ -338,6 +338,6 @@
     {"id": "map is 3d", "value": true, "type": "boolean"},
     {"id": "framerate cap", "value": true, "type": "boolean"},
     {"id": "ground spawns", "value": 100, "type": "int"},
-    {"id": "tree density", "value": 5, "type": "int"},
+    {"id": "forest density", "value": 5, "type": "int"},
   ]
 }
