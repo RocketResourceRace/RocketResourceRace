@@ -1514,7 +1514,7 @@ class Game extends State{
     mapSize = mapWidth;
     parties = new Party[mapHeight][mapWidth];
     PVector[] playerStarts = generateStartingParties();
-    map.reset(parties);
+    map.reset();
 
     float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, 42);
     players[1] = new Player(conditions2[0], conditions2[1], 42, startingResources.clone(), color(255,0,0));
@@ -1665,8 +1665,10 @@ class Game extends State{
       player1 = generatePartyPosition();
       player2 = generatePartyPosition();
     }
-    parties[(int)player1.y][(int)player1.x] = new Party(0, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"));
-    parties[(int)player2.y][(int)player2.x] = new Party(1, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"));
+    if(!loading){
+      parties[(int)player1.y][(int)player1.x] = new Party(0, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"));
+      parties[(int)player2.y][(int)player2.x] = new Party(1, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"));
+    }
 
     return  new PVector[]{player1, player2};
   }

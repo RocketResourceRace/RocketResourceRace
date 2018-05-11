@@ -25,13 +25,33 @@ interface Map {
   void cancelPath();
   void setActive(boolean a);
   void selectCell(int x, int y);
-  void reset(Party[][] parties);
+  void reset();
   void generateShape();
   void clearShape();
 }
 
 int getPartySize(Party p){
   return Integer.BYTES*5+Float.BYTES;
+}
+void saveParty(ByteBuffer b, Party p){
+  b.putInt(p.getUnitNumber());
+  b.putInt(p.getMovementPoints());
+  b.putInt(p.player);
+  b.putFloat(p.strength);
+  b.putInt(p.getTask());
+  b.putInt(p.pathTurns);
+}
+Party loadParty(ByteBuffer b){
+  int unitNumber = b.getInt();
+  int movementPoints = b.getInt();
+  int player = b.getInt();
+  float strength = b.getFloat();
+  int task = b.getInt();
+  int pathTurns = b.getInt();
+  Party p = new Party(player, unitNumber, task, movementPoints);
+  p.strength = strength;
+  p.pathTurns = pathTurns;
+  return p;
 }
 
 class BaseMap extends Element{
@@ -53,11 +73,13 @@ class BaseMap extends Element{
             partiesByteCount+=getPartySize(((Battle)parties[y][x]).party1);
           }
         }
+        partiesByteCount++;
       }
     }
-    ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*2+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3);
+    ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*3+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount);
     buffer.putInt(mapWidth);
     buffer.putInt(mapHeight);
+    buffer.putInt(partiesByteCount);
     buffer.putLong(heightMapSeed);
     for (int y=0; y<mapHeight; y++){
       for (int x=0; x<mapWidth; x++){
@@ -75,19 +97,34 @@ class BaseMap extends Element{
         }
       }
     }
+    for (int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        if(parties[y][x]==null){
+          buffer.put(byte(0));
+        } else if (parties[y][x].player == 2){
+          buffer.put(byte(2));
+          saveParty(buffer, ((Battle)parties[y][x]).party1);
+          saveParty(buffer, ((Battle)parties[y][x]).party2);
+        } else {
+          buffer.put(byte(1));
+          saveParty(buffer, parties[y][x]);
+        }
+      }
+    }
     saveBytes(filename, buffer.array());
   }
   void loadMap(String filename){
     byte tempBuffer[] = loadBytes(filename);
-    int sizeSize = Integer.BYTES*2;
-    ByteBuffer sizeBuffer = ByteBuffer.allocate(sizeSize);
-    sizeBuffer.put(Arrays.copyOfRange(tempBuffer, 0, sizeSize));
+    int headerSize = Integer.BYTES*3;
+    ByteBuffer sizeBuffer = ByteBuffer.allocate(headerSize);
+    sizeBuffer.put(Arrays.copyOfRange(tempBuffer, 0, headerSize));
     sizeBuffer.flip();//need flip
     mapWidth = sizeBuffer.getInt();
     mapHeight = sizeBuffer.getInt();
-    int dataSize = Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3;
+    int partiesByteCount = sizeBuffer.getInt();
+    int dataSize = Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount;
     ByteBuffer buffer = ByteBuffer.allocate(dataSize);
-    buffer.put(Arrays.copyOfRange(tempBuffer, sizeSize, sizeSize+dataSize));
+    buffer.put(Arrays.copyOfRange(tempBuffer, headerSize, headerSize+dataSize));
     buffer.flip();//need flip
     heightMapSeed = buffer.getLong();
     terrain = new int[mapHeight][mapWidth];
@@ -103,6 +140,21 @@ class BaseMap extends Element{
         int image_id = buffer.getInt();
         if(type!=-1){
           buildings[y][x] = new Building(type, image_id);
+        }
+      }
+    }
+    for (int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        Byte partyType = buffer.get();
+        if (partyType == 2){
+          Party p1 = loadParty(buffer);
+          Party p2 = loadParty(buffer);
+          float savedStrength = p1.strength;
+          Battle b = new Battle(p1, p2);
+          b.party1.strength = savedStrength;
+          parties[y][x] = b;
+        } else if (partyType == 1){
+          parties[y][x] = loadParty(buffer);
         }
       }
     }
@@ -241,6 +293,7 @@ class BaseMap extends Element{
   void generateMap(int mapWidth, int mapHeight){
     terrain = new int[mapHeight][mapWidth];
     buildings = new Building[mapHeight][mapWidth];
+    parties = new Party[mapHeight][mapWidth];
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
     if(loading){
@@ -403,10 +456,9 @@ class Map2D extends BaseMap implements Map{
     mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth*0.5), elementWidth*0.5);
     mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight*0.5), elementHeight*0.5);
   }
-  void reset(Party[][] parties){
+  void reset(){
     mapXOffset = 0;
     mapYOffset = 0;
-    this.parties = parties;
     blockSize = min(elementWidth/(float)mapWidth, elementWidth/10);
     setPanningSpeed(0.02);
     resetTime = millis();
