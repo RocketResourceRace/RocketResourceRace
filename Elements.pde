@@ -80,7 +80,7 @@ class DropDown extends Element{
         else{
           panelCanvas.fill(0);
         }
-        panelCanvas.text(options[i]+3, x, y+(i+1)*h);
+        panelCanvas.text(options[i], x+3, y+(i+1)*h);
       }
     }
     
@@ -90,13 +90,15 @@ class DropDown extends Element{
   ArrayList<String> mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
     if (eventType.equals("mouseClicked")){
+      int hovering = hoveringOption();
       if (moveOver()){
         events.add("valueChanged");
-        if (hoveringOption() == -1){
+        if (hovering == -1){
           toggleExpanded();
         }
         else{
-          
+          selected = hovering;
+          contract();
         }
       }
     }
@@ -116,10 +118,18 @@ class DropDown extends Element{
   }
   
   boolean moveOver(){
-    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h*options.length;
+    if (expanded){
+      return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h*(options.length+1);
+    }
+    else{
+      return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
+    }
   }
   
   int hoveringOption(){
+    if (!expanded){
+      return -1;
+    }
     return (mouseY-yOffset-y)/h-1;
   }
 }
