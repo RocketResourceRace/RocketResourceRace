@@ -33,15 +33,21 @@ class DropDown extends Element{
   }
   
   void draw(PGraphics panelCanvas){
+    int hovering = hoveringOption();
     panelCanvas.pushStyle();
     
     // draw selected option
     panelCanvas.stroke(color(0));
-    panelCanvas.fill(brighten(bgColour, -20));
+    if (moveOver() && hovering == -1){
+      panelCanvas.fill(brighten(bgColour, 10));
+    }
+    else{
+      panelCanvas.fill(brighten(bgColour, -20));
+    }
     panelCanvas.rect(x, y, w, h);
     panelCanvas.textAlign(LEFT, TOP);
     panelCanvas.fill(color(0));
-    panelCanvas.text(String.format("%s: %s", name, options[selected]), x, y);
+    panelCanvas.text(String.format("%s: %s", name, options[selected]), x+3, y);
     
     // Draw expand box
     if (expanded){
@@ -60,7 +66,12 @@ class DropDown extends Element{
           panelCanvas.fill(brighten(bgColour, 50));
         }
         else{
-          panelCanvas.fill(bgColour);
+          if (moveOver() && i == hovering){
+            panelCanvas.fill(brighten(bgColour, 20));
+          }
+          else{
+            panelCanvas.fill(bgColour);
+          }
         }
         panelCanvas.rect(x, y+(i+1)*h, w, h);
         if (i == selected){
@@ -69,7 +80,7 @@ class DropDown extends Element{
         else{
           panelCanvas.fill(0);
         }
-        panelCanvas.text(options[i], x, y+(i+1)*h);
+        panelCanvas.text(options[i]+3, x, y+(i+1)*h);
       }
     }
     
@@ -81,8 +92,11 @@ class DropDown extends Element{
     if (eventType.equals("mouseClicked")){
       if (moveOver()){
         events.add("valueChanged");
-        if (hoveringOption() == 0){
+        if (hoveringOption() == -1){
           toggleExpanded();
+        }
+        else{
+          
         }
       }
     }
@@ -106,7 +120,7 @@ class DropDown extends Element{
   }
   
   int hoveringOption(){
-    return (mouseY-yOffset-y)/h;
+    return (mouseY-yOffset-y)/h-1;
   }
 }
 
