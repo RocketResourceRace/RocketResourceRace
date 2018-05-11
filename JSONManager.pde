@@ -319,7 +319,7 @@ class JSONManager{
           }
           break;
         case "dropdown":
-          DropDown dd = new DropDown((int)x, (int)y, (int)w, (int)h, bgColour);
+          DropDown dd = new DropDown((int)x, (int)y, (int)w, (int)h, bgColour, text);
           dd.setOptions(options);
           println(loadFloatSetting(id));
           if (elem.isNull("default value")){

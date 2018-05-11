@@ -4,14 +4,18 @@
 class DropDown extends Element{
   String[] options;  // Either strings or floats
   int selected, bgColour;
+  String name;
+  boolean expanded;
   
-  DropDown(int x, int y, int w, int h, int bgColour){
+  DropDown(int x, int y, int w, int h, int bgColour, String name){
     // h here means the height of one dropper
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
     this.bgColour = bgColour;
+    this.name = name;
+    this.expanded = false;
   }
   
   void setOptions(String[] options){
@@ -33,24 +37,76 @@ class DropDown extends Element{
     
     // draw selected option
     panelCanvas.stroke(color(0));
-    panelCanvas.fill(brighten(bgColour, -50));
+    panelCanvas.fill(brighten(bgColour, -20));
     panelCanvas.rect(x, y, w, h);
+    panelCanvas.textAlign(LEFT, TOP);
     panelCanvas.fill(color(0));
-    panelCanvas.text(options[selected], x, y);
+    panelCanvas.text(String.format("%s: %s", name, options[selected]), x, y);
     
-    for (int i=0; i < options.length; i++){
-      panelCanvas.fill(bgColour);
-      panelCanvas.rect(x, y, w, h);
-      if (i == selected){
-        fill(color(brighten(bgColour, -20)));
+    // Draw expand box
+    if (expanded){
+      panelCanvas.line(x+w-h, y+1, x+w-h/2, y+h-1);
+      panelCanvas.line(x+w-h/2, y+h-1, x+w, y+1);
+    }
+    else{
+      panelCanvas.line(x+w-h, y+h-1, x+w-h/2, y+1);
+      panelCanvas.line(x+w-h/2, y+1, x+w, y+h-1);
+    }
+    
+    // Draw other options
+    if (expanded){
+      for (int i=0; i < options.length; i++){
+        if (i == selected){
+          panelCanvas.fill(brighten(bgColour, 50));
+        }
+        else{
+          panelCanvas.fill(bgColour);
+        }
+        panelCanvas.rect(x, y+(i+1)*h, w, h);
+        if (i == selected){
+          panelCanvas.fill(brighten(bgColour, 20));
+        }
+        else{
+          panelCanvas.fill(0);
+        }
+        panelCanvas.text(options[i], x, y+(i+1)*h);
       }
-      else{
-        fill(0);
-      }
-      panelCanvas.text(options[selected], x, y);
     }
     
     panelCanvas.popStyle();
+  }
+  
+  ArrayList<String> mouseEvent(String eventType, int button){
+    ArrayList<String> events = new ArrayList<String>();
+    if (eventType.equals("mouseClicked")){
+      if (moveOver()){
+        events.add("valueChanged");
+        if (hoveringOption() == 0){
+          toggleExpanded();
+        }
+      }
+    }
+    return events;
+  }
+  
+  void contract(){
+    expanded = false;
+  }
+  
+  void expand(){
+    expanded = true;
+  }
+  
+  void toggleExpanded(){
+    expanded = !expanded;
+  }
+  
+  boolean moveOver(){
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h*options.length;
+  }
+  
+  int hoveringOption(){
+    return (mouseY-yOffset-y)/h;
   }
 }
 
@@ -91,7 +147,7 @@ class Tickbox extends Element{
   }
   
   boolean moveOver(){
-    return mouseX-xOffset >= x && mouseX-xOffset <= x+h && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
   }
   
   void draw(PGraphics panelCanvas){
