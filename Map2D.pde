@@ -29,6 +29,11 @@ interface Map {
   void generateShape();
   void clearShape();
 }
+
+int getPartySize(Party p){
+  return Integer.BYTES*5+Float.BYTES;
+}
+
 class BaseMap extends Element{
   float[] heightMap;
   int mapWidth, mapHeight;
@@ -37,6 +42,19 @@ class BaseMap extends Element{
   Party[][] parties;
   Building[][] buildings;
   void saveMap(String filename){
+    int partiesByteCount = 0;
+    for (int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        if(parties[y][x] != null){
+          if(parties[y][x].player==2){
+            partiesByteCount+=getPartySize(((Battle)parties[y][x]).party1);
+            partiesByteCount+=getPartySize(((Battle)parties[y][x]).party2);
+          } else {
+            partiesByteCount+=getPartySize(((Battle)parties[y][x]).party1);
+          }
+        }
+      }
+    }
     ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*2+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3);
     buffer.putInt(mapWidth);
     buffer.putInt(mapHeight);
@@ -564,7 +582,7 @@ class Map2D extends BaseMap implements Map{
     PImage[] tempTileImages = new PImage[gameData.getJSONArray("terrain").size()];
     PImage[][] tempBuildingImages = new PImage[gameData.getJSONArray("buildings").size()][];
     PImage[] tempPartyImages = new PImage[3];
-    HashMap<String, PImage> tempTaskImages = new HashMap<String, PImage>();
+    HashMap<Integer, PImage> tempTaskImages = new HashMap<Integer, PImage>();
     if (frameStartTime == 0){
       frameStartTime = millis();
     }
@@ -615,7 +633,7 @@ class Map2D extends BaseMap implements Map{
       tempPartyImages[i] = partyImages[i].copy();
       tempPartyImages[i].resize(ceil(blockSize), 0);
     }
-    for(String taskName: taskImages.keySet()){
+    for(Integer taskName: taskImages.keySet()){
       tempTaskImages.put(taskName, taskImages.get(taskName).copy());
       tempTaskImages.get(taskName).resize(ceil(3*blockSize/16), 0);
     }
@@ -676,7 +694,7 @@ class Map2D extends BaseMap implements Map{
              }
              int imgSize = round(blockSize);
              drawCroppedImage(floor(c.x), floor(c.y), imgSize, imgSize, tempPartyImages[parties[y][x].player], panelCanvas);
-             JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), parties[y][x].task);
+             JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].task);
              if (jo != null && !jo.isNull("img")){
                drawCroppedImage(floor(c.x+13*blockSize/32), floor(c.y+blockSize/2), ceil(3*blockSize/16), ceil(3*blockSize/16), tempTaskImages.get(parties[y][x].task), panelCanvas);
              }

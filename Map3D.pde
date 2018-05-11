@@ -735,7 +735,7 @@ class Map3D extends BaseMap implements Map{
             canvas.shape(battle);
             canvas.popMatrix();
           }
-         JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), parties[y][x].task);
+         JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].task);
          if (jo != null && !jo.isNull("img")){
             canvas.noLights();
             canvas.pushMatrix();

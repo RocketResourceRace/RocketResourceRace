@@ -152,9 +152,9 @@ class Game extends State{
   String getResString(int r){
     return gameData.getJSONArray("resources").getJSONObject(r).getString("id");
   }
-  JSONArray taskInitialCost(String type){
+  JSONArray taskInitialCost(int type){
     // Find initial cost for task (such as for buildings, 'Build Farm')
-    JSONArray ja = findJSONObject(gameData.getJSONArray("tasks"), type).getJSONArray("initial cost");
+    JSONArray ja = gameData.getJSONArray("tasks").getJSONObject(type).getJSONArray("initial cost");
     return ja;
   }
   int taskTurns(String task){
@@ -166,8 +166,8 @@ class Game extends State{
     if (jo.isNull("action"))return 0;
     return jo.getJSONObject("action").getInt("turns");
   }
-  Action taskAction(String task){
-    JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task).getJSONObject("action");
+  Action taskAction(int task){
+    JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(task).getJSONObject("action");
     if (jo != null)
       return new Action(task, jo.getString("notification"), jo.getInt("turns"), jo.getString("building"), jo.getString("terrain"));
     return null;
@@ -193,7 +193,7 @@ class Game extends State{
     }
     return gameData.getJSONArray("buildings").getJSONObject(buildingI-1).getString("id");
   }
-  float[] buildingCost(String actionType){
+  float[] buildingCost(int actionType){
     float[] a = JSONToCost(taskInitialCost(actionType));
     if (a == null)
       return new float[numResources];
@@ -220,10 +220,10 @@ class Game extends State{
 
       if (canMove(cellX, cellY)){
         int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
-        if (sliderVal > 0 && parties[cellY][cellX].getUnitNumber() >= 2 && parties[cellY][cellX].getTask() != "Battle"){
+        if (sliderVal > 0 && parties[cellY][cellX].getUnitNumber() >= 2 && parties[cellY][cellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle")){
           map.updateMoveNodes(nodes);
           moving = true;
-          splittedParty = new Party(turn, sliderVal, "Rest", parties[cellY][cellX].getMovementPoints());
+          splittedParty = new Party(turn, sliderVal, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), parties[cellY][cellX].getMovementPoints());
           parties[cellY][cellX].changeUnitNumber(-sliderVal);
           if (parties[cellY][cellX].getUnitNumber() <= 0){
             parties[cellY][cellX] = null;
@@ -246,7 +246,7 @@ class Game extends State{
         }
         splittedParty.setPathTurns(pathTurns);
         Collections.reverse(splittedParty.path);
-        splittedParty.changeTask("Rest");
+        splittedParty.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
         splittedParty.clearActions();
         ((Text)getElement("turns remaining", "party management")).setText("");
         moveParty(cellX, cellY, true);
@@ -266,7 +266,7 @@ class Game extends State{
         }
         parties[cellY][cellX].setPathTurns(pathTurns);
         Collections.reverse(parties[cellY][cellX].path);
-        parties[cellY][cellX].changeTask("Rest");
+        parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
         parties[cellY][cellX].clearActions();
         ((Text)getElement("turns remaining", "party management")).setText("");
         moveParty(cellX, cellY);
@@ -283,16 +283,16 @@ class Game extends State{
       ChangeTask m = (ChangeTask)event;
       int cellX = m.x;
       int cellY = m.y;
-      String task = m.task;
+      int task = m.task;
       parties[cellY][cellX].clearPath();
       parties[cellY][cellX].target = null;
-      JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), parties[cellY][cellX].getTask());
+      JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[cellY][cellX].getTask());
       if (!jo.isNull("movement points")){
         //Changing from defending
         parties[cellY][cellX].setMovementPoints(min(parties[cellY][cellX].getMovementPoints()+jo.getInt("movement points"), gameData.getJSONObject("game options").getInt("movement points")));
       }
       parties[cellY][cellX].changeTask(task);
-      if (parties[cellY][cellX].getTask() == "Rest"){
+      if (parties[cellY][cellX].getTask() == JSONIndex(gameData.getJSONArray("tasks"), "Rest")){
         parties[cellY][cellX].clearActions();
         ((Text)getElement("turns remaining", "party management")).setText("");
       }
@@ -300,13 +300,13 @@ class Game extends State{
         moving = false;
         map.cancelMoveNodes();
       }
-      jo = findJSONObject(gameData.getJSONArray("tasks"), parties[cellY][cellX].getTask());
+      jo = gameData.getJSONArray("tasks").getJSONObject(parties[cellY][cellX].getTask());
       if (!jo.isNull("movement points")){
         if (parties[cellY][cellX].getMovementPoints()-jo.getInt("movement points") >= 0){
           parties[cellY][cellX].subMovementPoints(jo.getInt("movement points"));
         }
         else{
-          parties[cellY][cellX].changeTask("Rest");
+          parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
         }
       } else if (jo.getString("id").equals("Launch Rocket")){
         int rocketBehaviour = int(random(10));
@@ -317,10 +317,10 @@ class Game extends State{
         }
         else {
           players[turn].resources[getResIndex("rocket progress")] = 0;
-          parties[cellY][cellX].changeTask("Rest");
+          parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
         }
       }
-      else if (parties[cellY][cellX].getTask().equals("Produce Rocket")){
+      else if (parties[cellY][cellX].getTask()==JSONIndex(gameData.getJSONArray("tasks"), "Produce Rocket")){
         if(players[turn].resources[getResIndex("rocket progress")]==-1){
           players[turn].resources[getResIndex("rocket progress")] = 0;
         }
@@ -328,7 +328,7 @@ class Game extends State{
 
       else{
         Action a = taskAction(parties[cellY][cellX].getTask());
-        if (a != null && a.type != null){
+        if (a != null){
           float[] co = buildingCost(parties[cellY][cellX].getTask());
           if (sufficientResources(players[turn].resources, co, true)){
             parties[cellY][cellX].clearActions();
@@ -340,7 +340,7 @@ class Game extends State{
             }
           }
           else{
-            parties[cellY][cellX].changeTask("Rest");
+            parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
           }
         }
       }
@@ -388,8 +388,8 @@ class Game extends State{
     ((Text)getElement("turns remaining", "party management")).translate(100+bezel*2, round(13*TextScale*2 + bezel*3));
   }
 
-  void makeTaskAvailable(String task){
-    ((DropDown)getElement("tasks", "party management")).makeAvailable(task);
+  void makeTaskAvailable(int task){
+    ((DropDown)getElement("tasks", "party management")).makeAvailable(gameData.getJSONArray("tasks").getJSONObject(task).getString("id"));
   }
   void resetAvailableTasks(){
     ((DropDown)getElement("tasks", "party management")).resetAvailable();
@@ -443,11 +443,10 @@ class Game extends State{
       }
 
       if (correctTerrain && correctBuilding && enoughResources){
-        makeTaskAvailable(js.getString("id"));
+        makeTaskAvailable(i);
       }
     }
-
-    ((DropDown)getElement("tasks", "party management")).select(parties[cellY][cellX].getTask());
+    ((DropDown)getElement("tasks", "party management")).select(gameData.getJSONArray("tasks").getJSONObject(parties[cellY][cellX].getTask()).getString("id"));
   }
 
   boolean UIHovering(){
@@ -464,7 +463,7 @@ class Game extends State{
         if (parties[y][x] != null){
           if (parties[y][x].player == turn){
             for (int i=0; i<tasks.length;i++){
-              if(parties[y][x].getTask().equals(tasks[i])){
+              if(parties[y][x].getTask()==i){
                 for(int resource = 0; resource < numResources; resource++){
                   totalResourceRequirements[resource]+=taskCosts[i][resource]*parties[y][x].getUnitNumber();
                 }
@@ -472,7 +471,7 @@ class Game extends State{
             }
             Action action = parties[y][x].progressAction();
             if (action != null){
-              if (!action.type.equals("Construction Mid") && !action.type.equals("Construction End"))
+              if (!(action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction Mid")) && !(action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction End")))
                 notificationManager.post(action.notification, x, y, turnNumber, turn);
               if (action.building != null){
                 if (action.building.equals(""))
@@ -487,21 +486,17 @@ class Game extends State{
                 }
                 terrain[y][x] = terrainIndex(action.terrain);
               }
-              switch (action.type){
-                //-1 building types
-                case "Construction Mid":
+              if (action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction Mid")){
                   buildings[y][x].image_id = 1;
                   action = null;
-                  break;
-                case "Construction End":
+              } else if(action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction End")){
                   buildings[y][x].image_id = 2;
                   action = null;
-                  break;
               }
             }
             if (action != null){
               parties[y][x].clearCurrentAction();
-              parties[y][x].changeTask("Rest");
+              parties[y][x].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
             }
             moveParty(x, y);
           }
@@ -534,7 +529,7 @@ class Game extends State{
           if (parties[y][x].player == turn){
             float productivity = 1;
             for (int task=0; task<tasks.length;task++){
-              if(parties[y][x].getTask().equals(tasks[task])){
+              if(parties[y][x].getTask()==task){
                 for(int resource = 0; resource < numResources; resource++){
                   if(taskCosts[task][resource]>0){
                     if(resource==0){
@@ -547,7 +542,7 @@ class Game extends State{
               }
             }
             for (int task=0; task<tasks.length;task++){
-              if(parties[y][x].getTask().equals(tasks[task])){
+              if(parties[y][x].getTask()==task){
                 for(int resource = 0; resource < numResources; resource++){
                   if(resource!=getResIndex("civilians")){
                     if(tasks[task]=="Produce Rocket"){
@@ -567,7 +562,7 @@ class Game extends State{
                   } else{
                     int prev = parties[y][x].getUnitNumber();
                     parties[y][x].setUnitNumber(ceil(parties[y][x].getUnitNumber()+taskOutcomes[task][resource]*(float)parties[y][x].getUnitNumber()));
-                    if (prev != 1000 && parties[y][x].getUnitNumber() == 1000 && parties[y][x].task == "Super Rest"){
+                    if (prev != 1000 && parties[y][x].getUnitNumber() == 1000 && parties[y][x].task == JSONIndex(gameData.getJSONArray("tasks"), "Super Rest")){
                       notificationManager.post("Party Full", x, y, turnNumber, turn);
                     }
                   }
@@ -588,9 +583,9 @@ class Game extends State{
         for (int x=0; x<mapWidth; x++){
           if (parties[y][x] != null){
             if (parties[y][x].player == turn){
-              if(parties[y][x].getTask()=="Produce Rocket"){
+              if(parties[y][x].getTask()==JSONIndex(gameData.getJSONArray("tasks"), "Produce Rocket")){
                 notificationManager.post("Rocket Produced", x, y, turnNumber, turn);
-                parties[y][x].changeTask("Rest");
+                parties[y][x].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
                 buildings[y][x].image_id=1;
               }
             }
@@ -785,7 +780,7 @@ class Game extends State{
     prevIdle.clear();
   }
   boolean isIdle(int x, int y){
-    return (parties[y][x].task.equals("Rest") && canMove(x, y) && (parties[y][x].path==null||parties[y][x].path!=null&&parties[y][x].path.size()==0));
+    return (parties[y][x].task == JSONIndex(gameData.getJSONArray("tasks"), "Rest") && canMove(x, y) && (parties[y][x].path==null||parties[y][x].path!=null&&parties[y][x].path.size()==0));
   }
 
   int[] findIdle(int player){
@@ -862,7 +857,7 @@ class Game extends State{
       }
       if (event.type == "valueChanged"){
         if (event.id == "tasks"){
-          postEvent(new ChangeTask(cellX, cellY, ((DropDown)getElement("tasks", "party management")).getSelected()));
+          postEvent(new ChangeTask(cellX, cellY, JSONIndex(gameData.getJSONArray("tasks"), ((DropDown)getElement("tasks", "party management")).getSelected())));
         }
       }
       if (event.type == "notification selected"){
@@ -1045,19 +1040,19 @@ class Game extends State{
       return -1;
 
     int turns = 0;
-    ArrayList <int[]> path = getPath(startX, startY, targetX, targetY, nodes); //<>// //<>// //<>//
+    ArrayList <int[]> path = getPath(startX, startY, targetX, targetY, nodes);
     Collections.reverse(path);
     for (int node=1; node<path.size(); node++){
       int cost = cost(path.get(node)[0], path.get(node)[1], path.get(node-1)[0], path.get(node-1)[1]);
-      if (movementPoints < cost){ //<>// //<>// //<>// //<>// //<>//
+      if (movementPoints < cost){
         turns += 1;
         movementPoints = gameData.getJSONObject("game options").getInt("movement points");
       }
-      movementPoints -= cost; //<>// //<>// //<>// //<>// //<>// //<>// //<>//
+      movementPoints -= cost;
     }
     return turns;
   }
-  int splitUnitsNum(){ //<>// //<>// //<>// //<>// //<>//
+  int splitUnitsNum(){
     return round(((Slider)getElement("split units", "party management")).getValue());
   }
   void refreshTooltip(){
@@ -1078,24 +1073,24 @@ class Game extends State{
       int x = floor(map.scaleXInv(mouseX));
       int y = floor(map.scaleYInv(mouseY));
       if (x < mapWidth && y<mapHeight && x>=0 && y>=0 && nodes[y][x] != null && !(cellX == x && cellY == y)){
-        if (parties[cellY][cellX] != null){ //<>// //<>// //<>//
+        if (parties[cellY][cellX] != null){
           map.updatePath(getPath(cellX, cellY, x, y, map.getMoveNodes()));
         }
         if(parties[y][x]==null){
-          //Moving into empty tile //<>// //<>// //<>// //<>// //<>//
-          int turns = getMoveTurns(cellX, cellY, x, y, nodes);
+          //Moving into empty tile
+          int turns = getMoveTurns(cellX, cellY, x, y, nodes); //<>//
           boolean splitting = splitUnitsNum()!=parties[cellY][cellX].getUnitNumber();
           tooltip.setMoving(turns, splitting);
-          tooltip.show(); //<>// //<>// //<>// //<>// //<>// //<>// //<>//
-        }
+          tooltip.show();
+        } //<>//
         else {
           if (parties[y][x].player == turn){
-            //merge parties //<>// //<>// //<>// //<>// //<>//
-            tooltip.setMerging();
+            //merge parties
+            tooltip.setMerging(); //<>//
             tooltip.show();
           }
           else {
-            //Attack
+            //Attack //<>//
             Party tempAttacker = parties[cellY][cellX].clone();
             int units = round(splitUnitsNum());
             tempAttacker.setUnitNumber(units);
@@ -1139,19 +1134,19 @@ class Game extends State{
         if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn && !UIHovering()){
           if (moving){
             int x = floor(map.scaleXInv(mouseX));
-            int y = floor(map.scaleYInv(mouseY)); //<>// //<>// //<>//
+            int y = floor(map.scaleYInv(mouseY));
             postEvent(new Move(cellX, cellY, x, y));
             map.cancelPath();
             moving = false;
-            map.cancelMoveNodes(); //<>// //<>// //<>// //<>// //<>//
+            map.cancelMoveNodes();
           }
         }
       }
-    } //<>// //<>// //<>// //<>// //<>// //<>// //<>//
+    }
     if (button == LEFT){
       if (eventType == "mouseClicked"){
         if (activePanel == "default" && !UIHovering()){
-          if (map.mouseOver()){ //<>// //<>// //<>// //<>// //<>//
+          if (map.mouseOver()){
             if (moving){
               //int x = floor(map.scaleXInv(mouseX));
               //int y = floor(map.scaleYInv(mouseY));
@@ -1208,7 +1203,7 @@ class Game extends State{
       //map.setWidth(round(width-bezel*2-400));
       getPanel("land management").setVisible(true);
       if (parties[cellY][cellX] != null && parties[cellY][cellX].isTurn(turn)){
-        if (parties[cellY][cellX].getTask() != "Battle"){
+        if (parties[cellY][cellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle")){
           ((Slider)getElement("split units", "party management")).show();
         }
         else{
@@ -1246,7 +1241,7 @@ class Game extends State{
       if (parties[y][x].player == turn){
         float productivity = 1;
         for (int task=0; task<tasks.length;task++){
-          if(parties[y][x].getTask().equals(tasks[task])){
+          if(parties[y][x].getTask()==task){
             for(int resource = 0; resource < numResources; resource++){
               if(taskCosts[task][resource]>0){
                 productivity = min(productivity, resourceAmountsAvailable[resource]);
@@ -1255,7 +1250,7 @@ class Game extends State{
           }
         }
         for (int task=0; task<tasks.length;task++){
-          if(parties[y][x].getTask().equals(tasks[task])){
+          if(parties[y][x].getTask()==task){
             for(int resource = 0; resource < numResources; resource++){
               if(resource<numResources){
                 production[resource] = (taskOutcomes[task][resource])*productivity*parties[y][x].getUnitNumber();
@@ -1282,7 +1277,7 @@ class Game extends State{
       if (parties[y][x].player == turn){
         float productivity = 1;
         for (int task=0; task<tasks.length;task++){
-          if(parties[y][x].getTask().equals(tasks[task])){
+          if(parties[y][x].getTask()==task){
             for(int resource = 0; resource < numResources; resource++){
               if(taskCosts[task][resource]>0){
                 productivity = min(productivity, resourceAmountsAvailable[resource]);
@@ -1291,7 +1286,7 @@ class Game extends State{
           }
         }
         for (int task=0; task<tasks.length;task++){
-          if(parties[y][x].getTask().equals(tasks[task])){
+          if(parties[y][x].getTask()==task){
             for(int resource = 0; resource < numResources; resource++){
               if(resource<numResources){
                 production[resource] = (taskCosts[task][resource])*productivity*parties[y][x].getUnitNumber();
@@ -1670,8 +1665,8 @@ class Game extends State{
       player1 = generatePartyPosition();
       player2 = generatePartyPosition();
     }
-    parties[(int)player1.y][(int)player1.x] = new Party(0, 100, "Rest", gameData.getJSONObject("game options").getInt("movement points"));
-    parties[(int)player2.y][(int)player2.x] = new Party(1, 100, "Rest", gameData.getJSONObject("game options").getInt("movement points"));
+    parties[(int)player1.y][(int)player1.x] = new Party(0, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"));
+    parties[(int)player2.y][(int)player2.x] = new Party(1, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"));
 
     return  new PVector[]{player1, player2};
   }

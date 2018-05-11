@@ -581,7 +581,7 @@ class DropDown extends Element{
       }
     }
   }
-  void select(int j){
+  void selectAt(int j){
     int temp = availableOptions.get(0);
     availableOptions.set(0, availableOptions.get(j));
     availableOptions.set(j, temp);
@@ -589,7 +589,7 @@ class DropDown extends Element{
   void select(String s){
     for (int j=0; j<availableOptions.size(); j++){
       if (options.get(availableOptions.get(j)) == s){
-        select(j);
+        selectAt(j);
       }
     }
   }
@@ -640,7 +640,7 @@ class DropDown extends Element{
     if (eventType == "mouseClicked" && button == LEFT){
       for (int j=1; j < availableOptions.size();j++){
         if (mouseOver(j)){
-          select(j);
+          selectAt(j);
           events.add("valueChanged");
         }
       }

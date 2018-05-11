@@ -147,7 +147,7 @@ color[] playerColours = new color[]{color(0, 0, 255), color(255, 0, 0)};
 HashMap<String, PImage> tileImages;
 HashMap<String, PImage[]> buildingImages;
 PImage[] partyImages;
-HashMap<String, PImage> taskImages;
+HashMap<Integer, PImage> taskImages;
 HashMap<String, PImage> lowImages;
 HashMap<String, PImage> tile3DImages;
 
@@ -195,7 +195,7 @@ void loadImages(){
     lowImages = new HashMap<String, PImage>();
     tile3DImages = new HashMap<String, PImage>();
     buildingImages = new HashMap<String, PImage[]>();
-    taskImages = new HashMap<String, PImage>();
+    taskImages = new HashMap<Integer, PImage>();
     for (int i=0; i<gameData.getJSONArray("terrain").size(); i++){
       JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
       tileImages.put(tileType.getString("id"), loadImage(tileType.getString("img")));
@@ -216,7 +216,7 @@ void loadImages(){
     for (int i=0; i<gameData.getJSONArray("tasks").size(); i++){
       JSONObject task = gameData.getJSONArray("tasks").getJSONObject(i);
       if (!task.isNull("img")){
-        taskImages.put(task.getString("id"), loadImage(task.getString("img")));
+        taskImages.put(i, loadImage(task.getString("img")));
       }
     }
   }
