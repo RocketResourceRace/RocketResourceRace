@@ -242,6 +242,18 @@
           "options type": "ints",
         },
         {
+          "id": "terrain detail",
+          "type": "dropdown",
+          "x": -18,
+          "y": 0,
+          "w": 8,
+          "h": 1,
+          "text": "Terrain Detail",
+          "setting": "terrain detail",
+          "options": ["1", "2", "4"],
+          "options type": "ints",
+        },
+        {
           "id": "framerate cap",
           "flags": ["autosave"],
           "type": "tickbox",
@@ -350,5 +362,6 @@
     {"id": "framerate cap", "value": true, "type": "boolean"},
     {"id": "ground spawns", "value": 100, "type": "int"},
     {"id": "forest density", "value": 5, "type": "int"},
+    {"id": "terrain detail", "value": 2, "type": "int"},
   ]
 }
