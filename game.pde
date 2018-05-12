@@ -1078,19 +1078,19 @@ class Game extends State{
         }
         if(parties[y][x]==null){
           //Moving into empty tile
-          int turns = getMoveTurns(cellX, cellY, x, y, nodes); //<>//
+          int turns = getMoveTurns(cellX, cellY, x, y, nodes);
           boolean splitting = splitUnitsNum()!=parties[cellY][cellX].getUnitNumber();
           tooltip.setMoving(turns, splitting);
           tooltip.show();
-        } //<>//
+        }
         else {
           if (parties[y][x].player == turn){
             //merge parties
-            tooltip.setMerging(); //<>//
+            tooltip.setMerging();
             tooltip.show();
           }
           else {
-            //Attack //<>//
+            //Attack
             Party tempAttacker = parties[cellY][cellX].clone();
             int units = round(splitUnitsNum());
             tempAttacker.setUnitNumber(units);
@@ -1505,21 +1505,27 @@ class Game extends State{
       map = (Map2D)getElement("2dmap", "default");
       ((Map3D)getElement("3dmap", "default")).visible = false;
       ((Map2D)getElement("2dmap", "default")).visible = true;
+      ((Map2D)map).reset();
     }
-    ((BaseMap)map).generateMap(mapWidth, mapHeight);
-    terrain = ((BaseMap)map).terrain;
-    buildings = ((BaseMap)map).buildings;
-    parties = ((BaseMap)map).parties;
-    mapWidth = ((BaseMap)map).mapWidth;
-    mapHeight = ((BaseMap)map).mapHeight;
-    mapSize = mapWidth;
-    PVector[] playerStarts = generateStartingParties();
-    map.reset();
-
-    float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, 42);
-    players[1] = new Player(conditions2[0], conditions2[1], 42, startingResources.clone(), color(255,0,0));
-    float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, 42);
-    players[0] = new Player(conditions1[0], conditions1[1], 42, startingResources.clone(), color(0,0,255));
+    if(loading){
+      BaseMap baseMap = ((BaseMap)map).loadMap("saves/test.dat");
+      terrain = baseMap.terrain;
+      buildings = baseMap.buildings;
+      parties = baseMap.parties;
+      mapWidth = baseMap.mapWidth;
+      mapHeight = baseMap.mapHeight;
+      mapSize = mapWidth;
+    } else {
+      ((BaseMap)map).generateMap(mapWidth, mapHeight);
+      terrain = ((BaseMap)map).terrain;
+      buildings = ((BaseMap)map).buildings;
+      parties = ((BaseMap)map).parties;
+      PVector[] playerStarts = generateStartingParties();
+      float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, 42);
+      players[1] = new Player(conditions2[0], conditions2[1], 42, startingResources.clone(), color(255,0,0));
+      float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, 42);
+      players[0] = new Player(conditions1[0], conditions1[1], 42, startingResources.clone(), color(0,0,255));
+    }
     //for(int i=0;i<NUMOFBUILDINGTYPES;i++){
     //  buildings[(int)playerStarts[0].y][(int)playerStarts[0].x+i] = new Building(1+i);
     //}

@@ -25,7 +25,6 @@ interface Map {
   void cancelPath();
   void setActive(boolean a);
   void selectCell(int x, int y);
-  void reset();
   void generateShape();
   void clearShape();
 }
@@ -113,7 +112,7 @@ class BaseMap extends Element{
     }
     saveBytes(filename, buffer.array());
   }
-  void loadMap(String filename){
+  BaseMap loadMap(String filename){
     byte tempBuffer[] = loadBytes(filename);
     int headerSize = Integer.BYTES*3;
     ByteBuffer sizeBuffer = ByteBuffer.allocate(headerSize);
@@ -158,6 +157,9 @@ class BaseMap extends Element{
         }
       }
     }
+    noiseSeed(heightMapSeed);
+    generateNoiseMaps();
+    return this;
   }
   int toMapIndex(int x, int y, int x1, int y1){
     return int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*(mapWidth+1/VERTICESPERTILE)+y*pow(VERTICESPERTILE, 2)*(mapWidth+1/VERTICESPERTILE));
@@ -296,16 +298,10 @@ class BaseMap extends Element{
     parties = new Party[mapHeight][mapWidth];
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
-    if(loading){
-      loadMap("saves/test.dat");
-      noiseSeed(heightMapSeed);
-      generateNoiseMaps();
-    } else {
-      heightMapSeed = (long)random(Long.MIN_VALUE, Long.MAX_VALUE);
-      noiseSeed(heightMapSeed);
-      generateNoiseMaps();
-      generateTerrain();
-    }
+    heightMapSeed = (long)random(Long.MIN_VALUE, Long.MAX_VALUE);
+    noiseSeed(heightMapSeed);
+    generateNoiseMaps();
+    generateTerrain();
   }
   void generateNoiseMaps(){
     heightMap = new float[int((mapWidth+1/VERTICESPERTILE)*(mapHeight+1/VERTICESPERTILE)*pow(VERTICESPERTILE, 2))];
