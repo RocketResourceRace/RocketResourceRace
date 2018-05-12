@@ -70,7 +70,7 @@ class BaseMap extends Element{
             partiesByteCount+=getPartySize(((Battle)parties[y][x]).party1);
             partiesByteCount+=getPartySize(((Battle)parties[y][x]).party2);
           } else {
-            partiesByteCount+=getPartySize(((Battle)parties[y][x]).party1);
+            partiesByteCount+=getPartySize(parties[y][x]);
           }
         }
         partiesByteCount++;

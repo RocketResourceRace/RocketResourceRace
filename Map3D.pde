@@ -59,9 +59,6 @@ class Map3D extends BaseMap implements Map{
   final float GROUNDHEIGHT = 5;
   int x, y, w, h, prevT, frameTime;
   int selectedCellX, selectedCellY;
-  Building[][] buildings;
-  int[][] terrain;
-  Party[][] parties;
   PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect, pathLine;
   HashMap<String, PShape> taskObjs;
   HashMap<String, PShape[]> buildingObjs;

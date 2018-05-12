@@ -1509,10 +1509,10 @@ class Game extends State{
     ((BaseMap)map).generateMap(mapWidth, mapHeight);
     terrain = ((BaseMap)map).terrain;
     buildings = ((BaseMap)map).buildings;
+    parties = ((BaseMap)map).parties;
     mapWidth = ((BaseMap)map).mapWidth;
     mapHeight = ((BaseMap)map).mapHeight;
     mapSize = mapWidth;
-    parties = new Party[mapHeight][mapWidth];
     PVector[] playerStarts = generateStartingParties();
     map.reset();
 
