@@ -40,10 +40,10 @@ class DropDown extends Element{
     // draw selected option
     panelCanvas.stroke(color(0));
     if (moveOver() && hovering == -1){
-      panelCanvas.fill(brighten(bgColour, 10));
+      panelCanvas.fill(brighten(bgColour, -20));
     }
     else{
-      panelCanvas.fill(brighten(bgColour, -20));
+      panelCanvas.fill(brighten(bgColour, -40));
     }
     panelCanvas.rect(x, y, w, h);
     panelCanvas.textAlign(LEFT, TOP);
@@ -194,7 +194,7 @@ class Tickbox extends Element{
   }
   
   boolean moveOver(){
-    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+h && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
   }
   
   void draw(PGraphics panelCanvas){

@@ -327,7 +327,7 @@ class JSONManager{
           }
           break;
         case "dropdown":
-          DropDown dd = new DropDown((int)x, (int)y, (int)w, (int)h, bgColour, text, elem.getString("options type"));
+          DropDown dd = new DropDown((int)x, (int)y, (int)w, (int)h, color(150), text, elem.getString("options type"));
           dd.setOptions(options);
           if (elem.isNull("default value")){
             switch (dd.optionTypes){
