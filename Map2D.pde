@@ -60,7 +60,7 @@ class BaseMap extends Element{
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
-  void saveMap(String filename, int turnNumber, int turnPlayer){
+  void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players){
     int partiesByteCount = 0;
     for (int y=0; y<mapHeight; y++){
       for (int x=0; x<mapWidth; x++){
@@ -75,10 +75,14 @@ class BaseMap extends Element{
         partiesByteCount++;
       }
     }
-    ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*5+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount);
+    int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+3*Integer.BYTES+1)*players.length;
+    ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*8+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount+playersByteCount);
     buffer.putInt(mapWidth);
     buffer.putInt(mapHeight);
     buffer.putInt(partiesByteCount);
+    buffer.putInt(playersByteCount);
+    buffer.putInt(players.length);
+    buffer.putInt(players[0].resources.length);
     buffer.putInt(turnNumber);
     buffer.putInt(turnPlayer);
     buffer.putLong(heightMapSeed);
@@ -112,21 +116,36 @@ class BaseMap extends Element{
         }
       }
     }
+    for (Player p: players){
+      buffer.putFloat(p.mapXOffset);
+      buffer.putFloat(p.mapYOffset);
+      buffer.putFloat(p.blockSize);
+      for (float r: p.resources){
+        buffer.putFloat(r);
+      }
+      buffer.putInt(p.cellX);
+      buffer.putInt(p.cellY);
+      buffer.putInt(p.colour);
+      buffer.put(byte(p.cellSelected));
+    }
     saveBytes(filename, buffer.array());
   }
-  MapSave loadMap(String filename){
+  MapSave loadMap(String filename, int resourceCountNew){
     byte tempBuffer[] = loadBytes(filename);
-    int headerSize = Integer.BYTES*3;
-    ByteBuffer sizeBuffer = ByteBuffer.allocate(headerSize);
-    sizeBuffer.put(Arrays.copyOfRange(tempBuffer, 0, headerSize));
-    sizeBuffer.flip();//need flip
-    mapWidth = sizeBuffer.getInt();
-    mapHeight = sizeBuffer.getInt();
-    int partiesByteCount = sizeBuffer.getInt();
-    int dataSize = Long.BYTES+Integer.BYTES*2+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount;
+    int headerSize = Integer.BYTES*4;
+    ByteBuffer headerBuffer = ByteBuffer.allocate(headerSize);
+    headerBuffer.put(Arrays.copyOfRange(tempBuffer, 0, headerSize));
+    headerBuffer.flip();//need flip
+    mapWidth = headerBuffer.getInt();
+    mapHeight = headerBuffer.getInt();
+    int partiesByteCount = headerBuffer.getInt();
+    int playersByteCount = headerBuffer.getInt();
+    int dataSize = Long.BYTES+partiesByteCount+playersByteCount+(4+mapWidth*mapHeight*3)*Integer.BYTES;
     ByteBuffer buffer = ByteBuffer.allocate(dataSize);
     buffer.put(Arrays.copyOfRange(tempBuffer, headerSize, headerSize+dataSize));
     buffer.flip();//need flip
+    int playerCount = buffer.getInt();
+    int resourceCountOld = buffer.getInt();
     int turnNumber = buffer.getInt();
     int turnPlayer = buffer.getInt();
     heightMapSeed = buffer.getLong();
@@ -162,14 +181,33 @@ class BaseMap extends Element{
         }
       }
     }
+    Player[] players = new Player[playerCount];
+    for (int i=0;i<playerCount;i++){
+      float mapXOffset = buffer.getFloat();
+      float mapYOffset = buffer.getFloat();
+      float blockSize = buffer.getFloat();
+      float[] resources = new float[resourceCountNew];
+      for (int r=0; r<resourceCountOld;r++){
+        resources[r] = buffer.getFloat();
+      }
+      int cellX = buffer.getInt();
+      int cellY = buffer.getInt();
+      int colour = buffer.getInt();
+      boolean cellSelected = boolean(buffer.get());
+      players[i] = new Player(mapXOffset, mapYOffset, blockSize, resources, colour);
+      players[i].cellSelected = cellSelected;
+    }
     noiseSeed(heightMapSeed);
     generateNoiseMaps();
     
-    return new MapSave(heightMap, mapWidth, mapHeight, terrain, parties, buildings, turnNumber, turnPlayer);
+    return new MapSave(heightMap, mapWidth, mapHeight, terrain, parties, buildings, turnNumber, turnPlayer, players);
   }
+  
+  
   int toMapIndex(int x, int y, int x1, int y1){
     return int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*(mapWidth+1/VERTICESPERTILE)+y*pow(VERTICESPERTILE, 2)*(mapWidth+1/VERTICESPERTILE));
   }
+  
   
   int getRandomGroundType(HashMap<Integer, Float> groundWeightings, float total){
     float randomNum = random(0, 1);
@@ -636,7 +674,6 @@ class Map2D extends BaseMap implements Map{
   void draw(PGraphics panelCanvas){
 
     // Terrain
-
     PImage[] tempTileImages = new PImage[gameData.getJSONArray("terrain").size()];
     PImage[][] tempBuildingImages = new PImage[gameData.getJSONArray("buildings").size()][];
     PImage[] tempPartyImages = new PImage[3];

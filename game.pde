@@ -845,7 +845,14 @@ class Game extends State{
           newState = "menu";
         }
         else if (event.id == "main menu button"){
-          ((BaseMap)map).saveMap("saves/test.dat", this.turnNumber, this.turn);
+          float blockSize;
+          if (map.isZooming()){
+            blockSize = map.getTargetZoom();
+          } else{
+            blockSize = map.getZoom();
+          }
+          players[turn].saveSettings(map.getTargetOffsetX(), map.getTargetOffsetY(), blockSize, cellX, cellY, cellSelected);
+          ((BaseMap)map).saveMap("saves/test.dat", this.turnNumber, this.turn, this.players);
           newState = "menu";
         }
         else if (event.id == "desktop button"){
@@ -1508,7 +1515,7 @@ class Game extends State{
       ((Map2D)map).reset();
     }
     if(loading){
-      MapSave mapSave = ((BaseMap)map).loadMap("saves/test.dat");
+      MapSave mapSave = ((BaseMap)map).loadMap("saves/test.dat", resourceNames.length);
       terrain = mapSave.terrain;
       buildings = mapSave.buildings;
       parties = mapSave.parties;
@@ -1517,8 +1524,13 @@ class Game extends State{
       mapSize = mapWidth;
       this.turnNumber = mapSave.startTurn;
       this.turn = mapSave.startPlayer;
-      players[1] = new Player(0, 0, 42, startingResources.clone(), color(255,0,0));
-      players[0] = new Player(0, 0, 42, startingResources.clone(), color(0,0,255));
+      this.players = mapSave.players;
+      if(!mapIs3D){
+        ((Map2D)map).mapXOffset = this.players[turn].mapXOffset;
+        ((Map2D)map).mapYOffset = this.players[turn].mapYOffset;
+        ((Map2D)map).blockSize = this.players[turn].blockSize;
+        println(this.players[turn].blockSize);
+      }
     } else {
       ((BaseMap)map).generateMap(mapWidth, mapHeight);
       terrain = ((BaseMap)map).terrain;

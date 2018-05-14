@@ -334,7 +334,8 @@ class MapSave{
   Building[][] buildings;
   int startTurn;
   int startPlayer;
-  MapSave(float[] heightMap,int mapWidth, int mapHeight, int[][] terrain, Party[][] parties, Building[][] buildings, int startTurn, int startPlayer){
+  Player[] players;
+  MapSave(float[] heightMap,int mapWidth, int mapHeight, int[][] terrain, Party[][] parties, Building[][] buildings, int startTurn, int startPlayer, Player[] players){
     this.heightMap = heightMap;
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
@@ -343,5 +344,6 @@ class MapSave{
     this.buildings = buildings;
     this.startTurn = startTurn;
     this.startPlayer = startPlayer;
+    this.players = players;
   }
 }
