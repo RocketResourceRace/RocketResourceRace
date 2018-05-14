@@ -323,7 +323,11 @@ class BaseMap extends Element{
     heightMap[toMapIndex(mapWidth, mapHeight, 0, 0)] = noise(((mapWidth+1))*MAPNOISESCALE, (mapHeight)*MAPNOISESCALE);
   }
   float getRawHeight(int x, int y, int x1, int y1) {
-    return max(heightMap[int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*(mapWidth+1/VERTICESPERTILE)+y*pow(VERTICESPERTILE, 2)*(mapWidth+1/VERTICESPERTILE))], WATERLEVEL);
+    try{
+      return max(heightMap[int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*(mapWidth+1/VERTICESPERTILE)+y*pow(VERTICESPERTILE, 2)*(mapWidth+1/VERTICESPERTILE))], WATERLEVEL);
+    } catch (ArrayIndexOutOfBoundsException e) {
+      return 0;
+    }
   }
   float getRawHeight(int x, int y) {
     return getRawHeight(x, y, 0, 0);
