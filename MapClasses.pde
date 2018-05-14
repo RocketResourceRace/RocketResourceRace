@@ -28,6 +28,7 @@ class Party{
   ArrayList<int[]> path;
   int[] target;
   int pathTurns;
+  byte[]byteRep;
   Party(int player, int startingUnits, int startingTask, int movementPoints){
     unitNumber = startingUnits;
     task = startingTask;

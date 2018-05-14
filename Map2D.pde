@@ -29,18 +29,129 @@ interface Map {
   void clearShape();
 }
 
+
 int getPartySize(Party p){
-  return Integer.BYTES*5+Float.BYTES;
+  int totalSize = 0;
+  ByteBuffer[] actions = new ByteBuffer[p.actions.size()];
+  int index = 0;
+  for (Action a: p.actions){
+    int notificationSize;
+    int terrainSize;
+    int buildingSize;
+    byte[] notification = new byte[0];
+    byte[] terrain = new byte[0];
+    byte[] building = new byte[0];
+    if(a.notification == null){
+      notificationSize = 0;
+    } else {
+      notification = a.notification.getBytes();
+      notificationSize = notification.length;
+    }
+    if(a.terrain == null){
+      terrainSize = 0;
+    } else {
+      terrain = a.terrain.getBytes();
+      terrainSize = terrain.length;
+    }
+    if(a.building == null){
+      buildingSize = 0;
+    } else {
+      building = a.building.getBytes();
+      buildingSize = building.length;
+    }
+    int actionLength = Float.BYTES*2+Integer.BYTES*4+notificationSize+terrainSize+buildingSize;
+    totalSize += actionLength;
+    actions[index] = ByteBuffer.allocate(actionLength);
+    actions[index].putInt(notificationSize);
+    actions[index].putInt(terrainSize);
+    actions[index].putInt(buildingSize);
+    actions[index].putFloat(a.turns);
+    actions[index].putFloat(a.initialTurns);
+    actions[index].putInt(a.type);
+    if(notificationSize>0){
+      actions[index].put(notification);
+    }
+    if(terrainSize>0){
+      actions[index].put(terrain);
+    }
+    if(buildingSize>0){
+      actions[index].put(building);
+    }
+    index++;
+  }
+  totalSize+=Integer.BYTES; // For action count
+  int pathSize = Integer.BYTES*(2*p.path.size()+1);
+  totalSize += pathSize;
+  
+  ByteBuffer path = ByteBuffer.allocate(pathSize);
+  path.putInt(p.path.size());
+  for (int[] l: p.path){
+    path.putInt(l[0]);
+    path.putInt(l[1]);
+  }
+  totalSize += Integer.BYTES*5+Float.BYTES;
+  
+  
+  ByteBuffer partyBuffer = ByteBuffer.allocate(totalSize);
+  partyBuffer.putInt(p.actions.size());
+  for (ByteBuffer action: actions){
+    partyBuffer.put(action);
+  }
+  partyBuffer.put(path.array());
+  partyBuffer.putInt(p.getUnitNumber());
+  partyBuffer.putInt(p.getMovementPoints());
+  partyBuffer.putInt(p.player);
+  partyBuffer.putFloat(p.strength);
+  partyBuffer.putInt(p.getTask());
+  partyBuffer.putInt(p.pathTurns);
+  p.byteRep = partyBuffer.array();
+  return totalSize;
 }
 void saveParty(ByteBuffer b, Party p){
-  b.putInt(p.getUnitNumber());
-  b.putInt(p.getMovementPoints());
-  b.putInt(p.player);
-  b.putFloat(p.strength);
-  b.putInt(p.getTask());
-  b.putInt(p.pathTurns);
+  b.put(p.byteRep);
 }
 Party loadParty(ByteBuffer b){
+  int actionCount = b.getInt();
+  ArrayList<Action> actions = new ArrayList<Action>();
+  for (int i=0; i<actionCount; i++){
+    String notification;
+    String terrain;
+    String building;
+    int notificationTextSize = b.getInt();
+    int terrainTextSize = b.getInt();
+    int buildingTextSize = b.getInt();
+    Float turns = b.getFloat();
+    Float initialTurns = b.getFloat();
+    int type = b.getInt();
+    if(notificationTextSize>0){
+      byte[] notificationTemp = new byte[notificationTextSize];
+      b.get(notificationTemp);
+      notification = new String(notificationTemp);
+    } else {
+      notification = null;
+    }
+    if(terrainTextSize>0){
+      byte[] terrainTemp = new byte[terrainTextSize];
+      b.get(terrainTemp);
+      terrain = new String(terrainTemp);
+    } else {
+      terrain = null;
+    }
+    if(terrainTextSize>0){
+      byte[] buildingTemp = new byte[buildingTextSize];
+      b.get(buildingTemp);
+      building = new String(buildingTemp);
+    } else {
+      building = null;
+    }
+    actions.add(new Action(type, notification, turns, building, terrain));
+    actions.get(i).initialTurns = initialTurns;
+  }
+  int pathSize = b.getInt();
+  ArrayList<int[]> path = new ArrayList<int[]>();
+  for(int i=0; i<pathSize; i++){
+    path.add(new int[]{b.getInt(), b.getInt()});
+  }
   int unitNumber = b.getInt();
   int movementPoints = b.getInt();
   int player = b.getInt();

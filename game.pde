@@ -1529,7 +1529,6 @@ class Game extends State{
         ((Map2D)map).mapXOffset = this.players[turn].mapXOffset;
         ((Map2D)map).mapYOffset = this.players[turn].mapYOffset;
         ((Map2D)map).blockSize = this.players[turn].blockSize;
-        println(this.players[turn].blockSize);
       }
     } else {
       ((BaseMap)map).generateMap(mapWidth, mapHeight);
