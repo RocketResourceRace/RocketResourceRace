@@ -845,7 +845,7 @@ class Game extends State{
           newState = "menu";
         }
         else if (event.id == "main menu button"){
-          ((BaseMap)map).saveMap("saves/test.dat");
+          ((BaseMap)map).saveMap("saves/test.dat", this.turnNumber, this.turn);
           newState = "menu";
         }
         else if (event.id == "desktop button"){
@@ -1508,13 +1508,17 @@ class Game extends State{
       ((Map2D)map).reset();
     }
     if(loading){
-      BaseMap baseMap = ((BaseMap)map).loadMap("saves/test.dat");
-      terrain = baseMap.terrain;
-      buildings = baseMap.buildings;
-      parties = baseMap.parties;
-      mapWidth = baseMap.mapWidth;
-      mapHeight = baseMap.mapHeight;
+      MapSave mapSave = ((BaseMap)map).loadMap("saves/test.dat");
+      terrain = mapSave.terrain;
+      buildings = mapSave.buildings;
+      parties = mapSave.parties;
+      mapWidth = mapSave.mapWidth;
+      mapHeight = mapSave.mapHeight;
       mapSize = mapWidth;
+      this.turnNumber = mapSave.startTurn;
+      this.turn = mapSave.startPlayer;
+      players[1] = new Player(0, 0, 42, startingResources.clone(), color(255,0,0));
+      players[0] = new Player(0, 0, 42, startingResources.clone(), color(0,0,255));
     } else {
       ((BaseMap)map).generateMap(mapWidth, mapHeight);
       terrain = ((BaseMap)map).terrain;
@@ -1525,13 +1529,13 @@ class Game extends State{
       players[1] = new Player(conditions2[0], conditions2[1], 42, startingResources.clone(), color(255,0,0));
       float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, 42);
       players[0] = new Player(conditions1[0], conditions1[1], 42, startingResources.clone(), color(0,0,255));
+      turn = 0;
+      turnNumber = 0;
     }
     //for(int i=0;i<NUMOFBUILDINGTYPES;i++){
     //  buildings[(int)playerStarts[0].y][(int)playerStarts[0].x+i] = new Building(1+i);
     //}
     deselectCell();
-    turn = 0;
-    turnNumber = 0;
     tooltip.hide();
     winner = -1;
     this.totals = totalResources();

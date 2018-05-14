@@ -60,7 +60,7 @@ class BaseMap extends Element{
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
-  void saveMap(String filename){
+  void saveMap(String filename, int turnNumber, int turnPlayer){
     int partiesByteCount = 0;
     for (int y=0; y<mapHeight; y++){
       for (int x=0; x<mapWidth; x++){
@@ -75,10 +75,12 @@ class BaseMap extends Element{
         partiesByteCount++;
       }
     }
-    ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*3+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount);
+    ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*5+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount);
     buffer.putInt(mapWidth);
     buffer.putInt(mapHeight);
     buffer.putInt(partiesByteCount);
+    buffer.putInt(turnNumber);
+    buffer.putInt(turnPlayer);
     buffer.putLong(heightMapSeed);
     for (int y=0; y<mapHeight; y++){
       for (int x=0; x<mapWidth; x++){
@@ -112,7 +114,7 @@ class BaseMap extends Element{
     }
     saveBytes(filename, buffer.array());
   }
-  BaseMap loadMap(String filename){
+  MapSave loadMap(String filename){
     byte tempBuffer[] = loadBytes(filename);
     int headerSize = Integer.BYTES*3;
     ByteBuffer sizeBuffer = ByteBuffer.allocate(headerSize);
@@ -121,12 +123,15 @@ class BaseMap extends Element{
     mapWidth = sizeBuffer.getInt();
     mapHeight = sizeBuffer.getInt();
     int partiesByteCount = sizeBuffer.getInt();
-    int dataSize = Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount;
+    int dataSize = Long.BYTES+Integer.BYTES*2+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount;
     ByteBuffer buffer = ByteBuffer.allocate(dataSize);
     buffer.put(Arrays.copyOfRange(tempBuffer, headerSize, headerSize+dataSize));
     buffer.flip();//need flip
+    int turnNumber = buffer.getInt();
+    int turnPlayer = buffer.getInt();
     heightMapSeed = buffer.getLong();
     terrain = new int[mapHeight][mapWidth];
+    parties = new Party[mapHeight][mapWidth];
     buildings = new Building[mapHeight][mapWidth];
     for (int y=0; y<mapHeight; y++){
       for (int x=0; x<mapWidth; x++){
@@ -159,7 +164,8 @@ class BaseMap extends Element{
     }
     noiseSeed(heightMapSeed);
     generateNoiseMaps();
-    return this;
+    
+    return new MapSave(heightMap, mapWidth, mapHeight, terrain, parties, buildings, turnNumber, turnPlayer);
   }
   int toMapIndex(int x, int y, int x1, int y1){
     return int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*(mapWidth+1/VERTICESPERTILE)+y*pow(VERTICESPERTILE, 2)*(mapWidth+1/VERTICESPERTILE));

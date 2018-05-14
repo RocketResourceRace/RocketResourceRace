@@ -323,3 +323,25 @@ class Node{
     this.prevY = prevY;
   }
 }
+
+
+
+class MapSave{
+  float[] heightMap;
+  int mapWidth, mapHeight;
+  int[][] terrain;
+  Party[][] parties;
+  Building[][] buildings;
+  int startTurn;
+  int startPlayer;
+  MapSave(float[] heightMap,int mapWidth, int mapHeight, int[][] terrain, Party[][] parties, Building[][] buildings, int startTurn, int startPlayer){
+    this.heightMap = heightMap;
+    this.mapWidth = mapWidth;
+    this.mapHeight = mapHeight;
+    this.terrain = terrain;
+    this.parties = parties;
+    this.buildings = buildings;
+    this.startTurn = startTurn;
+    this.startPlayer = startPlayer;
+  }
+}
