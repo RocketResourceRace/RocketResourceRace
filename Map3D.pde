@@ -163,6 +163,7 @@ class Map3D extends Element implements Map{
         pathLine.vertex(x0*blockSize, y0*blockSize, 5+getHeight(x0, y0));
       }
     }
+    pathLine.vertex((selectedCellX+0.5)*blockSize, (selectedCellY+0.5)*blockSize, 5+getHeight(selectedCellX+0.5, selectedCellY+0.5));
     pathLine.endShape();
   }
   void cancelMoveNodes() {
