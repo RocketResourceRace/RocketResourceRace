@@ -184,6 +184,12 @@ class JSONManager{
   return returnHash;
   }
   
+  String menuStateTitle(String id){
+    // Gets the titiel for menu state. Reutnrs null if there is no title defined
+    JSONObject panel = findJSONObject(menu.getJSONArray("states"), id);
+    return panel.getString("title");
+  }
+  
   void loadMenuElements(State state, float guiScale){
     // Load all the menu panels in to menu state
      JSONArray panels = menu.getJSONArray("states");

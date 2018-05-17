@@ -3,6 +3,7 @@
   "states":[
     {
       "id": "startup",
+      "title": "Main Menu",
       "elements":[
         {
           "id": "new game",
@@ -48,6 +49,7 @@
 
     {
       "id": "settings",
+      "title": "Settings",
       "elements":[
         {
           "id": "graphics options",
@@ -93,6 +95,7 @@
 
     {
       "id": "new game",
+      "title": "New Game",
       "elements":[
         {
           "id": "start",
@@ -182,6 +185,7 @@
 
     {
       "id": "load game",
+      "title": "Load Game",
       "elements":[
         {
           "id": "back",
@@ -198,6 +202,7 @@
 
     {
       "id": "graphics options",
+      "title": "Graphics Options",
       "elements":[
         {
           "id": "gui scale",
@@ -233,25 +238,13 @@
           "id": "forest density",
           "type": "dropdown",
           "x": -18,
-          "y": 4,
-          "w": 8,
-          "h": 1,
+          "y": 8,
+          "w": 12,
+          "h": 3,
           "text": "Forest Density",
           "setting": "forest density",
           "options": ["3", "5", "10", "20"],
-          "options type": "ints",
-        },
-        {
-          "id": "terrain detail",
-          "type": "dropdown",
-          "x": -18,
-          "y": 0,
-          "w": 8,
-          "h": 1,
-          "text": "Terrain Detail",
-          "setting": "terrain detail",
-          "options": ["1", "2", "4"],
-          "options type": "ints",
+          "options type": "floats",
         },
         {
           "id": "framerate cap",
@@ -263,17 +256,6 @@
           "h": 1,
           "text": "Framerate Cap",
           "setting" : "framerate cap"
-        },
-        {
-          "id": "3d map",
-          "flags": ["autosave"],
-          "type": "tickbox",
-          "x": -6,
-          "y": -2,
-          "w": 12,
-          "h": 1,
-          "text": "3D Map",
-          "setting" : "map is 3d"
         },
         {
           "id": "apply",
@@ -308,6 +290,7 @@
 
     {
       "id": "sound options",
+      "title": "Sound Options",
       "elements":[
         {
           "id": "sound on",
@@ -362,6 +345,5 @@
     {"id": "framerate cap", "value": true, "type": "boolean"},
     {"id": "ground spawns", "value": 100, "type": "int"},
     {"id": "forest density", "value": 5, "type": "int"},
-    {"id": "terrain detail", "value": 2, "type": "int"},
   ]
 }
