@@ -239,7 +239,7 @@
           "type": "dropdown",
           "x": -18,
           "y": 2,
-          "w": 8,
+          "w": 10,
           "h": 1,
           "text": "Forest Density",
           "setting": "forest density",
@@ -251,9 +251,9 @@
           "type": "dropdown",
           "x": -18,
           "y": -2,
-          "w": 8,
+          "w": 10,
           "h": 1,
-          "text": "Terrain Texture Resolution",
+          "text": "Terrain Texture Res",
           "setting": "terrain texture resolution",
           "options": ["16", "32", "64"],
           "options type": "ints",
@@ -263,7 +263,7 @@
           "type": "dropdown",
           "x": -18,
           "y": 0,
-          "w": 8,
+          "w": 10,
           "h": 1,
           "text": "Terrain Detail",
           "setting": "terrain detail",
@@ -369,10 +369,7 @@
     {"id": "framerate cap", "value": true, "type": "boolean"},
     {"id": "ground spawns", "value": 100, "type": "int"},
     {"id": "forest density", "value": 5, "type": "int"},
-<<<<<<< HEAD
     {"id": "terrain detail", "value": 2, "type": "int"},
     {"id": "terrain texture resolution", "value": 32, "type": "int"},
-=======
->>>>>>> 274114017f86ce3ad86fa893ecb1ac1b5856c967
   ]
 }
