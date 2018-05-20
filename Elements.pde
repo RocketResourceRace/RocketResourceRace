@@ -5,7 +5,7 @@ class DropDown extends Element{
   String[] options;  // Either strings or floats
   int selected, bgColour;
   String name, optionTypes;
-  boolean expanded;
+  boolean expanded, postExpandedEvent;
   
   DropDown(int x, int y, int w, int h, int bgColour, String name, String optionTypes){
     // h here means the height of one dropper box
@@ -102,6 +102,13 @@ class DropDown extends Element{
           contract();
         }
       }
+      else{
+        contract();
+      }
+    }
+    if (postExpandedEvent){
+      events.add("element to top");
+      postExpandedEvent = false;
     }
     return events;
   }
@@ -121,11 +128,15 @@ class DropDown extends Element{
   }
   
   void expand(){
+    postExpandedEvent = true;
     expanded = true;
   }
   
   void toggleExpanded(){
     expanded = !expanded;
+    if (expanded){
+      postExpandedEvent = true;
+    }
   }
   
   int getIntVal(){

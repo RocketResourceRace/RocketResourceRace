@@ -54,8 +54,8 @@ class Menu extends State{
     getPanel(newPanel).setVisible(true);
     getPanel(currentPanel).setVisible(false);
     currentPanel = new String(newPanel);
-    for (String id : getPanel(newPanel).elements.keySet()){
-      getPanel(newPanel).elements.get(id).mouseEvent("mouseMoved", LEFT);
+    for (Element elem : getPanel(newPanel).elements){
+      elem.mouseEvent("mouseMoved", LEFT);
     }
     activePanel = newPanel;
   }
@@ -91,29 +91,29 @@ class Menu extends State{
   }
   
   void revertChanges(String panel){
-    for (String id : getPanel(panel).elements.keySet()){
-      if (!jsManager.hasFlag(panel, id, "autosave") && settingChangers.get(id) != null){
-        String type = jsManager.getElementType(panel, id);
+    for (Element elem : getPanel(panel).elements){
+      if (!jsManager.hasFlag(panel, elem.id, "autosave") && settingChangers.get(elem.id) != null){
+        String type = jsManager.getElementType(panel, elem.id);
         switch (type){
           case "slider":
-            ((Slider)getElement(id, panel)).setValue(jsManager.loadFloatSetting(id));
+            ((Slider)getElement(elem.id, panel)).setValue(jsManager.loadFloatSetting(jsManager.getSettingName(elem.id, panel)));
             break;
           case "toggle button":
-            ((ToggleButton)getElement(id, panel)).setState(jsManager.loadBooleanSetting(id));
+            ((ToggleButton)getElement(elem.id, panel)).setState(jsManager.loadBooleanSetting(jsManager.getSettingName(elem.id, panel)));
             break;
           case "tickbox":
-            ((Tickbox)getElement(id, panel)).setState(jsManager.loadBooleanSetting(id));
+            ((Tickbox)getElement(elem.id, panel)).setState(jsManager.loadBooleanSetting(jsManager.getSettingName(elem.id, panel)));
             break;
           case "dropdown":
-            switch (((DropDown)getElement(id, panel)).optionTypes){
+            switch (((DropDown)getElement(elem.id, panel)).optionTypes){
               case "floats":
-                ((DropDown)getElement(id, panel)).setSelected(""+jsManager.loadFloatSetting(id));
+                ((DropDown)getElement(elem.id, panel)).setSelected(""+jsManager.loadFloatSetting(jsManager.getSettingName(elem.id, panel)));
                 break;
               case "strings":
-                ((DropDown)getElement(id, panel)).setSelected(""+jsManager.loadStringSetting(id));
+                ((DropDown)getElement(elem.id, panel)).setSelected(""+jsManager.loadStringSetting(jsManager.getSettingName(elem.id, panel)));
                 break;
               case "ints":
-                ((DropDown)getElement(id, panel)).setSelected(""+jsManager.loadIntSetting(id));
+                ((DropDown)getElement(elem.id, panel)).setSelected(""+jsManager.loadIntSetting(jsManager.getSettingName(elem.id, panel)));
                 break;
             }
             break;
@@ -145,9 +145,9 @@ class Menu extends State{
           revertChanges(event.panel);
         }
         else if (event.id.equals("apply")){
-          for (String id : getPanel(event.panel).elements.keySet()){
-            if (!jsManager.hasFlag(event.panel, id, "autosave")){
-              saveMenuSetting(id, event);
+          for (Element elem : getPanel(event.panel).elements){
+            if (!jsManager.hasFlag(event.panel, elem.id, "autosave")){
+              saveMenuSetting(elem.id, event);
             }
           }
           jsManager.writeSettings();

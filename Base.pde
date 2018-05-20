@@ -47,16 +47,24 @@ class State{
     panelToTop(id);
   }
   void addElement(String id, Element elem){
-    getPanel("default").elements.put(id, elem);
+    elem.setID(id);
+    getPanel("default").elements.add(elem);
     elem.setOffset(getPanel("default").x, getPanel("default").y);
   }
   void addElement(String id, Element elem, String panel){
-    getPanel(panel).elements.put(id, elem);
+    elem.setID(id);
+    getPanel(panel).elements.add(elem);
     elem.setOffset(getPanel(panel).x, getPanel(panel).y);
   }
 
   Element getElement(String id, String panel){
-    return  getPanel(panel).elements.get(id);
+    for (Element elem : getPanel(panel).elements){
+      if (elem.id.equals(id)){
+        return  elem;
+      }
+    }
+    println(String.format("Element not found %s panel:%s", id, panel));
+    return null;
   }
 
   void removeElement(String elementID, String panelID){
@@ -72,6 +80,20 @@ class State{
       panels.set(i, panels.get(i-1));
     }
     panels.set(0, tempPanel);
+  }
+  
+  void elementToTop(String id, String panelID){
+    Element tempElem = getElement(id, panelID);
+    boolean found = false;
+    for (int i=0; i<getPanel(panelID).elements.size()-1; i++){
+      if (getPanel(panelID).elements.get(i).id.equals(id)){
+        found = true;
+      }
+      if (found){
+        getPanel(panelID).elements.set(i, getPanel(panelID).elements.get(i+1));
+      }
+    }
+    getPanel(panelID).elements.set(getPanel(panelID).elements.size()-1, tempElem);
   }
 
   void printPanels(){
@@ -111,7 +133,14 @@ class State{
       println(event.info(), 1);
     }
   }
-
+ 
+  void _elementEvent(ArrayList<Event> events){
+    for (Event event : events){
+      if (event.type.equals("element to top")){
+        elementToTop(event.id, event.panel);
+      }
+    }
+  }
 
   void _mouseEvent(String eventType, int button){
     ArrayList<Event> events = new ArrayList<Event>();
@@ -126,9 +155,9 @@ class State{
     }
     for (Panel panel : panels){
       if(activePanel == panel.id || eventType.equals("mouseMoved")){
-        for (String id : panel.elements.keySet()){
-          for (String eventName : panel.elements.get(id)._mouseEvent(eventType, button)){
-            events.add(new Event(id, panel.id, eventName));
+        for (Element elem : panel.elements){
+          for (String eventName : elem._mouseEvent(eventType, button)){
+            events.add(new Event(elem.id, panel.id, eventName));
           }
         }
         if (!eventType.equals("mouseMoved"))
@@ -136,25 +165,27 @@ class State{
       }
     }
     elementEvent(events);
+    _elementEvent(events);
   }
   void _mouseEvent(String eventType, int button, MouseEvent event){
     ArrayList<Event> events = new ArrayList<Event>();
     mouseEvent(eventType, button, event);
     for (Panel panel : panels){
       if(panel.mouseOver() && panel.visible){
-        for (String id : panel.elements.keySet()){
-          for (String eventName : panel.elements.get(id)._mouseEvent(eventType, button, event)){
-            events.add(new Event(id, panel.id, eventName));
+        for (Element elem : panel.elements){
+          for (String eventName : elem._mouseEvent(eventType, button, event)){
+            events.add(new Event(elem.id, panel.id, eventName));
           }
         }
       }
     }
     elementEvent(events);
+    _elementEvent(events);
   }
   void _keyboardEvent(String eventType, char _key){
     keyboardEvent(eventType, _key);
     for (Panel panel : panels){
-      for (Element elem : panel.elements.values()){
+      for (Element elem : panel.elements){
         // TODO decide whether all or just active panel
         if (elem.active){
           elem.keyboardEvent(eventType, _key);
@@ -170,7 +201,7 @@ class State{
 
 
 class Panel{
-  HashMap<String, Element> elements;
+  ArrayList<Element> elements;
   String id;
   PImage img;
   Boolean visible, blockEvent;
@@ -188,7 +219,7 @@ class Panel{
     this.id = id;
     this.bgColour = bgColour;
     this.strokeColour = strokeColour;
-    elements = new HashMap<String, Element>();
+    elements = new ArrayList<Element>();
     panelCanvas = createGraphics(w, h, P2D);
   }
 
@@ -201,12 +232,12 @@ class Panel{
     this.id = id;
     this.img = loadImage(fileName);
     this.strokeColour = strokeColour;
-    elements = new HashMap<String, Element>();
+    elements = new ArrayList<Element>();
     panelCanvas = createGraphics(w, h, P2D);
   }
 
   void setOffset(){
-    for (Element elem : elements.values()){
+    for (Element elem : elements){
       elem.setOffset(x, y);
     }
   }
@@ -216,7 +247,7 @@ class Panel{
 
   void setVisible(boolean a){
     visible = a;
-    for (Element elem:elements.values()){
+    for (Element elem:elements){
       elem.mouseEvent("mouseMoved", mouseButton);
     }
   }
@@ -245,7 +276,7 @@ class Panel{
     }
     panelCanvas.popStyle();
 
-    for (Element elem : elements.values()){
+    for (Element elem : elements){
       if(elem.visible){
         elem.draw(panelCanvas);
       }
@@ -274,6 +305,7 @@ class Element{
   boolean active = true;
   boolean visible = true;
   int x, y, w, h, xOffset, yOffset;
+  String id;
 
   void draw(PGraphics panelCanvas){}
   ArrayList<String> mouseEvent(String eventType, int button){return new ArrayList<String>();}
@@ -288,6 +320,10 @@ class Element{
   void setOffset(int xOffset, int yOffset){
     this.xOffset = xOffset;
     this.yOffset = yOffset;
+  }
+  
+  void setID(String id){
+    this.id = id;
   }
   
   ArrayList<String> _mouseEvent(String eventType, int button){

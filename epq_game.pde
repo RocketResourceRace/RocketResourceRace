@@ -241,8 +241,8 @@ void draw(){
   String newState = getActiveState().update();
   if (!newState.equals("")){
     for (Panel panel : states.get(newState).panels){
-      for (String id : panel.elements.keySet()){
-        panel.elements.get(id).mouseEvent("mouseMoved", LEFT);
+      for (Element elem : panel.elements){
+        elem.mouseEvent("mouseMoved", LEFT);
       }
     }
     states.get(activeState).leaveState();

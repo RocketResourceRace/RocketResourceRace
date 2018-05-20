@@ -171,17 +171,24 @@ class JSONManager{
   HashMap<String, String[]> getChangeSettingButtons(){
     // Store all the buttons that when clicked change a setting
     HashMap returnHash = new HashMap<String, String[]>();
-   JSONArray panels = menu.getJSONArray("states");
-   for (int i=0; i<panels.size(); i++){
-     JSONObject panel = panels.getJSONObject(i);
-     JSONArray panelElems = panel.getJSONArray("elements");
-     for (int j=0; j<panelElems.size(); j++){
-       if (!panelElems.getJSONObject(j).isNull("setting")){
-         returnHash.put(panelElems.getJSONObject(j).getString("id"), new String[]{panelElems.getJSONObject(j).getString("setting"), panel.getString("id")});
-       }
-     }
-   }
+    JSONArray panels = menu.getJSONArray("states");
+    for (int i=0; i<panels.size(); i++){
+      JSONObject panel = panels.getJSONObject(i);
+      JSONArray panelElems = panel.getJSONArray("elements");
+      for (int j=0; j<panelElems.size(); j++){
+        if (!panelElems.getJSONObject(j).isNull("setting")){
+          returnHash.put(panelElems.getJSONObject(j).getString("id"), new String[]{panelElems.getJSONObject(j).getString("setting"), panel.getString("id")});
+        }
+      }
+    }
   return returnHash;
+  }
+  
+  String getSettingName(String id, String panelID){
+    // Gets the name of the setting for an element or null if it doesnt have a settting
+    JSONObject panel = findJSONObject(menu.getJSONArray("states"), panelID);
+    JSONObject element = findJSONObject(panel.getJSONArray("elements"), id);
+    return element.getString("setting");
   }
   
   void loadMenuElements(State state, float guiScale){

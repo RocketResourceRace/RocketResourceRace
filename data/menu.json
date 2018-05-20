@@ -233,12 +233,24 @@
           "id": "forest density",
           "type": "dropdown",
           "x": -18,
-          "y": 4,
+          "y": 2,
           "w": 8,
           "h": 1,
           "text": "Forest Density",
           "setting": "forest density",
           "options": ["3", "5", "10", "20"],
+          "options type": "ints",
+        },
+        {
+          "id": "terrain texture res",
+          "type": "dropdown",
+          "x": -18,
+          "y": -2,
+          "w": 8,
+          "h": 1,
+          "text": "Terrain Texture Resolution",
+          "setting": "terrain texture resolution",
+          "options": ["16", "32", "64"],
           "options type": "ints",
         },
         {
@@ -363,5 +375,6 @@
     {"id": "ground spawns", "value": 100, "type": "int"},
     {"id": "forest density", "value": 5, "type": "int"},
     {"id": "terrain detail", "value": 2, "type": "int"},
+    {"id": "terrain texture resolution", "value": 32, "type": "int"},
   ]
 }
