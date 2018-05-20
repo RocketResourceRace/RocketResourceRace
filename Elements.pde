@@ -100,6 +100,7 @@ class DropDown extends Element{
           events.add("valueChanged");
           selected = hovering;
           contract();
+          events.add("stop events");
         }
       }
       else{

@@ -155,9 +155,13 @@ class State{
     }
     for (Panel panel : panels){
       if(activePanel == panel.id || eventType.equals("mouseMoved")){
-        for (Element elem : panel.elements){
-          for (String eventName : elem._mouseEvent(eventType, button)){
-            events.add(new Event(elem.id, panel.id, eventName));
+        // Iterate in reverse order
+        for (int i=panel.elements.size()-1; i>=0; i--){
+          for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button)){
+            events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
+            if (eventName.equals("stop events")){
+              return;
+            }
           }
         }
         if (!eventType.equals("mouseMoved"))
@@ -172,9 +176,13 @@ class State{
     mouseEvent(eventType, button, event);
     for (Panel panel : panels){
       if(panel.mouseOver() && panel.visible){
-        for (Element elem : panel.elements){
-          for (String eventName : elem._mouseEvent(eventType, button, event)){
-            events.add(new Event(elem.id, panel.id, eventName));
+        // Iterate in reverse order
+        for (int i=panel.elements.size()-1; i>=0; i--){
+          for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button)){
+            events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
+            if (eventName.equals("stop events")){
+              return;
+            }
           }
         }
       }
