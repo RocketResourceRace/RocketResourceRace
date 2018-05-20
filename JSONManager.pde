@@ -184,11 +184,18 @@ class JSONManager{
   return returnHash;
   }
   
+<<<<<<< HEAD
   String getSettingName(String id, String panelID){
     // Gets the name of the setting for an element or null if it doesnt have a settting
     JSONObject panel = findJSONObject(menu.getJSONArray("states"), panelID);
     JSONObject element = findJSONObject(panel.getJSONArray("elements"), id);
     return element.getString("setting");
+=======
+  String menuStateTitle(String id){
+    // Gets the titiel for menu state. Reutnrs null if there is no title defined
+    JSONObject panel = findJSONObject(menu.getJSONArray("states"), id);
+    return panel.getString("title");
+>>>>>>> 274114017f86ce3ad86fa893ecb1ac1b5856c967
   }
   
   void loadMenuElements(State state, float guiScale){

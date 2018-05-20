@@ -46,7 +46,19 @@ class Menu extends State{
       changeMenuPanel();
     }
     drawPanels();
+    
+    drawMenuTitle();
     return getNewState();
+  }
+  
+  void drawMenuTitle(){
+    // Draw menu state title
+    if (jsManager.menuStateTitle(currentPanel) != null){
+      fill(0);
+      textFont(getFont(jsManager.loadFloatSetting("text scale")*30));
+      textAlign(CENTER, TOP);
+      text(jsManager.menuStateTitle(currentPanel), width/2, 100);
+    }
   }
   
   void changeMenuPanel(){

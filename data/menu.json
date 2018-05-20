@@ -3,6 +3,7 @@
   "states":[
     {
       "id": "startup",
+      "title": "Main Menu",
       "elements":[
         {
           "id": "new game",
@@ -48,6 +49,7 @@
 
     {
       "id": "settings",
+      "title": "Settings",
       "elements":[
         {
           "id": "graphics options",
@@ -93,6 +95,7 @@
 
     {
       "id": "new game",
+      "title": "New Game",
       "elements":[
         {
           "id": "start",
@@ -182,6 +185,7 @@
 
     {
       "id": "load game",
+      "title": "Load Game",
       "elements":[
         {
           "id": "back",
@@ -198,6 +202,7 @@
 
     {
       "id": "graphics options",
+      "title": "Graphics Options",
       "elements":[
         {
           "id": "gui scale",
@@ -277,17 +282,6 @@
           "setting" : "framerate cap"
         },
         {
-          "id": "3d map",
-          "flags": ["autosave"],
-          "type": "tickbox",
-          "x": -6,
-          "y": -2,
-          "w": 12,
-          "h": 1,
-          "text": "3D Map",
-          "setting" : "map is 3d"
-        },
-        {
           "id": "apply",
           "type": "button",
           "x": 7,
@@ -320,6 +314,7 @@
 
     {
       "id": "sound options",
+      "title": "Sound Options",
       "elements":[
         {
           "id": "sound on",
@@ -374,7 +369,10 @@
     {"id": "framerate cap", "value": true, "type": "boolean"},
     {"id": "ground spawns", "value": 100, "type": "int"},
     {"id": "forest density", "value": 5, "type": "int"},
+<<<<<<< HEAD
     {"id": "terrain detail", "value": 2, "type": "int"},
     {"id": "terrain texture resolution", "value": 32, "type": "int"},
+=======
+>>>>>>> 274114017f86ce3ad86fa893ecb1ac1b5856c967
   ]
 }
