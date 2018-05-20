@@ -3,7 +3,6 @@
   "states":[
     {
       "id": "startup",
-      "title": "Main Menu",
       "elements":[
         {
           "id": "new game",
