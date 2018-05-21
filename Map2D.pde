@@ -79,10 +79,10 @@ class Map2D extends Element implements Map{
     cancelPath();
   }
   void generateShape(){
-    
+
   }
   void clearShape(){
-    
+
   }
   Node[][] getMoveNodes(){
     return moveNodes;
@@ -188,10 +188,10 @@ class Map2D extends Element implements Map{
   void resetTargetZoom(){
     zooming = false;
     targetBlockSize = blockSize;
-    setPanningSpeed(0.05); 
-  } 
-        
-  void updateMoveNodes(Node[][] nodes){      
+    setPanningSpeed(0.05);
+  }
+
+  void updateMoveNodes(Node[][] nodes){
     moveNodes = nodes;
   }
   void updatePath(ArrayList<int[]> nodes){
@@ -209,7 +209,7 @@ class Map2D extends Element implements Map{
       float count = event.getCount();
       if(mouseOver() && mapActive){
         float zoom = pow(0.9, count);
-        float newBlockSize = max(min(blockSize*zoom, (float)elementWidth/10), (float)elementWidth/(float)mapSize);
+        float newBlockSize = max(min(blockSize*zoom, (float)elementWidth/10), (float)elementWidth/(float)jsManager.loadIntSetting("map size"));
         if (blockSize != newBlockSize){
           mapXOffset = scaleX(((mouseX-mapXOffset-xPos)/blockSize))-xPos-((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
           mapYOffset = scaleY(((mouseY-mapYOffset-yPos)/blockSize))-yPos-((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
@@ -290,7 +290,7 @@ class Map2D extends Element implements Map{
   void setWidth(int w){
     this.elementWidth = w;
   }
-  
+
   void drawSelectedCell(PVector c, PGraphics panelCanvas){
    //cell selection
    panelCanvas.stroke(0);
@@ -301,7 +301,7 @@ class Map2D extends Element implements Map{
      }
    }
   }
-  
+
   void draw(PGraphics panelCanvas){
 
     // Terrain
@@ -334,10 +334,10 @@ class Map2D extends Element implements Map{
     mapYOffset -= mapVelocity[1]*frameTime*60/1000;
     frameStartTime = millis();
     limitCoords();
-    
+
     if (blockSize <= 0)
       return;
-    
+
     for (int i=0; i<gameData.getJSONArray("terrain").size(); i++){
       JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
       if(blockSize<24&&!tileType.isNull("low img")){
@@ -368,16 +368,16 @@ class Map2D extends Element implements Map{
     int ly = max(0, -ceil((mapYOffset)/blockSize));
     int hx = min(floor((elementWidth-mapXOffset)/blockSize)+1, mapWidth);
     int hy = min(floor((elementHeight-mapYOffset)/blockSize)+1, mapHeight);
-    
+
    PVector c;
    PVector selectedCell = new PVector(scaleX(selectedCellX), scaleY(selectedCellY));
-     
+
     for(int y=ly;y<hy;y++){
       for (int x=lx; x<hx; x++){
         float x2 = round(scaleX(x));
         float y2 = round(scaleY(y));
         panelCanvas.image(tempTileImages[terrain[y][x]-1], x2, y2);
-        
+
          //Buildings
          if (buildings[y][x] != null){
            c = new PVector(scaleX(x), scaleY(y));
@@ -408,7 +408,7 @@ class Map2D extends Element implements Map{
                  panelCanvas.fill(playerColours[battle.party2.player]);
                  panelCanvas.rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize*battle.party2.getUnitNumber()/1000, xPos+elementWidth-c.x, blockSize*battle.party2.getUnitNumber()/1000+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/8+c.y-yPos)));
                }
-               
+
              } else {
                if (c.x+blockSize>xPos){
                  panelCanvas.fill(120, 120, 120);
@@ -457,11 +457,11 @@ class Map2D extends Element implements Map{
            if (moveNodes[y1][x] != null){
              c = new PVector(scaleX(x), scaleY(y1));
              if (max(c.x, xPos)+min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)>xPos && max(c.x, xPos) < elementWidth+xPos && max(c.y, yPos)+min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos)>yPos && max(c.y, yPos) < elementHeight+yPos){
-               if (blockSize > 10*TextScale && moveNodes[y1][x].cost <= parties[selectedCellY][selectedCellX].getMovementPoints()){
+               if (blockSize > 10*jsManager.loadFloatSetting("text scale") && moveNodes[y1][x].cost <= parties[selectedCellY][selectedCellX].getMovementPoints()){
                  panelCanvas.fill(50, 150);
                  panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
                  panelCanvas.fill(255);
-                 panelCanvas.textFont(getFont(8*TextScale));
+                 panelCanvas.textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
                  panelCanvas.textAlign(CENTER, CENTER);
                  String s = ""+moveNodes[y1][x].cost;
                  s = s.substring(0, min(s.length(), 3));
@@ -476,12 +476,12 @@ class Map2D extends Element implements Map{
          }
        }
      }
-     
+
      if (drawPath != null){
        for (int i=0; i<drawPath.size()-1;i++){
          if (lx <= drawPath.get(i)[0] && drawPath.get(i)[0] < hx && ly <= drawPath.get(i)[1] && drawPath.get(i)[1] < hy){
            panelCanvas.pushStyle();
-           panelCanvas.stroke(255,0,0); 
+           panelCanvas.stroke(255,0,0);
            panelCanvas.line(scaleX(drawPath.get(i)[0])+blockSize/2, scaleY(drawPath.get(i)[1])+blockSize/2, scaleX(drawPath.get(i+1)[0])+blockSize/2, scaleY(drawPath.get(i+1)[1])+blockSize/2);
            panelCanvas.popStyle();
          }
@@ -493,7 +493,7 @@ class Map2D extends Element implements Map{
          for (int i=0; i<path.size()-1;i++){
            if (lx <= path.get(i)[0] && path.get(i)[0] < hx && ly <= path.get(i)[1] && path.get(i)[1] < hy){
              panelCanvas.pushStyle();
-             panelCanvas.stroke(100); 
+             panelCanvas.stroke(100);
              panelCanvas.line(scaleX(path.get(i)[0])+blockSize/2, scaleY(path.get(i)[1])+blockSize/2, scaleX(path.get(i+1)[0])+blockSize/2, scaleY(path.get(i+1)[1])+blockSize/2);
              panelCanvas.popStyle();
            }

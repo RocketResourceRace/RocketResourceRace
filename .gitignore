@@ -9,3 +9,7 @@ application.macosx
 settings.txt
 *.autosave
 *.txt
+/build
+*.tmp
+error_log
+data/settings.json

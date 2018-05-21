@@ -32,8 +32,8 @@ class Game extends State{
   String[] resourceNames;
   float [] startingResources;
   int turnNumber;
-  int mapHeight = mapSize;
-  int mapWidth = mapSize;
+  int mapHeight = jsManager.loadIntSetting("map size");
+  int mapWidth = jsManager.loadIntSetting("map size");
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
@@ -80,17 +80,17 @@ class Game extends State{
     addElement("0tooltip", new Tooltip(), "overlay");
     tooltip = (Tooltip)getElement("0tooltip", "overlay");
 
-    addElement("end game button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2+height/8), (int)(GUIScale*width/8), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "End Game"), "end screen");
-    addElement("winner", new Text(width/2, height/2, (int)(TextScale*10), "", color(255), CENTER), "end screen");
+    addElement("end game button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2+height/8), (int)(jsManager.loadFloatSetting("gui scale")*width/8), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(jsManager.loadFloatSetting("text scale")*10), CENTER, "End Game"), "end screen");
+    addElement("winner", new Text(width/2, height/2, (int)(jsManager.loadFloatSetting("text scale")*10), "", color(255), CENTER), "end screen");
 
-    addElement("main menu button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2-height/24), (int)(GUIScale*width/6), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "Exit to Main Menu"), "pause screen");
-    addElement("desktop button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2+height/24), (int)(GUIScale*width/6), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "Exit to Desktop"), "pause screen");
-    addElement("resume button", new Button((int)(width/2-GUIScale*width/16), (int)(height/2-3*height/24), (int)(GUIScale*width/6), (int)(GUIScale*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(TextScale*10), CENTER, "Resume"), "pause screen");
+    addElement("main menu button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2-height/24), (int)(jsManager.loadFloatSetting("gui scale")*width/6), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(jsManager.loadFloatSetting("text scale")*10), CENTER, "Exit to Main Menu"), "pause screen");
+    addElement("desktop button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2+height/24), (int)(jsManager.loadFloatSetting("gui scale")*width/6), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(jsManager.loadFloatSetting("text scale")*10), CENTER, "Exit to Desktop"), "pause screen");
+    addElement("resume button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2-3*height/24), (int)(jsManager.loadFloatSetting("gui scale")*width/6), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), (int)(jsManager.loadFloatSetting("text scale")*10), CENTER, "Resume"), "pause screen");
 
     addElement("turns remaining", new Text(bezel*2+220, bezel*4+30+30, 8, "", color(255), LEFT), "party management");
     addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
     addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
-    addElement("tasks", new DropDown(bezel, bezel*4+30+30, 220, 10, color(150), color(50), tasks), "party management");
+    addElement("tasks", new TaskManager(bezel, bezel*4+30+30, 220, 10, color(150), color(50), tasks), "party management");
 
     addElement("end turn", new Button(bezel, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"), "bottom bar");
     addElement("idle party finder", new Button(bezel*2+buttonW, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Idle Party"), "bottom bar");
@@ -376,24 +376,24 @@ class Game extends State{
     return false;
   }
   void updateCellSelection(){
-    cellSelectionX = round((width-400-bezel*2)/GUIScale)+bezel*2;
+    cellSelectionX = round((width-400-bezel*2)/jsManager.loadFloatSetting("gui scale"))+bezel*2;
     cellSelectionY = bezel*2;
     cellSelectionW = width-cellSelectionX-bezel*2;
     cellSelectionH = round(mapElementHeight);
     getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.15));
     getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.15)+bezel, cellSelectionW, round(cellSelectionH*0.5)-bezel*3);
     ((NotificationManager)(getElement("4notification manager", "default"))).transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.65)-bezel, cellSelectionW, round(cellSelectionH*0.35)-bezel*2);
-    ((Button)getElement("move button", "party management")).transform(bezel, round(13*TextScale+bezel), 100, 30);
-    ((Slider)getElement("split units", "party management")).transform(round(10*GUIScale+bezel), round(bezel*3+2*TextScale*13), cellSelectionW-2*bezel-round(20*GUIScale),round(TextScale*2*13));
-    ((DropDown)getElement("tasks", "party management")).transform(bezel, round(bezel*4+4*TextScale*13), cellSelectionW-2*bezel, 30);
-    ((Text)getElement("turns remaining", "party management")).translate(100+bezel*2, round(13*TextScale*2 + bezel*3));
+    ((Button)getElement("move button", "party management")).transform(bezel, round(13*jsManager.loadFloatSetting("text scale")+bezel), 100, 30);
+    ((Slider)getElement("split units", "party management")).transform(round(10*jsManager.loadFloatSetting("gui scale")+bezel), round(bezel*3+2*jsManager.loadFloatSetting("text scale")*13), cellSelectionW-2*bezel-round(20*jsManager.loadFloatSetting("gui scale")),round(jsManager.loadFloatSetting("text scale")*2*13));
+    ((TaskManager)getElement("tasks", "party management")).transform(bezel, round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13), cellSelectionW-2*bezel, 30);
+    ((Text)getElement("turns remaining", "party management")).translate(100+bezel*2, round(13*jsManager.loadFloatSetting("text scale")*2 + bezel*3));
   }
 
   void makeTaskAvailable(String task){
-    ((DropDown)getElement("tasks", "party management")).makeAvailable(task);
+    ((TaskManager)getElement("tasks", "party management")).makeAvailable(task);
   }
   void resetAvailableTasks(){
-    ((DropDown)getElement("tasks", "party management")).resetAvailable();
+    ((TaskManager)getElement("tasks", "party management")).resetAvailable();
   }
   //tasks building
   //settings
@@ -448,7 +448,7 @@ class Game extends State{
       }
     }
 
-    ((DropDown)getElement("tasks", "party management")).select(parties[cellY][cellX].getTask());
+    ((TaskManager)getElement("tasks", "party management")).select(parties[cellY][cellX].getTask());
   }
 
   boolean UIHovering(){
@@ -862,7 +862,7 @@ class Game extends State{
       }
       if (event.type == "valueChanged"){
         if (event.id == "tasks"){
-          postEvent(new ChangeTask(cellX, cellY, ((DropDown)getElement("tasks", "party management")).getSelected()));
+          postEvent(new ChangeTask(cellX, cellY, ((TaskManager)getElement("tasks", "party management")).getSelected()));
         }
       }
       if (event.type == "notification selected"){
@@ -1060,16 +1060,16 @@ class Game extends State{
         turns += 1; //<>//
         movementPoints = gameData.getJSONObject("game options").getInt("movement points");
       }
-      movementPoints -= cost; //<>// //<>// //<>// //<>// //<>// //<>//
+      movementPoints -= cost; //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
     }
     return turns;
   }
-  int splitUnitsNum(){ //<>// //<>// //<>// //<>//
+  int splitUnitsNum(){ //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
     return round(((Slider)getElement("split units", "party management")).getValue());
   }
   void refreshTooltip(){
-    if (((DropDown)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible){
-      tooltip.setTask(((DropDown)getElement("tasks", "party management")).findMouseOver());
+    if (((TaskManager)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible){
+      tooltip.setTask(((TaskManager)getElement("tasks", "party management")).findMouseOver());
       tooltip.show();
     }
     else if(((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").visible){
@@ -1093,11 +1093,11 @@ class Game extends State{
           int turns = getMoveTurns(cellX, cellY, x, y, nodes); //<>//
           boolean splitting = splitUnitsNum()!=parties[cellY][cellX].getUnitNumber();
           tooltip.setMoving(turns, splitting);
-          tooltip.show(); //<>// //<>// //<>// //<>// //<>// //<>//
+          tooltip.show(); //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
         }
         else {
           if (parties[y][x].player == turn){
-            //merge parties //<>// //<>// //<>// //<>//
+            //merge parties //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
             tooltip.setMerging();
             tooltip.show();
           }
@@ -1154,11 +1154,11 @@ class Game extends State{
           } //<>//
         }
       }
-    } //<>// //<>// //<>// //<>// //<>// //<>//
+    } //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
     if (button == LEFT){
       if (eventType == "mouseClicked"){
         if (activePanel == "default" && !UIHovering()){
-          if (map.mouseOver()){ //<>// //<>// //<>// //<>//
+          if (map.mouseOver()){ //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
             if (moving){
               //int x = floor(map.scaleXInv(mouseX));
               //int y = floor(map.scaleYInv(mouseY));
@@ -1314,19 +1314,19 @@ class Game extends State{
     Panel pp = getPanel("party management");
     pushStyle();
     fill(partyManagementColour);
-    rect(cellSelectionX, pp.y, cellSelectionW, 13*TextScale);
+    rect(cellSelectionX, pp.y, cellSelectionW, 13*jsManager.loadFloatSetting("text scale"));
     fill(255);
-      textFont(getFont(10*TextScale));
+      textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
     textAlign(CENTER, TOP);
     text("Party Management", cellSelectionX+cellSelectionW/2, pp.y);
 
     textAlign(LEFT, CENTER);
-    textFont(getFont(8*TextScale));
-    float barY = cellSelectionY + 13*TextScale + cellSelectionH*0.15 + bezel*2;
+    textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
+    float barY = cellSelectionY + 13*jsManager.loadFloatSetting("text scale") + cellSelectionH*0.15 + bezel*2;
     text("Movement Points Remaining: "+parties[cellY][cellX].getMovementPoints(turn) + "/"+gameData.getJSONObject("game options").getInt("movement points"), 120+cellSelectionX, barY);
-    barY += 13*TextScale;
+    barY += 13*jsManager.loadFloatSetting("text scale");
     text("Units: "+parties[cellY][cellX].getUnitNumber(turn) + "/1000", 120+cellSelectionX, barY);
-    barY += 13*TextScale;
+    barY += 13*jsManager.loadFloatSetting("text scale");
     if (parties[cellY][cellX].pathTurns > 0){
       ((Text)getElement("turns remaining", "party management")).setText("Turns Remaining: "+ parties[cellY][cellX].pathTurns);
     }
@@ -1367,23 +1367,23 @@ class Game extends State{
   void drawCellManagement(){
     pushStyle();
     fill(0, 150, 0);
-    rect(cellSelectionX, cellSelectionY, cellSelectionW, 13*TextScale);
+    rect(cellSelectionX, cellSelectionY, cellSelectionW, 13*jsManager.loadFloatSetting("text scale"));
     fill(255);
-    textFont(getFont(10*TextScale));
+    textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
     textAlign(CENTER, TOP);
     text("Land Management", cellSelectionX+cellSelectionW/2, cellSelectionY);
 
     fill(0);
     textAlign(LEFT, TOP);
-    float barY = cellSelectionY + 13*TextScale;
+    float barY = cellSelectionY + 13*jsManager.loadFloatSetting("text scale");
     text("Cell Type: "+gameData.getJSONArray("terrain").getJSONObject(terrain[cellY][cellX]-1).getString("display name"), 5+cellSelectionX, barY);
-    barY += 13*TextScale;
+    barY += 13*jsManager.loadFloatSetting("text scale");
     if (buildings[cellY][cellX] != null){
       if (buildings[cellY][cellX].type != 0)
         text("Building: "+buildingTypes[buildings[cellY][cellX].type-1], 5+cellSelectionX, barY);
       else
         text("Building: Construction Site", 5+cellSelectionX, barY);
-      barY += 13*TextScale;
+      barY += 13*jsManager.loadFloatSetting("text scale");
     }
     float[] production = resourceProduction(cellX, cellY);
     float[] consumption = resourceConsumption(cellX, cellY);
@@ -1392,12 +1392,12 @@ class Game extends State{
     fill(0);
     if (!pl.equals("Nothing/Unknown")){
       text("Producing: "+pl, 5+cellSelectionX, barY);
-      barY += 13*TextScale;
+      barY += 13*jsManager.loadFloatSetting("text scale");
     }
     if (!cl.equals("Nothing/Unknown")){
       fill(255,0,0);
       text("Consuming: "+cl, 5+cellSelectionX, barY);
-      barY += 13*TextScale;
+      barY += 13*jsManager.loadFloatSetting("text scale");
     }
   }
 
@@ -1469,11 +1469,11 @@ class Game extends State{
       fill(fillColour);
       rect(x, y, w, h);
     }
-    textFont(getFont(10*TextScale));
+    textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
     textAlign(CENTER, BOTTOM);
     fill(200);
     int tw = ceil((textWidth(progressMessage)));
-    rect(width/2 -tw/2, y-10*TextScale, tw, 10*TextScale);
+    rect(width/2 -tw/2, y-10*jsManager.loadFloatSetting("text scale"), tw, 10*jsManager.loadFloatSetting("text scale"));
     fill(0);
     text(progressMessage, width/2, y);
   }
@@ -1499,8 +1499,8 @@ class Game extends State{
   }
 
   void enterState(){
-    mapWidth = mapSize;
-    mapHeight = mapSize;
+    mapWidth = jsManager.loadIntSetting("map size");
+    mapHeight = jsManager.loadIntSetting("map size");
     updateCellSelection();
 
     clearPrevIdle();
@@ -1513,7 +1513,7 @@ class Game extends State{
     buildings = new Building[mapHeight][mapWidth];
     PVector[] playerStarts = generateStartingParties();
     terrain = generateMap(playerStarts);
-    if (mapIs3D){
+    if (jsManager.loadBooleanSetting("map is 3d")){
       map = (Map3D)getElement("3dmap", "default");
       ((Map3D)getElement("3dmap", "default")).visible = true;
       ((Map2D)getElement("2dmap", "default")).visible = false;
@@ -1561,7 +1561,7 @@ class Game extends State{
     if (x!=prevX && y!=prevY){
       mult = 1.41;
     }
-    if (0<=x && x<mapSize && 0<=y && y<mapSize){
+    if (0<=x && x<jsManager.loadIntSetting("map size") && 0<=y && y<jsManager.loadIntSetting("map size")){
       return round(gameData.getJSONArray("terrain").getJSONObject(terrain[y][x]-1).getInt("movement cost")*mult);
     }
     //Not a valid location
@@ -1655,7 +1655,7 @@ class Game extends State{
     return costs.size();
   }
   boolean startInvalid(PVector p1, PVector p2){
-    if(p1.dist(p2)<mapWidth/8||noise(p1.x*MAPNOISESCALE, p1.y*MAPNOISESCALE)<waterLevel||noise(p2.x*MAPNOISESCALE, p2.y*MAPNOISESCALE)<waterLevel){
+    if(p1.dist(p2)<mapWidth/8||noise(p1.x*MAPNOISESCALE, p1.y*MAPNOISESCALE)<jsManager.loadFloatSetting("water level")||noise(p2.x*MAPNOISESCALE, p2.y*MAPNOISESCALE)<jsManager.loadFloatSetting("water level")){
       return true;
     }
     return false;
@@ -1750,7 +1750,7 @@ class Game extends State{
     //  terrain[0][x] = terrainIndex("water");
     //  terrain[mapHeight-1][x] = terrainIndex("water");
     //}
-    for(int i=0;i<groundSpawns;i++){
+    for(int i=0;i<jsManager.loadIntSetting("ground spawns");i++){
       int type = getRandomGroundType(groundWeightings, totalWeighting);
       int x = (int)random(mapWidth);
       int y = (int)random(mapHeight);
@@ -1810,11 +1810,11 @@ class Game extends State{
       }
       terrain[coord[1]][coord[0]] = terrain[y][x];
     }
-    terrain = smoothMap(initialSmooth, 2, terrain);
-    terrain = smoothMap(completeSmooth, 1, terrain);
+    terrain = smoothMap(jsManager.loadIntSetting("smoothing"), 2, terrain);
+    terrain = smoothMap(jsManager.loadIntSetting("smoothing")+2, 1, terrain);
     for (int y=0; y<mapHeight; y++){
       for(int x=0; x<mapWidth; x++){
-        if(terrain[y][x] != terrainIndex("water") && (noise((x+0.5)*MAPNOISESCALE, (y+0.5)*MAPNOISESCALE) > 0.5+waterLevel/2.0) || getMaxSteepness(x, y)>HILLSTEEPNESS){
+        if(terrain[y][x] != terrainIndex("water") && (noise((x+0.5)*MAPNOISESCALE, (y+0.5)*MAPNOISESCALE) > 0.5+jsManager.loadFloatSetting("water level")/2.0) || getMaxSteepness(x, y)>HILLSTEEPNESS){
           terrain[y][x] = terrainIndex("hills");
         }
       }
