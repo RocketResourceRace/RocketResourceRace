@@ -358,7 +358,7 @@
 
   "default settings":[
     {"id": "gui scale", "value": 1.0, "type": "float"},
-    {"id": "water level", "value": 3.0, "type": "float"},
+    {"id": "water level", "value": 0.35, "type": "float"},
     {"id": "map size", "value": 75, "type": "int"},
     {"id": "sound on", "value": false, "type": "boolean"},
     {"id": "volume", "value": 0.75, "type": "float"},
