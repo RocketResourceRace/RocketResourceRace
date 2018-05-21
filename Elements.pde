@@ -1,5 +1,26 @@
 
 
+class BaseFileManager extends Element{
+  // Basic file manager that scans a folder and makes a selectable list for all the files
+  String folderString;
+  
+  
+  BaseFileManager(int x, int y, int w, int h, String folderString){
+    super.x = x;
+    super.y = y;
+    super.w = w;
+    super.h = h;
+    this.folderString = folderString;
+  }
+  
+  
+  void draw(PGraphics panelCanvas){
+    panelCanvas.pushStyle();
+    
+    panelCanvas.popStyle();
+  }
+}
+
 
 class DropDown extends Element{
   String[] options;  // Either strings or floats
