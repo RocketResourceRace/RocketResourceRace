@@ -95,7 +95,7 @@ int getPartySize(Party p){
   ByteBuffer partyBuffer = ByteBuffer.allocate(totalSize);
   partyBuffer.putInt(p.actions.size());
   for (ByteBuffer action: actions){
-    partyBuffer.put(action);
+    partyBuffer.put(action.array());
   }
   partyBuffer.put(path.array());
   partyBuffer.putInt(p.getUnitNumber());
@@ -137,7 +137,7 @@ Party loadParty(ByteBuffer b){
     } else {
       terrain = null;
     }
-    if(terrainTextSize>0){
+    if(buildingTextSize>0){
       byte[] buildingTemp = new byte[buildingTextSize];
       b.get(buildingTemp);
       building = new String(buildingTemp);
