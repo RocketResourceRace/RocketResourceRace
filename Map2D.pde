@@ -162,6 +162,10 @@ Party loadParty(ByteBuffer b){
   p.strength = strength;
   p.pathTurns = pathTurns;
   p.actions = actions;
+  if (path.size() > 0){
+    p.target = path.get(path.size()-1);
+    p.loadPath(path);
+  }
   return p;
 }
 
