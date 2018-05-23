@@ -161,6 +161,7 @@ Party loadParty(ByteBuffer b){
   Party p = new Party(player, unitNumber, task, movementPoints);
   p.strength = strength;
   p.pathTurns = pathTurns;
+  p.actions = actions;
   return p;
 }
 
