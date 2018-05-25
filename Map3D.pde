@@ -537,7 +537,7 @@ class Map3D extends BaseMap implements Map{
     //terrain[floor(y-VERTICESPERTILE/blockSize)][floor(x-VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
     //  return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT*HILLRAISE;
     //} else {
-      return (max(getRawHeight(x, y), WATERLEVEL)-WATERLEVEL)*blockSize*GROUNDHEIGHT;
+      return (max(getRawHeight(x, y), jsManager.loadFloatSetting("water level"))-jsManager.loadIntSetting("water level"))*blockSize*GROUNDHEIGHT;
       //float h = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel);
       //return (max(h-(0.5+waterLevel/2.0), 0)*(1000)+h)*blockSize*GROUNDHEIGHT;
     //}

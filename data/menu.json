@@ -196,6 +196,15 @@
           "text": "Back",
           "new state": "startup",
         },
+        {
+          "id": "load game",
+          "type": "button",
+          "x": -6,
+          "y": 12,
+          "w": 12,
+          "h": 3,
+          "text": "Load Game",
+        },
       ]
     },
 

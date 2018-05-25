@@ -171,6 +171,9 @@ class Menu extends State{
         else if (event.id.equals("start")){
           newState = "map";
         }
+        else if (event.id.equals("load game")){
+          newState = "map";
+        }
         else if (event.id.equals("exit")){
           exit();
         }

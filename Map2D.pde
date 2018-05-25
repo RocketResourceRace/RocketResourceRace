@@ -382,7 +382,7 @@ class BaseMap extends Element{
     for (float weight: groundWeightings.values()){
       totalWeighting+=weight;
     }
-    for(int i=0;i<groundSpawns;i++){
+    for(int i=0;i<jsManager.loadIntSetting("ground spawns");i++){
       int type = getRandomGroundType(groundWeightings, totalWeighting);
       int x = (int)random(mapWidth);
       int y = (int)random(mapHeight);
@@ -442,11 +442,11 @@ class BaseMap extends Element{
       }
       terrain[coord[1]][coord[0]] = terrain[y][x];
     }
-    terrain = smoothMap(initialSmooth, 2, terrain);
-    terrain = smoothMap(completeSmooth, 1, terrain);
+    terrain = smoothMap(jsManager.loadIntSetting("smoothing"), 2, terrain);
+    terrain = smoothMap(jsManager.loadIntSetting("smoothing")+2, 1, terrain);
     for (int y=0; y<mapHeight; y++){
       for(int x=0; x<mapWidth; x++){
-        if(terrain[y][x] != terrainIndex("water") && (groundMaxRawHeightAt(x, y) > 0.5+WATERLEVEL/2.0) || getMaxSteepness(x, y)>HILLSTEEPNESS){
+        if(terrain[y][x] != terrainIndex("water") && (groundMaxRawHeightAt(x, y) > 0.5+jsManager.loadFloatSetting("water level")/2.0) || getMaxSteepness(x, y)>HILLSTEEPNESS){
           terrain[y][x] = terrainIndex("hills");
         }
       }
@@ -484,7 +484,7 @@ class BaseMap extends Element{
   }
   float getRawHeight(int x, int y, int x1, int y1) {
     try{
-      return max(heightMap[int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*(mapWidth+1/VERTICESPERTILE)+y*pow(VERTICESPERTILE, 2)*(mapWidth+1/VERTICESPERTILE))], WATERLEVEL);
+      return max(heightMap[int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*(mapWidth+1/VERTICESPERTILE)+y*pow(VERTICESPERTILE, 2)*(mapWidth+1/VERTICESPERTILE))], jsManager.loadFloatSetting("water level"));
     } catch (ArrayIndexOutOfBoundsException e) {
       return 0;
     }
