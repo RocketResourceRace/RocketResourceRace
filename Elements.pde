@@ -2,7 +2,9 @@
 
 class BaseFileManager extends Element{
   // Basic file manager that scans a folder and makes a selectable list for all the files
+  final int TEXTSIZE = 16;
   String folderString;
+  String[] saveNames;
   
   
   BaseFileManager(int x, int y, int w, int h, String folderString){
@@ -11,15 +13,25 @@ class BaseFileManager extends Element{
     super.w = w;
     super.h = h;
     this.folderString = folderString;
+    saveNames = new String[0];
+  }
+  
+  void loadSaveNames(){
+    
   }
   
   
   void draw(PGraphics panelCanvas){
     panelCanvas.pushStyle();
     
+    getFont(TEXTSIZE);
+    
+    
     panelCanvas.popStyle();
   }
 }
+
+
 
 
 class DropDown extends Element{
