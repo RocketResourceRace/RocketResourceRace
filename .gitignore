@@ -10,3 +10,7 @@ settings.txt
 *.autosave
 *.txt
 saves
+/build
+*.tmp
+error_log
+data/settings.json
