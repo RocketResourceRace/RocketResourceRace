@@ -405,6 +405,16 @@
       "initial cost":[{"id":"rocket progress", "quantity":1000}],
       "buildings":["Rocket Factory"]
     },
+    {
+      "id": "Construction Mid",
+      "img": "data/task_construction.png",
+      "terrain": [],
+    },
+    {
+      "id": "Construction End",
+      "img": "data/task_construction.png",
+      "terrain": [],
+    }
   ],
 
   "buildings":[

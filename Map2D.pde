@@ -1,4 +1,5 @@
 import java.util.Collections;
+import java.nio.ByteBuffer;
 
 interface Map {
   void updateMoveNodes(Node[][] nodes);
@@ -24,19 +25,507 @@ interface Map {
   void cancelPath();
   void setActive(boolean a);
   void selectCell(int x, int y);
-  void reset(int mapWidth, int mapHeight, int [][] terrain, Party[][] parties, Building[][] buildings);
   void generateShape();
   void clearShape();
 }
 
 
-class Map2D extends Element implements Map{
-  final int EW, EH, INITIALHOLD=1000;
+int getPartySize(Party p){
+  int totalSize = 0;
+  ByteBuffer[] actions = new ByteBuffer[p.actions.size()];
+  int index = 0;
+  for (Action a: p.actions){
+    int notificationSize;
+    int terrainSize;
+    int buildingSize;
+    byte[] notification = new byte[0];
+    byte[] terrain = new byte[0];
+    byte[] building = new byte[0];
+    if(a.notification == null){
+      notificationSize = 0;
+    } else {
+      notification = a.notification.getBytes();
+      notificationSize = notification.length;
+    }
+    if(a.terrain == null){
+      terrainSize = 0;
+    } else {
+      terrain = a.terrain.getBytes();
+      terrainSize = terrain.length;
+    }
+    if(a.building == null){
+      buildingSize = 0;
+    } else {
+      building = a.building.getBytes();
+      buildingSize = building.length;
+    }
+    int actionLength = Float.BYTES*2+Integer.BYTES*4+notificationSize+terrainSize+buildingSize;
+    totalSize += actionLength;
+    actions[index] = ByteBuffer.allocate(actionLength);
+    actions[index].putInt(notificationSize);
+    actions[index].putInt(terrainSize);
+    actions[index].putInt(buildingSize);
+    actions[index].putFloat(a.turns);
+    actions[index].putFloat(a.initialTurns);
+    actions[index].putInt(a.type);
+    if(notificationSize>0){
+      actions[index].put(notification);
+    }
+    if(terrainSize>0){
+      actions[index].put(terrain);
+    }
+    if(buildingSize>0){
+      actions[index].put(building);
+    }
+    index++;
+  }
+  totalSize+=Integer.BYTES; // For action count
+  int pathSize = Integer.BYTES*(2*p.path.size()+1);
+  totalSize += pathSize;
+  
+  ByteBuffer path = ByteBuffer.allocate(pathSize);
+  path.putInt(p.path.size());
+  for (int[] l: p.path){
+    path.putInt(l[0]);
+    path.putInt(l[1]);
+  }
+  totalSize += Integer.BYTES*5+Float.BYTES;
+  
+  
+  ByteBuffer partyBuffer = ByteBuffer.allocate(totalSize);
+  partyBuffer.putInt(p.actions.size());
+  for (ByteBuffer action: actions){
+    partyBuffer.put(action.array());
+  }
+  partyBuffer.put(path.array());
+  partyBuffer.putInt(p.getUnitNumber());
+  partyBuffer.putInt(p.getMovementPoints());
+  partyBuffer.putInt(p.player);
+  partyBuffer.putFloat(p.strength);
+  partyBuffer.putInt(p.getTask());
+  partyBuffer.putInt(p.pathTurns);
+  p.byteRep = partyBuffer.array();
+  return totalSize;
+}
+void saveParty(ByteBuffer b, Party p){
+  b.put(p.byteRep);
+}
+Party loadParty(ByteBuffer b){
+  int actionCount = b.getInt();
+  ArrayList<Action> actions = new ArrayList<Action>();
+  for (int i=0; i<actionCount; i++){
+    String notification;
+    String terrain;
+    String building;
+    int notificationTextSize = b.getInt();
+    int terrainTextSize = b.getInt();
+    int buildingTextSize = b.getInt();
+    Float turns = b.getFloat();
+    Float initialTurns = b.getFloat();
+    int type = b.getInt();
+    if(notificationTextSize>0){
+      byte[] notificationTemp = new byte[notificationTextSize];
+      b.get(notificationTemp);
+      notification = new String(notificationTemp);
+    } else {
+      notification = null;
+    }
+    if(terrainTextSize>0){
+      byte[] terrainTemp = new byte[terrainTextSize];
+      b.get(terrainTemp);
+      terrain = new String(terrainTemp);
+    } else {
+      terrain = null;
+    }
+    if(buildingTextSize>0){
+      byte[] buildingTemp = new byte[buildingTextSize];
+      b.get(buildingTemp);
+      building = new String(buildingTemp);
+    } else {
+      building = null;
+    }
+    actions.add(new Action(type, notification, turns, building, terrain));
+    actions.get(i).initialTurns = initialTurns;
+  }
+  int pathSize = b.getInt();
+  ArrayList<int[]> path = new ArrayList<int[]>();
+  for(int i=0; i<pathSize; i++){
+    path.add(new int[]{b.getInt(), b.getInt()});
+  }
+  int unitNumber = b.getInt();
+  int movementPoints = b.getInt();
+  int player = b.getInt();
+  float strength = b.getFloat();
+  int task = b.getInt();
+  int pathTurns = b.getInt();
+  Party p = new Party(player, unitNumber, task, movementPoints);
+  p.strength = strength;
+  p.pathTurns = pathTurns;
+  p.actions = actions;
+  if (path.size() > 0){
+    p.target = path.get(path.size()-1);
+    p.loadPath(path);
+  }
+  return p;
+}
+
+class BaseMap extends Element{
+  float[] heightMap;
+  int mapWidth, mapHeight;
+  long heightMapSeed;
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
-  int mapWidth;
-  int mapHeight;
+  void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players){
+    int partiesByteCount = 0;
+    for (int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        if(parties[y][x] != null){
+          if(parties[y][x].player==2){
+            partiesByteCount+=getPartySize(((Battle)parties[y][x]).party1);
+            partiesByteCount+=getPartySize(((Battle)parties[y][x]).party2);
+          } else {
+            partiesByteCount+=getPartySize(parties[y][x]);
+          }
+        }
+        partiesByteCount++;
+      }
+    }
+    int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+3*Integer.BYTES+1)*players.length;
+    ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*8+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount+playersByteCount);
+    buffer.putInt(mapWidth);
+    buffer.putInt(mapHeight);
+    buffer.putInt(partiesByteCount);
+    buffer.putInt(playersByteCount);
+    buffer.putInt(players.length);
+    buffer.putInt(players[0].resources.length);
+    buffer.putInt(turnNumber);
+    buffer.putInt(turnPlayer);
+    buffer.putLong(heightMapSeed);
+    for (int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        buffer.putInt(terrain[y][x]);
+      }
+    }
+    for (int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        if(buildings[y][x]==null){
+          buffer.putInt(-1);
+          buffer.putInt(-1);
+        } else {
+          buffer.putInt(buildings[y][x].type);
+          buffer.putInt(buildings[y][x].image_id);
+        }
+      }
+    }
+    for (int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        if(parties[y][x]==null){
+          buffer.put(byte(0));
+        } else if (parties[y][x].player == 2){
+          buffer.put(byte(2));
+          saveParty(buffer, ((Battle)parties[y][x]).party1);
+          saveParty(buffer, ((Battle)parties[y][x]).party2);
+        } else {
+          buffer.put(byte(1));
+          saveParty(buffer, parties[y][x]);
+        }
+      }
+    }
+    for (Player p: players){
+      buffer.putFloat(p.mapXOffset);
+      buffer.putFloat(p.mapYOffset);
+      buffer.putFloat(p.blockSize);
+      for (float r: p.resources){
+        buffer.putFloat(r);
+      }
+      buffer.putInt(p.cellX);
+      buffer.putInt(p.cellY);
+      buffer.putInt(p.colour);
+      buffer.put(byte(p.cellSelected));
+    }
+    saveBytes(filename, buffer.array());
+  }
+  MapSave loadMap(String filename, int resourceCountNew){
+    byte tempBuffer[] = loadBytes(filename);
+    int headerSize = Integer.BYTES*4;
+    ByteBuffer headerBuffer = ByteBuffer.allocate(headerSize);
+    headerBuffer.put(Arrays.copyOfRange(tempBuffer, 0, headerSize));
+    headerBuffer.flip();//need flip
+    mapWidth = headerBuffer.getInt();
+    mapHeight = headerBuffer.getInt();
+    int partiesByteCount = headerBuffer.getInt();
+    int playersByteCount = headerBuffer.getInt();
+    int dataSize = Long.BYTES+partiesByteCount+playersByteCount+(4+mapWidth*mapHeight*3)*Integer.BYTES;
+    ByteBuffer buffer = ByteBuffer.allocate(dataSize);
+    buffer.put(Arrays.copyOfRange(tempBuffer, headerSize, headerSize+dataSize));
+    buffer.flip();//need flip
+    int playerCount = buffer.getInt();
+    int resourceCountOld = buffer.getInt();
+    int turnNumber = buffer.getInt();
+    int turnPlayer = buffer.getInt();
+    heightMapSeed = buffer.getLong();
+    terrain = new int[mapHeight][mapWidth];
+    parties = new Party[mapHeight][mapWidth];
+    buildings = new Building[mapHeight][mapWidth];
+    for (int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        terrain[y][x] = buffer.getInt();
+      }
+    }
+    for (int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        int type = buffer.getInt();
+        int image_id = buffer.getInt();
+        if(type!=-1){
+          buildings[y][x] = new Building(type, image_id);
+        }
+      }
+    }
+    for (int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        Byte partyType = buffer.get();
+        if (partyType == 2){
+          Party p1 = loadParty(buffer);
+          Party p2 = loadParty(buffer);
+          float savedStrength = p1.strength;
+          Battle b = new Battle(p1, p2);
+          b.party1.strength = savedStrength;
+          parties[y][x] = b;
+        } else if (partyType == 1){
+          parties[y][x] = loadParty(buffer);
+        }
+      }
+    }
+    Player[] players = new Player[playerCount];
+    for (int i=0;i<playerCount;i++){
+      float mapXOffset = buffer.getFloat();
+      float mapYOffset = buffer.getFloat();
+      float blockSize = buffer.getFloat();
+      float[] resources = new float[resourceCountNew];
+      for (int r=0; r<resourceCountOld;r++){
+        resources[r] = buffer.getFloat();
+      }
+      int cellX = buffer.getInt();
+      int cellY = buffer.getInt();
+      int colour = buffer.getInt();
+      boolean cellSelected = boolean(buffer.get());
+      players[i] = new Player(mapXOffset, mapYOffset, blockSize, resources, colour);
+      players[i].cellSelected = cellSelected;
+    }
+    noiseSeed(heightMapSeed);
+    generateNoiseMaps();
+    
+    return new MapSave(heightMap, mapWidth, mapHeight, terrain, parties, buildings, turnNumber, turnPlayer, players);
+  }
+  
+  
+  int toMapIndex(int x, int y, int x1, int y1){
+    return int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*(mapWidth+1/VERTICESPERTILE)+y*pow(VERTICESPERTILE, 2)*(mapWidth+1/VERTICESPERTILE));
+  }
+  
+  
+  int getRandomGroundType(HashMap<Integer, Float> groundWeightings, float total){
+    float randomNum = random(0, 1);
+    float min = 0;
+    int lastType = 1;
+    for (int type: groundWeightings.keySet()){
+      if(randomNum>min&&randomNum<min+groundWeightings.get(type)/total){
+        return type;
+      }
+      min += groundWeightings.get(type)/total;
+      lastType = type;
+    }
+    return lastType;
+  }
+  int[][] smoothMap(int distance, int firstType, int[][] terrain){
+    ArrayList<int[]> order = new ArrayList<int[]>();
+    for (int y=0; y<mapHeight;y++){
+      for (int x=0; x<mapWidth;x++){
+        order.add(new int[] {x, y});
+      }
+    }
+    Collections.shuffle(order);
+    int[][] newMap = new int[mapHeight][mapWidth];
+    for (int[] coord: order){
+      if(terrain[coord[1]][coord[0]]==terrainIndex("water")){
+        newMap[coord[1]][coord[0]] = terrain[coord[1]][coord[0]];
+      } else {
+        int[] counts = new int[NUMOFGROUNDTYPES+1];
+        for (int y1=coord[1]-distance+1;y1<coord[1]+distance;y1++){
+          for (int x1 = coord[0]-distance+1; x1<coord[0]+distance;x1++){
+            if (y1<mapHeight&&y1>=0&&x1<mapWidth&&x1>=0){
+              if(terrain[y1][x1]!=terrainIndex("water")){
+                counts[terrain[y1][x1]]+=1;
+              }
+            }
+          }
+        }
+        int highest = terrain[coord[1]][coord[0]];
+        for (int i=firstType; i<=NUMOFGROUNDTYPES;i++){
+          if (counts[i] > counts[highest]){
+            highest = i;
+          }
+        }
+        newMap[coord[1]][coord[0]] = highest;
+      }
+    }
+    return newMap;
+  }
+  void generateTerrain(){
+    HashMap<Integer, Float> groundWeightings = new HashMap();
+    for (Integer i=1; i<gameData.getJSONArray("terrain").size()+1; i++){
+      groundWeightings.put(i, gameData.getJSONArray("terrain").getJSONObject(i-1).getFloat("weighting"));
+    }
+
+    float totalWeighting = 0;
+    for (float weight: groundWeightings.values()){
+      totalWeighting+=weight;
+    }
+    for(int i=0;i<groundSpawns;i++){
+      int type = getRandomGroundType(groundWeightings, totalWeighting);
+      int x = (int)random(mapWidth);
+      int y = (int)random(mapHeight);
+      if(isWater(x, y)){
+        i--;
+      } else {
+        terrain[y][x] = type;
+      }
+    }
+
+    ArrayList<int[]> order = new ArrayList<int[]>();
+    for (int y=0; y<mapHeight;y++){
+      for (int x=0; x<mapWidth;x++){
+        if(isWater(x, y)){
+          terrain[y][x] = terrainIndex("water");
+        } else {
+          order.add(new int[] {x, y});
+        }
+      }
+    }
+    Collections.shuffle(order);
+    for (int[] coord: order){
+      int x = coord[0];
+      int y = coord[1];
+      while (terrain[y][x] == 0||terrain[y][x]==terrainIndex("water")){
+        int direction = (int) random(8);
+        switch(direction){
+          case 0:
+            x= max(x-1, 0);
+            break;
+          case 1:
+            x = min(x+1, mapWidth-1);
+            break;
+          case 2:
+            y= max(y-1, 0);
+            break;
+          case 3:
+            y = min(y+1, mapHeight-1);
+            break;
+          case 4:
+            x = min(x+1, mapWidth-1);
+            y = min(y+1, mapHeight-1);
+            break;
+          case 5:
+            x = min(x+1, mapWidth-1);
+            y= max(y-1, 0);
+            break;
+          case 6:
+            y= max(y-1, 0);
+            x= max(x-1, 0);
+            break;
+          case 7:
+            y = min(y+1, mapHeight-1);
+            x= max(x-1, 0);
+            break;
+        }
+      }
+      terrain[coord[1]][coord[0]] = terrain[y][x];
+    }
+    terrain = smoothMap(initialSmooth, 2, terrain);
+    terrain = smoothMap(completeSmooth, 1, terrain);
+    for (int y=0; y<mapHeight; y++){
+      for(int x=0; x<mapWidth; x++){
+        if(terrain[y][x] != terrainIndex("water") && (groundMaxRawHeightAt(x, y) > 0.5+WATERLEVEL/2.0) || getMaxSteepness(x, y)>HILLSTEEPNESS){
+          terrain[y][x] = terrainIndex("hills");
+        }
+      }
+    }
+  }
+  void generateMap(int mapWidth, int mapHeight){
+    terrain = new int[mapHeight][mapWidth];
+    buildings = new Building[mapHeight][mapWidth];
+    parties = new Party[mapHeight][mapWidth];
+    this.mapWidth = mapWidth;
+    this.mapHeight = mapHeight;
+    heightMapSeed = (long)random(Long.MIN_VALUE, Long.MAX_VALUE);
+    noiseSeed(heightMapSeed);
+    generateNoiseMaps();
+    generateTerrain();
+  }
+  void generateNoiseMaps(){
+    heightMap = new float[int((mapWidth+1/VERTICESPERTILE)*(mapHeight+1/VERTICESPERTILE)*pow(VERTICESPERTILE, 2))];
+    for(int y = 0;y<mapHeight;y++){
+      for(int y1 = 0;y1<VERTICESPERTILE;y1++){
+        for(int x = 0;x<mapWidth;x++){
+          for(int x1 = 0;x1<VERTICESPERTILE;x1++){
+            heightMap[toMapIndex(x, y, x1, y1)] = noise((x+x1/VERTICESPERTILE)*MAPNOISESCALE, (y+y1/VERTICESPERTILE)*MAPNOISESCALE);
+          }
+        }
+        heightMap[toMapIndex(mapWidth, y, 0, y1)] = noise(((mapWidth+1))*MAPNOISESCALE, (y+y1/VERTICESPERTILE)*MAPNOISESCALE);
+      }
+    }
+    for(int x = 0;x<mapWidth;x++){
+      for(int x1 = 0;x1<VERTICESPERTILE;x1++){
+        heightMap[toMapIndex(x, mapHeight, x1, 0)] = noise((x+x1/VERTICESPERTILE)*MAPNOISESCALE, (mapHeight)*MAPNOISESCALE);
+      }
+    }
+    heightMap[toMapIndex(mapWidth, mapHeight, 0, 0)] = noise(((mapWidth+1))*MAPNOISESCALE, (mapHeight)*MAPNOISESCALE);
+  }
+  float getRawHeight(int x, int y, int x1, int y1) {
+    try{
+      return max(heightMap[int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*(mapWidth+1/VERTICESPERTILE)+y*pow(VERTICESPERTILE, 2)*(mapWidth+1/VERTICESPERTILE))], WATERLEVEL);
+    } catch (ArrayIndexOutOfBoundsException e) {
+      return 0;
+    }
+  }
+  float getRawHeight(int x, int y) {
+    return getRawHeight(x, y, 0, 0);
+  }
+  float getRawHeight(float x, float y){
+    return getRawHeight(int(x), int(y), round((x-int(x))*VERTICESPERTILE), round((y-int(y))*VERTICESPERTILE));
+  }
+  float groundMinRawHeightAt(int x1, int y1) {
+    int x = floor(x1);
+    int y = floor(y1);
+    return min(new float[]{getRawHeight(x, y), getRawHeight(x+1, y), getRawHeight(x, y+1), getRawHeight(x+1, y+1)});
+  }
+  float groundMaxRawHeightAt(int x1, int y1) {
+    int x = floor(x1);
+    int y = floor(y1);
+    return max(new float[]{getRawHeight(x, y), getRawHeight(x+1, y), getRawHeight(x, y+1), getRawHeight(x+1, y+1)});
+  }
+  
+  float getMaxSteepness(int x, int y){
+    float maxZ, minZ;
+    maxZ = 0;
+    minZ = 1;
+    for (float y1 = y; y1<=y+1;y1+=1.0/VERTICESPERTILE){
+      for (float x1 = x; x1<=x+1;x1+=1.0/VERTICESPERTILE){
+        float z = getRawHeight(x1, y1);
+        if(z>maxZ){
+          maxZ = z;
+        } else if (z<minZ){
+          minZ = z;
+        }
+      }
+    }
+    return maxZ-minZ;
+  }
+}
+
+class Map2D extends BaseMap implements Map{
+  final int EW, EH, INITIALHOLD=1000;
   float blockSize, targetBlockSize;
   float mapXOffset, mapYOffset, targetXOffset, targetYOffset, panningSpeed, resetTime;
   boolean panning=false, zooming=false;
@@ -77,6 +566,7 @@ class Map2D extends Element implements Map{
     frameStartTime = 0;
     cancelMoveNodes();
     cancelPath();
+    heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(VERTICESPERTILE, 2))];
   }
   void generateShape(){
 
@@ -126,14 +616,9 @@ class Map2D extends Element implements Map{
     mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth*0.5), elementWidth*0.5);
     mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight*0.5), elementHeight*0.5);
   }
-  void reset(int mapWidth, int mapHeight, int[][] terrain, Party[][] parties, Building[][] buildings){
+  void reset(){
     mapXOffset = 0;
     mapYOffset = 0;
-    this.mapWidth = mapWidth;
-    this.mapHeight = mapHeight;
-    this.terrain = terrain;
-    this.parties = parties;
-    this.buildings = buildings;
     blockSize = min(elementWidth/(float)mapWidth, elementWidth/10);
     setPanningSpeed(0.02);
     resetTime = millis();
@@ -305,11 +790,10 @@ class Map2D extends Element implements Map{
   void draw(PGraphics panelCanvas){
 
     // Terrain
-
     PImage[] tempTileImages = new PImage[gameData.getJSONArray("terrain").size()];
     PImage[][] tempBuildingImages = new PImage[gameData.getJSONArray("buildings").size()][];
     PImage[] tempPartyImages = new PImage[3];
-    HashMap<String, PImage> tempTaskImages = new HashMap<String, PImage>();
+    HashMap<Integer, PImage> tempTaskImages = new HashMap<Integer, PImage>();
     if (frameStartTime == 0){
       frameStartTime = millis();
     }
@@ -360,7 +844,7 @@ class Map2D extends Element implements Map{
       tempPartyImages[i] = partyImages[i].copy();
       tempPartyImages[i].resize(ceil(blockSize), 0);
     }
-    for(String taskName: taskImages.keySet()){
+    for(Integer taskName: taskImages.keySet()){
       tempTaskImages.put(taskName, taskImages.get(taskName).copy());
       tempTaskImages.get(taskName).resize(ceil(3*blockSize/16), 0);
     }
@@ -421,7 +905,7 @@ class Map2D extends Element implements Map{
              }
              int imgSize = round(blockSize);
              drawCroppedImage(floor(c.x), floor(c.y), imgSize, imgSize, tempPartyImages[parties[y][x].player], panelCanvas);
-             JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), parties[y][x].task);
+             JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].task);
              if (jo != null && !jo.isNull("img")){
                drawCroppedImage(floor(c.x+13*blockSize/32), floor(c.y+blockSize/2), ceil(3*blockSize/16), ceil(3*blockSize/16), tempTaskImages.get(parties[y][x].task), panelCanvas);
              }

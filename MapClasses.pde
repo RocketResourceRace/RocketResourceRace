@@ -5,8 +5,11 @@ class Building{
   int type;
   int image_id;
   Building(int type){
+    this(type, 0);
+  }
+  Building(int type, int image_id){
     this.type = type;
-    this.image_id = 0;
+    this.image_id = image_id;
   }
 }
 
@@ -20,12 +23,13 @@ class Party{
   private int movementPoints;
   int player;
   float strength;
-  private String task;
+  private int task;
   ArrayList<Action> actions;
   ArrayList<int[]> path;
   int[] target;
   int pathTurns;
-  Party(int player, int startingUnits, String startingTask, int movementPoints){
+  byte[]byteRep;
+  Party(int player, int startingUnits, int startingTask, int movementPoints){
     unitNumber = startingUnits;
     task = startingTask;
     this.player = player;
@@ -36,9 +40,9 @@ class Party{
     target = null;
     pathTurns = 0;
   }
-  void changeTask(String task){
+  void changeTask(int task){
     this.task = task;
-    JSONObject jTask = findJSONObject(gameData.getJSONArray("tasks"), this.getTask());
+    JSONObject jTask = gameData.getJSONArray("tasks").getJSONObject(this.getTask());
     if (!jTask.isNull("strength")){
       this.strength = jTask.getInt("strength");
     }
@@ -51,7 +55,7 @@ class Party{
   void moved(){
     pathTurns = max(pathTurns-1, 0);
   }
-  String getTask(){
+  int getTask(){
     return task;
   }
   int[] nextNode(){
@@ -89,11 +93,11 @@ class Party{
     }
     else{
       actions.get(0).turns -= sqrt((float)unitNumber)/10;
-      if (actions.get(0).type.contains("Build")) {
+      if (gameData.getJSONArray("tasks").getJSONObject(actions.get(0).type).getString("id").contains("Build")) {
         if (actions.get(0).turns-sqrt((float)unitNumber)/10 <= 0){
-          return new Action("Construction End", "Construction End", 0, null, null);
+          return new Action(JSONIndex(gameData.getJSONArray("tasks"), "Construction End"), "Construction End", 0, null, null);
         } else {
-          return new Action("Construction Mid", "Construction Mid", 0, null, null);
+          return new Action(JSONIndex(gameData.getJSONArray("tasks"), "Construction Mid"), "Construction Mid", 0, null, null);
         }
       }
       return null;
@@ -105,7 +109,7 @@ class Party{
   }void clearActions(){
     actions = new ArrayList<Action>();
   }
-  String currentAction(){
+  int currentAction(){
     return actions.get(0).type;
   }
   boolean isTurn(int turn){
@@ -149,7 +153,7 @@ class Battle extends Party{
   Party party1;
   Party party2;
   Battle(Party attacker, Party defender){
-    super(2, attacker.getUnitNumber()+defender.getUnitNumber(), "Battle", 0);
+    super(2, attacker.getUnitNumber()+defender.getUnitNumber(), JSONIndex(gameData.getJSONArray("tasks"), "Battle"), 0);
     party1 = attacker;
     party1.strength = 2;
     party2 = defender;
@@ -205,19 +209,19 @@ class Battle extends Party{
           return null;
         } else if(endDifference>0){
           party1.setUnitNumber(endDifference);
-          party1.changeTask("Rest");
+          party1.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
           return party1;
         } else {
           party2.setUnitNumber(-endDifference);
-          party2.changeTask("Rest");
+          party2.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
           return party2;
         }
       } else {
-        party2.changeTask("Rest");
+        party2.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
         return party2;
       }
     } if(party2.getUnitNumber()==0){
-      party1.changeTask("Rest");
+      party1.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
       return party1;
     } else {
       return this;
@@ -318,5 +322,29 @@ class Node{
   void setPrev(int prevX ,int prevY){
     this.prevX = prevX;
     this.prevY = prevY;
+  }
+}
+
+
+
+class MapSave{
+  float[] heightMap;
+  int mapWidth, mapHeight;
+  int[][] terrain;
+  Party[][] parties;
+  Building[][] buildings;
+  int startTurn;
+  int startPlayer;
+  Player[] players;
+  MapSave(float[] heightMap,int mapWidth, int mapHeight, int[][] terrain, Party[][] parties, Building[][] buildings, int startTurn, int startPlayer, Player[] players){
+    this.heightMap = heightMap;
+    this.mapWidth = mapWidth;
+    this.mapHeight = mapHeight;
+    this.terrain = terrain;
+    this.parties = parties;
+    this.buildings = buildings;
+    this.startTurn = startTurn;
+    this.startPlayer = startPlayer;
+    this.players = players;
   }
 }
