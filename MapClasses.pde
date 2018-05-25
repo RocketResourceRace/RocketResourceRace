@@ -200,7 +200,7 @@ class Battle extends Party{
     party2.strength = 1;
     int newParty1Size = party1.getUnitNumber()+changeInParty1;
     int newParty2Size = party2.getUnitNumber()+changeInParty2;
-    int endDifference = newParty1Size-newParty2Size;
+    int endDifference = newParty1Size-newParty2Size; 
     party1.setUnitNumber(newParty1Size);
     party2.setUnitNumber(newParty2Size);
     if (party1.getUnitNumber()==0){
@@ -237,7 +237,7 @@ int getBattleUnitChange(Party p1, Party p2){
   return floor(-0.2*(p2.getUnitNumber()+pow(p2.getUnitNumber(), 2)/p1.getUnitNumber())*random(0.75, 1.5)*p2.strength/p1.strength);
 }
 
-int getChanceOfBattleSuccess(Party attacker, Party defender){
+int getChanceOfBattleSuccess(Party attacker, Party defender){ 
   int TRIALS = 1000;
   int wins = 0;
   Party clone1;
@@ -257,7 +257,7 @@ int getChanceOfBattleSuccess(Party attacker, Party defender){
     } else {
       clone1 = attacker.clone();
       clone2 = defender.clone();
-      battle = new Battle(clone1, clone2);
+      battle = new Battle(clone1, clone2); 
     }
     while (clone1.getUnitNumber()>0&&clone2.getUnitNumber()>0){
       battle.doBattle();
@@ -283,7 +283,7 @@ class Player{
     this.mapXOffset = mapXOffset;
     this.mapYOffset = mapYOffset;
     this.blockSize = blockSize;
-    this.resources = resources;
+    this.resources = resources; 
     this.colour = colour;
   }
   void saveSettings(float mapXOffset, float mapYOffset, float blockSize, int cellX, int cellY, boolean cellSelected){
@@ -312,7 +312,7 @@ class Node{
   int cost;
   boolean fixed;
   int prevX = -1, prevY = -1;
-
+  
   Node(int cost, boolean fixed, int prevX, int prevY){
     this.fixed = fixed;
     this.cost = cost;

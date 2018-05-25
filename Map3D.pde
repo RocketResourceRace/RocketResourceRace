@@ -4,10 +4,10 @@ boolean isWater(int x, int y) {
   //  noise((x+1)*MAPNOISESCALE, y*MAPNOISESCALE),
   //  noise(x*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
   //  noise((x+1)*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
-  //  })<jsManager.loadFloatSetting("water level");
+  //  })<waterLevel;
   for (float y1 = y; y1<=y+1;y1+=1.0/VERTICESPERTILE){
     for (float x1 = x; x1<=x+1;x1+=1.0/VERTICESPERTILE){
-      if(noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE)>jsManager.loadFloatSetting("water level")){
+      if(noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE)>WATERLEVEL){
         return false;
       }
     }
@@ -44,7 +44,7 @@ float getDownwardAngle(int x, int y){
     }
     PVector direction = minZCoord.sub(maxZCoord);
     float angle = atan2(direction.y, direction.x);
-
+    
     downwardAngleCache.get(y).put(x, angle);
     return angle;
   }
@@ -109,7 +109,7 @@ class Map3D extends BaseMap implements Map{
   float getTargetZoom(){
     return targetZoom;
   }
-
+  
   float getTargetOffsetX(){return 0;}
   float getTargetOffsetY(){return 0;}
   float getTargetBlockSize(){return 0;}
@@ -128,7 +128,7 @@ class Map3D extends BaseMap implements Map{
   void setActive(boolean a){
     this.mapActive = a;
   }
-  void updateMoveNodes(Node[][] nodes) {
+  void updateMoveNodes(Node[][] nodes) {      
     moveNodes = nodes;
   }
   void updatePath(ArrayList<int[]> nodes) {
@@ -137,7 +137,7 @@ class Map3D extends BaseMap implements Map{
     pathLine = createShape();
     pathLine.beginShape();
     pathLine.noFill();
-    pathLine.stroke(255,0,0);
+    pathLine.stroke(255,0,0); 
     for (int i=0; i<drawPath.size()-1;i++){
       for (int u=0; u<blockSize/8; u++){
         x0 = drawPath.get(i)[0]+(drawPath.get(i+1)[0]-drawPath.get(i)[0])*u/8+0.5;
@@ -145,7 +145,6 @@ class Map3D extends BaseMap implements Map{
         pathLine.vertex(x0*blockSize, y0*blockSize, 5+getHeight(x0, y0));
       }
     }
-    pathLine.vertex((selectedCellX+0.5)*blockSize, (selectedCellY+0.5)*blockSize, 5+getHeight(selectedCellX+0.5, selectedCellY+0.5));
     pathLine.endShape();
   }
   void cancelMoveNodes() {
@@ -191,7 +190,7 @@ class Map3D extends BaseMap implements Map{
     }
     forestTiles.remove(cellX+cellY*mapWidth);
   }
-
+  
   // void generateWater(int vertices){
   //  water = createShape(GROUP);
   //  PShape w;
@@ -208,11 +207,11 @@ class Map3D extends BaseMap implements Map{
   //  w.endShape(CLOSE);
   //  water.addChild(w);
   //}
-
+  
   float getWaveHeight(float x, float y, float t){
     return sin(t/1000+y)+cos(t/1000+x)+2;
   }
-
+  
   //void updateWater(int vertices){
   //  float scale = getObjectWidth()/vertices;
   //  for (int y = 0; y < vertices+1; y++){
@@ -250,6 +249,7 @@ class Map3D extends BaseMap implements Map{
     return shapes;
   }
 
+  
   void clearShape(){
     // Use to clear references to large objects when exiting state
     water = null;
@@ -275,7 +275,7 @@ class Map3D extends BaseMap implements Map{
       tempTileImages[i].resize(graphicsRes, graphicsRes);
     }
     PGraphics tempTerrain;
-
+    
     water = createShape(RECT, 0, 0, getObjectWidth(), getObjectHeight());
     water.translate(0, 0, 0.1);
 
@@ -305,13 +305,13 @@ class Map3D extends BaseMap implements Map{
         for (int x=0; x<mapWidth; x++) {
           //int x1=(int)VERTICESPERTILE;
           for (int x1=0; x1<VERTICESPERTILE; x1++) {
-            t.vertex((x+x1/VERTICESPERTILE)*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(x+x1/VERTICESPERTILE, (y+y1/VERTICESPERTILE)), (x+x1/VERTICESPERTILE)*graphicsRes, y1*graphicsRes/VERTICESPERTILE);
+            t.vertex((x+x1/VERTICESPERTILE)*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(x+x1/VERTICESPERTILE, (y+y1/VERTICESPERTILE)), (x+x1/VERTICESPERTILE)*graphicsRes, y1*graphicsRes/VERTICESPERTILE);   
             t.vertex((x+x1/VERTICESPERTILE)*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, getHeight(x+x1/VERTICESPERTILE, y+(1+y1)/VERTICESPERTILE), (x+x1/VERTICESPERTILE)*graphicsRes, (y1+1)*graphicsRes/VERTICESPERTILE);
           }
         }
-        t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(mapWidth, (y+y1/VERTICESPERTILE)), mapWidth*graphicsRes, (y1/VERTICESPERTILE)*graphicsRes);
+        t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(mapWidth, (y+y1/VERTICESPERTILE)), mapWidth*graphicsRes, (y1/VERTICESPERTILE)*graphicsRes);   
         t.vertex(mapWidth*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, getHeight(mapWidth, y+(1.0+y1)/VERTICESPERTILE), mapWidth*graphicsRes, ((y1+1.0)/VERTICESPERTILE)*graphicsRes);
-        //t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, 0, mapWidth*graphicsRes, (y1/VERTICESPERTILE)*graphicsRes);
+        //t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, 0, mapWidth*graphicsRes, (y1/VERTICESPERTILE)*graphicsRes);   
         //t.vertex(mapWidth*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, 0, mapWidth*graphicsRes, ((y1+1.0)/VERTICESPERTILE)*graphicsRes);
         t.endShape();
         tiles.addChild(t);
@@ -326,7 +326,7 @@ class Map3D extends BaseMap implements Map{
       }
     }
     resetMatrix();
-
+    
     blueFlag = loadShape("blueflag.obj");
     blueFlag.rotateX(PI/2);
     blueFlag.scale(2.6, 3, 3);
@@ -335,9 +335,9 @@ class Map3D extends BaseMap implements Map{
     redFlag.scale(2.6, 3, 3);
     battle = loadShape("battle.obj");
     battle.rotateX(PI/2);
-
-
-
+    
+    
+    
     tileRect = createShape();
     tileRect.beginShape();
     tileRect.noFill();
@@ -376,7 +376,7 @@ class Map3D extends BaseMap implements Map{
 
     popStyle();
   }
-
+  
   void updateSelectionRect(int cellX, int cellY){
     int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
     int[] curLoc = {0, 0};
@@ -392,7 +392,7 @@ class Map3D extends BaseMap implements Map{
 
   PVector MousePosOnObject(int mx, int my) {
     applyCameraPerspective();
-    PVector floorPos = new PVector(focusedX+width/2, focusedY+height/2, 0);
+    PVector floorPos = new PVector(focusedX+width/2, focusedY+height/2, 0); 
     PVector floorDir = new PVector(0, 0, -1);
     PVector mousePos = getUnProjectedPointOnFloor( mouseX, mouseY, floorPos, floorDir);
     camera();
@@ -552,36 +552,36 @@ class Map3D extends BaseMap implements Map{
     int y = floor(y1);
     return max(new float[]{getHeight(x, y), getHeight(x+1, y), getHeight(x, y+1), getHeight(x+1, y+1)});
   }
-
+  
   void applyCameraPerspective(){
     float fov = PI/3.0;
     float cameraZ = (height/2.0) / tan(fov/2.0);
     perspective(fov, float(width)/float(height), cameraZ/100.0, cameraZ*10.0);
     applyCamera();
   }
-
-
+  
+  
   void applyCameraPerspective(PGraphics canvas){
     float fov = PI/3.0;
     float cameraZ = (height/2.0) / tan(fov/2.0);
     canvas.perspective(fov, float(width)/float(height), cameraZ/100.0, cameraZ*10.0);
     applyCamera(canvas);
   }
-
-
+  
+  
   void applyCamera(){
     camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
   }
-
-
+  
+  
   void applyCamera(PGraphics canvas){
     canvas.camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
   }
-
+  
   void applyInvCamera(PGraphics canvas){
     canvas.camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), -zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
   }
-
+  
 
   void draw(PGraphics panelCanvas) {
 
@@ -605,10 +605,10 @@ class Map3D extends BaseMap implements Map{
     setRot(rot);
     setTilt(tilt);
     setFocused(focusedX, focusedY);
-
+    
     pushStyle();
     hint(ENABLE_DEPTH_TEST);
-
+    
     // Render 3D stuff from normal camera view onto refraction canvas for refraction effect in water
     //refractionCanvas.beginDraw();
     //refractionCanvas.background(#7ED7FF);
@@ -621,9 +621,9 @@ class Map3D extends BaseMap implements Map{
     //refractionCanvas.resetShader();
     //refractionCanvas.camera();
     //refractionCanvas.endDraw();
-
+    
     //water.setTexture(refractionCanvas);
-
+    
     // Render 3D stuff from normal camera view
     canvas.beginDraw();
     canvas.background(#7ED7FF);
@@ -633,45 +633,45 @@ class Map3D extends BaseMap implements Map{
     //canvas.box(0, 0, getObjectWidth(), getObjectHeight(), 1, 100);
     canvas.camera();
     canvas.endDraw();
-
-
+    
+    
     //Remove all 3D effects for GUI rendering
     hint(DISABLE_DEPTH_TEST);
     camera();
     noLights();
     resetShader();
     popStyle();
-
+    
     //draw the scene to the screen
     panelCanvas.image(canvas, 0, 0);
     //image(refractionCanvas, 0, 0);
-
+    
   }
-
+  
   void renderWater(PGraphics canvas){
     //Draw water
     canvas.pushMatrix();
     canvas.shape(water);
     canvas.popMatrix();
   }
-
+  
   void drawPath(PGraphics canvas){
     float x0, y0;
     if (drawPath != null){
       canvas.shape(pathLine);
     }
   }
-
+  
   void renderScene(PGraphics canvas){
-
+    
     canvas.directionalLight(240, 255, 255, 0, -0.1, -1);
     //canvas.directionalLight(100, 100, 100, 0.1, 1, -1);
     //canvas.lightSpecular(102, 102, 102);
     canvas.shape(tiles);
     canvas.ambientLight(100, 100, 100);
     canvas.shape(trees);
-
-
+    
+    
     canvas.pushMatrix();
     //noLights();
     if (cellSelected) {
@@ -693,8 +693,8 @@ class Map3D extends BaseMap implements Map{
       }
       canvas.popMatrix();
     }
-
-
+    
+    
     for (int x=0; x<mapWidth; x++) {
       for (int y=0; y<mapHeight; y++) {
         if (buildings[y][x] != null) {
@@ -743,15 +743,15 @@ class Map3D extends BaseMap implements Map{
       }
     }
     canvas.popMatrix();
-
+    
     canvas.pushMatrix();
     drawPath(canvas);
     canvas.popMatrix();
-
+    
   }
-
+  
   void renderTexturedEntities(PGraphics canvas){
-
+    
   }
 
   String buildingString(int buildingI) {
@@ -765,22 +765,22 @@ class Map3D extends BaseMap implements Map{
   boolean mouseOver() {
     return mouseX > x && mouseX < x+w && mouseY > y && mouseY < y+h;
   }
-
+  
   float getRayHeightAt(PVector r, PVector s, float targetX){
     PVector start = s.copy();
     PVector ray = r.copy();
     float dz_dx = ray.z/ray.x;
     return start.z + (targetX - start.x) * dz_dx;
   }
-
+  
   boolean rayPassesThrough(PVector r, PVector s, PVector targetV){
     PVector start = s.copy();
     PVector ray = r.copy();
     start.add(ray);
     return start.dist(targetV) < blockSize/VERTICESPERTILE;
   }
-
-
+  
+  
 
   // Ray Tracing Code Below is an example by Bontempos, modified for height map intersection by Jack Parsons
   // https://forum.processing.org/two/discussion/21644/picking-in-3d-through-ray-tracing-method
@@ -792,14 +792,14 @@ class Map3D extends BaseMap implements Map{
     PVector n = floorDirection.get(); // The direction of the floor ( normal vector )
     PVector w = unProject(screen_x, screen_y, -1.0); // 3 -dimensional coordinate corresponding to a point on the screen
     PVector e = getEyePosition(); // Viewpoint position
-
-    // Computing the intersection of
+    
+    // Computing the intersection of  
     f.sub(e);
     w.sub(e);
     w.mult( n.dot(f)/n.dot(w) );
     PVector ray = w.copy();
     w.add(e);
-
+    
     float acHeight, curX = e.x, curY = e.y;
     for (int i = 0; i < ray.mag(); i++){
       curX += ray.x/ray.mag();
@@ -822,7 +822,7 @@ class Map3D extends BaseMap implements Map{
   }
   //Function to perform the conversion to the local coordinate system ( reverse projection ) from the window coordinate system
   PVector unProject(float winX, float winY, float winZ) {
-    PMatrix3D mat = getMatrixLocalToWindow();
+    PMatrix3D mat = getMatrixLocalToWindow();  
     mat.invert();
 
     float[] in = {winX, winY, winZ, 1.0f};
@@ -833,14 +833,14 @@ class Map3D extends BaseMap implements Map{
       return null;
     }
 
-    PVector result = new PVector(out[0]/out[3], out[1]/out[3], out[2]/out[3]);
+    PVector result = new PVector(out[0]/out[3], out[1]/out[3], out[2]/out[3]);  
     return result;
   }
 
   //Function to compute the transformation matrix to the window coordinate system from the local coordinate system
   PMatrix3D getMatrixLocalToWindow() {
-    PMatrix3D projection = ((PGraphics3D)g).projection;
-    PMatrix3D modelview = ((PGraphics3D)g).modelview;
+    PMatrix3D projection = ((PGraphics3D)g).projection; 
+    PMatrix3D modelview = ((PGraphics3D)g).modelview;   
 
     // viewport transf matrix
     PMatrix3D viewport = new PMatrix3D();

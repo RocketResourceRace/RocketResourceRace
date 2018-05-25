@@ -2,20 +2,27 @@ import java.math.BigDecimal;
 import processing.sound.*;
 import java.util.Arrays;
 
+int mapSize;
 String activeState;
 HashMap<String, State> states;
 int lastClickTime = 0;
-final int DOUBLECLICKWAIT = 500;
+final int DOUBLECLICKWAIT = 500;  
+float GUIScale = 1.0;
+float TextScale = 1.6;
+PrintWriter settingsWriteFile; 
+BufferedReader settingsReadFile;
+StringDict settings;
 final String LETTERSNUMBERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890/\\_ ";
 HashMap<String, SoundFile> sfx;
+float volume = 0.5;
 int prevT;
+boolean soundOn = true;
 JSONObject gameData;
 HashMap<Integer, PFont> fonts;
 int graphicsRes = 32;
+boolean mapIs3D;
 PShader toon;
 boolean loading = false;
-
-JSONManager jsManager;
 
 // Event-driven methods
 void mouseClicked(){mouseEvent("mouseClicked", mouseButton);doubleClick();}
@@ -84,6 +91,19 @@ float sigmoid(float x){
   return 1-2/(exp(x)+1);
 }
 
+void createFile(){
+  changeSetting("gui_scale", "1.0");
+  changeSetting("text_scale", "1.6");
+  changeSetting("volume", "0.5");
+  changeSetting("mapSize", "100");
+  changeSetting("sound", "1");
+  changeSetting("water level", "");
+  changeSetting("smoothing", "8");
+  changeSetting("ground spawns", "");
+  writeSettings();
+}
+
+
 void mouseEvent(String eventType, int button){
   getActiveState()._mouseEvent(eventType, button);
 }
@@ -97,29 +117,30 @@ void keyboardEvent(String eventType, char _key){
   getActiveState()._keyboardEvent(eventType, _key);
 }
 
-void setVolume(){
-  for (SoundFile fect:sfx.values()){
-    fect.amp(jsManager.loadFloatSetting("volume"));
+void setVolume(float x){
+  if (0<=x && x<=1){
+    volume = x;
+    for (SoundFile fect:sfx.values()){
+      fect.amp(volume);
+    }
+    return;
   }
-}
-
-void setFrameRateCap(){
-  if (jsManager.loadBooleanSetting("framerate cap")){
-    frameRate(60);
-  }
-  else{
-    frameRate(1000);
-  }
+  print("invalid volume");
 }
 
 int NUMOFGROUNDTYPES = 5;
 int NUMOFBUILDINGTYPES = 9;
+int groundSpawns = 100;
+float WATERLEVEL = 0.35;
 int TILESIZE = 1;
 int MAPWIDTH = 100;
 int MAPHEIGHT = 100;
 float MAPNOISESCALE = 0.08;
 float VERTICESPERTILE = 2;
 float HILLSTEEPNESS = 0.1;
+
+int initialSmooth = 7;
+int completeSmooth = 5;
 
 color[] playerColours = new color[]{color(0, 0, 255), color(255, 0, 0)};
 
@@ -130,8 +151,39 @@ HashMap<Integer, PImage> taskImages;
 HashMap<String, PImage> lowImages;
 HashMap<String, PImage> tile3DImages;
 
+void changeSetting(String id, String newValue){
+  settings.set(id, newValue);
+}
+
+void writeSettings(){
+  settingsWriteFile = createWriter("settings.txt"); 
+  for(String s: settings.keyArray()){
+    settingsWriteFile.println(s+" "+settings.get(s));
+  }
+  settingsWriteFile.flush();  // Writes the remaining data to the file
+  settingsWriteFile.close();  // Finishes the file
+}
+
+void loadSettings(){
+  String line;
+  String[] args;
+  try{
+    while ((line = settingsReadFile.readLine()) != null) {
+      args = line.split(" ");
+      settings.set(args[0], args[1]);
+    }
+  }
+  catch (IOException e) {
+    e.printStackTrace();
+    print("Ignore that message");
+  }
+  catch (Exception e){
+    createFile();
+  }
+}
 void loadSounds(){
-  if(jsManager.loadBooleanSetting("sound on")){
+  soundOn = !(Integer.parseInt(settings.get("sound"))==0);
+  if(soundOn){
     sfx = new HashMap<String, SoundFile>();
     sfx.put("click3", new SoundFile(this, "click3.wav"));
   }
@@ -200,12 +252,20 @@ void setup(){
 
   fullScreen(P3D);
   try{
+    frameRate(1000);
     fonts = new HashMap<Integer, PFont>();
     gameData = loadJSONObject("data.json");
-    jsManager = new JSONManager();
+    settings = new StringDict();
+    //if
+    settingsReadFile = createReader("settings.txt");
+    loadSettings();
     loadSounds();
-    setFrameRateCap();
     textFont(createFont("GillSans", 32));
+    GUIScale = float(settings.get("gui_scale"));
+    TextScale = float(settings.get("text_scale"));
+    mapSize = int(settings.get("mapSize"));
+    volume = float(settings.get("volume"));
+    mapIs3D = boolean(settings.get("map3D"));
 
     loadImages();
 
@@ -239,11 +299,12 @@ boolean smoothed = false;
 void draw(){
   background(255);
   prevT = millis();
+  
   String newState = getActiveState().update();
   if (!newState.equals("")){
     for (Panel panel : states.get(newState).panels){
-      for (Element elem : panel.elements){
-        elem.mouseEvent("mouseMoved", LEFT);
+      for (String id : panel.elements.keySet()){
+        panel.elements.get(id).mouseEvent("mouseMoved", LEFT);
       }
     }
     states.get(activeState).leaveState();
@@ -254,8 +315,8 @@ void draw(){
   textAlign(LEFT, TOP);
   fill(255,0,0);
   text(frameRate, 0, 0);
-
-
+  
+  
 }
 
 State getActiveState(){
