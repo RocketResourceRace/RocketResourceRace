@@ -195,7 +195,7 @@ class State{
     for (Panel panel : panels){
       for (int i=panel.elements.size()-1; i>=0; i--){
         for (String eventName : panel.elements.get(i)._keyboardEvent(eventType, _key)){
-          if (panel.elements.get(i).active){
+          if (panel.elements.get(i).active && panel.elements.get(i).visible){
             panel.elements.get(i).keyboardEvent(eventType, _key);
           }
         }

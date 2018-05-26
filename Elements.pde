@@ -1372,9 +1372,12 @@ class TextEntry extends Element{
     panelCanvas.fill(boxColour);
     panelCanvas.stroke(borderColour);
     panelCanvas.rect(x, y, w, h);
+    panelCanvas.textFont(getFont(textSize*jsManager.loadFloatSetting("text scale")));
+    panelCanvas.textAlign(textAlign);
     // Draw selection box
     if (selected != cursor && active && cursor >= 0 ){
       panelCanvas.fill(selectionColour);
+      print(cursor, selected);
       panelCanvas.rect(x+panelCanvas.textWidth(text.substring(0, min(cursor, selected)))+5, y+2, panelCanvas.textWidth(text.substring(min(cursor, selected), max(cursor, selected))), h-4);
     }
     
@@ -1435,7 +1438,7 @@ class TextEntry extends Element{
         break;
       }
     }
-    cursor = i;
+    cursor = (int)between(0, i, text.length());
     for (i=c; i<text.length(); i++){
       if (text.charAt(i) == ' '){
         break;
@@ -1455,7 +1458,7 @@ class TextEntry extends Element{
     }
     else if (eventType == "mousePressed"){
       if (button == LEFT){
-        cursor = (int)between(0, getCursorPos(mouseX-xOffset, mouseY-yOffset), text.length());
+        cursor = round(between(0, getCursorPos(mouseX-xOffset, mouseY-yOffset), text.length()));
         selected = getCursorPos(mouseX-xOffset, mouseY-yOffset);
       }
       if(!mouseOver()){
