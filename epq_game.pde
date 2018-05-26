@@ -2,6 +2,8 @@ import java.math.BigDecimal;
 import processing.sound.*;
 import java.util.Arrays;
 import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.Path;
 
 String activeState;
 HashMap<String, State> states;
@@ -14,7 +16,7 @@ JSONObject gameData;
 HashMap<Integer, PFont> fonts;
 int graphicsRes = 32;
 PShader toon;
-boolean loading = false;
+String loadingName;
 
 JSONManager jsManager;
 

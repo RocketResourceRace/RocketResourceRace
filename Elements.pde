@@ -2,9 +2,10 @@
 
 class BaseFileManager extends Element{
   // Basic file manager that scans a folder and makes a selectable list for all the files
-  final int TEXTSIZE = 16;
+  final int TEXTSIZE = 14;
   String folderString;
   String[] saveNames;
+  int selected, rowHeight;
   
   
   BaseFileManager(int x, int y, int w, int h, String folderString){
@@ -14,26 +15,71 @@ class BaseFileManager extends Element{
     super.h = h;
     this.folderString = folderString;
     saveNames = new String[0];
+    selected = 0;
+    rowHeight = ceil(TEXTSIZE * jsManager.loadFloatSetting("text scale"))+5;
   }
   
   void loadSaveNames(){
-    //walk(FileSystems.getDefault(),
-    //                            int maxDepth,
-    //                            FileVisitOption... options)
-    //                     throws IOException
+    try{
+      File dir = new File(sketchPath("saves"));
+      saveNames = dir.list();
+    }
+    catch (Exception e) {
+      println("files scanning failed");
+    }
   }
   
+  ArrayList<String> mouseEvent(String eventType, int button){
+    ArrayList<String> events = new ArrayList<String>();
+    
+    if (eventType.equals("mouseClicked")){
+      if (moveOver()){
+        selected = hoveringOption();
+        events.add("valueChanged");
+      }
+    }
+    
+    return events;
+  }
+  
+  String selectedSaveName(){
+    return saveNames[selected];
+  }
   
   void draw(PGraphics panelCanvas){
-    int rowWidth = ceil(TEXTSIZE * jsManager.loadFloatSetting("text scale"));
+    
+    rowHeight = ceil(TEXTSIZE * jsManager.loadFloatSetting("text scale"))+5;
     panelCanvas.pushStyle();
     
-    getFont(TEXTSIZE);
-    textSize(TEXTSIZE * jsManager.loadFloatSetting("text scale"));
-    //for (int i=0; i<)
-    //text();
+    panelCanvas.textSize(TEXTSIZE * jsManager.loadFloatSetting("text scale"));
+    panelCanvas.textAlign(LEFT, TOP);
+    for (int i=0; i<saveNames.length; i++){
+      if (selected == i){
+        panelCanvas.strokeWeight(2);
+        panelCanvas.fill(color(100));
+      }
+      else{
+        panelCanvas.strokeWeight(1);
+        panelCanvas.fill(color(150));
+      }
+      panelCanvas.rect(x, y+rowHeight*i, w, rowHeight);
+      panelCanvas.fill(0);
+      panelCanvas.text(saveNames[i], x, y+rowHeight*i);
+    }
     
     panelCanvas.popStyle();
+  }
+  
+  boolean moveOver(){
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h*(saveNames.length+1);
+  }
+  
+  int hoveringOption(){
+    int s = (mouseY-yOffset-y)/rowHeight;
+    if (!(0 <= s && s < saveNames.length)){
+      return selected;
+    }
+    return s;
   }
 }
 
@@ -797,7 +843,7 @@ class TaskManager extends Element{
   ArrayList<String> options;
   ArrayList<Integer> availableOptions;
   int textSize;
-  boolean dropped;
+  boolean dropped, taskMActive;
   color bgColour, strokeColour;
   private final int HOVERINGOFFSET = 80, ONOFFSET = -50;
   TaskManager(int x, int y, int w, int textSize, color bgColour, color strokeColour, String[] options){
@@ -814,6 +860,7 @@ class TaskManager extends Element{
     }
     dropped = true;
     resetAvailable();
+    taskMActive = true;
   }
   void setOptions(ArrayList<String> options){
     this.options = options;
@@ -894,7 +941,7 @@ class TaskManager extends Element{
     
     if (dropped){
       for (int j=1; j< availableOptions.size(); j++){
-        if (active && mouseOver(j)){
+        if (taskMActive && mouseOver(j)){
           panelCanvas.fill(brighten(bgColour, HOVERINGOFFSET));
         }
         else{
@@ -911,7 +958,7 @@ class TaskManager extends Element{
   ArrayList<String> mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
     if (eventType == "mouseMoved"){
-      active = moveOver();
+      taskMActive = moveOver();
       
     }
     if (eventType == "mouseClicked" && button == LEFT){
@@ -1286,6 +1333,7 @@ class TextEntry extends Element{
   color textColour, boxColour, borderColour, selectionColour;
   String allowedChars, name;
   final int BLINKTIME = 500;
+  boolean texActive;
   
   TextEntry(int x, int y, int w, int h, int textAlign, color textColour, color boxColour, color borderColour, String allowedChars){
     this.x = x;
@@ -1300,7 +1348,7 @@ class TextEntry extends Element{
     this.allowedChars = allowedChars;
     text = new StringBuilder();
     selectionColour = brighten(selectionColour, 150);
-    deactivate();
+    texActive = false;
   }
   TextEntry(int x, int y, int w, int h, int textAlign, color textColour, color boxColour, color borderColour, String allowedChars, String name){
     this.x = x;
@@ -1316,21 +1364,30 @@ class TextEntry extends Element{
     this.name = name;
     text = new StringBuilder();
     selectionColour = brighten(selectionColour, 150);
-    deactivate();
+    texActive = false;
+  }
+  
+  void setText(String t){
+    this.text = new StringBuilder(t);
+  }
+  String getText(){
+    return this.text.toString();
   }
   
   void draw(PGraphics panelCanvas){
-    boolean showCursor = ((millis()/BLINKTIME)%2==0 || keyPressed) && active;
+    boolean showCursor = ((millis()/BLINKTIME)%2==0 || keyPressed) && texActive;
     panelCanvas.pushStyle();
     
     // Draw a box behind the text
     panelCanvas.fill(boxColour);
     panelCanvas.stroke(borderColour);
     panelCanvas.rect(x, y, w, h);
+    panelCanvas.textFont(getFont(textSize*jsManager.loadFloatSetting("text scale")));
+    panelCanvas.textAlign(textAlign);
     // Draw selection box
-    if (selected != cursor && active && cursor >= 0 ){
+    if (selected != cursor && texActive && cursor >= 0 ){
       panelCanvas.fill(selectionColour);
-      panelCanvas.rect(x+textWidth(text.substring(0, min(cursor, selected)))+5, y+2, textWidth(text.substring(min(cursor, selected), max(cursor, selected))), h-4);
+      panelCanvas.rect(x+panelCanvas.textWidth(text.substring(0, min(cursor, selected)))+5, y+2, panelCanvas.textWidth(text.substring(min(cursor, selected), max(cursor, selected))), h-4);
     }
     
     // Draw the text
@@ -1343,7 +1400,7 @@ class TextEntry extends Element{
     if (showCursor){
       panelCanvas.fill(0);
       panelCanvas.noStroke();
-      panelCanvas.rect(x+textWidth(text.toString().substring(0,cursor))+5, y+(h-textSize*jsManager.loadFloatSetting("text scale"))/2, 1, textSize*jsManager.loadFloatSetting("text scale"));
+      panelCanvas.rect(x+panelCanvas.textWidth(text.toString().substring(0,cursor))+5, y+(h-textSize*jsManager.loadFloatSetting("text scale"))/2, 1, textSize*jsManager.loadFloatSetting("text scale"));
     }
     if (name != null){
       panelCanvas.fill(0);
@@ -1390,7 +1447,7 @@ class TextEntry extends Element{
         break;
       }
     }
-    cursor = i;
+    cursor = (int)between(0, i, text.length());
     for (i=c; i<text.length(); i++){
       if (text.charAt(i) == ' '){
         break;
@@ -1404,17 +1461,17 @@ class TextEntry extends Element{
     if (eventType == "mouseClicked"){
       if (button == LEFT){
         if (mouseOver()){
-          activate();
+          texActive = true;
         }
       }
     }
     else if (eventType == "mousePressed"){
       if (button == LEFT){
-        cursor = getCursorPos(mouseX-xOffset, mouseY-yOffset);
+        cursor = round(between(0, getCursorPos(mouseX-xOffset, mouseY-yOffset), text.length()));
         selected = getCursorPos(mouseX-xOffset, mouseY-yOffset);
       }
       if(!mouseOver()){
-        deactivate();
+        texActive = false;
       }
     }
     else if (eventType == "mouseDragged"){
@@ -1430,43 +1487,45 @@ class TextEntry extends Element{
   
   ArrayList<String> keyboardEvent(String eventType, char _key){
     ArrayList<String> events = new ArrayList<String>();
-    if (eventType == "keyTyped"){
-      if (_key == BACKSPACE){
-        if (selected == cursor){
-          if (cursor > 0){
-            text.deleteCharAt(--cursor);
+    if (texActive){
+      if (eventType == "keyTyped"){
+        if (allowedChars.equals("") || allowedChars.contains(""+_key)){
+          if (cursor != selected){
+            text = new StringBuilder(text.substring(0, min(cursor, selected)) + text.substring(max(cursor, selected), text.length()));
+            cursor = min(cursor, selected);
+            resetSelection();
+          }
+          text.insert(cursor++, _key);
+          resetSelection();
+        }
+      }
+      else if (eventType == "keyPressed"){
+        if (_key == '\n'){
+          events.add("enterPressed");
+          texActive = false;
+        }
+        if (_key == BACKSPACE){
+          if (selected == cursor){
+            if (cursor > 0){
+              text.deleteCharAt(--cursor);
+              resetSelection();
+            }
+          }
+          else{
+            text = new StringBuilder(text.substring(0, min(cursor, selected)) + text.substring(max(cursor, selected), text.length()));
+            cursor = min(cursor, selected);
             resetSelection();
           }
         }
-        else{
-          text = new StringBuilder(text.substring(0, min(cursor, selected)) + text.substring(max(cursor, selected), text.length()));
-          cursor = min(cursor, selected);
-          resetSelection();
-        }
-      }
-      else if (_key == '\n'){
-        events.add("enterPressed");
-        deactivate();
-      }
-      else if (allowedChars.equals("") || allowedChars.contains(""+_key)){
-        if (cursor != selected){
-          text = new StringBuilder(text.substring(0, min(cursor, selected)) + text.substring(max(cursor, selected), text.length()));
-          cursor = min(cursor, selected);
-          resetSelection();
-        }
-        text.insert(cursor++, _key);
-        resetSelection();
-      }
-    }
-    else if (eventType == "keyPressed"){
-      if (_key == CODED){
-        if (keyCode == LEFT){
-          cursor = max(0, cursor-1);
-          resetSelection();
-        }
-        if (keyCode == RIGHT){
-          cursor = min(text.length(), cursor+1);
-          resetSelection();
+        if (_key == CODED){
+          if (keyCode == LEFT){
+            cursor = max(0, cursor-1);
+            resetSelection();
+          }
+          if (keyCode == RIGHT){
+            cursor = min(text.length(), cursor+1);
+            resetSelection();
+          }
         }
       }
     }

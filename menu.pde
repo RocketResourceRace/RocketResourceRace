@@ -16,6 +16,8 @@ class Menu extends State{
     loadMenuPanels();
     newPanel = currentPanel;
     activePanel = currentPanel;
+    
+    addElement("loading manager", new BaseFileManager(width/4, height/4, width/2, height/2, "saves"), "load game");
   }
   
   void loadMenuPanels(){
@@ -155,6 +157,9 @@ class Menu extends State{
         if (stateChangers.get(event.id) != null && stateChangers.get(event.id)[0] != null ){
           newPanel = stateChangers.get(event.id)[0];
           revertChanges(event.panel);
+          if (newPanel.equals("load game")){
+            ((BaseFileManager)getElement("loading manager", "load game")).loadSaveNames();
+          }
         }
         else if (event.id.equals("apply")){
           for (Element elem : getPanel(event.panel).elements){
@@ -170,11 +175,11 @@ class Menu extends State{
         }
         else if (event.id.equals("start")){
           newState = "map";
-          loading = false;
+          loadingName = null;
         }
         else if (event.id.equals("load")){
           newState = "map";
-          loading = true;
+          loadingName = ((BaseFileManager)getElement("loading manager", "load game")).selectedSaveName();
         }
         else if (event.id.equals("exit")){
           exit();

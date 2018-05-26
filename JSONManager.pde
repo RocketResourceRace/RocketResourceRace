@@ -55,15 +55,20 @@ class JSONManager{
   }
   
   boolean hasFlag(String panelID, String elemID, String flag){
-    JSONObject panel = findJSONObject(menu.getJSONArray("states"), panelID);
-    JSONObject elem = findJSONObject(panel.getJSONArray("elements"), elemID);
-    JSONArray flags = elem.getJSONArray("flags");
-    if (flags != null){
-      for (int i=0; i<flags.size(); i++){
-        if (flags.getString(i).equals(flag)){
-          return true;
+    try{
+      JSONObject panel = findJSONObject(menu.getJSONArray("states"), panelID);
+      JSONObject elem = findJSONObject(panel.getJSONArray("elements"), elemID);
+      JSONArray flags = elem.getJSONArray("flags");
+      if (flags != null){
+        for (int i=0; i<flags.size(); i++){
+          if (flags.getString(i).equals(flag)){
+            return true;
+          }
         }
       }
+    }
+    catch (Exception e){
+      
     }
     return false;
   }

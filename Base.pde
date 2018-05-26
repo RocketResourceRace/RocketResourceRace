@@ -154,17 +154,19 @@ class State{
       }
     }
     for (Panel panel : panels){
-      if(activePanel == panel.id || eventType.equals("mouseMoved")){
+      if(activePanel == panel.id || eventType.equals("mouseMoved") || panel.overrideBlocking){
         // Iterate in reverse order
         for (int i=panel.elements.size()-1; i>=0; i--){
-          for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button)){
-            events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
-            if (eventName.equals("stop events")){
-              return;
+          if (panel.elements.get(i).active && panel.visible){
+            for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button)){
+              events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
+              if (eventName.equals("stop events")){
+                return;
+              }
             }
           }
         }
-        if (!eventType.equals("mouseMoved"))
+        if (!eventType.equals("mouseMoved") && !panel.overrideBlocking)
           break;
       }
     }
@@ -178,10 +180,12 @@ class State{
       if(panel.mouseOver() && panel.visible){
         // Iterate in reverse order
         for (int i=panel.elements.size()-1; i>=0; i--){
-          for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button, event)){
-            events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
-            if (eventName.equals("stop events")){
-              return;
+          if (panel.elements.get(i).active){
+            for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button, event)){
+              events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
+              if (eventName.equals("stop events")){
+                return;
+              }
             }
           }
         }
@@ -191,15 +195,19 @@ class State{
     _elementEvent(events);
   }
   void _keyboardEvent(String eventType, char _key){
+    ArrayList<Event> events = new ArrayList<Event>();
     keyboardEvent(eventType, _key);
     for (Panel panel : panels){
-      for (Element elem : panel.elements){
-        // TODO decide whether all or just active panel
-        if (elem.active){
-          elem.keyboardEvent(eventType, _key);
+      for (int i=panel.elements.size()-1; i>=0; i--){
+        if (panel.elements.get(i).active && panel.visible){
+          for (String eventName : panel.elements.get(i)._keyboardEvent(eventType, _key)){
+            events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
+          }
         }
       }
     }
+    elementEvent(events);
+    _elementEvent(events);
   }
 }
 
@@ -212,7 +220,7 @@ class Panel{
   ArrayList<Element> elements;
   String id;
   PImage img;
-  Boolean visible, blockEvent;
+  Boolean visible, blockEvent, overrideBlocking;
   private int x, y, w, h;
   private color bgColour, strokeColour;
   PGraphics panelCanvas, elemGraphics;
@@ -229,6 +237,7 @@ class Panel{
     this.strokeColour = strokeColour;
     elements = new ArrayList<Element>();
     panelCanvas = createGraphics(w, h, P2D);
+    overrideBlocking = false;
   }
 
   Panel(String id, int x, int y, int w, int h, Boolean visible, String fileName, color strokeColour){
@@ -242,6 +251,11 @@ class Panel{
     this.strokeColour = strokeColour;
     elements = new ArrayList<Element>();
     panelCanvas = createGraphics(w, h, P2D);
+    overrideBlocking = false;
+  }
+  
+  void setOverrideBlocking(boolean v){
+    overrideBlocking = v;
   }
 
   void setOffset(){
