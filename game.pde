@@ -901,7 +901,9 @@ class Game extends State{
         else if (event.id == "save as button"){
           // Show the save menu
           getPanel("save screen").visible = !getPanel("save screen").visible;
-          loadingName = ((BaseFileManager)getElement("saving manager", "save screen")).getNextAutoName(); // Autogen name
+          if (loadingName == null){
+            loadingName = ((BaseFileManager)getElement("saving manager", "save screen")).getNextAutoName(); // Autogen name
+          }
           ((TextEntry)getElement("save namer", "save screen")).setText(loadingName);
         }
         else if (event.id == "save button"){
