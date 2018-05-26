@@ -677,6 +677,15 @@ class Game extends State{
       turnChange();
     }
 
+    if(tooltip.visible&&tooltip.attacking){
+      int x = floor(map.scaleXInv(mouseX));
+      int y = floor(map.scaleYInv(mouseY));
+      if(0<=x&&x<mapWidth&&0<=y&&y<mapHeight){
+        BigDecimal chance = battleEstimateManager.getEstimate(cellX, cellY, x, y, splitUnitsNum());
+        tooltip.setAttacking(chance);
+      }
+    }
+  
     drawPanels();
     if(players[0].resources[getResIndex("rocket progress")]!=-1||players[1].resources[getResIndex("rocket progress")]!=-1){
       drawRocketProgressBar();
@@ -1109,7 +1118,7 @@ class Game extends State{
           }
           else {
             //Attack
-            int chance = battleEstimateManager.getEstimate(cellX, cellY, x, y, splitUnitsNum());
+            BigDecimal chance = battleEstimateManager.getEstimate(cellX, cellY, x, y, splitUnitsNum());
             tooltip.setAttacking(chance);
             tooltip.show();
           }

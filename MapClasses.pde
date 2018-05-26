@@ -316,38 +316,44 @@ class MapSave{
 }
 
 class BattleEstimateManager{
-  HashMap<Integer, HashMap<Integer, Integer[]>> battleEstimates = new HashMap<Integer, HashMap<Integer, Integer[]>>();
+  int currentWins = 0;
+  int currentTrials = 0;
+  int attackerX;
+  int attackerY;
+  int defenderX;
+  int defenderY;
+  int attackerUnits;
+  boolean cached = false;
   Party[][] parties;
   BattleEstimateManager(Party[][] parties){
     this.parties = parties;
   }
-  int getEstimate(int x1, int y1, int x2, int y2, int units){
-    if (battleEstimates.containsKey(y1)&&battleEstimates.get(y1).containsKey(x1)){
-      Integer[] data = battleEstimates.get(y1).get(x1);
-      int chance = round(100*data[0]/data[1]);
-      return chance;
-    } else {
-      Party tempAttacker = parties[y1][x1].clone();
-      tempAttacker.setUnitNumber(units);
-      if (!battleEstimates.containsKey(y1)){
-        battleEstimates.put(y1, new HashMap<Integer, Integer[]>());
-      }
-      if(!battleEstimates.get(y1).containsKey(x1)){
-        battleEstimates.get(y1).put(x1, new Integer[2]);
-      }
-      Integer[] data = battleEstimates.get(y1).get(x1);
-      data[0] = 0;
-      data[1] = 0;
-      int TRIALS = 50000;
-      int wins = 0;
+  BigDecimal getEstimate(int x1, int y1, int x2, int y2, int units){
+    Party tempAttacker = parties[y1][x1].clone();
+    tempAttacker.setUnitNumber(units);
+    if (cached&&attackerX==x1&&attackerY==y1&&defenderX==x2&&defenderY==y2&&attackerUnits==units){
+      int TRIALS = 1000;
       for (int i = 0;i<TRIALS;i++){
-        wins+=runTrial(tempAttacker, parties[y2][x2]);
+        currentWins+=runTrial(tempAttacker, parties[y2][x2]);
       }
-      data[0] = wins;
-      data[1] = TRIALS;
-      int chance = round(100*data[0]/data[1]);
-      return chance;
+      currentTrials+=TRIALS;
+    } else {
+      cached = true;
+      currentWins = 0;
+      currentTrials = 0;
+      attackerX = x1;
+      attackerY = y1;
+      defenderX = x2;
+      defenderY = y2;
+      attackerUnits = units;
+      int TRIALS = 10000;
+      for (int i = 0;i<TRIALS;i++){
+        currentWins+=runTrial(tempAttacker, parties[y2][x2]);
+      }
+      currentTrials = TRIALS;
     }
+    BigDecimal chance = new BigDecimal(""+currentWins).multiply(new BigDecimal(100)).divide(new BigDecimal(""+currentTrials), 1, BigDecimal.ROUND_HALF_UP);
+    return chance;
   }
   
   int runTrial(Party attacker, Party defender){
@@ -378,10 +384,7 @@ class BattleEstimateManager{
       return 0;
     }
   }
-  void estimate(){
-    
-  }
   void refresh(){
-    battleEstimates = new HashMap<Integer, HashMap<Integer, Integer[]>>();
+    cached = false;
   }
 }
