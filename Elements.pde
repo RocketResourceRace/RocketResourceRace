@@ -17,15 +17,21 @@ class BaseFileManager extends Element{
   }
   
   void loadSaveNames(){
-    
+    //walk(FileSystems.getDefault(),
+    //                            int maxDepth,
+    //                            FileVisitOption... options)
+    //                     throws IOException
   }
   
   
   void draw(PGraphics panelCanvas){
+    int rowWidth = ceil(TEXTSIZE * jsManager.loadFloatSetting("text scale"));
     panelCanvas.pushStyle();
     
     getFont(TEXTSIZE);
-    
+    textSize(TEXTSIZE * jsManager.loadFloatSetting("text scale"));
+    //for (int i=0; i<)
+    //text();
     
     panelCanvas.popStyle();
   }
