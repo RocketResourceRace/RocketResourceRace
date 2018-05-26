@@ -15,14 +15,13 @@ class BaseFileManager extends Element{
     super.h = h;
     this.folderString = folderString;
     saveNames = new String[0];
+    selected = 0;
   }
   
   void loadSaveNames(){
     try{
       File dir = new File(sketchPath("saves"));
       saveNames = dir.list();
-      
-      println(saveNames);
     }
     catch (Exception e) {
       println("files scanning failed");
@@ -54,9 +53,11 @@ class BaseFileManager extends Element{
     panelCanvas.textAlign(LEFT, TOP);
     for (int i=0; i<saveNames.length; i++){
       if (selected == i){
+        panelCanvas.strokeWeight(2);
         panelCanvas.fill(color(100));
       }
       else{
+        panelCanvas.strokeWeight(1);
         panelCanvas.fill(color(150));
       }
       panelCanvas.rect(x, y+rowHeight*i, w, rowHeight);
@@ -73,7 +74,7 @@ class BaseFileManager extends Element{
   
   int hoveringOption(){
     int s = (mouseY-yOffset-y)/rowHeight;
-    if (0 <= s || s >= saveNames.length){
+    if (!(0 <= s && s < saveNames.length)){
       return selected;
     }
     return s;
