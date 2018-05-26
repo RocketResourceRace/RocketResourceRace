@@ -178,7 +178,7 @@ class State{
       if(panel.mouseOver() && panel.visible){
         // Iterate in reverse order
         for (int i=panel.elements.size()-1; i>=0; i--){
-          for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button)){
+          for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button, event)){
             events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
             if (eventName.equals("stop events")){
               return;
