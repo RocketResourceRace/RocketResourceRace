@@ -204,6 +204,7 @@ class Game extends State{
   boolean postEvent(GameEvent event){
     boolean valid = true;
     // Returns true if event is valid
+    battleEstimateManager.refresh();
     if (event instanceof Move){
 
       Move m = (Move)event;
@@ -1108,10 +1109,7 @@ class Game extends State{
           }
           else {
             //Attack
-            Party tempAttacker = parties[cellY][cellX].clone();
-            int units = round(splitUnitsNum());
-            tempAttacker.setUnitNumber(units);
-            int chance = getChanceOfBattleSuccess(tempAttacker, parties[y][x]);
+            int chance = battleEstimateManager.getEstimate(cellX, cellY, x, y, splitUnitsNum());
             tooltip.setAttacking(chance);
             tooltip.show();
           }
@@ -1553,6 +1551,7 @@ class Game extends State{
       turn = 0;
       turnNumber = 0;
     }
+    battleEstimateManager = new BattleEstimateManager(parties);
     //for(int i=0;i<NUMOFBUILDINGTYPES;i++){
     //  buildings[(int)playerStarts[0].y][(int)playerStarts[0].x+i] = new Building(1+i);
     //}
