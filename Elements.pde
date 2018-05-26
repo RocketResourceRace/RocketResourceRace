@@ -19,9 +19,32 @@ class BaseFileManager extends Element{
     rowHeight = ceil(TEXTSIZE * jsManager.loadFloatSetting("text scale"))+5;
   }
   
+  String getNextAutoName(){
+    // Find the next automatic name for save
+    loadSaveNames();
+    int mx = 1;
+    for (int i=0; i<saveNames.length; i++){
+      if (saveNames[i].length() > 8) {// 'Untitled is 8 characters
+        if (saveNames[i].substring(0, 8).equals("Untitled")){
+          try{
+            mx = max(mx, Integer.parseInt(saveNames[i].substring(8, saveNames[i].length())));
+          }
+          catch(Exception e){
+            print(1);
+          }
+        }
+      }
+    }
+    return "Untitled"+(mx+1);
+  }
+  
   void loadSaveNames(){
     try{
       File dir = new File(sketchPath("saves"));
+      if (!dir.exists()){
+        println("creating new saves directory");
+        dir.mkdir();
+      }
       saveNames = dir.list();
     }
     catch (Exception e) {
@@ -43,6 +66,9 @@ class BaseFileManager extends Element{
   }
   
   String selectedSaveName(){
+    if (saveNames.length == 0){
+      return "Untitled";
+    }
     return saveNames[selected];
   }
   
