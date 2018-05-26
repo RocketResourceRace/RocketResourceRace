@@ -694,6 +694,10 @@ class Game extends State{
       turnChange();
     }
     
+    if (map.isMoving()){
+      refreshTooltip();
+    }
+    
     gameUICanvas.beginDraw();
     gameUICanvas.clear();
     gameUICanvas.pushStyle();

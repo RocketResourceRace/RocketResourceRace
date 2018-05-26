@@ -27,6 +27,7 @@ interface Map {
   void selectCell(int x, int y);
   void generateShape();
   void clearShape();
+  boolean isMoving();
 }
 
 
@@ -573,6 +574,10 @@ class Map2D extends BaseMap implements Map{
   }
   void clearShape(){
 
+  }
+  
+  boolean isMoving(){
+    return mapVelocity[0] != 0 || mapVelocity[1] != 0;
   }
   Node[][] getMoveNodes(){
     return moveNodes;
