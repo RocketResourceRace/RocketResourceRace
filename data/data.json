@@ -441,6 +441,7 @@
     {
       "id": "Factory",
       "img": ["factory.png"],
+      "obj": ["factory.obj"]
     },
     {
       "id": "Big Factory",
