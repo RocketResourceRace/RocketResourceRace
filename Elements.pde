@@ -16,6 +16,7 @@ class BaseFileManager extends Element{
     this.folderString = folderString;
     saveNames = new String[0];
     selected = 0;
+    rowHeight = ceil(TEXTSIZE * jsManager.loadFloatSetting("text scale"))+5;
   }
   
   void loadSaveNames(){
@@ -1377,7 +1378,6 @@ class TextEntry extends Element{
     // Draw selection box
     if (selected != cursor && active && cursor >= 0 ){
       panelCanvas.fill(selectionColour);
-      print(cursor, selected);
       panelCanvas.rect(x+panelCanvas.textWidth(text.substring(0, min(cursor, selected)))+5, y+2, panelCanvas.textWidth(text.substring(min(cursor, selected), max(cursor, selected))), h-4);
     }
     

@@ -191,16 +191,19 @@ class State{
     _elementEvent(events);
   }
   void _keyboardEvent(String eventType, char _key){
+    ArrayList<Event> events = new ArrayList<Event>();
     keyboardEvent(eventType, _key);
     for (Panel panel : panels){
       for (int i=panel.elements.size()-1; i>=0; i--){
-        for (String eventName : panel.elements.get(i)._keyboardEvent(eventType, _key)){
-          if (panel.elements.get(i).active && panel.elements.get(i).visible){
-            panel.elements.get(i).keyboardEvent(eventType, _key);
+        if (panel.elements.get(i).active && panel.visible){
+          for (String eventName : panel.elements.get(i)._keyboardEvent(eventType, _key)){
+            events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
           }
         }
       }
     }
+    elementEvent(events);
+    _elementEvent(events);
   }
 }
 
