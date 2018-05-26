@@ -348,3 +348,74 @@ class MapSave{
     this.players = players;
   }
 }
+
+class BattleEstimateManager{
+  HashMap<Integer, HashMap<Integer, Integer[]>> battleEstimates = new HashMap<Integer, HashMap<Integer, Integer[]>>();
+  Party[][] parties;
+  BattleEstimateManager(Party[][] parties){
+    this.parties = parties;
+  }
+  int getEstimate(int x1, int y1, int x2, int y2, int units){
+    if (battleEstimates.containsKey(y1)&&battleEstimates.get(y1).containsKey(x1)){
+      Integer[] data = battleEstimates.get(y1).get(x1);
+      int chance = round(100*data[0]/data[1]);
+      return chance;
+    } else {
+      Party tempAttacker = parties[y1][x1].clone();
+      tempAttacker.setUnitNumber(units);
+      if (!battleEstimates.containsKey(y1)){
+        battleEstimates.put(y1, new HashMap<Integer, Integer[]>());
+      }
+      if(!battleEstimates.get(y1).containsKey(x1)){
+        battleEstimates.get(y1).put(x1, new Integer[2]);
+      }
+      Integer[] data = battleEstimates.get(y1).get(x1);
+      data[0] = 0;
+      data[1] = 0;
+      int TRIALS = 50000;
+      int wins = 0;
+      for (int i = 0;i<TRIALS;i++){
+        wins+=runTrial(tempAttacker, parties[y2][x2]);
+      }
+      data[0] = wins;
+      data[1] = TRIALS;
+      int chance = round(100*data[0]/data[1]);
+      return chance;
+    }
+  }
+  
+  int runTrial(Party attacker, Party defender){
+    Battle battle;
+    Party clone1;
+    Party clone2;
+    if(defender.player==2){
+      battle = (Battle) defender.clone();
+      battle.changeUnitNumber(attacker.player, attacker.getUnitNumber());
+      if(battle.party1.player==attacker.player){
+        clone1 = battle.party1;
+        clone2 = battle.party2;
+      } else {
+        clone1 = battle.party2;
+        clone2 = battle.party1;
+      }
+    } else {
+      clone1 = attacker.clone();
+      clone2 = defender.clone();
+      battle = new Battle(clone1, clone2); 
+    }
+    while (clone1.getUnitNumber()>0&&clone2.getUnitNumber()>0){
+      battle.doBattle();
+    }
+    if(clone1.getUnitNumber()>0){
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+  void estimate(){
+    
+  }
+  void refresh(){
+    battleEstimates = new HashMap<Integer, HashMap<Integer, Integer[]>>();
+  }
+}
