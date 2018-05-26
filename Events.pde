@@ -25,8 +25,9 @@ class Event{
 
 class Action{
   float turns, initialTurns;
-  String type, notification, terrain, building;
-  Action(String type, String notification, float turns, String building, String terrain){
+  int type;
+  String notification, terrain, building;
+  Action(int type, String notification, float turns, String building, String terrain){
     this.type = type;
     this.turns = turns;
     this.notification = notification;
@@ -70,8 +71,8 @@ class Split extends GameEvent{
 
 class ChangeTask extends GameEvent{
   int x, y;
-  String task;
-  ChangeTask(int x, int y, String task){
+  int task;
+  ChangeTask(int x, int y, int task){
     this.x = x;
     this.y = y;
     this.task = task;

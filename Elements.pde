@@ -1,5 +1,44 @@
 
 
+class BaseFileManager extends Element{
+  // Basic file manager that scans a folder and makes a selectable list for all the files
+  final int TEXTSIZE = 16;
+  String folderString;
+  String[] saveNames;
+  
+  
+  BaseFileManager(int x, int y, int w, int h, String folderString){
+    super.x = x;
+    super.y = y;
+    super.w = w;
+    super.h = h;
+    this.folderString = folderString;
+    saveNames = new String[0];
+  }
+  
+  void loadSaveNames(){
+    //walk(FileSystems.getDefault(),
+    //                            int maxDepth,
+    //                            FileVisitOption... options)
+    //                     throws IOException
+  }
+  
+  
+  void draw(PGraphics panelCanvas){
+    int rowWidth = ceil(TEXTSIZE * jsManager.loadFloatSetting("text scale"));
+    panelCanvas.pushStyle();
+    
+    getFont(TEXTSIZE);
+    textSize(TEXTSIZE * jsManager.loadFloatSetting("text scale"));
+    //for (int i=0; i<)
+    //text();
+    
+    panelCanvas.popStyle();
+  }
+}
+
+
+
 
 class DropDown extends Element{
   String[] options;  // Either strings or floats
@@ -812,7 +851,7 @@ class TaskManager extends Element{
       }
     }
   }
-  void select(int j){
+  void selectAt(int j){
     int temp = availableOptions.get(0);
     availableOptions.set(0, availableOptions.get(j));
     availableOptions.set(j, temp);
@@ -820,7 +859,7 @@ class TaskManager extends Element{
   void select(String s){
     for (int j=0; j<availableOptions.size(); j++){
       if (options.get(availableOptions.get(j)) == s){
-        select(j);
+        selectAt(j);
       }
     }
   }
@@ -871,7 +910,7 @@ class TaskManager extends Element{
     if (eventType == "mouseClicked" && button == LEFT){
       for (int j=1; j < availableOptions.size();j++){
         if (mouseOver(j)){
-          select(j);
+          selectAt(j);
           events.add("valueChanged");
         }
       }

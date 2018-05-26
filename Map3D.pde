@@ -16,22 +16,6 @@ boolean isWater(int x, int y) {
 }
 
 
-float getMaxSteepness(int x, int y){
-  float maxZ, minZ;
-  maxZ = 0;
-  minZ = 1;
-  for (float y1 = y; y1<=y+1;y1+=1.0/VERTICESPERTILE){
-    for (float x1 = x; x1<=x+1;x1+=1.0/VERTICESPERTILE){
-      float z = noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE);
-      if(z>maxZ){
-        maxZ = z;
-      } else if (z<minZ){
-        minZ = z;
-      }
-    }
-  }
-  return maxZ-minZ;
-}
 
 HashMap<Integer, HashMap<Integer, Float>> downwardAngleCache;
 
@@ -66,18 +50,15 @@ float getDownwardAngle(int x, int y){
   }
 }
 
-class Map3D extends Element implements Map{
+class Map3D extends BaseMap implements Map{
   final int thickness = 10;
   final float PANSPEED = 0.5, ROTSPEED = 0.002;
   final int FORESTDENSITY = 10;
   final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3;
   final float HILLRAISE = 1.05;
   final float GROUNDHEIGHT = 5;
-  int x, y, w, h, mapWidth, mapHeight, prevT, frameTime;
+  int x, y, w, h, prevT, frameTime;
   int selectedCellX, selectedCellY;
-  Building[][] buildings;
-  int[][] terrain;
-  Party[][] parties;
   PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect, pathLine;
   HashMap<String, PShape> taskObjs;
   HashMap<String, PShape[]> buildingObjs;
@@ -117,6 +98,7 @@ class Map3D extends Element implements Map{
     canvas = createGraphics(width, height, P3D);
     refractionCanvas = createGraphics(width/4, height/4, P3D);
     downwardAngleCache = new HashMap<Integer, HashMap<Integer, Float>>();
+    heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(VERTICESPERTILE, 2))];
   }
   Node[][] getMoveNodes(){
     return moveNodes;
@@ -196,13 +178,6 @@ class Map3D extends Element implements Map{
     PVector mo = MousePosOnObject(mouseX, mouseY);
     return (mo.y)/getObjectHeight()*mapHeight;
   }
-  void reset(int mapWidth, int mapHeight, int [][] terrain, Party[][] parties, Building[][] buildings) {
-    this.terrain = terrain;
-    this.parties = parties;
-    this.buildings = buildings;
-    this.mapWidth = mapWidth;
-    this.mapHeight = mapHeight;
-  }
 
   void addTreeTile(int cellX, int cellY, int i) {
     forestTiles.put(cellX+cellY*mapWidth, i);
@@ -273,19 +248,6 @@ class Map3D extends Element implements Map{
     }
     colorMode(RGB);
     return shapes;
-  }
-
-  float getHeight(float x, float y) {
-    if (y<mapHeight && x<mapWidth && y+VERTICESPERTILE/blockSize<mapHeight && x+VERTICESPERTILE/blockSize<mapHeight && y-VERTICESPERTILE/blockSize>=0 && x-VERTICESPERTILE/blockSize>=0 &&
-    terrain[floor(y)][floor(x)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 &&
-    terrain[floor(y+VERTICESPERTILE/blockSize)][floor(x+VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 &&
-    terrain[floor(y-VERTICESPERTILE/blockSize)][floor(x-VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
-      return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), jsManager.loadFloatSetting("water level"))-jsManager.loadFloatSetting("water level"))*blockSize*GROUNDHEIGHT*HILLRAISE;
-    } else {
-      return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), jsManager.loadFloatSetting("water level"))-jsManager.loadFloatSetting("water level"))*blockSize*GROUNDHEIGHT;
-      //float h = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), jsManager.loadFloatSetting("water level"))-jsManager.loadFloatSetting("water level"));
-      //return (max(h-(0.5+jsManager.loadFloatSetting("water level")/2.0), 0)*(1000)+h)*blockSize*GROUNDHEIGHT;
-    }
   }
 
   void clearShape(){
@@ -568,7 +530,18 @@ class Map3D extends Element implements Map{
     }
     return new ArrayList<String>();
   }
-
+  float getHeight(float x, float y) {
+    //if (y<mapHeight && x<mapWidth && y+VERTICESPERTILE/blockSize<mapHeight && x+VERTICESPERTILE/blockSize<mapHeight && y-VERTICESPERTILE/blockSize>=0 && x-VERTICESPERTILE/blockSize>=0 &&
+    //terrain[floor(y)][floor(x)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 &&
+    //terrain[floor(y+VERTICESPERTILE/blockSize)][floor(x+VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 && 
+    //terrain[floor(y-VERTICESPERTILE/blockSize)][floor(x-VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
+    //  return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT*HILLRAISE;
+    //} else {
+      return (max(getRawHeight(x, y), jsManager.loadFloatSetting("water level"))-jsManager.loadIntSetting("water level"))*blockSize*GROUNDHEIGHT;
+      //float h = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel);
+      //return (max(h-(0.5+waterLevel/2.0), 0)*(1000)+h)*blockSize*GROUNDHEIGHT;
+    //}
+  }
   float groundMinHeightAt(int x1, int y1) {
     int x = floor(x1);
     int y = floor(y1);
@@ -756,7 +729,7 @@ class Map3D extends Element implements Map{
             canvas.shape(battle);
             canvas.popMatrix();
           }
-         JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), parties[y][x].task);
+         JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].task);
          if (jo != null && !jo.isNull("img")){
             canvas.noLights();
             canvas.pushMatrix();
