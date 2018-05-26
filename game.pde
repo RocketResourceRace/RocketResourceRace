@@ -77,7 +77,7 @@ class Game extends State{
     addPanel("bottom bar", 0, height-70, width, 70, true, true, color(150), color(50));
     addPanel("end screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
     addPanel("pause screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
-    addPanel("save screen", (int)(width/2+jsManager.loadFloatSetting("gui scale")*150+(int)(jsManager.loadFloatSetting("gui scale")*20)), (int)(height/2-jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*500), (int)(jsManager.loadFloatSetting("gui scale")*300), false, false, color(50), color(0));
+    addPanel("save screen", (int)(width/2+jsManager.loadFloatSetting("gui scale")*150+(int)(jsManager.loadFloatSetting("gui scale")*20)), (int)(height/2-5*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*500), (int)(jsManager.loadFloatSetting("gui scale")*300), false, false, color(50), color(0));
     addPanel("overlay", 0, 0, width, height, true, false, color(255,255), color(255, 255));
     
     getPanel("save screen").setOverrideBlocking(true);
@@ -975,7 +975,7 @@ class Game extends State{
           parties[py][px].changeUnitNumber(p.getUnitNumber());
         }
       }
-      p.path = null;
+      p.clearPath();
       return;
     }
 
@@ -1089,7 +1089,7 @@ class Game extends State{
         break;
       }
       if (tx==px&&ty==py){
-        p.path = null;
+        p.clearPath();
       }
     }
     
