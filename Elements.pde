@@ -22,6 +22,10 @@ class BaseFileManager extends Element{
   void loadSaveNames(){
     try{
       File dir = new File(sketchPath("saves"));
+      if (!dir.exists()){
+        println("creating new saves directory");
+        dir.mkdirs();
+      }
       saveNames = dir.list();
     }
     catch (Exception e) {
