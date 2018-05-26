@@ -836,7 +836,7 @@ class TaskManager extends Element{
   ArrayList<String> options;
   ArrayList<Integer> availableOptions;
   int textSize;
-  boolean dropped;
+  boolean dropped, taskMActive;
   color bgColour, strokeColour;
   private final int HOVERINGOFFSET = 80, ONOFFSET = -50;
   TaskManager(int x, int y, int w, int textSize, color bgColour, color strokeColour, String[] options){
@@ -853,6 +853,7 @@ class TaskManager extends Element{
     }
     dropped = true;
     resetAvailable();
+    taskMActive = true;
   }
   void setOptions(ArrayList<String> options){
     this.options = options;
@@ -933,7 +934,7 @@ class TaskManager extends Element{
     
     if (dropped){
       for (int j=1; j< availableOptions.size(); j++){
-        if (active && mouseOver(j)){
+        if (taskMActive && mouseOver(j)){
           panelCanvas.fill(brighten(bgColour, HOVERINGOFFSET));
         }
         else{
@@ -950,7 +951,7 @@ class TaskManager extends Element{
   ArrayList<String> mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
     if (eventType == "mouseMoved"){
-      active = moveOver();
+      taskMActive = moveOver();
       
     }
     if (eventType == "mouseClicked" && button == LEFT){
