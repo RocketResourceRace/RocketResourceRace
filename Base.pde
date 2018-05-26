@@ -181,7 +181,7 @@ class State{
         // Iterate in reverse order
         for (int i=panel.elements.size()-1; i>=0; i--){
           if (panel.elements.get(i).active){
-            for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button)){
+            for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button, event)){
               events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
               if (eventName.equals("stop events")){
                 return;

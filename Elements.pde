@@ -315,6 +315,7 @@ class Tickbox extends Element{
 class Tooltip extends Element{
   boolean visible;
   String text;
+  boolean attacking;
   
   Tooltip(){
     hide();
@@ -377,6 +378,7 @@ class Tooltip extends Element{
   }
   
   void setMoving(int turns, boolean splitting){
+    attacking = false;
     //Tooltip text if moving. Turns is the number of turns in move
     JSONObject jo = gameData.getJSONObject("tooltips");
     String t;
@@ -391,23 +393,28 @@ class Tooltip extends Element{
     }
     setText(t);
   }
-  void setAttacking(int chance){
+  void setAttacking(BigDecimal chance){
+    attacking = true;
     JSONObject jo = gameData.getJSONObject("tooltips");
-    setText(String.format(jo.getString("attacking"), chance));
+    setText(String.format(jo.getString("attacking"), chance.toString()));
   }
   void setTurnsRemaining(){
+    attacking = false;
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(jo.getString("turns remaining"));
   }
   void setMoveButton(){
+    attacking = false;
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(jo.getString("move button"));
   }
   void setMerging(){
+    attacking = false;
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(jo.getString("merging"));
   }
   void setTask(String task){
+    attacking = false;
     JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task);
     String t="";
     if (!jo.isNull("description")){

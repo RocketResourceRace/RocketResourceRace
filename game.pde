@@ -37,6 +37,7 @@ class Game extends State{
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
+  BattleEstimateManager battleEstimateManager;
   NotificationManager notificationManager;
   Tooltip tooltip;
   int turn;
@@ -213,6 +214,7 @@ class Game extends State{
   boolean postEvent(GameEvent event){
     boolean valid = true;
     // Returns true if event is valid
+    battleEstimateManager.refresh();
     if (event instanceof Move){
 
       Move m = (Move)event;
@@ -696,6 +698,15 @@ class Game extends State{
     gameUICanvas.clear();
     gameUICanvas.pushStyle();
 
+    if(tooltip.visible&&tooltip.attacking){
+      int x = floor(map.scaleXInv(mouseX));
+      int y = floor(map.scaleYInv(mouseY));
+      if(0<=x&&x<mapWidth&&0<=y&&y<mapHeight){
+        BigDecimal chance = battleEstimateManager.getEstimate(cellX, cellY, x, y, splitUnitsNum());
+        tooltip.setAttacking(chance);
+      }
+    }
+  
     if(players[0].resources[getResIndex("rocket progress")]!=-1||players[1].resources[getResIndex("rocket progress")]!=-1){
       drawRocketProgressBar(gameUICanvas);
     }
@@ -1145,10 +1156,7 @@ class Game extends State{
           }
           else {
             //Attack
-            Party tempAttacker = parties[cellY][cellX].clone();
-            int units = round(splitUnitsNum());
-            tempAttacker.setUnitNumber(units);
-            int chance = getChanceOfBattleSuccess(tempAttacker, parties[y][x]);
+            BigDecimal chance = battleEstimateManager.getEstimate(cellX, cellY, x, y, splitUnitsNum());
             tooltip.setAttacking(chance);
             tooltip.show();
           }
@@ -1610,6 +1618,7 @@ class Game extends State{
       turn = 0;
       turnNumber = 0;
     }
+    battleEstimateManager = new BattleEstimateManager(parties);
     //for(int i=0;i<NUMOFBUILDINGTYPES;i++){
     //  buildings[(int)playerStarts[0].y][(int)playerStarts[0].x+i] = new Building(1+i);
     //}

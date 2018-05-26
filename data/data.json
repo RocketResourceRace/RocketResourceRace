@@ -441,6 +441,7 @@
     {
       "id": "Factory",
       "img": ["factory.png"],
+      "obj": ["factory.obj"]
     },
     {
       "id": "Big Factory",
@@ -520,11 +521,11 @@
 
   "tooltips":{
     "move button": "A party can only move if it has enough\nmovement points",
-    "moving": "Move party",
+    "moving": "Move party ",
     "moving splitting": "Move the units selected",
     "moving turns": "%d turns",
     "merging": "merge units with party",
-    "attacking": "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a %d%% chance of winning this battle.",
+    "attacking": "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a %s%% chance of winning this battle.",
     "turns remaining": "The rate that an action is completed is affected\nby the number of units in a party\n(a square root relationship)."
   }
 }

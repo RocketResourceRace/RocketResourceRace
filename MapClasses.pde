@@ -237,40 +237,6 @@ int getBattleUnitChange(Party p1, Party p2){
   return floor(-0.2*(p2.getUnitNumber()+pow(p2.getUnitNumber(), 2)/p1.getUnitNumber())*random(0.75, 1.5)*p2.strength/p1.strength);
 }
 
-int getChanceOfBattleSuccess(Party attacker, Party defender){
-  int TRIALS = 1000;
-  int wins = 0;
-  Party clone1;
-  Party clone2;
-  Battle battle;
-  for (int i = 0;i<TRIALS;i++){
-    if(defender.player==2){
-      battle = (Battle) defender.clone();
-      battle.changeUnitNumber(attacker.player, attacker.getUnitNumber());
-      if(battle.party1.player==attacker.player){
-        clone1 = battle.party1;
-        clone2 = battle.party2;
-      } else {
-        clone1 = battle.party2;
-        clone2 = battle.party1;
-      }
-    } else {
-      clone1 = attacker.clone();
-      clone2 = defender.clone();
-      battle = new Battle(clone1, clone2);
-    }
-    while (clone1.getUnitNumber()>0&&clone2.getUnitNumber()>0){
-      battle.doBattle();
-    }
-    if(clone1.getUnitNumber()>0){
-      wins+=1;
-    }
-  }
-  return round((wins*50/TRIALS))*2;
-}
-
-
-
 
 
 class Player{
@@ -346,5 +312,79 @@ class MapSave{
     this.startTurn = startTurn;
     this.startPlayer = startPlayer;
     this.players = players;
+  }
+}
+
+class BattleEstimateManager{
+  int currentWins = 0;
+  int currentTrials = 0;
+  int attackerX;
+  int attackerY;
+  int defenderX;
+  int defenderY;
+  int attackerUnits;
+  boolean cached = false;
+  Party[][] parties;
+  BattleEstimateManager(Party[][] parties){
+    this.parties = parties;
+  }
+  BigDecimal getEstimate(int x1, int y1, int x2, int y2, int units){
+    Party tempAttacker = parties[y1][x1].clone();
+    tempAttacker.setUnitNumber(units);
+    if (cached&&attackerX==x1&&attackerY==y1&&defenderX==x2&&defenderY==y2&&attackerUnits==units){
+      int TRIALS = 1000;
+      for (int i = 0;i<TRIALS;i++){
+        currentWins+=runTrial(tempAttacker, parties[y2][x2]);
+      }
+      currentTrials+=TRIALS;
+    } else {
+      cached = true;
+      currentWins = 0;
+      currentTrials = 0;
+      attackerX = x1;
+      attackerY = y1;
+      defenderX = x2;
+      defenderY = y2;
+      attackerUnits = units;
+      int TRIALS = 10000;
+      for (int i = 0;i<TRIALS;i++){
+        currentWins+=runTrial(tempAttacker, parties[y2][x2]);
+      }
+      currentTrials = TRIALS;
+    }
+    BigDecimal chance = new BigDecimal(""+currentWins).multiply(new BigDecimal(100)).divide(new BigDecimal(""+currentTrials), 1, BigDecimal.ROUND_HALF_UP);
+    return chance;
+  }
+  
+  int runTrial(Party attacker, Party defender){
+    Battle battle;
+    Party clone1;
+    Party clone2;
+    if(defender.player==2){
+      battle = (Battle) defender.clone();
+      battle.changeUnitNumber(attacker.player, attacker.getUnitNumber());
+      if(battle.party1.player==attacker.player){
+        clone1 = battle.party1;
+        clone2 = battle.party2;
+      } else {
+        clone1 = battle.party2;
+        clone2 = battle.party1;
+      }
+    } else {
+      clone1 = attacker.clone();
+      clone2 = defender.clone();
+      battle = new Battle(clone1, clone2); 
+    }
+    while (clone1.getUnitNumber()>0&&clone2.getUnitNumber()>0){
+      battle.doBattle();
+    }
+    if(clone1.getUnitNumber()>0){
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+  void refresh(){
+    cached = false;
   }
 }
