@@ -17,11 +17,20 @@ class BaseFileManager extends Element{
   }
   
   void loadSaveNames(){
-    //Files.list(Paths.get("."));
+    try{
+      File dir = new File(sketchPath("saves"));
+      saveNames = dir.list();
+      
+      print(saveNames);
+    }
+    catch (Exception e) {
+      println("files scanning failed");
+    }
   }
   
   
   void draw(PGraphics panelCanvas){
+    
     int rowWidth = ceil(TEXTSIZE * jsManager.loadFloatSetting("text scale"));
     panelCanvas.pushStyle();
     
