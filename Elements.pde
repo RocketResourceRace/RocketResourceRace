@@ -1325,6 +1325,7 @@ class TextEntry extends Element{
   color textColour, boxColour, borderColour, selectionColour;
   String allowedChars, name;
   final int BLINKTIME = 500;
+  boolean texActive;
   
   TextEntry(int x, int y, int w, int h, int textAlign, color textColour, color boxColour, color borderColour, String allowedChars){
     this.x = x;
@@ -1339,7 +1340,7 @@ class TextEntry extends Element{
     this.allowedChars = allowedChars;
     text = new StringBuilder();
     selectionColour = brighten(selectionColour, 150);
-    deactivate();
+    texActive = false;
   }
   TextEntry(int x, int y, int w, int h, int textAlign, color textColour, color boxColour, color borderColour, String allowedChars, String name){
     this.x = x;
@@ -1355,7 +1356,7 @@ class TextEntry extends Element{
     this.name = name;
     text = new StringBuilder();
     selectionColour = brighten(selectionColour, 150);
-    deactivate();
+    texActive = false;
   }
   
   void setText(String t){
@@ -1366,7 +1367,8 @@ class TextEntry extends Element{
   }
   
   void draw(PGraphics panelCanvas){
-    boolean showCursor = ((millis()/BLINKTIME)%2==0 || keyPressed) && active;
+    println(texActive);
+    boolean showCursor = ((millis()/BLINKTIME)%2==0 || keyPressed) && texActive;
     panelCanvas.pushStyle();
     
     // Draw a box behind the text
@@ -1376,7 +1378,7 @@ class TextEntry extends Element{
     panelCanvas.textFont(getFont(textSize*jsManager.loadFloatSetting("text scale")));
     panelCanvas.textAlign(textAlign);
     // Draw selection box
-    if (selected != cursor && active && cursor >= 0 ){
+    if (selected != cursor && texActive && cursor >= 0 ){
       panelCanvas.fill(selectionColour);
       panelCanvas.rect(x+panelCanvas.textWidth(text.substring(0, min(cursor, selected)))+5, y+2, panelCanvas.textWidth(text.substring(min(cursor, selected), max(cursor, selected))), h-4);
     }
@@ -1452,7 +1454,7 @@ class TextEntry extends Element{
     if (eventType == "mouseClicked"){
       if (button == LEFT){
         if (mouseOver()){
-          activate();
+          texActive = true;
         }
       }
     }
@@ -1462,7 +1464,7 @@ class TextEntry extends Element{
         selected = getCursorPos(mouseX-xOffset, mouseY-yOffset);
       }
       if(!mouseOver()){
-        deactivate();
+        texActive = false;
       }
     }
     else if (eventType == "mouseDragged"){
@@ -1478,43 +1480,45 @@ class TextEntry extends Element{
   
   ArrayList<String> keyboardEvent(String eventType, char _key){
     ArrayList<String> events = new ArrayList<String>();
-    if (eventType == "keyTyped"){
-      if (_key == '\n'){
-        events.add("enterPressed");
-        deactivate();
-      }
-      else if (allowedChars.equals("") || allowedChars.contains(""+_key)){
-        if (cursor != selected){
-          text = new StringBuilder(text.substring(0, min(cursor, selected)) + text.substring(max(cursor, selected), text.length()));
-          cursor = min(cursor, selected);
+    if (texActive){
+      if (eventType == "keyTyped"){
+        if (allowedChars.equals("") || allowedChars.contains(""+_key)){
+          if (cursor != selected){
+            text = new StringBuilder(text.substring(0, min(cursor, selected)) + text.substring(max(cursor, selected), text.length()));
+            cursor = min(cursor, selected);
+            resetSelection();
+          }
+          text.insert(cursor++, _key);
           resetSelection();
         }
-        text.insert(cursor++, _key);
-        resetSelection();
       }
-    }
-    else if (eventType == "keyPressed"){
-      if (_key == BACKSPACE){
-        if (selected == cursor){
-          if (cursor > 0){
-            text.deleteCharAt(--cursor);
+      else if (eventType == "keyPressed"){
+        if (_key == '\n'){
+          events.add("enterPressed");
+          texActive = false;
+        }
+        if (_key == BACKSPACE){
+          if (selected == cursor){
+            if (cursor > 0){
+              text.deleteCharAt(--cursor);
+              resetSelection();
+            }
+          }
+          else{
+            text = new StringBuilder(text.substring(0, min(cursor, selected)) + text.substring(max(cursor, selected), text.length()));
+            cursor = min(cursor, selected);
             resetSelection();
           }
         }
-        else{
-          text = new StringBuilder(text.substring(0, min(cursor, selected)) + text.substring(max(cursor, selected), text.length()));
-          cursor = min(cursor, selected);
-          resetSelection();
-        }
-      }
-      if (_key == CODED){
-        if (keyCode == LEFT){
-          cursor = max(0, cursor-1);
-          resetSelection();
-        }
-        if (keyCode == RIGHT){
-          cursor = min(text.length(), cursor+1);
-          resetSelection();
+        if (_key == CODED){
+          if (keyCode == LEFT){
+            cursor = max(0, cursor-1);
+            resetSelection();
+          }
+          if (keyCode == RIGHT){
+            cursor = min(text.length(), cursor+1);
+            resetSelection();
+          }
         }
       }
     }

@@ -157,10 +157,12 @@ class State{
       if(activePanel == panel.id || eventType.equals("mouseMoved") || panel.overrideBlocking){
         // Iterate in reverse order
         for (int i=panel.elements.size()-1; i>=0; i--){
-          for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button)){
-            events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
-            if (eventName.equals("stop events")){
-              return;
+          if (panel.elements.get(i).active){
+            for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button)){
+              events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
+              if (eventName.equals("stop events")){
+                return;
+              }
             }
           }
         }
@@ -178,10 +180,12 @@ class State{
       if(panel.mouseOver() && panel.visible){
         // Iterate in reverse order
         for (int i=panel.elements.size()-1; i>=0; i--){
-          for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button)){
-            events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
-            if (eventName.equals("stop events")){
-              return;
+          if (panel.elements.get(i).active){
+            for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button)){
+              events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
+              if (eventName.equals("stop events")){
+                return;
+              }
             }
           }
         }

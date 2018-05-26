@@ -864,6 +864,9 @@ class Game extends State{
         else if (event.id == "resume button"){
           getPanel("pause screen").visible = false;
           getPanel("save screen").visible = false;
+          // Enable map
+          getElement("2dmap", "default").active = true;
+          getElement("3dmap", "default").active = true;
         }
         else if (event.id == "save as button"){
           getPanel("save screen").visible = !getPanel("save screen").visible;
@@ -1504,23 +1507,33 @@ class Game extends State{
   }
 
   ArrayList<String> keyboardEvent(String eventType, char _key){
-    refreshTooltip();
     if (eventType == "keyPressed" && _key == ESC){
       getPanel("pause screen").visible = !getPanel("pause screen").visible;
-      if (getPanel("pause screen").visible)
+      if (getPanel("pause screen").visible){
         ((BaseFileManager)getElement("saving manager", "save screen")).loadSaveNames();
-      else
-        getPanel("save screen").visible = false;
-    }
-    if (eventType == "keyTyped"){
-      if (key == ' '){
-        postEvent(new EndTurn());
+        // Disable map
+        getElement("2dmap", "default").active = false;
+        getElement("3dmap", "default").active = false;
       }
-      else if (key == 'i'){
-        int[] t = findIdle(turn);
-        if (t[0] != -1){
-          selectCell(t[0], t[1], false);
-          map.targetCell(t[0], t[1], 64);
+      else{
+        getPanel("save screen").visible = false;
+        // Enable map
+        getElement("2dmap", "default").active = true;
+        getElement("3dmap", "default").active = true;
+      }
+    }
+    if (!getPanel("pause screen").visible){
+      refreshTooltip();
+      if (eventType == "keyTyped"){
+        if (key == ' '){
+          postEvent(new EndTurn());
+        }
+        else if (key == 'i'){
+          int[] t = findIdle(turn);
+          if (t[0] != -1){
+            selectCell(t[0], t[1], false);
+            map.targetCell(t[0], t[1], 64);
+          }
         }
       }
     }
@@ -1536,6 +1549,10 @@ class Game extends State{
     ((Text)getElement("turns remaining", "party management")).setText("");
     ((Panel)getPanel("end screen")).visible = false;
     getPanel("save screen").visible = false;
+    // Enable map
+    getElement("2dmap", "default").active = true;
+    getElement("3dmap", "default").active = true;
+    
     Text winnerMessage = ((Text)this.getElement("winner", "end screen"));
     winnerMessage.setText("Winner: player /w");
 
