@@ -5,6 +5,7 @@ class BaseFileManager extends Element{
   final int TEXTSIZE = 16;
   String folderString;
   String[] saveNames;
+  int selected, rowHeight;
   
   
   BaseFileManager(int x, int y, int w, int h, String folderString){
@@ -21,25 +22,52 @@ class BaseFileManager extends Element{
       File dir = new File(sketchPath("saves"));
       saveNames = dir.list();
       
-      print(saveNames);
+      println(saveNames);
     }
     catch (Exception e) {
       println("files scanning failed");
     }
   }
   
-  
+  ArrayList<String> mouseEvent(String eventType, int button){
+    ArrayList<String> events = new ArrayList<String>();
+    
+    if (eventType.equals("mouseClicked")){
+      if (moveOver()){
+        selected = hoveringOption();
+      }
+    }
+    
+    return events;
+  }
   void draw(PGraphics panelCanvas){
     
-    int rowWidth = ceil(TEXTSIZE * jsManager.loadFloatSetting("text scale"));
+    rowHeight = ceil(TEXTSIZE * jsManager.loadFloatSetting("text scale"))+5;
     panelCanvas.pushStyle();
     
-    getFont(TEXTSIZE);
-    textSize(TEXTSIZE * jsManager.loadFloatSetting("text scale"));
-    //for (int i=0; i<)
-    //text();
+    panelCanvas.textSize(TEXTSIZE * jsManager.loadFloatSetting("text scale"));
+    panelCanvas.textAlign(LEFT, TOP);
+    for (int i=0; i<saveNames.length; i++){
+      if (selected == i){
+        panelCanvas.fill(color(100));
+      }
+      else{
+        panelCanvas.fill(color(150));
+      }
+      panelCanvas.rect(x, y+rowHeight*i, w, rowHeight);
+      panelCanvas.fill(0);
+      panelCanvas.text(saveNames[i], x, y+rowHeight*i);
+    }
     
     panelCanvas.popStyle();
+  }
+  
+  boolean moveOver(){
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h*(saveNames.length+1);
+  }
+  
+  int hoveringOption(){
+    return (mouseY-yOffset-y)/rowHeight;
   }
 }
 
