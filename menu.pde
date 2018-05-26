@@ -175,11 +175,11 @@ class Menu extends State{
         }
         else if (event.id.equals("start")){
           newState = "map";
-          loading = false;
+          loadingName = null;
         }
         else if (event.id.equals("load")){
           newState = "map";
-          loading = true;
+          loadingName = ((BaseFileManager)getElement("loading manager", "load game")).selectedSaveName();
         }
         else if (event.id.equals("exit")){
           exit();

@@ -40,6 +40,11 @@ class BaseFileManager extends Element{
     
     return events;
   }
+  
+  String selectedSaveName(){
+    return saveNames[selected];
+  }
+  
   void draw(PGraphics panelCanvas){
     
     rowHeight = ceil(TEXTSIZE * jsManager.loadFloatSetting("text scale"))+5;
@@ -67,7 +72,11 @@ class BaseFileManager extends Element{
   }
   
   int hoveringOption(){
-    return (mouseY-yOffset-y)/rowHeight;
+    int s = (mouseY-yOffset-y)/rowHeight;
+    if (0 <= s || s >= saveNames.length){
+      return selected;
+    }
+    return s;
   }
 }
 

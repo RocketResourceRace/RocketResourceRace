@@ -16,7 +16,7 @@ JSONObject gameData;
 HashMap<Integer, PFont> fonts;
 int graphicsRes = 32;
 PShader toon;
-boolean loading = false;
+String loadingName;
 
 JSONManager jsManager;
 

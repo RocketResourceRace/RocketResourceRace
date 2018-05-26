@@ -1524,8 +1524,8 @@ class Game extends State{
       ((Map2D)getElement("2dmap", "default")).visible = true;
       ((Map2D)map).reset();
     }
-    if(loading){
-      MapSave mapSave = ((BaseMap)map).loadMap("saves/test.dat", resourceNames.length);
+    if(loadingName != null){
+      MapSave mapSave = ((BaseMap)map).loadMap("saves/"+loadingName, resourceNames.length);
       terrain = mapSave.terrain;
       buildings = mapSave.buildings;
       parties = mapSave.parties;
@@ -1695,7 +1695,7 @@ class Game extends State{
       player1 = generatePartyPosition();
       player2 = generatePartyPosition();
     }
-    if(!loading){
+    if(loadingName != null){
       parties[(int)player1.y][(int)player1.x] = new Party(0, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"));
       parties[(int)player2.y][(int)player2.x] = new Party(1, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"));
     }
