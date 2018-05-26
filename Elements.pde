@@ -1247,7 +1247,10 @@ class Slider extends Element{
   }
   
   Boolean mouseOver(){
-    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
+    BigDecimal range = upper.subtract(lower);
+    int xKnobPos = round(x+(value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue())-knobSize/2);
+    return (mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h) ||
+    (mouseX-xOffset >= xKnobPos && mouseX-xOffset <= xKnobPos+knobSize && mouseY-yOffset >= y && mouseY-yOffset <= y+h); // Over slider or knob box
   }
   
   BigDecimal getInc(BigDecimal i){
