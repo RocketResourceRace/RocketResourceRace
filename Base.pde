@@ -154,7 +154,7 @@ class State{
       }
     }
     for (Panel panel : panels){
-      if(activePanel == panel.id || eventType.equals("mouseMoved")){
+      if(activePanel == panel.id || eventType.equals("mouseMoved") || panel.overrideBlocking){
         // Iterate in reverse order
         for (int i=panel.elements.size()-1; i>=0; i--){
           for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button)){
@@ -164,7 +164,7 @@ class State{
             }
           }
         }
-        if (!eventType.equals("mouseMoved"))
+        if (!eventType.equals("mouseMoved") && !panel.overrideBlocking)
           break;
       }
     }
@@ -193,10 +193,11 @@ class State{
   void _keyboardEvent(String eventType, char _key){
     keyboardEvent(eventType, _key);
     for (Panel panel : panels){
-      for (Element elem : panel.elements){
-        // TODO decide whether all or just active panel
-        if (elem.active){
-          elem.keyboardEvent(eventType, _key);
+      for (int i=panel.elements.size()-1; i>=0; i--){
+        for (String eventName : panel.elements.get(i)._keyboardEvent(eventType, _key)){
+          if (panel.elements.get(i).active){
+            panel.elements.get(i).keyboardEvent(eventType, _key);
+          }
         }
       }
     }
@@ -212,7 +213,7 @@ class Panel{
   ArrayList<Element> elements;
   String id;
   PImage img;
-  Boolean visible, blockEvent;
+  Boolean visible, blockEvent, overrideBlocking;
   private int x, y, w, h;
   private color bgColour, strokeColour;
   PGraphics panelCanvas, elemGraphics;
@@ -229,6 +230,7 @@ class Panel{
     this.strokeColour = strokeColour;
     elements = new ArrayList<Element>();
     panelCanvas = createGraphics(w, h, P2D);
+    overrideBlocking = false;
   }
 
   Panel(String id, int x, int y, int w, int h, Boolean visible, String fileName, color strokeColour){
@@ -242,6 +244,11 @@ class Panel{
     this.strokeColour = strokeColour;
     elements = new ArrayList<Element>();
     panelCanvas = createGraphics(w, h, P2D);
+    overrideBlocking = false;
+  }
+  
+  void setOverrideBlocking(boolean v){
+    overrideBlocking = v;
   }
 
   void setOffset(){

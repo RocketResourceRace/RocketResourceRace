@@ -74,7 +74,10 @@ class Game extends State{
     addPanel("bottom bar", 0, height-70, width, 70, true, true, color(150), color(50));
     addPanel("end screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
     addPanel("pause screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
+    addPanel("save screen", 0, 0, width, height, false, false, color(255,255), color(255, 255));
     addPanel("overlay", 0, 0, width, height, true, false, color(255,255), color(255, 255));
+    
+    getPanel("save screen").setOverrideBlocking(true);
 
     addElement("0tooltip", new Tooltip(), "overlay");
     tooltip = (Tooltip)getElement("0tooltip", "overlay");
@@ -86,8 +89,11 @@ class Game extends State{
     addElement("desktop button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*150), (int)(height/2+jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Exit to Desktop"), "pause screen");
     addElement("save as button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*150), (int)(height/2-3*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Save As"), "pause screen");
     addElement("resume button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*150), (int)(height/2-5*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Resume"), "pause screen");
-    //addElement("loading manager", new BaseFileManager(width/4, height/4, width/2, height/2, "saves"), "load game");
     
+    addElement("save button", new Button((int)(width/2+jsManager.loadFloatSetting("gui scale")*150+(int)(jsManager.loadFloatSetting("gui scale")*20)), (int)(height/2-5*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Save"), "save screen");
+    addElement("saving manager", new BaseFileManager((int)(width/2+jsManager.loadFloatSetting("gui scale")*150+(int)(jsManager.loadFloatSetting("gui scale")*20)), (int)(height/2-jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*500), (int)(jsManager.loadFloatSetting("gui scale")*300), "saves"), "save screen");
+    addElement("save namer", new TextEntry((int)(width/2+jsManager.loadFloatSetting("gui scale")*150+(int)(jsManager.loadFloatSetting("gui scale")*20)), (int)(height/2-3*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*50), LEFT, color(0), color(100), color(0), "", "Save Name"), "save screen");
+ 
     addElement("turns remaining", new Text(bezel*2+220, bezel*4+30+30, 8, "", color(255), LEFT), "party management");
     addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
     addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
@@ -849,14 +855,7 @@ class Game extends State{
           newState = "menu";
         }
         else if (event.id == "main menu button"){
-          float blockSize;
-          if (map.isZooming()){
-            blockSize = map.getTargetZoom();
-          } else{
-            blockSize = map.getZoom();
-          }
-          players[turn].saveSettings(map.getTargetOffsetX(), map.getTargetOffsetY(), blockSize, cellX, cellY, cellSelected);
-          ((BaseMap)map).saveMap("saves/test.dat", this.turnNumber, this.turn, this.players);
+          // old save place
           newState = "menu";
         }
         else if (event.id == "desktop button"){
@@ -864,11 +863,30 @@ class Game extends State{
         }
         else if (event.id == "resume button"){
           getPanel("pause screen").visible = false;
+          getPanel("save screen").visible = false;
+        }
+        else if (event.id == "save as button"){
+          getPanel("save screen").visible = !getPanel("save screen").visible;
+        }
+        else if (event.id == "save button"){
+          loadingName = ((TextEntry)getElement("save namer", "save screen")).getText();
+          float blockSize;
+          if (map.isZooming()){
+            blockSize = map.getTargetZoom();
+          } else{
+            blockSize = map.getZoom();
+          }
+          players[turn].saveSettings(map.getTargetOffsetX(), map.getTargetOffsetY(), blockSize, cellX, cellY, cellSelected);
+          ((BaseMap)map).saveMap("saves/"+loadingName, this.turnNumber, this.turn, this.players);
         }
       }
       if (event.type == "valueChanged"){
         if (event.id == "tasks"){
           postEvent(new ChangeTask(cellX, cellY, JSONIndex(jsManager.gameData.getJSONArray("tasks"), ((TaskManager)getElement("tasks", "party management")).getSelected())));
+        }
+        if (event.id == "saving manager"){
+          loadingName = ((BaseFileManager)getElement("saving manager", "save screen")).selectedSaveName();
+          ((TextEntry)getElement("save namer", "save screen")).setText(loadingName);
         }
       }
       if (event.type == "notification selected"){
@@ -1489,6 +1507,10 @@ class Game extends State{
     refreshTooltip();
     if (eventType == "keyPressed" && _key == ESC){
       getPanel("pause screen").visible = !getPanel("pause screen").visible;
+      if (getPanel("pause screen").visible)
+        ((BaseFileManager)getElement("saving manager", "save screen")).loadSaveNames();
+      else
+        getPanel("save screen").visible = false;
     }
     if (eventType == "keyTyped"){
       if (key == ' '){
@@ -1513,6 +1535,7 @@ class Game extends State{
     clearPrevIdle();
     ((Text)getElement("turns remaining", "party management")).setText("");
     ((Panel)getPanel("end screen")).visible = false;
+    getPanel("save screen").visible = false;
     Text winnerMessage = ((Text)this.getElement("winner", "end screen"));
     winnerMessage.setText("Winner: player /w");
 
