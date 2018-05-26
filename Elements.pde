@@ -1368,7 +1368,6 @@ class TextEntry extends Element{
   }
   
   void draw(PGraphics panelCanvas){
-    println(texActive);
     boolean showCursor = ((millis()/BLINKTIME)%2==0 || keyPressed) && texActive;
     panelCanvas.pushStyle();
     
