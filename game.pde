@@ -36,6 +36,7 @@ class Game extends State{
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
+  BattleEstimateManager battleEstimateManager;
   NotificationManager notificationManager;
   Tooltip tooltip;
   int turn;
