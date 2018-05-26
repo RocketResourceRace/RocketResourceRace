@@ -109,6 +109,9 @@ class Map3D extends BaseMap implements Map{
   float getTargetZoom(){
     return targetZoom;
   }
+  boolean isMoving(){
+    return focusedV.x != 0 || focusedV.y != 0;
+  }
 
   float getTargetOffsetX(){return 0;}
   float getTargetOffsetY(){return 0;}

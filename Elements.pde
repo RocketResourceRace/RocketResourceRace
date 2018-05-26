@@ -1247,7 +1247,10 @@ class Slider extends Element{
   }
   
   Boolean mouseOver(){
-    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
+    BigDecimal range = upper.subtract(lower);
+    int xKnobPos = round(x+(value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue())-knobSize/2);
+    return (mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h) ||
+    (mouseX-xOffset >= xKnobPos && mouseX-xOffset <= xKnobPos+knobSize && mouseY-yOffset >= y && mouseY-yOffset <= y+h); // Over slider or knob box
   }
   
   BigDecimal getInc(BigDecimal i){
@@ -1452,7 +1455,7 @@ class TextEntry extends Element{
     int i=0;
     for(; i<text.length(); i++){
       textFont(getFont(textSize*jsManager.loadFloatSetting("text scale")));
-      if (textWidth(text.substring(0, i)) + x > mx)
+      if ((textWidth(text.substring(0, i)) + textWidth(text.substring(0, i+1)))/2 + x > mx)
         break;
     }
     if (0 <= i && i <= text.length() && y+(h-textSize*jsManager.loadFloatSetting("text scale"))/2<= my && my <= y+(h-textSize*jsManager.loadFloatSetting("text scale"))/2+textSize*jsManager.loadFloatSetting("text scale")){
