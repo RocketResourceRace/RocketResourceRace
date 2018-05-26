@@ -1452,7 +1452,7 @@ class TextEntry extends Element{
     int i=0;
     for(; i<text.length(); i++){
       textFont(getFont(textSize*jsManager.loadFloatSetting("text scale")));
-      if (textWidth(text.substring(0, i)) + x > mx)
+      if ((textWidth(text.substring(0, i)) + textWidth(text.substring(0, i+1)))/2 + x > mx)
         break;
     }
     if (0 <= i && i <= text.length() && y+(h-textSize*jsManager.loadFloatSetting("text scale"))/2<= my && my <= y+(h-textSize*jsManager.loadFloatSetting("text scale"))/2+textSize*jsManager.loadFloatSetting("text scale")){
