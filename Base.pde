@@ -109,6 +109,7 @@ class State{
         return i;
       }
     }
+    print("invalid panel, ", id);
     return -1;
   }
   Panel getPanel(String id){
