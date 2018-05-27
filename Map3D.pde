@@ -802,14 +802,16 @@ class Map3D extends BaseMap implements Map{
     w.mult( n.dot(f)/n.dot(w) );
     PVector ray = w.copy();
     w.add(e);
-
+    
     float acHeight, curX = e.x, curY = e.y;
     for (int i = 0; i < ray.mag(); i++){
       curX += ray.x/ray.mag();
       curY += ray.y/ray.mag();
-      acHeight = getHeight(curX/blockSize, curY/blockSize);
-      if (getRayHeightAt(ray, e, curX) < acHeight+0.0001){
-        return new PVector(curX, curY,acHeight);
+      if (0 <= curX/blockSize && curX/blockSize <= mapWidth && 0 <= curY/blockSize && curY/blockSize < mapHeight){
+        acHeight = getHeight(curX/blockSize, curY/blockSize);
+        if (getRayHeightAt(ray, e, curX) < acHeight+0.0001){
+          return new PVector(curX, curY,acHeight);
+        }
       }
     }
 
