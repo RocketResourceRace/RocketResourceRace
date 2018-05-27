@@ -951,7 +951,7 @@ class Game extends State{
   }
 
   void moveParty(int px, int py, boolean splitting){
-
+    boolean hasMoved = false;
     int startPx = px;
     int startPy = py;
     Party p;
@@ -987,6 +987,7 @@ class Game extends State{
     for (int node=1; node<path.size(); node++){
       int cost = cost(path.get(node)[0], path.get(node)[1], px, py);
       if (p.getMovementPoints() >= cost){
+        hasMoved = true;
         if (parties[path.get(node)[1]][path.get(node)[0]] == null){
           // empty cell
           p.subMovementPoints(cost);
@@ -1100,7 +1101,7 @@ class Game extends State{
     }
     
     // if the party didnt move then put the splitted party back into the cell
-    if (startPx == px && startPy == py){
+    if (startPx == px && startPy == py && !hasMoved){
       parties[py][px] = p;
     }
   } //<>//
