@@ -938,7 +938,7 @@ class TaskManager extends Element{
   }
   void select(String s){
     for (int j=0; j<availableOptions.size(); j++){
-      if (options.get(availableOptions.get(j)) == s){
+      if (options.get(availableOptions.get(j)).equals(s)){
         selectAt(j);
       }
     }
