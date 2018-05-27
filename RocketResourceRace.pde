@@ -14,7 +14,6 @@ HashMap<String, SoundFile> sfx;
 int prevT;
 JSONObject gameData;
 HashMap<Integer, PFont> fonts;
-int graphicsRes = 32;
 PShader toon;
 String loadingName;
 

@@ -53,7 +53,6 @@ float getDownwardAngle(int x, int y){
 class Map3D extends BaseMap implements Map{
   final int thickness = 10;
   final float PANSPEED = 0.5, ROTSPEED = 0.002;
-  final int FORESTDENSITY = 10;
   final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3;
   final float HILLRAISE = 1.05;
   final float GROUNDHEIGHT = 5;
@@ -275,7 +274,7 @@ class Map3D extends BaseMap implements Map{
       } else {
         tempTileImages[i] = tileImages.get(tileType.getString("id")).copy();
       }
-      tempTileImages[i].resize(graphicsRes, graphicsRes);
+      tempTileImages[i].resize(jsManager.loadIntSetting("terrain texture resolution"), jsManager.loadIntSetting("terrain texture resolution"));
     }
     PGraphics tempTerrain;
 
@@ -288,10 +287,10 @@ class Map3D extends BaseMap implements Map{
     PShape t;
     int numTreeTiles=0;
     for (int y=0; y<mapHeight; y++) {
-      tempTerrain = createGraphics(round((1+mapWidth)*graphicsRes), round(graphicsRes));
+      tempTerrain = createGraphics(round((1+mapWidth)*jsManager.loadIntSetting("terrain texture resolution")), round(jsManager.loadIntSetting("terrain texture resolution")));
       tempTerrain.beginDraw();
       for (int x=0; x<mapWidth; x++) {
-        tempTerrain.image(tempTileImages[terrain[y][x]-1], x*graphicsRes, 0);
+        tempTerrain.image(tempTileImages[terrain[y][x]-1], x*jsManager.loadIntSetting("terrain texture resolution"), 0);
       }
       tempTerrain.endDraw();
 
@@ -303,25 +302,25 @@ class Map3D extends BaseMap implements Map{
         //t.setSpecular(color(0, 20, 20));
         t.beginShape(TRIANGLE_STRIP);
         resetMatrix();
-        t.vertex(0, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, 0, 0, y1*graphicsRes/jsManager.loadFloatSetting("terrain detail"));
-        t.vertex(0, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, 0, 0, (y1+1)*graphicsRes/jsManager.loadFloatSetting("terrain detail"));
+        t.vertex(0, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, 0, 0, y1*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
+        t.vertex(0, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, 0, 0, (y1+1)*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
         for (int x=0; x<mapWidth; x++) {
           //int x1=(int)jsManager.loadFloatSetting("terrain detail");
           for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail"); x1++) {
-            t.vertex((x+x1/jsManager.loadFloatSetting("terrain detail"))*blockSize, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), (y+y1/jsManager.loadFloatSetting("terrain detail"))), (x+x1/jsManager.loadFloatSetting("terrain detail"))*graphicsRes, y1*graphicsRes/jsManager.loadFloatSetting("terrain detail"));
-            t.vertex((x+x1/jsManager.loadFloatSetting("terrain detail"))*blockSize, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(1+y1)/jsManager.loadFloatSetting("terrain detail")), (x+x1/jsManager.loadFloatSetting("terrain detail"))*graphicsRes, (y1+1)*graphicsRes/jsManager.loadFloatSetting("terrain detail"));
+            t.vertex((x+x1/jsManager.loadFloatSetting("terrain detail"))*blockSize, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), (y+y1/jsManager.loadFloatSetting("terrain detail"))), (x+x1/jsManager.loadFloatSetting("terrain detail"))*jsManager.loadIntSetting("terrain texture resolution"), y1*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
+            t.vertex((x+x1/jsManager.loadFloatSetting("terrain detail"))*blockSize, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(1+y1)/jsManager.loadFloatSetting("terrain detail")), (x+x1/jsManager.loadFloatSetting("terrain detail"))*jsManager.loadIntSetting("terrain texture resolution"), (y1+1)*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
           }
         }
-        t.vertex(mapWidth*blockSize, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(mapWidth, (y+y1/jsManager.loadFloatSetting("terrain detail"))), mapWidth*graphicsRes, (y1/jsManager.loadFloatSetting("terrain detail"))*graphicsRes);
-        t.vertex(mapWidth*blockSize, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(mapWidth, y+(1.0+y1)/jsManager.loadFloatSetting("terrain detail")), mapWidth*graphicsRes, ((y1+1.0)/jsManager.loadFloatSetting("terrain detail"))*graphicsRes);
-        //t.vertex(mapWidth*blockSize, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, 0, mapWidth*graphicsRes, (y1/jsManager.loadFloatSetting("terrain detail"))*graphicsRes);
-        //t.vertex(mapWidth*blockSize, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, 0, mapWidth*graphicsRes, ((y1+1.0)/jsManager.loadFloatSetting("terrain detail"))*graphicsRes);
+        t.vertex(mapWidth*blockSize, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(mapWidth, (y+y1/jsManager.loadFloatSetting("terrain detail"))), mapWidth*jsManager.loadIntSetting("terrain texture resolution"), (y1/jsManager.loadFloatSetting("terrain detail"))*jsManager.loadIntSetting("terrain texture resolution"));
+        t.vertex(mapWidth*blockSize, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(mapWidth, y+(1.0+y1)/jsManager.loadFloatSetting("terrain detail")), mapWidth*jsManager.loadIntSetting("terrain texture resolution"), ((y1+1.0)/jsManager.loadFloatSetting("terrain detail"))*jsManager.loadIntSetting("terrain texture resolution"));
+        //t.vertex(mapWidth*blockSize, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, 0, mapWidth*jsManager.loadIntSetting("terrain texture resolution"), (y1/jsManager.loadFloatSetting("terrain detail"))*jsManager.loadIntSetting("terrain texture resolution"));
+        //t.vertex(mapWidth*blockSize, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, 0, mapWidth*jsManager.loadIntSetting("terrain texture resolution"), ((y1+1.0)/jsManager.loadFloatSetting("terrain detail"))*jsManager.loadIntSetting("terrain texture resolution"));
         t.endShape();
         tiles.addChild(t);
       }
       for (int x=0; x<mapWidth; x++) {
         if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest")+1) {
-          PShape cellTree = generateTrees(FORESTDENSITY, 16, x*blockSize, y*blockSize);
+          PShape cellTree = generateTrees(jsManager.loadIntSetting("forest density"), 16, x*blockSize, y*blockSize);
           cellTree.translate((x)*blockSize, (y)*blockSize, 0);
           trees.addChild(cellTree);
           addTreeTile(x, y, numTreeTiles++);
