@@ -17,7 +17,6 @@ class Menu extends State{
     newPanel = currentPanel;
     activePanel = currentPanel;
     
-    addElement("loading manager", new BaseFileManager(width/4, height/4, width/2, height/2, "saves"), "load game");
   }
   
   void loadMenuPanels(){
@@ -27,6 +26,8 @@ class Menu extends State{
     getPanel(currentPanel).setVisible(true);
     stateChangers = jsManager.getChangeStateButtons();
     settingChangers = jsManager.getChangeSettingButtons();
+    
+    addElement("loading manager", new BaseFileManager(width/4, height/4, width/2, height/2, "saves"), "load game");
   }
   
   color currentColour(){

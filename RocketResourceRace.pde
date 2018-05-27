@@ -121,7 +121,6 @@ int TILESIZE = 1;
 int MAPWIDTH = 100;
 int MAPHEIGHT = 100;
 float MAPNOISESCALE = 0.08;
-float VERTICESPERTILE = 2;
 float HILLSTEEPNESS = 0.1;
 
 color[] playerColours = new color[]{color(0, 0, 255), color(255, 0, 0)};

@@ -5,8 +5,8 @@ boolean isWater(int x, int y) {
   //  noise(x*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
   //  noise((x+1)*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
   //  })<jsManager.loadFloatSetting("water level");
-  for (float y1 = y; y1<=y+1;y1+=1.0/VERTICESPERTILE){
-    for (float x1 = x; x1<=x+1;x1+=1.0/VERTICESPERTILE){
+  for (float y1 = y; y1<=y+1;y1+=1.0/jsManager.loadFloatSetting("terrain detail")){
+    for (float x1 = x; x1<=x+1;x1+=1.0/jsManager.loadFloatSetting("terrain detail")){
       if(noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE)>jsManager.loadFloatSetting("water level")){
         return false;
       }
@@ -30,8 +30,8 @@ float getDownwardAngle(int x, int y){
     PVector minZCoord = new PVector();
     float maxZ = 0;
     float minZ = 1;
-    for (float y1 = y; y1<=y+1;y1+=1.0/VERTICESPERTILE){
-      for (float x1 = x; x1<=x+1;x1+=1.0/VERTICESPERTILE){
+    for (float y1 = y; y1<=y+1;y1+=1.0/jsManager.loadFloatSetting("terrain detail")){
+      for (float x1 = x; x1<=x+1;x1+=1.0/jsManager.loadFloatSetting("terrain detail")){
         float z = noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE);
         if(z > maxZ){
           maxZCoord = new PVector(x1, y1);
@@ -98,7 +98,7 @@ class Map3D extends BaseMap implements Map{
     canvas = createGraphics(width, height, P3D);
     refractionCanvas = createGraphics(width/4, height/4, P3D);
     downwardAngleCache = new HashMap<Integer, HashMap<Integer, Float>>();
-    heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(VERTICESPERTILE, 2))];
+    heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(jsManager.loadFloatSetting("terrain detail"), 2))];
   }
   Node[][] getMoveNodes(){
     return moveNodes;
@@ -295,7 +295,7 @@ class Map3D extends BaseMap implements Map{
       }
       tempTerrain.endDraw();
 
-      for (int y1=0; y1<VERTICESPERTILE; y1++) {
+      for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail"); y1++) {
         t = createShape();
         t.setTexture(tempTerrain);
         //t.setShininess(0.1);
@@ -303,19 +303,19 @@ class Map3D extends BaseMap implements Map{
         //t.setSpecular(color(0, 20, 20));
         t.beginShape(TRIANGLE_STRIP);
         resetMatrix();
-        t.vertex(0, (y+y1/VERTICESPERTILE)*blockSize, 0, 0, y1*graphicsRes/VERTICESPERTILE);
-        t.vertex(0, (y+(1+y1)/VERTICESPERTILE)*blockSize, 0, 0, (y1+1)*graphicsRes/VERTICESPERTILE);
+        t.vertex(0, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, 0, 0, y1*graphicsRes/jsManager.loadFloatSetting("terrain detail"));
+        t.vertex(0, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, 0, 0, (y1+1)*graphicsRes/jsManager.loadFloatSetting("terrain detail"));
         for (int x=0; x<mapWidth; x++) {
-          //int x1=(int)VERTICESPERTILE;
-          for (int x1=0; x1<VERTICESPERTILE; x1++) {
-            t.vertex((x+x1/VERTICESPERTILE)*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(x+x1/VERTICESPERTILE, (y+y1/VERTICESPERTILE)), (x+x1/VERTICESPERTILE)*graphicsRes, y1*graphicsRes/VERTICESPERTILE);
-            t.vertex((x+x1/VERTICESPERTILE)*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, getHeight(x+x1/VERTICESPERTILE, y+(1+y1)/VERTICESPERTILE), (x+x1/VERTICESPERTILE)*graphicsRes, (y1+1)*graphicsRes/VERTICESPERTILE);
+          //int x1=(int)jsManager.loadFloatSetting("terrain detail");
+          for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail"); x1++) {
+            t.vertex((x+x1/jsManager.loadFloatSetting("terrain detail"))*blockSize, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), (y+y1/jsManager.loadFloatSetting("terrain detail"))), (x+x1/jsManager.loadFloatSetting("terrain detail"))*graphicsRes, y1*graphicsRes/jsManager.loadFloatSetting("terrain detail"));
+            t.vertex((x+x1/jsManager.loadFloatSetting("terrain detail"))*blockSize, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(1+y1)/jsManager.loadFloatSetting("terrain detail")), (x+x1/jsManager.loadFloatSetting("terrain detail"))*graphicsRes, (y1+1)*graphicsRes/jsManager.loadFloatSetting("terrain detail"));
           }
         }
-        t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, getHeight(mapWidth, (y+y1/VERTICESPERTILE)), mapWidth*graphicsRes, (y1/VERTICESPERTILE)*graphicsRes);
-        t.vertex(mapWidth*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, getHeight(mapWidth, y+(1.0+y1)/VERTICESPERTILE), mapWidth*graphicsRes, ((y1+1.0)/VERTICESPERTILE)*graphicsRes);
-        //t.vertex(mapWidth*blockSize, (y+y1/VERTICESPERTILE)*blockSize, 0, mapWidth*graphicsRes, (y1/VERTICESPERTILE)*graphicsRes);
-        //t.vertex(mapWidth*blockSize, (y+(1+y1)/VERTICESPERTILE)*blockSize, 0, mapWidth*graphicsRes, ((y1+1.0)/VERTICESPERTILE)*graphicsRes);
+        t.vertex(mapWidth*blockSize, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(mapWidth, (y+y1/jsManager.loadFloatSetting("terrain detail"))), mapWidth*graphicsRes, (y1/jsManager.loadFloatSetting("terrain detail"))*graphicsRes);
+        t.vertex(mapWidth*blockSize, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(mapWidth, y+(1.0+y1)/jsManager.loadFloatSetting("terrain detail")), mapWidth*graphicsRes, ((y1+1.0)/jsManager.loadFloatSetting("terrain detail"))*graphicsRes);
+        //t.vertex(mapWidth*blockSize, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, 0, mapWidth*graphicsRes, (y1/jsManager.loadFloatSetting("terrain detail"))*graphicsRes);
+        //t.vertex(mapWidth*blockSize, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, 0, mapWidth*graphicsRes, ((y1+1.0)/jsManager.loadFloatSetting("terrain detail"))*graphicsRes);
         t.endShape();
         tiles.addChild(t);
       }
@@ -349,8 +349,8 @@ class Map3D extends BaseMap implements Map{
     int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
     int[] curLoc = {0, 0};
     for (int[] dir : directions){
-      for (int i=0; i<VERTICESPERTILE; i++){
-        tileRect.vertex(curLoc[0]*blockSize/VERTICESPERTILE, curLoc[1]*blockSize/VERTICESPERTILE, 0);
+      for (int i=0; i<jsManager.loadFloatSetting("terrain detail"); i++){
+        tileRect.vertex(curLoc[0]*blockSize/jsManager.loadFloatSetting("terrain detail"), curLoc[1]*blockSize/jsManager.loadFloatSetting("terrain detail"), 0);
         curLoc[0] += dir[0];
         curLoc[1] += dir[1];
       }
@@ -385,8 +385,8 @@ class Map3D extends BaseMap implements Map{
     int[] curLoc = {0, 0};
     int a = 0;
     for (int[] dir : directions){
-      for (int i=0; i<VERTICESPERTILE; i++){
-        tileRect.setVertex(a++, curLoc[0]*blockSize/VERTICESPERTILE, curLoc[1]*blockSize/VERTICESPERTILE, getHeight(cellX+curLoc[0]/VERTICESPERTILE, cellY+curLoc[1]/VERTICESPERTILE));
+      for (int i=0; i<jsManager.loadFloatSetting("terrain detail"); i++){
+        tileRect.setVertex(a++, curLoc[0]*blockSize/jsManager.loadFloatSetting("terrain detail"), curLoc[1]*blockSize/jsManager.loadFloatSetting("terrain detail"), getHeight(cellX+curLoc[0]/jsManager.loadFloatSetting("terrain detail"), cellY+curLoc[1]/jsManager.loadFloatSetting("terrain detail")));
         curLoc[0] += dir[0];
         curLoc[1] += dir[1];
       }
@@ -534,10 +534,10 @@ class Map3D extends BaseMap implements Map{
     return new ArrayList<String>();
   }
   float getHeight(float x, float y) {
-    //if (y<mapHeight && x<mapWidth && y+VERTICESPERTILE/blockSize<mapHeight && x+VERTICESPERTILE/blockSize<mapHeight && y-VERTICESPERTILE/blockSize>=0 && x-VERTICESPERTILE/blockSize>=0 &&
+    //if (y<mapHeight && x<mapWidth && y+jsManager.loadFloatSetting("terrain detail")/blockSize<mapHeight && x+jsManager.loadFloatSetting("terrain detail")/blockSize<mapHeight && y-jsManager.loadFloatSetting("terrain detail")/blockSize>=0 && x-jsManager.loadFloatSetting("terrain detail")/blockSize>=0 &&
     //terrain[floor(y)][floor(x)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 &&
-    //terrain[floor(y+VERTICESPERTILE/blockSize)][floor(x+VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 && 
-    //terrain[floor(y-VERTICESPERTILE/blockSize)][floor(x-VERTICESPERTILE/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
+    //terrain[floor(y+jsManager.loadFloatSetting("terrain detail")/blockSize)][floor(x+jsManager.loadFloatSetting("terrain detail")/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 && 
+    //terrain[floor(y-jsManager.loadFloatSetting("terrain detail")/blockSize)][floor(x-jsManager.loadFloatSetting("terrain detail")/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
     //  return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT*HILLRAISE;
     //} else {
       return (max(getRawHeight(x, y), jsManager.loadFloatSetting("water level"))-jsManager.loadIntSetting("water level"))*blockSize*GROUNDHEIGHT;
@@ -780,7 +780,7 @@ class Map3D extends BaseMap implements Map{
     PVector start = s.copy();
     PVector ray = r.copy();
     start.add(ray);
-    return start.dist(targetV) < blockSize/VERTICESPERTILE;
+    return start.dist(targetV) < blockSize/jsManager.loadFloatSetting("terrain detail");
   }
 
 

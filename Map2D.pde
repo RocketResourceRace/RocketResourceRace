@@ -322,7 +322,7 @@ class BaseMap extends Element{
   
   
   int toMapIndex(int x, int y, int x1, int y1){
-    return int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*(mapWidth+1/VERTICESPERTILE)+y*pow(VERTICESPERTILE, 2)*(mapWidth+1/VERTICESPERTILE));
+    return int(x1+x*jsManager.loadFloatSetting("terrain detail")+y1*jsManager.loadFloatSetting("terrain detail")*(mapWidth+1/jsManager.loadFloatSetting("terrain detail"))+y*pow(jsManager.loadFloatSetting("terrain detail"), 2)*(mapWidth+1/jsManager.loadFloatSetting("terrain detail")));
   }
   
   
@@ -465,27 +465,27 @@ class BaseMap extends Element{
     generateTerrain();
   }
   void generateNoiseMaps(){
-    heightMap = new float[int((mapWidth+1/VERTICESPERTILE)*(mapHeight+1/VERTICESPERTILE)*pow(VERTICESPERTILE, 2))];
+    heightMap = new float[int((mapWidth+1/jsManager.loadFloatSetting("terrain detail"))*(mapHeight+1/jsManager.loadFloatSetting("terrain detail"))*pow(jsManager.loadFloatSetting("terrain detail"), 2))];
     for(int y = 0;y<mapHeight;y++){
-      for(int y1 = 0;y1<VERTICESPERTILE;y1++){
+      for(int y1 = 0;y1<jsManager.loadFloatSetting("terrain detail");y1++){
         for(int x = 0;x<mapWidth;x++){
-          for(int x1 = 0;x1<VERTICESPERTILE;x1++){
-            heightMap[toMapIndex(x, y, x1, y1)] = noise((x+x1/VERTICESPERTILE)*MAPNOISESCALE, (y+y1/VERTICESPERTILE)*MAPNOISESCALE);
+          for(int x1 = 0;x1<jsManager.loadFloatSetting("terrain detail");x1++){
+            heightMap[toMapIndex(x, y, x1, y1)] = noise((x+x1/jsManager.loadFloatSetting("terrain detail"))*MAPNOISESCALE, (y+y1/jsManager.loadFloatSetting("terrain detail"))*MAPNOISESCALE);
           }
         }
-        heightMap[toMapIndex(mapWidth, y, 0, y1)] = noise(((mapWidth+1))*MAPNOISESCALE, (y+y1/VERTICESPERTILE)*MAPNOISESCALE);
+        heightMap[toMapIndex(mapWidth, y, 0, y1)] = noise(((mapWidth+1))*MAPNOISESCALE, (y+y1/jsManager.loadFloatSetting("terrain detail"))*MAPNOISESCALE);
       }
     }
     for(int x = 0;x<mapWidth;x++){
-      for(int x1 = 0;x1<VERTICESPERTILE;x1++){
-        heightMap[toMapIndex(x, mapHeight, x1, 0)] = noise((x+x1/VERTICESPERTILE)*MAPNOISESCALE, (mapHeight)*MAPNOISESCALE);
+      for(int x1 = 0;x1<jsManager.loadFloatSetting("terrain detail");x1++){
+        heightMap[toMapIndex(x, mapHeight, x1, 0)] = noise((x+x1/jsManager.loadFloatSetting("terrain detail"))*MAPNOISESCALE, (mapHeight)*MAPNOISESCALE);
       }
     }
     heightMap[toMapIndex(mapWidth, mapHeight, 0, 0)] = noise(((mapWidth+1))*MAPNOISESCALE, (mapHeight)*MAPNOISESCALE);
   }
   float getRawHeight(int x, int y, int x1, int y1) {
     try{
-      return max(heightMap[int(x1+x*VERTICESPERTILE+y1*VERTICESPERTILE*(mapWidth+1/VERTICESPERTILE)+y*pow(VERTICESPERTILE, 2)*(mapWidth+1/VERTICESPERTILE))], jsManager.loadFloatSetting("water level"));
+      return max(heightMap[int(x1+x*jsManager.loadFloatSetting("terrain detail")+y1*jsManager.loadFloatSetting("terrain detail")*(mapWidth+1/jsManager.loadFloatSetting("terrain detail"))+y*pow(jsManager.loadFloatSetting("terrain detail"), 2)*(mapWidth+1/jsManager.loadFloatSetting("terrain detail")))], jsManager.loadFloatSetting("water level"));
     } catch (ArrayIndexOutOfBoundsException e) {
       return 0;
     }
@@ -494,7 +494,7 @@ class BaseMap extends Element{
     return getRawHeight(x, y, 0, 0);
   }
   float getRawHeight(float x, float y){
-    return getRawHeight(int(x), int(y), round((x-int(x))*VERTICESPERTILE), round((y-int(y))*VERTICESPERTILE));
+    return getRawHeight(int(x), int(y), round((x-int(x))*jsManager.loadFloatSetting("terrain detail")), round((y-int(y))*jsManager.loadFloatSetting("terrain detail")));
   }
   float groundMinRawHeightAt(int x1, int y1) {
     int x = floor(x1);
@@ -511,8 +511,8 @@ class BaseMap extends Element{
     float maxZ, minZ;
     maxZ = 0;
     minZ = 1;
-    for (float y1 = y; y1<=y+1;y1+=1.0/VERTICESPERTILE){
-      for (float x1 = x; x1<=x+1;x1+=1.0/VERTICESPERTILE){
+    for (float y1 = y; y1<=y+1;y1+=1.0/jsManager.loadFloatSetting("terrain detail")){
+      for (float x1 = x; x1<=x+1;x1+=1.0/jsManager.loadFloatSetting("terrain detail")){
         float z = getRawHeight(x1, y1);
         if(z>maxZ){
           maxZ = z;
@@ -567,7 +567,7 @@ class Map2D extends BaseMap implements Map{
     frameStartTime = 0;
     cancelMoveNodes();
     cancelPath();
-    heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(VERTICESPERTILE, 2))];
+    heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(jsManager.loadFloatSetting("terrain detail"), 2))];
   }
   void generateShape(){
 
