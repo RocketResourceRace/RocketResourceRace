@@ -1587,7 +1587,8 @@ class ToggleButton extends Element{
   ArrayList<String> mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
     if (eventType == "mouseClicked"&&mouseOver()){
-      events.add("toggled");
+      events.add("valueChanged");
+      print(1);
       on = !on;
     }
     return events;

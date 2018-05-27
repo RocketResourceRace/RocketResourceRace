@@ -103,6 +103,7 @@ class Game extends State{
     addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
     addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
     addElement("tasks", new TaskManager(bezel, bezel*4+30+30, 220, 10, color(150), color(50), tasks), "party management");
+    
 
     addElement("end turn", new Button(bezel, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"), "bottom bar");
     addElement("idle party finder", new Button(bezel*2+buttonW, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Idle Party"), "bottom bar");
@@ -110,8 +111,10 @@ class Game extends State{
     int resSummaryX = width-((ResourceSummary)(getElement("resource summary", "bottom bar"))).totalWidth();
     addElement("resource expander", new Button(resSummaryX-50, bezel, 30, 30, color(150), color(50), color(0), 10, CENTER, "<"), "bottom bar");
     addElement("turn number", new TextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", color(0,0,255), 0), "bottom bar");
+    addElement("2d 3d toggle", new ToggleButton(bezel*4+buttonW*3, bezel*2, buttonW/2, buttonH-bezel, color(150), color(0), jsManager.loadBooleanSetting("map is 3d"), "3D View"), "bottom bar");
+  //int x, int y, int w, int h, color bgColour, color strokeColour, boolean value, String name
+  
     prevIdle = new ArrayList<Integer[]>();
-    
   }
 
   void initialiseBuildings(){
@@ -883,24 +886,24 @@ class Game extends State{
           else
             b.setText(">");
         }
-        else if (event.id == "end game button"){
+        else if (event.id.equals("end game button")){
           newState = "menu";
         }
-        else if (event.id == "main menu button"){
+        else if (event.id.equals("main menu button")){
           // old save place
           newState = "menu";
         }
-        else if (event.id == "desktop button"){
+        else if (event.id.equals("desktop button")){
           exit();
         }
-        else if (event.id == "resume button"){
+        else if (event.id.equals("resume button")){
           getPanel("pause screen").visible = false;
           getPanel("save screen").visible = false;
           // Enable map
           getElement("2dmap", "default").active = true;
           getElement("3dmap", "default").active = true;
         }
-        else if (event.id == "save as button"){
+        else if (event.id.equals("save as button")){
           // Show the save menu
           getPanel("save screen").visible = !getPanel("save screen").visible;
           if (loadingName == null){
@@ -908,7 +911,7 @@ class Game extends State{
           }
           ((TextEntry)getElement("save namer", "save screen")).setText(loadingName);
         }
-        else if (event.id == "save button"){
+        else if (event.id.equals("save button")){
           loadingName = ((TextEntry)getElement("save namer", "save screen")).getText();
           float blockSize;
           if (map.isZooming()){
@@ -920,16 +923,32 @@ class Game extends State{
           ((BaseMap)map).saveMap("saves/"+loadingName, this.turnNumber, this.turn, this.players);
         }
       }
-      if (event.type == "valueChanged"){
-        if (event.id == "tasks"){
+      if (event.type.equals("valueChanged")){
+        if (event.id.equals("tasks")){
           postEvent(new ChangeTask(cellX, cellY, JSONIndex(jsManager.gameData.getJSONArray("tasks"), ((TaskManager)getElement("tasks", "party management")).getSelected())));
         }
-        if (event.id == "saving manager"){
+        else if (event.id.equals("2d 3d toggle")){
+          // Save the game
+          loadingName = "Autosave.dat";
+          float blockSize;
+          if (map.isZooming()){
+            blockSize = map.getTargetZoom();
+          } else{
+            blockSize = map.getZoom();
+          }
+          players[turn].saveSettings(map.getTargetOffsetX(), map.getTargetOffsetY(), blockSize, cellX, cellY, cellSelected);
+          ((BaseMap)map).saveMap("saves/"+loadingName, this.turnNumber, this.turn, this.players);
+          
+          jsManager.saveSetting("map is 3d", ((ToggleButton)(getElement("2d 3d toggle", "bottom bar"))).getState());
+          reloadGame();
+          
+        }
+        else if (event.id.equals("saving manager")){
           loadingName = ((BaseFileManager)getElement("saving manager", "save screen")).selectedSaveName();
           ((TextEntry)getElement("save namer", "save screen")).setText(loadingName);
         }
       }
-      if (event.type == "notification selected"){
+      if (event.type.equals("notification selected")){
         int x = notificationManager.lastSelected.x, y = notificationManager.lastSelected.y;
         map.targetCell(x, y, 100);
         selectCell(x, y, false);
@@ -1579,8 +1598,11 @@ class Game extends State{
     }
     return new ArrayList<String>();
   }
-
   void enterState(){
+    reloadGame();
+  }
+
+  void reloadGame(){
     mapWidth = jsManager.loadIntSetting("map size");
     mapHeight = jsManager.loadIntSetting("map size");
     updateCellSelection();
@@ -1634,6 +1656,7 @@ class Game extends State{
       turn = 0;
       turnNumber = 0;
     }
+    
     battleEstimateManager = new BattleEstimateManager(parties);
     //for(int i=0;i<NUMOFBUILDINGTYPES;i++){
     //  buildings[(int)playerStarts[0].y][(int)playerStarts[0].x+i] = new Building(1+i);
