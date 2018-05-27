@@ -360,7 +360,7 @@ class Map3D extends BaseMap implements Map{
       if (!task.isNull("img")) {
         PShape object = createShape(RECT, 0, 0, blockSize/2, blockSize/2);
         object.setFill(color(255, 255, 255));
-        object.setTexture(taskImages.get(task.getString("id")));
+        object.setTexture(taskImages[i]);
         taskObjs.put(task.getString("id"), object);
         taskObjs.get(task.getString("id")).rotateX(-PI/2);
       }

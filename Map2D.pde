@@ -798,7 +798,7 @@ class Map2D extends BaseMap implements Map{
     PImage[] tempTileImages = new PImage[gameData.getJSONArray("terrain").size()];
     PImage[][] tempBuildingImages = new PImage[gameData.getJSONArray("buildings").size()][];
     PImage[] tempPartyImages = new PImage[3];
-    HashMap<Integer, PImage> tempTaskImages = new HashMap<Integer, PImage>();
+    PImage[] tempTaskImages = new PImage[taskImages.length];
     if (frameStartTime == 0){
       frameStartTime = millis();
     }
@@ -849,9 +849,11 @@ class Map2D extends BaseMap implements Map{
       tempPartyImages[i] = partyImages[i].copy();
       tempPartyImages[i].resize(ceil(blockSize), 0);
     }
-    for(Integer taskName: taskImages.keySet()){
-      tempTaskImages.put(taskName, taskImages.get(taskName).copy());
-      tempTaskImages.get(taskName).resize(ceil(3*blockSize/16), 0);
+    for(int i=0; i<taskImages.length; i++){
+      if(taskImages[i] != null){
+        tempTaskImages[i] = taskImages[i];
+        tempTaskImages[i].resize(ceil(3*blockSize/16), 0);
+      }
     }
     int lx = max(0, -ceil((mapXOffset)/blockSize));
     int ly = max(0, -ceil((mapYOffset)/blockSize));
@@ -910,9 +912,9 @@ class Map2D extends BaseMap implements Map{
              }
              int imgSize = round(blockSize);
              drawCroppedImage(floor(c.x), floor(c.y), imgSize, imgSize, tempPartyImages[parties[y][x].player], panelCanvas);
-             JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].task);
+             JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].getTask());
              if (jo != null && !jo.isNull("img")){
-               drawCroppedImage(floor(c.x+13*blockSize/32), floor(c.y+blockSize/2), ceil(3*blockSize/16), ceil(3*blockSize/16), tempTaskImages.get(parties[y][x].task), panelCanvas);
+               drawCroppedImage(floor(c.x+13*blockSize/32), floor(c.y+blockSize/2), ceil(3*blockSize/16), ceil(3*blockSize/16), tempTaskImages[parties[y][x].getTask()], panelCanvas);
              }
            }
          }
