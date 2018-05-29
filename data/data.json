@@ -460,6 +460,7 @@
     {
       "id": "Quarry",
       "img": ["quarry.png"],
+      "obj": ["quarry.obj"]
     },
     {
       "id": "Construction",
