@@ -860,8 +860,8 @@ class Map2D extends BaseMap implements Map{
     int hx = min(floor((elementWidth-mapXOffset)/blockSize)+1, mapWidth);
     int hy = min(floor((elementHeight-mapYOffset)/blockSize)+1, mapHeight);
 
-   PVector c;
-   PVector selectedCell = new PVector(scaleX(selectedCellX), scaleY(selectedCellY));
+    PVector c;
+    PVector selectedCell = new PVector(scaleX(selectedCellX), scaleY(selectedCellY));
 
     for(int y=ly;y<hy;y++){
       for (int x=lx; x<hx; x++){
