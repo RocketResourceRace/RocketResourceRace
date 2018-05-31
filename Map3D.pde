@@ -27,7 +27,7 @@ class Map3D extends BaseMap implements Map{
   final float GROUNDHEIGHT = 5;
   int x, y, w, h, prevT, frameTime;
   int selectedCellX, selectedCellY;
-  PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect, pathLine;
+  PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect, pathLine, unitNumberBackground;
   HashMap<String, PShape> taskObjs;
   HashMap<String, PShape[]> buildingObjs;
   PImage[] tempTileImages;
@@ -341,7 +341,10 @@ class Map3D extends BaseMap implements Map{
     battle = loadShape("battle.obj");
     battle.rotateX(PI/2);
 
-
+    unitNumberBackground = createShape(RECT, 0, 0, blockSize, blockSize/8);
+    unitNumberBackground.rotateX(PI/2);
+    unitNumberBackground.setFill(color(120, 120, 120));
+    unitNumberBackground.setStroke(false);
 
     tileRect = createShape();
     tileRect.beginShape();
@@ -734,8 +737,14 @@ class Map3D extends BaseMap implements Map{
             canvas.shape(battle);
             canvas.popMatrix();
           }
-         JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].task);
-         if (jo != null && !jo.isNull("img")){
+          canvas.pushMatrix();
+          canvas.translate((x)*blockSize, (y)*blockSize, blockSize*3);
+          //canvas.rotateZ(-this.rot);
+          canvas.translate(blockSize, blockSize);
+          canvas.shape(unitNumberBackground);
+          canvas.popMatrix();
+          JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].task);
+          if (jo != null && !jo.isNull("img")){
             canvas.noLights();
             canvas.pushMatrix();
             canvas.translate((x+0.5+sin(rot)*0.25)*blockSize, (y+0.5+cos(rot)*0.25)*blockSize, blockSize*3+groundMinHeightAt(x, y));
@@ -743,7 +752,7 @@ class Map3D extends BaseMap implements Map{
             canvas.translate(-0.25*blockSize, -0.25*blockSize);
             canvas.shape(taskObjs.get(jo.getString("id")));
             canvas.popMatrix();
-         }
+          }
         }
       }
     }

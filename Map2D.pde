@@ -444,7 +444,7 @@ class BaseMap extends Element{
     int lastType = 0;
     for (int type: groundWeightings.keySet()){
       if(groundWeightings.get(type)>0){
-        while(float(terrainIndex-totalBelow)/cells.size()<=groundWeightings.get(type)/totalWeighting){
+        while(float(terrainIndex-totalBelow)/cells.size()<groundWeightings.get(type)/totalWeighting){
           terrain[cellsArray[terrainIndex].y][cellsArray[terrainIndex].x] = type;
           cellsArray[terrainIndex].noiseValue = 0;
           terrainIndex++;
