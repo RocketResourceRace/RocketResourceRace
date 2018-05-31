@@ -251,7 +251,7 @@ class Map3D extends BaseMap implements Map{
       leaves.endShape(CLOSE);
       shapes.addChild(leaves);
     }
-    colorMode(RGB);
+    colorMode(RGB, 255);
     return shapes;
   }
 
@@ -342,9 +342,26 @@ class Map3D extends BaseMap implements Map{
     battle.rotateX(PI/2);
 
     fill(255);
-    unitNumberBackground = createShape(RECT, 0, 0, blockSize, blockSize/8);
+    unitNumberBackground = createShape();
+    unitNumberBackground.beginShape(QUADS);
+    unitNumberBackground.fill(120, 120, 120);
+    unitNumberBackground.vertex(blockSize/2, 0, 0);
+    unitNumberBackground.fill(120, 120, 120);
+    unitNumberBackground.vertex(blockSize/2, blockSize*0.125, 0);
+    unitNumberBackground.fill(120, 120, 120);
+    unitNumberBackground.vertex(blockSize, blockSize*0.125, 0);
+    unitNumberBackground.fill(120, 120, 120);
+    unitNumberBackground.vertex(blockSize, 0, 0);
+    unitNumberBackground.fill(0, 0, 255);
+    unitNumberBackground.vertex(0, 0, 0);
+    unitNumberBackground.fill(0, 0, 255);
+    unitNumberBackground.vertex(0, blockSize*0.125, 0);
+    unitNumberBackground.fill(0, 0, 255);
+    unitNumberBackground.vertex(blockSize/2, blockSize*0.125, 0);
+    unitNumberBackground.fill(0, 0, 255);
+    unitNumberBackground.vertex(blockSize/2, 0, 0);
+    unitNumberBackground.endShape();
     unitNumberBackground.rotateX(PI/2);
-    unitNumberBackground.setFill(color(40, 40, 40));
     unitNumberBackground.setStroke(false);
 
     tileRect = createShape();
