@@ -1,54 +1,23 @@
-boolean isWater(int x, int y) {
-  //return max(new float[]{
-  //  noise(x*MAPNOISESCALE, y*MAPNOISESCALE),
-  //  noise((x+1)*MAPNOISESCALE, y*MAPNOISESCALE),
-  //  noise(x*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
-  //  noise((x+1)*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
-  //  })<jsManager.loadFloatSetting("water level");
-  for (float y1 = y; y1<=y+1;y1+=1.0/jsManager.loadFloatSetting("terrain detail")){
-    for (float x1 = x; x1<=x+1;x1+=1.0/jsManager.loadFloatSetting("terrain detail")){
-      if(noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE)>jsManager.loadFloatSetting("water level")){
-        return false;
-      }
-    }
-  }
-  return true;
-}
+//boolean isWater(int x, int y) {
+//  //return max(new float[]{
+//  //  noise(x*MAPNOISESCALE, y*MAPNOISESCALE),
+//  //  noise((x+1)*MAPNOISESCALE, y*MAPNOISESCALE),
+//  //  noise(x*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
+//  //  noise((x+1)*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
+//  //  })<jsManager.loadFloatSetting("water level");
+//  for (float y1 = y; y1<=y+1;y1+=1.0/jsManager.loadFloatSetting("terrain detail")){
+//    for (float x1 = x; x1<=x+1;x1+=1.0/jsManager.loadFloatSetting("terrain detail")){
+//      if(noise(x1*MAPHEIGHTNOISESCALE, y1*MAPHEIGHTNOISESCALE)>jsManager.loadFloatSetting("water level")){
+//        return false;
+//      }
+//    }
+//  }
+//  return true;
+//}
 
 
 
-HashMap<Integer, HashMap<Integer, Float>> downwardAngleCache;
 
-float getDownwardAngle(int x, int y){
-  if(!downwardAngleCache.containsKey(y)){
-    downwardAngleCache.put(y, new HashMap<Integer, Float>());
-  }
-  if(downwardAngleCache.get(y).containsKey(x)){
-    return downwardAngleCache.get(y).get(x);
-  } else {
-    PVector maxZCoord = new PVector();
-    PVector minZCoord = new PVector();
-    float maxZ = 0;
-    float minZ = 1;
-    for (float y1 = y; y1<=y+1;y1+=1.0/jsManager.loadFloatSetting("terrain detail")){
-      for (float x1 = x; x1<=x+1;x1+=1.0/jsManager.loadFloatSetting("terrain detail")){
-        float z = noise(x1*MAPNOISESCALE, y1*MAPNOISESCALE);
-        if(z > maxZ){
-          maxZCoord = new PVector(x1, y1);
-          maxZ = z;
-        } else if (z < minZ){
-          minZCoord = new PVector(x1, y1);
-          minZ = z;
-        }
-      }
-    }
-    PVector direction = minZCoord.sub(maxZCoord);
-    float angle = atan2(direction.y, direction.x);
-
-    downwardAngleCache.get(y).put(x, angle);
-    return angle;
-  }
-}
 
 class Map3D extends BaseMap implements Map{
   final int thickness = 10;
@@ -70,6 +39,7 @@ class Map3D extends BaseMap implements Map{
   ArrayList<int[]> drawPath;
   HashMap<Integer, Integer> forestTiles;
   PGraphics canvas, refractionCanvas;
+  HashMap<Integer, HashMap<Integer, Float>> downwardAngleCache;
 
   Map3D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
     this.x = x;
@@ -99,6 +69,39 @@ class Map3D extends BaseMap implements Map{
     downwardAngleCache = new HashMap<Integer, HashMap<Integer, Float>>();
     heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(jsManager.loadFloatSetting("terrain detail"), 2))];
   }
+  
+
+  float getDownwardAngle(int x, int y){
+    if(!downwardAngleCache.containsKey(y)){
+      downwardAngleCache.put(y, new HashMap<Integer, Float>());
+    }
+    if(downwardAngleCache.get(y).containsKey(x)){
+      return downwardAngleCache.get(y).get(x);
+    } else {
+      PVector maxZCoord = new PVector();
+      PVector minZCoord = new PVector();
+      float maxZ = 0;
+      float minZ = 1;
+      for (float y1 = y; y1<=y+1;y1+=1.0/jsManager.loadFloatSetting("terrain detail")){
+        for (float x1 = x; x1<=x+1;x1+=1.0/jsManager.loadFloatSetting("terrain detail")){
+          float z = getRawHeight(x1, y1);
+          if(z > maxZ){
+            maxZCoord = new PVector(x1, y1);
+            maxZ = z;
+          } else if (z < minZ){
+            minZCoord = new PVector(x1, y1);
+            minZ = z;
+          }
+        }
+      }
+      PVector direction = minZCoord.sub(maxZCoord);
+      float angle = atan2(direction.y, direction.x);
+  
+      downwardAngleCache.get(y).put(x, angle);
+      return angle;
+    }
+  }
+  
   Node[][] getMoveNodes(){
     return moveNodes;
   }

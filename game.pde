@@ -1125,26 +1125,26 @@ class Game extends State{
     if (startPx == px && startPy == py && !hasMoved){
       parties[py][px] = p;
     }
-  } //<>//
+  } //<>// //<>// //<>//
   int getMoveTurns(int startX, int startY, int targetX, int targetY, Node[][] nodes){
     int movementPoints;
     if (parties[startY][startX] != null)
-      movementPoints = round(parties[startY][startX].getMovementPoints()); //<>// //<>//
+      movementPoints = round(parties[startY][startX].getMovementPoints()); //<>// //<>// //<>// //<>//
     else if (splittedParty != null)
       movementPoints = round(splittedParty.getMovementPoints());
-    else //<>//
-      return -1; //<>// //<>//
+    else //<>// //<>// //<>//
+      return -1; //<>// //<>// //<>// //<>//
 
     int turns = 0;
-    ArrayList <int[]> path = getPath(startX, startY, targetX, targetY, nodes); //<>//
-    Collections.reverse(path); //<>//
+    ArrayList <int[]> path = getPath(startX, startY, targetX, targetY, nodes); //<>// //<>// //<>//
+    Collections.reverse(path); //<>// //<>// //<>//
     for (int node=1; node<path.size(); node++){
       int cost = cost(path.get(node)[0], path.get(node)[1], path.get(node-1)[0], path.get(node-1)[1]);
-      if (movementPoints < cost){ //<>//
+      if (movementPoints < cost){ //<>// //<>// //<>//
         turns += 1;
         movementPoints = gameData.getJSONObject("game options").getInt("movement points");
       }
-      movementPoints -= cost; //<>//
+      movementPoints -= cost; //<>// //<>// //<>//
     }
     return turns;
   }
@@ -1158,26 +1158,26 @@ class Game extends State{
     }
     else if(((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").visible){
       tooltip.setTurnsRemaining();
-      tooltip.show(); //<>//
+      tooltip.show(); //<>// //<>// //<>//
     }
     else if(((Button)getElement("move button", "party management")).mouseOver()&& getPanel("party management").visible){
       tooltip.setMoveButton();
-      tooltip.show(); //<>// //<>//
+      tooltip.show(); //<>// //<>// //<>// //<>//
     }
     else if (moving&&map.mouseOver() && !UIHovering()){
-      Node [][] nodes = map.getMoveNodes(); //<>//
-      int x = floor(map.scaleXInv(mouseX)); //<>// //<>//
+      Node [][] nodes = map.getMoveNodes(); //<>// //<>// //<>//
+      int x = floor(map.scaleXInv(mouseX)); //<>// //<>// //<>// //<>//
       int y = floor(map.scaleYInv(mouseY));
       if (x < mapWidth && y<mapHeight && x>=0 && y>=0 && nodes[y][x] != null && !(cellX == x && cellY == y)){
-        if (parties[cellY][cellX] != null){ //<>//
-          map.updatePath(getPath(cellX, cellY, x, y, map.getMoveNodes())); //<>//
+        if (parties[cellY][cellX] != null){ //<>// //<>// //<>//
+          map.updatePath(getPath(cellX, cellY, x, y, map.getMoveNodes())); //<>// //<>// //<>//
         }
         if(parties[y][x]==null){
-          //Moving into empty tile //<>//
+          //Moving into empty tile //<>// //<>// //<>//
           int turns = getMoveTurns(cellX, cellY, x, y, nodes);
           boolean splitting = splitUnitsNum()!=parties[cellY][cellX].getUnitNumber();
           tooltip.setMoving(turns, splitting);
-          tooltip.show(); //<>//
+          tooltip.show(); //<>// //<>// //<>//
         }
         else {
           if (parties[y][x].player == turn){
@@ -1216,26 +1216,26 @@ class Game extends State{
               moving = false;
               map.cancelMoveNodes();
             }
-            else{ //<>//
+            else{ //<>// //<>// //<>//
               moving = true;
               map.updateMoveNodes(djk(cellX, cellY));
             }
-          } //<>// //<>//
+          } //<>// //<>// //<>// //<>//
         }
       }
-      if (eventType == "mouseReleased"){ //<>//
-        if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn && !UIHovering()){ //<>// //<>//
+      if (eventType == "mouseReleased"){ //<>// //<>// //<>//
+        if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn && !UIHovering()){ //<>// //<>// //<>// //<>//
           if (moving){
             int x = floor(map.scaleXInv(mouseX));
- //<>//
-            int y = floor(map.scaleYInv(mouseY)); //<>//
+ //<>// //<>// //<>//
+            int y = floor(map.scaleYInv(mouseY)); //<>// //<>// //<>//
             postEvent(new Move(cellX, cellY, x, y));
             map.cancelPath();
-            moving = false; //<>//
+            moving = false; //<>// //<>// //<>//
             map.cancelMoveNodes();
           }
         }
-      } //<>//
+      } //<>// //<>// //<>//
     }
     if (button == LEFT){
       if (eventType == "mousePressed"){
@@ -1783,7 +1783,7 @@ class Game extends State{
     return costs.size();
   }
   boolean startInvalid(PVector p1, PVector p2){
-    if(p1.dist(p2)<mapWidth/8||noise(p1.x*MAPNOISESCALE, p1.y*MAPNOISESCALE)<jsManager.loadFloatSetting("water level")||noise(p2.x*MAPNOISESCALE, p2.y*MAPNOISESCALE)<jsManager.loadFloatSetting("water level")){
+    if(p1.dist(p2)<mapWidth/8||((BaseMap)map).isWater(int(p1.x), int(p1.y))||((BaseMap)map).isWater(int(p2.x), int(p2.y))){
       return true;
     }
     return false;

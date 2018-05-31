@@ -326,53 +326,66 @@ class BaseMap extends Element{
   }
   
   
-  int getRandomGroundType(HashMap<Integer, Float> groundWeightings, float total){
-    float randomNum = random(0, 1);
-    float min = 0;
-    int lastType = 1;
-    for (int type: groundWeightings.keySet()){
-      if(randomNum>min&&randomNum<min+groundWeightings.get(type)/total){
-        return type;
-      }
-      min += groundWeightings.get(type)/total;
-      lastType = type;
-    }
-    return lastType;
-  }
-  int[][] smoothMap(int distance, int firstType, int[][] terrain){
-    ArrayList<int[]> order = new ArrayList<int[]>();
-    for (int y=0; y<mapHeight;y++){
-      for (int x=0; x<mapWidth;x++){
-        order.add(new int[] {x, y});
-      }
-    }
-    Collections.shuffle(order);
-    int[][] newMap = new int[mapHeight][mapWidth];
-    for (int[] coord: order){
-      if(terrain[coord[1]][coord[0]]==terrainIndex("water")){
-        newMap[coord[1]][coord[0]] = terrain[coord[1]][coord[0]];
-      } else {
-        int[] counts = new int[NUMOFGROUNDTYPES+1];
-        for (int y1=coord[1]-distance+1;y1<coord[1]+distance;y1++){
-          for (int x1 = coord[0]-distance+1; x1<coord[0]+distance;x1++){
-            if (y1<mapHeight&&y1>=0&&x1<mapWidth&&x1>=0){
-              if(terrain[y1][x1]!=terrainIndex("water")){
-                counts[terrain[y1][x1]]+=1;
-              }
-            }
-          }
-        }
-        int highest = terrain[coord[1]][coord[0]];
-        for (int i=firstType; i<=NUMOFGROUNDTYPES;i++){
-          if (counts[i] > counts[highest]){
-            highest = i;
-          }
-        }
-        newMap[coord[1]][coord[0]] = highest;
-      }
-    }
-    return newMap;
-  }
+  //int getRandomGroundType(HashMap<Integer, Float> groundWeightings, float total){
+  //  float randomNum = random(0, 1);
+  //  float min = 0;
+  //  int lastType = 1;
+  //  for (int type: groundWeightings.keySet()){
+  //    if(randomNum>min&&randomNum<min+groundWeightings.get(type)/total){
+  //      return type;
+  //    }
+  //    min += groundWeightings.get(type)/total;
+  //    lastType = type;
+  //  }
+  //  return lastType;
+  //}
+  //int getRandomGroundTypeAt(int x, int y, ArrayList<Integer> shuffledTypes, HashMap<Integer, Float> groundWeightings, float total){
+  //  double randomNum = Math.cbrt(noise(x*MAPTERRAINNOISESCALE, y*MAPTERRAINNOISESCALE, 1)*2-1)*0.5+0.5;
+  //  float min = 0;
+  //  int lastType = 1;
+  //  for (int type: shuffledTypes){
+  //    if(randomNum>min&&randomNum<min+groundWeightings.get(type)/total){
+  //      return type;
+  //    }
+  //    min += groundWeightings.get(type)/total;
+  //    lastType = type;
+  //  }
+  //  return lastType;
+  //}
+  //int[][] smoothMap(int distance, int firstType, int[][] terrain){
+  //  ArrayList<int[]> order = new ArrayList<int[]>();
+  //  for (int y=0; y<mapHeight;y++){
+  //    for (int x=0; x<mapWidth;x++){
+  //      order.add(new int[] {x, y});
+  //    }
+  //  }
+  //  Collections.shuffle(order);
+  //  int[][] newMap = new int[mapHeight][mapWidth];
+  //  for (int[] coord: order){
+  //    if(terrain[coord[1]][coord[0]]==terrainIndex("water")){
+  //      newMap[coord[1]][coord[0]] = terrain[coord[1]][coord[0]];
+  //    } else {
+  //      int[] counts = new int[NUMOFGROUNDTYPES+1];
+  //      for (int y1=coord[1]-distance+1;y1<coord[1]+distance;y1++){
+  //        for (int x1 = coord[0]-distance+1; x1<coord[0]+distance;x1++){
+  //          if (y1<mapHeight&&y1>=0&&x1<mapWidth&&x1>=0){
+  //            if(terrain[y1][x1]!=terrainIndex("water")){
+  //              counts[terrain[y1][x1]]+=1;
+  //            }
+  //          }
+  //        }
+  //      }
+  //      int highest = terrain[coord[1]][coord[0]];
+  //      for (int i=firstType; i<=NUMOFGROUNDTYPES;i++){
+  //        if (counts[i] > counts[highest]){
+  //          highest = i;
+  //        }
+  //      }
+  //      newMap[coord[1]][coord[0]] = highest;
+  //    }
+  //  }
+  //  return newMap;
+  //}
   void generateTerrain(){
     HashMap<Integer, Float> groundWeightings = new HashMap();
     for (Integer i=1; i<gameData.getJSONArray("terrain").size()+1; i++){
@@ -383,70 +396,122 @@ class BaseMap extends Element{
     for (float weight: groundWeightings.values()){
       totalWeighting+=weight;
     }
-    for(int i=0;i<jsManager.loadIntSetting("ground spawns");i++){
-      int type = getRandomGroundType(groundWeightings, totalWeighting);
-      int x = (int)random(mapWidth);
-      int y = (int)random(mapHeight);
-      if(isWater(x, y)){
-        i--;
-      } else {
-        terrain[y][x] = type;
+    //for(int i=0;i<jsManager.loadIntSetting("ground spawns");i++){
+    //  int type = getRandomGroundType(groundWeightings, totalWeighting);
+    //  int x = (int)random(mapWidth);
+    //  int y = (int)random(mapHeight);
+    //  if(isWater(x, y)){
+    //    i--;
+    //  } else {
+    //    terrain[y][x] = type;
+    //  }
+    //}
+    class TempTerrainDetail implements Comparable<TempTerrainDetail>{
+      int x;
+      int y;
+      float noiseValue;
+      TempTerrainDetail(int x, int y, float noiseValue){
+        super();
+        this.x = x;
+        this.y = y;
+        this.noiseValue = noiseValue;
+      }
+      public int compareTo(TempTerrainDetail otherDetail) {
+        if(this.noiseValue>otherDetail.noiseValue){
+          return 1;
+        } else if (this.noiseValue<otherDetail.noiseValue){
+          return -1;
+        } else {
+          return 0;
+        }
       }
     }
-
-    ArrayList<int[]> order = new ArrayList<int[]>();
+    ArrayList<TempTerrainDetail> cells = new ArrayList<TempTerrainDetail>();
     for (int y=0; y<mapHeight;y++){
       for (int x=0; x<mapWidth;x++){
         if(isWater(x, y)){
           terrain[y][x] = terrainIndex("water");
         } else {
-          order.add(new int[] {x, y});
+          cells.add(new TempTerrainDetail(x, y, noise(x*MAPTERRAINNOISESCALE, y*MAPTERRAINNOISESCALE, 1)));
         }
       }
     }
-    Collections.shuffle(order);
-    for (int[] coord: order){
-      int x = coord[0];
-      int y = coord[1];
-      while (terrain[y][x] == 0||terrain[y][x]==terrainIndex("water")){
-        int direction = (int) random(8);
-        switch(direction){
-          case 0:
-            x= max(x-1, 0);
-            break;
-          case 1:
-            x = min(x+1, mapWidth-1);
-            break;
-          case 2:
-            y= max(y-1, 0);
-            break;
-          case 3:
-            y = min(y+1, mapHeight-1);
-            break;
-          case 4:
-            x = min(x+1, mapWidth-1);
-            y = min(y+1, mapHeight-1);
-            break;
-          case 5:
-            x = min(x+1, mapWidth-1);
-            y= max(y-1, 0);
-            break;
-          case 6:
-            y= max(y-1, 0);
-            x= max(x-1, 0);
-            break;
-          case 7:
-            y = min(y+1, mapHeight-1);
-            x= max(x-1, 0);
-            break;
+    TempTerrainDetail[] cellsArray = new TempTerrainDetail[cells.size()];
+    cells.toArray(cellsArray);
+    Arrays.sort(cellsArray);
+    int terrainIndex = 0;
+    int totalBelow = 0;
+    int lastType = 0;
+    for (int type: groundWeightings.keySet()){
+      if(groundWeightings.get(type)>0){
+        while(float(terrainIndex-totalBelow)/cells.size()<=groundWeightings.get(type)/totalWeighting){
+          terrain[cellsArray[terrainIndex].y][cellsArray[terrainIndex].x] = type;
+          cellsArray[terrainIndex].noiseValue = 0;
+          terrainIndex++;
         }
+        totalBelow = terrainIndex-1;
       }
-      terrain[coord[1]][coord[0]] = terrain[y][x];
+      lastType = type;
     }
-    terrain = smoothMap(jsManager.loadIntSetting("smoothing"), 2, terrain);
-    terrain = smoothMap(jsManager.loadIntSetting("smoothing")+2, 1, terrain);
-    for (int y=0; y<mapHeight; y++){
-      for(int x=0; x<mapWidth; x++){
+    for(TempTerrainDetail t: cellsArray){
+      if(t.noiseValue!=0){
+        terrain[t.y][t.x] = lastType;
+        println("map generation possible issue here");
+      }
+    }
+    //ArrayList<int[]> order = new ArrayList<int[]>();
+    //for (int y=0; y<mapHeight;y++){
+    //  for (int x=0; x<mapWidth;x++){
+    //    if(isWater(x, y)){
+    //      terrain[y][x] = terrainIndex("water");
+    //    } else {
+    //      order.add(new int[] {x, y});
+    //    }
+    //  }
+    //}
+    //Collections.shuffle(order);
+    //for (int[] coord: order){
+    //  int x = coord[0];
+    //  int y = coord[1];
+    //  while (terrain[y][x] == 0||terrain[y][x]==terrainIndex("water")){
+    //    int direction = (int) random(8);
+    //    switch(direction){
+    //      case 0:
+    //        x= max(x-1, 0);
+    //        break;
+    //      case 1:
+    //        x = min(x+1, mapWidth-1);
+    //        break;
+    //      case 2:
+    //        y= max(y-1, 0);
+    //        break;
+    //      case 3:
+    //        y = min(y+1, mapHeight-1);
+    //        break;
+    //      case 4:
+    //        x = min(x+1, mapWidth-1);
+    //        y = min(y+1, mapHeight-1);
+    //        break;
+    //      case 5:
+    //        x = min(x+1, mapWidth-1);
+    //        y= max(y-1, 0);
+    //        break;
+    //      case 6:
+    //        y= max(y-1, 0);
+    //        x= max(x-1, 0);
+    //        break;
+    //      case 7:
+    //        y = min(y+1, mapHeight-1);
+    //        x= max(x-1, 0);
+    //        break;
+    //    }
+    //  }
+    //  terrain[coord[1]][coord[0]] = terrain[y][x];
+    //}
+    //terrain = smoothMap(jsManager.loadIntSetting("smoothing"), 2, terrain);
+    //terrain = smoothMap(jsManager.loadIntSetting("smoothing")+2, 1, terrain);
+    for (int y=0; y<mapHeight;y++){
+      for (int x=0; x<mapWidth;x++){
         if(terrain[y][x] != terrainIndex("water") && (groundMaxRawHeightAt(x, y) > 0.5+jsManager.loadFloatSetting("water level")/2.0) || getMaxSteepness(x, y)>HILLSTEEPNESS){
           terrain[y][x] = terrainIndex("hills");
         }
@@ -470,22 +535,22 @@ class BaseMap extends Element{
       for(int y1 = 0;y1<jsManager.loadFloatSetting("terrain detail");y1++){
         for(int x = 0;x<mapWidth;x++){
           for(int x1 = 0;x1<jsManager.loadFloatSetting("terrain detail");x1++){
-            heightMap[toMapIndex(x, y, x1, y1)] = noise((x+x1/jsManager.loadFloatSetting("terrain detail"))*MAPNOISESCALE, (y+y1/jsManager.loadFloatSetting("terrain detail"))*MAPNOISESCALE);
+            heightMap[toMapIndex(x, y, x1, y1)] = noise((x+x1/jsManager.loadFloatSetting("terrain detail"))*MAPHEIGHTNOISESCALE, (y+y1/jsManager.loadFloatSetting("terrain detail"))*MAPHEIGHTNOISESCALE);
           }
         }
-        heightMap[toMapIndex(mapWidth, y, 0, y1)] = noise(((mapWidth+1))*MAPNOISESCALE, (y+y1/jsManager.loadFloatSetting("terrain detail"))*MAPNOISESCALE);
+        heightMap[toMapIndex(mapWidth, y, 0, y1)] = noise(((mapWidth+1))*MAPHEIGHTNOISESCALE, (y+y1/jsManager.loadFloatSetting("terrain detail"))*MAPHEIGHTNOISESCALE);
       }
     }
     for(int x = 0;x<mapWidth;x++){
       for(int x1 = 0;x1<jsManager.loadFloatSetting("terrain detail");x1++){
-        heightMap[toMapIndex(x, mapHeight, x1, 0)] = noise((x+x1/jsManager.loadFloatSetting("terrain detail"))*MAPNOISESCALE, (mapHeight)*MAPNOISESCALE);
+        heightMap[toMapIndex(x, mapHeight, x1, 0)] = noise((x+x1/jsManager.loadFloatSetting("terrain detail"))*MAPHEIGHTNOISESCALE, (mapHeight)*MAPHEIGHTNOISESCALE);
       }
     }
-    heightMap[toMapIndex(mapWidth, mapHeight, 0, 0)] = noise(((mapWidth+1))*MAPNOISESCALE, (mapHeight)*MAPNOISESCALE);
+    heightMap[toMapIndex(mapWidth, mapHeight, 0, 0)] = noise(((mapWidth+1))*MAPHEIGHTNOISESCALE, (mapHeight)*MAPHEIGHTNOISESCALE);
   }
   float getRawHeight(int x, int y, int x1, int y1) {
     try{
-      return max(heightMap[int(x1+x*jsManager.loadFloatSetting("terrain detail")+y1*jsManager.loadFloatSetting("terrain detail")*(mapWidth+1/jsManager.loadFloatSetting("terrain detail"))+y*pow(jsManager.loadFloatSetting("terrain detail"), 2)*(mapWidth+1/jsManager.loadFloatSetting("terrain detail")))], jsManager.loadFloatSetting("water level"));
+      return max(heightMap[toMapIndex(x, y, x1, y1)], jsManager.loadFloatSetting("water level"));
     } catch (ArrayIndexOutOfBoundsException e) {
       return 0;
     }
@@ -505,6 +570,9 @@ class BaseMap extends Element{
     int x = floor(x1);
     int y = floor(y1);
     return max(new float[]{getRawHeight(x, y), getRawHeight(x+1, y), getRawHeight(x, y+1), getRawHeight(x+1, y+1)});
+  }
+  boolean isWater(int x, int y){
+    return groundMaxRawHeightAt(x, y) == jsManager.loadFloatSetting("water level");
   }
   
   float getMaxSteepness(int x, int y){
