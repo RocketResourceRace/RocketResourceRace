@@ -341,9 +341,10 @@ class Map3D extends BaseMap implements Map{
     battle = loadShape("battle.obj");
     battle.rotateX(PI/2);
 
+    fill(255);
     unitNumberBackground = createShape(RECT, 0, 0, blockSize, blockSize/8);
     unitNumberBackground.rotateX(PI/2);
-    unitNumberBackground.setFill(color(120, 120, 120));
+    unitNumberBackground.setFill(color(40, 40, 40));
     unitNumberBackground.setStroke(false);
 
     tileRect = createShape();
@@ -737,10 +738,11 @@ class Map3D extends BaseMap implements Map{
             canvas.shape(battle);
             canvas.popMatrix();
           }
+          canvas.noLights();
           canvas.pushMatrix();
-          canvas.translate((x)*blockSize, (y)*blockSize, blockSize*3);
-          //canvas.rotateZ(-this.rot);
-          canvas.translate(blockSize, blockSize);
+          canvas.translate((x+0.5+sin(rot)*0.5)*blockSize, (y+0.5+cos(rot)*0.5)*blockSize, blockSize*2.25+groundMinHeightAt(x, y));
+          canvas.rotateZ(-this.rot);
+          canvas.translate(-0.5*blockSize, -0.5*blockSize);
           canvas.shape(unitNumberBackground);
           canvas.popMatrix();
           JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].task);
