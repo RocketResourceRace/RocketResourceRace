@@ -345,7 +345,7 @@ class Map3D extends BaseMap implements Map{
     int players = 2;
     fill(255);
     
-    unitNumberObjects = new PShape[players];
+    unitNumberObjects = new PShape[players+1];
     for (int i=0;i < players; i++){
       unitNumberObjects[i] = createShape();
       unitNumberObjects[i].beginShape(QUADS);
@@ -369,6 +369,43 @@ class Map3D extends BaseMap implements Map{
       unitNumberObjects[i].rotateX(PI/2);
       unitNumberObjects[i].setStroke(false);
     }
+    unitNumberObjects[2] = createShape();
+    unitNumberObjects[2].beginShape(QUADS);
+    unitNumberObjects[2].fill(120, 120, 120);
+    unitNumberObjects[2].vertex(blockSize, 0, 0);
+    unitNumberObjects[2].fill(120, 120, 120);
+    unitNumberObjects[2].vertex(blockSize, blockSize*0.125, 0);
+    unitNumberObjects[2].fill(120, 120, 120);
+    unitNumberObjects[2].vertex(blockSize, blockSize*0.125, 0);
+    unitNumberObjects[2].fill(120, 120, 120);
+    unitNumberObjects[2].vertex(blockSize, 0, 0);
+    unitNumberObjects[2].fill(playerColours[0]);
+    unitNumberObjects[2].vertex(0, 0, 0);
+    unitNumberObjects[2].fill(playerColours[0]);
+    unitNumberObjects[2].vertex(0, blockSize*0.125, 0);
+    unitNumberObjects[2].fill(playerColours[0]);
+    unitNumberObjects[2].vertex(blockSize, blockSize*0.125, 0);
+    unitNumberObjects[2].fill(playerColours[0]);
+    unitNumberObjects[2].vertex(blockSize, 0, 0);
+    unitNumberObjects[2].fill(120, 120, 120);
+    unitNumberObjects[2].vertex(blockSize, 0, 0);
+    unitNumberObjects[2].fill(120, 120, 120);
+    unitNumberObjects[2].vertex(blockSize, blockSize*0.125, 0);
+    unitNumberObjects[2].fill(120, 120, 120);
+    unitNumberObjects[2].vertex(blockSize, blockSize*0.125, 0);
+    unitNumberObjects[2].fill(120, 120, 120);
+    unitNumberObjects[2].vertex(blockSize, 0, 0);
+    unitNumberObjects[2].fill(playerColours[1]);
+    unitNumberObjects[2].vertex(0, 0, 0);
+    unitNumberObjects[2].fill(playerColours[1]);
+    unitNumberObjects[2].vertex(0, blockSize*0.125, 0);
+    unitNumberObjects[2].fill(playerColours[1]);
+    unitNumberObjects[2].vertex(blockSize, blockSize*0.125, 0);
+    unitNumberObjects[2].fill(playerColours[1]);
+    unitNumberObjects[2].vertex(blockSize, 0, 0);
+    unitNumberObjects[2].endShape();
+    unitNumberObjects[2].rotateX(PI/2);
+    unitNumberObjects[2].setStroke(false);
     tileRect = createShape();
     tileRect.beginShape();
     tileRect.noFill();
