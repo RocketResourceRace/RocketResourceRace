@@ -27,9 +27,10 @@ class Map3D extends BaseMap implements Map{
   final float GROUNDHEIGHT = 5;
   int x, y, w, h, prevT, frameTime;
   int selectedCellX, selectedCellY;
-  PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect, pathLine, unitNumberBackground;
+  PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect, pathLine;
   HashMap<String, PShape> taskObjs;
   HashMap<String, PShape[]> buildingObjs;
+  PShape[] unitNumberObjects;
   PImage[] tempTileImages;
   float targetZoom, zoom, zoomv, tilt, tiltv, rot, rotv, focusedX, focusedY;
   PVector focusedV, heldPos;
@@ -340,30 +341,34 @@ class Map3D extends BaseMap implements Map{
     redFlag.scale(2.6, 3, 3);
     battle = loadShape("battle.obj");
     battle.rotateX(PI/2);
-
+    
+    int players = 2;
     fill(255);
-    unitNumberBackground = createShape();
-    unitNumberBackground.beginShape(QUADS);
-    unitNumberBackground.fill(120, 120, 120);
-    unitNumberBackground.vertex(blockSize/2, 0, 0);
-    unitNumberBackground.fill(120, 120, 120);
-    unitNumberBackground.vertex(blockSize/2, blockSize*0.125, 0);
-    unitNumberBackground.fill(120, 120, 120);
-    unitNumberBackground.vertex(blockSize, blockSize*0.125, 0);
-    unitNumberBackground.fill(120, 120, 120);
-    unitNumberBackground.vertex(blockSize, 0, 0);
-    unitNumberBackground.fill(0, 0, 255);
-    unitNumberBackground.vertex(0, 0, 0);
-    unitNumberBackground.fill(0, 0, 255);
-    unitNumberBackground.vertex(0, blockSize*0.125, 0);
-    unitNumberBackground.fill(0, 0, 255);
-    unitNumberBackground.vertex(blockSize/2, blockSize*0.125, 0);
-    unitNumberBackground.fill(0, 0, 255);
-    unitNumberBackground.vertex(blockSize/2, 0, 0);
-    unitNumberBackground.endShape();
-    unitNumberBackground.rotateX(PI/2);
-    unitNumberBackground.setStroke(false);
-
+    
+    unitNumberObjects = new PShape[players];
+    for (int i=0;i < players; i++){
+      unitNumberObjects[i] = createShape();
+      unitNumberObjects[i].beginShape(QUADS);
+      unitNumberObjects[i].fill(120, 120, 120);
+      unitNumberObjects[i].vertex(blockSize, 0, 0);
+      unitNumberObjects[i].fill(120, 120, 120);
+      unitNumberObjects[i].vertex(blockSize, blockSize*0.125, 0);
+      unitNumberObjects[i].fill(120, 120, 120);
+      unitNumberObjects[i].vertex(blockSize, blockSize*0.125, 0);
+      unitNumberObjects[i].fill(120, 120, 120);
+      unitNumberObjects[i].vertex(blockSize, 0, 0);
+      unitNumberObjects[i].fill(playerColours[i]);
+      unitNumberObjects[i].vertex(0, 0, 0);
+      unitNumberObjects[i].fill(playerColours[i]);
+      unitNumberObjects[i].vertex(0, blockSize*0.125, 0);
+      unitNumberObjects[i].fill(playerColours[i]);
+      unitNumberObjects[i].vertex(blockSize, blockSize*0.125, 0);
+      unitNumberObjects[i].fill(playerColours[i]);
+      unitNumberObjects[i].vertex(blockSize, 0, 0);
+      unitNumberObjects[i].endShape();
+      unitNumberObjects[i].rotateX(PI/2);
+      unitNumberObjects[i].setStroke(false);
+    }
     tileRect = createShape();
     tileRect.beginShape();
     tileRect.noFill();
@@ -755,13 +760,19 @@ class Map3D extends BaseMap implements Map{
             canvas.shape(battle);
             canvas.popMatrix();
           }
-          canvas.noLights();
-          canvas.pushMatrix();
-          canvas.translate((x+0.5+sin(rot)*0.5)*blockSize, (y+0.5+cos(rot)*0.5)*blockSize, blockSize*2.25+groundMinHeightAt(x, y));
-          canvas.rotateZ(-this.rot);
-          canvas.translate(-0.5*blockSize, -0.5*blockSize);
-          canvas.shape(unitNumberBackground);
-          canvas.popMatrix();
+          if(parties[y][x].player!=2){
+            canvas.noLights();
+            canvas.pushMatrix();
+            canvas.translate((x+0.5+sin(rot)*0.5)*blockSize, (y+0.5+cos(rot)*0.5)*blockSize, blockSize*2.25+groundMinHeightAt(x, y));
+            canvas.rotateZ(-this.rot);
+            canvas.translate(-0.5*blockSize, -0.5*blockSize);
+            unitNumberObjects[parties[y][x].player].setVertex(0, blockSize*parties[y][x].getUnitNumber()/1000, 0, 0);
+            unitNumberObjects[parties[y][x].player].setVertex(1, blockSize*parties[y][x].getUnitNumber()/1000, blockSize*0.125, 0);
+            unitNumberObjects[parties[y][x].player].setVertex(6, blockSize*parties[y][x].getUnitNumber()/1000, blockSize*0.125, 0);
+            unitNumberObjects[parties[y][x].player].setVertex(7, blockSize*parties[y][x].getUnitNumber()/1000, 0, 0);
+            canvas.shape(unitNumberObjects[parties[y][x].player]);
+            canvas.popMatrix();
+          }
           JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].task);
           if (jo != null && !jo.isNull("img")){
             canvas.noLights();
