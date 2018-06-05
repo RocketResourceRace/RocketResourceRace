@@ -708,8 +708,8 @@ class Game extends State{
     gameUICanvas.pushStyle();
 
     if(tooltip.visible&&tooltip.attacking){
-      int x = floor(map.scaleXInv(mouseX));
-      int y = floor(map.scaleYInv(mouseY));
+      int x = floor(map.scaleXInv());
+      int y = floor(map.scaleYInv());
       if(0<=x&&x<mapWidth&&0<=y&&y<mapHeight){
         BigDecimal chance = battleEstimateManager.getEstimate(cellX, cellY, x, y, splitUnitsNum());
         tooltip.setAttacking(chance);
@@ -1129,11 +1129,11 @@ class Game extends State{
   int getMoveTurns(int startX, int startY, int targetX, int targetY, Node[][] nodes){
     int movementPoints;
     if (parties[startY][startX] != null)
-      movementPoints = round(parties[startY][startX].getMovementPoints()); //<>// //<>//
+      movementPoints = round(parties[startY][startX].getMovementPoints());  //<>//
     else if (splittedParty != null)
       movementPoints = round(splittedParty.getMovementPoints());
     else //<>//
-      return -1; //<>// //<>//
+      return -1;  //<>//
 
     int turns = 0;
     ArrayList <int[]> path = getPath(startX, startY, targetX, targetY, nodes); //<>//
@@ -1162,12 +1162,12 @@ class Game extends State{
     }
     else if(((Button)getElement("move button", "party management")).mouseOver()&& getPanel("party management").visible){
       tooltip.setMoveButton();
-      tooltip.show(); //<>// //<>//
+      tooltip.show();  //<>//
     }
     else if (moving&&map.mouseOver() && !UIHovering()){
       Node [][] nodes = map.getMoveNodes(); //<>//
-      int x = floor(map.scaleXInv(mouseX)); //<>// //<>//
-      int y = floor(map.scaleYInv(mouseY));
+      int x = floor(map.scaleXInv());  //<>//
+      int y = floor(map.scaleYInv());
       if (x < mapWidth && y<mapHeight && x>=0 && y>=0 && nodes[y][x] != null && !(cellX == x && cellY == y)){
         if (parties[cellY][cellX] != null){ //<>//
           map.updatePath(getPath(cellX, cellY, x, y, map.getMoveNodes())); //<>//
@@ -1220,15 +1220,15 @@ class Game extends State{
               moving = true;
               map.updateMoveNodes(djk(cellX, cellY));
             }
-          } //<>// //<>//
+          }  //<>//
         }
       }
       if (eventType == "mouseReleased"){ //<>//
-        if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn && !UIHovering()){ //<>// //<>//
+        if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn && !UIHovering()){  //<>//
           if (moving){
-            int x = floor(map.scaleXInv(mouseX));
+            int x = floor(map.scaleXInv());
  //<>//
-            int y = floor(map.scaleYInv(mouseY)); //<>//
+            int y = floor(map.scaleYInv()); //<>//
             postEvent(new Move(cellX, cellY, x, y));
             map.cancelPath();
             moving = false; //<>//
@@ -1256,8 +1256,8 @@ class Game extends State{
                 map.cancelMoveNodes();
               }
               else{
-                int x = floor(map.scaleXInv(mouseX));
-                int y = floor(map.scaleYInv(mouseY));
+                int x = floor(map.scaleXInv());
+                int y = floor(map.scaleYInv());
                 postEvent(new Move(cellX, cellY, x, y));
                 map.cancelPath();
                 moving = false;
@@ -1265,10 +1265,10 @@ class Game extends State{
               }
             }
             else{
-              if(floor(map.scaleXInv(mouseX))==cellX&&floor(map.scaleYInv(mouseY))==cellY&&cellSelected){
+              if(floor(map.scaleXInv())==cellX&&floor(map.scaleYInv())==cellY&&cellSelected){
                 deselectCell();
               } else {
-                selectCell(mouseX, mouseY);
+                selectCell();
               }
             }
           }
@@ -1277,9 +1277,10 @@ class Game extends State{
     }
     return new ArrayList<String>();
   }
-  void selectCell(int x, int y){
-    x = floor(map.scaleXInv(x));
-    y = floor(map.scaleYInv(y));
+  void selectCell(){
+    // select cell based on mouse pos
+    int x = floor(map.scaleXInv());
+    int y = floor(map.scaleYInv());
     selectCell(x, y, false);
   }
 
@@ -1290,7 +1291,7 @@ class Game extends State{
   void selectCell(int x, int y, boolean raw){
     deselectCell();
     if(raw){
-      selectCell(x, y);
+      selectCell();
     }
     else if (cellInBounds(x, y)){
       tooltip.hide();

@@ -176,11 +176,11 @@ class Map3D extends BaseMap implements Map{
     cellSelected = false;
   }
 
-  float scaleXInv(int x) {
+  float scaleXInv() {
     PVector mo = MousePosOnObject(mouseX, mouseY);
     return (mo.x)/getObjectWidth()*mapWidth;
   }
-  float scaleYInv(int y) {
+  float scaleYInv() {
     PVector mo = MousePosOnObject(mouseX, mouseY);
     return (mo.y)/getObjectHeight()*mapHeight;
   }

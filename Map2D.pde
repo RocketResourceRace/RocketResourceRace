@@ -19,8 +19,8 @@ interface Map {
   void unselectCell();
   boolean mouseOver();
   Node[][] getMoveNodes();
-  float scaleXInv(int x);
-  float scaleYInv(int y);
+  float scaleXInv();
+  float scaleYInv();
   void updatePath(ArrayList<int[]> nodes);
   void cancelPath();
   void setActive(boolean a);
@@ -732,8 +732,8 @@ class Map2D extends BaseMap implements Map{
   void focusMapMouse(int x, int y){
     // based on mouse click
     if(mouseOver()){
-      targetXOffset = -scaleXInv(x)*blockSize+elementWidth/2+xPos;
-      targetYOffset = -scaleYInv(y)*blockSize+elementHeight/2+yPos;
+      targetXOffset = -scaleXInv()*blockSize+elementWidth/2+xPos;
+      targetYOffset = -scaleYInv()*blockSize+elementHeight/2+yPos;
       limitCoords();
       panning = true;
     }
@@ -1090,11 +1090,11 @@ class Map2D extends BaseMap implements Map{
   float scaleY(float y){
     return y*blockSize + mapYOffset + yPos;
   }
-  float scaleXInv(int x){
-    return (x-mapXOffset-xPos)/blockSize;
+  float scaleXInv(){
+    return (mouseX-mapXOffset-xPos)/blockSize;
   }
-  float scaleYInv(int y){
-    return (y-mapYOffset-yPos)/blockSize;
+  float scaleYInv(){
+    return (mouseY-mapYOffset-yPos)/blockSize;
   }
   boolean mouseOver(){
     return mouseX > xPos && mouseX < xPos+elementWidth && mouseY > yPos && mouseY < yPos+elementHeight;
