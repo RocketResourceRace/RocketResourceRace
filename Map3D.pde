@@ -558,6 +558,7 @@ class Map3D extends BaseMap implements Map{
       } else if (mouseButton != RIGHT) {
         setTilt(tilt-(mouseY-pmouseY)*0.01);
         setRot(rot-(mouseX-pmouseX)*0.01);
+        updateHoveringScale();
       }
     }
     //else if (eventType.equals("mousePressed")){
@@ -949,7 +950,7 @@ class Map3D extends BaseMap implements Map{
       curY += ray.y/ray.mag();
       if (0 <= curX/blockSize && curX/blockSize <= mapWidth && 0 <= curY/blockSize && curY/blockSize < mapHeight){
         acHeight = getHeight(curX/blockSize, curY/blockSize);
-        if (getRayHeightAt(ray, e, curX) < acHeight+0.0001){
+        if (getRayHeightAt(ray, e, curX) < acHeight+0.00001){
           return new PVector(curX, curY,acHeight);
         }
       }
