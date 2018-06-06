@@ -461,7 +461,19 @@ class Map3D extends BaseMap implements Map{
       line.noFill();
       line.stroke(255,255,255);
       for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++){
-        line.vertex(x1*blockSize/jsManager.loadFloatSetting("terrain detail")+(x-horizontals/2)*blockSize, i*blockSize+(y-verticles/2)*blockSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+i));
+        line.vertex(0, 0, 0);
+      }
+      line.endShape();
+      highlightingGrid.addChild(line);
+    }
+    // Next do verticle lines
+    for (int i=0; i<verticles; i++){
+      line = createShape();
+      line.beginShape();
+      line.noFill();
+      line.stroke(255,255,255);
+      for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++){
+        line.vertex(0, 0, 0);
       }
       line.endShape();
       highlightingGrid.addChild(line);
@@ -474,7 +486,14 @@ class Map3D extends BaseMap implements Map{
     for (int i=0; i<horizontals; i++){
       line = highlightingGrid.getChild(i);
       for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++){
-        line.setVertex(x1, x1*blockSize/jsManager.loadFloatSetting("terrain detail")+(x-horizontals/2+1)*blockSize, i*blockSize+(y-verticles/2+1)*blockSize, 1+getHeight(x-horizontals/2+1+x1/jsManager.loadFloatSetting("terrain detail"), y-verticles/2+1+i));
+        line.setVertex(x1, x1*blockSize/jsManager.loadFloatSetting("terrain detail")+(x-horizontals/2+1)*blockSize, i*blockSize+(y-verticles/2+1)*blockSize, 0.1+getHeight(x-horizontals/2+1+x1/jsManager.loadFloatSetting("terrain detail"), y-verticles/2+1+i));
+      }
+    }
+    // verticle lines
+    for (int i=0; i<verticles; i++){
+      line = highlightingGrid.getChild(i+horizontals);
+      for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++){
+        line.setVertex(y1, i*blockSize+(x-horizontals/2+1)*blockSize, y1*blockSize/jsManager.loadFloatSetting("terrain detail")+(y-verticles/2+1)*blockSize, 0.1+getHeight(x-horizontals/2+1+i, y-verticles/2+1+y1/jsManager.loadFloatSetting("terrain detail")));
       }
     }
   }
