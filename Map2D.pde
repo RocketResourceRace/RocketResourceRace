@@ -22,6 +22,7 @@ interface Map {
   float scaleXInv();
   float scaleYInv();
   void updatePath(ArrayList<int[]> nodes);
+  void updateHoveringScale();
   void cancelPath();
   void setActive(boolean a);
   void selectCell(int x, int y);
@@ -643,7 +644,9 @@ class Map2D extends BaseMap implements Map{
   void clearShape(){
 
   }
-  
+  void updateHoveringScale(){
+    
+  }
   boolean isMoving(){
     return mapVelocity[0] != 0 || mapVelocity[1] != 0;
   }

@@ -26,8 +26,9 @@ class Map3D extends BaseMap implements Map{
   final float HILLRAISE = 1.05;
   final float GROUNDHEIGHT = 5;
   int x, y, w, h, prevT, frameTime;
+  float hoveringX, hoveringY, oldHoveringX, oldHoveringY;
   int selectedCellX, selectedCellY;
-  PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect, pathLine;
+  PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid;
   HashMap<String, PShape> taskObjs;
   HashMap<String, PShape[]> buildingObjs;
   PShape[] unitNumberObjects;
@@ -177,12 +178,15 @@ class Map3D extends BaseMap implements Map{
   }
 
   float scaleXInv() {
-    PVector mo = MousePosOnObject(mouseX, mouseY);
-    return (mo.x)/getObjectWidth()*mapWidth;
+    return hoveringX;
   }
   float scaleYInv() {
+    return hoveringY;
+  }
+  void updateHoveringScale(){
     PVector mo = MousePosOnObject(mouseX, mouseY);
-    return (mo.y)/getObjectHeight()*mapHeight;
+    hoveringX = (mo.x)/getObjectWidth()*mapWidth;
+    hoveringY = (mo.y)/getObjectHeight()*mapHeight;
   }
 
   void addTreeTile(int cellX, int cellY, int i) {
@@ -284,6 +288,7 @@ class Map3D extends BaseMap implements Map{
 
     water = createShape(RECT, 0, 0, getObjectWidth(), getObjectHeight());
     water.translate(0, 0, 0.1);
+    generateHighlightingGrid(4, 4);
 
     tiles = createShape(GROUP);
     textureMode(IMAGE);
@@ -341,6 +346,7 @@ class Map3D extends BaseMap implements Map{
     redFlag.scale(2.6, 3, 3);
     battle = loadShape("battle.obj");
     battle.rotateX(PI/2);
+    
     
     int players = 2;
     fill(255);
@@ -443,6 +449,34 @@ class Map3D extends BaseMap implements Map{
     }
 
     popStyle();
+  }
+  
+  void generateHighlightingGrid(int horizontals, int verticles){
+    PShape line;
+    // Load horizontal lines first
+    highlightingGrid = createShape(GROUP);
+    for (int i=0; i<horizontals; i++){
+      line = createShape();
+      line.beginShape();
+      line.noFill();
+      line.stroke(255,255,255);
+      for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++){
+        line.vertex(x1*blockSize/jsManager.loadFloatSetting("terrain detail")+(x-horizontals/2)*blockSize, i*blockSize+(y-verticles/2)*blockSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+i));
+      }
+      line.endShape();
+      highlightingGrid.addChild(line);
+    }
+  }
+  
+  void updateHighlightingGrid(int x, int y, int horizontals, int verticles){
+    // x, y are cell coordinates
+    PShape line;
+    for (int i=0; i<horizontals; i++){
+      line = highlightingGrid.getChild(i);
+      for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++){
+        line.setVertex(x1, x1*blockSize/jsManager.loadFloatSetting("terrain detail")+(x-horizontals/2+1)*blockSize, i*blockSize+(y-verticles/2+1)*blockSize, 1+getHeight(x-horizontals/2+1+x1/jsManager.loadFloatSetting("terrain detail"), y-verticles/2+1+i));
+      }
+    }
   }
 
   void updateSelectionRect(int cellX, int cellY){
@@ -667,6 +701,13 @@ class Map3D extends BaseMap implements Map{
     rot += rotv*frameTime;
     tilt += tiltv*frameTime;
     zoom += zoomv*frameTime;
+    
+    // update highlight grid if hovering over diffent pos
+    if (!(hoveringX == oldHoveringX && hoveringY == oldHoveringY) ){
+      updateHighlightingGrid(floor(hoveringX), floor(hoveringY), 4, 4);
+      oldHoveringX = hoveringX;
+      oldHoveringY = hoveringY;
+    }
 
     // Check camera ok
     setZoom(zoom);
@@ -738,6 +779,7 @@ class Map3D extends BaseMap implements Map{
     canvas.shape(tiles);
     canvas.ambientLight(100, 100, 100);
     canvas.shape(trees);
+    
 
 
     canvas.pushMatrix();
@@ -827,6 +869,7 @@ class Map3D extends BaseMap implements Map{
 
     canvas.pushMatrix();
     drawPath(canvas);
+    canvas.shape(highlightingGrid);
     canvas.popMatrix();
 
   }

@@ -1164,32 +1164,35 @@ class Game extends State{
       tooltip.setMoveButton();
       tooltip.show();  //<>//
     }
-    else if (moving&&map.mouseOver() && !UIHovering()){
-      Node [][] nodes = map.getMoveNodes(); //<>//
-      int x = floor(map.scaleXInv());  //<>//
-      int y = floor(map.scaleYInv());
-      if (x < mapWidth && y<mapHeight && x>=0 && y>=0 && nodes[y][x] != null && !(cellX == x && cellY == y)){
-        if (parties[cellY][cellX] != null){ //<>//
-          map.updatePath(getPath(cellX, cellY, x, y, map.getMoveNodes())); //<>//
-        }
-        if(parties[y][x]==null){
-          //Moving into empty tile //<>//
-          int turns = getMoveTurns(cellX, cellY, x, y, nodes);
-          boolean splitting = splitUnitsNum()!=parties[cellY][cellX].getUnitNumber();
-          tooltip.setMoving(turns, splitting);
-          tooltip.show(); //<>//
-        }
-        else {
-          if (parties[y][x].player == turn){
-            //merge parties
-            tooltip.setMerging();
-            tooltip.show();
+    else if (map.mouseOver()){
+      map.updateHoveringScale();
+      if (moving && !UIHovering()){
+        Node [][] nodes = map.getMoveNodes(); //<>//
+        int x = floor(map.scaleXInv());  //<>//
+        int y = floor(map.scaleYInv());
+        if (x < mapWidth && y<mapHeight && x>=0 && y>=0 && nodes[y][x] != null && !(cellX == x && cellY == y)){
+          if (parties[cellY][cellX] != null){ //<>//
+            map.updatePath(getPath(cellX, cellY, x, y, map.getMoveNodes())); //<>//
+          }
+          if(parties[y][x]==null){
+            //Moving into empty tile //<>//
+            int turns = getMoveTurns(cellX, cellY, x, y, nodes);
+            boolean splitting = splitUnitsNum()!=parties[cellY][cellX].getUnitNumber();
+            tooltip.setMoving(turns, splitting);
+            tooltip.show(); //<>//
           }
           else {
-            //Attack
-            BigDecimal chance = battleEstimateManager.getEstimate(cellX, cellY, x, y, splitUnitsNum());
-            tooltip.setAttacking(chance);
-            tooltip.show();
+            if (parties[y][x].player == turn){
+              //merge parties
+              tooltip.setMerging();
+              tooltip.show();
+            }
+            else {
+              //Attack
+              BigDecimal chance = battleEstimateManager.getEstimate(cellX, cellY, x, y, splitUnitsNum());
+              tooltip.setAttacking(chance);
+              tooltip.show();
+            }
           }
         }
       }
