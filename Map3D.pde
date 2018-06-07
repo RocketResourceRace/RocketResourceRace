@@ -486,14 +486,18 @@ class Map3D extends BaseMap implements Map{
     for (int i=0; i<horizontals; i++){
       line = highlightingGrid.getChild(i);
       for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++){
-        line.setVertex(x1, x1*blockSize/jsManager.loadFloatSetting("terrain detail")+(x-horizontals/2+1)*blockSize, i*blockSize+(y-verticles/2+1)*blockSize, 0.1+getHeight(x-horizontals/2+1+x1/jsManager.loadFloatSetting("terrain detail"), y-verticles/2+1+i));
+        float x2 = x-horizontals/2+1+x1/jsManager.loadFloatSetting("terrain detail");
+        float y1 = y-verticles/2+1+i;
+        line.setVertex(x1, x1*blockSize/jsManager.loadFloatSetting("terrain detail")+(x-horizontals/2+1)*blockSize, i*blockSize+(y-verticles/2+1)*blockSize, 0.1+getHeight(x2, y1));
       }
     }
     // verticle lines
     for (int i=0; i<verticles; i++){
       line = highlightingGrid.getChild(i+horizontals);
       for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++){
-        line.setVertex(y1, i*blockSize+(x-horizontals/2+1)*blockSize, y1*blockSize/jsManager.loadFloatSetting("terrain detail")+(y-verticles/2+1)*blockSize, 0.1+getHeight(x-horizontals/2+1+i, y-verticles/2+1+y1/jsManager.loadFloatSetting("terrain detail")));
+        float x1 = x-horizontals/2+1+i;
+        float y2 = y-verticles/2+1+y1/jsManager.loadFloatSetting("terrain detail");
+        line.setVertex(y1, i*blockSize+(x-horizontals/2+1)*blockSize, y1*blockSize/jsManager.loadFloatSetting("terrain detail")+(y-verticles/2+1)*blockSize, 0.1+getHeight(x1, y2));
       }
     }
   }
@@ -889,7 +893,10 @@ class Map3D extends BaseMap implements Map{
 
     canvas.pushMatrix();
     drawPath(canvas);
-    canvas.shape(highlightingGrid);
+    PVector mv = MousePosOnObject(mouseX, mouseY).div(blockSize);
+    if(1<mv.x&&mv.x<mapWidth-1&&1<mv.y&&mv.y<mapHeight-1){
+      canvas.shape(highlightingGrid);
+    }
     canvas.popMatrix();
 
   }
