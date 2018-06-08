@@ -25,8 +25,10 @@ class Map3D extends BaseMap implements Map{
   final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3;
   final float HILLRAISE = 1.05;
   final float GROUNDHEIGHT = 5;
+  float panningSpeed = 0.05;
   int x, y, w, h, prevT, frameTime;
   float hoveringX, hoveringY, oldHoveringX, oldHoveringY;
+  float targetXOffset, targetYOffset;
   int selectedCellX, selectedCellY;
   PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid;
   HashMap<String, PShape> taskObjs;
@@ -70,6 +72,8 @@ class Map3D extends BaseMap implements Map{
     refractionCanvas = createGraphics(width/4, height/4, P3D);
     downwardAngleCache = new HashMap<Integer, HashMap<Integer, Float>>();
     heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(jsManager.loadFloatSetting("terrain detail"), 2))];
+    targetXOffset = mapWidth/2*blockSize;
+    targetXOffset = mapHeight/2*blockSize;
   }
   
 
@@ -164,6 +168,9 @@ class Map3D extends BaseMap implements Map{
   void loadSettings(float mapXOffset, float mapYOffset, float blockSize) {
   }
   float[] targetCell(int x, int y, float zoom) {
+    targetXOffset = x*blockSize-width/2;
+    targetYOffset = y*blockSize-height/2;
+    panning = true;
     return new float[2];
   }
 
@@ -602,15 +609,19 @@ class Map3D extends BaseMap implements Map{
     if (eventType.equals("keyPressed")) {
       if (_key == 'w') {
         focusedV.y -= PANSPEED;
+        panning = false;
       }
       if (_key == 's') {
         focusedV.y += PANSPEED;
+        panning = false;
       }
       if (_key == 'a') {
         focusedV.x -= PANSPEED;
+        panning = false;
       }
       if (_key == 'd') {
         focusedV.x += PANSPEED;
+        panning = false;
       }
       if (_key == 'q') {
         rotv -= ROTSPEED;
@@ -633,15 +644,19 @@ class Map3D extends BaseMap implements Map{
     } else if (eventType.equals("keyReleased")) {
       if (_key == 'w') {
         focusedV.y += PANSPEED;
+        panning = false;
       }
       if (_key == 's') {
         focusedV.y -= PANSPEED;
+        panning = false;
       }
       if (_key == 'a') {
         focusedV.x += PANSPEED;
+        panning = false;
       }
       if (_key == 'd') {
         focusedV.x -= PANSPEED;
+        panning = false;
       }
       if (_key == 'q') {
         rotv += ROTSPEED;
@@ -733,6 +748,15 @@ class Map3D extends BaseMap implements Map{
     rot += rotv*frameTime;
     tilt += tiltv*frameTime;
     zoom += zoomv*frameTime;
+    
+    if (panning){
+      focusedX -= (focusedX-targetXOffset)*panningSpeed*frameTime*60/1000;
+      focusedY -= (focusedY-targetYOffset)*panningSpeed*frameTime*60/1000;
+      // Stop panning when very close
+      if (abs(focusedX-targetXOffset) < 1 && abs(focusedY-targetYOffset) < 1){
+        panning = false;
+      }
+    }
     
     // update highlight grid if hovering over diffent pos
     if (!(hoveringX == oldHoveringX && hoveringY == oldHoveringY) ){
