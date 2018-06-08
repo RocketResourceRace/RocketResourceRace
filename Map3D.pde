@@ -288,7 +288,7 @@ class Map3D extends BaseMap implements Map{
 
     water = createShape(RECT, 0, 0, getObjectWidth(), getObjectHeight());
     water.translate(0, 0, 0.1);
-    generateHighlightingGrid(4, 4);
+    generateHighlightingGrid(8, 8);
 
     tiles = createShape(GROUP);
     textureMode(IMAGE);
@@ -459,8 +459,10 @@ class Map3D extends BaseMap implements Map{
       line = createShape();
       line.beginShape();
       line.noFill();
-      line.stroke(255,255,255);
       for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++){
+        float x2 = -horizontals/2+0.5+x1/jsManager.loadFloatSetting("terrain detail");
+        float y1 = -verticles/2+i+0.5;
+        line.stroke(255,255,255,255-sqrt(pow(x2, 2)+pow(y1, 2))/3*255);
         line.vertex(0, 0, 0);
       }
       line.endShape();
@@ -471,8 +473,10 @@ class Map3D extends BaseMap implements Map{
       line = createShape();
       line.beginShape();
       line.noFill();
-      line.stroke(255,255,255);
       for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++){
+        float y2 = -verticles/2+0.5+y1/jsManager.loadFloatSetting("terrain detail");
+        float x1 = -horizontals/2+i+0.5;
+        line.stroke(255,255,255,255-sqrt(pow(y2, 2)+pow(x1, 2))/3*255);
         line.vertex(0, 0, 0);
       }
       line.endShape();
@@ -488,7 +492,7 @@ class Map3D extends BaseMap implements Map{
       for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++){
         float x2 = x-horizontals/2+1+x1/jsManager.loadFloatSetting("terrain detail");
         float y1 = y-verticles/2+1+i;
-        line.setVertex(x1, x1*blockSize/jsManager.loadFloatSetting("terrain detail")+(x-horizontals/2+1)*blockSize, i*blockSize+(y-verticles/2+1)*blockSize, 0.1+getHeight(x2, y1));
+        line.setVertex(x1, x2*blockSize, y1*blockSize, 0.1+getHeight(x2, y1));
       }
     }
     // verticle lines
@@ -497,7 +501,7 @@ class Map3D extends BaseMap implements Map{
       for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++){
         float x1 = x-horizontals/2+1+i;
         float y2 = y-verticles/2+1+y1/jsManager.loadFloatSetting("terrain detail");
-        line.setVertex(y1, i*blockSize+(x-horizontals/2+1)*blockSize, y1*blockSize/jsManager.loadFloatSetting("terrain detail")+(y-verticles/2+1)*blockSize, 0.1+getHeight(x1, y2));
+        line.setVertex(y1, x1*blockSize, y2*blockSize, 0.1+getHeight(x1, y2));
       }
     }
   }
@@ -728,7 +732,7 @@ class Map3D extends BaseMap implements Map{
     
     // update highlight grid if hovering over diffent pos
     if (!(hoveringX == oldHoveringX && hoveringY == oldHoveringY) ){
-      updateHighlightingGrid(floor(hoveringX), floor(hoveringY), 4, 4);
+      updateHighlightingGrid(floor(hoveringX), floor(hoveringY), 8, 8);
       oldHoveringX = hoveringX;
       oldHoveringY = hoveringY;
     }
