@@ -457,7 +457,7 @@ class BaseMap extends Element{
     for(TempTerrainDetail t: cellsArray){
       if(t.noiseValue!=0){
         terrain[t.y][t.x] = lastType;
-        println("map generation possible issue here");
+        //println("map generation possible issue here");
       }
     }
     //ArrayList<int[]> order = new ArrayList<int[]>();
