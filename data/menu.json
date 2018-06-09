@@ -347,5 +347,6 @@
     {"id": "forest density", "value": 5, "type": "int"},
     {"id": "terrain detail", "value": 2, "type": "int"},
     {"id": "terrain texture resolution", "value": 32, "type": "int"},
+    {"id": "active cell highlighting", "value": true, "type": "boolean"},
   ]
 }

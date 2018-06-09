@@ -498,30 +498,50 @@ class Map3D extends BaseMap implements Map{
   void updateHighlightingGrid(float x, float y, int horizontals, int verticles){
     // x, y are cell coordinates
     PShape line;
-    for (int i=0; i<horizontals; i++){
-      line = highlightingGrid.getChild(i);
-      for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++){
-        float x2 = int(x)-horizontals/2+1+x1/jsManager.loadFloatSetting("terrain detail");
-        float y1 = int(y)-verticles/2+1+i;
-        float x3 = -horizontals/2+x1/jsManager.loadFloatSetting("terrain detail");
-        float y3 = -verticles/2+i;
-        float dist = sqrt(pow(y3-y%1+1, 2)+pow(x3-x%1+1, 2));
-        line.setStroke(x1, color(255,255,255,255-dist/(verticles/2-1)*255));
-        line.setVertex(x1, x2*blockSize, y1*blockSize, 0.1+getHeight(x2, y1));
+    if (jsManager.loadBooleanSetting("active cell highlighting")){
+      for (int i=0; i<horizontals; i++){
+        line = highlightingGrid.getChild(i);
+        for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++){
+          float x2 = int(x)-horizontals/2+1+x1/jsManager.loadFloatSetting("terrain detail");
+          float y1 = int(y)-verticles/2+1+i;
+          float x3 = -horizontals/2+x1/jsManager.loadFloatSetting("terrain detail");
+          float y3 = -verticles/2+i;
+          float dist = sqrt(pow(y3-y%1+1, 2)+pow(x3-x%1+1, 2));
+          line.setStroke(x1, color(255,255,255,255-dist/(verticles/2-1)*255));
+          line.setVertex(x1, x2*blockSize, y1*blockSize, 0.1+getHeight(x2, y1));
+        }
+      }
+      // verticle lines
+      for (int i=0; i<verticles; i++){
+        line = highlightingGrid.getChild(i+horizontals);
+        for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++){
+          float x1 = int(x)-horizontals/2+1+i;
+          float y2 = int(y)-verticles/2+1+y1/jsManager.loadFloatSetting("terrain detail");
+          float y3 = -verticles/2+y1/jsManager.loadFloatSetting("terrain detail");
+          float x3 = -horizontals/2+i;
+          float dist = sqrt(pow(y3-y%1+1, 2)+pow(x3-x%1+1, 2));
+          line.setStroke(y1, color(255,255,255,255-dist/(horizontals/2-1)*255));
+          line.setVertex(y1, x1*blockSize, y2*blockSize, 0.1+getHeight(x1, y2));
+        }
       }
     }
-    // verticle lines
-    for (int i=0; i<verticles; i++){
-      line = highlightingGrid.getChild(i+horizontals);
-      for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++){
-        float x1 = int(x)-horizontals/2+1+i;
-        float y2 = int(y)-verticles/2+1+y1/jsManager.loadFloatSetting("terrain detail");
-        float y3 = -verticles/2+y1/jsManager.loadFloatSetting("terrain detail");
-        float x3 = -horizontals/2+i;
-        float dist = sqrt(pow(y3-y%1+1, 2)+pow(x3-x%1+1, 2));
-        println(dist);
-        line.setStroke(y1, color(255,255,255,255-dist/(horizontals/2-1)*255));
-        line.setVertex(y1, x1*blockSize, y2*blockSize, 0.1+getHeight(x1, y2));
+    else{
+      for (int i=0; i<horizontals; i++){
+        line = highlightingGrid.getChild(i);
+        for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++){
+          float x2 = int(x)-horizontals/2+1+x1/jsManager.loadFloatSetting("terrain detail");
+          float y1 = int(y)-verticles/2+1+i;
+          line.setVertex(x1, x2*blockSize, y1*blockSize, 0.1+getHeight(x2, y1));
+        }
+      }
+      // verticle lines
+      for (int i=0; i<verticles; i++){
+        line = highlightingGrid.getChild(i+horizontals);
+        for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++){
+          float x1 = int(x)-horizontals/2+1+i;
+          float y2 = int(y)-verticles/2+1+y1/jsManager.loadFloatSetting("terrain detail");
+          line.setVertex(y1, x1*blockSize, y2*blockSize, 0.1+getHeight(x1, y2));
+        }
       }
     }
   }
