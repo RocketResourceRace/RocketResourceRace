@@ -956,7 +956,7 @@ class Map3D extends BaseMap implements Map{
     canvas.pushMatrix();
     drawPath(canvas);
     PVector mv = MousePosOnObject(mouseX, mouseY).div(blockSize);
-    if(1<mv.x&&mv.x<mapWidth-1&&1<mv.y&&mv.y<mapHeight-1){
+    if(0<mv.x&&mv.x<mapWidth&&0<mv.y&&mv.y<mapHeight){
       canvas.shape(highlightingGrid);
     }
     canvas.popMatrix();
