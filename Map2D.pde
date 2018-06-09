@@ -316,6 +316,7 @@ class BaseMap extends Element{
       players[i].cellSelected = cellSelected;
     }
     noiseSeed(heightMapSeed);
+    noiseDetail(4,0.5);
     generateNoiseMaps();
     
     return new MapSave(heightMap, mapWidth, mapHeight, terrain, parties, buildings, turnNumber, turnPlayer, players);
@@ -388,6 +389,7 @@ class BaseMap extends Element{
   //  return newMap;
   //}
   void generateTerrain(){
+    noiseDetail(3,0.25);
     HashMap<Integer, Float> groundWeightings = new HashMap();
     for (Integer i=1; i<gameData.getJSONArray("terrain").size()+1; i++){
       groundWeightings.put(i, gameData.getJSONArray("terrain").getJSONObject(i-1).getFloat("weighting"));
