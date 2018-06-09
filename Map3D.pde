@@ -504,6 +504,7 @@ class Map3D extends BaseMap implements Map {
   void updateHighlightingGrid(float x, float y, int horizontals, int verticles) {
     // x, y are cell coordinates
     PShape line;
+    float alpha;
     if (jsManager.loadBooleanSetting("active cell highlighting")) {
       for (int i=0; i<horizontals; i++) {
         line = highlightingGrid.getChild(i);
@@ -513,7 +514,13 @@ class Map3D extends BaseMap implements Map {
           float x3 = -horizontals/2+x1/jsManager.loadFloatSetting("terrain detail");
           float y3 = -verticles/2+i;
           float dist = sqrt(pow(y3-y%1+1, 2)+pow(x3-x%1+1, 2));
-          line.setStroke(x1, color(255, 255, 255, 255-dist/(verticles/2-1)*255));
+          if (0 < x2 && x2 < mapWidth && 0 < y1 && y1 < mapHeight){
+            alpha = 255-dist/(verticles/2-1)*255;
+          }
+          else{
+            alpha = 0;
+          }
+          line.setStroke(x1, color(255, alpha));
           line.setVertex(x1, x2*blockSize, y1*blockSize, 0.1+getHeight(x2, y1));
         }
       }
@@ -526,7 +533,13 @@ class Map3D extends BaseMap implements Map {
           float y3 = -verticles/2+y1/jsManager.loadFloatSetting("terrain detail");
           float x3 = -horizontals/2+i;
           float dist = sqrt(pow(y3-y%1+1, 2)+pow(x3-x%1+1, 2));
-          line.setStroke(y1, color(255, 255, 255, 255-dist/(horizontals/2-1)*255));
+          if (0 < x1 && x1 < mapWidth && 0 < y2 && y2 < mapHeight){
+            alpha = 255-dist/(horizontals/2-1)*255;
+          }
+          else{
+            alpha = 0;
+          }
+          line.setStroke(y1, color(255, alpha));
           line.setVertex(y1, x1*blockSize, y2*blockSize, 0.1+getHeight(x1, y2));
         }
       }
