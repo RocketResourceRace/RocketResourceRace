@@ -362,7 +362,6 @@ class Map3D extends BaseMap implements Map{
     for (int i=0;i < players; i++){
       unitNumberObjects[i] = createShape();
       unitNumberObjects[i].beginShape(QUADS);
-      unitNumberObjects[i].setStroke(1);
       unitNumberObjects[i].stroke(0);
       unitNumberObjects[i].fill(120, 120, 120);
       unitNumberObjects[i].vertex(blockSize, 0, 0);
@@ -386,7 +385,6 @@ class Map3D extends BaseMap implements Map{
     }
     unitNumberObjects[2] = createShape();
     unitNumberObjects[2].beginShape(QUADS);
-    unitNumberObjects[2].setStroke(1);
     unitNumberObjects[2].stroke(0);
     unitNumberObjects[2].fill(120, 120, 120);
     unitNumberObjects[2].vertex(blockSize, 0, 0);
