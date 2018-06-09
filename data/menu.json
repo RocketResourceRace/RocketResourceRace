@@ -258,6 +258,17 @@
           "setting" : "framerate cap"
         },
         {
+          "id": "active cell highlighting",
+          "flags": ["autosave"],
+          "type": "tickbox",
+          "x": -6,
+          "y": -2,
+          "w": 12,
+          "h": 1,
+          "text": "Active Cell Highlighting",
+          "setting" : "active cell highlighting"
+        },
+        {
           "id": "apply",
           "type": "button",
           "x": 7,
