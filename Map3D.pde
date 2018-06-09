@@ -19,7 +19,7 @@
 
 
 
-class Map3D extends BaseMap implements Map{
+class Map3D extends BaseMap implements Map {
   final int thickness = 10;
   final float PANSPEED = 0.5, ROTSPEED = 0.002;
   final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3;
@@ -75,26 +75,26 @@ class Map3D extends BaseMap implements Map{
     targetXOffset = mapWidth/2*blockSize;
     targetXOffset = mapHeight/2*blockSize;
   }
-  
 
-  float getDownwardAngle(int x, int y){
-    if(!downwardAngleCache.containsKey(y)){
+
+  float getDownwardAngle(int x, int y) {
+    if (!downwardAngleCache.containsKey(y)) {
       downwardAngleCache.put(y, new HashMap<Integer, Float>());
     }
-    if(downwardAngleCache.get(y).containsKey(x)){
+    if (downwardAngleCache.get(y).containsKey(x)) {
       return downwardAngleCache.get(y).get(x);
     } else {
       PVector maxZCoord = new PVector();
       PVector minZCoord = new PVector();
       float maxZ = 0;
       float minZ = 1;
-      for (float y1 = y; y1<=y+1;y1+=1.0/jsManager.loadFloatSetting("terrain detail")){
-        for (float x1 = x; x1<=x+1;x1+=1.0/jsManager.loadFloatSetting("terrain detail")){
+      for (float y1 = y; y1<=y+1; y1+=1.0/jsManager.loadFloatSetting("terrain detail")) {
+        for (float x1 = x; x1<=x+1; x1+=1.0/jsManager.loadFloatSetting("terrain detail")) {
           float z = getRawHeight(x1, y1);
-          if(z > maxZ){
+          if (z > maxZ) {
             maxZCoord = new PVector(x1, y1);
             maxZ = z;
-          } else if (z < minZ){
+          } else if (z < minZ) {
             minZCoord = new PVector(x1, y1);
             minZ = z;
           }
@@ -102,41 +102,47 @@ class Map3D extends BaseMap implements Map{
       }
       PVector direction = minZCoord.sub(maxZCoord);
       float angle = atan2(direction.y, direction.x);
-  
+
       downwardAngleCache.get(y).put(x, angle);
       return angle;
     }
   }
-  
-  Node[][] getMoveNodes(){
+
+  Node[][] getMoveNodes() {
     return moveNodes;
   }
-  boolean isPanning(){
+  boolean isPanning() {
     return panning;
   }
-  float getTargetZoom(){
+  float getTargetZoom() {
     return targetZoom;
   }
-  boolean isMoving(){
+  boolean isMoving() {
     return focusedV.x != 0 || focusedV.y != 0;
   }
 
-  float getTargetOffsetX(){return 0;}
-  float getTargetOffsetY(){return 0;}
-  float getTargetBlockSize(){return 0;}
-  float getZoom(){
+  float getTargetOffsetX() {
+    return 0;
+  }
+  float getTargetOffsetY() {
+    return 0;
+  }
+  float getTargetBlockSize() {
+    return 0;
+  }
+  float getZoom() {
     return zoom;
   }
-  boolean isZooming(){
+  boolean isZooming() {
     return zooming;
   }
-  float getFocusedX(){
+  float getFocusedX() {
     return focusedX;
   }
-  float getFocusedY(){
+  float getFocusedY() {
     return focusedY;
   }
-  void setActive(boolean a){
+  void setActive(boolean a) {
     this.mapActive = a;
   }
   void updateMoveNodes(Node[][] nodes) {
@@ -148,9 +154,9 @@ class Map3D extends BaseMap implements Map{
     pathLine = createShape();
     pathLine.beginShape();
     pathLine.noFill();
-    pathLine.stroke(255,0,0);
-    for (int i=0; i<drawPath.size()-1;i++){
-      for (int u=0; u<blockSize/8; u++){
+    pathLine.stroke(255, 0, 0);
+    for (int i=0; i<drawPath.size()-1; i++) {
+      for (int u=0; u<blockSize/8; u++) {
         x0 = drawPath.get(i)[0]+(drawPath.get(i+1)[0]-drawPath.get(i)[0])*u/8+0.5;
         y0 = drawPath.get(i)[1]+(drawPath.get(i+1)[1]-drawPath.get(i)[1])*u/8+0.5;
         pathLine.vertex(x0*blockSize, y0*blockSize, 5+getHeight(x0, y0));
@@ -190,7 +196,7 @@ class Map3D extends BaseMap implements Map{
   float scaleYInv() {
     return hoveringY;
   }
-  void updateHoveringScale(){
+  void updateHoveringScale() {
     PVector mo = MousePosOnObject(mouseX, mouseY);
     hoveringX = (mo.x)/getObjectWidth()*mapWidth;
     hoveringY = (mo.y)/getObjectHeight()*mapHeight;
@@ -226,7 +232,7 @@ class Map3D extends BaseMap implements Map{
   //  water.addChild(w);
   //}
 
-  float getWaveHeight(float x, float y, float t){
+  float getWaveHeight(float x, float y, float t) {
     return sin(t/1000+y)+cos(t/1000+x)+2;
   }
 
@@ -267,7 +273,7 @@ class Map3D extends BaseMap implements Map{
     return shapes;
   }
 
-  void clearShape(){
+  void clearShape() {
     // Use to clear references to large objects when exiting state
     water = null;
     trees = null;
@@ -284,7 +290,7 @@ class Map3D extends BaseMap implements Map{
     tempTileImages = new PImage[gameData.getJSONArray("terrain").size()];
     for (int i=0; i<gameData.getJSONArray("terrain").size(); i++) {
       JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
-      if(tile3DImages.containsKey(tileType.getString("id"))){
+      if (tile3DImages.containsKey(tileType.getString("id"))) {
         tempTileImages[i] = tile3DImages.get(tileType.getString("id")).copy();
       } else {
         tempTileImages[i] = tileImages.get(tileType.getString("id")).copy();
@@ -353,13 +359,13 @@ class Map3D extends BaseMap implements Map{
     redFlag.scale(2.6, 3, 3);
     battle = loadShape("battle.obj");
     battle.rotateX(PI/2);
-    
-    
+
+
     int players = 2;
     fill(255);
-    
+
     unitNumberObjects = new PShape[players+1];
-    for (int i=0;i < players; i++){
+    for (int i=0; i < players; i++) {
       unitNumberObjects[i] = createShape();
       unitNumberObjects[i].beginShape(QUADS);
       unitNumberObjects[i].setStroke(1);
@@ -430,8 +436,8 @@ class Map3D extends BaseMap implements Map{
     tileRect.strokeWeight(3);
     int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
     int[] curLoc = {0, 0};
-    for (int[] dir : directions){
-      for (int i=0; i<jsManager.loadFloatSetting("terrain detail"); i++){
+    for (int[] dir : directions) {
+      for (int i=0; i<jsManager.loadFloatSetting("terrain detail"); i++) {
         tileRect.vertex(curLoc[0]*blockSize/jsManager.loadFloatSetting("terrain detail"), curLoc[1]*blockSize/jsManager.loadFloatSetting("terrain detail"), 0);
         curLoc[0] += dir[0];
         curLoc[1] += dir[1];
@@ -461,83 +467,82 @@ class Map3D extends BaseMap implements Map{
 
     popStyle();
   }
-  
-  void generateHighlightingGrid(int horizontals, int verticles){
+
+  void generateHighlightingGrid(int horizontals, int verticles) {
     PShape line;
     // Load horizontal lines first
     highlightingGrid = createShape(GROUP);
-    for (int i=0; i<horizontals; i++){
+    for (int i=0; i<horizontals; i++) {
       line = createShape();
       line.beginShape();
       line.noFill();
-      for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++){
+      for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++) {
         float x2 = -horizontals/2+0.5+x1/jsManager.loadFloatSetting("terrain detail");
         float y1 = -verticles/2+i+0.5;
-        line.stroke(255,255,255,255-sqrt(pow(x2, 2)+pow(y1, 2))/3*255);
+        line.stroke(255, 255, 255, 255-sqrt(pow(x2, 2)+pow(y1, 2))/3*255);
         line.vertex(0, 0, 0);
       }
       line.endShape();
       highlightingGrid.addChild(line);
     }
     // Next do verticle lines
-    for (int i=0; i<verticles; i++){
+    for (int i=0; i<verticles; i++) {
       line = createShape();
       line.beginShape();
       line.noFill();
-      for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++){
+      for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++) {
         float y2 = -verticles/2+0.5+y1/jsManager.loadFloatSetting("terrain detail");
         float x1 = -horizontals/2+i+0.5;
-        line.stroke(255,255,255,255-sqrt(pow(y2, 2)+pow(x1, 2))/3*255);
+        line.stroke(255, 255, 255, 255-sqrt(pow(y2, 2)+pow(x1, 2))/3*255);
         line.vertex(0, 0, 0);
       }
       line.endShape();
       highlightingGrid.addChild(line);
     }
   }
-  
-  void updateHighlightingGrid(float x, float y, int horizontals, int verticles){
+
+  void updateHighlightingGrid(float x, float y, int horizontals, int verticles) {
     // x, y are cell coordinates
     PShape line;
-    if (jsManager.loadBooleanSetting("active cell highlighting")){
-      for (int i=0; i<horizontals; i++){
+    if (jsManager.loadBooleanSetting("active cell highlighting")) {
+      for (int i=0; i<horizontals; i++) {
         line = highlightingGrid.getChild(i);
-        for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++){
+        for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++) {
           float x2 = int(x)-horizontals/2+1+x1/jsManager.loadFloatSetting("terrain detail");
           float y1 = int(y)-verticles/2+1+i;
           float x3 = -horizontals/2+x1/jsManager.loadFloatSetting("terrain detail");
           float y3 = -verticles/2+i;
           float dist = sqrt(pow(y3-y%1+1, 2)+pow(x3-x%1+1, 2));
-          line.setStroke(x1, color(255,255,255,255-dist/(verticles/2-1)*255));
+          line.setStroke(x1, color(255, 255, 255, 255-dist/(verticles/2-1)*255));
           line.setVertex(x1, x2*blockSize, y1*blockSize, 0.1+getHeight(x2, y1));
         }
       }
       // verticle lines
-      for (int i=0; i<verticles; i++){
+      for (int i=0; i<verticles; i++) {
         line = highlightingGrid.getChild(i+horizontals);
-        for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++){
+        for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++) {
           float x1 = int(x)-horizontals/2+1+i;
           float y2 = int(y)-verticles/2+1+y1/jsManager.loadFloatSetting("terrain detail");
           float y3 = -verticles/2+y1/jsManager.loadFloatSetting("terrain detail");
           float x3 = -horizontals/2+i;
           float dist = sqrt(pow(y3-y%1+1, 2)+pow(x3-x%1+1, 2));
-          line.setStroke(y1, color(255,255,255,255-dist/(horizontals/2-1)*255));
+          line.setStroke(y1, color(255, 255, 255, 255-dist/(horizontals/2-1)*255));
           line.setVertex(y1, x1*blockSize, y2*blockSize, 0.1+getHeight(x1, y2));
         }
       }
-    }
-    else{
-      for (int i=0; i<horizontals; i++){
+    } else {
+      for (int i=0; i<horizontals; i++) {
         line = highlightingGrid.getChild(i);
-        for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++){
+        for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++) {
           float x2 = int(x)-horizontals/2+1+x1/jsManager.loadFloatSetting("terrain detail");
           float y1 = int(y)-verticles/2+1+i;
           line.setVertex(x1, x2*blockSize, y1*blockSize, 0.1+getHeight(x2, y1));
         }
       }
       // verticle lines
-      for (int i=0; i<verticles; i++){
+      for (int i=0; i<verticles; i++) {
         line = highlightingGrid.getChild(i+horizontals);
-        for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++){
+        for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++) {
           float x1 = int(x)-horizontals/2+1+i;
           float y2 = int(y)-verticles/2+1+y1/jsManager.loadFloatSetting("terrain detail");
           line.setVertex(y1, x1*blockSize, y2*blockSize, 0.1+getHeight(x1, y2));
@@ -546,12 +551,12 @@ class Map3D extends BaseMap implements Map{
     }
   }
 
-  void updateSelectionRect(int cellX, int cellY){
+  void updateSelectionRect(int cellX, int cellY) {
     int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
     int[] curLoc = {0, 0};
     int a = 0;
-    for (int[] dir : directions){
-      for (int i=0; i<jsManager.loadFloatSetting("terrain detail"); i++){
+    for (int[] dir : directions) {
+      for (int i=0; i<jsManager.loadFloatSetting("terrain detail"); i++) {
         tileRect.setVertex(a++, curLoc[0]*blockSize/jsManager.loadFloatSetting("terrain detail"), curLoc[1]*blockSize/jsManager.loadFloatSetting("terrain detail"), getHeight(cellX+curLoc[0]/jsManager.loadFloatSetting("terrain detail"), cellY+curLoc[1]/jsManager.loadFloatSetting("terrain detail")));
         curLoc[0] += dir[0];
         curLoc[1] += dir[1];
@@ -715,9 +720,9 @@ class Map3D extends BaseMap implements Map{
     //terrain[floor(y-jsManager.loadFloatSetting("terrain detail")/blockSize)][floor(x-jsManager.loadFloatSetting("terrain detail")/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
     //  return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT*HILLRAISE;
     //} else {
-      return (max(getRawHeight(x, y), jsManager.loadFloatSetting("water level"))-jsManager.loadIntSetting("water level"))*blockSize*GROUNDHEIGHT;
-      //float h = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel);
-      //return (max(h-(0.5+waterLevel/2.0), 0)*(1000)+h)*blockSize*GROUNDHEIGHT;
+    return (max(getRawHeight(x, y), jsManager.loadFloatSetting("water level"))-jsManager.loadIntSetting("water level"))*blockSize*GROUNDHEIGHT;
+    //float h = (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel);
+    //return (max(h-(0.5+waterLevel/2.0), 0)*(1000)+h)*blockSize*GROUNDHEIGHT;
     //}
   }
   float groundMinHeightAt(int x1, int y1) {
@@ -731,7 +736,7 @@ class Map3D extends BaseMap implements Map{
     return max(new float[]{getHeight(x, y), getHeight(x+1, y), getHeight(x, y+1), getHeight(x+1, y+1)});
   }
 
-  void applyCameraPerspective(){
+  void applyCameraPerspective() {
     float fov = PI/3.0;
     float cameraZ = (height/2.0) / tan(fov/2.0);
     perspective(fov, float(width)/float(height), cameraZ/100.0, cameraZ*10.0);
@@ -739,7 +744,7 @@ class Map3D extends BaseMap implements Map{
   }
 
 
-  void applyCameraPerspective(PGraphics canvas){
+  void applyCameraPerspective(PGraphics canvas) {
     float fov = PI/3.0;
     float cameraZ = (height/2.0) / tan(fov/2.0);
     canvas.perspective(fov, float(width)/float(height), cameraZ/100.0, cameraZ*10.0);
@@ -747,16 +752,16 @@ class Map3D extends BaseMap implements Map{
   }
 
 
-  void applyCamera(){
+  void applyCamera() {
     camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
   }
 
 
-  void applyCamera(PGraphics canvas){
+  void applyCamera(PGraphics canvas) {
     canvas.camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
   }
 
-  void applyInvCamera(PGraphics canvas){
+  void applyInvCamera(PGraphics canvas) {
     canvas.camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), -zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
   }
 
@@ -778,17 +783,21 @@ class Map3D extends BaseMap implements Map{
     tilt += tiltv*frameTime;
     zoom += zoomv*frameTime;
     
-    if (panning){
+    if (panning || rotv != 0 || zoomv != 0 || tiltv != 0){
+      updateHoveringScale();
+    }
+
+    if (panning) {
       focusedX -= (focusedX-targetXOffset)*panningSpeed*frameTime*60/1000;
       focusedY -= (focusedY-targetYOffset)*panningSpeed*frameTime*60/1000;
       // Stop panning when very close
-      if (abs(focusedX-targetXOffset) < 1 && abs(focusedY-targetYOffset) < 1){
+      if (abs(focusedX-targetXOffset) < 1 && abs(focusedY-targetYOffset) < 1) {
         panning = false;
       }
     }
-    
+
     // update highlight grid if hovering over diffent pos
-    if (!(hoveringX == oldHoveringX && hoveringY == oldHoveringY) ){
+    if (!(hoveringX == oldHoveringX && hoveringY == oldHoveringY)) {
       updateHighlightingGrid(hoveringX, hoveringY, 8, 8);
       oldHoveringX = hoveringX;
       oldHoveringY = hoveringY;
@@ -839,24 +848,23 @@ class Map3D extends BaseMap implements Map{
     //draw the scene to the screen
     panelCanvas.image(canvas, 0, 0);
     //image(refractionCanvas, 0, 0);
-
   }
 
-  void renderWater(PGraphics canvas){
+  void renderWater(PGraphics canvas) {
     //Draw water
     canvas.pushMatrix();
     canvas.shape(water);
     canvas.popMatrix();
   }
 
-  void drawPath(PGraphics canvas){
+  void drawPath(PGraphics canvas) {
     float x0, y0;
-    if (drawPath != null){
+    if (drawPath != null) {
       canvas.shape(pathLine);
     }
   }
 
-  void renderScene(PGraphics canvas){
+  void renderScene(PGraphics canvas) {
 
     canvas.directionalLight(240, 255, 255, 0, -0.1, -1);
     //canvas.directionalLight(100, 100, 100, 0.1, 1, -1);
@@ -864,7 +872,7 @@ class Map3D extends BaseMap implements Map{
     canvas.shape(tiles);
     canvas.ambientLight(100, 100, 100);
     canvas.shape(trees);
-    
+
 
 
     canvas.pushMatrix();
@@ -896,7 +904,7 @@ class Map3D extends BaseMap implements Map{
           if (buildingObjs.get(buildingString(buildings[y][x].type)) != null) {
             canvas.lights();
             canvas.pushMatrix();
-            if(buildings[y][x].type==buildingIndex("Mine")){
+            if (buildings[y][x].type==buildingIndex("Mine")) {
               canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMinHeightAt(x, y));
               canvas.rotateZ(getDownwardAngle(x, y));
             } else {
@@ -906,7 +914,7 @@ class Map3D extends BaseMap implements Map{
             canvas.popMatrix();
           }
         }
-        if(parties[y][x] != null){
+        if (parties[y][x] != null) {
           canvas.noLights();
           if (parties[y][x].player == 0) {
             canvas.pushMatrix();
@@ -924,7 +932,7 @@ class Map3D extends BaseMap implements Map{
             canvas.shape(battle);
             canvas.popMatrix();
           }
-          if(parties[y][x].player!=2){
+          if (parties[y][x].player!=2) {
             canvas.noLights();
             canvas.pushMatrix();
             canvas.translate((x+0.5+sin(rot)*0.5)*blockSize, (y+0.5+cos(rot)*0.5)*blockSize, blockSize*2.25+groundMinHeightAt(x, y));
@@ -968,7 +976,7 @@ class Map3D extends BaseMap implements Map{
             canvas.popMatrix();
           }
           JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].task);
-          if (jo != null && !jo.isNull("img")){
+          if (jo != null && !jo.isNull("img")) {
             canvas.noLights();
             canvas.pushMatrix();
             canvas.translate((x+0.5+sin(rot)*0.25)*blockSize, (y+0.5+cos(rot)*0.25)*blockSize, blockSize*3+groundMinHeightAt(x, y));
@@ -985,15 +993,13 @@ class Map3D extends BaseMap implements Map{
     canvas.pushMatrix();
     drawPath(canvas);
     PVector mv = MousePosOnObject(mouseX, mouseY).div(blockSize);
-    if(0<mv.x&&mv.x<mapWidth&&0<mv.y&&mv.y<mapHeight){
+    if (0<mv.x&&mv.x<mapWidth&&0<mv.y&&mv.y<mapHeight) {
       canvas.shape(highlightingGrid);
     }
     canvas.popMatrix();
-
   }
 
-  void renderTexturedEntities(PGraphics canvas){
-
+  void renderTexturedEntities(PGraphics canvas) {
   }
 
   String buildingString(int buildingI) {
@@ -1008,14 +1014,14 @@ class Map3D extends BaseMap implements Map{
     return mouseX > x && mouseX < x+w && mouseY > y && mouseY < y+h;
   }
 
-  float getRayHeightAt(PVector r, PVector s, float targetX){
+  float getRayHeightAt(PVector r, PVector s, float targetX) {
     PVector start = s.copy();
     PVector ray = r.copy();
     float dz_dx = ray.z/ray.x;
     return start.z + (targetX - start.x) * dz_dx;
   }
 
-  boolean rayPassesThrough(PVector r, PVector s, PVector targetV){
+  boolean rayPassesThrough(PVector r, PVector s, PVector targetV) {
     PVector start = s.copy();
     PVector ray = r.copy();
     start.add(ray);
@@ -1041,15 +1047,15 @@ class Map3D extends BaseMap implements Map{
     w.mult( n.dot(f)/n.dot(w) );
     PVector ray = w.copy();
     w.add(e);
-    
+
     float acHeight, curX = e.x, curY = e.y;
-    for (int i = 0; i < ray.mag(); i++){
+    for (int i = 0; i < ray.mag(); i++) {
       curX += ray.x/ray.mag();
       curY += ray.y/ray.mag();
-      if (0 <= curX/blockSize && curX/blockSize <= mapWidth && 0 <= curY/blockSize && curY/blockSize < mapHeight){
+      if (0 <= curX/blockSize && curX/blockSize <= mapWidth && 0 <= curY/blockSize && curY/blockSize < mapHeight) {
         acHeight = getHeight(curX/blockSize, curY/blockSize);
-        if (getRayHeightAt(ray, e, curX) < acHeight+0.00001){
-          return new PVector(curX, curY,acHeight);
+        if (getRayHeightAt(ray, e, curX) < acHeight+0.00001) {
+          return new PVector(curX, curY, acHeight);
         }
       }
     }
