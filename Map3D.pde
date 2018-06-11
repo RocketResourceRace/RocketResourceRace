@@ -30,7 +30,7 @@ class Map3D extends BaseMap implements Map {
   float hoveringX, hoveringY, oldHoveringX, oldHoveringY;
   float targetXOffset, targetYOffset;
   int selectedCellX, selectedCellY;
-  PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid;
+  PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid, drawPossibleMoves;
   HashMap<String, PShape> taskObjs;
   HashMap<String, PShape[]> buildingObjs;
   PShape[] unitNumberObjects;
@@ -148,6 +148,7 @@ class Map3D extends BaseMap implements Map {
   }
   void updateMoveNodes(Node[][] nodes) {
     moveNodes = nodes;
+    updatePossibleMoves();
   }
   void updatePath(ArrayList<int[]> nodes) {
     float x0, y0;
@@ -165,6 +166,28 @@ class Map3D extends BaseMap implements Map {
     }
     pathLine.vertex((selectedCellX+0.5)*blockSize, (selectedCellY+0.5)*blockSize, 5+getHeight(selectedCellX+0.5, selectedCellY+0.5));
     pathLine.endShape();
+  }
+  void updatePossibleMoves(){
+    // For the shape that indicateds where a party can move
+    float smallSize = blockSize / jsManager.loadFloatSetting("terrain detail");
+    drawPossibleMoves = createShape();
+    drawPossibleMoves.beginShape(QUADS);
+    drawPossibleMoves.fill(0, 0, 0, 120);
+    for (int x=0; x<mapWidth; x++){
+      for (int y=0; y<mapHeight; y++){
+        if (moveNodes[y][x].cost <= parties[selectedCellY][selectedCellX].getMovementPoints()){
+          for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++){
+            for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++){
+              drawPossibleMoves.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+              drawPossibleMoves.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+              drawPossibleMoves.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+              drawPossibleMoves.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+            }
+          }
+        }
+      }
+    }
+    drawPossibleMoves.endShape();
   }
   void cancelMoveNodes() {
     moveNodes = null;
@@ -900,8 +923,6 @@ class Map3D extends BaseMap implements Map {
     canvas.ambientLight(100, 100, 100);
     canvas.shape(trees);
 
-
-
     canvas.pushMatrix();
     //noLights();
     if (cellSelected) {
@@ -1021,6 +1042,10 @@ class Map3D extends BaseMap implements Map {
     drawPath(canvas);
     if (0<hoveringX&&hoveringX<mapWidth&&0<hoveringY&&hoveringY<mapHeight) {
       canvas.shape(highlightingGrid);
+    }
+    
+    if (moveNodes != null){
+      canvas.shape(drawPossibleMoves);
     }
     canvas.popMatrix();
   }
