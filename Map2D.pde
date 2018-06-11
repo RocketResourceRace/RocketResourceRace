@@ -23,6 +23,7 @@ interface Map {
   float scaleYInv();
   void updatePath(ArrayList<int[]> nodes);
   void updateHoveringScale();
+  void doUpdateHoveringScale();
   void cancelPath();
   void setActive(boolean a);
   void selectCell(int x, int y);
@@ -178,6 +179,7 @@ class BaseMap extends Element{
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
+  boolean updateHoveringScale;
   void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players){
     int partiesByteCount = 0;
     for (int y=0; y<mapHeight; y++){
@@ -656,6 +658,9 @@ class Map2D extends BaseMap implements Map{
 
   }
   void updateHoveringScale(){
+    
+  }
+  void doUpdateHoveringScale(){
     
   }
   boolean isMoving(){

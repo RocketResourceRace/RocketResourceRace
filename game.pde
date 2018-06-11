@@ -1166,7 +1166,7 @@ class Game extends State{
         tooltip.show(); 
       }
       else if (map.mouseOver()){
-        map.updateHoveringScale();
+        map.doUpdateHoveringScale();
         if (moving && !UIHovering()){
           Node [][] nodes = map.getMoveNodes();
           int x = floor(map.scaleXInv()); 

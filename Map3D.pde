@@ -37,7 +37,7 @@ class Map3D extends BaseMap implements Map {
   PImage[] tempTileImages;
   float targetZoom, zoom, zoomv, tilt, tiltv, rot, rotv, focusedX, focusedY;
   PVector focusedV, heldPos;
-  Boolean zooming, panning, mapActive, cellSelected;
+  Boolean zooming, panning, mapActive, cellSelected, updateHoveringScale;
   Node[][] moveNodes;
   float blockSize = 16;
   ArrayList<int[]> drawPath;
@@ -74,6 +74,7 @@ class Map3D extends BaseMap implements Map {
     heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(jsManager.loadFloatSetting("terrain detail"), 2))];
     targetXOffset = mapWidth/2*blockSize;
     targetXOffset = mapHeight/2*blockSize;
+    updateHoveringScale = false;
   }
 
 
@@ -200,6 +201,10 @@ class Map3D extends BaseMap implements Map {
     PVector mo = MousePosOnObject(mouseX, mouseY);
     hoveringX = (mo.x)/getObjectWidth()*mapWidth;
     hoveringY = (mo.y)/getObjectHeight()*mapHeight;
+  }
+  
+  void doUpdateHoveringScale(){
+    updateHoveringScale = true;
   }
 
   void addTreeTile(int cellX, int cellY, int i) {
@@ -622,7 +627,7 @@ class Map3D extends BaseMap implements Map {
       } else if (mouseButton != RIGHT) {
         setTilt(tilt-(mouseY-pmouseY)*0.01);
         setRot(rot-(mouseX-pmouseX)*0.01);
-        updateHoveringScale();
+        doUpdateHoveringScale();
       }
     }
     //else if (eventType.equals("mousePressed")){
@@ -645,6 +650,7 @@ class Map3D extends BaseMap implements Map {
 
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event) {
     if (eventType == "mouseWheel") {
+      doUpdateHoveringScale();
       float count = event.getCount();
       setZoom(zoom+zoom*count*0.15);
     }
@@ -794,9 +800,6 @@ class Map3D extends BaseMap implements Map {
     tilt += tiltv*frameTime;
     zoom += zoomv*frameTime;
     
-    if (panning || rotv != 0 || zoomv != 0 || tiltv != 0){
-      updateHoveringScale();
-    }
 
     if (panning) {
       focusedX -= (focusedX-targetXOffset)*panningSpeed*frameTime*60/1000;
@@ -806,6 +809,17 @@ class Map3D extends BaseMap implements Map {
         panning = false;
       }
     }
+    
+    // Check camera ok
+    setZoom(zoom);
+    setRot(rot);
+    setTilt(tilt);
+    setFocused(focusedX, focusedY);
+    
+    if (panning || rotv != 0 || zoomv != 0 || tiltv != 0 || updateHoveringScale){ // update hovering scale
+      updateHoveringScale();
+      updateHoveringScale = false;
+    }
 
     // update highlight grid if hovering over diffent pos
     if (!(hoveringX == oldHoveringX && hoveringY == oldHoveringY)) {
@@ -814,11 +828,6 @@ class Map3D extends BaseMap implements Map {
       oldHoveringY = hoveringY;
     }
 
-    // Check camera ok
-    setZoom(zoom);
-    setRot(rot);
-    setTilt(tilt);
-    setFocused(focusedX, focusedY);
 
     pushStyle();
     hint(ENABLE_DEPTH_TEST);
