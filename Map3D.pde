@@ -73,7 +73,7 @@ class Map3D extends BaseMap implements Map {
     downwardAngleCache = new HashMap<Integer, HashMap<Integer, Float>>();
     heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(jsManager.loadFloatSetting("terrain detail"), 2))];
     targetXOffset = mapWidth/2*blockSize;
-    targetXOffset = mapHeight/2*blockSize;
+    targetYOffset = mapHeight/2*blockSize;
     updateHoveringScale = false;
   }
 
@@ -123,13 +123,13 @@ class Map3D extends BaseMap implements Map {
   }
 
   float getTargetOffsetX() {
-    return 0;
+    return targetXOffset;
   }
   float getTargetOffsetY() {
-    return 0;
+    return targetYOffset;
   }
   float getTargetBlockSize() {
-    return 0;
+    return zoom;
   }
   float getZoom() {
     return zoom;
@@ -173,6 +173,8 @@ class Map3D extends BaseMap implements Map {
     drawPath = null;
   }
   void loadSettings(float mapXOffset, float mapYOffset, float blockSize) {
+    targetXOffset = mapXOffset;
+    targetYOffset = mapYOffset;
   }
   float[] targetCell(int x, int y, float zoom) {
     targetXOffset = x*blockSize-width/2;

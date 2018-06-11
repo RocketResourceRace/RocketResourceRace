@@ -261,6 +261,7 @@ class Player{
     this.cellSelected = cellSelected;
   }
   void loadSettings(Game g, Map m){
+    print(cellX, cellY);
     m.loadSettings(mapXOffset, mapYOffset, blockSize);
     if(cellSelected){
       g.selectCell((int)this.cellX, (int)this.cellY, false);
