@@ -1019,8 +1019,7 @@ class Map3D extends BaseMap implements Map {
 
     canvas.pushMatrix();
     drawPath(canvas);
-    PVector mv = MousePosOnObject(mouseX, mouseY).div(blockSize);
-    if (0<mv.x&&mv.x<mapWidth&&0<mv.y&&mv.y<mapHeight) {
+    if (0<hoveringX&&hoveringX<mapWidth&&0<hoveringY&&hoveringY<mapHeight) {
       canvas.shape(highlightingGrid);
     }
     canvas.popMatrix();
@@ -1075,19 +1074,27 @@ class Map3D extends BaseMap implements Map {
     PVector ray = w.copy();
     w.add(e);
 
-    float acHeight, curX = e.x, curY = e.y;
-    for (int i = 0; i < ray.mag(); i++) {
-      curX += ray.x/ray.mag();
-      curY += ray.y/ray.mag();
+    double acHeight, curX = e.x, curY = e.y, curZ = e.z, minHeight = getHeight(-1, -1);
+    // If ray looking upwards or really far away
+    if (ray.z > 0 || ray.mag() > blockSize*mapWidth*mapHeight){
+      return new PVector(-1, -1, -1);
+    }
+    for (int i = 0; i < ray.mag()*2; i++) {
+      curX += ray.x/ray.mag()/2;
+      curY += ray.y/ray.mag()/2;
+      curZ += ray.z/ray.mag()/2;
       if (0 <= curX/blockSize && curX/blockSize <= mapWidth && 0 <= curY/blockSize && curY/blockSize < mapHeight) {
-        acHeight = getHeight(curX/blockSize, curY/blockSize);
-        if (getRayHeightAt(ray, e, curX) < acHeight+0.00001) {
-          return new PVector(curX, curY, acHeight);
+        acHeight = (double)getHeight((float)curX/blockSize, (float)curY/blockSize);
+        if (curZ < acHeight+0.000001) {
+          return new PVector((float)curX, (float)curY, (float)acHeight);
         }
+      }
+      if (curZ < minHeight){ // if out of bounds and below water
+        break;
       }
     }
 
-    return w;
+    return new PVector(-1, -1, -1);
   }
 
   // Function to get the position of the viewpoint in the current coordinate system
