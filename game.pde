@@ -1171,15 +1171,20 @@ class Game extends State{
           Node [][] nodes = map.getMoveNodes();
           int x = floor(map.scaleXInv()); 
           int y = floor(map.scaleYInv());
-          if (x < mapWidth && y<mapHeight && x>=0 && y>=0 && nodes[y][x] != null && !(cellX == x && cellY == y)){
+          if (cellX == x && cellY == y){
+            tooltip.hide();
+            map.cancelPath();
+          }
+          else if (x < mapWidth && y<mapHeight && x>=0 && y>=0 && nodes[y][x] != null){
             if (parties[cellY][cellX] != null){
               map.updatePath(getPath(cellX, cellY, x, y, map.getMoveNodes()));
             }
             if(parties[y][x]==null){
               //Moving into empty tile
               int turns = getMoveTurns(cellX, cellY, x, y, nodes);
+              int cost = nodes[y][x].cost;
               boolean splitting = splitUnitsNum()!=parties[cellY][cellX].getUnitNumber();
-              tooltip.setMoving(turns, splitting);
+              tooltip.setMoving(turns, splitting, cost);
               tooltip.show();
             }
             else {

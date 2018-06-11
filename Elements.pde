@@ -403,7 +403,7 @@ class Tooltip extends Element{
     return returnString;
   }
   
-  void setMoving(int turns, boolean splitting){
+  void setMoving(int turns, boolean splitting, int cost){
     attacking = false;
     //Tooltip text if moving. Turns is the number of turns in move
     JSONObject jo = gameData.getJSONObject("tooltips");
@@ -412,7 +412,7 @@ class Tooltip extends Element{
       t = jo.getString("moving splitting");
     }
     else{
-      t = jo.getString("moving");
+      t = String.format(jo.getString("moving"), cost);
     }
     if (turns > 0){
       t += String.format(jo.getString("moving turns"), turns);
