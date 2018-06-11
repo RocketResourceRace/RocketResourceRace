@@ -177,8 +177,16 @@ class State{
   void _mouseEvent(String eventType, int button, MouseEvent event){
     ArrayList<Event> events = new ArrayList<Event>();
     mouseEvent(eventType, button, event);
+    if (eventType == "mouseWheel"){
+      for (int i=0; i<panels.size(); i++){
+        if (panels.get(i).mouseOver()&& panels.get(i).visible&&panels.get(i).blockEvent){
+          activePanel = panels.get(i).id;
+          break;
+        }
+      }
+    }
     for (Panel panel : panels){
-      if(panel.mouseOver() && panel.visible){
+      if(activePanel == panel.id && panel.mouseOver() && panel.visible){
         // Iterate in reverse order
         for (int i=panel.elements.size()-1; i>=0; i--){
           if (panel.elements.get(i).active){

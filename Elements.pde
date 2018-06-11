@@ -567,6 +567,10 @@ class NotificationManager extends Element{
         scroll = round(between(0, scroll+count, notifications.get(turn).size()-displayNots));
       }
     }
+    // Lazy fix for bug
+    if (moveOver() && visible && active && !empty()){
+      events.add("stop events");
+    }
     return events;
   }
   ArrayList<String> mouseEvent(String eventType, int button){
