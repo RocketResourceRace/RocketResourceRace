@@ -181,7 +181,7 @@ class Map3D extends BaseMap implements Map {
     targetXOffset = (x+0.5)*blockSize-width/2;
     targetYOffset = (y+0.5)*blockSize-height/2;
     panning = true;
-    return new float[2];
+    return new float[]{targetXOffset, targetYOffset};
   }
 
 

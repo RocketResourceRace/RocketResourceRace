@@ -30,7 +30,7 @@ class BaseFileManager extends Element{
             mx = max(mx, Integer.parseInt(saveNames[i].substring(8, saveNames[i].length())));
           }
           catch(Exception e){
-            print(1);
+            print("no autogen names available");
           }
         }
       }
@@ -1588,7 +1588,6 @@ class ToggleButton extends Element{
     ArrayList<String> events = new ArrayList<String>();
     if (eventType == "mouseClicked"&&mouseOver()){
       events.add("valueChanged");
-      print(1);
       on = !on;
     }
     return events;

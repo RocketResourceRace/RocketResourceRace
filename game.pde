@@ -629,7 +629,6 @@ class Game extends State{
       blockSize = map.getZoom();
     }
     players[turn].saveSettings(map.getTargetOffsetX(), map.getTargetOffsetY(), blockSize, cellX, cellY, cellSelected);
-    println(map.getTargetOffsetX());
     turn = (turn + 1)%2;
     players[turn].loadSettings(this, map);
     changeTurn = false;
@@ -1682,6 +1681,15 @@ class Game extends State{
     getPanel("pause screen").visible = false;
 
     notificationManager.reset();
+    
+    // If first turn start players looking at right places
+    if (turnNumber == 0){
+      for (int i = players.length-1; i >= 0; i--){
+        int[] t1 = findIdle(i);
+        float[] targetOffsets = map.targetCell(t1[0], t1[1], 64);
+        players[i].saveSettings(targetOffsets[0], targetOffsets[1], 64, cellX, cellY, false);
+      }
+    }
 
     if (anyIdle(turn)){
       ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
