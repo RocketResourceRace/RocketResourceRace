@@ -37,7 +37,7 @@ class Map3D extends BaseMap implements Map {
   PImage[] tempTileImages;
   float targetZoom, zoom, zoomv, tilt, tiltv, rot, rotv, focusedX, focusedY;
   PVector focusedV, heldPos;
-  Boolean zooming, panning, mapActive, cellSelected, updateHoveringScale;
+  Boolean panning, zooming, mapActive, cellSelected, updateHoveringScale;
   Node[][] moveNodes;
   float blockSize = 16;
   ArrayList<int[]> drawPath;
@@ -175,10 +175,11 @@ class Map3D extends BaseMap implements Map {
   void loadSettings(float mapXOffset, float mapYOffset, float blockSize) {
     targetXOffset = mapXOffset;
     targetYOffset = mapYOffset;
+    panning = true;
   }
   float[] targetCell(int x, int y, float zoom) {
-    targetXOffset = x*blockSize-width/2;
-    targetYOffset = y*blockSize-height/2;
+    targetXOffset = (x+0.5)*blockSize-width/2;
+    targetYOffset = (y+0.5)*blockSize-height/2;
     panning = true;
     return new float[2];
   }
@@ -810,6 +811,10 @@ class Map3D extends BaseMap implements Map {
       if (abs(focusedX-targetXOffset) < 1 && abs(focusedY-targetYOffset) < 1) {
         panning = false;
       }
+    }
+    else{
+      targetXOffset = focusedX;
+      targetYOffset = focusedY;
     }
     
     // Check camera ok
