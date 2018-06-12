@@ -1,2 +1,2 @@
-# epq_game
-game for epq
+# Rocket Resource Race
+The core ideas for the gameplay were inspired by other strategy games we have played including 'Civilisation V', 'Total War', 'Mount and Blade' and '0 A.D.'. The game begins in the stone age, where players gather basic resources (wood, stone, and food) to expand their colonies. As the game progresses, players will be able to gather more advanced resources utilising their increasing manpower and infrastructure, which in turn leads to even further increases in manpower and infrastructure. Players will be able to fight each other, but conquest is only one of the objectives - the other is to be the first to build a rocket and successfully launch it.
