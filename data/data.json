@@ -443,6 +443,7 @@
     {
       "id": "Big Factory",
       "img": ["big_factory.png"],
+      "obj": ["big_factory.obj"]
     },
     {
       "id": "Rocket Factory",
