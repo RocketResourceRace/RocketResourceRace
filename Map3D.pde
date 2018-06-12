@@ -945,6 +945,9 @@ class Map3D extends BaseMap implements Map {
       canvas.popMatrix();
     }
 
+    if (moveNodes != null){
+      canvas.shape(drawPossibleMoves);
+    }
 
     for (int x=0; x<mapWidth; x++) {
       for (int y=0; y<mapHeight; y++) {
@@ -1044,9 +1047,6 @@ class Map3D extends BaseMap implements Map {
       canvas.shape(highlightingGrid);
     }
     
-    if (moveNodes != null){
-      canvas.shape(drawPossibleMoves);
-    }
     canvas.popMatrix();
   }
 
