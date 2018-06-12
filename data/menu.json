@@ -105,6 +105,15 @@
           "h": 3,
           "text": "Start Game",
         },
+          {
+            "id": "reset default map settings",
+            "type": "button",
+            "x": -20,
+            "y": -8,
+            "w": 10,
+            "h": 2,
+            "text": "Revert To Default",
+          },
         {
           "id": "water level",
           "flags": ["autosave"],

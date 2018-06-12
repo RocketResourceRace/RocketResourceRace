@@ -105,9 +105,9 @@ class Menu extends State{
     }
   }
   
-  void revertChanges(String panel){
+  void revertChanges(String panel, boolean onlyAutosaving){
     for (Element elem : getPanel(panel).elements){
-      if (!jsManager.hasFlag(panel, elem.id, "autosave") && settingChangers.get(elem.id) != null){
+      if ((onlyAutosaving || !jsManager.hasFlag(panel, elem.id, "autosave")) && settingChangers.get(elem.id) != null){
         String type = jsManager.getElementType(panel, elem.id);
         switch (type){
           case "slider":
@@ -157,7 +157,7 @@ class Menu extends State{
       if (event.type.equals("clicked")){
         if (stateChangers.get(event.id) != null && stateChangers.get(event.id)[0] != null ){
           newPanel = stateChangers.get(event.id)[0];
-          revertChanges(event.panel);
+          revertChanges(event.panel, false);
           if (newPanel.equals("load game")){
             ((BaseFileManager)getElement("loading manager", "load game")).loadSaveNames();
           }
@@ -172,7 +172,17 @@ class Menu extends State{
           loadMenuPanels();
         }
         else if (event.id.equals("revert")){
-          revertChanges(event.panel);
+          revertChanges(event.panel, false);
+        }
+        else if (event.id.equals("reset default map settings")){
+          jsManager.saveDefault("hills height");
+          jsManager.saveDefault("water level");
+          for (Integer i=1; i<gameData.getJSONArray("terrain").size()+1; i++){
+            if (!gameData.getJSONArray("terrain").getJSONObject(i-1).isNull("weighting")){
+              jsManager.saveDefault(gameData.getJSONArray("terrain").getJSONObject(i-1).getString("id")+" weighting");
+            }
+          }
+          revertChanges(event.panel, true);
         }
         else if (event.id.equals("start")){
           newState = "map";

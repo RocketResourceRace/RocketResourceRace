@@ -166,7 +166,7 @@ class JSONManager{
     }
   }
   
-  void loadDefault(String id){
+  void saveDefault(String id){
     JSONArray defaultSettings = menu.getJSONArray("default settings");
     for (int i=0; i<defaultSettings.size(); i++){
       if (defaultSettings.getJSONObject(i).getString("id").equals(id)){
