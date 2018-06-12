@@ -394,7 +394,12 @@ class BaseMap extends Element{
     noiseDetail(3,0.25);
     HashMap<Integer, Float> groundWeightings = new HashMap();
     for (Integer i=1; i<gameData.getJSONArray("terrain").size()+1; i++){
-      groundWeightings.put(i, gameData.getJSONArray("terrain").getJSONObject(i-1).getFloat("weighting"));
+      if (gameData.getJSONArray("terrain").getJSONObject(i-1).isNull("weighting")){
+        groundWeightings.put(i, jsManager.loadFloatSetting(gameData.getJSONArray("terrain").getJSONObject(i-1).getString("id")+" weighting"));
+      }
+      else{
+        groundWeightings.put(i, gameData.getJSONArray("terrain").getJSONObject(i-1).getFloat("weighting"));
+      }
     }
 
     float totalWeighting = 0;
@@ -517,7 +522,7 @@ class BaseMap extends Element{
     //terrain = smoothMap(jsManager.loadIntSetting("smoothing")+2, 1, terrain);
     for (int y=0; y<mapHeight;y++){
       for (int x=0; x<mapWidth;x++){
-        if(terrain[y][x] != terrainIndex("water") && (groundMaxRawHeightAt(x, y) > 0.5+jsManager.loadFloatSetting("water level")/2.0) || getMaxSteepness(x, y)>HILLSTEEPNESS){
+        if(terrain[y][x] != terrainIndex("water") && (groundMaxRawHeightAt(x, y) > jsManager.loadFloatSetting("hills height")) || getMaxSteepness(x, y)>HILLSTEEPNESS){
           terrain[y][x] = terrainIndex("hills");
         }
       }

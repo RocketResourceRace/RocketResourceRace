@@ -124,22 +124,71 @@ class JSONManager{
   
   int loadIntSetting(String id){
     // Load a setting that is an int
-    return  settings.getInt(id);
+    try{
+      return  settings.getInt(id);
+    }
+    catch(Exception e){
+      println("Invalid setting id, ", id);
+      return -1;
+    }
   }
   
   float loadFloatSetting(String id){
     // Load a setting that is an float
-    return  settings.getFloat(id);
+    try{
+      return  settings.getFloat(id);
+    }
+    catch(Exception e){
+      println("Invalid setting id, ", id);
+      return -1;
+    }
   }
   
   String loadStringSetting(String id){
     // Load a setting that is an string
-    return  settings.getString(id);
+    try{
+      return  settings.getString(id);
+    }
+    catch(Exception e){
+      println("Invalid setting id, ", id);
+      return "";
+    }
   }
   
   boolean loadBooleanSetting(String id){
     // Load a setting that is an string
-    return  settings.getBoolean(id);
+    try{
+      return  settings.getBoolean(id);
+    }
+    catch(Exception e){
+      println("Invalid setting id, ", id);
+      return false;
+    }
+  }
+  
+  void loadDefault(String id){
+    JSONArray defaultSettings = menu.getJSONArray("default settings");
+    for (int i=0; i<defaultSettings.size(); i++){
+      if (defaultSettings.getJSONObject(i).getString("id").equals(id)){
+        JSONObject setting = defaultSettings.getJSONObject(i);
+        if (setting.getString("type").equals("int")){
+          saveSetting(setting.getString("id"), setting.getInt("value"));
+        }
+        else if (setting.getString("type").equals("float")){
+          saveSetting(setting.getString("id"), setting.getFloat("value"));
+        }
+        else if (setting.getString("type").equals("string")){
+          saveSetting(setting.getString("id"), setting.getString("value"));
+        }
+        else if (setting.getString("type").equals("boolean")){
+          saveSetting(setting.getString("id"), setting.getBoolean("value"));
+        }
+        else{
+          println("invalid setting type", setting.getString("type"));
+        }
+      }
+    }
+    writeSettings();
   }
   
   JSONObject findJSONObject(JSONArray j, String id){
