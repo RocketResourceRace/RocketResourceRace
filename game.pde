@@ -242,9 +242,6 @@ class Game extends State{
           moving = true;
           splittedParty = new Party(turn, sliderVal, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), parties[cellY][cellX].getMovementPoints());
           parties[cellY][cellX].changeUnitNumber(-sliderVal);
-          if (parties[cellY][cellX].getUnitNumber() <= 0){
-            parties[cellY][cellX] = null;
-          }
         }
       }
 
@@ -287,6 +284,9 @@ class Game extends State{
         parties[cellY][cellX].clearActions();
         ((Text)getElement("turns remaining", "party management")).setText("");
         moveParty(cellX, cellY);
+      }
+      if (parties[cellY][cellX].getUnitNumber() <= 0){
+        parties[cellY][cellX] = null;
       }
     }
     else if (event instanceof EndTurn){
