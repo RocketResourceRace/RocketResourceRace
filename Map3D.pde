@@ -945,6 +945,13 @@ class Map3D extends BaseMap implements Map {
       canvas.popMatrix();
     }
 
+    canvas.pushMatrix();
+    drawPath(canvas);
+    if (0<hoveringX&&hoveringX<mapWidth&&0<hoveringY&&hoveringY<mapHeight) {
+      canvas.shape(highlightingGrid);
+    }
+    
+    canvas.popMatrix();
     if (moveNodes != null){
       canvas.shape(drawPossibleMoves);
     }
@@ -1041,13 +1048,6 @@ class Map3D extends BaseMap implements Map {
     }
     canvas.popMatrix();
 
-    canvas.pushMatrix();
-    drawPath(canvas);
-    if (0<hoveringX&&hoveringX<mapWidth&&0<hoveringY&&hoveringY<mapHeight) {
-      canvas.shape(highlightingGrid);
-    }
-    
-    canvas.popMatrix();
   }
 
   void renderTexturedEntities(PGraphics canvas) {
