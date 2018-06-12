@@ -1,12 +1,12 @@
 
 {
   "game options":{
-    "starting resources":[{"id":"food", "quantity":99500},
-                          {"id":"wood", "quantity":99500},
-                          {"id":"rocket parts", "quantity": 990},
-                          {"id":"cable", "quantity": 990},
-                          {"id":"metal", "quantity": 990},
-                          {"id":"concrete", "quantity": 990}],
+    "starting resources":[{"id":"food", "quantity":500},
+                          {"id":"wood", "quantity":500},
+                          {"id":"rocket parts", "quantity": 0},
+                          {"id":"cable", "quantity": 0},
+                          {"id":"metal", "quantity": 0},
+                          {"id":"concrete", "quantity": 0}],
     "movement points": 64
   },
   "terrain":[
