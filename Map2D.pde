@@ -318,7 +318,6 @@ class BaseMap extends Element{
       players[i].cellSelected = cellSelected;
     }
     noiseSeed(heightMapSeed);
-    noiseDetail(4,0.5);
     generateNoiseMaps();
     
     return new MapSave(heightMap, mapWidth, mapHeight, terrain, parties, buildings, turnNumber, turnPlayer, players);
@@ -540,6 +539,7 @@ class BaseMap extends Element{
     generateTerrain();
   }
   void generateNoiseMaps(){
+    noiseDetail(4,0.5);
     heightMap = new float[int((mapWidth+1/jsManager.loadFloatSetting("terrain detail"))*(mapHeight+1/jsManager.loadFloatSetting("terrain detail"))*pow(jsManager.loadFloatSetting("terrain detail"), 2))];
     for(int y = 0;y<mapHeight;y++){
       for(int y1 = 0;y1<jsManager.loadFloatSetting("terrain detail");y1++){
