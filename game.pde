@@ -475,7 +475,7 @@ class Game extends State{
       }
 
       if (correctTerrain && correctBuilding){
-        if (enoughResources && !enoughMovementPoints){
+        if (enoughResources && enoughMovementPoints){
           makeTaskAvailable(i);
         }
         else{
