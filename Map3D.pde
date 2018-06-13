@@ -1001,9 +1001,11 @@ class Map3D extends BaseMap implements Map {
           if (drawingTaskIcons && jo != null && !jo.isNull("img")) {
             canvas.noLights();
             canvas.pushMatrix();
-            canvas.translate((x+0.5+sin(rot)*0.125)*blockSize, (y+0.5+cos(rot)*0.125)*blockSize, blockSize*2+groundMinHeightAt(x, y));
+            canvas.translate((x+0.5+sin(rot)*0.125)*blockSize, (y+0.5+cos(rot)*0.125)*blockSize, blockSize*1.7+groundMinHeightAt(x, y));
             canvas.rotateZ(-this.rot);
             canvas.translate(-0.125*blockSize, -0.25*blockSize);
+            canvas.rotateX(PI/2-this.tilt);
+            canvas.translate(0, 0, blockSize*0.35);
             canvas.shape(taskObjs.get(jo.getString("id")));
             canvas.popMatrix();
           }
@@ -1042,6 +1044,7 @@ class Map3D extends BaseMap implements Map {
       canvas.translate((x+0.5+sin(rot)*0.5)*blockSize, (y+0.5+cos(rot)*0.5)*blockSize, blockSize*1.6+groundMinHeightAt(x, y));
       canvas.rotateZ(-this.rot);
       canvas.translate(-0.5*blockSize, -0.5*blockSize);
+      canvas.rotateX(PI/2-this.tilt);
       canvas.shape(unitNumberObjects[battle.party1.player]);
       canvas.shape(unitNumberObjects[battle.party2.player]);
       canvas.popMatrix();
@@ -1052,6 +1055,7 @@ class Map3D extends BaseMap implements Map {
       canvas.translate((x+0.5+sin(rot)*0.5)*blockSize, (y+0.5+cos(rot)*0.5)*blockSize, blockSize*1.6+groundMinHeightAt(x, y));
       canvas.rotateZ(-this.rot);
       canvas.translate(-0.5*blockSize, -0.5*blockSize);
+      canvas.rotateX(PI/2-this.tilt);
       unitNumberObjects[parties[y][x].player].setVertex(0, blockSize*parties[y][x].getUnitNumber()/1000, 0, 0);
       unitNumberObjects[parties[y][x].player].setVertex(1, blockSize*parties[y][x].getUnitNumber()/1000, blockSize*0.125, 0);
       unitNumberObjects[parties[y][x].player].setVertex(2, blockSize, blockSize*0.125, 0);
