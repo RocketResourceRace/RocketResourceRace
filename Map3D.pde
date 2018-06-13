@@ -476,7 +476,12 @@ class Map3D extends BaseMap implements Map {
     tileRect.endShape(CLOSE);
     for (int i=0; i<gameData.getJSONArray("tasks").size(); i++) {
       JSONObject task = gameData.getJSONArray("tasks").getJSONObject(i);
-      if (!task.isNull("img")) {
+      if (!task.isNull("obj")) {
+        taskObjs.put(task.getString("id"), loadShape(task.getString("obj")));
+        taskObjs.get(task.getString("id")).translate(blockSize*0.125, -blockSize*0.2);
+        taskObjs.get(task.getString("id")).rotateX(PI/2);
+      }
+      else if (!task.isNull("img")) {
         PShape object = createShape(RECT, 0, 0, blockSize/4, blockSize/4);
         object.setFill(color(255, 255, 255));
         object.setTexture(taskImages[i]);
