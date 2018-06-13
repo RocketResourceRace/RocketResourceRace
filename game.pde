@@ -1237,6 +1237,7 @@ class Game extends State{
             else{
               moving = true;
               map.updateMoveNodes(djk(cellX, cellY));
+              refreshTooltip();
             }
           } 
         }
