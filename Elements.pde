@@ -402,6 +402,20 @@ class Tooltip extends Element{
     }
     return returnString;
   }
+  String getResourceList(JSONArray resArray, float[] availableResources){
+    // Colouring for insufficient resources
+    String returnString = "";
+    for (int i=0; i<resArray.size(); i++){
+      JSONObject jo = resArray.getJSONObject(i);
+      if (availableResources[jsManager.getResIndex(jo.getString("id"))] >= jo.getFloat("quantity")){ // Check if has enough resources
+        returnString += String.format("  %s %s\n", roundDp(""+jo.getFloat("quantity"),2), jo.getString("id"));
+      }
+      else{
+        returnString += String.format("  <i>%s</i> %s\n", roundDp(""+jo.getFloat("quantity"),2), jo.getString("id"));
+      }
+    }
+    return returnString;
+  }
   
   void setMoving(int turns, boolean splitting, int cost, boolean is3D){
     attacking = false;
@@ -442,7 +456,7 @@ class Tooltip extends Element{
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(jo.getString("merging"));
   }
-  void setTask(String task){
+  void setTask(String task, float[] availibleResources, int movementPoints){
     attacking = false;
     JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task);
     String t="";
@@ -450,10 +464,15 @@ class Tooltip extends Element{
       t += jo.getString("description")+"\n\n";
     }
     if (!jo.isNull("initial cost")){
-      t += String.format("Initial Resource Cost:\n%s\n", getResourceList(jo.getJSONArray("initial cost")));
+      t += String.format("Initial Resource Cost:\n%s\n", getResourceList(jo.getJSONArray("initial cost"), availibleResources));
     }
     if(!jo.isNull("movement points")){
-      t += String.format("Movement Points: %d\n",jo.getInt("movement points"));
+      if (movementPoints >= jo.getInt("movement points")){
+        t += String.format("Movement Points: %d\n",jo.getInt("movement points"));
+      }
+      else{
+        t += String.format("Movement Points: <i>%d</i>\n",jo.getInt("movement points"));
+      }
     }
     if (!jo.isNull("action")){
       t += String.format("Turns: %d\n", jo.getJSONObject("action").getInt("turns"));
@@ -468,6 +487,29 @@ class Tooltip extends Element{
     }
     //Strip
     setText(t.replaceAll("\\s+$", ""));
+  }
+  
+  void drawColouredLine(PGraphics canvas, String line, float startX, float startY){
+    int start=0, end=0;
+    float tw=0;
+    boolean coloured = false;
+    while(end != line.length()){
+      start = end;
+      if (coloured){
+        canvas.fill(255, 0, 0);
+        end = line.indexOf("</i>", end);
+      }
+      else{
+        canvas.fill(0);
+        end = line.indexOf("<i>", end);
+      }
+      if (end == -1){ // indexOf returns -1 when not found
+        end = line.length();
+      }
+      canvas.text(line.substring(start, end).replace("<i>", "").replace("</i>", ""), startX+tw, startY);
+      tw += canvas.textWidth(line.substring(start, end).replace("<i>", "").replace("</i>", ""));
+      coloured = !coloured;
+    };
   }
   
   void draw(PGraphics panelCanvas){
@@ -486,7 +528,12 @@ class Tooltip extends Element{
       panelCanvas.fill(0);
       panelCanvas.textAlign(LEFT, TOP);
       for (int i=0; i<lines.size(); i++){
-        panelCanvas.text(lines.get(i), tx+2, ty+i*gap);
+        if (lines.get(i).contains("<i>")){
+          drawColouredLine(panelCanvas, lines.get(i), tx+2, ty+i*gap);
+        }
+        else{
+          panelCanvas.text(lines.get(i), tx+2, ty+i*gap);
+        }
       }
     }
   }

@@ -30,6 +30,15 @@ class JSONManager{
     }
   }
   
+  int getResIndex(String s){
+    // Get the index for a resource
+    return JSONIndex(gameData.getJSONArray("resources"), s);
+  }
+  String getResString(int r){
+    // Get the string for an index
+    return gameData.getJSONArray("resources").getJSONObject(r).getString("id");
+  }
+  
   void saveSetting(String id, int val){
     // Save the setting to settings and write settings to file
     settings.setInt(id, val);

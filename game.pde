@@ -139,10 +139,10 @@ class Game extends State{
       tasks[i] = js.getString("id");
       if (!js.isNull("production"))
         for (int r=0; r<js.getJSONArray("production").size(); r++)
-          taskOutcomes[i][getResIndex(js.getJSONArray("production").getJSONObject(r).getString("id"))] = js.getJSONArray("production").getJSONObject(r).getFloat("quantity");
+          taskOutcomes[i][jsManager.getResIndex((js.getJSONArray("production").getJSONObject(r).getString("id")))] = js.getJSONArray("production").getJSONObject(r).getFloat("quantity");
       if (!js.isNull("consumption"))
         for (int r=0; r<js.getJSONArray("consumption").size(); r++){
-          taskCosts[i][getResIndex(js.getJSONArray("consumption").getJSONObject(r).getString("id"))] = js.getJSONArray("consumption").getJSONObject(r).getFloat("quantity");
+          taskCosts[i][jsManager.getResIndex((js.getJSONArray("consumption").getJSONObject(r).getString("id")))] = js.getJSONArray("consumption").getJSONObject(r).getFloat("quantity");
         }
     }
   }
@@ -164,12 +164,6 @@ class Game extends State{
     map.clearShape();
   }
 
-  int getResIndex(String s){
-    return JSONIndex(gameData.getJSONArray("resources"), s);
-  }
-  String getResString(int r){
-    return gameData.getJSONArray("resources").getJSONObject(r).getString("id");
-  }
   JSONArray taskInitialCost(int type){
     // Find initial cost for task (such as for buildings, 'Build Farm')
     JSONArray ja = gameData.getJSONArray("tasks").getJSONObject(type).getJSONArray("initial cost");
@@ -196,7 +190,7 @@ class Game extends State{
       return null;
     }
     for (int i=0; i<ja.size(); i++){
-      costs[getResIndex(ja.getJSONObject(i).getString("id"))] = ja.getJSONObject(i).getFloat("quantity");
+      costs[jsManager.getResIndex((ja.getJSONObject(i).getString("id")))] = ja.getJSONObject(i).getFloat("quantity");
     }
     return costs;
   }
@@ -341,13 +335,13 @@ class Game extends State{
           winner = turn;
         }
         else {
-          players[turn].resources[getResIndex("rocket progress")] = 0;
+          players[turn].resources[jsManager.getResIndex(("rocket progress"))] = 0;
           parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
         }
       }
       else if (parties[cellY][cellX].getTask()==JSONIndex(gameData.getJSONArray("tasks"), "Produce Rocket")){
-        if(players[turn].resources[getResIndex("rocket progress")]==-1){
-          players[turn].resources[getResIndex("rocket progress")] = 0;
+        if(players[turn].resources[jsManager.getResIndex(("rocket progress"))]==-1){
+          players[turn].resources[jsManager.getResIndex(("rocket progress"))] = 0;
         }
       }
 
@@ -450,7 +444,7 @@ class Game extends State{
       if (!js.isNull("initial cost")){
         for (int j=0; j<js.getJSONArray("initial cost").size(); j++){
           JSONObject initialCost = js.getJSONArray("initial cost").getJSONObject(j);
-          if (players[turn].resources[getResIndex(initialCost.getString("id"))]<(initialCost.getInt("quantity"))){
+          if (players[turn].resources[jsManager.getResIndex((initialCost.getString("id")))]<(initialCost.getInt("quantity"))){
             enoughResources = false;
           }
         }
@@ -524,7 +518,7 @@ class Game extends State{
               }
               if (action.terrain != null){
                 if (terrain[y][x] == terrainIndex("forest")){
-                  players[turn].resources[getResIndex("wood")]+=100;
+                  players[turn].resources[jsManager.getResIndex(("wood"))]+=100;
                   map.removeTreeTile(x, y);
                 }
                 terrain[y][x] = terrainIndex(action.terrain);
@@ -587,16 +581,16 @@ class Game extends State{
             for (int task=0; task<tasks.length;task++){
               if(parties[y][x].getTask()==task){
                 for(int resource = 0; resource < numResources; resource++){
-                  if(resource!=getResIndex("civilians")){
+                  if(resource!=jsManager.getResIndex(("civilians"))){
                     if(tasks[task]=="Produce Rocket"){
-                      resource = getResIndex("rocket progress");
+                      resource = jsManager.getResIndex(("rocket progress"));
                     }
                     players[turn].resources[resource] += max((taskOutcomes[task][resource]-taskCosts[task][resource])*productivity*parties[y][x].getUnitNumber(), -players[turn].resources[resource]);
                     if(tasks[task]=="Produce Rocket"){
                       break;
                     }
-                  } else if(resourceAmountsAvailable[getResIndex("food")]<1){
-                    float lost = (1-resourceAmountsAvailable[getResIndex("food")])*taskOutcomes[task][resource]*parties[y][x].getUnitNumber();
+                  } else if(resourceAmountsAvailable[jsManager.getResIndex(("food"))]<1){
+                    float lost = (1-resourceAmountsAvailable[jsManager.getResIndex(("food"))])*taskOutcomes[task][resource]*parties[y][x].getUnitNumber();
                     parties[y][x].setUnitNumber(floor(parties[y][x].getUnitNumber()-lost));
                     if (parties[y][x].getUnitNumber() == 0)
                       notificationManager.post("Party Starved", x, y, turnNumber, turn);
@@ -620,7 +614,7 @@ class Game extends State{
         }
       }
     }
-    if (players[turn].resources[getResIndex("rocket progress")] > 1000){
+    if (players[turn].resources[jsManager.getResIndex(("rocket progress"))] > 1000){
       //display indicator saying rocket produced
       for (int y=0; y<mapHeight; y++){
         for (int x=0; x<mapWidth; x++){
@@ -740,7 +734,7 @@ class Game extends State{
       }
     }
   
-    if(players[0].resources[getResIndex("rocket progress")]!=-1||players[1].resources[getResIndex("rocket progress")]!=-1){
+    if(players[0].resources[jsManager.getResIndex(("rocket progress"))]!=-1||players[1].resources[jsManager.getResIndex(("rocket progress"))]!=-1){
       drawRocketProgressBar(gameUICanvas);
     }
     if (cellSelected){
@@ -1184,7 +1178,7 @@ class Game extends State{
   void refreshTooltip(){
     if (!getPanel("pause screen").visible){
       if (((TaskManager)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible){
-        tooltip.setTask(((TaskManager)getElement("tasks", "party management")).findMouseOver());
+        tooltip.setTask(((TaskManager)getElement("tasks", "party management")).findMouseOver(), players[turn].resources, parties[cellY][cellX].getMovementPoints());
         tooltip.show();
       }
       else if(((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").visible){
@@ -1545,12 +1539,12 @@ class Game extends State{
   void drawRocketProgressBar(PGraphics panelCanvas){
     int x, y, w, h;
     String progressMessage;
-    boolean both = players[0].resources[getResIndex("rocket progress")] != 0 && players[1].resources[getResIndex("rocket progress")] != 0;
-    if (players[0].resources[getResIndex("rocket progress")] ==0 && players[1].resources[getResIndex("rocket progress")] == 0)return;
-    int progress = int(players[turn].resources[getResIndex("rocket progress")]);
+    boolean both = players[0].resources[jsManager.getResIndex(("rocket progress"))] != 0 && players[1].resources[jsManager.getResIndex(("rocket progress"))] != 0;
+    if (players[0].resources[jsManager.getResIndex(("rocket progress"))] ==0 && players[1].resources[jsManager.getResIndex(("rocket progress"))] == 0)return;
+    int progress = int(players[turn].resources[jsManager.getResIndex(("rocket progress"))]);
     color fillColour;
     if(progress == 0){
-      progress = int(players[(turn+1)%2].resources[getResIndex("rocket progress")]);
+      progress = int(players[(turn+1)%2].resources[jsManager.getResIndex(("rocket progress"))]);
       progressMessage = "";
       fillColour = playerColours[(turn+1)%2];
     } else {
@@ -1570,7 +1564,7 @@ class Game extends State{
       panelCanvas.stroke(100);
       panelCanvas.rect(x, y, w, h);
       panelCanvas.noStroke();
-      progress = int(players[0].resources[getResIndex("rocket progress")]);
+      progress = int(players[0].resources[jsManager.getResIndex(("rocket progress"))]);
       w = round(min(w, w*progress/1000));
       panelCanvas.fill(playerColours[0]);
       panelCanvas.rect(x, y, w, h);
@@ -1580,7 +1574,7 @@ class Game extends State{
       panelCanvas.stroke(100);
       panelCanvas.rect(x, y, w, h);
       panelCanvas.noStroke();
-      progress = int(players[1].resources[getResIndex("rocket progress")]);
+      progress = int(players[1].resources[jsManager.getResIndex(("rocket progress"))]);
       w = round(min(w, w*progress/1000));
       panelCanvas.fill(playerColours[1]);
       panelCanvas.rect(x, y, w, h);
