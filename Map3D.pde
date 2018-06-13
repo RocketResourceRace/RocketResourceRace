@@ -785,7 +785,7 @@ class Map3D extends BaseMap implements Map {
   void applyCameraPerspective() {
     float fov = PI/3.0;
     float cameraZ = (height/2.0) / tan(fov/2.0);
-    perspective(fov, float(width)/float(height), cameraZ/100.0, cameraZ*10.0);
+    perspective(fov, float(width)/float(height), cameraZ/100.0, cameraZ*20.0);
     applyCamera();
   }
 
@@ -793,7 +793,7 @@ class Map3D extends BaseMap implements Map {
   void applyCameraPerspective(PGraphics canvas) {
     float fov = PI/3.0;
     float cameraZ = (height/2.0) / tan(fov/2.0);
-    canvas.perspective(fov, float(width)/float(height), cameraZ/100.0, cameraZ*10.0);
+    canvas.perspective(fov, float(width)/float(height), cameraZ/100.0, cameraZ*20.0);
     applyCamera(canvas);
   }
 
