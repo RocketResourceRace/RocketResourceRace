@@ -414,13 +414,18 @@ class Game extends State{
   }
   void resetAvailableTasks(){
     ((TaskManager)getElement("tasks", "party management")).resetAvailable();
+    ((TaskManager)getElement("tasks", "party management")).resetAvailableButOverBudget();
+  }
+  void makeAvailableButOverBudget(int task){
+    ((TaskManager)getElement("tasks", "party management")).makeAvailableButOverBudget(gameData.getJSONArray("tasks").getJSONObject(task).getString("id"));
+
   }
   //tasks building
   //settings
 
   void checkTasks(){
     resetAvailableTasks();
-    boolean correctTerrain, correctBuilding, enoughResources;
+    boolean correctTerrain, correctBuilding, enoughResources, enoughMovementPoints;
     JSONObject js;
 
     if(parties[cellY][cellX].hasActions()){
@@ -435,12 +440,18 @@ class Game extends State{
         correctTerrain = true;
       correctBuilding = false;
       enoughResources = true;
+      enoughMovementPoints = true;
       if (!js.isNull("initial cost")){
         for (int j=0; j<js.getJSONArray("initial cost").size(); j++){
           JSONObject initialCost = js.getJSONArray("initial cost").getJSONObject(j);
           if (players[turn].resources[getResIndex(initialCost.getString("id"))]<(initialCost.getInt("quantity"))){
             enoughResources = false;
           }
+        }
+      }
+      if (!js.isNull("movement points")){
+        if (parties[cellY][cellX].movementPoints < js.getInt("movement points")){
+            enoughMovementPoints = false;
         }
       }
 
@@ -463,8 +474,13 @@ class Game extends State{
         }
       }
 
-      if (correctTerrain && correctBuilding && enoughResources){
-        makeTaskAvailable(i);
+      if (correctTerrain && correctBuilding){
+        if (enoughResources && !enoughMovementPoints){
+          makeTaskAvailable(i);
+        }
+        else{
+          makeAvailableButOverBudget(i);
+        }
       }
     }
     ((TaskManager)getElement("tasks", "party management")).select(jsManager.gameData.getJSONArray("tasks").getJSONObject(parties[cellY][cellX].getTask()).getString("id"));
