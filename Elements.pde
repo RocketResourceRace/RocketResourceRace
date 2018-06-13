@@ -444,6 +444,7 @@ class Tooltip extends Element{
   }
   void setTask(String task){
     attacking = false;
+    println(task+1);
     JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task);
     String t="";
     if (!jo.isNull("description")){
@@ -967,9 +968,11 @@ class TaskManager extends Element{
     }
   }
   void selectAt(int j){
-    int temp = availableOptions.get(0);
-    availableOptions.set(0, availableOptions.get(j));
-    availableOptions.set(j, temp);
+    if (j < availableOptions.size()){
+      int temp = availableOptions.get(0);
+      availableOptions.set(0, availableOptions.get(j));
+      availableOptions.set(j, temp);
+    }
   }
   void select(String s){
     for (int j=0; j<availableOptions.size(); j++){
@@ -1014,12 +1017,7 @@ class TaskManager extends Element{
         panelCanvas.text(options.get(availableOptions.get(j)), x+5, y+h*j);
       }
       for (; j< availableButOverBudgetOptions.size()+availableOptions.size(); j++){
-        if (taskMActive && mouseOver(j)){
-          panelCanvas.fill(brighten(bgColour, HOVERINGOFFSET));
-        }
-        else{
-          panelCanvas.fill(brighten(bgColour, HOVERINGOFFSET/2));
-        }
+        panelCanvas.fill(brighten(bgColour, HOVERINGOFFSET/2));
         panelCanvas.rect(x, y+h*j, w, h);
         panelCanvas.fill(120);
         panelCanvas.text(options.get(availableButOverBudgetOptions.get(j-availableOptions.size())), x+5, y+h*j);
@@ -1046,15 +1044,20 @@ class TaskManager extends Element{
   }
   
   String findMouseOver(){
-    for (int j=0; j<availableOptions.size(); j++){
+    int j;
+    for (j=0; j<availableOptions.size(); j++){
       if (mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y+h*j && mouseY-yOffset <= y+h*(j+1))
         return options.get(availableOptions.get(j));
+    }
+    for (; j<availableButOverBudgetOptions.size()+availableOptions.size(); j++){
+      if (mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y+h*j && mouseY-yOffset <= y+h*(j+1))
+        return options.get(availableButOverBudgetOptions.get(j-availableOptions.size()));
     }
     return "";
   }
   
   boolean moveOver(){
-    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset > y && mouseY-yOffset < y+h*availableOptions.size();
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset > y && mouseY-yOffset < y+h*(availableOptions.size()+availableButOverBudgetOptions.size());
   }
   boolean mouseOver(int j){
     return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset > y+h*j && mouseY-yOffset <= y+h*(j+1);
