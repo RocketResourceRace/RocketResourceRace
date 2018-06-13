@@ -265,7 +265,13 @@ class Game extends State{
         splittedParty.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
         splittedParty.clearActions();
         ((Text)getElement("turns remaining", "party management")).setText("");
-        moveParty(cellX, cellY, true);
+        if(cellX==x&&cellY==y){
+          parties[y][x].changeUnitNumber(splittedParty.getUnitNumber());
+          splittedParty = null;
+          parties[y][x].clearPath();
+        } else {
+          moveParty(cellX, cellY, true);
+        }
       }
       else {
         parties[cellY][cellX].target = new int[]{x, y};
