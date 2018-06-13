@@ -963,8 +963,8 @@ class Map3D extends BaseMap implements Map {
     }
 
     canvas.pushMatrix();
-    drawPath(canvas);
     if (0<hoveringX&&hoveringX<mapWidth&&0<hoveringY&&hoveringY<mapHeight) {
+      drawPath(canvas);
       canvas.shape(highlightingGrid);
     }
     
