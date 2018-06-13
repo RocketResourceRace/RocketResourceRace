@@ -19,6 +19,13 @@
       "movement cost": 16
     },
     {
+      "id": "quarry site",
+      "display name": "Quarry Site",
+      "img": "data/hill.png",
+      "weighting": 0,
+      "movement cost": 32
+    },
+    {
       "id": "sand",
       "display name": "Desert",
       "img": "data/sand.png",

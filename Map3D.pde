@@ -353,7 +353,6 @@ class Map3D extends BaseMap implements Map {
   }
 
   void generateShape() {
-    PShape row = createShape();
     pushStyle();
     noFill();
     noStroke();
