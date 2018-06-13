@@ -875,6 +875,7 @@ class ResourceSummary extends Element{
 class TaskManager extends Element{
   ArrayList<String> options;
   ArrayList<Integer> availableOptions;
+  ArrayList<Integer> availableButOverBudgetOptions;
   int textSize;
   boolean dropped, taskMActive;
   color bgColour, strokeColour;
@@ -887,6 +888,9 @@ class TaskManager extends Element{
     this.h = 10;
     this.bgColour = bgColour;
     this.strokeColour = strokeColour;
+    this.options = new ArrayList<String>();
+    this.availableOptions = new ArrayList<Integer>();
+    this.availableButOverBudgetOptions = new ArrayList<Integer>();
     removeAllOptions();
     for (String option : options){
       this.options.add(option);
@@ -909,10 +913,13 @@ class TaskManager extends Element{
     }
   }
   void removeAllOptions(){
-    this.options = new ArrayList<String>();
+    this.options.clear();
   }
   void resetAvailable(){
-    this.availableOptions = new ArrayList<Integer>();
+    this.availableOptions.clear();
+  }
+  void resetAvailableButOverBudget(){
+    this.availableButOverBudgetOptions.clear();
   }
   String getSelected(){
     return options.get(availableOptions.get(0));
@@ -926,6 +933,27 @@ class TaskManager extends Element{
     for (int i=0; i<options.size(); i++){
       if (options.get(i).equals(option)){
         this.availableOptions.add(i);
+        return;
+      }
+    }
+  }
+  void makeAvailableButOverBudget(String option){
+    for (int i=0; i<availableButOverBudgetOptions.size(); i++){
+      if (options.get(availableButOverBudgetOptions.get(i)).equals(option)){
+        return;
+      }
+    }
+    for (int i=0; i<options.size(); i++){
+      if (options.get(i).equals(option)){
+        this.availableButOverBudgetOptions.add(i);
+        return;
+      }
+    }
+  }
+  void makeUnavailableButOverBudget(String option){
+    for (int i=0; i<options.size(); i++){
+      if (options.get(i).equals(option)){
+        this.availableButOverBudgetOptions.remove(i);
         return;
       }
     }
@@ -973,7 +1001,8 @@ class TaskManager extends Element{
     panelCanvas.text("Current Task: "+options.get(availableOptions.get(0)), x+5, y);
     
     if (dropped){
-      for (int j=1; j< availableOptions.size(); j++){
+      int j;
+      for (j=1; j< availableOptions.size(); j++){
         if (taskMActive && mouseOver(j)){
           panelCanvas.fill(brighten(bgColour, HOVERINGOFFSET));
         }
@@ -983,6 +1012,17 @@ class TaskManager extends Element{
         panelCanvas.rect(x, y+h*j, w, h);
         panelCanvas.fill(0);
         panelCanvas.text(options.get(availableOptions.get(j)), x+5, y+h*j);
+      }
+      for (; j< availableButOverBudgetOptions.size()+availableOptions.size(); j++){
+        if (taskMActive && mouseOver(j)){
+          panelCanvas.fill(brighten(bgColour, HOVERINGOFFSET));
+        }
+        else{
+          panelCanvas.fill(brighten(bgColour, HOVERINGOFFSET/2));
+        }
+        panelCanvas.rect(x, y+h*j, w, h);
+        panelCanvas.fill(120);
+        panelCanvas.text(options.get(availableButOverBudgetOptions.get(j-availableOptions.size())), x+5, y+h*j);
       }
     }
     panelCanvas.popStyle();

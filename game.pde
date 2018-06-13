@@ -414,6 +414,11 @@ class Game extends State{
   }
   void resetAvailableTasks(){
     ((TaskManager)getElement("tasks", "party management")).resetAvailable();
+    ((TaskManager)getElement("tasks", "party management")).resetAvailableButOverBudget();
+  }
+  void makeAvailableButOverBudget(int task){
+    ((TaskManager)getElement("tasks", "party management")).makeAvailableButOverBudget(gameData.getJSONArray("tasks").getJSONObject(task).getString("id"));
+
   }
   //tasks building
   //settings
@@ -463,8 +468,13 @@ class Game extends State{
         }
       }
 
-      if (correctTerrain && correctBuilding && enoughResources){
-        makeTaskAvailable(i);
+      if (correctTerrain && correctBuilding){
+        if (enoughResources){
+          makeTaskAvailable(i);
+        }
+        else{
+          makeAvailableButOverBudget(i);
+        }
       }
     }
     ((TaskManager)getElement("tasks", "party management")).select(jsManager.gameData.getJSONArray("tasks").getJSONObject(parties[cellY][cellX].getTask()).getString("id"));
