@@ -306,7 +306,7 @@ class Map3D extends BaseMap implements Map {
     return shapes;
   }
   
-  void loadMapStrip(int y, PShape tiles){
+  void loadMapStrip(int y, PShape tiles, boolean loading){
     tempTerrain = createGraphics(round((1+mapWidth)*jsManager.loadIntSetting("terrain texture resolution")), round(jsManager.loadIntSetting("terrain texture resolution")));
     tempSingleRow = createShape();
     tempRow = createShape(GROUP);
@@ -334,12 +334,22 @@ class Map3D extends BaseMap implements Map {
       tempSingleRow.endShape();
       tempRow.addChild(tempSingleRow);
     }
-    tiles.addChild(tempRow);
+    if (loading){
+      tiles.addChild(tempRow);
+    }
+    else{
+      tiles.addChild(tempRow, y);
+    }
     
     // Clean up for garbage collector
     tempRow = null;
     tempTerrain = null;
     tempSingleRow = null;
+  }
+  
+  void replaceMapStripWithReloadedStrip(int y){
+    tiles.removeChild(y);
+    loadMapStrip(y, tiles, false);
   }
 
   void clearShape() {
@@ -376,7 +386,7 @@ class Map3D extends BaseMap implements Map {
     trees = createShape(GROUP);
     int numTreeTiles=0;
     for (int y=0; y<mapHeight; y++) {
-      loadMapStrip(y, tiles);
+      loadMapStrip(y, tiles, true);
       //tiles.addChild(row);
       
       // Load trees

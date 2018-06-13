@@ -7,6 +7,8 @@ interface Map {
   void removeTreeTile(int cellX, int cellY);
   void setDrawingTaskIcons(boolean v);
   void setDrawingUnitBars(boolean v);
+  void setHeightsForCell(int x, int y, float h);
+  void replaceMapStripWithReloadedStrip(int y);
   boolean isPanning();
   float getFocusedX();
   float getFocusedY();
@@ -569,11 +571,22 @@ class BaseMap extends Element{
     }
     heightMap[toMapIndex(mapWidth, mapHeight, 0, 0)] = noise(((mapWidth+1))*MAPHEIGHTNOISESCALE, (mapHeight)*MAPHEIGHTNOISESCALE);
   }
+  void setHeightsForCell(int x, int y, float h){
+    // Set all the heightmap heights in cell to h
+    int cellIndex;
+    for (int x1 = 0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++){
+      for (int y1 = 0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++){
+        cellIndex = toMapIndex(x, y, x1, y1);
+        heightMap[cellIndex] = h;
+      }
+    }
+  }
   float getRawHeight(int x, int y, int x1, int y1) {
     try{
       if((x>=0&&y>=0)&&((x<mapWidth||(x==mapWidth&&x1==0))&&(y<mapHeight||(y==mapHeight&&y1==0)))){
         return max(heightMap[toMapIndex(x, y, x1, y1)], jsManager.loadFloatSetting("water level"));
-      } else {
+      } 
+      else {
         // println("A request for the height at a tile outside the map has been made. Ideally this should be prevented earlier"); // Uncomment this when we want to fix it
         return jsManager.loadFloatSetting("water level");
       }
@@ -677,6 +690,9 @@ class Map2D extends BaseMap implements Map{
     
   }
   void doUpdateHoveringScale(){
+    
+  }
+  void replaceMapStripWithReloadedStrip(int y){
     
   }
   boolean isMoving(){

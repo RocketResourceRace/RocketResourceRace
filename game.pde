@@ -513,8 +513,13 @@ class Game extends State{
               if (action.building != null){
                 if (action.building.equals(""))
                   buildings[y][x] = null;
-                else
+                else{
                   buildings[y][x] = new Building(buildingIndex(action.building));
+                  if (buildings[y][x].type == buildingIndex("Quarry")){
+                    map.setHeightsForCell(x, y, jsManager.loadFloatSetting("water level"));
+                    map.replaceMapStripWithReloadedStrip(y);
+                  }
+                }
               }
               if (action.terrain != null){
                 if (terrain[y][x] == terrainIndex("forest")){
