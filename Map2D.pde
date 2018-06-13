@@ -5,6 +5,8 @@ interface Map {
   void updateMoveNodes(Node[][] nodes);
   void cancelMoveNodes();
   void removeTreeTile(int cellX, int cellY);
+  void setDrawingTaskIcons(boolean v);
+  void setDrawingUnitBars(boolean v);
   boolean isPanning();
   float getFocusedX();
   float getFocusedY();
@@ -179,7 +181,7 @@ class BaseMap extends Element{
   int[][] terrain;
   Party[][] parties;
   Building[][] buildings;
-  boolean updateHoveringScale;
+  boolean updateHoveringScale, drawingTaskIcons, drawingUnitBars;
   void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players){
     int partiesByteCount = 0;
     for (int y=0; y<mapHeight; y++){
@@ -328,6 +330,13 @@ class BaseMap extends Element{
     return int(x1+x*jsManager.loadFloatSetting("terrain detail")+y1*jsManager.loadFloatSetting("terrain detail")*(mapWidth+1/jsManager.loadFloatSetting("terrain detail"))+y*pow(jsManager.loadFloatSetting("terrain detail"), 2)*(mapWidth+1/jsManager.loadFloatSetting("terrain detail")));
   }
   
+  void setDrawingUnitBars(boolean v){
+    drawingUnitBars = v;
+  }
+  
+  void setDrawingTaskIcons(boolean v){
+    drawingTaskIcons = v;
+  }
   
   //int getRandomGroundType(HashMap<Integer, Float> groundWeightings, float total){
   //  float randomNum = random(0, 1);

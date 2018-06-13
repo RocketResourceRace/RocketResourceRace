@@ -990,51 +990,13 @@ class Map3D extends BaseMap implements Map {
             canvas.shape(battle);
             canvas.popMatrix();
           }
-          if (parties[y][x].player!=2) {
-            canvas.noLights();
-            canvas.pushMatrix();
-            canvas.translate((x+0.5+sin(rot)*0.5)*blockSize, (y+0.5+cos(rot)*0.5)*blockSize, blockSize*2.25+groundMinHeightAt(x, y));
-            canvas.rotateZ(-this.rot);
-            canvas.translate(-0.5*blockSize, -0.5*blockSize);
-            unitNumberObjects[parties[y][x].player].setVertex(0, blockSize*parties[y][x].getUnitNumber()/1000, 0, 0);
-            unitNumberObjects[parties[y][x].player].setVertex(1, blockSize*parties[y][x].getUnitNumber()/1000, blockSize*0.125, 0);
-            unitNumberObjects[parties[y][x].player].setVertex(2, blockSize, blockSize*0.125, 0);
-            unitNumberObjects[parties[y][x].player].setVertex(3, blockSize, 0, 0);
-            unitNumberObjects[parties[y][x].player].setVertex(4, 0, 0, 0);
-            unitNumberObjects[parties[y][x].player].setVertex(5, 0, blockSize*0.125, 0);
-            unitNumberObjects[parties[y][x].player].setVertex(6, blockSize*parties[y][x].getUnitNumber()/1000, blockSize*0.125, 0);
-            unitNumberObjects[parties[y][x].player].setVertex(7, blockSize*parties[y][x].getUnitNumber()/1000, 0, 0);
-            canvas.shape(unitNumberObjects[parties[y][x].player]);
-            canvas.popMatrix();
-          } else {
-            Battle battle = (Battle) parties[y][x];
-            unitNumberObjects[battle.party1.player].setVertex(0, blockSize*battle.party1.getUnitNumber()/1000, 0, 0);
-            unitNumberObjects[battle.party1.player].setVertex(1, blockSize*battle.party1.getUnitNumber()/1000, blockSize*0.0625, 0);
-            unitNumberObjects[battle.party1.player].setVertex(2, blockSize, blockSize*0.0625, 0);
-            unitNumberObjects[battle.party1.player].setVertex(3, blockSize, 0, 0);
-            unitNumberObjects[battle.party1.player].setVertex(4, 0, 0, 0);
-            unitNumberObjects[battle.party1.player].setVertex(5, 0, blockSize*0.0625, 0);
-            unitNumberObjects[battle.party1.player].setVertex(6, blockSize*battle.party1.getUnitNumber()/1000, blockSize*0.0625, 0);
-            unitNumberObjects[battle.party1.player].setVertex(7, blockSize*battle.party1.getUnitNumber()/1000, 0, 0);
-            unitNumberObjects[battle.party2.player].setVertex(0, blockSize*battle.party2.getUnitNumber()/1000, blockSize*0.0625, 0);
-            unitNumberObjects[battle.party2.player].setVertex(1, blockSize*battle.party2.getUnitNumber()/1000, blockSize*0.125, 0);
-            unitNumberObjects[battle.party2.player].setVertex(2, blockSize, blockSize*0.125, 0);
-            unitNumberObjects[battle.party2.player].setVertex(3, blockSize, blockSize*0.0625, 0);
-            unitNumberObjects[battle.party2.player].setVertex(4, 0, blockSize*0.0625, 0);
-            unitNumberObjects[battle.party2.player].setVertex(5, 0, blockSize*0.125, 0);
-            unitNumberObjects[battle.party2.player].setVertex(6, blockSize*battle.party2.getUnitNumber()/1000, blockSize*0.125, 0);
-            unitNumberObjects[battle.party2.player].setVertex(7, blockSize*battle.party2.getUnitNumber()/1000, blockSize*0.0625, 0);
-            canvas.noLights();
-            canvas.pushMatrix();
-            canvas.translate((x+0.5+sin(rot)*0.5)*blockSize, (y+0.5+cos(rot)*0.5)*blockSize, blockSize*2.25+groundMinHeightAt(x, y));
-            canvas.rotateZ(-this.rot);
-            canvas.translate(-0.5*blockSize, -0.5*blockSize);
-            canvas.shape(unitNumberObjects[battle.party1.player]);
-            canvas.shape(unitNumberObjects[battle.party2.player]);
-            canvas.popMatrix();
+          
+          if (drawingUnitBars){
+            drawUnitBar(x, y, canvas);
           }
+          
           JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].task);
-          if (jo != null && !jo.isNull("img")) {
+          if (drawingTaskIcons && jo != null && !jo.isNull("img")) {
             canvas.noLights();
             canvas.pushMatrix();
             canvas.translate((x+0.5+sin(rot)*0.25)*blockSize, (y+0.5+cos(rot)*0.25)*blockSize, blockSize*3+groundMinHeightAt(x, y));
@@ -1051,6 +1013,54 @@ class Map3D extends BaseMap implements Map {
   }
 
   void renderTexturedEntities(PGraphics canvas) {
+    
+  }
+  
+  void drawUnitBar(int x, int y, PGraphics canvas){
+    if (parties[y][x].player==2){
+      Battle battle = (Battle) parties[y][x];
+      unitNumberObjects[battle.party1.player].setVertex(0, blockSize*battle.party1.getUnitNumber()/1000, 0, 0);
+      unitNumberObjects[battle.party1.player].setVertex(1, blockSize*battle.party1.getUnitNumber()/1000, blockSize*0.0625, 0);
+      unitNumberObjects[battle.party1.player].setVertex(2, blockSize, blockSize*0.0625, 0);
+      unitNumberObjects[battle.party1.player].setVertex(3, blockSize, 0, 0);
+      unitNumberObjects[battle.party1.player].setVertex(4, 0, 0, 0);
+      unitNumberObjects[battle.party1.player].setVertex(5, 0, blockSize*0.0625, 0);
+      unitNumberObjects[battle.party1.player].setVertex(6, blockSize*battle.party1.getUnitNumber()/1000, blockSize*0.0625, 0);
+      unitNumberObjects[battle.party1.player].setVertex(7, blockSize*battle.party1.getUnitNumber()/1000, 0, 0);
+      unitNumberObjects[battle.party2.player].setVertex(0, blockSize*battle.party2.getUnitNumber()/1000, blockSize*0.0625, 0);
+      unitNumberObjects[battle.party2.player].setVertex(1, blockSize*battle.party2.getUnitNumber()/1000, blockSize*0.125, 0);
+      unitNumberObjects[battle.party2.player].setVertex(2, blockSize, blockSize*0.125, 0);
+      unitNumberObjects[battle.party2.player].setVertex(3, blockSize, blockSize*0.0625, 0);
+      unitNumberObjects[battle.party2.player].setVertex(4, 0, blockSize*0.0625, 0);
+      unitNumberObjects[battle.party2.player].setVertex(5, 0, blockSize*0.125, 0);
+      unitNumberObjects[battle.party2.player].setVertex(6, blockSize*battle.party2.getUnitNumber()/1000, blockSize*0.125, 0);
+      unitNumberObjects[battle.party2.player].setVertex(7, blockSize*battle.party2.getUnitNumber()/1000, blockSize*0.0625, 0);
+      canvas.noLights();
+      canvas.pushMatrix();
+      canvas.translate((x+0.5+sin(rot)*0.5)*blockSize, (y+0.5+cos(rot)*0.5)*blockSize, blockSize*2.25+groundMinHeightAt(x, y));
+      canvas.rotateZ(-this.rot);
+      canvas.translate(-0.5*blockSize, -0.5*blockSize);
+      canvas.shape(unitNumberObjects[battle.party1.player]);
+      canvas.shape(unitNumberObjects[battle.party2.player]);
+      canvas.popMatrix();
+    }
+    else{
+      canvas.noLights();
+      canvas.pushMatrix();
+      canvas.translate((x+0.5+sin(rot)*0.5)*blockSize, (y+0.5+cos(rot)*0.5)*blockSize, blockSize*2.25+groundMinHeightAt(x, y));
+      canvas.rotateZ(-this.rot);
+      canvas.translate(-0.5*blockSize, -0.5*blockSize);
+      unitNumberObjects[parties[y][x].player].setVertex(0, blockSize*parties[y][x].getUnitNumber()/1000, 0, 0);
+      unitNumberObjects[parties[y][x].player].setVertex(1, blockSize*parties[y][x].getUnitNumber()/1000, blockSize*0.125, 0);
+      unitNumberObjects[parties[y][x].player].setVertex(2, blockSize, blockSize*0.125, 0);
+      unitNumberObjects[parties[y][x].player].setVertex(3, blockSize, 0, 0);
+      unitNumberObjects[parties[y][x].player].setVertex(4, 0, 0, 0);
+      unitNumberObjects[parties[y][x].player].setVertex(5, 0, blockSize*0.125, 0);
+      unitNumberObjects[parties[y][x].player].setVertex(6, blockSize*parties[y][x].getUnitNumber()/1000, blockSize*0.125, 0);
+      unitNumberObjects[parties[y][x].player].setVertex(7, blockSize*parties[y][x].getUnitNumber()/1000, 0, 0);
+      canvas.shape(unitNumberObjects[parties[y][x].player]);
+      canvas.popMatrix();
+    }
   }
 
   String buildingString(int buildingI) {

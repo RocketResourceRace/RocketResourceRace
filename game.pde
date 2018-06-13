@@ -112,6 +112,8 @@ class Game extends State{
     addElement("resource expander", new Button(resSummaryX-50, bezel, 30, 30, color(150), color(50), color(0), 10, CENTER, "<"), "bottom bar");
     addElement("turn number", new TextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", color(0,0,255), 0), "bottom bar");
     addElement("2d 3d toggle", new ToggleButton(bezel*4+buttonW*3, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), jsManager.loadBooleanSetting("map is 3d"), "3D View"), "bottom bar");
+    addElement("task icons toggle", new ToggleButton(round(bezel*5+buttonW*3.5), bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Task Icons"), "bottom bar");
+    addElement("unit number bars toggle", new ToggleButton(bezel*6+buttonW*4, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Unit Bars"), "bottom bar");
   //int x, int y, int w, int h, color bgColour, color strokeColour, boolean value, String name
   
     prevIdle = new ArrayList<Integer[]>();
@@ -927,6 +929,12 @@ class Game extends State{
         if (event.id.equals("tasks")){
           postEvent(new ChangeTask(cellX, cellY, JSONIndex(jsManager.gameData.getJSONArray("tasks"), ((TaskManager)getElement("tasks", "party management")).getSelected())));
         }
+        else if (event.id.equals("unit number bars toggle")){
+          map.setDrawingUnitBars(((ToggleButton)(getElement("unit number bars toggle", "bottom bar"))).getState());
+        }
+        else if (event.id.equals("task icons toggle")){
+          map.setDrawingTaskIcons(((ToggleButton)(getElement("task icons toggle", "bottom bar"))).getState());
+        }
         else if (event.id.equals("2d 3d toggle")){
           // Save the game
           loadingName = "Autosave.dat";
@@ -1617,6 +1625,8 @@ class Game extends State{
     mapWidth = jsManager.loadIntSetting("map size");
     mapHeight = jsManager.loadIntSetting("map size");
     updateCellSelection();
+    
+    // Default on for showing task icons and unit bars
 
     clearPrevIdle();
     ((Text)getElement("turns remaining", "party management")).setText("");
@@ -1703,6 +1713,9 @@ class Game extends State{
       ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
     }
     map.generateShape();
+    
+    map.setDrawingTaskIcons(true);
+    map.setDrawingUnitBars(true);
   }
   int cost(int x, int y, int prevX, int prevY){
     float mult = 1;
