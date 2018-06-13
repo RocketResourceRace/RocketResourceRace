@@ -444,7 +444,6 @@ class Tooltip extends Element{
   }
   void setTask(String task){
     attacking = false;
-    println(task+1);
     JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task);
     String t="";
     if (!jo.isNull("description")){
