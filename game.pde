@@ -1262,9 +1262,10 @@ class Game extends State{
         if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn && !UIHovering()){ 
           if (moving){
             int x = floor(map.scaleXInv());
-
             int y = floor(map.scaleYInv());
-            postEvent(new Move(cellX, cellY, x, y));
+            if (0<=x&&x<mapWidth&&0<=y&&y<mapHeight){
+              postEvent(new Move(cellX, cellY, x, y));
+            }
             map.cancelPath();
             moving = false;
             map.cancelMoveNodes();
@@ -1293,7 +1294,9 @@ class Game extends State{
               else{
                 int x = floor(map.scaleXInv());
                 int y = floor(map.scaleYInv());
-                postEvent(new Move(cellX, cellY, x, y));
+                if (0<=x&&x<mapWidth&&0<=y&&y<mapHeight){
+                  postEvent(new Move(cellX, cellY, x, y));
+                }
                 map.cancelPath();
                 moving = false;
                 map.cancelMoveNodes();
