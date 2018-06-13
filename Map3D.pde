@@ -390,6 +390,7 @@ class Map3D extends BaseMap implements Map {
     redFlag.scale(2, 2.5, 2.5);
     battle = loadShape("battle.obj");
     battle.rotateX(PI/2);
+    battle.scale(0.8);
 
 
     int players = 2;
@@ -988,7 +989,7 @@ class Map3D extends BaseMap implements Map {
             canvas.popMatrix();
           } else if (parties[y][x].player == 2) {
             canvas.pushMatrix();
-            canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMaxHeightAt(x, y));
+            canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 12+groundMaxHeightAt(x, y));
             canvas.shape(battle);
             canvas.popMatrix();
           }
