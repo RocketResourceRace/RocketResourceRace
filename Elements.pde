@@ -265,10 +265,10 @@ class DropDown extends Element{
   
   boolean moveOver(){
     if (expanded){
-      return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h*(options.length+1);
+      return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset < y+h*(options.length+1);
     }
     else{
-      return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
+      return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset < y+h;
     }
   }
   
@@ -1014,10 +1014,10 @@ class TaskManager extends Element{
   }
   
   boolean moveOver(){
-    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h*availableOptions.size();
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset > y && mouseY-yOffset < y+h*availableOptions.size();
   }
   boolean mouseOver(int j){
-    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y+h*j && mouseY-yOffset <= y+h*(j+1);
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset > y+h*j && mouseY-yOffset <= y+h*(j+1);
   }
 }
 
