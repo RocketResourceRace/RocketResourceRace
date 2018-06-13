@@ -198,7 +198,7 @@ class BaseMap extends Element{
       }
     }
     int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+3*Integer.BYTES+1)*players.length;
-    ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*8+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount+playersByteCount);
+    ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*8+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount+playersByteCount+Float.BYTES);
     buffer.putInt(mapWidth);
     buffer.putInt(mapHeight);
     buffer.putInt(partiesByteCount);
@@ -208,6 +208,7 @@ class BaseMap extends Element{
     buffer.putInt(turnNumber);
     buffer.putInt(turnPlayer);
     buffer.putLong(heightMapSeed);
+    buffer.putFloat(jsManager.loadFloatSetting("water level"));
     for (int y=0; y<mapHeight; y++){
       for (int x=0; x<mapWidth; x++){
         buffer.putInt(terrain[y][x]);
@@ -262,7 +263,7 @@ class BaseMap extends Element{
     mapHeight = headerBuffer.getInt();
     int partiesByteCount = headerBuffer.getInt();
     int playersByteCount = headerBuffer.getInt();
-    int dataSize = Long.BYTES+partiesByteCount+playersByteCount+(4+mapWidth*mapHeight*3)*Integer.BYTES;
+    int dataSize = Long.BYTES+partiesByteCount+playersByteCount+(4+mapWidth*mapHeight*3)*Integer.BYTES+Float.BYTES;
     ByteBuffer buffer = ByteBuffer.allocate(dataSize);
     buffer.put(Arrays.copyOfRange(tempBuffer, headerSize, headerSize+dataSize));
     buffer.flip();//need flip
@@ -271,6 +272,7 @@ class BaseMap extends Element{
     int turnNumber = buffer.getInt();
     int turnPlayer = buffer.getInt();
     heightMapSeed = buffer.getLong();
+    jsManager.saveSetting("water level", buffer.getFloat());
     terrain = new int[mapHeight][mapWidth];
     parties = new Party[mapHeight][mapWidth];
     buildings = new Building[mapHeight][mapWidth];
