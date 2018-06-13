@@ -69,6 +69,7 @@
       "id": "Demolish",
       "description": "Demolish the building on this tile.",
       "img": "data/task_demolish.png",
+      "obj": "data/task_demolish.obj",
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
@@ -83,6 +84,7 @@
       "id": "Build Farm",
       "description": "Farms can produce food, which units need to survive.",
       "img": "data/task_construction.png",
+      "obj": "data/task_construction.obj",
       "type": "building",
       "buildings":[],
       "terrain": ["grass"],
@@ -101,6 +103,7 @@
       "id": "Build Sawmill",
       "description": "Farms can produce wood, which can be\nused to create buildings and work farms.",
       "img": "data/task_construction.png",
+      "obj": "data/task_construction.obj",
       "type": "building",
       "buildings":[],
       "terrain": ["forest"],
@@ -120,6 +123,7 @@
       "id": "Build Homes",
       "description": "Homes can produce civilians, which are the basic unit.",
       "img": "data/task_construction.png",
+      "obj": "data/task_construction.obj",
       "type": "building",
       "buildings":[],
       "terrain": ["grass", "sand"],
@@ -138,6 +142,7 @@
       "id": "Build Factory",
       "description": "Factories can produce concrete and cable.",
       "img": "data/task_construction.png",
+      "obj": "data/task_construction.obj",
       "type": "building",
       "buildings":[],
       "terrain": ["grass", "sand"],
@@ -157,6 +162,7 @@
       "id": "Build Mine",
       "description": "Mines can produce ore, which can be smelted into metal.",
       "img": "data/task_construction.png",
+      "obj": "data/task_construction.obj",
       "type": "building",
       "buildings":[],
       "terrain": ["hills"],
@@ -175,6 +181,7 @@
       "id": "Build Smelter",
       "description": "Smelters can produce metal from ore.",
       "img": "data/task_construction.png",
+      "obj": "data/task_construction.obj",
       "type": "building",
       "buildings":[],
       "terrain": ["grass", "sand"],
@@ -196,6 +203,7 @@
       "id": "Build Quarry",
       "description": "Quarries can mine stone.",
       "img": "data/task_construction.png",
+      "obj": "data/task_construction.obj",
       "type": "building",
       "buildings":[],
       "terrain": ["grass", "sand", "hill"],
@@ -214,6 +222,7 @@
       "id": "Build Big Factory",
       "description": "Big Factories can produce rocket parts,\nwhich allow you to build a rocket.",
       "img": "data/task_construction.png",
+      "obj": "data/task_construction.obj",
       "type": "building",
       "buildings":[],
       "terrain": ["grass", "sand"],
@@ -233,6 +242,7 @@
       "id": "Build Rocket Factory",
       "description": "Rocket Factories can produce Rockets, which allows you to win.",
       "img": "data/task_construction.png",
+      "obj": "data/task_construction.obj",
       "type": "building",
       "buildings":[],
       "terrain": ["grass", "sand"],
@@ -270,6 +280,7 @@
       "id": "Super Rest",
       "description": "Super Rest produces civilians faster than rest.",
       "img": "data/task_super_rest.png",
+      "obj": "data/task_super_rest.obj",
       "consumption":[
         {"id": "food","quantity":0.6}
       ],
@@ -296,6 +307,7 @@
       "id": "Work Farm",
       "description": "Produce food from farm.",
       "img": "data/task_farm.png",
+      "obj": "data/task_farm.obj",
       "production":[
         {"id": "food","quantity":0.3}
       ],
@@ -307,6 +319,7 @@
     {
       "id": "Produce Stone",
       "img": "data/task_produce.png",
+      "obj": "data/task_produce.obj",
       "production":[
         {"id": "stone","quantity":0.5}
       ],
@@ -319,6 +332,7 @@
     {
       "id": "Produce Ore",
       "img": "data/task_produce.png",
+      "obj": "data/task_produce.obj",
       "production":[
         {"id": "ore","quantity":0.1}
       ],
@@ -331,6 +345,7 @@
     {
       "id": "Produce Metal",
       "img": "data/task_produce.png",
+      "obj": "data/task_produce.obj",
       "production":[
         {"id": "metal","quantity":0.1}
       ],
@@ -344,6 +359,7 @@
     {
       "id": "Produce Concrete",
       "img": "data/task_produce.png",
+      "obj": "data/task_produce.obj",
       "production":[
         {"id": "concrete","quantity":0.05}
       ],
@@ -356,6 +372,7 @@
     {
       "id": "Produce Cable",
       "img": "data/task_produce.png",
+      "obj": "data/task_produce.obj",
       "production":[
         {"id": "cable","quantity":0.05}
       ],
@@ -368,6 +385,7 @@
     {
       "id": "Produce Wood",
       "img": "data/task_produce.png",
+      "obj": "data/task_produce.obj",
       "production":[
         {"id": "wood","quantity":0.2}
       ],
@@ -379,6 +397,7 @@
     {
       "id": "Produce Rocket Parts",
       "img": "data/task_produce.png",
+      "obj": "data/task_produce.obj",
       "production":[
         {"id": "rocket parts","quantity":0.1}
       ],
@@ -392,6 +411,7 @@
       "id": "Produce Rocket",
       "description": "Needed to launch rocket.",
       "img": "data/task_produce.png",
+      "obj": "data/task_produce.obj",
       "production":[
         {"id": "rocket progress","quantity":0.1}
       ],
@@ -406,6 +426,7 @@
       "id": "Launch Rocket",
       "description": "Attempt to win the game.",
       "img": "data/task_produce.png",
+      "obj": "data/task_produce.obj",
       "initial cost":[{"id":"rocket progress", "quantity":1000}],
       "buildings":["Rocket Factory"]
     },
