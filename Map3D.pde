@@ -384,10 +384,10 @@ class Map3D extends BaseMap implements Map {
 
     blueFlag = loadShape("blueflag.obj");
     blueFlag.rotateX(PI/2);
-    blueFlag.scale(2.6, 3, 3);
+    blueFlag.scale(2, 2.5, 2.5);
     redFlag = loadShape("redflag.obj");
     redFlag.rotateX(PI/2);
-    redFlag.scale(2.6, 3, 3);
+    redFlag.scale(2, 2.5, 2.5);
     battle = loadShape("battle.obj");
     battle.rotateX(PI/2);
 
@@ -476,7 +476,7 @@ class Map3D extends BaseMap implements Map {
     for (int i=0; i<gameData.getJSONArray("tasks").size(); i++) {
       JSONObject task = gameData.getJSONArray("tasks").getJSONObject(i);
       if (!task.isNull("img")) {
-        PShape object = createShape(RECT, 0, 0, blockSize/2, blockSize/2);
+        PShape object = createShape(RECT, 0, 0, blockSize/4, blockSize/4);
         object.setFill(color(255, 255, 255));
         object.setTexture(taskImages[i]);
         taskObjs.put(task.getString("id"), object);
@@ -490,6 +490,8 @@ class Map3D extends BaseMap implements Map {
         for (int j=0; j<buildingType.getJSONArray("obj").size(); j++) {
           buildingObjs.get(buildingType.getString("id"))[j] = loadShape(buildingType.getJSONArray("obj").getString(j));
           buildingObjs.get(buildingType.getString("id"))[j].rotateX(PI/2);
+          buildingObjs.get(buildingType.getString("id"))[j].scale(0.625);
+          buildingObjs.get(buildingType.getString("id"))[j].translate(0, 0, -6);
         }
       }
     }
@@ -976,12 +978,12 @@ class Map3D extends BaseMap implements Map {
           canvas.noLights();
           if (parties[y][x].player == 0) {
             canvas.pushMatrix();
-            canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundMinHeightAt(x, y));
+            canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
             canvas.shape(blueFlag);
             canvas.popMatrix();
           } else if (parties[y][x].player == 1) {
             canvas.pushMatrix();
-            canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 30+groundMinHeightAt(x, y));
+            canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
             canvas.shape(redFlag);
             canvas.popMatrix();
           } else if (parties[y][x].player == 2) {
@@ -999,9 +1001,9 @@ class Map3D extends BaseMap implements Map {
           if (drawingTaskIcons && jo != null && !jo.isNull("img")) {
             canvas.noLights();
             canvas.pushMatrix();
-            canvas.translate((x+0.5+sin(rot)*0.25)*blockSize, (y+0.5+cos(rot)*0.25)*blockSize, blockSize*3+groundMinHeightAt(x, y));
+            canvas.translate((x+0.5+sin(rot)*0.125)*blockSize, (y+0.5+cos(rot)*0.125)*blockSize, blockSize*2+groundMinHeightAt(x, y));
             canvas.rotateZ(-this.rot);
-            canvas.translate(-0.25*blockSize, -0.25*blockSize);
+            canvas.translate(-0.125*blockSize, -0.25*blockSize);
             canvas.shape(taskObjs.get(jo.getString("id")));
             canvas.popMatrix();
           }
@@ -1037,7 +1039,7 @@ class Map3D extends BaseMap implements Map {
       unitNumberObjects[battle.party2.player].setVertex(7, blockSize*battle.party2.getUnitNumber()/1000, blockSize*0.0625, 0);
       canvas.noLights();
       canvas.pushMatrix();
-      canvas.translate((x+0.5+sin(rot)*0.5)*blockSize, (y+0.5+cos(rot)*0.5)*blockSize, blockSize*2.25+groundMinHeightAt(x, y));
+      canvas.translate((x+0.5+sin(rot)*0.5)*blockSize, (y+0.5+cos(rot)*0.5)*blockSize, blockSize*1.6+groundMinHeightAt(x, y));
       canvas.rotateZ(-this.rot);
       canvas.translate(-0.5*blockSize, -0.5*blockSize);
       canvas.shape(unitNumberObjects[battle.party1.player]);
@@ -1047,7 +1049,7 @@ class Map3D extends BaseMap implements Map {
     else{
       canvas.noLights();
       canvas.pushMatrix();
-      canvas.translate((x+0.5+sin(rot)*0.5)*blockSize, (y+0.5+cos(rot)*0.5)*blockSize, blockSize*2.25+groundMinHeightAt(x, y));
+      canvas.translate((x+0.5+sin(rot)*0.5)*blockSize, (y+0.5+cos(rot)*0.5)*blockSize, blockSize*1.6+groundMinHeightAt(x, y));
       canvas.rotateZ(-this.rot);
       canvas.translate(-0.5*blockSize, -0.5*blockSize);
       unitNumberObjects[parties[y][x].player].setVertex(0, blockSize*parties[y][x].getUnitNumber()/1000, 0, 0);
