@@ -348,8 +348,12 @@ class Map3D extends BaseMap implements Map {
   }
   
   void replaceMapStripWithReloadedStrip(int y){
+    tiles.removeChild(y+1);
+    loadMapStrip(y+1, tiles, false);
     tiles.removeChild(y);
     loadMapStrip(y, tiles, false);
+    tiles.removeChild(y-1);
+    loadMapStrip(y-1, tiles, false);
   }
 
   void clearShape() {

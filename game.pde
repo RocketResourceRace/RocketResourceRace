@@ -356,6 +356,7 @@ class Game extends State{
             if (sum(co)>0){
               spendRes(players[turn], co);
               buildings[cellY][cellX] = new Building(buildingIndex("Construction"));
+              terrain[cellY][cellX] = terrainIndex("quarry site");
             }
           }
           else{
