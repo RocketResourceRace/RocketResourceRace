@@ -356,7 +356,6 @@ class Game extends State{
             if (sum(co)>0){
               spendRes(players[turn], co);
               buildings[cellY][cellX] = new Building(buildingIndex("Construction"));
-              terrain[cellY][cellX] = terrainIndex("quarry site");
             }
           }
           else{
@@ -517,7 +516,8 @@ class Game extends State{
                 else{
                   buildings[y][x] = new Building(buildingIndex(action.building));
                   if (buildings[y][x].type == buildingIndex("Quarry")){
-                    map.setHeightsForCell(x, y, jsManager.loadFloatSetting("water level"));
+                    //map.setHeightsForCell(x, y, jsManager.loadFloatSetting("water level"));
+                    terrain[cellY][cellX] = terrainIndex("quarry site");
                     map.replaceMapStripWithReloadedStrip(y);
                   }
                 }
