@@ -734,7 +734,7 @@ class Game extends State{
     if(tooltip.visible&&tooltip.attacking){
       int x = floor(map.scaleXInv());
       int y = floor(map.scaleYInv());
-      if(0<=x&&x<mapWidth&&0<=y&&y<mapHeight){
+      if(0<=x&&x<mapWidth&&0<=y&&y<mapHeight && parties[y][x] != null){
         BigDecimal chance = battleEstimateManager.getEstimate(cellX, cellY, x, y, splitUnitsNum());
         tooltip.setAttacking(chance);
       }
@@ -1759,6 +1759,9 @@ class Game extends State{
     ArrayList<int[]> returnNodes = new ArrayList<int[]>();
     returnNodes.add(new int[]{targetX, targetY});
     int[] curNode = {targetX, targetY};
+    if (nodes[curNode[1]][curNode[0]] == null){
+      return returnNodes;
+    }
     while (curNode[0] != startX || curNode[1] != startY){
       returnNodes.add(new int[]{nodes[curNode[1]][curNode[0]].prevX, nodes[curNode[1]][curNode[0]].prevY});
       curNode = returnNodes.get(returnNodes.size()-1);

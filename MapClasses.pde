@@ -329,6 +329,9 @@ class BattleEstimateManager{
     this.parties = parties;
   }
   BigDecimal getEstimate(int x1, int y1, int x2, int y2, int units){
+    if (parties[y2][x2] == null){
+      println("Invalid player location");
+    }
     Party tempAttacker = parties[y1][x1].clone();
     tempAttacker.setUnitNumber(units);
     if (cached&&attackerX==x1&&attackerY==y1&&defenderX==x2&&defenderY==y2&&attackerUnits==units){
