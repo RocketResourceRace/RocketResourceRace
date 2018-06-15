@@ -998,7 +998,7 @@ class Map2D extends BaseMap implements Map{
          //Parties
          if(parties[y][x]!=null){
            c = new PVector(scaleX(x), scaleY(y));
-           if(c.x<xPos+elementWidth&&c.y+blockSize/8>yPos&&c.y<yPos+elementHeight){
+           if(c.x<xPos+elementWidth&&c.y+blockSize/8+blockSize>yPos&&c.y<yPos+elementHeight){
              panelCanvas.noStroke();
              if(parties[y][x].player == 2){
                Battle battle = (Battle) parties[y][x];
@@ -1042,7 +1042,7 @@ class Map2D extends BaseMap implements Map{
          }
          if(parties[y][x]!=null){
            c = new PVector(scaleX(x), scaleY(y));
-           if(c.x<xPos+elementWidth&&c.y+blockSize/8>yPos&&c.y<yPos+elementHeight){
+           if(c.x<xPos+elementWidth&&c.y+blockSize/8+blockSize>yPos&&c.y<yPos+elementHeight){
              panelCanvas.textFont(getFont(blockSize/7));
              panelCanvas.fill(255);
              panelCanvas.textAlign(CENTER, CENTER);
@@ -1132,7 +1132,7 @@ class Map2D extends BaseMap implements Map{
       int imgY = max(0, newY-y, 0);
       int imgW = min(max(elementWidth+xPos-x, -sign(elementWidth+xPos-x)*(x+w-newX)), img.width);
       int imgH = min(max(elementHeight+yPos-y, -sign(elementHeight+yPos-y)*(y+h-newY)), img.height);
-      panelCanvas.image(img, newX, newY);
+      panelCanvas.image(img, x, y);
     }
   }
   float scaleX(float x){
