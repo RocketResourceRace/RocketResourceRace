@@ -262,6 +262,7 @@
       "id": "Defend",
       "description": "Defending increases the strength of the party in battle.",
       "img": "data/task_defend.png",
+      "obj": "data/task_defend.obj",
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
@@ -291,6 +292,7 @@
       "id": "Clear Forest",
       "description": "Clear a forrest tile and add 100 wood to stockpile.",
       "img": "data/task_clear_forest.png",
+      "obj": "data/task_clear_forest.obj",
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
