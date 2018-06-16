@@ -341,6 +341,7 @@ class Map3D extends BaseMap implements Map {
       tempSingleRow.vertex(0, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, 0, 0, (y1+1)*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
       for (int x=0; x<mapWidth; x++) {
         if (terrain[y][x] == terrainIndex("quarry site")){
+          // End strip and start new one, skipping out cell
           tempSingleRow.vertex(x*blockSize, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(x, (y+y1/jsManager.loadFloatSetting("terrain detail"))), x*jsManager.loadIntSetting("terrain texture resolution"), y1*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
           tempSingleRow.vertex(x*blockSize, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(x, y+(1+y1)/jsManager.loadFloatSetting("terrain detail")), x*jsManager.loadIntSetting("terrain texture resolution"), (y1+1)*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
           tempSingleRow.endShape();
@@ -348,6 +349,14 @@ class Map3D extends BaseMap implements Map {
           tempSingleRow = createShape();
           tempSingleRow.setTexture(tempTerrain);
           tempSingleRow.beginShape(TRIANGLE_STRIP);
+          
+          // Add replacement cell for quarry site
+          PShape quarrySite = loadShape("quarry_site.obj");
+          quarrySite.rotateX(PI/2);
+          quarrySite.translate((x+0.5)*blockSize, (y+0.5)*blockSize, groundMinHeightAt(x, y));
+          quarrySite.setTexture(loadImage("hill.png"));
+          //quarrySite.setFill(color(120));
+          tempRow.addChild(quarrySite);
         }
         else{
           for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail"); x1++) {
@@ -412,9 +421,10 @@ class Map3D extends BaseMap implements Map {
     textureMode(IMAGE);
     trees = createShape(GROUP);
     int numTreeTiles=0;
+    
+    
     for (int y=0; y<mapHeight; y++) {
       loadMapStrip(y, tiles, true);
-      //tiles.addChild(row);
       
       // Load trees
       for (int x=0; x<mapWidth; x++) {
@@ -540,10 +550,19 @@ class Map3D extends BaseMap implements Map {
       if (!buildingType.isNull("obj")) {
         buildingObjs.put(buildingType.getString("id"), new PShape[buildingType.getJSONArray("obj").size()]);
         for (int j=0; j<buildingType.getJSONArray("obj").size(); j++) {
-          buildingObjs.get(buildingType.getString("id"))[j] = loadShape(buildingType.getJSONArray("obj").getString(j));
-          buildingObjs.get(buildingType.getString("id"))[j].rotateX(PI/2);
-          buildingObjs.get(buildingType.getString("id"))[j].scale(0.625);
-          buildingObjs.get(buildingType.getString("id"))[j].translate(0, 0, -6);
+          if (buildingType.getString("id").equals("Quarry")){
+            buildingObjs.get(buildingType.getString("id"))[j] = loadShape("quarry.obj");
+            buildingObjs.get(buildingType.getString("id"))[j].rotateX(PI/2);
+            //buildingObjs.get(buildingType.getString("id"))[j].setFill(color(86, 47, 14));
+            
+          }
+          else{
+            buildingObjs.get(buildingType.getString("id"))[j] = loadShape(buildingType.getJSONArray("obj").getString(j));
+            buildingObjs.get(buildingType.getString("id"))[j].rotateX(PI/2);
+            buildingObjs.get(buildingType.getString("id"))[j].scale(0.625);
+            buildingObjs.get(buildingType.getString("id"))[j].translate(0, 0, -6);
+          }
+          println(buildingType.getString("id"));
         }
       }
     }
@@ -1019,7 +1038,11 @@ class Map3D extends BaseMap implements Map {
             if (buildings[y][x].type==buildingIndex("Mine")) {
               canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMinHeightAt(x, y));
               canvas.rotateZ(getDownwardAngle(x, y));
-            } else {
+            }
+            else if (buildings[y][x].type==buildingIndex("Quarry")) {
+              canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, groundMinHeightAt(x, y));
+            }
+            else {
               canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMaxHeightAt(x, y));
             }
             canvas.shape(buildingObjs.get(buildingString(buildings[y][x].type))[buildings[y][x].image_id]);
