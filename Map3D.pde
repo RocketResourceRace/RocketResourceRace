@@ -22,7 +22,7 @@
 class Map3D extends BaseMap implements Map {
   final int thickness = 10;
   final float PANSPEED = 0.5, ROTSPEED = 0.002;
-  final float STUMPR = 0.5, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3;
+  final float STUMPR = 1, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3;
   final float HILLRAISE = 1.05;
   final float GROUNDHEIGHT = 5;
   float panningSpeed = 0.05;
@@ -282,25 +282,41 @@ class Map3D extends BaseMap implements Map {
 
   PShape generateTrees(int num, int vertices, float x1, float y1) {
     PShape shapes = createShape(GROUP);
+    PShape stump;
     colorMode(HSB, 100);
     for (int i=0; i<num; i++) {
       float x = random(0, blockSize), y = random(0, blockSize);
       float h = getHeight((x1+x)/blockSize, (y1+y)/blockSize);
-      if (h <= 0) continue;
+      float randHeight = LEAVESH*random(1-TREERANDOMNESS, 1+TREERANDOMNESS);
+      if (h <= 0) continue; // Don't put trees underwater
       int leafColour = color(random(35, 40), random(90, 100), random(30, 60));
+      int stumpColour = color(random(100, 125), random(100, 125), random(50, 30));
       PShape leaves = createShape();
       leaves.setShininess(0.1);
       leaves.beginShape(TRIANGLES);
       leaves.fill(leafColour);
 
-      // create tree
+      // create leaves
       for (int j=0; j<vertices; j++) {
-        leaves.vertex(x+cos(j*TWO_PI/vertices), y+sin(j*TWO_PI/vertices), STUMPH+h);
-        leaves.vertex(x, y, STUMPH+LEAVESH*random(1-TREERANDOMNESS, 1+TREERANDOMNESS)+h);
+        leaves.vertex(x+cos(j*TWO_PI/vertices)*LEAVESR, y+sin(j*TWO_PI/vertices)*LEAVESR, STUMPH+h);
+        leaves.vertex(x, y, STUMPH+randHeight+h);
         leaves.vertex(x+cos((j+1)*TWO_PI/vertices)*LEAVESR, y+sin((j+1)*TWO_PI/vertices)*LEAVESR, STUMPH+h);
       }
       leaves.endShape(CLOSE);
       shapes.addChild(leaves);
+      
+      //create trunck
+      stump = createShape();
+      stump.beginShape(QUADS);
+      stump.fill(stumpColour);
+      for (int j=0; j<3; j++) {
+        stump.vertex(x+cos(j*TWO_PI/3)*STUMPR, y+sin(j*TWO_PI/3)*STUMPR, h);
+        stump.vertex(x+cos((j+1)*TWO_PI/3)*STUMPR, y+sin((j+1)*TWO_PI/3)*STUMPR, h);
+        stump.vertex(x+cos((j+1)*TWO_PI/3)*STUMPR, y+sin((j+1)*TWO_PI/3)*STUMPR, STUMPH+h);
+        stump.vertex(x+cos(j*TWO_PI/3)*STUMPR, y+sin(j*TWO_PI/3)*STUMPR, STUMPH+h);
+      }
+      stump.endShape();
+      shapes.addChild(stump);
     }
     colorMode(RGB, 255);
     return shapes;
@@ -403,7 +419,7 @@ class Map3D extends BaseMap implements Map {
       // Load trees
       for (int x=0; x<mapWidth; x++) {
         if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest")+1) {
-          PShape cellTree = generateTrees(jsManager.loadIntSetting("forest density"), 16, x*blockSize, y*blockSize);
+          PShape cellTree = generateTrees(jsManager.loadIntSetting("forest density"), 8, x*blockSize, y*blockSize);
           cellTree.translate((x)*blockSize, (y)*blockSize, 0);
           trees.addChild(cellTree);
           addTreeTile(x, y, numTreeTiles++);
