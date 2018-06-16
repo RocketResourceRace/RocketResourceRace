@@ -293,26 +293,23 @@ class Map3D extends BaseMap implements Map {
       int stumpColour = color(random(100, 125), random(100, 125), random(50, 30));
       PShape leaves = createShape();
       leaves.setShininess(0.1);
-      leaves.beginShape(TRIANGLES);
+      leaves.beginShape(TRIANGLE_FAN);
       leaves.fill(leafColour);
-
+      int tempVertices = round(random(4, vertices));
       // create leaves
-      for (int j=0; j<vertices; j++) {
-        leaves.vertex(x+cos(j*TWO_PI/vertices)*LEAVESR, y+sin(j*TWO_PI/vertices)*LEAVESR, STUMPH+h);
-        leaves.vertex(x, y, STUMPH+randHeight+h);
-        leaves.vertex(x+cos((j+1)*TWO_PI/vertices)*LEAVESR, y+sin((j+1)*TWO_PI/vertices)*LEAVESR, STUMPH+h);
+      leaves.vertex(x, y, STUMPH+randHeight+h);
+      for (int j=0; j<tempVertices+1; j++) {
+        leaves.vertex(x+cos(j*TWO_PI/tempVertices)*LEAVESR, y+sin(j*TWO_PI/tempVertices)*LEAVESR, STUMPH+h);
       }
       leaves.endShape(CLOSE);
       shapes.addChild(leaves);
       
       //create trunck
       stump = createShape();
-      stump.beginShape(QUADS);
+      stump.beginShape(QUAD_STRIP);
       stump.fill(stumpColour);
-      for (int j=0; j<3; j++) {
+      for (int j=0; j<4; j++) {
         stump.vertex(x+cos(j*TWO_PI/3)*STUMPR, y+sin(j*TWO_PI/3)*STUMPR, h);
-        stump.vertex(x+cos((j+1)*TWO_PI/3)*STUMPR, y+sin((j+1)*TWO_PI/3)*STUMPR, h);
-        stump.vertex(x+cos((j+1)*TWO_PI/3)*STUMPR, y+sin((j+1)*TWO_PI/3)*STUMPR, STUMPH+h);
         stump.vertex(x+cos(j*TWO_PI/3)*STUMPR, y+sin(j*TWO_PI/3)*STUMPR, STUMPH+h);
       }
       stump.endShape();
