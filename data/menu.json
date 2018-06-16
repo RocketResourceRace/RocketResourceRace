@@ -205,9 +205,9 @@
           "text": "Map Size",
           "setting": "map size",
           "lower": 50,
-          "upper": 300,
+          "upper": 200,
           "step": 10,
-          "minor": 25,
+          "minor": 20,
           "major": 5,
         },
         {

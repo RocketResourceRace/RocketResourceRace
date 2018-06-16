@@ -1669,10 +1669,18 @@ class Game extends State{
       map = (Map3D)getElement("3dmap", "default");
       ((Map3D)getElement("3dmap", "default")).visible = true;
       ((Map2D)getElement("2dmap", "default")).visible = false;
+      getElement("unit number bars toggle", "bottom bar").visible = true;
+      getElement("task icons toggle", "bottom bar").visible = true;
+      getElement("unit number bars toggle", "bottom bar").active = true;
+      getElement("task icons toggle", "bottom bar").active = true;
     } else {
       map = (Map2D)getElement("2dmap", "default");
       ((Map3D)getElement("3dmap", "default")).visible = false;
       ((Map2D)getElement("2dmap", "default")).visible = true;
+      getElement("unit number bars toggle", "bottom bar").visible = false;
+      getElement("task icons toggle", "bottom bar").visible = false;
+      getElement("unit number bars toggle", "bottom bar").active = false;
+      getElement("task icons toggle", "bottom bar").active = false;
       ((Map2D)map).reset();
     }
     if(loadingName != null){
