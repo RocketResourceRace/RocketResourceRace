@@ -125,9 +125,9 @@
           "text": "Water Level",
           "setting": "water level",
           "lower": 0,
-          "upper": 0.75,
+          "upper": 1.0,
           "step": 0.05,
-          "minor": 15,
+          "minor": 20,
           "major": 5,
         },
         {
@@ -141,9 +141,9 @@
           "text": "Hills Height",
           "setting": "hills height",
           "lower": 0.5,
-          "upper": 0.8,
+          "upper": 1.0,
           "step": 0.02,
-          "minor": 15,
+          "minor": 25,
           "major": 5,
         },
         {
