@@ -311,10 +311,11 @@
       "img": "data/task_farm.png",
       "obj": "data/task_farm.obj",
       "production":[
-        {"id": "food","quantity":0.3}
+        {"id": "food","quantity":0.5}
       ],
       "consumption":[
-        {"id": "wood","quantity":0.01}
+        {"id": "wood","quantity":0.01},
+        {"id": "food","quantity":0.2}
       ],
       "buildings":["Farm"]
     },
@@ -430,7 +431,10 @@
       "img": "data/task_produce.png",
       "obj": "data/task_produce.obj",
       "initial cost":[{"id":"rocket progress", "quantity":1000}],
-      "buildings":["Rocket Factory"]
+      "buildings":["Rocket Factory"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
     },
     {
       "id": "Construction Mid",
