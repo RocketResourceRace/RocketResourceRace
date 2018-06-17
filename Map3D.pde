@@ -559,7 +559,6 @@ class Map3D extends BaseMap implements Map {
             buildingObjs.get(buildingType.getString("id"))[j].scale(0.625);
             buildingObjs.get(buildingType.getString("id"))[j].translate(0, 0, -6);
           }
-          println(buildingType.getString("id"));
         }
       }
     }
