@@ -46,6 +46,9 @@ class Map3D extends BaseMap implements Map {
   HashMap<Integer, HashMap<Integer, Float>> downwardAngleCache;
   PShape tempRow, tempSingleRow;
   PGraphics tempTerrain;
+  boolean drawRocket;
+  PVector rocketPosition;
+  PVector rocketVelocity;
 
   Map3D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
     this.x = x;
@@ -564,6 +567,8 @@ class Map3D extends BaseMap implements Map {
     }
 
     popStyle();
+    cinematicMode = false;
+    drawRocket = false;
   }
 
   void generateHighlightingGrid(int horizontals, int verticles) {
@@ -994,7 +999,7 @@ class Map3D extends BaseMap implements Map {
 
     canvas.pushMatrix();
     //noLights();
-    if (cellSelected) {
+    if (cellSelected&&!cinematicMode) {
       canvas.pushMatrix();
       canvas.stroke(0);
       canvas.strokeWeight(3);
@@ -1014,13 +1019,13 @@ class Map3D extends BaseMap implements Map {
       canvas.popMatrix();
     }
 
-    canvas.pushMatrix();
-    if (0<hoveringX&&hoveringX<mapWidth&&0<hoveringY&&hoveringY<mapHeight) {
+    if (0<hoveringX&&hoveringX<mapWidth&&0<hoveringY&&hoveringY<mapHeight && !cinematicMode) {
+      canvas.pushMatrix();
       drawPath(canvas);
       canvas.shape(highlightingGrid);
+      canvas.popMatrix();
     }
     
-    canvas.popMatrix();
     if (moveNodes != null){
       canvas.shape(drawPossibleMoves);
     }
@@ -1064,12 +1069,12 @@ class Map3D extends BaseMap implements Map {
             canvas.popMatrix();
           }
           
-          if (drawingUnitBars){
+          if (drawingUnitBars&&!cinematicMode){
             drawUnitBar(x, y, canvas);
           }
           
           JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].task);
-          if (drawingTaskIcons && jo != null && !jo.isNull("img")) {
+          if (drawingTaskIcons && jo != null && !jo.isNull("img") && !cinematicMode) {
             canvas.noLights();
             canvas.pushMatrix();
             canvas.translate((x+0.5+sin(rot)*0.125)*blockSize, (y+0.5+cos(rot)*0.125)*blockSize, blockSize*1.7+groundMinHeightAt(x, y));
@@ -1084,6 +1089,10 @@ class Map3D extends BaseMap implements Map {
       }
     }
     canvas.popMatrix();
+    
+    if(drawRocket){
+      drawRocket(canvas);
+    }
 
   }
 
@@ -1248,5 +1257,23 @@ class Map3D extends BaseMap implements Map {
     viewport.apply(projection);
     viewport.apply(modelview);
     return viewport;
+  }
+  void enableRocket(PVector pos, PVector vel){
+    drawRocket = true;
+    rocketPosition = pos;
+    rocketVelocity = vel;
+  }
+  
+  void disableRocket(){
+    drawRocket = false;
+  }
+  
+  void drawRocket(PGraphics canvas){
+    canvas.lights();
+    canvas.pushMatrix();
+    canvas.translate((rocketPosition.x+0.5)*blockSize, (rocketPosition.y+0.5)*blockSize, rocketPosition.z*blockSize+16+groundMaxHeightAt(int(rocketPosition.x), int(rocketPosition.y)));
+    canvas.rotateY(atan2(rocketVelocity.x, rocketVelocity.z));
+    canvas.shape(buildingObjs.get("Rocket Factory")[2]);
+    canvas.popMatrix();
   }
 }

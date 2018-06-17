@@ -22,7 +22,7 @@ class Game extends State{
   final int buttonH = 50;
   final int bezel = 10;
   final int mapElementWidth = round(width);
-  final int mapElementHeight = round(height-bezel*2-buttonH);
+  final int mapElementHeight = round(height);
   final int CLICKHOLD = 500;
   PGraphics gameUICanvas;
   String[] tasks;
@@ -55,6 +55,12 @@ class Game extends State{
   float[] totals;
   Party splittedParty;
   int[] mapClickPos = null;
+  boolean cinematicMode;
+  boolean rocketLaunching;
+  int rocketBehaviour;
+  PVector rocketPosition;
+  PVector rocketVelocity;
+  int rocketStartTime;
 
   Game(){
     gameUICanvas = createGraphics(width, height, P2D); 
@@ -328,16 +334,7 @@ class Game extends State{
           parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
         }
       } else if (jo.getString("id").equals("Launch Rocket")){
-        int rocketBehaviour = int(random(10));
-        buildings[cellY][cellX].image_id=0;
-        //Rocket Launch Animation with behaviour
-        if (rocketBehaviour > 6){
-          winner = turn;
-        }
-        else {
-          players[turn].resources[jsManager.getResIndex(("rocket progress"))] = 0;
-          parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
-        }
+        startRocketLaunch();
       }
       else if (parties[cellY][cellX].getTask()==JSONIndex(gameData.getJSONArray("tasks"), "Produce Rocket")){
         if(players[turn].resources[jsManager.getResIndex(("rocket progress"))]==-1){
@@ -712,6 +709,9 @@ class Game extends State{
   
 
   void drawPanels(){
+    if(rocketLaunching){
+      handleRocket();
+    }
     // Draw the panels in reverse order (highest in the list are drawn last so appear on top)
     for (int i=panels.size()-1; i>=0; i--){
       if (panels.get(i).visible){
@@ -744,7 +744,9 @@ class Game extends State{
       drawRocketProgressBar(gameUICanvas);
     }
     if (cellSelected){
-      drawCellManagement(gameUICanvas);
+      if(getPanel("land management").visible){
+        drawCellManagement(gameUICanvas);
+      }
       if(parties[cellY][cellX] != null && getPanel("party management").visible)
         drawPartyManagement(gameUICanvas);
     }
@@ -1311,7 +1313,7 @@ class Game extends State{
             else{
               if(floor(map.scaleXInv())==cellX&&floor(map.scaleYInv())==cellY&&cellSelected){
                 deselectCell();
-              } else {
+              } else if (!cinematicMode){
                 selectCell();
               }
             }
@@ -1629,10 +1631,10 @@ class Game extends State{
     if (!getPanel("pause screen").visible){
       refreshTooltip();
       if (eventType == "keyTyped"){
-        if (key == ' '){
+        if (key == ' '&&!cinematicMode){
           postEvent(new EndTurn());
         }
-        else if (key == 'i'){
+        else if (key == 'i'&&!cinematicMode){
           int[] t = findIdle(turn);
           if (t[0] != -1){
             selectCell(t[0], t[1], false);
@@ -1750,6 +1752,7 @@ class Game extends State{
     
     map.setDrawingTaskIcons(true);
     map.setDrawingUnitBars(true);
+    
   }
   int cost(int x, int y, int prevX, int prevY){
     float mult = 1;
@@ -1876,5 +1879,64 @@ class Game extends State{
       parties[(int)player2.y][(int)player2.x] = new Party(1, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"));
     }
     return  new PVector[]{player1, player2};
+  }
+  
+  void enterCinematicMode(){
+    cinematicMode = true;
+    getPanel("bottom bar").setVisible(false);
+    getPanel("land management").setVisible(false);
+    getPanel("party management").setVisible(false);
+    ((BaseMap)map).cinematicMode = true;
+  }
+  void leaveCinematicMode(){
+    cinematicMode = false;
+    getPanel("bottom bar").setVisible(true);
+    if(cellSelected){
+      getPanel("land management").setVisible(true);
+      if (parties[cellY][cellX] != null && parties[cellY][cellX].isTurn(turn)){
+        getPanel("party management").setVisible(true);
+      }
+    }
+    ((BaseMap)map).cinematicMode = false;
+  }
+  
+  void startRocketLaunch(){
+    rocketVelocity = new PVector(0, 0, 0);
+    rocketBehaviour = int(random(10));
+    buildings[cellY][cellX].image_id=0;
+    rocketLaunching = true;
+    rocketPosition = new PVector(cellX, cellY, 0);
+    map.enableRocket(rocketPosition, rocketVelocity);
+    enterCinematicMode();
+    rocketStartTime = millis();
+  }
+  void handleRocket(){
+    float t = float(millis()-rocketStartTime)/1000;
+    if(rocketBehaviour > 6){
+      rocketVelocity.z = 10*(exp(t)-1)/(exp(t)+1);
+      if(rocketPosition.z>mapHeight){
+        rocketLaunchEnd();
+      }
+    } else {
+      rocketVelocity.x = 0.5*t;
+      rocketVelocity.z = 3*t-pow(t, 2);
+      if(rocketPosition.z<0){
+        rocketLaunchEnd();
+      }
+    }
+    rocketVelocity.div(frameRate);
+    rocketPosition.add(rocketVelocity);
+  }
+  void rocketLaunchEnd(){
+    map.disableRocket();
+    rocketLaunching = false;
+    if (rocketBehaviour > 6){
+      winner = turn;
+    }
+    else {
+      players[turn].resources[jsManager.getResIndex(("rocket progress"))] = 0;
+      parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
+    }
+    leaveCinematicMode();
   }
 }
