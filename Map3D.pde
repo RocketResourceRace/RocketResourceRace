@@ -1273,6 +1273,7 @@ class Map3D extends BaseMap implements Map {
     canvas.lights();
     canvas.pushMatrix();
     canvas.translate((rocketPosition.x+0.5)*blockSize, (rocketPosition.y+0.5)*blockSize, rocketPosition.z*blockSize+16+groundMaxHeightAt(int(rocketPosition.x), int(rocketPosition.y)));
+    canvas.rotateY(atan2(rocketVelocity.x, rocketVelocity.z));
     canvas.shape(buildingObjs.get("Rocket Factory")[2]);
     canvas.popMatrix();
   }

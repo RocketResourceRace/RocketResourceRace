@@ -1165,7 +1165,7 @@ class Map2D extends BaseMap implements Map{
   void enableRocket(PVector pos, PVector vel){
     drawRocket = true;
     rocketPosition = pos;
-    rocketVelocity  = vel;
+    rocketVelocity = vel;
   }
   
   void disableRocket(){
@@ -1173,9 +1173,13 @@ class Map2D extends BaseMap implements Map{
   }
   
   void drawRocket(PGraphics canvas, PImage[][] buildingImages){
-     PVector c = new PVector(scaleX(rocketPosition.x), scaleY(rocketPosition.y-rocketPosition.z));
+     PVector c = new PVector(scaleX(rocketPosition.x+0.5), scaleY(rocketPosition.y+0.5-rocketPosition.z));
      int border = round((64-48)*blockSize/(2*64));
-     int imgSize = round(blockSize*48/60);
-     drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, buildingImages[buildingIndex("Rocket Factory")-1][2], canvas);
+     canvas.pushMatrix();
+     canvas.translate(round(c.x+border), round(c.y+border*2));
+     canvas.rotate(atan2(rocketVelocity.x, rocketVelocity.z));
+     canvas.translate(-blockSize/2, -blockSize/2);
+     canvas.image(buildingImages[buildingIndex("Rocket Factory")-1][2], 0, 0);
+     canvas.popMatrix();
   }
 }

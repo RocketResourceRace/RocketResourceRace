@@ -1911,8 +1911,7 @@ class Game extends State{
     rocketStartTime = millis();
   }
   void handleRocket(){
-    rocketVelocity = new PVector(0, 0, 0);
-    float t = (millis()-rocketStartTime)/1000;
+    float t = float(millis()-rocketStartTime)/1000;
     if(rocketBehaviour > 6){
       rocketVelocity.z = 10*(exp(t)-1)/(exp(t)+1);
       if(rocketPosition.z>mapHeight){
