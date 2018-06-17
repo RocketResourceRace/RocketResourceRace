@@ -565,6 +565,7 @@ class Map3D extends BaseMap implements Map {
     }
 
     popStyle();
+    cinematicMode = false;
   }
 
   void generateHighlightingGrid(int horizontals, int verticles) {
@@ -995,7 +996,7 @@ class Map3D extends BaseMap implements Map {
 
     canvas.pushMatrix();
     //noLights();
-    if (cellSelected) {
+    if (cellSelected&&!cinematicMode) {
       canvas.pushMatrix();
       canvas.stroke(0);
       canvas.strokeWeight(3);
@@ -1015,13 +1016,13 @@ class Map3D extends BaseMap implements Map {
       canvas.popMatrix();
     }
 
-    canvas.pushMatrix();
-    if (0<hoveringX&&hoveringX<mapWidth&&0<hoveringY&&hoveringY<mapHeight) {
+    if (0<hoveringX&&hoveringX<mapWidth&&0<hoveringY&&hoveringY<mapHeight && !cinematicMode) {
+      canvas.pushMatrix();
       drawPath(canvas);
       canvas.shape(highlightingGrid);
+      canvas.popMatrix();
     }
     
-    canvas.popMatrix();
     if (moveNodes != null){
       canvas.shape(drawPossibleMoves);
     }
@@ -1065,12 +1066,12 @@ class Map3D extends BaseMap implements Map {
             canvas.popMatrix();
           }
           
-          if (drawingUnitBars){
+          if (drawingUnitBars&&!cinematicMode){
             drawUnitBar(x, y, canvas);
           }
           
           JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].task);
-          if (drawingTaskIcons && jo != null && !jo.isNull("img")) {
+          if (drawingTaskIcons && jo != null && !jo.isNull("img") && !cinematicMode) {
             canvas.noLights();
             canvas.pushMatrix();
             canvas.translate((x+0.5+sin(rot)*0.125)*blockSize, (y+0.5+cos(rot)*0.125)*blockSize, blockSize*1.7+groundMinHeightAt(x, y));

@@ -184,6 +184,7 @@ class BaseMap extends Element{
   Party[][] parties;
   Building[][] buildings;
   boolean updateHoveringScale, drawingTaskIcons, drawingUnitBars;
+  boolean cinematicMode;
   void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players){
     int partiesByteCount = 0;
     for (int y=0; y<mapHeight; y++){
@@ -681,7 +682,7 @@ class Map2D extends BaseMap implements Map{
     heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(jsManager.loadFloatSetting("terrain detail"), 2))];
   }
   void generateShape(){
-
+    cinematicMode = false;
   }
   void clearShape(){
 
@@ -1037,7 +1038,7 @@ class Map2D extends BaseMap implements Map{
              }
            }
          }
-         if (cellSelected&&y==selectedCellY&&x==selectedCellX){
+         if (cellSelected&&y==selectedCellY&&x==selectedCellX&&!cinematicMode){
            drawSelectedCell(selectedCell, panelCanvas);
          }
          if(parties[y][x]!=null){

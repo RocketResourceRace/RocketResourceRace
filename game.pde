@@ -55,6 +55,7 @@ class Game extends State{
   float[] totals;
   Party splittedParty;
   int[] mapClickPos = null;
+  boolean cinematicMode;
 
   Game(){
     gameUICanvas = createGraphics(width, height, P2D); 
@@ -744,7 +745,9 @@ class Game extends State{
       drawRocketProgressBar(gameUICanvas);
     }
     if (cellSelected){
-      drawCellManagement(gameUICanvas);
+      if(getPanel("land management").visible){
+        drawCellManagement(gameUICanvas);
+      }
       if(parties[cellY][cellX] != null && getPanel("party management").visible)
         drawPartyManagement(gameUICanvas);
     }
@@ -1311,7 +1314,7 @@ class Game extends State{
             else{
               if(floor(map.scaleXInv())==cellX&&floor(map.scaleYInv())==cellY&&cellSelected){
                 deselectCell();
-              } else {
+              } else if (!cinematicMode){
                 selectCell();
               }
             }
@@ -1629,10 +1632,10 @@ class Game extends State{
     if (!getPanel("pause screen").visible){
       refreshTooltip();
       if (eventType == "keyTyped"){
-        if (key == ' '){
+        if (key == ' '&&!cinematicMode){
           postEvent(new EndTurn());
         }
-        else if (key == 'i'){
+        else if (key == 'i'&&!cinematicMode){
           int[] t = findIdle(turn);
           if (t[0] != -1){
             selectCell(t[0], t[1], false);
@@ -1750,6 +1753,7 @@ class Game extends State{
     
     map.setDrawingTaskIcons(true);
     map.setDrawingUnitBars(true);
+    
   }
   int cost(int x, int y, int prevX, int prevY){
     float mult = 1;
@@ -1876,5 +1880,24 @@ class Game extends State{
       parties[(int)player2.y][(int)player2.x] = new Party(1, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"));
     }
     return  new PVector[]{player1, player2};
+  }
+  
+  void enterCinematicMode(){
+    cinematicMode = true;
+    getPanel("bottom bar").setVisible(false);
+    getPanel("land management").setVisible(false);
+    getPanel("party management").setVisible(false);
+    ((BaseMap)map).cinematicMode = true;
+  }
+  void leaveCinematicMode(){
+    cinematicMode = false;
+    getPanel("bottom bar").setVisible(true);
+    if(cellSelected){
+      getPanel("land management").setVisible(true);
+      if (parties[cellY][cellX] != null && parties[cellY][cellX].isTurn(turn)){
+        getPanel("party management").setVisible(true);
+      }
+    }
+    ((BaseMap)map).cinematicMode = false;
   }
 }
