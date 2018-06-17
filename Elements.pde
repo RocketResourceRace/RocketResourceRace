@@ -667,11 +667,11 @@ class NotificationManager extends Element{
     if (empty())return;
     panelCanvas.pushStyle();
     panelCanvas.fill(bgColour);
-    panelCanvas.rect(x, y, w, h);
+    this.notHeight = (h-topOffset)/displayNots;
+    panelCanvas.rect(x, y, w, notHeight);
     panelCanvas.textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
     panelCanvas.fill(brighten(bgColour, -50));
     topOffset = ceil(panelCanvas.textAscent()+panelCanvas.textDescent());
-    this.notHeight = (h-topOffset)/displayNots;
     panelCanvas.rect(x, y, w, topOffset);
     panelCanvas.fill(textColour);
     panelCanvas.textAlign(CENTER, TOP);

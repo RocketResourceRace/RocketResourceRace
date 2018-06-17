@@ -70,7 +70,7 @@ class Game extends State{
 
     addElement("2dmap", new Map2D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
     addElement("3dmap", new Map3D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
-    addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 10, turn));
+    addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 5, turn));
 
     //map = (Map3D)getElement("2map", "default");
     notificationManager = (NotificationManager)getElement("notification manager", "default");
@@ -397,7 +397,7 @@ class Game extends State{
     cellSelectionH = round(mapElementHeight);
     getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.15));
     getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.15)+bezel, cellSelectionW, round(cellSelectionH*0.5)-bezel*3);
-    ((NotificationManager)(getElement("notification manager", "default"))).transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.65)-bezel, cellSelectionW, round(cellSelectionH*0.35)-bezel*2);
+    ((NotificationManager)(getElement("notification manager", "default"))).transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.8)-bezel, cellSelectionW, round(cellSelectionH*0.2)-bezel*2-70);
     ((Button)getElement("move button", "party management")).transform(bezel, round(13*jsManager.loadFloatSetting("text scale")+bezel), 100, 30);
     ((Slider)getElement("split units", "party management")).transform(round(10*jsManager.loadFloatSetting("gui scale")+bezel), round(bezel*3+2*jsManager.loadFloatSetting("text scale")*13), cellSelectionW-2*bezel-round(20*jsManager.loadFloatSetting("gui scale")),round(jsManager.loadFloatSetting("text scale")*2*13));
     ((TaskManager)getElement("tasks", "party management")).transform(bezel, round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13), cellSelectionW-2*bezel, 30);
