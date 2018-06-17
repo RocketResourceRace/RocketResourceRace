@@ -22,7 +22,7 @@ class Game extends State{
   final int buttonH = 50;
   final int bezel = 10;
   final int mapElementWidth = round(width);
-  final int mapElementHeight = round(height-bezel*2-buttonH);
+  final int mapElementHeight = round(height);
   final int CLICKHOLD = 500;
   PGraphics gameUICanvas;
   String[] tasks;
@@ -56,6 +56,11 @@ class Game extends State{
   Party splittedParty;
   int[] mapClickPos = null;
   boolean cinematicMode;
+  boolean rocketLaunching;
+  int rocketBehaviour;
+  PVector rocketPosition;
+  PVector rocketVelocity;
+  int rocketStartTime;
 
   Game(){
     gameUICanvas = createGraphics(width, height, P2D); 
@@ -329,16 +334,7 @@ class Game extends State{
           parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
         }
       } else if (jo.getString("id").equals("Launch Rocket")){
-        int rocketBehaviour = int(random(10));
-        buildings[cellY][cellX].image_id=0;
-        //Rocket Launch Animation with behaviour
-        if (rocketBehaviour > 6){
-          winner = turn;
-        }
-        else {
-          players[turn].resources[jsManager.getResIndex(("rocket progress"))] = 0;
-          parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
-        }
+        startRocketLaunch();
       }
       else if (parties[cellY][cellX].getTask()==JSONIndex(gameData.getJSONArray("tasks"), "Produce Rocket")){
         if(players[turn].resources[jsManager.getResIndex(("rocket progress"))]==-1){
@@ -713,6 +709,9 @@ class Game extends State{
   
 
   void drawPanels(){
+    if(rocketLaunching){
+      handleRocket();
+    }
     // Draw the panels in reverse order (highest in the list are drawn last so appear on top)
     for (int i=panels.size()-1; i>=0; i--){
       if (panels.get(i).visible){
@@ -1899,5 +1898,46 @@ class Game extends State{
       }
     }
     ((BaseMap)map).cinematicMode = false;
+  }
+  
+  void startRocketLaunch(){
+    rocketVelocity = new PVector(0, 0, 0);
+    rocketBehaviour = int(random(10));
+    buildings[cellY][cellX].image_id=0;
+    rocketLaunching = true;
+    rocketPosition = new PVector(cellX, cellY, 0);
+    map.enableRocket(rocketPosition, rocketVelocity);
+    enterCinematicMode();
+    rocketStartTime = millis();
+  }
+  void handleRocket(){
+    rocketVelocity = new PVector(0, 0, 0);
+    float t = (millis()-rocketStartTime)/1000;
+    if(rocketBehaviour > 6){
+      rocketVelocity.z = 10*(exp(t)-1)/(exp(t)+1);
+      if(rocketPosition.z>mapHeight){
+        rocketLaunchEnd();
+      }
+    } else {
+      rocketVelocity.x = 0.5*t;
+      rocketVelocity.z = 3*t-pow(t, 2);
+      if(rocketPosition.z<0){
+        rocketLaunchEnd();
+      }
+    }
+    rocketVelocity.div(frameRate);
+    rocketPosition.add(rocketVelocity);
+  }
+  void rocketLaunchEnd(){
+    map.disableRocket();
+    rocketLaunching = false;
+    if (rocketBehaviour > 6){
+      winner = turn;
+    }
+    else {
+      players[turn].resources[jsManager.getResIndex(("rocket progress"))] = 0;
+      parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
+    }
+    leaveCinematicMode();
   }
 }

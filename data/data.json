@@ -482,8 +482,11 @@
     {
       "id": "Rocket Factory",
       "img": ["rocket_factory_empty.png",
-              "rocket_factory_full.png"],
-      "obj": ["rocket_factory.obj", "rocket.obj"]
+              "rocket_factory_full.png",
+              "rocket.png"],
+      "obj": ["rocket_factory.obj",
+              "rocket_full.obj",
+              "rocket.obj"]
     },
     {
       "id": "Sawmill",

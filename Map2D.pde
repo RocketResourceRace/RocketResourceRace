@@ -34,6 +34,8 @@ interface Map {
   void generateShape();
   void clearShape();
   boolean isMoving();
+  void enableRocket(PVector pos, PVector vel);
+  void disableRocket();
 }
 
 
@@ -657,6 +659,9 @@ class Map2D extends BaseMap implements Map{
   color partyManagementColour;
   Node[][] moveNodes;
   ArrayList<int[]> drawPath;
+  boolean drawRocket;
+  PVector rocketPosition;
+  PVector rocketVelocity;
 
   Map2D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight){
     xPos = x;
@@ -683,6 +688,7 @@ class Map2D extends BaseMap implements Map{
   }
   void generateShape(){
     cinematicMode = false;
+    drawRocket = false;
   }
   void clearShape(){
 
@@ -1088,6 +1094,10 @@ class Map2D extends BaseMap implements Map{
        }
      }
 
+    if(drawRocket){
+      drawRocket(panelCanvas, tempBuildingImages);
+    }
+
      if (drawPath != null){
        for (int i=0; i<drawPath.size()-1;i++){
          if (lx <= drawPath.get(i)[0] && drawPath.get(i)[0] < hx && ly <= drawPath.get(i)[1] && drawPath.get(i)[1] < hy){
@@ -1150,5 +1160,22 @@ class Map2D extends BaseMap implements Map{
   }
   boolean mouseOver(){
     return mouseX > xPos && mouseX < xPos+elementWidth && mouseY > yPos && mouseY < yPos+elementHeight;
+  }
+  
+  void enableRocket(PVector pos, PVector vel){
+    drawRocket = true;
+    rocketPosition = pos;
+    rocketVelocity  = vel;
+  }
+  
+  void disableRocket(){
+    drawRocket = false;
+  }
+  
+  void drawRocket(PGraphics canvas, PImage[][] buildingImages){
+     PVector c = new PVector(scaleX(rocketPosition.x), scaleY(rocketPosition.y-rocketPosition.z));
+     int border = round((64-48)*blockSize/(2*64));
+     int imgSize = round(blockSize*48/60);
+     drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, buildingImages[buildingIndex("Rocket Factory")-1][2], canvas);
   }
 }

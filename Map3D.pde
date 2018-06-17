@@ -46,6 +46,9 @@ class Map3D extends BaseMap implements Map {
   HashMap<Integer, HashMap<Integer, Float>> downwardAngleCache;
   PShape tempRow, tempSingleRow;
   PGraphics tempTerrain;
+  boolean drawRocket;
+  PVector rocketPosition;
+  PVector rocketVelocity;
 
   Map3D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
     this.x = x;
@@ -566,6 +569,7 @@ class Map3D extends BaseMap implements Map {
 
     popStyle();
     cinematicMode = false;
+    drawRocket = false;
   }
 
   void generateHighlightingGrid(int horizontals, int verticles) {
@@ -1086,6 +1090,10 @@ class Map3D extends BaseMap implements Map {
       }
     }
     canvas.popMatrix();
+    
+    if(drawRocket){
+      drawRocket(canvas);
+    }
 
   }
 
@@ -1250,5 +1258,22 @@ class Map3D extends BaseMap implements Map {
     viewport.apply(projection);
     viewport.apply(modelview);
     return viewport;
+  }
+  void enableRocket(PVector pos, PVector vel){
+    drawRocket = true;
+    rocketPosition = pos;
+    rocketVelocity = vel;
+  }
+  
+  void disableRocket(){
+    drawRocket = false;
+  }
+  
+  void drawRocket(PGraphics canvas){
+    canvas.lights();
+    canvas.pushMatrix();
+    canvas.translate((rocketPosition.x+0.5)*blockSize, (rocketPosition.y+0.5)*blockSize, rocketPosition.z*blockSize+16+groundMaxHeightAt(int(rocketPosition.x), int(rocketPosition.y)));
+    canvas.shape(buildingObjs.get("Rocket Factory")[2]);
+    canvas.popMatrix();
   }
 }
