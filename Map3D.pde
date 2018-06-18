@@ -350,40 +350,43 @@ class Map3D extends BaseMap implements Map {
           tempSingleRow.setTexture(tempTerrain);
           tempSingleRow.beginShape(TRIANGLE_STRIP);
           
-          // Add replacement cell for quarry site
-          PShape quarrySite = loadShape("quarry_site.obj");
-          float quarryheight = groundMinHeightAt(x, y);
-          quarrySite.rotateX(PI/2);
-          quarrySite.translate((x+0.5)*blockSize, (y+0.5)*blockSize, quarryheight);
-          quarrySite.setTexture(loadImage("hill.png"));
-          tempRow.addChild(quarrySite);
-          
-          // Create sides for quarry site
-          float smallStripSize = blockSize/jsManager.loadFloatSetting("terrain detail");
-          float terrainDetail = jsManager.loadFloatSetting("terrain detail");
-          PShape sides = createShape();
-          sides.setFill(color(120));
-          sides.beginShape(QUAD_STRIP);
-          for (int i=0; i<terrainDetail; i++){
-            sides.vertex(x*blockSize+i*smallStripSize+blockSize/16, y*blockSize+blockSize/16, quarryheight);
-            sides.vertex(x*blockSize+i*smallStripSize, y*blockSize, getHeight(x+i/terrainDetail, y));
+          if (y1 == 0){
+            // Add replacement cell for quarry site
+            PShape quarrySite = loadShape("quarry_site.obj");
+            float quarryheight = groundMinHeightAt(x, y);
+            quarrySite.rotateX(PI/2);
+            quarrySite.translate((x+0.5)*blockSize, (y+0.5)*blockSize, quarryheight);
+            quarrySite.setTexture(loadImage("hill.png"));
+            tempRow.addChild(quarrySite);
+            
+            // Create sides for quarry site
+            float smallStripSize = blockSize/jsManager.loadFloatSetting("terrain detail");
+            float terrainDetail = jsManager.loadFloatSetting("terrain detail");
+            PShape sides = createShape();
+            sides.setFill(color(120));
+            sides.beginShape(QUAD_STRIP);
+            sides.fill(color(120));
+            for (int i=0; i<terrainDetail; i++){
+              sides.vertex(x*blockSize+i*smallStripSize+blockSize/16, y*blockSize+blockSize/16, quarryheight);
+              sides.vertex(x*blockSize+i*smallStripSize, y*blockSize, getHeight(x+i/terrainDetail, y));
+            }
+            for (int i=0; i<terrainDetail; i++){
+              sides.vertex((x+1)*blockSize-blockSize/16, y*blockSize+i*smallStripSize+blockSize/16, quarryheight);
+              sides.vertex((x+1)*blockSize, y*blockSize+i*smallStripSize, getHeight(x+1, y+i/terrainDetail));
+            }
+            for (int i=0; i<terrainDetail; i++){
+              sides.vertex((x+1)*blockSize-i*smallStripSize-blockSize/16, (y+1)*blockSize-blockSize/16, quarryheight);
+              sides.vertex((x+1)*blockSize-i*smallStripSize, (y+1)*blockSize, getHeight(x+1-i/terrainDetail, y+1));
+            }
+            for (int i=0; i<terrainDetail; i++){
+              sides.vertex(x*blockSize+blockSize/16, (y+1)*blockSize-i*smallStripSize-blockSize/16, quarryheight);
+              sides.vertex(x*blockSize, (y+1)*blockSize-i*smallStripSize, getHeight(x, y+1-i/terrainDetail));
+            }
+            sides.vertex(x*blockSize+blockSize/16, y*blockSize+blockSize/16, quarryheight);
+            sides.vertex(x*blockSize, y*blockSize, getHeight(x, y));
+            sides.endShape();
+            tempRow.addChild(sides);
           }
-          for (int i=0; i<terrainDetail; i++){
-            sides.vertex((x+1)*blockSize-blockSize/16, y*blockSize+i*smallStripSize+blockSize/16, quarryheight);
-            sides.vertex((x+1)*blockSize, y*blockSize+i*smallStripSize, getHeight(x+1, y+i/terrainDetail));
-          }
-          for (int i=0; i<terrainDetail; i++){
-            sides.vertex((x+1)*blockSize-i*smallStripSize-blockSize/16, (y+1)*blockSize-blockSize/16, quarryheight);
-            sides.vertex((x+1)*blockSize-i*smallStripSize, (y+1)*blockSize, getHeight(x+1-i/terrainDetail, y+1));
-          }
-          for (int i=0; i<terrainDetail; i++){
-            sides.vertex(x*blockSize+blockSize/16, (y+1)*blockSize-i*smallStripSize-blockSize/16, quarryheight);
-            sides.vertex(x*blockSize, (y+1)*blockSize-i*smallStripSize, getHeight(x, y+1-i/terrainDetail));
-          }
-          sides.vertex(x*blockSize+blockSize/16, y*blockSize+blockSize/16, quarryheight);
-          sides.vertex(x*blockSize, y*blockSize, getHeight(x, y));
-          sides.endShape();
-          tempRow.addChild(sides);
         }
         else{
           for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail"); x1++) {

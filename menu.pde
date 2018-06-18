@@ -102,7 +102,6 @@ class Menu extends State{
               break;
             case "ints":
               jsManager.saveSetting(settingChangers.get(id)[0], ((DropDown)getElement(id, event.panel)).getIntVal());
-              println(settingChangers.get(id)[0], ((DropDown)getElement(id, event.panel)).getIntVal());
               break;
             default:
               println("invalid dropdown type", type);
