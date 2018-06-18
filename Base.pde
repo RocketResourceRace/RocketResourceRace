@@ -162,6 +162,8 @@ class State{
             for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button)){
               events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
               if (eventName.equals("stop events")){
+                elementEvent(events);
+                _elementEvent(events);
                 return;
               }
             }
@@ -193,6 +195,8 @@ class State{
             for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button, event)){
               events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
               if (eventName.equals("stop events")){
+                elementEvent(events);
+                _elementEvent(events);
                 return;
               }
             }

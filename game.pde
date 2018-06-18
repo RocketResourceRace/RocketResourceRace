@@ -161,8 +161,23 @@ class Game extends State{
       js = gameData.getJSONArray("resources").getJSONObject(i);
       resourceNames[i] = js.getString("id");
       JSONObject sr = findJSONObject(gameData.getJSONObject("game options").getJSONArray("starting resources"), resourceNames[i]);
-      if (sr != null)
+      if (sr != null){
         startingResources[i] = sr.getFloat("quantity");
+      }
+      
+      // If resource has specified starting resource on menu
+      else if (resourceNames[i].equals("food")){
+        startingResources[i] = jsManager.loadFloatSetting("starting food");
+      }
+      else if (resourceNames[i].equals("wood")){
+        startingResources[i] = jsManager.loadFloatSetting("starting wood");
+      }
+      else if (resourceNames[i].equals("stone")){
+        startingResources[i] = jsManager.loadFloatSetting("starting stone");
+      }
+      else if (resourceNames[i].equals("metal")){
+        startingResources[i] = jsManager.loadFloatSetting("starting metal");
+      }
     }
   }
 
@@ -1647,6 +1662,7 @@ class Game extends State{
     return new ArrayList<String>();
   }
   void enterState(){
+    initialiseResources();
     reloadGame();
   }
 

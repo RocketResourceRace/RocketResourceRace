@@ -209,6 +209,7 @@ class DropDown extends Element{
           toggleExpanded();
         }
         else{
+          print(1);
           events.add("valueChanged");
           selected = hovering;
           contract();
