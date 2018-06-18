@@ -124,7 +124,7 @@
           "h": 3,
           "text": "Max Party Size",
           "setting": "party size",
-          "lower": 50,
+          "lower": 100,
           "upper": 300,
           "step": 25,
           "minor": 10,
