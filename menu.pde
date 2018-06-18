@@ -77,6 +77,7 @@ class Menu extends State{
   
   void enterState(){
     loadMenuPanels(); // Refresh menu
+    newPanel = "startup";
   }
   
   void saveMenuSetting(String id, Event event){
