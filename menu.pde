@@ -75,6 +75,10 @@ class Menu extends State{
     activePanel = newPanel;
   }
   
+  void enterState(){
+    loadMenuPanels(); // Refresh menu
+  }
+  
   void saveMenuSetting(String id, Event event){
     if (settingChangers.get(id) != null){
       String type = jsManager.getElementType(event.panel, id);
