@@ -315,6 +315,11 @@ class BaseMap extends Element{
         if(type!=-1){
           buildings[y][x] = new Building(type, image_id);
         }
+        if(!versionCheckInt){
+          if(type==9){
+            terrain[y][x] = terrainIndex("quarry site");
+          }
+        }
       }
     }
     for (int y=0; y<mapHeight; y++){
