@@ -178,6 +178,9 @@ Party loadParty(ByteBuffer b){
   return p;
 }
 
+int SAVEVERSION = 1;
+
+
 class BaseMap extends Element{
   float[] heightMap;
   int mapWidth, mapHeight;
@@ -203,11 +206,13 @@ class BaseMap extends Element{
       }
     }
     int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+3*Integer.BYTES+1)*players.length;
-    ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*8+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount+playersByteCount+Float.BYTES);
+    ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*10+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount+playersByteCount+Float.BYTES);
+    buffer.putInt(-SAVEVERSION);
     buffer.putInt(mapWidth);
     buffer.putInt(mapHeight);
     buffer.putInt(partiesByteCount);
     buffer.putInt(playersByteCount);
+    buffer.putInt(jsManager.loadIntSetting("party size"));
     buffer.putInt(players.length);
     buffer.putInt(players[0].resources.length);
     buffer.putInt(turnNumber);
@@ -259,19 +264,36 @@ class BaseMap extends Element{
     saveBytes(filename, buffer.array());
   }
   MapSave loadMap(String filename, int resourceCountNew){
+    boolean versionCheckInt = false;
     byte tempBuffer[] = loadBytes(filename);
-    int headerSize = Integer.BYTES*4;
+    int headerSize = Integer.BYTES*5;
+    int versionSpecificData = 0;
     ByteBuffer headerBuffer = ByteBuffer.allocate(headerSize);
     headerBuffer.put(Arrays.copyOfRange(tempBuffer, 0, headerSize));
     headerBuffer.flip();//need flip
-    mapWidth = headerBuffer.getInt();
+    int versionCheck = -headerBuffer.getInt();
+    if(versionCheck>0){
+      versionCheckInt = true;
+      mapWidth = headerBuffer.getInt();
+      versionSpecificData += Integer.BYTES;
+    } else {
+      mapWidth = -versionCheck;
+      jsManager.saveSetting("party size", 1000);
+    }
     mapHeight = headerBuffer.getInt();
     int partiesByteCount = headerBuffer.getInt();
     int playersByteCount = headerBuffer.getInt();
-    int dataSize = Long.BYTES+partiesByteCount+playersByteCount+(4+mapWidth*mapHeight*3)*Integer.BYTES+Float.BYTES;
+    int dataSize = Long.BYTES+partiesByteCount+playersByteCount+(4+mapWidth*mapHeight*3)*Integer.BYTES+Float.BYTES+versionSpecificData;
     ByteBuffer buffer = ByteBuffer.allocate(dataSize);
-    buffer.put(Arrays.copyOfRange(tempBuffer, headerSize, headerSize+dataSize));
+    if(versionCheckInt){
+      buffer.put(Arrays.copyOfRange(tempBuffer, headerSize, headerSize+dataSize));
+    } else {
+      buffer.put(Arrays.copyOfRange(tempBuffer, headerSize-Integer.BYTES, headerSize-Integer.BYTES+dataSize));
+    }
     buffer.flip();//need flip
+    if(versionCheckInt){
+      jsManager.saveSetting("party size", buffer.getInt());
+    }
     int playerCount = buffer.getInt();
     int resourceCountOld = buffer.getInt();
     int turnNumber = buffer.getInt();
@@ -292,6 +314,11 @@ class BaseMap extends Element{
         int image_id = buffer.getInt();
         if(type!=-1){
           buildings[y][x] = new Building(type, image_id);
+        }
+        if(!versionCheckInt){
+          if(type==9){
+            terrain[y][x] = terrainIndex("quarry site");
+          }
         }
       }
     }
