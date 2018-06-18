@@ -528,7 +528,7 @@
     },
     {
       "id": "energy",
-      "resource manager": 2
+      "resource manager": 0
     },
     {
       "id": "concrete",

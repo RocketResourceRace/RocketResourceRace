@@ -158,6 +158,7 @@ class DropDown extends Element{
     }
     panelCanvas.rect(x, y, w, h);
     panelCanvas.textAlign(LEFT, TOP);
+    panelCanvas.textFont(getFont((min(h*0.8, 10))*jsManager.loadFloatSetting("text scale")));
     panelCanvas.fill(color(0));
     panelCanvas.text(String.format("%s: %s", name, options[selected]), x+3, y);
     

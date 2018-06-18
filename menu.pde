@@ -177,6 +177,11 @@ class Menu extends State{
         else if (event.id.equals("reset default map settings")){
           jsManager.saveDefault("hills height");
           jsManager.saveDefault("water level");
+          jsManager.saveDefault("map size");
+          jsManager.saveDefault("starting food");
+          jsManager.saveDefault("starting wood");
+          jsManager.saveDefault("starting stone");
+          jsManager.saveDefault("starting metal");
           for (Integer i=1; i<gameData.getJSONArray("terrain").size()+1; i++){
             if (!gameData.getJSONArray("terrain").getJSONObject(i-1).isNull("weighting")){
               jsManager.saveDefault(gameData.getJSONArray("terrain").getJSONObject(i-1).getString("id")+" weighting");
