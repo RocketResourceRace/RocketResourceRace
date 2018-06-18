@@ -1013,17 +1013,17 @@ class Map2D extends BaseMap implements Map{
                  panelCanvas.fill(120, 120, 120);
                  panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), max(0, min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y, blockSize/16+c.y-yPos)));
                }
-               if (c.x+blockSize*parties[y][x].getUnitNumber()/1000>xPos){
+               if (c.x+blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size")>xPos){
                  panelCanvas.fill(playerColours[battle.party1.player]);
-                 panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), max(0, min(blockSize*battle.party1.getUnitNumber()/1000, xPos+elementWidth-c.x, blockSize*battle.party1.getUnitNumber()/1000+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y, blockSize/16+c.y-yPos)));
+                 panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), max(0, min(blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size"), xPos+elementWidth-c.x, blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size")+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y, blockSize/16+c.y-yPos)));
                }
                if (c.x+blockSize>xPos){
                  panelCanvas.fill(120, 120, 120);
                  panelCanvas.rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/16+c.y-yPos)));
                }
-               if (c.x+blockSize*parties[y][x].getUnitNumber()/1000>xPos){
+               if (c.x+blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size")>xPos){
                  panelCanvas.fill(playerColours[battle.party2.player]);
-                 panelCanvas.rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize*battle.party2.getUnitNumber()/1000, xPos+elementWidth-c.x, blockSize*battle.party2.getUnitNumber()/1000+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/8+c.y-yPos)));
+                 panelCanvas.rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size"), xPos+elementWidth-c.x, blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size")+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/8+c.y-yPos)));
                }
 
              } else {
@@ -1031,9 +1031,9 @@ class Map2D extends BaseMap implements Map{
                  panelCanvas.fill(120, 120, 120);
                  panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
                }
-               if (c.x+blockSize*parties[y][x].getUnitNumber()/1000>xPos){
+               if (c.x+blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size")>xPos){
                  panelCanvas.fill(playerColours[parties[y][x].player]);
-                 panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize*parties[y][x].getUnitNumber()/1000, xPos+elementWidth-c.x, blockSize*parties[y][x].getUnitNumber()/1000+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
+                 panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size"), xPos+elementWidth-c.x, blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size")+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
                }
              }
              int imgSize = round(blockSize);

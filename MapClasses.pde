@@ -134,10 +134,10 @@ class Party{
     return unitNumber;
   }
   void setUnitNumber(int newUnitNumber){
-    unitNumber = (int)between(0, newUnitNumber, 1000);
+    unitNumber = (int)between(0, newUnitNumber, jsManager.loadIntSetting("party size"));
   }
   int changeUnitNumber(int changeInUnitNumber){
-    int overflow = max(0, changeInUnitNumber+unitNumber-1000);
+    int overflow = max(0, changeInUnitNumber+unitNumber-jsManager.loadIntSetting("party size"));
     this.setUnitNumber(unitNumber+changeInUnitNumber);
     return overflow;
   }
@@ -184,11 +184,11 @@ class Battle extends Party{
   }
   int changeUnitNumber(int turn, int changeInUnitNumber){
     if(turn==this.party1.player){
-      int overflow = max(0, changeInUnitNumber+party1.getUnitNumber()-1000);
+      int overflow = max(0, changeInUnitNumber+party1.getUnitNumber()-jsManager.loadIntSetting("party size"));
       this.party1.setUnitNumber(party1.getUnitNumber()+changeInUnitNumber);
       return overflow;
     } else {
-      int overflow = max(0, changeInUnitNumber+party2.getUnitNumber()-1000);
+      int overflow = max(0, changeInUnitNumber+party2.getUnitNumber()-jsManager.loadIntSetting("party size"));
       this.party2.setUnitNumber(party2.getUnitNumber()+changeInUnitNumber);
       return overflow;
     }
