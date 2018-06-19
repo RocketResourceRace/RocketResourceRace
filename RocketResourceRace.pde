@@ -252,12 +252,12 @@ void draw(){
     states.get(newState).enterState();
     activeState = newState;
   }
-  textFont(getFont(10));
-  textAlign(LEFT, TOP);
-  fill(255,0,0);
-  text(frameRate, 0, 0);
-
-
+  if(jsManager.loadBooleanSetting("show fps")){
+    textFont(getFont(10));
+    textAlign(LEFT, TOP);
+    fill(255,0,0);
+    text(frameRate, 0, 0);
+  }
 }
 
 State getActiveState(){
