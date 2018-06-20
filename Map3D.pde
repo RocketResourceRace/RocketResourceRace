@@ -176,14 +176,18 @@ class Map3D extends BaseMap implements Map {
     // For the shape that indicateds where a party can move
     float smallSize = blockSize / jsManager.loadFloatSetting("terrain detail");
     drawPossibleMoves = createShape();
-    drawPossibleMoves.beginShape(QUADS);
+    drawPossibleMoves.beginShape(TRIANGLES);
     drawPossibleMoves.fill(0, 0, 0, 120);
+    drawPossibleMoves.stroke(0);
     for (int x=0; x<mapWidth; x++){
       for (int y=0; y<mapHeight; y++){
         if (moveNodes[y][x] != null && moveNodes[y][x].cost <= parties[selectedCellY][selectedCellX].getMovementPoints()){
           for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++){
             for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++){
               drawPossibleMoves.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+              drawPossibleMoves.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+              drawPossibleMoves.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+              
               drawPossibleMoves.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
               drawPossibleMoves.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
               drawPossibleMoves.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
@@ -337,6 +341,9 @@ class Map3D extends BaseMap implements Map {
       tempSingleRow.setTexture(tempTerrain);
       tempSingleRow.beginShape(TRIANGLE_STRIP);
       resetMatrix();
+      if (jsManager.loadBooleanSetting("tile stroke")){
+        tempSingleRow.stroke(0);
+      }
       tempSingleRow.vertex(0, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, 0, 0, y1*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
       tempSingleRow.vertex(0, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, 0, 0, (y1+1)*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
       for (int x=0; x<mapWidth; x++) {
