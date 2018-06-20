@@ -12,6 +12,7 @@ import java.util.Date;
 
 // Create logger for this pde
 final Logger LOGGER = Logger.getLogger("RocketResourceRace");
+final Level FILELOGLEVEL = Level.INFO;
 
 String activeState;
 HashMap<String, State> states;
@@ -235,9 +236,9 @@ void setup(){
   try{
     FileHandler handler = new FileHandler(sketchPath("log.log"));
     handler.setFormatter(new LoggerFormatter());
-    handler.setLevel(Level.FINEST);
+    handler.setLevel(FILELOGLEVEL);
     LOGGER.addHandler(handler);
-    LOGGER.setLevel(Level.FINEST);
+    LOGGER.setLevel(FILELOGLEVEL);
       
     fonts = new HashMap<Integer, PFont>();
     gameData = loadJSONObject("data.json");
