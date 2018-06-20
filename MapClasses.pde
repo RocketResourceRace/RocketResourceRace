@@ -2,6 +2,7 @@
 
 
 class Building{
+  private final Logger LOGGER = Logger.getLogger("MapClasses.Building");
   int type;
   int image_id;
   Building(int type){
@@ -19,6 +20,7 @@ class Building{
 
 
 class Party{
+  private final Logger LOGGER = Logger.getLogger("MapClasses.Party");
   private int unitNumber;
   private int movementPoints;
   int player;
@@ -150,6 +152,7 @@ class Party{
 }
 
 class Battle extends Party{
+  private final Logger LOGGER = Logger.getLogger("MapClasses.Battle");
   Party party1;
   Party party2;
   Battle(Party attacker, Party defender){
@@ -240,6 +243,7 @@ int getBattleUnitChange(Party p1, Party p2){
 
 
 class Player{
+  private final Logger LOGGER = Logger.getLogger("MapClasses.Player");
   float mapXOffset, mapYOffset, blockSize;
   float[] resources;
   int cellX, cellY, colour;
@@ -275,6 +279,7 @@ class Player{
 
 
 class Node{
+  private final Logger LOGGER = Logger.getLogger("MapClasses.Node");
   int cost;
   boolean fixed;
   int prevX = -1, prevY = -1;
@@ -294,6 +299,7 @@ class Node{
 
 
 class MapSave{
+  private final Logger LOGGER = Logger.getLogger("MapClasses.MapSave");
   float[] heightMap;
   int mapWidth, mapHeight;
   int[][] terrain;
@@ -316,6 +322,7 @@ class MapSave{
 }
 
 class BattleEstimateManager{
+  private final Logger LOGGER = Logger.getLogger("MapClasses.BattleEstimateManager");
   int currentWins = 0;
   int currentTrials = 0;
   int attackerX;

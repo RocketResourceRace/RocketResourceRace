@@ -1,6 +1,7 @@
 
 
 class JSONManager{
+  private final Logger LOGGER = Logger.getLogger("JSONManager.JSONManager");
   JSONObject menu, gameData, settings;
   
   JSONManager(){

@@ -182,6 +182,7 @@ int SAVEVERSION = 1;
 
 
 class BaseMap extends Element{
+  private final Logger LOGGER = Logger.getLogger("Map2D.BaseMap");
   float[] heightMap;
   int mapWidth, mapHeight;
   long heightMapSeed;
@@ -459,6 +460,7 @@ class BaseMap extends Element{
     //  }
     //}
     class TempTerrainDetail implements Comparable<TempTerrainDetail>{
+      private final Logger LOGGER = Logger.getLogger("Map2D.TempTerrainDetail");
       int x;
       int y;
       float noiseValue;
@@ -667,6 +669,7 @@ class BaseMap extends Element{
 }
 
 class Map2D extends BaseMap implements Map{
+  private final Logger LOGGER = Logger.getLogger("Map2D.Map2D");
   final int EW, EH, INITIALHOLD=1000;
   float blockSize, targetBlockSize;
   float mapXOffset, mapYOffset, targetXOffset, targetYOffset, panningSpeed, resetTime;

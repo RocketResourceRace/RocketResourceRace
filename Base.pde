@@ -339,6 +339,7 @@ class Panel{
 
 
 class Element{
+  private final Logger LOGGER = Logger.getLogger("Base.Element");
   boolean active = true;
   boolean visible = true;
   int x, y, w, h, xOffset, yOffset;
