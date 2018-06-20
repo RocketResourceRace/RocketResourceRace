@@ -138,6 +138,7 @@ class DropDown extends Element{
   
   void setOptions(String[] options){
     this.options = options;
+    LOGGER.finer("Options changed to: " + options);
   }
   
   void setValue(String value){
@@ -147,7 +148,7 @@ class DropDown extends Element{
         return;
       }
     }
-    println("Invalid value", value);
+    LOGGER.warning("Invalid value, "+ value);
   }
   
   void draw(PGraphics panelCanvas){
@@ -215,7 +216,6 @@ class DropDown extends Element{
           toggleExpanded();
         }
         else{
-          print(1);
           events.add("valueChanged");
           selected = hovering;
           contract();
@@ -260,15 +260,39 @@ class DropDown extends Element{
   }
   
   int getIntVal(){
-    return Integer.parseInt(options[selected]);
+    try{
+      int val = Integer.parseInt(options[selected]);
+      LOGGER.finer("Value of dropdown "+ val);
+    return val;
+    }
+    catch(IndexOutOfBoundsException e){
+      LOGGER.severe("Selected option is out of bounds of dropbox " + selected);
+      return -1;
+    }
   }
   
   String getStrVal(){
-    return options[selected];
+    try{
+      String val = options[selected];
+      LOGGER.finer("Value of dropdown "+ val);
+      return val;
+    }
+    catch(IndexOutOfBoundsException e){
+      LOGGER.severe("Selected option is out of bounds of dropbox " + selected);
+      return "";
+    }
   }
   
   float getFloatVal(){
-    return Float.parseFloat(options[selected]);
+    try{
+      float val = Float.parseFloat(options[selected]);
+      LOGGER.finer("Value of dropdown "+ val);
+      return val;
+    }
+    catch(IndexOutOfBoundsException e){
+      LOGGER.severe("Selected option is out of bounds of dropbox " + selected);
+      return -1;
+    }
   }
   
   boolean moveOver(){
@@ -321,6 +345,7 @@ class Tickbox extends Element{
     return val;
   }
   void setState(boolean state){
+    LOGGER.finer("Tickbox state changed to: "+ state);
     val = state;
   }
   
@@ -357,24 +382,33 @@ class Tooltip extends Element{
   }
   
   void show(){
+    LOGGER.finest("Tooltip visiblity on");
     visible = true;
   }
   void hide(){
+    LOGGER.finest("Tooltip visiblity off");
     visible = false;
   }
   
   ArrayList<String> getLines(String s){
-    int j = 0;
-    ArrayList<String> lines = new ArrayList<String>();
-    for (int i=0; i<s.length(); i++){
-      if(s.charAt(i) == '\n'){
-        lines.add(s.substring(j, i));
-        j=i+1;
+    try{
+      int j = 0;
+      ArrayList<String> lines = new ArrayList<String>();
+      for (int i=0; i<s.length(); i++){
+        if(s.charAt(i) == '\n'){
+          lines.add(s.substring(j, i));
+          j=i+1;
+        }
       }
+      lines.add(s.substring(j, s.length()));
+      return lines;
     }
-    lines.add(s.substring(j, s.length()));
-    return lines;
+    catch (Exception e){
+      LOGGER.log(Level.SEVERE, "Error occured getting lines of tooltip", e);
+      return null;
+    }
   }
+  
   float maxWidthLine(ArrayList<String> lines){
     float ml = 0;
     for (int i=0; i<lines.size(); i++){
@@ -386,6 +420,7 @@ class Tooltip extends Element{
   }
   void setText(String text){
     this.text = text;
+    LOGGER.info("Tooltip text changed to: " + text);
   }
   //String resourcesList(float[] resources){
   //  String returnString = "";
@@ -404,28 +439,39 @@ class Tooltip extends Element{
   //}
   String getResourceList(JSONArray resArray){
     String returnString = "";
-    for (int i=0; i<resArray.size(); i++){
-      JSONObject jo = resArray.getJSONObject(i);
-      returnString += String.format("  %s %s\n", roundDp(""+jo.getFloat("quantity"),2), jo.getString("id"));
+    try{
+      for (int i=0; i<resArray.size(); i++){
+        JSONObject jo = resArray.getJSONObject(i);
+        returnString += String.format("  %s %s\n", roundDp(""+jo.getFloat("quantity"),2), jo.getString("id"));
+      }
+    }
+    catch (Exception e){
+      LOGGER.log(Level.SEVERE, "Error getting resource list", e);
     }
     return returnString;
   }
   String getResourceList(JSONArray resArray, float[] availableResources){
     // Colouring for insufficient resources
     String returnString = "";
-    for (int i=0; i<resArray.size(); i++){
-      JSONObject jo = resArray.getJSONObject(i);
-      if (availableResources[jsManager.getResIndex(jo.getString("id"))] >= jo.getFloat("quantity")){ // Check if has enough resources
-        returnString += String.format("  %s %s\n", roundDp(""+jo.getFloat("quantity"),2), jo.getString("id"));
+    try{
+      for (int i=0; i<resArray.size(); i++){
+        JSONObject jo = resArray.getJSONObject(i);
+        if (availableResources[jsManager.getResIndex(jo.getString("id"))] >= jo.getFloat("quantity")){ // Check if has enough resources
+          returnString += String.format("  %s %s\n", roundDp(""+jo.getFloat("quantity"),2), jo.getString("id"));
+        }
+        else{
+          returnString += String.format("  <i>%s</i> %s\n", roundDp(""+jo.getFloat("quantity"),2), jo.getString("id"));
+        }
       }
-      else{
-        returnString += String.format("  <i>%s</i> %s\n", roundDp(""+jo.getFloat("quantity"),2), jo.getString("id"));
-      }
+    }
+    catch (Exception e){
+      LOGGER.log(Level.SEVERE, "Error getting resource list", e);
     }
     return returnString;
   }
   
   void setMoving(int turns, boolean splitting, int cost, boolean is3D){
+    LOGGER.fine("Setting tooltip to moving");
     attacking = false;
     //Tooltip text if moving. Turns is the number of turns in move
     JSONObject jo = gameData.getJSONObject("tooltips");
@@ -445,79 +491,94 @@ class Tooltip extends Element{
     setText(t);
   }
   void setAttacking(BigDecimal chance){
+    LOGGER.fine("Setting tooltip to attacking");
     attacking = true;
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(String.format(jo.getString("attacking"), chance.toString()));
   }
   void setTurnsRemaining(){
+    LOGGER.fine("Setting tooltip to turns remaining");
     attacking = false;
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(jo.getString("turns remaining"));
   }
   void setMoveButton(){
+    LOGGER.fine("Setting tooltip to move button");
     attacking = false;
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(jo.getString("move button"));
   }
   void setMerging(){
+    LOGGER.fine("Setting tooltip to merging");
     attacking = false;
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(jo.getString("merging"));
   }
   void setTask(String task, float[] availibleResources, int movementPoints){
-    attacking = false;
-    JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task);
-    String t="";
-    if (!jo.isNull("description")){
-      t += jo.getString("description")+"\n\n";
-    }
-    if (!jo.isNull("initial cost")){
-      t += String.format("Initial Resource Cost:\n%s\n", getResourceList(jo.getJSONArray("initial cost"), availibleResources));
-    }
-    if(!jo.isNull("movement points")){
-      if (movementPoints >= jo.getInt("movement points")){
-        t += String.format("Movement Points: %d\n",jo.getInt("movement points"));
+    LOGGER.fine("Setting tooltip to set task");
+    try{
+      attacking = false;
+      JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task);
+      String t="";
+      if (!jo.isNull("description")){
+        t += jo.getString("description")+"\n\n";
       }
-      else{
-        t += String.format("Movement Points: <i>%d</i>\n",jo.getInt("movement points"));
+      if (!jo.isNull("initial cost")){
+        t += String.format("Initial Resource Cost:\n%s\n", getResourceList(jo.getJSONArray("initial cost"), availibleResources));
       }
+      if(!jo.isNull("movement points")){
+        if (movementPoints >= jo.getInt("movement points")){
+          t += String.format("Movement Points: %d\n",jo.getInt("movement points"));
+        }
+        else{
+          t += String.format("Movement Points: <i>%d</i>\n",jo.getInt("movement points"));
+        }
+      }
+      if (!jo.isNull("action")){
+        t += String.format("Turns: %d\n", jo.getJSONObject("action").getInt("turns"));
+      }
+      if (t.length()>2 && (t.charAt(t.length()-1)!='\n' || t.charAt(t.length()-2)!='\n'))
+        t += "\n";
+      if (!jo.isNull("production")){
+        t += "Production/Turn/Unit:\n"+getResourceList(jo.getJSONArray("production"));
+      }
+      if (!jo.isNull("consumption")){
+        t += "Consumption/Turn/Unit:\n"+getResourceList(jo.getJSONArray("consumption"));
+      }
+      //Strip
+      setText(t.replaceAll("\\s+$", ""));
     }
-    if (!jo.isNull("action")){
-      t += String.format("Turns: %d\n", jo.getJSONObject("action").getInt("turns"));
+    catch (Exception e){
+      LOGGER.log(Level.WARNING, "Error changing tooltip to task", e);
     }
-    if (t.length()>2 && (t.charAt(t.length()-1)!='\n' || t.charAt(t.length()-2)!='\n'))
-      t += "\n";
-    if (!jo.isNull("production")){
-      t += "Production/Turn/Unit:\n"+getResourceList(jo.getJSONArray("production"));
-    }
-    if (!jo.isNull("consumption")){
-      t += "Consumption/Turn/Unit:\n"+getResourceList(jo.getJSONArray("consumption"));
-    }
-    //Strip
-    setText(t.replaceAll("\\s+$", ""));
   }
   
   void drawColouredLine(PGraphics canvas, String line, float startX, float startY){
     int start=0, end=0;
     float tw=0;
     boolean coloured = false;
-    while(end != line.length()){
-      start = end;
-      if (coloured){
-        canvas.fill(255, 0, 0);
-        end = line.indexOf("</i>", end);
-      }
-      else{
-        canvas.fill(0);
-        end = line.indexOf("<i>", end);
-      }
-      if (end == -1){ // indexOf returns -1 when not found
-        end = line.length();
-      }
-      canvas.text(line.substring(start, end).replace("<i>", "").replace("</i>", ""), startX+tw, startY);
-      tw += canvas.textWidth(line.substring(start, end).replace("<i>", "").replace("</i>", ""));
-      coloured = !coloured;
-    };
+    try{
+      while(end != line.length()){
+        start = end;
+        if (coloured){
+          canvas.fill(255, 0, 0);
+          end = line.indexOf("</i>", end);
+        }
+        else{
+          canvas.fill(0);
+          end = line.indexOf("<i>", end);
+        }
+        if (end == -1){ // indexOf returns -1 when not found
+          end = line.length();
+        }
+        canvas.text(line.substring(start, end).replace("<i>", "").replace("</i>", ""), startX+tw, startY);
+        tw += canvas.textWidth(line.substring(start, end).replace("<i>", "").replace("</i>", ""));
+        coloured = !coloured;
+      };
+    }
+    catch (IndexOutOfBoundsException e){
+      LOGGER.log(Level.SEVERE, "Invalid index used drawing line", e);
+    }
   }
   
   void draw(PGraphics panelCanvas){
@@ -574,9 +635,11 @@ class NotificationManager extends Element{
   boolean moveOver(){
     return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
   }
+  
   boolean mouseOver(int i){
     return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y+notHeight*i+topOffset && mouseY-yOffset <= y+notHeight*(i+1)+topOffset;
   }
+  
   int findMouseOver(){
     if (!moveOver()){
       return -1;
@@ -596,25 +659,50 @@ class NotificationManager extends Element{
     this.turn = turn;
     this.scroll = 0;
   }
+  
   void dismiss(int i){
-    notifications.get(turn).remove(i);
-    scroll = round(between(0, scroll, notifications.get(turn).size()-displayNots));
+    LOGGER.fine("Dismissing notification at index: "+i);
+    try{
+      notifications.get(turn).remove(i);
+      scroll = round(between(0, scroll, notifications.get(turn).size()-displayNots));
+    }
+    catch (Exception e){
+      LOGGER.log(Level.SEVERE, "Error dismissing notification", e);
+    }
   }
+  
   void dismissAll(){
     // Dismisses all notification for the current player
+    LOGGER.fine("Dismissing all notifications");
     notifications.get(turn).clear();
   }
+  
   void reset(){
     // Clears all notificaitions for all players
+    LOGGER.fine("Dismissing notifications for all players");
     notifications.clear();
     notifications.add(new ArrayList<Notification>());
     notifications.add(new ArrayList<Notification>());
   }
+  
   void post(Notification n, int turn){
-    notifications.get(turn).add(0, n);
+    try{
+      LOGGER.fine("Posting notification: "+n.name);
+      notifications.get(turn).add(0, n);
+    }
+    catch (Exception e){
+      LOGGER.log(Level.WARNING, "Failed to post notification", e);
+    }
   }
+  
   void post(String name, int x, int y, int turnNum, int turn){
-    notifications.get(turn).add(0, new Notification(name, x, y, turnNum));
+    try{
+      LOGGER.fine("Posting notification: "+name);
+      notifications.get(turn).add(0, new Notification(name, x, y, turnNum));
+    }
+    catch (Exception e){
+      LOGGER.log(Level.WARNING, "Failed to post notification", e);
+    }
   }
   
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
@@ -631,6 +719,7 @@ class NotificationManager extends Element{
     }
     return events;
   }
+  
   ArrayList<String> mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
     if (eventType == "mousePressed"){
@@ -668,6 +757,7 @@ class NotificationManager extends Element{
   }
   
   boolean empty(){
+    LOGGER.finer("Emptying");
     return notifications.get(turn).size() == 0;
   }
   
@@ -768,12 +858,14 @@ class TextBox extends Element{
   
   void setText(String text){
     this.text = text;
+    LOGGER.finer("Text set to: " + text);
   }
   
   void updateWidth(PGraphics panelCanvas){
     if (autoSizing){
       this.w = ceil(panelCanvas.textWidth(text))+10;
     }
+    LOGGER.finest("Width changed to: " + w);
   }
   
   String getText(){
@@ -825,22 +917,41 @@ class ResourceSummary extends Element{
   }
   
   void updateStockpile(float[] v){
-    stockPile = v;
+    try{
+      stockPile = v;
+      LOGGER.finest("Stockpile update: " + v);
+    }
+    catch(Exception e){
+      LOGGER.log(Level.WARNING, "Error updating stockpile", e);
+    }
   }
   void updateNet(float[] v){
-    net = v;
+    try{
+      LOGGER.finest("Net update: " + v);
+      net = v;
+    }
+    catch(Exception e){
+      LOGGER.log(Level.WARNING, "Error updating net", e);
+    }
   }
   void toggleExpand(){
     expanded = !expanded;
+    LOGGER.finest("Expanded changed to: " + expanded);
   }
   String prefix(String v){
-    float i = Float.parseFloat(v);
-    if (i >= 1000000)
-      return (new BigDecimal(v).divide(new BigDecimal("1000000"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString()+"M";
-    else if(i >= 1000)
-      return (new BigDecimal(v).divide(new BigDecimal("1000"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString()+"K";
-      
-    return (new BigDecimal(v).divide(new BigDecimal("1"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
+    try{
+      float i = Float.parseFloat(v);
+      if (i >= 1000000)
+        return (new BigDecimal(v).divide(new BigDecimal("1000000"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString()+"M";
+      else if(i >= 1000)
+        return (new BigDecimal(v).divide(new BigDecimal("1000"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString()+"K";
+        
+      return (new BigDecimal(v).divide(new BigDecimal("1"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
+    }
+    catch (Exception e){
+      LOGGER.log(Level.WARNING, "Error creating prefix", e);
+      return "";
+    }
   }
   
   String getResString(int i){
@@ -955,12 +1066,15 @@ class TaskManager extends Element{
     taskMActive = true;
   }
   void setOptions(ArrayList<String> options){
+    LOGGER.finer("Options changed");
     this.options = options;
   }
   void addOption(String option){
+    LOGGER.finer("Option added: " + option);
     this.options.add(option);
   }
   void removeOption(String option){
+    LOGGER.finer("Option removed: " + option);
     for (int i=0; i <options.size(); i++){
       if (option.equals(options.get(i))){
         options.remove(i);
@@ -968,44 +1082,60 @@ class TaskManager extends Element{
     }
   }
   void removeAllOptions(){
+    LOGGER.finer("Options all removed");
     this.options.clear();
   }
   void resetAvailable(){
+    LOGGER.finer("Available Options all removed");
     this.availableOptions.clear();
   }
   void resetAvailableButOverBudget(){
+    LOGGER.finer("Available But Over Budget Options all removed");
     this.availableButOverBudgetOptions.clear();
   }
   String getSelected(){
     return options.get(availableOptions.get(0));
   }
   void makeAvailable(String option){
-    for (int i=0; i<availableOptions.size(); i++){
-      if (options.get(availableOptions.get(i)).equals(option)){
-        return;
+    try{
+      LOGGER.finer("Making option availalbe: " + option);
+      for (int i=0; i<availableOptions.size(); i++){
+        if (options.get(availableOptions.get(i)).equals(option)){
+          return;
+        }
+      }
+      for (int i=0; i<options.size(); i++){
+        if (options.get(i).equals(option)){
+          this.availableOptions.add(i);
+          return;
+        }
       }
     }
-    for (int i=0; i<options.size(); i++){
-      if (options.get(i).equals(option)){
-        this.availableOptions.add(i);
-        return;
-      }
+    catch (Exception e){
+      LOGGER.log(Level.WARNING, "Error making task available", e);
     }
   }
   void makeAvailableButOverBudget(String option){
-    for (int i=0; i<availableButOverBudgetOptions.size(); i++){
-      if (options.get(availableButOverBudgetOptions.get(i)).equals(option)){
-        return;
+    try{
+      LOGGER.finer("Making option availalbe buyt over buject: " + option);
+      for (int i=0; i<availableButOverBudgetOptions.size(); i++){
+        if (options.get(availableButOverBudgetOptions.get(i)).equals(option)){
+          return;
+        }
+      }
+      for (int i=0; i<options.size(); i++){
+        if (options.get(i).equals(option)){
+          this.availableButOverBudgetOptions.add(i);
+          return;
+        }
       }
     }
-    for (int i=0; i<options.size(); i++){
-      if (options.get(i).equals(option)){
-        this.availableButOverBudgetOptions.add(i);
-        return;
-      }
+    catch (Exception e){
+      LOGGER.log(Level.WARNING, "Error making task available", e);
     }
   }
   void makeUnavailableButOverBudget(String option){
+    LOGGER.finer("Making unavilablae but over over buject");
     for (int i=0; i<options.size(); i++){
       if (options.get(i).equals(option)){
         this.availableButOverBudgetOptions.remove(i);
@@ -1014,6 +1144,7 @@ class TaskManager extends Element{
     }
   }
   void makeUnavailable(String option){
+    LOGGER.finer("Making unavailable");
     for (int i=0; i<options.size(); i++){
       if (options.get(i).equals(option)){
         this.availableOptions.remove(i);
@@ -1022,6 +1153,7 @@ class TaskManager extends Element{
     }
   }
   void selectAt(int j){
+    LOGGER.finer("Selecting based on position, " + j);
     if (j < availableOptions.size()){
       int temp = availableOptions.get(0);
       availableOptions.set(0, availableOptions.get(j));
@@ -1029,11 +1161,13 @@ class TaskManager extends Element{
     }
   }
   void select(String s){
+    LOGGER.finer("Selecting based on string"+s);
     for (int j=0; j<availableOptions.size(); j++){
       if (options.get(availableOptions.get(j)).equals(s)){
         selectAt(j);
       }
     }
+    LOGGER.warning("String for selection not found");
   }
   int getH(PGraphics panelCanvas){
     textFont(getFont(textSize*jsManager.loadFloatSetting("text scale")));
@@ -1098,16 +1232,26 @@ class TaskManager extends Element{
   }
   
   String findMouseOver(){
-    int j;
-    for (j=0; j<availableOptions.size(); j++){
-      if (mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y+h*j && mouseY-yOffset <= y+h*(j+1))
-        return options.get(availableOptions.get(j));
+    try{
+      int j;
+      for (j=0; j<availableOptions.size(); j++){
+        if (mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y+h*j && mouseY-yOffset <= y+h*(j+1)){
+          LOGGER.fine("Mouse over option: " + options.get(availableOptions.get(j)));
+          return options.get(availableOptions.get(j));
+        }
+      }
+      for (; j<availableButOverBudgetOptions.size()+availableOptions.size(); j++){
+        if (mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y+h*j && mouseY-yOffset <= y+h*(j+1)){
+          LOGGER.fine("Mouse over option: " + options.get(availableOptions.get(j)));
+          return options.get(availableButOverBudgetOptions.get(j-availableOptions.size()));
+        }
+      }
+      return "";
     }
-    for (; j<availableButOverBudgetOptions.size()+availableOptions.size(); j++){
-      if (mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y+h*j && mouseY-yOffset <= y+h*(j+1))
-        return options.get(availableButOverBudgetOptions.get(j-availableOptions.size()));
+    catch (Exception e){
+      LOGGER.log(Level.WARNING, "Error finding mouse over option", e);
+      return "";
     }
-    return "";
   }
   
   boolean moveOver(){
@@ -1157,10 +1301,12 @@ class Button extends Element{
     cy = y+h/2;
   }
   void setText(String text){
+    LOGGER.finer("Setting text to: " + text);
     this.text = text;
     setLines(text);
   }
   void setColour(int colour){
+    LOGGER.finest("Setting colour to: " + colour);
     this.bgColour = colour;
   }
   String getText(){
@@ -1204,16 +1350,21 @@ class Button extends Element{
   }
   
   ArrayList<String> setLines(String s){
-    int j = 0;
+    LOGGER.finer("Setting lines to: " + s);
     lines = new ArrayList<String>();
-    for (int i=0; i<s.length(); i++){
-      if(s.charAt(i) == '\n'){
-        lines.add(s.substring(j, i));
-        j=i+1;
+    try{
+      int j = 0;
+      for (int i=0; i<s.length(); i++){
+        if(s.charAt(i) == '\n'){
+          lines.add(s.substring(j, i));
+          j=i+1;
+        }
       }
+      lines.add(s.substring(j, s.length()));
     }
-    lines.add(s.substring(j, s.length()));
-    
+    catch (Exception e){
+      LOGGER.log(Level.WARNING, "Error setting lines", e);
+    }
     return lines;
   }
   
@@ -1232,7 +1383,12 @@ class Button extends Element{
       if (eventType == "mousePressed"){
         state = "on";
         if(jsManager.loadBooleanSetting("sound on")){
-          sfx.get("click3").play();
+          try{
+            sfx.get("click3").play();
+          }
+          catch(Exception e){
+            LOGGER.log(Level.WARNING, "Error playing sound click 3", e);
+          }
         }
       }
     }
@@ -1309,10 +1465,12 @@ class Slider extends Element{
     this.value = new BigDecimal(""+value);
   }
   void setValue(float value){
+    LOGGER.finer("Setting value to: " + value);
     setValue(new BigDecimal(""+value));
   }
   
   void setValue(BigDecimal value){
+    LOGGER.finer("Setting value to: " + value.toString());
     if (value.compareTo(lower) < 0){
       this.value = lower;
     }
@@ -1351,10 +1509,16 @@ class Slider extends Element{
   }
   
   Boolean mouseOver(){
-    BigDecimal range = upper.subtract(lower);
-    int xKnobPos = round(x+(value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue())-knobSize/2);
-    return (mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h) ||
-    (mouseX-xOffset >= xKnobPos && mouseX-xOffset <= xKnobPos+knobSize && mouseY-yOffset >= y && mouseY-yOffset <= y+h); // Over slider or knob box
+    try{
+      BigDecimal range = upper.subtract(lower);
+      int xKnobPos = round(x+(value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue())-knobSize/2);
+      return (mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h) ||
+      (mouseX-xOffset >= xKnobPos && mouseX-xOffset <= xKnobPos+knobSize && mouseY-yOffset >= y && mouseY-yOffset <= y+h); // Over slider or knob box
+    }
+    catch (Exception e){
+      LOGGER.log(Level.WARNING, "Error finding if mouse over", e);
+      return false;
+    }
   }
   
   BigDecimal getInc(BigDecimal i){
@@ -1501,6 +1665,7 @@ class TextEntry extends Element{
   }
   
   void setText(String t){
+    LOGGER.finest("Changing text to: " + t);
     this.text = new StringBuilder(t);
   }
   String getText(){
@@ -1556,37 +1721,49 @@ class TextEntry extends Element{
   }
   
   int getCursorPos(int mx, int my){
-    int i=0;
-    for(; i<text.length(); i++){
-      textFont(getFont(textSize*jsManager.loadFloatSetting("text scale")));
-      if ((textWidth(text.substring(0, i)) + textWidth(text.substring(0, i+1)))/2 + x > mx)
-        break;
+    try{
+      int i=0;
+      for(; i<text.length(); i++){
+        textFont(getFont(textSize*jsManager.loadFloatSetting("text scale")));
+        if ((textWidth(text.substring(0, i)) + textWidth(text.substring(0, i+1)))/2 + x > mx)
+          break;
+      }
+      if (0 <= i && i <= text.length() && y+(h-textSize*jsManager.loadFloatSetting("text scale"))/2<= my && my <= y+(h-textSize*jsManager.loadFloatSetting("text scale"))/2+textSize*jsManager.loadFloatSetting("text scale")){
+        return i;
+      }
+      return cursor;
     }
-    if (0 <= i && i <= text.length() && y+(h-textSize*jsManager.loadFloatSetting("text scale"))/2<= my && my <= y+(h-textSize*jsManager.loadFloatSetting("text scale"))/2+textSize*jsManager.loadFloatSetting("text scale")){
-      return i;
+    catch (Exception e){
+      LOGGER.log(Level.WARNING, "Error getting cursor position", e);
+      return cursor;
     }
-    return cursor;
   }
   
   void doubleSelectWord(){
-    if (!(y <= mouseY-yOffset && mouseY-yOffset <= y+h)){
-      return;
-    }
-    int c = getCursorPos(mouseX-xOffset, mouseY-yOffset);
-    int i;
-    for (i=min(c, text.length()-1); i>0; i--){
-      if (text.charAt(i) == ' '){
-        i++;
-        break;
+    try{
+      if (!(y <= mouseY-yOffset && mouseY-yOffset <= y+h)){
+        return;
       }
-    }
-    cursor = (int)between(0, i, text.length());
-    for (i=c; i<text.length(); i++){
-      if (text.charAt(i) == ' '){
-        break;
+      int c = getCursorPos(mouseX-xOffset, mouseY-yOffset);
+      int i;
+      for (i=min(c, text.length()-1); i>0; i--){
+        if (text.charAt(i) == ' '){
+          i++;
+          break;
+        }
       }
+      cursor = (int)between(0, i, text.length());
+      for (i=c; i<text.length(); i++){
+        if (text.charAt(i) == ' '){
+          break;
+        }
+      }
+      LOGGER.finer("Setting selected characetr to: " + i);
+      selected = i;
     }
-    selected = i;
+    catch (Exception e){
+      LOGGER.log(Level.WARNING, "Error double selecting word", e);
+    }
   }
   
   ArrayList<String> mouseEvent(String eventType, int button){
@@ -1706,6 +1883,7 @@ class ToggleButton extends Element{
     return on;
   }
   void setState(boolean state){
+    LOGGER.finest("Setting state to: " + state);
     on = state;
   }
   void draw(PGraphics panelCanvas){

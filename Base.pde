@@ -152,6 +152,9 @@ class State{
  
   void _elementEvent(ArrayList<Event> events){
     for (Event event : events){
+      if (LOGGER.isLoggable(Level.FINEST)){
+        LOGGER.finest(String.format("Element event ID: %s, Panel:%s, Type:%s", event.id, event.panel, event.type));
+      }
       if (event.type.equals("element to top")){
         elementToTop(event.id, event.panel);
       }
