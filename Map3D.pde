@@ -20,7 +20,6 @@
 
 
 class Map3D extends BaseMap implements Map {
-  private final Logger LOGGER = Logger.getLogger("Map3D.BaseMap");
   final int thickness = 10;
   final float PANSPEED = 0.5, ROTSPEED = 0.002;
   final float STUMPR = 1, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3;

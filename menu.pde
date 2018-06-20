@@ -2,7 +2,6 @@
 
 
 class Menu extends State{
-  private final Logger LOGGER = Logger.getLogger("menu.Menu");
   PImage BGimg;
   PShape bg;
   String currentPanel, newPanel;

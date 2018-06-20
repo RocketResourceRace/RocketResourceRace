@@ -18,7 +18,6 @@ int buildingIndex(String building){
 
 
 class Game extends State{
-  private final Logger LOGGER = Logger.getLogger("game.Game");
   final int buttonW = 120;
   final int buttonH = 50;
   final int bezel = 10;

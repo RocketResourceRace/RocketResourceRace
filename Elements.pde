@@ -2,7 +2,6 @@
 
 class BaseFileManager extends Element{
   // Basic file manager that scans a folder and makes a selectable list for all the files
-  private final Logger LOGGER = Logger.getLogger("Elements.BaseFileManager");
   final int TEXTSIZE = 14;
   String folderString;
   String[] saveNames;
@@ -114,7 +113,6 @@ class BaseFileManager extends Element{
 
 
 class DropDown extends Element{
-  private final Logger LOGGER = Logger.getLogger("Elements.DropDown");
   String[] options;  // Either strings or floats
   int selected, bgColour;
   String name, optionTypes;
@@ -286,7 +284,6 @@ class DropDown extends Element{
 
 
 class Tickbox extends Element{
-  private final Logger LOGGER = Logger.getLogger("Elements.Tickbox");
   boolean val;
   String name;
   
@@ -344,7 +341,6 @@ class Tickbox extends Element{
 }
 
 class Tooltip extends Element{
-  private final Logger LOGGER = Logger.getLogger("Elements.Tooltip");
   boolean visible;
   String text;
   boolean attacking;
@@ -546,7 +542,6 @@ class Tooltip extends Element{
 }
 
 class NotificationManager extends Element{
-  private final Logger LOGGER = Logger.getLogger("Elements.NotificationManager");
   ArrayList<ArrayList<Notification>> notifications;
   int bgColour, textColour, displayNots, notHeight, topOffset, scroll, turn;
   Notification lastSelected;
@@ -745,7 +740,6 @@ class NotificationManager extends Element{
 
 
 class TextBox extends Element{
-  private final Logger LOGGER = Logger.getLogger("Elements.TextBox");
   int textSize, bgColour, textColour;
   String text;
   boolean autoSizing;
@@ -803,7 +797,6 @@ class TextBox extends Element{
 
 
 class ResourceSummary extends Element{
-  private final Logger LOGGER = Logger.getLogger("Elements.ResourceSummmary");
   float[] stockPile, net;
   String[] resNames;
   int numRes, scroll;
@@ -929,7 +922,6 @@ class ResourceSummary extends Element{
 
 
 class TaskManager extends Element{
-  private final Logger LOGGER = Logger.getLogger("Elements.TaskManager");
   ArrayList<String> options;
   ArrayList<Integer> availableOptions;
   ArrayList<Integer> availableButOverBudgetOptions;
@@ -1125,7 +1117,6 @@ class TaskManager extends Element{
 
 
 class Button extends Element{
-  private final Logger LOGGER = Logger.getLogger("Elements.Button");
   private int x, y, w, h, cx, cy, textSize, textAlign;
   private color bgColour, strokeColour, textColour;
   private String state, text;
@@ -1255,7 +1246,6 @@ class Button extends Element{
 
 
 class Slider extends Element{
-  private final Logger LOGGER = Logger.getLogger("Elements.Slider");
   private int x, y, w, h, cx, cy, major, minor, lw, lx;
   private int padding = 20;
   private BigDecimal value, step, upper, lower;
@@ -1421,7 +1411,6 @@ class Slider extends Element{
 
 
 class Text extends Element{
-  private final Logger LOGGER = Logger.getLogger("Text.BaseFileManager");
   int x, y, size, colour, align;
   PFont font;
   String text;
@@ -1466,7 +1455,6 @@ class Text extends Element{
 
 
 class TextEntry extends Element{
-  private final Logger LOGGER = Logger.getLogger("Elements.TextEntry");
   StringBuilder text;
   int x, y, w, h, textSize, textAlign, cursor, selected;
   color textColour, boxColour, borderColour, selectionColour;
@@ -1681,7 +1669,6 @@ class TextEntry extends Element{
 
 
 class ToggleButton extends Element{
-  private final Logger LOGGER = Logger.getLogger("Elements.ToggleButton");
   color bgColour, strokeColour;
   String name;
   boolean on;
