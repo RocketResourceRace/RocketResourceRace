@@ -530,7 +530,7 @@ class Game extends State{
                   buildings[y][x] = new Building(buildingIndex(action.building));
                   if (buildings[y][x].type == buildingIndex("Quarry")){
                     //map.setHeightsForCell(x, y, jsManager.loadFloatSetting("water level"));
-                    terrain[cellY][cellX] = terrainIndex("quarry site");
+                    terrain[y][x] = terrainIndex("quarry site");
                     map.replaceMapStripWithReloadedStrip(y);
                   }
                 }
