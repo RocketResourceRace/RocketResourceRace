@@ -1,6 +1,5 @@
 
 class State{
-  private final Logger LOGGER = Logger.getLogger("Base.State");
   ArrayList<Panel> panels;
   String newState, activePanel;
 

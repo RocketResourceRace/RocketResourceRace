@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 // Create logger for this pde
-final Logger LOGGER_MAIN = Logger.getLogger("RocketResourceRace");
+final Logger LOGGER = Logger.getLogger("RocketResourceRace");
 
 String activeState;
 HashMap<String, State> states;
@@ -56,7 +56,7 @@ int JSONIndex(JSONArray j, String id){
       return i;
     }
   }
-  LOGGER_MAIN.warning(String.format("Invalid JSON index '%s'", id));
+  LOGGER.warning(String.format("Invalid JSON index '%s'", id));
   return -1;
 }
 
@@ -66,7 +66,7 @@ JSONObject findJSONObject(JSONArray j, String id){
       return j.getJSONObject(i);
     }
   }
-  LOGGER_MAIN.warning(String.format("Invalid JSON Object id %s", id));
+  LOGGER.warning(String.format("Invalid JSON Object id %s", id));
   return null;
 }
 
@@ -82,7 +82,7 @@ boolean JSONContainsStr(JSONArray j, String id){
     return false;
   }
   catch(Exception e){
-    LOGGER_MAIN.log(Level.SEVERE, String.format("Error finding string in JSON array, '%s'", id), e);
+    LOGGER.log(Level.SEVERE, String.format("Error finding string in JSON array, '%s'", id), e);
     return false;
   }
 }
@@ -121,7 +121,7 @@ void setVolume(){
     }
   }
   catch (Exception e){
-    LOGGER_MAIN.log(Level.SEVERE, "Something wrong with setting volume", e);
+    LOGGER.log(Level.SEVERE, "Something wrong with setting volume", e);
   }
 }
 
@@ -160,7 +160,7 @@ void loadSounds(){
     }
   }
   catch (Exception e){
-    LOGGER_MAIN.log(Level.SEVERE, "Something wrong with loading sounds", e);
+    LOGGER.log(Level.SEVERE, "Something wrong with loading sounds", e);
   }
 }
 
@@ -197,7 +197,7 @@ void loadImages(){
   }
   
   catch (Exception e){
-    LOGGER_MAIN.log(Level.SEVERE, "Something wrong with loading images", e);
+    LOGGER.log(Level.SEVERE, "Something wrong with loading images", e);
   }
 }
 
@@ -213,7 +213,7 @@ PFont getFont(float size){
     }
   }
   catch (Exception e){
-    LOGGER_MAIN.log(Level.SEVERE, "Something wrong with loading font", e);
+    LOGGER.log(Level.SEVERE, "Something wrong with loading font", e);
     return null;
   }
 }
@@ -236,8 +236,8 @@ void setup(){
     FileHandler handler = new FileHandler(sketchPath("log.log"));
     handler.setFormatter(new LoggerFormatter());
     handler.setLevel(Level.FINEST);
-    LOGGER_MAIN.addHandler(handler);
-    LOGGER_MAIN.setLevel(Level.FINEST);
+    LOGGER.addHandler(handler);
+    LOGGER.setLevel(Level.FINEST);
       
     fonts = new HashMap<Integer, PFont>();
     gameData = loadJSONObject("data.json");
@@ -268,7 +268,7 @@ void setup(){
   }
   
   catch (Exception e){
-    LOGGER_MAIN.log(Level.SEVERE, "Uncaught exception occured during setup", e);
+    LOGGER.log(Level.SEVERE, "Uncaught exception occured during setup", e);
     exit();
   }
 }
@@ -298,7 +298,7 @@ void draw(){
   }
   
   catch (Exception e){
-    LOGGER_MAIN.log(Level.SEVERE, "Uncaught exception occured during draw", e);
+    LOGGER.log(Level.SEVERE, "Uncaught exception occured during draw", e);
     exit();
   }
 }
@@ -306,7 +306,7 @@ void draw(){
 State getActiveState(){
   State state = states.get(activeState);
   if (state == null){
-    LOGGER_MAIN.severe("State not found "+activeState);
+    LOGGER.severe("State not found "+activeState);
   }
   return state;
 }
