@@ -417,8 +417,10 @@ class Tooltip extends Element{
     return ml;
   }
   void setText(String text){
+    if (text != this.text){
+      LOGGER.fine("Tooltip text changing to: " + text);
+    }
     this.text = text;
-    LOGGER.info("Tooltip text changed to: " + text);
   }
   //String resourcesList(float[] resources){
   //  String returnString = "";

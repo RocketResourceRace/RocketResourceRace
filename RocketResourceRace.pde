@@ -234,11 +234,16 @@ void setup(){
 
   fullScreen(P3D);
   try{
+    // Set up logger
     FileHandler handler = new FileHandler(sketchPath("log.log"));
     handler.setFormatter(new LoggerFormatter());
     handler.setLevel(FILELOGLEVEL);
     LOGGER.addHandler(handler);
     LOGGER.setLevel(FILELOGLEVEL);
+    //if (LOGGER.getHandlers()[0].getName() == "")
+    Logger.getLogger("global").setLevel(Level.WARNING);
+    //LOGGER.setUseParentHandlers(false);
+      
       
     fonts = new HashMap<Integer, PFont>();
     gameData = loadJSONObject("data.json");
