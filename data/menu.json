@@ -509,5 +509,6 @@
     {"id": "starting wood", "value": 300, "type": "int"},
     {"id": "starting stone", "value": 0, "type": "int"},
     {"id": "starting metal", "value": 0, "type": "int"},
+    {"id": "tile stroke", "value": false, "type": "boolean"},
   ]
 }
