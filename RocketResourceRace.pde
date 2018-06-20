@@ -240,8 +240,8 @@ void setup(){
     handler.setLevel(FILELOGLEVEL);
     LOGGER.addHandler(handler);
     LOGGER.setLevel(FILELOGLEVEL);
-    //if (LOGGER.getHandlers()[0].getName() == "")
-    Logger.getLogger("global").setLevel(Level.WARNING);
+    //Logger.getLogger("global").setLevel(Level.WARNING);
+    //Logger.getLogger("").setLevel(Level.WARNING);
     //LOGGER.setUseParentHandlers(false);
       
       
