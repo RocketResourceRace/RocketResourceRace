@@ -235,7 +235,9 @@ void setup(){
   try{
     FileHandler handler = new FileHandler(sketchPath("log.log"));
     handler.setFormatter(new LoggerFormatter());
+    handler.setLevel(Level.FINEST);
     LOGGER_MAIN.addHandler(handler);
+    LOGGER_MAIN.setLevel(Level.FINEST);
       
     fonts = new HashMap<Integer, PFont>();
     gameData = loadJSONObject("data.json");

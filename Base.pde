@@ -12,6 +12,7 @@ class State{
   }
 
   String getNewState(){
+    // Once called, newState is cleared, so only for use state management code
     String t = newState;
     newState = "";
     return t;
@@ -22,7 +23,7 @@ class State{
     return getNewState();
   }
   void enterState(){
-
+    
   }
   void leaveState(){
 
@@ -31,31 +32,37 @@ class State{
     for (Panel panel:panels){
       panel.visible = false;
     }
+    LOGGER.finer("Panels hidden");
   }
   
   void resetPanels(){
     panels.clear();
+    LOGGER.finer("Panels cleared");
   }
   
   void addPanel(String id, int x, int y, int w, int h, Boolean visible, Boolean blockEvent, color bgColour, color strokeColour){
     // Adds new panel to front
     panels.add(new Panel(id, x, y, w, h, visible, blockEvent, bgColour, strokeColour));
+    LOGGER.finer("Panel added " + id);
     panelToTop(id);
   }
   void addPanel(String id, int x, int y, int w, int h, Boolean visible, String fileName, color strokeColour){
     // Adds new panel to front
     panels.add(new Panel(id, x, y, w, h, visible, fileName, strokeColour));
+    LOGGER.finer("Panel added " + id);
     panelToTop(id);
   }
   void addElement(String id, Element elem){
     elem.setID(id);
     getPanel("default").elements.add(elem);
     elem.setOffset(getPanel("default").x, getPanel("default").y);
+    LOGGER.finer("Element added " + id);
   }
   void addElement(String id, Element elem, String panel){
     elem.setID(id);
     getPanel(panel).elements.add(elem);
     elem.setOffset(getPanel(panel).x, getPanel(panel).y);
+    LOGGER.finer("Elements added " + id);
   }
 
   Element getElement(String id, String panel){
@@ -64,15 +71,17 @@ class State{
         return  elem;
       }
     }
-    println(String.format("Element not found %s panel:%s", id, panel));
+    LOGGER.warning(String.format("Element not found %s panel:%s", id, panel));
     return null;
   }
 
   void removeElement(String elementID, String panelID){
     getPanel(panelID).elements.remove(elementID);
+    LOGGER.finer("Elements removed " + elementID);
   }
   void removePanel(String id){
     panels.remove(findPanel(id));
+    LOGGER.finer("Panels removed " + id);
   }
 
   void panelToTop(String id){
@@ -81,6 +90,7 @@ class State{
       panels.set(i, panels.get(i-1));
     }
     panels.set(0, tempPanel);
+    LOGGER.finest("Panel sent to top " + id);
   }
   
   void elementToTop(String id, String panelID){
@@ -95,6 +105,7 @@ class State{
       }
     }
     getPanel(panelID).elements.set(getPanel(panelID).elements.size()-1, tempElem);
+    LOGGER.finest("Element sent to top " + id);
   }
 
   void printPanels(){
@@ -110,11 +121,15 @@ class State{
         return i;
       }
     }
-    print("invalid panel, ", id);
+    LOGGER.warning("Invalid panel " + id);
     return -1;
   }
   Panel getPanel(String id){
-    return panels.get(findPanel(id));
+    Panel p = panels.get(findPanel(id));
+    if (p == null){
+      LOGGER.warning("Invalid panel " + id);
+    }
+    return p;
   }
 
   void drawPanels(){
@@ -277,9 +292,11 @@ class Panel{
     for (Element elem : elements){
       elem.setOffset(x, y);
     }
+    LOGGER.finest("Offset changed");
   }
   void setColour(color c){
     bgColour = c;
+    LOGGER.finest("Colour changed");
   }
 
   void setVisible(boolean a){
@@ -287,6 +304,7 @@ class Panel{
     for (Element elem:elements){
       elem.mouseEvent("mouseMoved", mouseButton);
     }
+    LOGGER.finest("Visiblity changed to " + a);
   }
   void transform(int x, int y, int w, int h){
     this.x = x;
@@ -294,6 +312,7 @@ class Panel{
     this.w = w;
     this.h = h;
     setOffset();
+    LOGGER.finest("Panel transformed");
   }
 
   void draw(){
@@ -354,14 +373,17 @@ class Element{
     this.y = y;
     this.w = w;
     this.h = h;
+    LOGGER.finest("Transformed");
   }
   void setOffset(int xOffset, int yOffset){
     this.xOffset = xOffset;
     this.yOffset = yOffset;
+    LOGGER.finest("Offset changed");
   }
   
   void setID(String id){
     this.id = id;
+    LOGGER.finest("ID changed to " + id);
   }
   
   ArrayList<String> _mouseEvent(String eventType, int button){
@@ -374,9 +396,11 @@ class Element{
     return keyboardEvent(eventType, _key);
   }
   void activate(){
+    LOGGER.finest("Actived");
     active = true;
   }
   void deactivate(){
+    LOGGER.finest("Deactivated");
     active = false;
   }
 }
