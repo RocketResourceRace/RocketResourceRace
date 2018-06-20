@@ -14,3 +14,4 @@ saves
 *.tmp
 error_log
 data/settings.json
+*.log
