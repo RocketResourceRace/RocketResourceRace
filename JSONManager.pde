@@ -12,14 +12,14 @@ class JSONManager{
         settings = loadJSONObject("settings.json");
       }
       catch (Exception e){
-        println("creating new settings file");
+        LOGGER.info("creating new settings file");
         PrintWriter w = createWriter("settings.json");
         w.print("{}\n");
         w.flush();
         w.close();
-        println("Finished creating new settings file");
+        LOGGER.info("Finished creating new settings file");
         settings = loadJSONObject("settings.json");
-        println("loading settings... ");
+        LOGGER.info("loading settings... ");
         loadDefaultSettings();
       }
       loadInitialSettings();
@@ -173,7 +173,7 @@ class JSONManager{
             saveSetting(setting.getString("id"), setting.getBoolean("value"));
           }
           else{
-            print("invalid setting type");
+            LOGGER.warning("Invalid setting type: "+setting.getString("type"));
           }
         }
       }
@@ -247,7 +247,7 @@ class JSONManager{
           saveSetting(setting.getString("id"), setting.getBoolean("value"));
         }
         else{
-          println("invalid setting type", setting.getString("type"));
+          LOGGER.warning("Invalid setting type: "+ setting.getString("type"));
         }
       }
     }
@@ -521,7 +521,7 @@ class JSONManager{
             state.addElement(id, dd, panelID);
             break;
           default:
-            println("invalid element type:", type);
+            LOGGER.warning("Invalid element type: "+ type);
             break;
         }
       }

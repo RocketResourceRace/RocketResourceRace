@@ -240,7 +240,7 @@ class DropDown extends Element{
         return;
       }
     }
-    print("invalid selected:", s);
+    LOGGER.warning("Invalid selected");
   }
   
   void contract(){
