@@ -178,7 +178,7 @@ class Map3D extends BaseMap implements Map {
     drawPossibleMoves = createShape();
     drawPossibleMoves.beginShape(TRIANGLES);
     drawPossibleMoves.fill(0, 0, 0, 120);
-    drawPossibleMoves.stroke(0);
+    //drawPossibleMoves.stroke(0);
     for (int x=0; x<mapWidth; x++){
       for (int y=0; y<mapHeight; y++){
         if (moveNodes[y][x] != null && moveNodes[y][x].cost <= parties[selectedCellY][selectedCellX].getMovementPoints()){
