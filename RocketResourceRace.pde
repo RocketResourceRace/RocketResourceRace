@@ -12,7 +12,7 @@ import java.util.Date;
 
 // Create logger for this pde
 final Logger LOGGER = Logger.getLogger("RocketResourceRace");
-final Level FILELOGLEVEL = Level.INFO;
+final Level FILELOGLEVEL = Level.FINEST;
 
 String activeState;
 HashMap<String, State> states;

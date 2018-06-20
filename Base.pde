@@ -294,7 +294,6 @@ class Panel{
     for (Element elem : elements){
       elem.setOffset(x, y);
     }
-    LOGGER.finest("Offset changed");
   }
   void setColour(color c){
     bgColour = c;
@@ -379,12 +378,10 @@ class Element{
   void setOffset(int xOffset, int yOffset){
     this.xOffset = xOffset;
     this.yOffset = yOffset;
-    LOGGER.finest("Offset changed");
   }
   
   void setID(String id){
     this.id = id;
-    LOGGER.finest("ID changed to " + id);
   }
   
   ArrayList<String> _mouseEvent(String eventType, int button){

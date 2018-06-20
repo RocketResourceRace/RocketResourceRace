@@ -382,11 +382,9 @@ class Tooltip extends Element{
   }
   
   void show(){
-    LOGGER.finest("Tooltip visiblity on");
     visible = true;
   }
   void hide(){
-    LOGGER.finest("Tooltip visiblity off");
     visible = false;
   }
   
@@ -757,7 +755,6 @@ class NotificationManager extends Element{
   }
   
   boolean empty(){
-    LOGGER.finer("Emptying");
     return notifications.get(turn).size() == 0;
   }
   
@@ -865,7 +862,6 @@ class TextBox extends Element{
     if (autoSizing){
       this.w = ceil(panelCanvas.textWidth(text))+10;
     }
-    LOGGER.finest("Width changed to: " + w);
   }
   
   String getText(){
