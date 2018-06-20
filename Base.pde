@@ -1,5 +1,6 @@
 
 class State{
+  private final Logger LOGGER = Logger.getLogger("RocketResourceRace.State");
   ArrayList<Panel> panels;
   String newState, activePanel;
 

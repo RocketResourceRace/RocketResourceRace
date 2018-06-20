@@ -4,6 +4,14 @@ import java.util.Arrays;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.Path;
+import java.util.logging.*;
+
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+// Create logger for this pde
+final Logger LOGGER_MAIN = Logger.getLogger("RocketResourceRace");
 
 String activeState;
 HashMap<String, State> states;
@@ -48,7 +56,7 @@ int JSONIndex(JSONArray j, String id){
       return i;
     }
   }
-  println("invalid id,", id);
+  LOGGER_MAIN.warning(String.format("Invalid JSON index '%s'", id));
   return -1;
 }
 
@@ -58,18 +66,25 @@ JSONObject findJSONObject(JSONArray j, String id){
       return j.getJSONObject(i);
     }
   }
+  LOGGER_MAIN.warning(String.format("Invalid JSON Object id %s", id));
   return null;
 }
 
 boolean JSONContainsStr(JSONArray j, String id){
-  if (id == null || j == null)
-    return false;
-  for (int i=0; i<j.size(); i++){
-    if (j.getString(i).equals(id)){
-      return true;
+  try{
+    if (id == null || j == null)
+      return false;
+    for (int i=0; i<j.size(); i++){
+      if (j.getString(i).equals(id)){
+        return true;
+      }
     }
+    return false;
   }
-  return false;
+  catch(Exception e){
+    LOGGER_MAIN.log(Level.SEVERE, String.format("Error finding string in JSON array, '%s'", id), e);
+    return false;
+  }
 }
 
 void doubleClick(){
@@ -100,8 +115,13 @@ void keyboardEvent(String eventType, char _key){
 }
 
 void setVolume(){
-  for (SoundFile fect:sfx.values()){
-    fect.amp(jsManager.loadFloatSetting("volume"));
+  try{
+    for (SoundFile fect:sfx.values()){
+      fect.amp(jsManager.loadFloatSetting("volume"));
+    }
+  }
+  catch (Exception e){
+    LOGGER_MAIN.log(Level.SEVERE, "Something wrong with setting volume", e);
   }
 }
 
@@ -133,9 +153,14 @@ HashMap<String, PImage> lowImages;
 HashMap<String, PImage> tile3DImages;
 
 void loadSounds(){
-  if(jsManager.loadBooleanSetting("sound on")){
-    sfx = new HashMap<String, SoundFile>();
-    sfx.put("click3", new SoundFile(this, "click3.wav"));
+  try{
+    if(jsManager.loadBooleanSetting("sound on")){
+      sfx = new HashMap<String, SoundFile>();
+      sfx.put("click3", new SoundFile(this, "click3.wav"));
+    }
+  }
+  catch (Exception e){
+    LOGGER_MAIN.log(Level.SEVERE, "Something wrong with loading sounds", e);
   }
 }
 
@@ -170,20 +195,26 @@ void loadImages(){
       }
     }
   }
+  
   catch (Exception e){
-    println("Error loading images");
-    println(e);
+    LOGGER_MAIN.log(Level.SEVERE, "Something wrong with loading images", e);
   }
 }
 
 PFont getFont(float size){
-  PFont f=fonts.get(round(size));
-  if (f == null){
-    fonts.put(round(size), createFont("GillSans", size));
-    return fonts.get(round(size));
+  try{
+    PFont f=fonts.get(round(size));
+    if (f == null){
+      fonts.put(round(size), createFont("GillSans", size));
+      return fonts.get(round(size));
+    }
+    else{
+      return f;
+    }
   }
-  else{
-    return f;
+  catch (Exception e){
+    LOGGER_MAIN.log(Level.SEVERE, "Something wrong with loading font", e);
+    return null;
   }
 }
 
@@ -202,6 +233,10 @@ void setup(){
 
   fullScreen(P3D);
   try{
+    FileHandler handler = new FileHandler(sketchPath("log.log"));
+    handler.setFormatter(new LoggerFormatter());
+    LOGGER_MAIN.addHandler(handler);
+      
     fonts = new HashMap<Integer, PFont>();
     gameData = loadJSONObject("data.json");
     jsManager = new JSONManager();
@@ -229,39 +264,49 @@ void setup(){
     toon = loadShader("ToonFrag.glsl", "ToonVert.glsl");
     toon.set("fraction", 1.0);
   }
-  catch(Exception e){
-    PrintWriter pw = createWriter("error_log");
-    pw.println(""+millis()+e);
-    pw.flush();
-    pw.close();
+  
+  catch (Exception e){
+    LOGGER_MAIN.log(Level.SEVERE, "Uncaught exception occured during setup", e);
+    exit();
   }
 }
 boolean smoothed = false;
 
 void draw(){
-  background(255);
-  prevT = millis();
-  String newState = getActiveState().update();
-  if (!newState.equals("")){
-    for (Panel panel : states.get(newState).panels){
-      for (Element elem : panel.elements){
-        elem.mouseEvent("mouseMoved", LEFT);
+  try{
+    background(255);
+    prevT = millis();
+    String newState = getActiveState().update();
+    if (!newState.equals("")){
+      for (Panel panel : states.get(newState).panels){
+        for (Element elem : panel.elements){
+          elem.mouseEvent("mouseMoved", LEFT);
+        }
       }
+      states.get(activeState).leaveState();
+      states.get(newState).enterState();
+      activeState = newState;
     }
-    states.get(activeState).leaveState();
-    states.get(newState).enterState();
-    activeState = newState;
+    if(jsManager.loadBooleanSetting("show fps")){
+      textFont(getFont(10));
+      textAlign(LEFT, TOP);
+      fill(255,0,0);
+      text(frameRate, 0, 0);
+    }
   }
-  if(jsManager.loadBooleanSetting("show fps")){
-    textFont(getFont(10));
-    textAlign(LEFT, TOP);
-    fill(255,0,0);
-    text(frameRate, 0, 0);
+  
+  catch (Exception e){
+    LOGGER_MAIN.log(Level.SEVERE, "Uncaught exception occured during draw", e);
+    exit();
   }
 }
 
 State getActiveState(){
-  return states.get(activeState);
+  State state = states.get(activeState);
+  if (state == null){
+    LOGGER_MAIN.severe("State not found "+activeState);
+  }
+  return state;
 }
 
 void addState(String name, State state){

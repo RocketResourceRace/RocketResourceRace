@@ -1,0 +1,11 @@
+0 | WARNING | Jun 20,2018 17:50 | Invalid JSON Object id food | RocketResourceRace | findJSONObject
+1 | WARNING | Jun 20,2018 17:50 | Invalid JSON Object id wood | RocketResourceRace | findJSONObject
+2 | WARNING | Jun 20,2018 17:50 | Invalid JSON Object id stone | RocketResourceRace | findJSONObject
+3 | WARNING | Jun 20,2018 17:50 | Invalid JSON Object id metal | RocketResourceRace | findJSONObject
+4 | WARNING | Jun 20,2018 17:50 | Invalid JSON Object id energy | RocketResourceRace | findJSONObject
+5 | WARNING | Jun 20,2018 17:50 | Invalid JSON Object id concrete | RocketResourceRace | findJSONObject
+6 | WARNING | Jun 20,2018 17:50 | Invalid JSON Object id cable | RocketResourceRace | findJSONObject
+7 | WARNING | Jun 20,2018 17:50 | Invalid JSON Object id rocket parts | RocketResourceRace | findJSONObject
+8 | WARNING | Jun 20,2018 17:50 | Invalid JSON Object id ore | RocketResourceRace | findJSONObject
+9 | WARNING | Jun 20,2018 17:50 | Invalid JSON Object id rocket progress | RocketResourceRace | findJSONObject
+10 | WARNING | Jun 20,2018 17:50 | Invalid JSON Object id civilians | RocketResourceRace | findJSONObject
