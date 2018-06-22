@@ -51,24 +51,34 @@ class Party{
       this.strength = 1.5;
   }
   void setPathTurns(int v){
+    LOGGER_GAME.finer("Setting path turns to: "+v);
     pathTurns = v;
   }
   void moved(){
+    LOGGER_GAME.finest("Decreasing pathTurns due to party moving");
     pathTurns = max(pathTurns-1, 0);
   }
   int getTask(){
     return task;
   }
   int[] nextNode(){
-    return path.get(0);
+    try{
+      return path.get(0);
+    }
+    catch (IndexOutOfBoundsException e){
+      LOGGER_MAIN.log(Level.SEVERE, "Party run out of nodes", e);
+      return null;
+    }
   }
   void loadPath(ArrayList<int[]> p){
+    LOGGER_GAME.finer("Loading path into party");
     path = p;
   }
   void clearNode(){
     path.remove(0);
   }
   void clearPath(){
+    LOGGER_GAME.finer("Clearing party path");
     path = new ArrayList<int[]>();
     pathTurns=0;
   }
@@ -86,28 +96,37 @@ class Party{
     return ceil(turnsCost/(sqrt(unitNumber)/10));
   }
   Action progressAction(){
-    if (actions.size() == 0){
-      return null;
-    }
-    else if (actions.get(0).turns-sqrt((float)unitNumber)/10 <= 0){
-      return actions.get(0);
-    }
-    else{
-      actions.get(0).turns -= sqrt((float)unitNumber)/10;
-      if (gameData.getJSONArray("tasks").getJSONObject(actions.get(0).type).getString("id").contains("Build")) {
-        if (actions.get(0).turns-sqrt((float)unitNumber)/10 <= 0){
-          return new Action(JSONIndex(gameData.getJSONArray("tasks"), "Construction End"), "Construction End", 0, null, null);
-        } else {
-          return new Action(JSONIndex(gameData.getJSONArray("tasks"), "Construction Mid"), "Construction Mid", 0, null, null);
-        }
+    try{
+      if (actions.size() == 0){
+        return null;
       }
-      return null;
+      LOGGER_GAME.finer("Party action progressing"+actions.get(0).type);
+      if (actions.get(0).turns-sqrt((float)unitNumber)/10 <= 0){
+        return actions.get(0);
+      }
+      else{
+        actions.get(0).turns -= sqrt((float)unitNumber)/10;
+        if (gameData.getJSONArray("tasks").getJSONObject(actions.get(0).type).getString("id").contains("Build")) {
+          if (actions.get(0).turns-sqrt((float)unitNumber)/10 <= 0){
+            return new Action(JSONIndex(gameData.getJSONArray("tasks"), "Construction End"), "Construction End", 0, null, null);
+          } else {
+            return new Action(JSONIndex(gameData.getJSONArray("tasks"), "Construction Mid"), "Construction Mid", 0, null, null);
+          }
+        }
+        return null;
+      }
+    }
+    catch(Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, "Progressing party action failed");
     }
   }
   void clearCurrentAction(){
-    if (actions.size() > 0)
-    actions.remove(0);
-  }void clearActions(){
+    if (actions.size() > 0){
+      LOGGER_GAME.finest("Clearing party current action of type:"+actions.get(0).type);
+      actions.remove(0);
+    }
+  }
+  void clearActions(){
     actions = new ArrayList<Action>();
   }
   int currentAction(){
@@ -195,37 +214,43 @@ class Battle extends Party{
     }
   }
   Party doBattle(){
-    int changeInParty1 = getBattleUnitChange(party1, party2);
-    int changeInParty2 = getBattleUnitChange(party2, party1);
-    party1.strength = 1;
-    party2.strength = 1;
-    int newParty1Size = party1.getUnitNumber()+changeInParty1;
-    int newParty2Size = party2.getUnitNumber()+changeInParty2;
-    int endDifference = newParty1Size-newParty2Size;
-    party1.setUnitNumber(newParty1Size);
-    party2.setUnitNumber(newParty2Size);
-    if (party1.getUnitNumber()==0){
-      if(party2.getUnitNumber()==0){
-        if(endDifference==0){
-          return null;
-        } else if(endDifference>0){
-          party1.setUnitNumber(endDifference);
-          party1.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
-          return party1;
+    try{
+      int changeInParty1 = getBattleUnitChange(party1, party2);
+      int changeInParty2 = getBattleUnitChange(party2, party1);
+      party1.strength = 1;
+      party2.strength = 1;
+      int newParty1Size = party1.getUnitNumber()+changeInParty1;
+      int newParty2Size = party2.getUnitNumber()+changeInParty2;
+      int endDifference = newParty1Size-newParty2Size;
+      party1.setUnitNumber(newParty1Size);
+      party2.setUnitNumber(newParty2Size);
+      if (party1.getUnitNumber()==0){
+        if(party2.getUnitNumber()==0){
+          if(endDifference==0){
+            return null;
+          } else if(endDifference>0){
+            party1.setUnitNumber(endDifference);
+            party1.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
+            return party1;
+          } else {
+            party2.setUnitNumber(-endDifference);
+            party2.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
+            return party2;
+          }
         } else {
-          party2.setUnitNumber(-endDifference);
           party2.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
           return party2;
         }
+      } if(party2.getUnitNumber()==0){
+        party1.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
+        return party1;
       } else {
-        party2.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
-        return party2;
+        return this;
       }
-    } if(party2.getUnitNumber()==0){
-      party1.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
-      return party1;
-    } else {
-      return this;
+    }
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error doing battle", e);
+      return null;
     }
   }
   Battle clone(){
@@ -262,6 +287,7 @@ class Player{
     this.cellSelected = cellSelected;
   }
   void loadSettings(Game g, Map m){
+    LOGGER_MAIN.fine("Loading player camera settings");
     m.loadSettings(mapXOffset, mapYOffset, blockSize);
     if(cellSelected){
       g.selectCell((int)this.cellX, (int)this.cellY, false);
