@@ -251,9 +251,14 @@ class Map3D extends BaseMap implements Map {
     return hoveringY;
   }
   void updateHoveringScale() {
-    PVector mo = MousePosOnObject(mouseX, mouseY);
-    hoveringX = (mo.x)/getObjectWidth()*mapWidth;
-    hoveringY = (mo.y)/getObjectHeight()*mapHeight;
+    try{
+      PVector mo = MousePosOnObject(mouseX, mouseY);
+      hoveringX = (mo.x)/getObjectWidth()*mapWidth;
+      hoveringY = (mo.y)/getObjectHeight()*mapHeight;
+    }
+    catch(Exception e){
+      LOGGER.log(Level.SEVERE, "Error updaing hovering scale", e);
+    }
   }
   
   void doUpdateHoveringScale(){
@@ -264,13 +269,18 @@ class Map3D extends BaseMap implements Map {
     forestTiles.put(cellX+cellY*mapWidth, i);
   }
   void removeTreeTile(int cellX, int cellY) {
-    trees.removeChild(forestTiles.get(cellX+cellY*mapWidth));
-    for (Integer i : forestTiles.keySet()) {
-      if (forestTiles.get(i) > forestTiles.get(cellX+cellY*mapWidth)) {
-        forestTiles.put(i, forestTiles.get(i)-1);
+    try{
+      trees.removeChild(forestTiles.get(cellX+cellY*mapWidth));
+      for (Integer i : forestTiles.keySet()) {
+        if (forestTiles.get(i) > forestTiles.get(cellX+cellY*mapWidth)) {
+          forestTiles.put(i, forestTiles.get(i)-1);
+        }
       }
+      forestTiles.remove(cellX+cellY*mapWidth);
     }
-    forestTiles.remove(cellX+cellY*mapWidth);
+    catch(Exception e){
+      LOGGER.log(Level.SEVERE, "Error removing tree tile", e);
+    }
   }
 
   // void generateWater(int vertices){
@@ -464,13 +474,18 @@ class Map3D extends BaseMap implements Map {
 
   void clearShape() {
     // Use to clear references to large objects when exiting state
-    LOGGER.info("Clearing 3D models");
-    water = null;
-    trees = null;
-    tiles = null;
-    buildingObjs = new HashMap<String, PShape[]>();
-    taskObjs = new HashMap<String, PShape>();
-    forestTiles = new HashMap<Integer, Integer>();
+    try{
+      LOGGER.info("Clearing 3D models");
+      water = null;
+      trees = null;
+      tiles = null;
+      buildingObjs = new HashMap<String, PShape[]>();
+      taskObjs = new HashMap<String, PShape>();
+      forestTiles = new HashMap<Integer, Integer>();
+    }
+    catch(Exception e){
+      LOGGER.log(Level.SEVERE, "Error clearing shape", e);
+    }
   }
 
   void generateShape() {
@@ -996,214 +1011,234 @@ class Map3D extends BaseMap implements Map {
 
 
   void draw(PGraphics panelCanvas) {
-
-    // Update camera position and orientation
-    frameTime = millis()-prevT;
-    prevT = millis();
-    focusedV.x = between(-PANSPEED, focusedV.x, PANSPEED);
-    focusedV.y = between(-PANSPEED, focusedV.y, PANSPEED);
-    rotv = between(-ROTSPEED, rotv, ROTSPEED);
-    tiltv = between(-ROTSPEED, tiltv, ROTSPEED);
-    zoomv = between(-PANSPEED, zoomv, PANSPEED);
-    PVector p = focusedV.copy().rotate(-rot).mult(frameTime*pow(zoom, 0.5)/20);
-    focusedX += p.x;
-    focusedY += p.y;
-    rot += rotv*frameTime;
-    tilt += tiltv*frameTime;
-    zoom += zoomv*frameTime;
     
-
-    if (panning) {
-      focusedX -= (focusedX-targetXOffset)*panningSpeed*frameTime*60/1000;
-      focusedY -= (focusedY-targetYOffset)*panningSpeed*frameTime*60/1000;
-      // Stop panning when very close
-      if (abs(focusedX-targetXOffset) < 1 && abs(focusedY-targetYOffset) < 1) {
-        panning = false;
+    try{
+      // Update camera position and orientation
+      frameTime = millis()-prevT;
+      prevT = millis();
+      focusedV.x = between(-PANSPEED, focusedV.x, PANSPEED);
+      focusedV.y = between(-PANSPEED, focusedV.y, PANSPEED);
+      rotv = between(-ROTSPEED, rotv, ROTSPEED);
+      tiltv = between(-ROTSPEED, tiltv, ROTSPEED);
+      zoomv = between(-PANSPEED, zoomv, PANSPEED);
+      PVector p = focusedV.copy().rotate(-rot).mult(frameTime*pow(zoom, 0.5)/20);
+      focusedX += p.x;
+      focusedY += p.y;
+      rot += rotv*frameTime;
+      tilt += tiltv*frameTime;
+      zoom += zoomv*frameTime;
+      
+  
+      if (panning) {
+        focusedX -= (focusedX-targetXOffset)*panningSpeed*frameTime*60/1000;
+        focusedY -= (focusedY-targetYOffset)*panningSpeed*frameTime*60/1000;
+        // Stop panning when very close
+        if (abs(focusedX-targetXOffset) < 1 && abs(focusedY-targetYOffset) < 1) {
+          panning = false;
+        }
       }
+      else{
+        targetXOffset = focusedX;
+        targetYOffset = focusedY;
+      }
+      
+      // Check camera ok
+      setZoom(zoom);
+      setRot(rot);
+      setTilt(tilt);
+      setFocused(focusedX, focusedY);
+      
+      if (panning || rotv != 0 || zoomv != 0 || tiltv != 0 || updateHoveringScale){ // update hovering scale
+        updateHoveringScale();
+        updateHoveringScale = false;
+      }
+  
+      // update highlight grid if hovering over diffent pos
+      if (!(hoveringX == oldHoveringX && hoveringY == oldHoveringY)) {
+        updateHighlightingGrid(hoveringX, hoveringY, 8, 8);
+        oldHoveringX = hoveringX;
+        oldHoveringY = hoveringY;
+      }
+  
+  
+      pushStyle();
+      hint(ENABLE_DEPTH_TEST);
+  
+      // Render 3D stuff from normal camera view onto refraction canvas for refraction effect in water
+      //refractionCanvas.beginDraw();
+      //refractionCanvas.background(#7ED7FF);
+      //float fov = PI/3.0;
+      //float cameraZ = (height/2.0) / tan(fov/2.0);
+      //applyCamera(refractionCanvas);
+      ////refractionCanvas.perspective(fov, float(width)/float(height), 1, 100);
+      //refractionCanvas.shader(toon);
+      //renderScene(refractionCanvas);
+      //refractionCanvas.resetShader();
+      //refractionCanvas.camera();
+      //refractionCanvas.endDraw();
+  
+      //water.setTexture(refractionCanvas);
+  
+      // Render 3D stuff from normal camera view
+      canvas.beginDraw();
+      canvas.background(#7ED7FF);
+      applyCameraPerspective(canvas);
+      renderWater(canvas);
+      renderScene(canvas);
+      //canvas.box(0, 0, getObjectWidth(), getObjectHeight(), 1, 100);
+      canvas.camera();
+      canvas.endDraw();
+  
+  
+      //Remove all 3D effects for GUI rendering
+      hint(DISABLE_DEPTH_TEST);
+      camera();
+      noLights();
+      resetShader();
+      popStyle();
+  
+      //draw the scene to the screen
+      panelCanvas.image(canvas, 0, 0);
+      //image(refractionCanvas, 0, 0);
     }
-    else{
-      targetXOffset = focusedX;
-      targetYOffset = focusedY;
+    catch(Exception e){
+      LOGGER.log(Level.SEVERE, "Error drawing 3D map", e);
     }
-    
-    // Check camera ok
-    setZoom(zoom);
-    setRot(rot);
-    setTilt(tilt);
-    setFocused(focusedX, focusedY);
-    
-    if (panning || rotv != 0 || zoomv != 0 || tiltv != 0 || updateHoveringScale){ // update hovering scale
-      updateHoveringScale();
-      updateHoveringScale = false;
-    }
-
-    // update highlight grid if hovering over diffent pos
-    if (!(hoveringX == oldHoveringX && hoveringY == oldHoveringY)) {
-      updateHighlightingGrid(hoveringX, hoveringY, 8, 8);
-      oldHoveringX = hoveringX;
-      oldHoveringY = hoveringY;
-    }
-
-
-    pushStyle();
-    hint(ENABLE_DEPTH_TEST);
-
-    // Render 3D stuff from normal camera view onto refraction canvas for refraction effect in water
-    //refractionCanvas.beginDraw();
-    //refractionCanvas.background(#7ED7FF);
-    //float fov = PI/3.0;
-    //float cameraZ = (height/2.0) / tan(fov/2.0);
-    //applyCamera(refractionCanvas);
-    ////refractionCanvas.perspective(fov, float(width)/float(height), 1, 100);
-    //refractionCanvas.shader(toon);
-    //renderScene(refractionCanvas);
-    //refractionCanvas.resetShader();
-    //refractionCanvas.camera();
-    //refractionCanvas.endDraw();
-
-    //water.setTexture(refractionCanvas);
-
-    // Render 3D stuff from normal camera view
-    canvas.beginDraw();
-    canvas.background(#7ED7FF);
-    applyCameraPerspective(canvas);
-    renderWater(canvas);
-    renderScene(canvas);
-    //canvas.box(0, 0, getObjectWidth(), getObjectHeight(), 1, 100);
-    canvas.camera();
-    canvas.endDraw();
-
-
-    //Remove all 3D effects for GUI rendering
-    hint(DISABLE_DEPTH_TEST);
-    camera();
-    noLights();
-    resetShader();
-    popStyle();
-
-    //draw the scene to the screen
-    panelCanvas.image(canvas, 0, 0);
-    //image(refractionCanvas, 0, 0);
   }
 
   void renderWater(PGraphics canvas) {
     //Draw water
-    canvas.pushMatrix();
-    canvas.shape(water);
-    canvas.popMatrix();
+    try{
+      canvas.pushMatrix();
+      canvas.shape(water);
+      canvas.popMatrix();
+    }
+    catch(Exception e){
+      LOGGER.log(Level.SEVERE, "Error rendering water", e);
+    }
   }
 
   void drawPath(PGraphics canvas) {
-    float x0, y0;
-    if (drawPath != null) {
-      canvas.shape(pathLine);
+    try{
+      float x0, y0;
+      if (drawPath != null) {
+        canvas.shape(pathLine);
+      }
+    }
+    catch(Exception e){
+      LOGGER.log(Level.SEVERE, "Error drawing path", e);
     }
   }
 
   void renderScene(PGraphics canvas) {
-
-    canvas.directionalLight(240, 255, 255, 0, -0.1, -1);
-    //canvas.directionalLight(100, 100, 100, 0.1, 1, -1);
-    //canvas.lightSpecular(102, 102, 102);
-    canvas.shape(tiles);
-    canvas.ambientLight(100, 100, 100);
-    canvas.shape(trees);
-
-    canvas.pushMatrix();
-    //noLights();
-    if (cellSelected&&!cinematicMode) {
-      canvas.pushMatrix();
-      canvas.stroke(0);
-      canvas.strokeWeight(3);
-      canvas.noFill();
-      canvas.translate(selectedCellX*blockSize, (selectedCellY)*blockSize, 0);
-      updateSelectionRect(selectedCellX, selectedCellY);
-      canvas.shape(tileRect);
-      canvas.translate(0, 0, groundMinHeightAt(selectedCellX, selectedCellY));
-      canvas.strokeWeight(1);
-      if (parties[selectedCellY][selectedCellX] != null) {
-        canvas.translate(blockSize/2, blockSize/2, 32);
-        canvas.box(blockSize, blockSize, 64);
-      } else {
-        canvas.translate(blockSize/2, blockSize/2, 16);
-        canvas.box(blockSize, blockSize, 32);
-      }
-      canvas.popMatrix();
-    }
-
-    if (0<hoveringX&&hoveringX<mapWidth&&0<hoveringY&&hoveringY<mapHeight && !cinematicMode) {
-      canvas.pushMatrix();
-      drawPath(canvas);
-      canvas.shape(highlightingGrid);
-      canvas.popMatrix();
-    }
     
-    if (moveNodes != null){
-      canvas.shape(drawPossibleMoves);
-    }
-
-    for (int x=0; x<mapWidth; x++) {
-      for (int y=0; y<mapHeight; y++) {
-        if (buildings[y][x] != null) {
-          if (buildingObjs.get(buildingString(buildings[y][x].type)) != null) {
-            canvas.lights();
-            canvas.pushMatrix();
-            if (buildings[y][x].type==buildingIndex("Mine")) {
-              canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMinHeightAt(x, y));
-              canvas.rotateZ(getDownwardAngle(x, y));
-            }
-            else if (buildings[y][x].type==buildingIndex("Quarry")) {
-              canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, groundMinHeightAt(x, y));
-            }
-            else {
-              canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMaxHeightAt(x, y));
-            }
-            canvas.shape(buildingObjs.get(buildingString(buildings[y][x].type))[buildings[y][x].image_id]);
-            canvas.popMatrix();
-          }
+    try{
+      canvas.directionalLight(240, 255, 255, 0, -0.1, -1);
+      //canvas.directionalLight(100, 100, 100, 0.1, 1, -1);
+      //canvas.lightSpecular(102, 102, 102);
+      canvas.shape(tiles);
+      canvas.ambientLight(100, 100, 100);
+      canvas.shape(trees);
+  
+      canvas.pushMatrix();
+      //noLights();
+      if (cellSelected&&!cinematicMode) {
+        canvas.pushMatrix();
+        canvas.stroke(0);
+        canvas.strokeWeight(3);
+        canvas.noFill();
+        canvas.translate(selectedCellX*blockSize, (selectedCellY)*blockSize, 0);
+        updateSelectionRect(selectedCellX, selectedCellY);
+        canvas.shape(tileRect);
+        canvas.translate(0, 0, groundMinHeightAt(selectedCellX, selectedCellY));
+        canvas.strokeWeight(1);
+        if (parties[selectedCellY][selectedCellX] != null) {
+          canvas.translate(blockSize/2, blockSize/2, 32);
+          canvas.box(blockSize, blockSize, 64);
+        } else {
+          canvas.translate(blockSize/2, blockSize/2, 16);
+          canvas.box(blockSize, blockSize, 32);
         }
-        if (parties[y][x] != null) {
-          canvas.noLights();
-          if (parties[y][x].player == 0) {
-            canvas.pushMatrix();
-            canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
-            canvas.shape(blueFlag);
-            canvas.popMatrix();
-          } else if (parties[y][x].player == 1) {
-            canvas.pushMatrix();
-            canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
-            canvas.shape(redFlag);
-            canvas.popMatrix();
-          } else if (parties[y][x].player == 2) {
-            canvas.pushMatrix();
-            canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 12+groundMaxHeightAt(x, y));
-            canvas.shape(battle);
-            canvas.popMatrix();
+        canvas.popMatrix();
+      }
+  
+      if (0<hoveringX&&hoveringX<mapWidth&&0<hoveringY&&hoveringY<mapHeight && !cinematicMode) {
+        canvas.pushMatrix();
+        drawPath(canvas);
+        canvas.shape(highlightingGrid);
+        canvas.popMatrix();
+      }
+      
+      if (moveNodes != null){
+        canvas.shape(drawPossibleMoves);
+      }
+  
+      for (int x=0; x<mapWidth; x++) {
+        for (int y=0; y<mapHeight; y++) {
+          if (buildings[y][x] != null) {
+            if (buildingObjs.get(buildingString(buildings[y][x].type)) != null) {
+              canvas.lights();
+              canvas.pushMatrix();
+              if (buildings[y][x].type==buildingIndex("Mine")) {
+                canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMinHeightAt(x, y));
+                canvas.rotateZ(getDownwardAngle(x, y));
+              }
+              else if (buildings[y][x].type==buildingIndex("Quarry")) {
+                canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, groundMinHeightAt(x, y));
+              }
+              else {
+                canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMaxHeightAt(x, y));
+              }
+              canvas.shape(buildingObjs.get(buildingString(buildings[y][x].type))[buildings[y][x].image_id]);
+              canvas.popMatrix();
+            }
           }
-          
-          if (drawingUnitBars&&!cinematicMode){
-            drawUnitBar(x, y, canvas);
-          }
-          
-          JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].task);
-          if (drawingTaskIcons && jo != null && !jo.isNull("img") && !cinematicMode) {
+          if (parties[y][x] != null) {
             canvas.noLights();
-            canvas.pushMatrix();
-            canvas.translate((x+0.5+sin(rot)*0.125)*blockSize, (y+0.5+cos(rot)*0.125)*blockSize, blockSize*1.7+groundMinHeightAt(x, y));
-            canvas.rotateZ(-this.rot);
-            canvas.translate(-0.125*blockSize, -0.25*blockSize);
-            canvas.rotateX(PI/2-this.tilt);
-            canvas.translate(0, 0, blockSize*0.35);
-            canvas.shape(taskObjs.get(jo.getString("id")));
-            canvas.popMatrix();
+            if (parties[y][x].player == 0) {
+              canvas.pushMatrix();
+              canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
+              canvas.shape(blueFlag);
+              canvas.popMatrix();
+            } else if (parties[y][x].player == 1) {
+              canvas.pushMatrix();
+              canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
+              canvas.shape(redFlag);
+              canvas.popMatrix();
+            } else if (parties[y][x].player == 2) {
+              canvas.pushMatrix();
+              canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 12+groundMaxHeightAt(x, y));
+              canvas.shape(battle);
+              canvas.popMatrix();
+            }
+            
+            if (drawingUnitBars&&!cinematicMode){
+              drawUnitBar(x, y, canvas);
+            }
+            
+            JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].task);
+            if (drawingTaskIcons && jo != null && !jo.isNull("img") && !cinematicMode) {
+              canvas.noLights();
+              canvas.pushMatrix();
+              canvas.translate((x+0.5+sin(rot)*0.125)*blockSize, (y+0.5+cos(rot)*0.125)*blockSize, blockSize*1.7+groundMinHeightAt(x, y));
+              canvas.rotateZ(-this.rot);
+              canvas.translate(-0.125*blockSize, -0.25*blockSize);
+              canvas.rotateX(PI/2-this.tilt);
+              canvas.translate(0, 0, blockSize*0.35);
+              canvas.shape(taskObjs.get(jo.getString("id")));
+              canvas.popMatrix();
+            }
           }
         }
       }
+      canvas.popMatrix();
+      
+      if(drawRocket){
+        drawRocket(canvas);
+      }
     }
-    canvas.popMatrix();
-    
-    if(drawRocket){
-      drawRocket(canvas);
+    catch(Exception e){
+      LOGGER.log(Level.SEVERE, "Error rendering scene", e);
     }
 
   }
@@ -1213,57 +1248,62 @@ class Map3D extends BaseMap implements Map {
   }
   
   void drawUnitBar(int x, int y, PGraphics canvas){
-    if (parties[y][x].player==2){
-      Battle battle = (Battle) parties[y][x];
-      unitNumberObjects[battle.party1.player].setVertex(0, blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
-      unitNumberObjects[battle.party1.player].setVertex(1, blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
-      unitNumberObjects[battle.party1.player].setVertex(2, blockSize, blockSize*0.0625, 0);
-      unitNumberObjects[battle.party1.player].setVertex(3, blockSize, 0, 0);
-      unitNumberObjects[battle.party1.player].setVertex(4, 0, 0, 0);
-      unitNumberObjects[battle.party1.player].setVertex(5, 0, blockSize*0.0625, 0);
-      unitNumberObjects[battle.party1.player].setVertex(6, blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
-      unitNumberObjects[battle.party1.player].setVertex(7, blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
-      unitNumberObjects[battle.party2.player].setVertex(0, blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
-      unitNumberObjects[battle.party2.player].setVertex(1, blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.125, 0);
-      unitNumberObjects[battle.party2.player].setVertex(2, blockSize, blockSize*0.125, 0);
-      unitNumberObjects[battle.party2.player].setVertex(3, blockSize, blockSize*0.0625, 0);
-      unitNumberObjects[battle.party2.player].setVertex(4, 0, blockSize*0.0625, 0);
-      unitNumberObjects[battle.party2.player].setVertex(5, 0, blockSize*0.125, 0);
-      unitNumberObjects[battle.party2.player].setVertex(6, blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.125, 0);
-      unitNumberObjects[battle.party2.player].setVertex(7, blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
-      canvas.noLights();
-      canvas.pushMatrix();
-      canvas.translate((x+0.5+sin(rot)*0.5)*blockSize, (y+0.5+cos(rot)*0.5)*blockSize, blockSize*1.6+groundMinHeightAt(x, y));
-      canvas.rotateZ(-this.rot);
-      canvas.translate(-0.5*blockSize, -0.5*blockSize);
-      canvas.rotateX(PI/2-this.tilt);
-      canvas.shape(unitNumberObjects[battle.party1.player]);
-      canvas.shape(unitNumberObjects[battle.party2.player]);
-      canvas.popMatrix();
+    try{
+      if (parties[y][x].player==2){
+        Battle battle = (Battle) parties[y][x];
+        unitNumberObjects[battle.party1.player].setVertex(0, blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
+        unitNumberObjects[battle.party1.player].setVertex(1, blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
+        unitNumberObjects[battle.party1.player].setVertex(2, blockSize, blockSize*0.0625, 0);
+        unitNumberObjects[battle.party1.player].setVertex(3, blockSize, 0, 0);
+        unitNumberObjects[battle.party1.player].setVertex(4, 0, 0, 0);
+        unitNumberObjects[battle.party1.player].setVertex(5, 0, blockSize*0.0625, 0);
+        unitNumberObjects[battle.party1.player].setVertex(6, blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
+        unitNumberObjects[battle.party1.player].setVertex(7, blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
+        unitNumberObjects[battle.party2.player].setVertex(0, blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
+        unitNumberObjects[battle.party2.player].setVertex(1, blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.125, 0);
+        unitNumberObjects[battle.party2.player].setVertex(2, blockSize, blockSize*0.125, 0);
+        unitNumberObjects[battle.party2.player].setVertex(3, blockSize, blockSize*0.0625, 0);
+        unitNumberObjects[battle.party2.player].setVertex(4, 0, blockSize*0.0625, 0);
+        unitNumberObjects[battle.party2.player].setVertex(5, 0, blockSize*0.125, 0);
+        unitNumberObjects[battle.party2.player].setVertex(6, blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.125, 0);
+        unitNumberObjects[battle.party2.player].setVertex(7, blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
+        canvas.noLights();
+        canvas.pushMatrix();
+        canvas.translate((x+0.5+sin(rot)*0.5)*blockSize, (y+0.5+cos(rot)*0.5)*blockSize, blockSize*1.6+groundMinHeightAt(x, y));
+        canvas.rotateZ(-this.rot);
+        canvas.translate(-0.5*blockSize, -0.5*blockSize);
+        canvas.rotateX(PI/2-this.tilt);
+        canvas.shape(unitNumberObjects[battle.party1.player]);
+        canvas.shape(unitNumberObjects[battle.party2.player]);
+        canvas.popMatrix();
+      }
+      else{
+        canvas.noLights();
+        canvas.pushMatrix();
+        canvas.translate((x+0.5+sin(rot)*0.5)*blockSize, (y+0.5+cos(rot)*0.5)*blockSize, blockSize*1.6+groundMinHeightAt(x, y));
+        canvas.rotateZ(-this.rot);
+        canvas.translate(-0.5*blockSize, -0.5*blockSize);
+        canvas.rotateX(PI/2-this.tilt);
+        unitNumberObjects[parties[y][x].player].setVertex(0, blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
+        unitNumberObjects[parties[y][x].player].setVertex(1, blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.125, 0);
+        unitNumberObjects[parties[y][x].player].setVertex(2, blockSize, blockSize*0.125, 0);
+        unitNumberObjects[parties[y][x].player].setVertex(3, blockSize, 0, 0);
+        unitNumberObjects[parties[y][x].player].setVertex(4, 0, 0, 0);
+        unitNumberObjects[parties[y][x].player].setVertex(5, 0, blockSize*0.125, 0);
+        unitNumberObjects[parties[y][x].player].setVertex(6, blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.125, 0);
+        unitNumberObjects[parties[y][x].player].setVertex(7, blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
+        canvas.shape(unitNumberObjects[parties[y][x].player]);
+        canvas.popMatrix();
+      }
     }
-    else{
-      canvas.noLights();
-      canvas.pushMatrix();
-      canvas.translate((x+0.5+sin(rot)*0.5)*blockSize, (y+0.5+cos(rot)*0.5)*blockSize, blockSize*1.6+groundMinHeightAt(x, y));
-      canvas.rotateZ(-this.rot);
-      canvas.translate(-0.5*blockSize, -0.5*blockSize);
-      canvas.rotateX(PI/2-this.tilt);
-      unitNumberObjects[parties[y][x].player].setVertex(0, blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
-      unitNumberObjects[parties[y][x].player].setVertex(1, blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.125, 0);
-      unitNumberObjects[parties[y][x].player].setVertex(2, blockSize, blockSize*0.125, 0);
-      unitNumberObjects[parties[y][x].player].setVertex(3, blockSize, 0, 0);
-      unitNumberObjects[parties[y][x].player].setVertex(4, 0, 0, 0);
-      unitNumberObjects[parties[y][x].player].setVertex(5, 0, blockSize*0.125, 0);
-      unitNumberObjects[parties[y][x].player].setVertex(6, blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.125, 0);
-      unitNumberObjects[parties[y][x].player].setVertex(7, blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
-      canvas.shape(unitNumberObjects[parties[y][x].player]);
-      canvas.popMatrix();
+    catch(Exception e){
+      LOGGER.log(Level.SEVERE, "Error drawing unit bar", e);
     }
   }
 
   String buildingString(int buildingI) {
     if (gameData.getJSONArray("buildings").isNull(buildingI-1)) {
-      println("invalid building string ", buildingI-1);
+      LOGGER.warning("invalid building string: "+(buildingI-1));
       return null;
     }
     return gameData.getJSONArray("buildings").getJSONObject(buildingI-1).getString("id");
@@ -1294,40 +1334,46 @@ class Map3D extends BaseMap implements Map {
 
   // Function that calculates the coordinates on the floor surface corresponding to the screen coordinates
   PVector getUnProjectedPointOnFloor(float screen_x, float screen_y, PVector floorPosition, PVector floorDirection) {
-
-    PVector f = floorPosition.get(); // Position of the floor
-    PVector n = floorDirection.get(); // The direction of the floor ( normal vector )
-    PVector w = unProject(screen_x, screen_y, -1.0); // 3 -dimensional coordinate corresponding to a point on the screen
-    PVector e = getEyePosition(); // Viewpoint position
-
-    // Computing the intersection of
-    f.sub(e);
-    w.sub(e);
-    w.mult( n.dot(f)/n.dot(w) );
-    PVector ray = w.copy();
-    w.add(e);
-
-    double acHeight, curX = e.x, curY = e.y, curZ = e.z, minHeight = getHeight(-1, -1);
-    // If ray looking upwards or really far away
-    if (ray.z > 0 || ray.mag() > blockSize*mapWidth*mapHeight){
-      return new PVector(-1, -1, -1);
-    }
-    for (int i = 0; i < ray.mag()*2; i++) {
-      curX += ray.x/ray.mag()/2;
-      curY += ray.y/ray.mag()/2;
-      curZ += ray.z/ray.mag()/2;
-      if (0 <= curX/blockSize && curX/blockSize <= mapWidth && 0 <= curY/blockSize && curY/blockSize < mapHeight) {
-        acHeight = (double)getHeight((float)curX/blockSize, (float)curY/blockSize);
-        if (curZ < acHeight+0.000001) {
-          return new PVector((float)curX, (float)curY, (float)acHeight);
+    
+    try{
+      PVector f = floorPosition.get(); // Position of the floor
+      PVector n = floorDirection.get(); // The direction of the floor ( normal vector )
+      PVector w = unProject(screen_x, screen_y, -1.0); // 3 -dimensional coordinate corresponding to a point on the screen
+      PVector e = getEyePosition(); // Viewpoint position
+  
+      // Computing the intersection of
+      f.sub(e);
+      w.sub(e);
+      w.mult( n.dot(f)/n.dot(w) );
+      PVector ray = w.copy();
+      w.add(e);
+  
+      double acHeight, curX = e.x, curY = e.y, curZ = e.z, minHeight = getHeight(-1, -1);
+      // If ray looking upwards or really far away
+      if (ray.z > 0 || ray.mag() > blockSize*mapWidth*mapHeight){
+        return new PVector(-1, -1, -1);
+      }
+      for (int i = 0; i < ray.mag()*2; i++) {
+        curX += ray.x/ray.mag()/2;
+        curY += ray.y/ray.mag()/2;
+        curZ += ray.z/ray.mag()/2;
+        if (0 <= curX/blockSize && curX/blockSize <= mapWidth && 0 <= curY/blockSize && curY/blockSize < mapHeight) {
+          acHeight = (double)getHeight((float)curX/blockSize, (float)curY/blockSize);
+          if (curZ < acHeight+0.000001) {
+            return new PVector((float)curX, (float)curY, (float)acHeight);
+          }
+        }
+        if (curZ < minHeight){ // if out of bounds and below water
+          break;
         }
       }
-      if (curZ < minHeight){ // if out of bounds and below water
-        break;
-      }
+      return new PVector(-1, -1, -1);
+    }
+    catch(Exception e){
+      LOGGER.log(Level.SEVERE, "Error updaing getting unprojected point on floor", e);
+      return new PVector(-1, -1, -1);
     }
 
-    return new PVector(-1, -1, -1);
   }
 
   // Function to get the position of the viewpoint in the current coordinate system
@@ -1356,19 +1402,26 @@ class Map3D extends BaseMap implements Map {
 
   //Function to compute the transformation matrix to the window coordinate system from the local coordinate system
   PMatrix3D getMatrixLocalToWindow() {
-    PMatrix3D projection = ((PGraphics3D)g).projection;
-    PMatrix3D modelview = ((PGraphics3D)g).modelview;
+    try{
+      PMatrix3D projection = ((PGraphics3D)g).projection;
+      PMatrix3D modelview = ((PGraphics3D)g).modelview;
+  
+      // viewport transf matrix
+      PMatrix3D viewport = new PMatrix3D();
+      viewport.m00 = viewport.m03 = width/2;
+      viewport.m11 = -height/2;
+      viewport.m13 =  height/2;
+  
+      // Calculate the transformation matrix to the window coordinate system from the local coordinate system
+      viewport.apply(projection);
+      viewport.apply(modelview);
+      return viewport;
+    }
+    catch(Exception e){
+      LOGGER.log(Level.SEVERE, "Error updaing getting local to windows matrix", e);
+      return null;
+    }
 
-    // viewport transf matrix
-    PMatrix3D viewport = new PMatrix3D();
-    viewport.m00 = viewport.m03 = width/2;
-    viewport.m11 = -height/2;
-    viewport.m13 =  height/2;
-
-    // Calculate the transformation matrix to the window coordinate system from the local coordinate system
-    viewport.apply(projection);
-    viewport.apply(modelview);
-    return viewport;
   }
   void enableRocket(PVector pos, PVector vel){
     drawRocket = true;
@@ -1381,11 +1434,16 @@ class Map3D extends BaseMap implements Map {
   }
   
   void drawRocket(PGraphics canvas){
-    canvas.lights();
-    canvas.pushMatrix();
-    canvas.translate((rocketPosition.x+0.5)*blockSize, (rocketPosition.y+0.5)*blockSize, rocketPosition.z*blockSize+16+groundMaxHeightAt(int(rocketPosition.x), int(rocketPosition.y)));
-    canvas.rotateY(atan2(rocketVelocity.x, rocketVelocity.z));
-    canvas.shape(buildingObjs.get("Rocket Factory")[2]);
-    canvas.popMatrix();
+    try{
+      canvas.lights();
+      canvas.pushMatrix();
+      canvas.translate((rocketPosition.x+0.5)*blockSize, (rocketPosition.y+0.5)*blockSize, rocketPosition.z*blockSize+16+groundMaxHeightAt(int(rocketPosition.x), int(rocketPosition.y)));
+      canvas.rotateY(atan2(rocketVelocity.x, rocketVelocity.z));
+      canvas.shape(buildingObjs.get("Rocket Factory")[2]);
+      canvas.popMatrix();
+    }
+    catch(Exception e){
+      LOGGER.log(Level.SEVERE, "Error drawing rocket", e);
+    }
   }
 }
