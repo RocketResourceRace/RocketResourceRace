@@ -192,6 +192,7 @@ Party loadParty(ByteBuffer b){
   }
   catch (Exception e){
     LOGGER.log(Level.SEVERE, "Error loading party", e);
+    return null;
   }
 }
 
@@ -384,6 +385,7 @@ class BaseMap extends Element{
     
     catch (Exception e){
       LOGGER.log(Level.SEVERE, "Error loading map", e);
+      return null;
     }
   }
   

@@ -145,9 +145,9 @@ class State{
   ArrayList<String> keyboardEvent(String eventType, char _key){return new ArrayList<String>();}
 
   void elementEvent(ArrayList<Event> events){
-    for (Event event : events){
-      println(event.info(), 1);
-    }
+    //for (Event event : events){
+    //  println(event.info(), 1);
+    //}
   }
  
   void _elementEvent(ArrayList<Event> events){
@@ -162,83 +162,108 @@ class State{
   }
 
   void _mouseEvent(String eventType, int button){
-    ArrayList<Event> events = new ArrayList<Event>();
-    mouseEvent(eventType, button);
-    if (eventType == "mousePressed"){
-      for (int i=0; i<panels.size(); i++){
-        if (panels.get(i).mouseOver()&& panels.get(i).visible&&panels.get(i).blockEvent){
-          activePanel = panels.get(i).id;
-          break;
+    try{
+      ArrayList<Event> events = new ArrayList<Event>();
+      mouseEvent(eventType, button);
+      if (eventType == "mousePressed"){
+        for (int i=0; i<panels.size(); i++){
+          if (panels.get(i).mouseOver()&& panels.get(i).visible&&panels.get(i).blockEvent){
+            activePanel = panels.get(i).id;
+            break;
+          }
         }
       }
-    }
-    for (Panel panel : panels){
-      if(activePanel == panel.id || eventType.equals("mouseMoved") || panel.overrideBlocking){
-        // Iterate in reverse order
-        for (int i=panel.elements.size()-1; i>=0; i--){
-          if (panel.elements.get(i).active && panel.visible){
-            for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button)){
-              events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
-              if (eventName.equals("stop events")){
-                elementEvent(events);
-                _elementEvent(events);
-                return;
+      for (Panel panel : panels){
+        if(activePanel == panel.id || eventType.equals("mouseMoved") || panel.overrideBlocking){
+          // Iterate in reverse order
+          for (int i=panel.elements.size()-1; i>=0; i--){
+            if (panel.elements.get(i).active && panel.visible){
+              try{
+                for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button)){
+                  events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
+                  if (eventName.equals("stop events")){
+                    elementEvent(events);
+                    _elementEvent(events);
+                    return;
+                  }
+                }
+              }
+              catch(Exception e){
+                LOGGER.log(Level.SEVERE, String.format("Error during mouse event elem id:%s, panel id:%s", panel.elements.get(i).id, panel.id), e);
               }
             }
           }
+          if (!eventType.equals("mouseMoved") && !panel.overrideBlocking)
+            break;
         }
-        if (!eventType.equals("mouseMoved") && !panel.overrideBlocking)
-          break;
       }
+      elementEvent(events);
+      _elementEvent(events);
     }
-    elementEvent(events);
-    _elementEvent(events);
+    catch(Exception e){
+      LOGGER.log(Level.SEVERE, "Error during mouse event", e);
+    }
   }
   void _mouseEvent(String eventType, int button, MouseEvent event){
-    ArrayList<Event> events = new ArrayList<Event>();
-    mouseEvent(eventType, button, event);
-    if (eventType == "mouseWheel"){
-      for (int i=0; i<panels.size(); i++){
-        if (panels.get(i).mouseOver()&& panels.get(i).visible&&panels.get(i).blockEvent){
-          activePanel = panels.get(i).id;
-          break;
+    try{
+      ArrayList<Event> events = new ArrayList<Event>();
+      mouseEvent(eventType, button, event);
+      if (eventType == "mouseWheel"){
+        for (int i=0; i<panels.size(); i++){
+          if (panels.get(i).mouseOver()&& panels.get(i).visible&&panels.get(i).blockEvent){
+            activePanel = panels.get(i).id;
+            break;
+          }
         }
       }
-    }
-    for (Panel panel : panels){
-      if(activePanel == panel.id && panel.mouseOver() && panel.visible){
-        // Iterate in reverse order
-        for (int i=panel.elements.size()-1; i>=0; i--){
-          if (panel.elements.get(i).active){
-            for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button, event)){
-              events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
-              if (eventName.equals("stop events")){
-                elementEvent(events);
-                _elementEvent(events);
-                return;
+      for (Panel panel : panels){
+        if(activePanel == panel.id && panel.mouseOver() && panel.visible){
+          // Iterate in reverse order
+          for (int i=panel.elements.size()-1; i>=0; i--){
+            if (panel.elements.get(i).active){
+              try{
+                for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button, event)){
+                  events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
+                  if (eventName.equals("stop events")){
+                    elementEvent(events);
+                    _elementEvent(events);
+                    return;
+                  }
+                }
+              }
+              catch(Exception e){
+                LOGGER.log(Level.SEVERE, String.format("Error during mouse event elem id:%s, panel id:%s", panel.id, panel.elements.get(i)), e);
               }
             }
           }
         }
       }
+      elementEvent(events);
+      _elementEvent(events);
     }
-    elementEvent(events);
-    _elementEvent(events);
+    catch(Exception e){
+      LOGGER.log(Level.SEVERE, "Error during mouse event", e);
+    }
   }
   void _keyboardEvent(String eventType, char _key){
-    ArrayList<Event> events = new ArrayList<Event>();
-    keyboardEvent(eventType, _key);
-    for (Panel panel : panels){
-      for (int i=panel.elements.size()-1; i>=0; i--){
-        if (panel.elements.get(i).active && panel.visible){
-          for (String eventName : panel.elements.get(i)._keyboardEvent(eventType, _key)){
-            events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
+    try{
+      ArrayList<Event> events = new ArrayList<Event>();
+      keyboardEvent(eventType, _key);
+      for (Panel panel : panels){
+        for (int i=panel.elements.size()-1; i>=0; i--){
+          if (panel.elements.get(i).active && panel.visible){
+            for (String eventName : panel.elements.get(i)._keyboardEvent(eventType, _key)){
+              events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
+            }
           }
         }
       }
+      elementEvent(events);
+      _elementEvent(events);
     }
-    elementEvent(events);
-    _elementEvent(events);
+    catch (Exception e){
+      LOGGER.log(Level.SEVERE, "Error during keyboard event", e);
+    }
   }
 }
 

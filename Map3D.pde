@@ -51,6 +51,7 @@ class Map3D extends BaseMap implements Map {
   PVector rocketVelocity;
 
   Map3D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
+    LOGGER.fine("Initialising map 3d");
     this.x = x;
     this.y = y;
     this.w = w;
@@ -84,33 +85,40 @@ class Map3D extends BaseMap implements Map {
 
 
   float getDownwardAngle(int x, int y) {
-    if (!downwardAngleCache.containsKey(y)) {
-      downwardAngleCache.put(y, new HashMap<Integer, Float>());
-    }
-    if (downwardAngleCache.get(y).containsKey(x)) {
-      return downwardAngleCache.get(y).get(x);
-    } else {
-      PVector maxZCoord = new PVector();
-      PVector minZCoord = new PVector();
-      float maxZ = 0;
-      float minZ = 1;
-      for (float y1 = y; y1<=y+1; y1+=1.0/jsManager.loadFloatSetting("terrain detail")) {
-        for (float x1 = x; x1<=x+1; x1+=1.0/jsManager.loadFloatSetting("terrain detail")) {
-          float z = getRawHeight(x1, y1);
-          if (z > maxZ) {
-            maxZCoord = new PVector(x1, y1);
-            maxZ = z;
-          } else if (z < minZ) {
-            minZCoord = new PVector(x1, y1);
-            minZ = z;
+    try{
+      if (!downwardAngleCache.containsKey(y)) {
+        downwardAngleCache.put(y, new HashMap<Integer, Float>());
+      }
+      if (downwardAngleCache.get(y).containsKey(x)) {
+        return downwardAngleCache.get(y).get(x);
+      } 
+      else {
+        PVector maxZCoord = new PVector();
+        PVector minZCoord = new PVector();
+        float maxZ = 0;
+        float minZ = 1;
+        for (float y1 = y; y1<=y+1; y1+=1.0/jsManager.loadFloatSetting("terrain detail")) {
+          for (float x1 = x; x1<=x+1; x1+=1.0/jsManager.loadFloatSetting("terrain detail")) {
+            float z = getRawHeight(x1, y1);
+            if (z > maxZ) {
+              maxZCoord = new PVector(x1, y1);
+              maxZ = z;
+            } else if (z < minZ) {
+              minZCoord = new PVector(x1, y1);
+              minZ = z;
+            }
           }
         }
+        PVector direction = minZCoord.sub(maxZCoord);
+        float angle = atan2(direction.y, direction.x);
+  
+        downwardAngleCache.get(y).put(x, angle);
+        return angle;
       }
-      PVector direction = minZCoord.sub(maxZCoord);
-      float angle = atan2(direction.y, direction.x);
-
-      downwardAngleCache.get(y).put(x, angle);
-      return angle;
+    }
+    catch (Exception e){
+      LOGGER.log(Level.SEVERE, String.format("Error getting downward angle: (%s, %s)", x, y), e);
+      return -1;
     }
   }
 
@@ -152,10 +160,12 @@ class Map3D extends BaseMap implements Map {
     this.mapActive = a;
   }
   void updateMoveNodes(Node[][] nodes) {
+    LOGGER.finer("Updating move nodes");
     moveNodes = nodes;
     updatePossibleMoves();
   }
   void updatePath(ArrayList<int[]> nodes) {
+    LOGGER.finer("Updating path");
     float x0, y0;
     drawPath = nodes;
     pathLine = createShape();
@@ -174,29 +184,35 @@ class Map3D extends BaseMap implements Map {
   }
   void updatePossibleMoves(){
     // For the shape that indicateds where a party can move
-    float smallSize = blockSize / jsManager.loadFloatSetting("terrain detail");
-    drawPossibleMoves = createShape();
-    drawPossibleMoves.beginShape(TRIANGLES);
-    drawPossibleMoves.fill(0, 0, 0, 120);
-    drawPossibleMoves.stroke(0);
-    for (int x=0; x<mapWidth; x++){
-      for (int y=0; y<mapHeight; y++){
-        if (moveNodes[y][x] != null && moveNodes[y][x].cost <= parties[selectedCellY][selectedCellX].getMovementPoints()){
-          for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++){
-            for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++){
-              drawPossibleMoves.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
-              drawPossibleMoves.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
-              drawPossibleMoves.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
-              
-              drawPossibleMoves.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
-              drawPossibleMoves.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
-              drawPossibleMoves.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+    try{
+      LOGGER.finer("Updating possible move nodes");
+      float smallSize = blockSize / jsManager.loadFloatSetting("terrain detail");
+      drawPossibleMoves = createShape();
+      drawPossibleMoves.beginShape(TRIANGLES);
+      drawPossibleMoves.fill(0, 0, 0, 120);
+      drawPossibleMoves.stroke(0);
+      for (int x=0; x<mapWidth; x++){
+        for (int y=0; y<mapHeight; y++){
+          if (moveNodes[y][x] != null && moveNodes[y][x].cost <= parties[selectedCellY][selectedCellX].getMovementPoints()){
+            for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++){
+              for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++){
+                drawPossibleMoves.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleMoves.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleMoves.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                
+                drawPossibleMoves.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleMoves.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleMoves.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+              }
             }
           }
         }
       }
+      drawPossibleMoves.endShape();
     }
-    drawPossibleMoves.endShape();
+    catch (Exception e){
+      LOGGER.log(Level.SEVERE, "Error updating possible moves", e);
+    }
   }
   void cancelMoveNodes() {
     moveNodes = null;
@@ -205,11 +221,13 @@ class Map3D extends BaseMap implements Map {
     drawPath = null;
   }
   void loadSettings(float mapXOffset, float mapYOffset, float blockSize) {
+    LOGGER.fine(String.format("Loading camera settings. xoff:%s, yoff:%s, block size: %s", mapXOffset, mapYOffset, blockSize));
     targetXOffset = mapXOffset;
     targetYOffset = mapYOffset;
     panning = true;
   }
   float[] targetCell(int x, int y, float zoom) {
+    LOGGER.finer(String.format("Targetting cell:%s, %s and zoom:%s", x, y, zoom));
     targetXOffset = (x+0.5)*blockSize-width/2;
     targetYOffset = (y+0.5)*blockSize-height/2;
     panning = true;
@@ -288,145 +306,165 @@ class Map3D extends BaseMap implements Map {
   //}
 
   PShape generateTrees(int num, int vertices, float x1, float y1) {
-    PShape shapes = createShape(GROUP);
-    PShape stump;
-    colorMode(HSB, 100);
-    for (int i=0; i<num; i++) {
-      float x = random(0, blockSize), y = random(0, blockSize);
-      float h = getHeight((x1+x)/blockSize, (y1+y)/blockSize);
-      float randHeight = LEAVESH*random(1-TREERANDOMNESS, 1+TREERANDOMNESS);
-      if (h <= 0) continue; // Don't put trees underwater
-      int leafColour = color(random(35, 40), random(90, 100), random(30, 60));
-      int stumpColour = color(random(100, 125), random(100, 125), random(50, 30));
-      PShape leaves = createShape();
-      leaves.setShininess(0.1);
-      leaves.beginShape(TRIANGLE_FAN);
-      leaves.fill(leafColour);
-      int tempVertices = round(random(4, vertices));
-      // create leaves
-      leaves.vertex(x, y, STUMPH+randHeight+h);
-      for (int j=0; j<tempVertices+1; j++) {
-        leaves.vertex(x+cos(j*TWO_PI/tempVertices)*LEAVESR, y+sin(j*TWO_PI/tempVertices)*LEAVESR, STUMPH+h);
+    try{
+      LOGGER.info(String.format("Generating trees at %s, %s", x1, y1));
+      PShape shapes = createShape(GROUP);
+      PShape stump;
+      colorMode(HSB, 100);
+      for (int i=0; i<num; i++) {
+        float x = random(0, blockSize), y = random(0, blockSize);
+        float h = getHeight((x1+x)/blockSize, (y1+y)/blockSize);
+        float randHeight = LEAVESH*random(1-TREERANDOMNESS, 1+TREERANDOMNESS);
+        if (h <= 0) continue; // Don't put trees underwater
+        int leafColour = color(random(35, 40), random(90, 100), random(30, 60));
+        int stumpColour = color(random(100, 125), random(100, 125), random(50, 30));
+        PShape leaves = createShape();
+        leaves.setShininess(0.1);
+        leaves.beginShape(TRIANGLE_FAN);
+        leaves.fill(leafColour);
+        int tempVertices = round(random(4, vertices));
+        // create leaves
+        leaves.vertex(x, y, STUMPH+randHeight+h);
+        for (int j=0; j<tempVertices+1; j++) {
+          leaves.vertex(x+cos(j*TWO_PI/tempVertices)*LEAVESR, y+sin(j*TWO_PI/tempVertices)*LEAVESR, STUMPH+h);
+        }
+        leaves.endShape(CLOSE);
+        shapes.addChild(leaves);
+        
+        //create trunck
+        stump = createShape();
+        stump.beginShape(QUAD_STRIP);
+        stump.fill(stumpColour);
+        for (int j=0; j<4; j++) {
+          stump.vertex(x+cos(j*TWO_PI/3)*STUMPR, y+sin(j*TWO_PI/3)*STUMPR, h);
+          stump.vertex(x+cos(j*TWO_PI/3)*STUMPR, y+sin(j*TWO_PI/3)*STUMPR, STUMPH+h);
+        }
+        stump.endShape();
+        shapes.addChild(stump);
       }
-      leaves.endShape(CLOSE);
-      shapes.addChild(leaves);
-      
-      //create trunck
-      stump = createShape();
-      stump.beginShape(QUAD_STRIP);
-      stump.fill(stumpColour);
-      for (int j=0; j<4; j++) {
-        stump.vertex(x+cos(j*TWO_PI/3)*STUMPR, y+sin(j*TWO_PI/3)*STUMPR, h);
-        stump.vertex(x+cos(j*TWO_PI/3)*STUMPR, y+sin(j*TWO_PI/3)*STUMPR, STUMPH+h);
-      }
-      stump.endShape();
-      shapes.addChild(stump);
+      colorMode(RGB, 255);
+      return shapes;
     }
-    colorMode(RGB, 255);
-    return shapes;
+    catch (Exception e){
+      LOGGER.log(Level.SEVERE, "Error generating trees", e);
+      return null;
+    }
   }
   
   void loadMapStrip(int y, PShape tiles, boolean loading){
-    tempTerrain = createGraphics(round((1+mapWidth)*jsManager.loadIntSetting("terrain texture resolution")), round(jsManager.loadIntSetting("terrain texture resolution")));
-    tempSingleRow = createShape();
-    tempRow = createShape(GROUP);
-    tempTerrain.beginDraw();
-    for (int x=0; x<mapWidth; x++) {
-      tempTerrain.image(tempTileImages[terrain[y][x]-1], x*jsManager.loadIntSetting("terrain texture resolution"), 0);
-    }
-    tempTerrain.endDraw();
-
-    for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail"); y1++) {
+    try{
+      LOGGER.fine("Loading map strip y:"+y+" loading: "+loading);
+      tempTerrain = createGraphics(round((1+mapWidth)*jsManager.loadIntSetting("terrain texture resolution")), round(jsManager.loadIntSetting("terrain texture resolution")));
       tempSingleRow = createShape();
-      tempSingleRow.setTexture(tempTerrain);
-      tempSingleRow.beginShape(TRIANGLE_STRIP);
-      resetMatrix();
-      if (jsManager.loadBooleanSetting("tile stroke")){
-        tempSingleRow.stroke(0);
-      }
-      tempSingleRow.vertex(0, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, 0, 0, y1*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
-      tempSingleRow.vertex(0, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, 0, 0, (y1+1)*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
+      tempRow = createShape(GROUP);
+      tempTerrain.beginDraw();
       for (int x=0; x<mapWidth; x++) {
-        if (terrain[y][x] == terrainIndex("quarry site")){
-          // End strip and start new one, skipping out cell
-          tempSingleRow.vertex(x*blockSize, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(x, (y+y1/jsManager.loadFloatSetting("terrain detail"))), x*jsManager.loadIntSetting("terrain texture resolution"), y1*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
-          tempSingleRow.vertex(x*blockSize, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(x, y+(1+y1)/jsManager.loadFloatSetting("terrain detail")), x*jsManager.loadIntSetting("terrain texture resolution"), (y1+1)*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
-          tempSingleRow.endShape();
-          tempRow.addChild(tempSingleRow);
-          tempSingleRow = createShape();
-          tempSingleRow.setTexture(tempTerrain);
-          tempSingleRow.beginShape(TRIANGLE_STRIP);
-          
-          if (y1 == 0){
-            // Add replacement cell for quarry site
-            PShape quarrySite = loadShape("quarry_site.obj");
-            float quarryheight = groundMinHeightAt(x, y);
-            quarrySite.rotateX(PI/2);
-            quarrySite.translate((x+0.5)*blockSize, (y+0.5)*blockSize, quarryheight);
-            quarrySite.setTexture(loadImage("hill.png"));
-            tempRow.addChild(quarrySite);
-            
-            // Create sides for quarry site
-            float smallStripSize = blockSize/jsManager.loadFloatSetting("terrain detail");
-            float terrainDetail = jsManager.loadFloatSetting("terrain detail");
-            PShape sides = createShape();
-            sides.setFill(color(120));
-            sides.beginShape(QUAD_STRIP);
-            sides.fill(color(120));
-            for (int i=0; i<terrainDetail; i++){
-              sides.vertex(x*blockSize+i*smallStripSize+blockSize/16, y*blockSize+blockSize/16, quarryheight);
-              sides.vertex(x*blockSize+i*smallStripSize, y*blockSize, getHeight(x+i/terrainDetail, y));
-            }
-            for (int i=0; i<terrainDetail; i++){
-              sides.vertex((x+1)*blockSize-blockSize/16, y*blockSize+i*smallStripSize+blockSize/16, quarryheight);
-              sides.vertex((x+1)*blockSize, y*blockSize+i*smallStripSize, getHeight(x+1, y+i/terrainDetail));
-            }
-            for (int i=0; i<terrainDetail; i++){
-              sides.vertex((x+1)*blockSize-i*smallStripSize-blockSize/16, (y+1)*blockSize-blockSize/16, quarryheight);
-              sides.vertex((x+1)*blockSize-i*smallStripSize, (y+1)*blockSize, getHeight(x+1-i/terrainDetail, y+1));
-            }
-            for (int i=0; i<terrainDetail; i++){
-              sides.vertex(x*blockSize+blockSize/16, (y+1)*blockSize-i*smallStripSize-blockSize/16, quarryheight);
-              sides.vertex(x*blockSize, (y+1)*blockSize-i*smallStripSize, getHeight(x, y+1-i/terrainDetail));
-            }
-            sides.vertex(x*blockSize+blockSize/16, y*blockSize+blockSize/16, quarryheight);
-            sides.vertex(x*blockSize, y*blockSize, getHeight(x, y));
-            sides.endShape();
-            tempRow.addChild(sides);
-          }
-        }
-        else{
-          for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail"); x1++) {
-            tempSingleRow.vertex((x+x1/jsManager.loadFloatSetting("terrain detail"))*blockSize, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), (y+y1/jsManager.loadFloatSetting("terrain detail"))), (x+x1/jsManager.loadFloatSetting("terrain detail"))*jsManager.loadIntSetting("terrain texture resolution"), y1*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
-            tempSingleRow.vertex((x+x1/jsManager.loadFloatSetting("terrain detail"))*blockSize, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(1+y1)/jsManager.loadFloatSetting("terrain detail")), (x+x1/jsManager.loadFloatSetting("terrain detail"))*jsManager.loadIntSetting("terrain texture resolution"), (y1+1)*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
-          }
-        }
+        tempTerrain.image(tempTileImages[terrain[y][x]-1], x*jsManager.loadIntSetting("terrain texture resolution"), 0);
       }
-      tempSingleRow.vertex(mapWidth*blockSize, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(mapWidth, (y+y1/jsManager.loadFloatSetting("terrain detail"))), mapWidth*jsManager.loadIntSetting("terrain texture resolution"), (y1/jsManager.loadFloatSetting("terrain detail"))*jsManager.loadIntSetting("terrain texture resolution"));
-      tempSingleRow.vertex(mapWidth*blockSize, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(mapWidth, y+(1.0+y1)/jsManager.loadFloatSetting("terrain detail")), mapWidth*jsManager.loadIntSetting("terrain texture resolution"), ((y1+1.0)/jsManager.loadFloatSetting("terrain detail"))*jsManager.loadIntSetting("terrain texture resolution"));
-      tempSingleRow.endShape();
-      tempRow.addChild(tempSingleRow);
+      tempTerrain.endDraw();
+  
+      for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail"); y1++) {
+        tempSingleRow = createShape();
+        tempSingleRow.setTexture(tempTerrain);
+        tempSingleRow.beginShape(TRIANGLE_STRIP);
+        resetMatrix();
+        if (jsManager.loadBooleanSetting("tile stroke")){
+          tempSingleRow.stroke(0);
+        }
+        tempSingleRow.vertex(0, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, 0, 0, y1*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
+        tempSingleRow.vertex(0, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, 0, 0, (y1+1)*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
+        for (int x=0; x<mapWidth; x++) {
+          if (terrain[y][x] == terrainIndex("quarry site")){
+            // End strip and start new one, skipping out cell
+            tempSingleRow.vertex(x*blockSize, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(x, (y+y1/jsManager.loadFloatSetting("terrain detail"))), x*jsManager.loadIntSetting("terrain texture resolution"), y1*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
+            tempSingleRow.vertex(x*blockSize, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(x, y+(1+y1)/jsManager.loadFloatSetting("terrain detail")), x*jsManager.loadIntSetting("terrain texture resolution"), (y1+1)*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
+            tempSingleRow.endShape();
+            tempRow.addChild(tempSingleRow);
+            tempSingleRow = createShape();
+            tempSingleRow.setTexture(tempTerrain);
+            tempSingleRow.beginShape(TRIANGLE_STRIP);
+            
+            if (y1 == 0){
+              // Add replacement cell for quarry site
+              PShape quarrySite = loadShape("quarry_site.obj");
+              float quarryheight = groundMinHeightAt(x, y);
+              quarrySite.rotateX(PI/2);
+              quarrySite.translate((x+0.5)*blockSize, (y+0.5)*blockSize, quarryheight);
+              quarrySite.setTexture(loadImage("hill.png"));
+              tempRow.addChild(quarrySite);
+              
+              // Create sides for quarry site
+              float smallStripSize = blockSize/jsManager.loadFloatSetting("terrain detail");
+              float terrainDetail = jsManager.loadFloatSetting("terrain detail");
+              PShape sides = createShape();
+              sides.setFill(color(120));
+              sides.beginShape(QUAD_STRIP);
+              sides.fill(color(120));
+              for (int i=0; i<terrainDetail; i++){
+                sides.vertex(x*blockSize+i*smallStripSize+blockSize/16, y*blockSize+blockSize/16, quarryheight);
+                sides.vertex(x*blockSize+i*smallStripSize, y*blockSize, getHeight(x+i/terrainDetail, y));
+              }
+              for (int i=0; i<terrainDetail; i++){
+                sides.vertex((x+1)*blockSize-blockSize/16, y*blockSize+i*smallStripSize+blockSize/16, quarryheight);
+                sides.vertex((x+1)*blockSize, y*blockSize+i*smallStripSize, getHeight(x+1, y+i/terrainDetail));
+              }
+              for (int i=0; i<terrainDetail; i++){
+                sides.vertex((x+1)*blockSize-i*smallStripSize-blockSize/16, (y+1)*blockSize-blockSize/16, quarryheight);
+                sides.vertex((x+1)*blockSize-i*smallStripSize, (y+1)*blockSize, getHeight(x+1-i/terrainDetail, y+1));
+              }
+              for (int i=0; i<terrainDetail; i++){
+                sides.vertex(x*blockSize+blockSize/16, (y+1)*blockSize-i*smallStripSize-blockSize/16, quarryheight);
+                sides.vertex(x*blockSize, (y+1)*blockSize-i*smallStripSize, getHeight(x, y+1-i/terrainDetail));
+              }
+              sides.vertex(x*blockSize+blockSize/16, y*blockSize+blockSize/16, quarryheight);
+              sides.vertex(x*blockSize, y*blockSize, getHeight(x, y));
+              sides.endShape();
+              tempRow.addChild(sides);
+            }
+          }
+          else{
+            for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail"); x1++) {
+              tempSingleRow.vertex((x+x1/jsManager.loadFloatSetting("terrain detail"))*blockSize, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), (y+y1/jsManager.loadFloatSetting("terrain detail"))), (x+x1/jsManager.loadFloatSetting("terrain detail"))*jsManager.loadIntSetting("terrain texture resolution"), y1*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
+              tempSingleRow.vertex((x+x1/jsManager.loadFloatSetting("terrain detail"))*blockSize, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(1+y1)/jsManager.loadFloatSetting("terrain detail")), (x+x1/jsManager.loadFloatSetting("terrain detail"))*jsManager.loadIntSetting("terrain texture resolution"), (y1+1)*jsManager.loadIntSetting("terrain texture resolution")/jsManager.loadFloatSetting("terrain detail"));
+            }
+          }
+        }
+        tempSingleRow.vertex(mapWidth*blockSize, (y+y1/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(mapWidth, (y+y1/jsManager.loadFloatSetting("terrain detail"))), mapWidth*jsManager.loadIntSetting("terrain texture resolution"), (y1/jsManager.loadFloatSetting("terrain detail"))*jsManager.loadIntSetting("terrain texture resolution"));
+        tempSingleRow.vertex(mapWidth*blockSize, (y+(1+y1)/jsManager.loadFloatSetting("terrain detail"))*blockSize, getHeight(mapWidth, y+(1.0+y1)/jsManager.loadFloatSetting("terrain detail")), mapWidth*jsManager.loadIntSetting("terrain texture resolution"), ((y1+1.0)/jsManager.loadFloatSetting("terrain detail"))*jsManager.loadIntSetting("terrain texture resolution"));
+        tempSingleRow.endShape();
+        tempRow.addChild(tempSingleRow);
+      }
+      if (loading){
+        tiles.addChild(tempRow);
+      }
+      else{
+        tiles.addChild(tempRow, y);
+      }
+      
+      // Clean up for garbage collector
+      tempRow = null;
+      tempTerrain = null;
+      tempSingleRow = null;
     }
-    if (loading){
-      tiles.addChild(tempRow);
+    catch (Exception e){
+      LOGGER.log(Level.SEVERE, String.format("Error loading mao strip: y:%s", y), e);
     }
-    else{
-      tiles.addChild(tempRow, y);
-    }
-    
-    // Clean up for garbage collector
-    tempRow = null;
-    tempTerrain = null;
-    tempSingleRow = null;
   }
   
   void replaceMapStripWithReloadedStrip(int y){
-    tiles.removeChild(y);
-    loadMapStrip(y, tiles, false);
+    try{
+      LOGGER.fine("Replace strip y: "+y);
+      tiles.removeChild(y);
+      loadMapStrip(y, tiles, false);
+    }
+    catch (Exception e){
+      LOGGER.log(Level.SEVERE, String.format("Error replacing map strip: %s", y), e);
+    }
   }
 
   void clearShape() {
     // Use to clear references to large objects when exiting state
+    LOGGER.info("Clearing 3D models");
     water = null;
     trees = null;
     tiles = null;
@@ -436,294 +474,331 @@ class Map3D extends BaseMap implements Map {
   }
 
   void generateShape() {
-    pushStyle();
-    noFill();
-    noStroke();
-    tempTileImages = new PImage[gameData.getJSONArray("terrain").size()];
-    for (int i=0; i<gameData.getJSONArray("terrain").size(); i++) {
-      JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
-      if (tile3DImages.containsKey(tileType.getString("id"))) {
-        tempTileImages[i] = tile3DImages.get(tileType.getString("id")).copy();
-      } else {
-        tempTileImages[i] = tileImages.get(tileType.getString("id")).copy();
+    try{
+      LOGGER.info("Generating 3D models");
+      pushStyle();
+      noFill();
+      noStroke();
+      LOGGER.fine("Generating terrain textures");
+      tempTileImages = new PImage[gameData.getJSONArray("terrain").size()];
+      for (int i=0; i<gameData.getJSONArray("terrain").size(); i++) {
+        JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
+        if (tile3DImages.containsKey(tileType.getString("id"))) {
+          tempTileImages[i] = tile3DImages.get(tileType.getString("id")).copy();
+        } else {
+          tempTileImages[i] = tileImages.get(tileType.getString("id")).copy();
+        }
+        tempTileImages[i].resize(jsManager.loadIntSetting("terrain texture resolution"), jsManager.loadIntSetting("terrain texture resolution"));
       }
-      tempTileImages[i].resize(jsManager.loadIntSetting("terrain texture resolution"), jsManager.loadIntSetting("terrain texture resolution"));
-    }
-
-    water = createShape(RECT, 0, 0, getObjectWidth(), getObjectHeight());
-    water.translate(0, 0, 0.1);
-    generateHighlightingGrid(8, 8);
-
-    tiles = createShape(GROUP);
-    textureMode(IMAGE);
-    trees = createShape(GROUP);
-    int numTreeTiles=0;
-    
-    
-    for (int y=0; y<mapHeight; y++) {
-      loadMapStrip(y, tiles, true);
       
-      // Load trees
-      for (int x=0; x<mapWidth; x++) {
-        if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest")+1) {
-          PShape cellTree = generateTrees(jsManager.loadIntSetting("forest density"), 8, x*blockSize, y*blockSize);
-          cellTree.translate((x)*blockSize, (y)*blockSize, 0);
-          trees.addChild(cellTree);
-          addTreeTile(x, y, numTreeTiles++);
-        }
-      }
-    }
-    resetMatrix();
-
-    blueFlag = loadShape("blueflag.obj");
-    blueFlag.rotateX(PI/2);
-    blueFlag.scale(2, 2.5, 2.5);
-    redFlag = loadShape("redflag.obj");
-    redFlag.rotateX(PI/2);
-    redFlag.scale(2, 2.5, 2.5);
-    battle = loadShape("battle.obj");
-    battle.rotateX(PI/2);
-    battle.scale(0.8);
-
-
-    int players = 2;
-    fill(255);
-
-    unitNumberObjects = new PShape[players+1];
-    for (int i=0; i < players; i++) {
-      unitNumberObjects[i] = createShape();
-      unitNumberObjects[i].beginShape(QUADS);
-      unitNumberObjects[i].stroke(0);
-      unitNumberObjects[i].fill(120, 120, 120);
-      unitNumberObjects[i].vertex(blockSize, 0, 0);
-      unitNumberObjects[i].fill(120, 120, 120);
-      unitNumberObjects[i].vertex(blockSize, blockSize*0.125, 0);
-      unitNumberObjects[i].fill(120, 120, 120);
-      unitNumberObjects[i].vertex(blockSize, blockSize*0.125, 0);
-      unitNumberObjects[i].fill(120, 120, 120);
-      unitNumberObjects[i].vertex(blockSize, 0, 0);
-      unitNumberObjects[i].fill(playerColours[i]);
-      unitNumberObjects[i].vertex(0, 0, 0);
-      unitNumberObjects[i].fill(playerColours[i]);
-      unitNumberObjects[i].vertex(0, blockSize*0.125, 0);
-      unitNumberObjects[i].fill(playerColours[i]);
-      unitNumberObjects[i].vertex(blockSize, blockSize*0.125, 0);
-      unitNumberObjects[i].fill(playerColours[i]);
-      unitNumberObjects[i].vertex(blockSize, 0, 0);
-      unitNumberObjects[i].endShape();
-      unitNumberObjects[i].rotateX(PI/2);
-      //unitNumberObjects[i].setStroke(false);
-    }
-    unitNumberObjects[2] = createShape();
-    unitNumberObjects[2].beginShape(QUADS);
-    unitNumberObjects[2].stroke(0);
-    unitNumberObjects[2].fill(120, 120, 120);
-    unitNumberObjects[2].vertex(blockSize, 0, 0);
-    unitNumberObjects[2].fill(120, 120, 120);
-    unitNumberObjects[2].vertex(blockSize, blockSize*0.0625, 0);
-    unitNumberObjects[2].fill(120, 120, 120);
-    unitNumberObjects[2].vertex(blockSize, blockSize*0.0625, 0);
-    unitNumberObjects[2].fill(120, 120, 120);
-    unitNumberObjects[2].vertex(blockSize, 0, 0);
-    unitNumberObjects[2].fill(playerColours[0]);
-    unitNumberObjects[2].vertex(0, 0, 0);
-    unitNumberObjects[2].fill(playerColours[0]);
-    unitNumberObjects[2].vertex(0, blockSize*0.0625, 0);
-    unitNumberObjects[2].fill(playerColours[0]);
-    unitNumberObjects[2].vertex(blockSize, blockSize*0.0625, 0);
-    unitNumberObjects[2].fill(playerColours[0]);
-    unitNumberObjects[2].vertex(blockSize, 0, 0);
-    unitNumberObjects[2].fill(120, 120, 120);
-    unitNumberObjects[2].vertex(blockSize, blockSize*0.0625, 0);
-    unitNumberObjects[2].fill(120, 120, 120);
-    unitNumberObjects[2].vertex(blockSize, blockSize*0.125, 0);
-    unitNumberObjects[2].fill(120, 120, 120);
-    unitNumberObjects[2].vertex(blockSize, blockSize*0.125, 0);
-    unitNumberObjects[2].fill(120, 120, 120);
-    unitNumberObjects[2].vertex(blockSize, blockSize*0.0625, 0);
-    unitNumberObjects[2].fill(playerColours[1]);
-    unitNumberObjects[2].vertex(0, blockSize*0.0625, 0);
-    unitNumberObjects[2].fill(playerColours[1]);
-    unitNumberObjects[2].vertex(0, blockSize*0.125, 0);
-    unitNumberObjects[2].fill(playerColours[1]);
-    unitNumberObjects[2].vertex(blockSize, blockSize*0.125, 0);
-    unitNumberObjects[2].fill(playerColours[1]);
-    unitNumberObjects[2].vertex(blockSize, blockSize*0.0625, 0);
-    unitNumberObjects[2].endShape();
-    unitNumberObjects[2].rotateX(PI/2);
-    //unitNumberObjects[2].setStroke(false);
-    tileRect = createShape();
-    tileRect.beginShape();
-    tileRect.noFill();
-    tileRect.stroke(0);
-    tileRect.strokeWeight(3);
-    int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
-    int[] curLoc = {0, 0};
-    for (int[] dir : directions) {
-      for (int i=0; i<jsManager.loadFloatSetting("terrain detail"); i++) {
-        tileRect.vertex(curLoc[0]*blockSize/jsManager.loadFloatSetting("terrain detail"), curLoc[1]*blockSize/jsManager.loadFloatSetting("terrain detail"), 0);
-        curLoc[0] += dir[0];
-        curLoc[1] += dir[1];
-      }
-    }
-    tileRect.endShape(CLOSE);
-    for (int i=0; i<gameData.getJSONArray("tasks").size(); i++) {
-      JSONObject task = gameData.getJSONArray("tasks").getJSONObject(i);
-      if (!task.isNull("obj")) {
-        taskObjs.put(task.getString("id"), loadShape(task.getString("obj")));
-        taskObjs.get(task.getString("id")).translate(blockSize*0.125, -blockSize*0.2);
-        taskObjs.get(task.getString("id")).rotateX(PI/2);
-      }
-      else if (!task.isNull("img")) {
-        PShape object = createShape(RECT, 0, 0, blockSize/4, blockSize/4);
-        object.setFill(color(255, 255, 255));
-        object.setTexture(taskImages[i]);
-        taskObjs.put(task.getString("id"), object);
-        taskObjs.get(task.getString("id")).rotateX(-PI/2);
-      }
-    }
-    for (int i=0; i<gameData.getJSONArray("buildings").size(); i++) {
-      JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
-      if (!buildingType.isNull("obj")) {
-        buildingObjs.put(buildingType.getString("id"), new PShape[buildingType.getJSONArray("obj").size()]);
-        for (int j=0; j<buildingType.getJSONArray("obj").size(); j++) {
-          if (buildingType.getString("id").equals("Quarry")){
-            buildingObjs.get(buildingType.getString("id"))[j] = loadShape("quarry.obj");
-            buildingObjs.get(buildingType.getString("id"))[j].rotateX(PI/2);
-            //buildingObjs.get(buildingType.getString("id"))[j].setFill(color(86, 47, 14));
-            
-          }
-          else{
-            buildingObjs.get(buildingType.getString("id"))[j] = loadShape(buildingType.getJSONArray("obj").getString(j));
-            buildingObjs.get(buildingType.getString("id"))[j].rotateX(PI/2);
-            buildingObjs.get(buildingType.getString("id"))[j].scale(0.625);
-            buildingObjs.get(buildingType.getString("id"))[j].translate(0, 0, -6);
+      LOGGER.fine("Generating Water");
+      water = createShape(RECT, 0, 0, getObjectWidth(), getObjectHeight());
+      water.translate(0, 0, 0.1);
+      generateHighlightingGrid(8, 8);
+  
+      tiles = createShape(GROUP);
+      textureMode(IMAGE);
+      trees = createShape(GROUP);
+      int numTreeTiles=0;
+      
+      LOGGER.fine("Generating trees and terrain model");
+      for (int y=0; y<mapHeight; y++) {
+        loadMapStrip(y, tiles, true);
+        
+        // Load trees
+        for (int x=0; x<mapWidth; x++) {
+          if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest")+1) {
+            PShape cellTree = generateTrees(jsManager.loadIntSetting("forest density"), 8, x*blockSize, y*blockSize);
+            cellTree.translate((x)*blockSize, (y)*blockSize, 0);
+            trees.addChild(cellTree);
+            addTreeTile(x, y, numTreeTiles++);
           }
         }
       }
+      resetMatrix();
+      
+      LOGGER.fine("Generating player flags");
+      blueFlag = loadShape("blueflag.obj");
+      blueFlag.rotateX(PI/2);
+      blueFlag.scale(2, 2.5, 2.5);
+      redFlag = loadShape("redflag.obj");
+      redFlag.rotateX(PI/2);
+      redFlag.scale(2, 2.5, 2.5);
+      battle = loadShape("battle.obj");
+      battle.rotateX(PI/2);
+      battle.scale(0.8);
+  
+  
+      int players = 2;
+      fill(255);
+      
+      LOGGER.fine("Generating units number objects");
+      unitNumberObjects = new PShape[players+1];
+      for (int i=0; i < players; i++) {
+        unitNumberObjects[i] = createShape();
+        unitNumberObjects[i].beginShape(QUADS);
+        unitNumberObjects[i].stroke(0);
+        unitNumberObjects[i].fill(120, 120, 120);
+        unitNumberObjects[i].vertex(blockSize, 0, 0);
+        unitNumberObjects[i].fill(120, 120, 120);
+        unitNumberObjects[i].vertex(blockSize, blockSize*0.125, 0);
+        unitNumberObjects[i].fill(120, 120, 120);
+        unitNumberObjects[i].vertex(blockSize, blockSize*0.125, 0);
+        unitNumberObjects[i].fill(120, 120, 120);
+        unitNumberObjects[i].vertex(blockSize, 0, 0);
+        unitNumberObjects[i].fill(playerColours[i]);
+        unitNumberObjects[i].vertex(0, 0, 0);
+        unitNumberObjects[i].fill(playerColours[i]);
+        unitNumberObjects[i].vertex(0, blockSize*0.125, 0);
+        unitNumberObjects[i].fill(playerColours[i]);
+        unitNumberObjects[i].vertex(blockSize, blockSize*0.125, 0);
+        unitNumberObjects[i].fill(playerColours[i]);
+        unitNumberObjects[i].vertex(blockSize, 0, 0);
+        unitNumberObjects[i].endShape();
+        unitNumberObjects[i].rotateX(PI/2);
+        //unitNumberObjects[i].setStroke(false);
+      }
+      unitNumberObjects[2] = createShape();
+      unitNumberObjects[2].beginShape(QUADS);
+      unitNumberObjects[2].stroke(0);
+      unitNumberObjects[2].fill(120, 120, 120);
+      unitNumberObjects[2].vertex(blockSize, 0, 0);
+      unitNumberObjects[2].fill(120, 120, 120);
+      unitNumberObjects[2].vertex(blockSize, blockSize*0.0625, 0);
+      unitNumberObjects[2].fill(120, 120, 120);
+      unitNumberObjects[2].vertex(blockSize, blockSize*0.0625, 0);
+      unitNumberObjects[2].fill(120, 120, 120);
+      unitNumberObjects[2].vertex(blockSize, 0, 0);
+      unitNumberObjects[2].fill(playerColours[0]);
+      unitNumberObjects[2].vertex(0, 0, 0);
+      unitNumberObjects[2].fill(playerColours[0]);
+      unitNumberObjects[2].vertex(0, blockSize*0.0625, 0);
+      unitNumberObjects[2].fill(playerColours[0]);
+      unitNumberObjects[2].vertex(blockSize, blockSize*0.0625, 0);
+      unitNumberObjects[2].fill(playerColours[0]);
+      unitNumberObjects[2].vertex(blockSize, 0, 0);
+      unitNumberObjects[2].fill(120, 120, 120);
+      unitNumberObjects[2].vertex(blockSize, blockSize*0.0625, 0);
+      unitNumberObjects[2].fill(120, 120, 120);
+      unitNumberObjects[2].vertex(blockSize, blockSize*0.125, 0);
+      unitNumberObjects[2].fill(120, 120, 120);
+      unitNumberObjects[2].vertex(blockSize, blockSize*0.125, 0);
+      unitNumberObjects[2].fill(120, 120, 120);
+      unitNumberObjects[2].vertex(blockSize, blockSize*0.0625, 0);
+      unitNumberObjects[2].fill(playerColours[1]);
+      unitNumberObjects[2].vertex(0, blockSize*0.0625, 0);
+      unitNumberObjects[2].fill(playerColours[1]);
+      unitNumberObjects[2].vertex(0, blockSize*0.125, 0);
+      unitNumberObjects[2].fill(playerColours[1]);
+      unitNumberObjects[2].vertex(blockSize, blockSize*0.125, 0);
+      unitNumberObjects[2].fill(playerColours[1]);
+      unitNumberObjects[2].vertex(blockSize, blockSize*0.0625, 0);
+      unitNumberObjects[2].endShape();
+      unitNumberObjects[2].rotateX(PI/2);
+      //unitNumberObjects[2].setStroke(false);
+      tileRect = createShape();
+      tileRect.beginShape();
+      tileRect.noFill();
+      tileRect.stroke(0);
+      tileRect.strokeWeight(3);
+      int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+      int[] curLoc = {0, 0};
+      for (int[] dir : directions) {
+        for (int i=0; i<jsManager.loadFloatSetting("terrain detail"); i++) {
+          tileRect.vertex(curLoc[0]*blockSize/jsManager.loadFloatSetting("terrain detail"), curLoc[1]*blockSize/jsManager.loadFloatSetting("terrain detail"), 0);
+          curLoc[0] += dir[0];
+          curLoc[1] += dir[1];
+        }
+      }
+      LOGGER.fine("Loading task icon objects");
+      tileRect.endShape(CLOSE);
+      for (int i=0; i<gameData.getJSONArray("tasks").size(); i++) {
+        JSONObject task = gameData.getJSONArray("tasks").getJSONObject(i);
+        if (!task.isNull("obj")) {
+          taskObjs.put(task.getString("id"), loadShape(task.getString("obj")));
+          taskObjs.get(task.getString("id")).translate(blockSize*0.125, -blockSize*0.2);
+          taskObjs.get(task.getString("id")).rotateX(PI/2);
+        }
+        else if (!task.isNull("img")) {
+          PShape object = createShape(RECT, 0, 0, blockSize/4, blockSize/4);
+          object.setFill(color(255, 255, 255));
+          object.setTexture(taskImages[i]);
+          taskObjs.put(task.getString("id"), object);
+          taskObjs.get(task.getString("id")).rotateX(-PI/2);
+        }
+      }
+      
+      LOGGER.fine("Loading buildings");
+      for (int i=0; i<gameData.getJSONArray("buildings").size(); i++) {
+        JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
+        if (!buildingType.isNull("obj")) {
+          buildingObjs.put(buildingType.getString("id"), new PShape[buildingType.getJSONArray("obj").size()]);
+          for (int j=0; j<buildingType.getJSONArray("obj").size(); j++) {
+            if (buildingType.getString("id").equals("Quarry")){
+              buildingObjs.get(buildingType.getString("id"))[j] = loadShape("quarry.obj");
+              buildingObjs.get(buildingType.getString("id"))[j].rotateX(PI/2);
+              //buildingObjs.get(buildingType.getString("id"))[j].setFill(color(86, 47, 14));
+              
+            }
+            else{
+              buildingObjs.get(buildingType.getString("id"))[j] = loadShape(buildingType.getJSONArray("obj").getString(j));
+              buildingObjs.get(buildingType.getString("id"))[j].rotateX(PI/2);
+              buildingObjs.get(buildingType.getString("id"))[j].scale(0.625);
+              buildingObjs.get(buildingType.getString("id"))[j].translate(0, 0, -6);
+            }
+          }
+        }
+      }
+  
+      popStyle();
+      cinematicMode = false;
+      drawRocket = false;
     }
-
-    popStyle();
-    cinematicMode = false;
-    drawRocket = false;
+    catch (Exception e){
+      LOGGER.log(Level.SEVERE, "Error loading models", e);
+    }
   }
 
   void generateHighlightingGrid(int horizontals, int verticles) {
-    PShape line;
-    // Load horizontal lines first
-    highlightingGrid = createShape(GROUP);
-    for (int i=0; i<horizontals; i++) {
-      line = createShape();
-      line.beginShape();
-      line.noFill();
-      for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++) {
-        float x2 = -horizontals/2+0.5+x1/jsManager.loadFloatSetting("terrain detail");
-        float y1 = -verticles/2+i+0.5;
-        line.stroke(255, 255, 255, 255-sqrt(pow(x2, 2)+pow(y1, 2))/3*255);
-        line.vertex(0, 0, 0);
+    try{
+      LOGGER.fine("Generating highlighting grid");
+      PShape line;
+      // Load horizontal lines first
+      highlightingGrid = createShape(GROUP);
+      for (int i=0; i<horizontals; i++) {
+        line = createShape();
+        line.beginShape();
+        line.noFill();
+        for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++) {
+          float x2 = -horizontals/2+0.5+x1/jsManager.loadFloatSetting("terrain detail");
+          float y1 = -verticles/2+i+0.5;
+          line.stroke(255, 255, 255, 255-sqrt(pow(x2, 2)+pow(y1, 2))/3*255);
+          line.vertex(0, 0, 0);
+        }
+        line.endShape();
+        highlightingGrid.addChild(line);
       }
-      line.endShape();
-      highlightingGrid.addChild(line);
+      // Next do verticle lines
+      for (int i=0; i<verticles; i++) {
+        line = createShape();
+        line.beginShape();
+        line.noFill();
+        for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++) {
+          float y2 = -verticles/2+0.5+y1/jsManager.loadFloatSetting("terrain detail");
+          float x1 = -horizontals/2+i+0.5;
+          line.stroke(255, 255, 255, 255-sqrt(pow(y2, 2)+pow(x1, 2))/3*255);
+          line.vertex(0, 0, 0);
+        }
+        line.endShape();
+        highlightingGrid.addChild(line);
+      }
     }
-    // Next do verticle lines
-    for (int i=0; i<verticles; i++) {
-      line = createShape();
-      line.beginShape();
-      line.noFill();
-      for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++) {
-        float y2 = -verticles/2+0.5+y1/jsManager.loadFloatSetting("terrain detail");
-        float x1 = -horizontals/2+i+0.5;
-        line.stroke(255, 255, 255, 255-sqrt(pow(y2, 2)+pow(x1, 2))/3*255);
-        line.vertex(0, 0, 0);
-      }
-      line.endShape();
-      highlightingGrid.addChild(line);
+    catch(Exception e){
+      LOGGER.log(Level.SEVERE, "Error generating highlighting grid", e);
     }
   }
 
   void updateHighlightingGrid(float x, float y, int horizontals, int verticles) {
     // x, y are cell coordinates
-    PShape line;
-    float alpha;
-    if (jsManager.loadBooleanSetting("active cell highlighting")) {
-      for (int i=0; i<horizontals; i++) {
-        line = highlightingGrid.getChild(i);
-        for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++) {
-          float x2 = int(x)-horizontals/2+1+x1/jsManager.loadFloatSetting("terrain detail");
-          float y1 = int(y)-verticles/2+1+i;
-          float x3 = -horizontals/2+x1/jsManager.loadFloatSetting("terrain detail");
-          float y3 = -verticles/2+i;
-          float dist = sqrt(pow(y3-y%1+1, 2)+pow(x3-x%1+1, 2));
-          if (0 < x2 && x2 < mapWidth && 0 < y1 && y1 < mapHeight){
-            alpha = 255-dist/(verticles/2-1)*255;
+    try{
+      LOGGER.finer(String.format("Updating selection rect at:%s, %s", x, y));
+      PShape line;
+      float alpha;
+      if (jsManager.loadBooleanSetting("active cell highlighting")) {
+        for (int i=0; i<horizontals; i++) {
+          line = highlightingGrid.getChild(i);
+          for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++) {
+            float x2 = int(x)-horizontals/2+1+x1/jsManager.loadFloatSetting("terrain detail");
+            float y1 = int(y)-verticles/2+1+i;
+            float x3 = -horizontals/2+x1/jsManager.loadFloatSetting("terrain detail");
+            float y3 = -verticles/2+i;
+            float dist = sqrt(pow(y3-y%1+1, 2)+pow(x3-x%1+1, 2));
+            if (0 < x2 && x2 < mapWidth && 0 < y1 && y1 < mapHeight){
+              alpha = 255-dist/(verticles/2-1)*255;
+            }
+            else{
+              alpha = 0;
+            }
+            line.setStroke(x1, color(255, alpha));
+            line.setVertex(x1, x2*blockSize, y1*blockSize, 0.1+getHeight(x2, y1));
           }
-          else{
-            alpha = 0;
+        }
+        // verticle lines
+        for (int i=0; i<verticles; i++) {
+          line = highlightingGrid.getChild(i+horizontals);
+          for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++) {
+            float x1 = int(x)-horizontals/2+1+i;
+            float y2 = int(y)-verticles/2+1+y1/jsManager.loadFloatSetting("terrain detail");
+            float y3 = -verticles/2+y1/jsManager.loadFloatSetting("terrain detail");
+            float x3 = -horizontals/2+i;
+            float dist = sqrt(pow(y3-y%1+1, 2)+pow(x3-x%1+1, 2));
+            if (0 < x1 && x1 < mapWidth && 0 < y2 && y2 < mapHeight){
+              alpha = 255-dist/(horizontals/2-1)*255;
+            }
+            else{
+              alpha = 0;
+            }
+            line.setStroke(y1, color(255, alpha));
+            line.setVertex(y1, x1*blockSize, y2*blockSize, 0.1+getHeight(x1, y2));
           }
-          line.setStroke(x1, color(255, alpha));
-          line.setVertex(x1, x2*blockSize, y1*blockSize, 0.1+getHeight(x2, y1));
+        }
+      } else {
+        for (int i=0; i<horizontals; i++) {
+          line = highlightingGrid.getChild(i);
+          for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++) {
+            float x2 = int(x)-horizontals/2+1+x1/jsManager.loadFloatSetting("terrain detail");
+            float y1 = int(y)-verticles/2+1+i;
+            line.setVertex(x1, x2*blockSize, y1*blockSize, 0.1+getHeight(x2, y1));
+          }
+        }
+        // verticle lines
+        for (int i=0; i<verticles; i++) {
+          line = highlightingGrid.getChild(i+horizontals);
+          for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++) {
+            float x1 = int(x)-horizontals/2+1+i;
+            float y2 = int(y)-verticles/2+1+y1/jsManager.loadFloatSetting("terrain detail");
+            line.setVertex(y1, x1*blockSize, y2*blockSize, 0.1+getHeight(x1, y2));
+          }
         }
       }
-      // verticle lines
-      for (int i=0; i<verticles; i++) {
-        line = highlightingGrid.getChild(i+horizontals);
-        for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++) {
-          float x1 = int(x)-horizontals/2+1+i;
-          float y2 = int(y)-verticles/2+1+y1/jsManager.loadFloatSetting("terrain detail");
-          float y3 = -verticles/2+y1/jsManager.loadFloatSetting("terrain detail");
-          float x3 = -horizontals/2+i;
-          float dist = sqrt(pow(y3-y%1+1, 2)+pow(x3-x%1+1, 2));
-          if (0 < x1 && x1 < mapWidth && 0 < y2 && y2 < mapHeight){
-            alpha = 255-dist/(horizontals/2-1)*255;
-          }
-          else{
-            alpha = 0;
-          }
-          line.setStroke(y1, color(255, alpha));
-          line.setVertex(y1, x1*blockSize, y2*blockSize, 0.1+getHeight(x1, y2));
-        }
-      }
-    } else {
-      for (int i=0; i<horizontals; i++) {
-        line = highlightingGrid.getChild(i);
-        for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++) {
-          float x2 = int(x)-horizontals/2+1+x1/jsManager.loadFloatSetting("terrain detail");
-          float y1 = int(y)-verticles/2+1+i;
-          line.setVertex(x1, x2*blockSize, y1*blockSize, 0.1+getHeight(x2, y1));
-        }
-      }
-      // verticle lines
-      for (int i=0; i<verticles; i++) {
-        line = highlightingGrid.getChild(i+horizontals);
-        for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++) {
-          float x1 = int(x)-horizontals/2+1+i;
-          float y2 = int(y)-verticles/2+1+y1/jsManager.loadFloatSetting("terrain detail");
-          line.setVertex(y1, x1*blockSize, y2*blockSize, 0.1+getHeight(x1, y2));
-        }
-      }
+    }
+    catch (Exception e){
+      LOGGER.log(Level.SEVERE, "Error updating highlighting grid", e);
     }
   }
 
   void updateSelectionRect(int cellX, int cellY) {
-    int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
-    int[] curLoc = {0, 0};
-    int a = 0;
-    for (int[] dir : directions) {
-      for (int i=0; i<jsManager.loadFloatSetting("terrain detail"); i++) {
-        tileRect.setVertex(a++, curLoc[0]*blockSize/jsManager.loadFloatSetting("terrain detail"), curLoc[1]*blockSize/jsManager.loadFloatSetting("terrain detail"), getHeight(cellX+curLoc[0]/jsManager.loadFloatSetting("terrain detail"), cellY+curLoc[1]/jsManager.loadFloatSetting("terrain detail")));
-        curLoc[0] += dir[0];
-        curLoc[1] += dir[1];
+    try{
+      LOGGER.finer(String.format("Updating selection rect at:%s, %s", cellX, cellY));
+      int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+      int[] curLoc = {0, 0};
+      int a = 0;
+      for (int[] dir : directions) {
+        for (int i=0; i<jsManager.loadFloatSetting("terrain detail"); i++) {
+          tileRect.setVertex(a++, curLoc[0]*blockSize/jsManager.loadFloatSetting("terrain detail"), curLoc[1]*blockSize/jsManager.loadFloatSetting("terrain detail"), getHeight(cellX+curLoc[0]/jsManager.loadFloatSetting("terrain detail"), cellY+curLoc[1]/jsManager.loadFloatSetting("terrain detail")));
+          curLoc[0] += dir[0];
+          curLoc[1] += dir[1];
+        }
       }
+    }
+    catch(Exception e){
+      LOGGER.log(Level.SEVERE, "Error updating selection rect", e);
     }
   }
 
   PVector MousePosOnObject(int mx, int my) {
-    applyCameraPerspective();
-    PVector floorPos = new PVector(focusedX+width/2, focusedY+height/2, 0);
-    PVector floorDir = new PVector(0, 0, -1);
-    PVector mousePos = getUnProjectedPointOnFloor( mouseX, mouseY, floorPos, floorDir);
-    camera();
-    return mousePos;
+    try{
+      applyCameraPerspective();
+      PVector floorPos = new PVector(focusedX+width/2, focusedY+height/2, 0);
+      PVector floorDir = new PVector(0, 0, -1);
+      PVector mousePos = getUnProjectedPointOnFloor( mouseX, mouseY, floorPos, floorDir);
+      camera();
+      return mousePos;
+    }
+    catch(Exception e){
+      LOGGER.log(Level.SEVERE, "Error finding mouse position on object", e);
+      return null;
+    }
   }
 
   float getObjectWidth() {
