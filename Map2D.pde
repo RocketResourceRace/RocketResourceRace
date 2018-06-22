@@ -40,7 +40,7 @@ interface Map {
 
 
 int getPartySize(Party p){
-  LOGGER.fine("Getting party size");
+  LOGGER_MAIN.fine("Getting party size");
   try{
     int totalSize = 0;
     ByteBuffer[] actions = new ByteBuffer[p.actions.size()];
@@ -119,7 +119,7 @@ int getPartySize(Party p){
     return totalSize;
   }
   catch (Exception e){
-    LOGGER.log(Level.SEVERE, "Error getting party size", e);
+    LOGGER_MAIN.log(Level.SEVERE, "Error getting party size", e);
     return -1;
   }
 }
@@ -128,7 +128,7 @@ void saveParty(ByteBuffer b, Party p){
     b.put(p.byteRep);
   }
   catch (Exception e){
-    LOGGER.log(Level.SEVERE, "Error saving party", e);
+    LOGGER_MAIN.log(Level.SEVERE, "Error saving party", e);
   }
 }
 Party loadParty(ByteBuffer b){
@@ -191,7 +191,7 @@ Party loadParty(ByteBuffer b){
     return p;
   }
   catch (Exception e){
-    LOGGER.log(Level.SEVERE, "Error loading party", e);
+    LOGGER_MAIN.log(Level.SEVERE, "Error loading party", e);
     return null;
   }
 }
@@ -283,7 +283,7 @@ class BaseMap extends Element{
       saveBytes(filename, buffer.array());
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, "Error saving map", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error saving map", e);
     }
   }
   MapSave loadMap(String filename, int resourceCountNew){
@@ -384,7 +384,7 @@ class BaseMap extends Element{
     }
     
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, "Error loading map", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading map", e);
       return null;
     }
   }
@@ -395,7 +395,7 @@ class BaseMap extends Element{
       return int(x1+x*jsManager.loadFloatSetting("terrain detail")+y1*jsManager.loadFloatSetting("terrain detail")*(mapWidth+1/jsManager.loadFloatSetting("terrain detail"))+y*pow(jsManager.loadFloatSetting("terrain detail"), 2)*(mapWidth+1/jsManager.loadFloatSetting("terrain detail")));
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, "Error converting coordinates to map index", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error converting coordinates to map index", e);
       return -1;
     }
   }
@@ -470,7 +470,7 @@ class BaseMap extends Element{
   //}
   void generateTerrain(){
     try{
-      LOGGER.info("Generating terrain");
+      LOGGER_MAIN.info("Generating terrain");
       noiseDetail(3,0.25);
       HashMap<Integer, Float> groundWeightings = new HashMap();
       for (Integer i=1; i<gameData.getJSONArray("terrain").size()+1; i++){
@@ -609,12 +609,12 @@ class BaseMap extends Element{
       }
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, "Error generating map", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error generating map", e);
     }
   }
   void generateMap(int mapWidth, int mapHeight){
     try{
-      LOGGER.fine("Generating map");
+      LOGGER_MAIN.fine("Generating map");
       terrain = new int[mapHeight][mapWidth];
       buildings = new Building[mapHeight][mapWidth];
       parties = new Party[mapHeight][mapWidth];
@@ -626,12 +626,12 @@ class BaseMap extends Element{
       generateTerrain();
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, "Error generating map", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error generating map", e);
     }
   }
   void generateNoiseMaps(){
     try{
-      LOGGER.info("Generating noise map");
+      LOGGER_MAIN.info("Generating noise map");
       noiseDetail(4,0.5);
       heightMap = new float[int((mapWidth+1/jsManager.loadFloatSetting("terrain detail"))*(mapHeight+1/jsManager.loadFloatSetting("terrain detail"))*pow(jsManager.loadFloatSetting("terrain detail"), 2))];
       for(int y = 0;y<mapHeight;y++){
@@ -652,7 +652,7 @@ class BaseMap extends Element{
       heightMap[toMapIndex(mapWidth, mapHeight, 0, 0)] = noise(((mapWidth+1))*MAPHEIGHTNOISESCALE, (mapHeight)*MAPHEIGHTNOISESCALE);
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, "Error generating noise map", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error generating noise map", e);
     }
   }
   void setHeightsForCell(int x, int y, float h){
@@ -667,7 +667,7 @@ class BaseMap extends Element{
       }
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, String.format("Error setting height for cell with height %s and pos: (%s, %s)", x, y, h), e);
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error setting height for cell with height %s and pos: (%s, %s)", x, y, h), e);
     }
   }
   float getRawHeight(int x, int y, int x1, int y1) {
@@ -681,7 +681,7 @@ class BaseMap extends Element{
       }
     } 
     catch (ArrayIndexOutOfBoundsException e) {
-      LOGGER.warning(String.format("Uncaught request for height at (%s, %s) (%s, %s)", x, y, x1, y1));
+      LOGGER_MAIN.warning(String.format("Uncaught request for height at (%s, %s) (%s, %s)", x, y, x1, y1));
       return jsManager.loadFloatSetting("water level");
     }
   }
@@ -701,7 +701,7 @@ class BaseMap extends Element{
       return min(new float[]{getRawHeight(x, y), getRawHeight(x+1, y), getRawHeight(x, y+1), getRawHeight(x+1, y+1)});
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, String.format("Error getting min raw ground height at: (%s, %s)", x1, y1), e);
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error getting min raw ground height at: (%s, %s)", x1, y1), e);
       return -1;
     }
   }
@@ -712,7 +712,7 @@ class BaseMap extends Element{
       return max(new float[]{getRawHeight(x, y), getRawHeight(x+1, y), getRawHeight(x, y+1), getRawHeight(x+1, y+1)});
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, String.format("Error getting max raw ground height at: (%s, %s)", x1, y1), e);
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error getting max raw ground height at: (%s, %s)", x1, y1), e);
       return -1;
     }
   }
@@ -738,7 +738,7 @@ class BaseMap extends Element{
       return maxZ-minZ;
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, String.format("Error getting max steepness at: (%s, %s)", x, y), e);
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error getting max steepness at: (%s, %s)", x, y), e);
       return -1;
     }
   }
@@ -770,7 +770,7 @@ class Map2D extends BaseMap implements Map{
   PVector rocketVelocity;
 
   Map2D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight){
-    LOGGER.fine("Initialsing map");
+    LOGGER_MAIN.fine("Initialsing map");
     xPos = x;
     yPos = y;
     EW = w;
@@ -887,7 +887,7 @@ class Map2D extends BaseMap implements Map{
     return targetBlockSize;
   }
   float [] targetCell(int x, int y, float bs){
-    LOGGER.finer(String.format("Targetting cell: %s, %s block size: ", x, y, bs));
+    LOGGER_MAIN.finer(String.format("Targetting cell: %s, %s block size: ", x, y, bs));
     targetBlockSize = bs;
     targetXOffset = -(x+0.5)*targetBlockSize+elementWidth/2+xPos;
     targetYOffset = -(y+0.5)*targetBlockSize+elementHeight/2+yPos;
@@ -1271,14 +1271,14 @@ class Map2D extends BaseMap implements Map{
   }
   
   void enableRocket(PVector pos, PVector vel){
-    LOGGER.fine("Rocket enabled in 2d map");
+    LOGGER_MAIN.fine("Rocket enabled in 2d map");
     drawRocket = true;
     rocketPosition = pos;
     rocketVelocity = vel;
   }
   
   void disableRocket(){
-    LOGGER.fine("Rocket disabled in 2d map");
+    LOGGER_MAIN.fine("Rocket disabled in 2d map");
     drawRocket = false;
   }
   

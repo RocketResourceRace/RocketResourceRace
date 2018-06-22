@@ -21,8 +21,16 @@ class LoggerFormatter extends Formatter {
     }
 
     String calcDate(long millisecs) {
-        SimpleDateFormat date_format = new SimpleDateFormat("MMM dd,yyyy HH:mm");
+        SimpleDateFormat date_format = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss:SS");
         Date date = new Date(millisecs);
         return date_format.format(date);
+    }
+    
+    String getHead(Handler h){
+      return "\nStarting new session...\n";
+    }
+    
+    String getTail(Handler h){
+      return "\n";
     }
 }

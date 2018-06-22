@@ -41,6 +41,7 @@ class Party{
     pathTurns = 0;
   }
   void changeTask(int task){
+    LOGGER_GAME.info("Party changing task to:"+gameData.getJSONArray("tasks").getJSONObject(task).getString("id"));
     this.task = task;
     JSONObject jTask = gameData.getJSONArray("tasks").getJSONObject(this.getTask());
     if (!jTask.isNull("strength")){

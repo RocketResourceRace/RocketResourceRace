@@ -12,20 +12,20 @@ class JSONManager{
         settings = loadJSONObject("settings.json");
       }
       catch (Exception e){
-        LOGGER.info("creating new settings file");
+        LOGGER_MAIN.info("creating new settings file");
         PrintWriter w = createWriter("settings.json");
         w.print("{}\n");
         w.flush();
         w.close();
-        LOGGER.info("Finished creating new settings file");
+        LOGGER_MAIN.info("Finished creating new settings file");
         settings = loadJSONObject("settings.json");
-        LOGGER.info("loading settings... ");
+        LOGGER_MAIN.info("loading settings... ");
         loadDefaultSettings();
       }
       loadInitialSettings();
     }
     catch(Exception e){
-      LOGGER.log(Level.SEVERE, "Error loading JSON", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading JSON", e);
     }
   }
   
@@ -35,7 +35,7 @@ class JSONManager{
       return JSONIndex(gameData.getJSONArray("resources"), s);
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, "Error getting resource index for: " + s);
+      LOGGER_MAIN.log(Level.SEVERE, "Error getting resource index for: " + s);
       return 0;
     }
   }
@@ -45,7 +45,7 @@ class JSONManager{
       return gameData.getJSONArray("resources").getJSONObject(r).getString("id");
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, "Error getting resource string for: " + r, e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error getting resource string for: " + r, e);
       return "";
     }
   }
@@ -53,54 +53,54 @@ class JSONManager{
   void saveSetting(String id, int val){
     // Save the setting to settings and write settings to file
     try{
-      LOGGER.fine(String.format("Saving setting id:'%s', value:%s", id, val));
+      LOGGER_MAIN.fine(String.format("Saving setting id:'%s', value:%s", id, val));
       settings.setInt(id, val);
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, "Error saving setting for: " + id + " with value " + val, e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error saving setting for: " + id + " with value " + val, e);
     }
   }
   
   void saveSetting(String id, float val){
     // Save the setting to settings and write settings to file
     try{
-      LOGGER.fine(String.format("Saving setting id:'%s', value:%s", id, val));
+      LOGGER_MAIN.fine(String.format("Saving setting id:'%s', value:%s", id, val));
       settings.setFloat(id, val);
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, "Error saving setting for: " + id + " with value " + val, e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error saving setting for: " + id + " with value " + val, e);
     }
   }
   
   void saveSetting(String id, String val){
     // Save the setting to settings and write settings to file
     try{
-      LOGGER.fine(String.format("Saving setting id:'%s', value:%s", id, val));
+      LOGGER_MAIN.fine(String.format("Saving setting id:'%s', value:%s", id, val));
       settings.setString(id, val);
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, "Error saving setting for: " + id + " with value " + val, e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error saving setting for: " + id + " with value " + val, e);
     }
   }
   
   void saveSetting(String id, boolean val){
     // Save the setting to settings and write settings to file
     try{
-      LOGGER.fine(String.format("Saving setting id:'%s', value:%s", id, val));
+      LOGGER_MAIN.fine(String.format("Saving setting id:'%s', value:%s", id, val));
       settings.setBoolean(id, val);
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, "Error saving setting for: " + id + " with value " + val, e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error saving setting for: " + id + " with value " + val, e);
     }
   }
   
   void writeSettings(){
     try{
-      LOGGER.info("Saving settings to file");
+      LOGGER_MAIN.info("Saving settings to file");
       saveJSONObject(settings, "settings.json");
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, "Error saving settings");
+      LOGGER_MAIN.log(Level.SEVERE, "Error saving settings");
     }
   }
   
@@ -118,14 +118,14 @@ class JSONManager{
       }
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, String.format("Error finding flag for panel:'%s', element:'%s', flag:'%s'", panelID, elemID, flag), e);
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error finding flag for panel:'%s', element:'%s', flag:'%s'", panelID, elemID, flag), e);
     }
     return false;
   }
   
   void loadDefaultSettings(){
     // Reset all the settings to their default values
-    LOGGER.info("Loading default settings for all settings");
+    LOGGER_MAIN.info("Loading default settings for all settings");
     try{
       JSONArray defaultSettings = menu.getJSONArray("default settings");
       for (int i=0; i<defaultSettings.size(); i++){
@@ -143,18 +143,18 @@ class JSONManager{
           saveSetting(setting.getString("id"), setting.getBoolean("value"));
         }
         else{
-          LOGGER.warning("Invalid setting type: " + setting.getString("id"));
+          LOGGER_MAIN.warning("Invalid setting type: " + setting.getString("id"));
         }
       }
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, "Error loading default settings", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading default settings", e);
     }
   }
   
   void loadInitialSettings(){
     // Set all the settings to either the default value, or the value already set
-    LOGGER.info("Loading initial settings");
+    LOGGER_MAIN.info("Loading initial settings");
     try{
       JSONArray defaultSettings = menu.getJSONArray("default settings");
       for (int i=0; i<defaultSettings.size(); i++){
@@ -173,14 +173,14 @@ class JSONManager{
             saveSetting(setting.getString("id"), setting.getBoolean("value"));
           }
           else{
-            LOGGER.warning("Invalid setting type: "+setting.getString("type"));
+            LOGGER_MAIN.warning("Invalid setting type: "+setting.getString("type"));
           }
         }
       }
       writeSettings();
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, "Error loading initial settings", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading initial settings", e);
     }
   }
   
@@ -190,7 +190,7 @@ class JSONManager{
       return  settings.getInt(id);
     }
     catch(Exception e){
-      LOGGER.log(Level.WARNING, "Error loading string setting: " + id, e);
+      LOGGER_MAIN.log(Level.WARNING, "Error loading string setting: " + id, e);
       return -1;
     }
   }
@@ -201,7 +201,7 @@ class JSONManager{
       return  settings.getFloat(id);
     }
     catch(Exception e){
-      LOGGER.log(Level.WARNING, "Error loading float setting: "+ id, e);
+      LOGGER_MAIN.log(Level.WARNING, "Error loading float setting: "+ id, e);
       return -1;
     }
   }
@@ -212,7 +212,7 @@ class JSONManager{
       return  settings.getString(id);
     }
     catch(Exception e){
-      LOGGER.log(Level.WARNING, "Error loading string setting " + id, e);
+      LOGGER_MAIN.log(Level.WARNING, "Error loading string setting " + id, e);
       return "";
     }
   }
@@ -223,13 +223,13 @@ class JSONManager{
       return  settings.getBoolean(id);
     }
     catch(Exception e){
-      LOGGER.log(Level.WARNING, "Error loading int setting: "+ id, e);
+      LOGGER_MAIN.log(Level.WARNING, "Error loading int setting: "+ id, e);
       return false;
     }
   }
   
   void saveDefault(String id){
-    LOGGER.info("Saving all default settings");
+    LOGGER_MAIN.info("Saving all default settings");
     JSONArray defaultSettings = menu.getJSONArray("default settings");
     for (int i=0; i<defaultSettings.size(); i++){
       if (defaultSettings.getJSONObject(i).getString("id").equals(id)){
@@ -247,7 +247,7 @@ class JSONManager{
           saveSetting(setting.getString("id"), setting.getBoolean("value"));
         }
         else{
-          LOGGER.warning("Invalid setting type: "+ setting.getString("type"));
+          LOGGER_MAIN.warning("Invalid setting type: "+ setting.getString("type"));
         }
       }
     }
@@ -265,7 +265,7 @@ class JSONManager{
       return null;
     }
     catch (Exception e){
-      LOGGER.log(Level.WARNING, "Error finding JSON object with id: "+ id, e);
+      LOGGER_MAIN.log(Level.WARNING, "Error finding JSON object with id: "+ id, e);
       return null;
     }
   }
@@ -276,7 +276,7 @@ class JSONManager{
       return findJSONObject(elems, element).getString("type");
     }
     catch(Exception e){
-      LOGGER.log(Level.WARNING, "Error finding element type with id: "+ element + " on panel " + panel, e);
+      LOGGER_MAIN.log(Level.WARNING, "Error finding element type with id: "+ element + " on panel " + panel, e);
       return "";
     }
   }
@@ -284,7 +284,7 @@ class JSONManager{
   HashMap<String, String[]> getChangeStateButtons(){
     // Store all the buttons that when clicked change the state
     try{
-      LOGGER.fine("Loading buttons that change the state");
+      LOGGER_MAIN.fine("Loading buttons that change the state");
       HashMap returnHash = new HashMap<String, String[]>();
        JSONArray panels = menu.getJSONArray("states");
        for (int i=0; i<panels.size(); i++){
@@ -299,7 +299,7 @@ class JSONManager{
       return returnHash;
     }
     catch(Exception e){
-      LOGGER.log(Level.SEVERE, "Error getting change state buttons", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error getting change state buttons", e);
       return null;
     }
   }
@@ -307,7 +307,7 @@ class JSONManager{
   HashMap<String, String[]> getChangeSettingButtons(){
     // Store all the buttons that when clicked change a setting
     try{
-      LOGGER.fine("Loading buttons that change a setting");
+      LOGGER_MAIN.fine("Loading buttons that change a setting");
       HashMap returnHash = new HashMap<String, String[]>();
       JSONArray panels = menu.getJSONArray("states");
       for (int i=0; i<panels.size(); i++){
@@ -322,7 +322,7 @@ class JSONManager{
     return returnHash;
     }
     catch(Exception e){
-      LOGGER.log(Level.SEVERE, "Error getting buttons that chagne settings", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error getting buttons that chagne settings", e);
       return null;
     }
   }
@@ -335,7 +335,7 @@ class JSONManager{
       return element.getString("setting");
     }
     catch(Exception e){
-      LOGGER.log(Level.WARNING, "Error getting setting name with id:"+id+", panel: "+panelID, e);
+      LOGGER_MAIN.log(Level.WARNING, "Error getting setting name with id:"+id+", panel: "+panelID, e);
       return "";
     }
   }
@@ -346,14 +346,14 @@ class JSONManager{
       return panel.getString("title");
     }
     catch(Exception e){
-      LOGGER.log(Level.WARNING, "Error getting menu state title with id:"+id, e);
+      LOGGER_MAIN.log(Level.WARNING, "Error getting menu state title with id:"+id, e);
       return "";
     }
   }
   
   void loadMenuElements(State state, float guiScale){
     // Load all the menu panels in to menu state
-    LOGGER.info("Loading in menu elements using JSON");
+    LOGGER_MAIN.info("Loading in menu elements using JSON");
     try{
        JSONArray panels = menu.getJSONArray("states");
        for (int i=0; i<panels.size(); i++){
@@ -363,7 +363,7 @@ class JSONManager{
        }
     }
     catch(Exception e){
-      LOGGER.log(Level.SEVERE, "Error loading menu elements", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading menu elements", e);
     }
   }
   
@@ -521,13 +521,13 @@ class JSONManager{
             state.addElement(id, dd, panelID);
             break;
           default:
-            LOGGER.warning("Invalid element type: "+ type);
+            LOGGER_MAIN.warning("Invalid element type: "+ type);
             break;
         }
       }
     }
     catch(Exception e){
-      LOGGER.log(Level.SEVERE, "Error loading menu elements", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading menu elements", e);
     }
   }
 }

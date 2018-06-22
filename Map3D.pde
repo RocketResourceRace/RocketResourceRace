@@ -51,7 +51,7 @@ class Map3D extends BaseMap implements Map {
   PVector rocketVelocity;
 
   Map3D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
-    LOGGER.fine("Initialising map 3d");
+    LOGGER_MAIN.fine("Initialising map 3d");
     this.x = x;
     this.y = y;
     this.w = w;
@@ -117,7 +117,7 @@ class Map3D extends BaseMap implements Map {
       }
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, String.format("Error getting downward angle: (%s, %s)", x, y), e);
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error getting downward angle: (%s, %s)", x, y), e);
       return -1;
     }
   }
@@ -160,12 +160,12 @@ class Map3D extends BaseMap implements Map {
     this.mapActive = a;
   }
   void updateMoveNodes(Node[][] nodes) {
-    LOGGER.finer("Updating move nodes");
+    LOGGER_MAIN.finer("Updating move nodes");
     moveNodes = nodes;
     updatePossibleMoves();
   }
   void updatePath(ArrayList<int[]> nodes) {
-    LOGGER.finer("Updating path");
+    LOGGER_MAIN.finer("Updating path");
     float x0, y0;
     drawPath = nodes;
     pathLine = createShape();
@@ -185,7 +185,7 @@ class Map3D extends BaseMap implements Map {
   void updatePossibleMoves(){
     // For the shape that indicateds where a party can move
     try{
-      LOGGER.finer("Updating possible move nodes");
+      LOGGER_MAIN.finer("Updating possible move nodes");
       float smallSize = blockSize / jsManager.loadFloatSetting("terrain detail");
       drawPossibleMoves = createShape();
       drawPossibleMoves.beginShape(TRIANGLES);
@@ -211,7 +211,7 @@ class Map3D extends BaseMap implements Map {
       drawPossibleMoves.endShape();
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, "Error updating possible moves", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error updating possible moves", e);
     }
   }
   void cancelMoveNodes() {
@@ -221,13 +221,13 @@ class Map3D extends BaseMap implements Map {
     drawPath = null;
   }
   void loadSettings(float mapXOffset, float mapYOffset, float blockSize) {
-    LOGGER.fine(String.format("Loading camera settings. xoff:%s, yoff:%s, block size: %s", mapXOffset, mapYOffset, blockSize));
+    LOGGER_MAIN.fine(String.format("Loading camera settings. xoff:%s, yoff:%s, block size: %s", mapXOffset, mapYOffset, blockSize));
     targetXOffset = mapXOffset;
     targetYOffset = mapYOffset;
     panning = true;
   }
   float[] targetCell(int x, int y, float zoom) {
-    LOGGER.finer(String.format("Targetting cell:%s, %s and zoom:%s", x, y, zoom));
+    LOGGER_MAIN.finer(String.format("Targetting cell:%s, %s and zoom:%s", x, y, zoom));
     targetXOffset = (x+0.5)*blockSize-width/2;
     targetYOffset = (y+0.5)*blockSize-height/2;
     panning = true;
@@ -257,7 +257,7 @@ class Map3D extends BaseMap implements Map {
       hoveringY = (mo.y)/getObjectHeight()*mapHeight;
     }
     catch(Exception e){
-      LOGGER.log(Level.SEVERE, "Error updaing hovering scale", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error updaing hovering scale", e);
     }
   }
   
@@ -279,7 +279,7 @@ class Map3D extends BaseMap implements Map {
       forestTiles.remove(cellX+cellY*mapWidth);
     }
     catch(Exception e){
-      LOGGER.log(Level.SEVERE, "Error removing tree tile", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error removing tree tile", e);
     }
   }
 
@@ -317,7 +317,7 @@ class Map3D extends BaseMap implements Map {
 
   PShape generateTrees(int num, int vertices, float x1, float y1) {
     try{
-      LOGGER.info(String.format("Generating trees at %s, %s", x1, y1));
+      LOGGER_MAIN.info(String.format("Generating trees at %s, %s", x1, y1));
       PShape shapes = createShape(GROUP);
       PShape stump;
       colorMode(HSB, 100);
@@ -356,14 +356,14 @@ class Map3D extends BaseMap implements Map {
       return shapes;
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, "Error generating trees", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error generating trees", e);
       return null;
     }
   }
   
   void loadMapStrip(int y, PShape tiles, boolean loading){
     try{
-      LOGGER.fine("Loading map strip y:"+y+" loading: "+loading);
+      LOGGER_MAIN.fine("Loading map strip y:"+y+" loading: "+loading);
       tempTerrain = createGraphics(round((1+mapWidth)*jsManager.loadIntSetting("terrain texture resolution")), round(jsManager.loadIntSetting("terrain texture resolution")));
       tempSingleRow = createShape();
       tempRow = createShape(GROUP);
@@ -457,25 +457,25 @@ class Map3D extends BaseMap implements Map {
       tempSingleRow = null;
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, String.format("Error loading mao strip: y:%s", y), e);
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error loading mao strip: y:%s", y), e);
     }
   }
   
   void replaceMapStripWithReloadedStrip(int y){
     try{
-      LOGGER.fine("Replace strip y: "+y);
+      LOGGER_MAIN.fine("Replace strip y: "+y);
       tiles.removeChild(y);
       loadMapStrip(y, tiles, false);
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, String.format("Error replacing map strip: %s", y), e);
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error replacing map strip: %s", y), e);
     }
   }
 
   void clearShape() {
     // Use to clear references to large objects when exiting state
     try{
-      LOGGER.info("Clearing 3D models");
+      LOGGER_MAIN.info("Clearing 3D models");
       water = null;
       trees = null;
       tiles = null;
@@ -484,17 +484,17 @@ class Map3D extends BaseMap implements Map {
       forestTiles = new HashMap<Integer, Integer>();
     }
     catch(Exception e){
-      LOGGER.log(Level.SEVERE, "Error clearing shape", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error clearing shape", e);
     }
   }
 
   void generateShape() {
     try{
-      LOGGER.info("Generating 3D models");
+      LOGGER_MAIN.info("Generating 3D models");
       pushStyle();
       noFill();
       noStroke();
-      LOGGER.fine("Generating terrain textures");
+      LOGGER_MAIN.fine("Generating terrain textures");
       tempTileImages = new PImage[gameData.getJSONArray("terrain").size()];
       for (int i=0; i<gameData.getJSONArray("terrain").size(); i++) {
         JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
@@ -506,7 +506,7 @@ class Map3D extends BaseMap implements Map {
         tempTileImages[i].resize(jsManager.loadIntSetting("terrain texture resolution"), jsManager.loadIntSetting("terrain texture resolution"));
       }
       
-      LOGGER.fine("Generating Water");
+      LOGGER_MAIN.fine("Generating Water");
       water = createShape(RECT, 0, 0, getObjectWidth(), getObjectHeight());
       water.translate(0, 0, 0.1);
       generateHighlightingGrid(8, 8);
@@ -516,7 +516,7 @@ class Map3D extends BaseMap implements Map {
       trees = createShape(GROUP);
       int numTreeTiles=0;
       
-      LOGGER.fine("Generating trees and terrain model");
+      LOGGER_MAIN.fine("Generating trees and terrain model");
       for (int y=0; y<mapHeight; y++) {
         loadMapStrip(y, tiles, true);
         
@@ -532,7 +532,7 @@ class Map3D extends BaseMap implements Map {
       }
       resetMatrix();
       
-      LOGGER.fine("Generating player flags");
+      LOGGER_MAIN.fine("Generating player flags");
       blueFlag = loadShape("blueflag.obj");
       blueFlag.rotateX(PI/2);
       blueFlag.scale(2, 2.5, 2.5);
@@ -547,7 +547,7 @@ class Map3D extends BaseMap implements Map {
       int players = 2;
       fill(255);
       
-      LOGGER.fine("Generating units number objects");
+      LOGGER_MAIN.fine("Generating units number objects");
       unitNumberObjects = new PShape[players+1];
       for (int i=0; i < players; i++) {
         unitNumberObjects[i] = createShape();
@@ -625,7 +625,7 @@ class Map3D extends BaseMap implements Map {
           curLoc[1] += dir[1];
         }
       }
-      LOGGER.fine("Loading task icon objects");
+      LOGGER_MAIN.fine("Loading task icon objects");
       tileRect.endShape(CLOSE);
       for (int i=0; i<gameData.getJSONArray("tasks").size(); i++) {
         JSONObject task = gameData.getJSONArray("tasks").getJSONObject(i);
@@ -643,7 +643,7 @@ class Map3D extends BaseMap implements Map {
         }
       }
       
-      LOGGER.fine("Loading buildings");
+      LOGGER_MAIN.fine("Loading buildings");
       for (int i=0; i<gameData.getJSONArray("buildings").size(); i++) {
         JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
         if (!buildingType.isNull("obj")) {
@@ -670,13 +670,13 @@ class Map3D extends BaseMap implements Map {
       drawRocket = false;
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, "Error loading models", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading models", e);
     }
   }
 
   void generateHighlightingGrid(int horizontals, int verticles) {
     try{
-      LOGGER.fine("Generating highlighting grid");
+      LOGGER_MAIN.fine("Generating highlighting grid");
       PShape line;
       // Load horizontal lines first
       highlightingGrid = createShape(GROUP);
@@ -709,14 +709,14 @@ class Map3D extends BaseMap implements Map {
       }
     }
     catch(Exception e){
-      LOGGER.log(Level.SEVERE, "Error generating highlighting grid", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error generating highlighting grid", e);
     }
   }
 
   void updateHighlightingGrid(float x, float y, int horizontals, int verticles) {
     // x, y are cell coordinates
     try{
-      LOGGER.finer(String.format("Updating selection rect at:%s, %s", x, y));
+      LOGGER_MAIN.finer(String.format("Updating selection rect at:%s, %s", x, y));
       PShape line;
       float alpha;
       if (jsManager.loadBooleanSetting("active cell highlighting")) {
@@ -778,13 +778,13 @@ class Map3D extends BaseMap implements Map {
       }
     }
     catch (Exception e){
-      LOGGER.log(Level.SEVERE, "Error updating highlighting grid", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error updating highlighting grid", e);
     }
   }
 
   void updateSelectionRect(int cellX, int cellY) {
     try{
-      LOGGER.finer(String.format("Updating selection rect at:%s, %s", cellX, cellY));
+      LOGGER_MAIN.finer(String.format("Updating selection rect at:%s, %s", cellX, cellY));
       int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
       int[] curLoc = {0, 0};
       int a = 0;
@@ -797,7 +797,7 @@ class Map3D extends BaseMap implements Map {
       }
     }
     catch(Exception e){
-      LOGGER.log(Level.SEVERE, "Error updating selection rect", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error updating selection rect", e);
     }
   }
 
@@ -811,7 +811,7 @@ class Map3D extends BaseMap implements Map {
       return mousePos;
     }
     catch(Exception e){
-      LOGGER.log(Level.SEVERE, "Error finding mouse position on object", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error finding mouse position on object", e);
       return null;
     }
   }
@@ -1102,7 +1102,7 @@ class Map3D extends BaseMap implements Map {
       //image(refractionCanvas, 0, 0);
     }
     catch(Exception e){
-      LOGGER.log(Level.SEVERE, "Error drawing 3D map", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error drawing 3D map", e);
     }
   }
 
@@ -1114,7 +1114,7 @@ class Map3D extends BaseMap implements Map {
       canvas.popMatrix();
     }
     catch(Exception e){
-      LOGGER.log(Level.SEVERE, "Error rendering water", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error rendering water", e);
     }
   }
 
@@ -1126,7 +1126,7 @@ class Map3D extends BaseMap implements Map {
       }
     }
     catch(Exception e){
-      LOGGER.log(Level.SEVERE, "Error drawing path", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error drawing path", e);
     }
   }
 
@@ -1238,7 +1238,7 @@ class Map3D extends BaseMap implements Map {
       }
     }
     catch(Exception e){
-      LOGGER.log(Level.SEVERE, "Error rendering scene", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error rendering scene", e);
     }
 
   }
@@ -1297,13 +1297,13 @@ class Map3D extends BaseMap implements Map {
       }
     }
     catch(Exception e){
-      LOGGER.log(Level.SEVERE, "Error drawing unit bar", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error drawing unit bar", e);
     }
   }
 
   String buildingString(int buildingI) {
     if (gameData.getJSONArray("buildings").isNull(buildingI-1)) {
-      LOGGER.warning("invalid building string: "+(buildingI-1));
+      LOGGER_MAIN.warning("invalid building string: "+(buildingI-1));
       return null;
     }
     return gameData.getJSONArray("buildings").getJSONObject(buildingI-1).getString("id");
@@ -1370,7 +1370,7 @@ class Map3D extends BaseMap implements Map {
       return new PVector(-1, -1, -1);
     }
     catch(Exception e){
-      LOGGER.log(Level.SEVERE, "Error updaing getting unprojected point on floor", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error updaing getting unprojected point on floor", e);
       return new PVector(-1, -1, -1);
     }
 
@@ -1418,7 +1418,7 @@ class Map3D extends BaseMap implements Map {
       return viewport;
     }
     catch(Exception e){
-      LOGGER.log(Level.SEVERE, "Error updaing getting local to windows matrix", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error updaing getting local to windows matrix", e);
       return null;
     }
 
@@ -1443,7 +1443,7 @@ class Map3D extends BaseMap implements Map {
       canvas.popMatrix();
     }
     catch(Exception e){
-      LOGGER.log(Level.SEVERE, "Error drawing rocket", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error drawing rocket", e);
     }
   }
 }

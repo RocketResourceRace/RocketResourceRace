@@ -11,8 +11,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 // Create logger for this pde
-final Logger LOGGER = Logger.getLogger("RocketResourceRace");
-final Level FILELOGLEVEL = Level.FINEST;
+final Logger LOGGER_MAIN = Logger.getLogger("RocketResourceRaceMain"); // Most logs belong here
+final Logger LOGGER_GAME = Logger.getLogger("RocketResourceRaceGame"); // For game algorithm related logs
+final Level FILELOGLEVEL = Level.FINER;
 
 String activeState;
 HashMap<String, State> states;
@@ -57,7 +58,7 @@ int JSONIndex(JSONArray j, String id){
       return i;
     }
   }
-  LOGGER.warning(String.format("Invalid JSON index '%s'", id));
+  LOGGER_MAIN.warning(String.format("Invalid JSON index '%s'", id));
   return -1;
 }
 
@@ -67,7 +68,7 @@ JSONObject findJSONObject(JSONArray j, String id){
       return j.getJSONObject(i);
     }
   }
-  LOGGER.warning(String.format("Invalid JSON Object id %s", id));
+  LOGGER_MAIN.warning(String.format("Invalid JSON Object id %s", id));
   return null;
 }
 
@@ -83,7 +84,7 @@ boolean JSONContainsStr(JSONArray j, String id){
     return false;
   }
   catch(Exception e){
-    LOGGER.log(Level.SEVERE, String.format("Error finding string in JSON array, '%s'", id), e);
+    LOGGER_MAIN.log(Level.SEVERE, String.format("Error finding string in JSON array, '%s'", id), e);
     return false;
   }
 }
@@ -122,7 +123,7 @@ void setVolume(){
     }
   }
   catch (Exception e){
-    LOGGER.log(Level.SEVERE, "Something wrong with setting volume", e);
+    LOGGER_MAIN.log(Level.SEVERE, "Something wrong with setting volume", e);
   }
 }
 
@@ -161,7 +162,7 @@ void loadSounds(){
     }
   }
   catch (Exception e){
-    LOGGER.log(Level.SEVERE, "Something wrong with loading sounds", e);
+    LOGGER_MAIN.log(Level.SEVERE, "Something wrong with loading sounds", e);
   }
 }
 
@@ -198,7 +199,7 @@ void loadImages(){
   }
   
   catch (Exception e){
-    LOGGER.log(Level.SEVERE, "Something wrong with loading images", e);
+    LOGGER_MAIN.log(Level.SEVERE, "Something wrong with loading images", e);
   }
 }
 
@@ -214,7 +215,7 @@ PFont getFont(float size){
     }
   }
   catch (Exception e){
-    LOGGER.log(Level.SEVERE, "Something wrong with loading font", e);
+    LOGGER_MAIN.log(Level.SEVERE, "Something wrong with loading font", e);
     return null;
   }
 }
@@ -234,15 +235,22 @@ void setup(){
 
   fullScreen(P3D);
   try{
-    // Set up logger
-    FileHandler handler = new FileHandler(sketchPath("log.log"));
-    handler.setFormatter(new LoggerFormatter());
-    handler.setLevel(FILELOGLEVEL);
-    LOGGER.addHandler(handler);
-    LOGGER.setLevel(FILELOGLEVEL);
+    // Set up loggers
+    FileHandler mainHandler = new FileHandler(sketchPath("main_log.log"));
+    mainHandler.setFormatter(new LoggerFormatter());
+    mainHandler.setLevel(FILELOGLEVEL);
+    LOGGER_MAIN.addHandler(mainHandler);
+    LOGGER_MAIN.setLevel(FILELOGLEVEL);
+    
+    FileHandler gameHandler = new FileHandler(sketchPath("game_log.log"));
+    gameHandler.setFormatter(new LoggerFormatter());
+    gameHandler.setLevel(FILELOGLEVEL);
+    LOGGER_GAME.addHandler(gameHandler);
+    LOGGER_GAME.setLevel(FILELOGLEVEL);
+    
     //Logger.getLogger("global").setLevel(Level.WARNING);
     //Logger.getLogger("").setLevel(Level.WARNING);
-    //LOGGER.setUseParentHandlers(false);
+    //LOGGER_MAIN.setUseParentHandlers(false);
       
       
     fonts = new HashMap<Integer, PFont>();
@@ -274,7 +282,7 @@ void setup(){
   }
   
   catch (Exception e){
-    LOGGER.log(Level.SEVERE, "Uncaught exception occured during setup", e);
+    LOGGER_MAIN.log(Level.SEVERE, "Uncaught exception occured during setup", e);
     exit();
   }
 }
@@ -304,7 +312,7 @@ void draw(){
   }
   
   catch (Exception e){
-    LOGGER.log(Level.SEVERE, "Uncaught exception occured during draw", e);
+    LOGGER_MAIN.log(Level.SEVERE, "Uncaught exception occured during draw", e);
     exit();
   }
 }
@@ -312,7 +320,7 @@ void draw(){
 State getActiveState(){
   State state = states.get(activeState);
   if (state == null){
-    LOGGER.severe("State not found "+activeState);
+    LOGGER_MAIN.severe("State not found "+activeState);
   }
   return state;
 }
