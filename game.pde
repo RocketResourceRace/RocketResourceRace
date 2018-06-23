@@ -8,6 +8,10 @@ int terrainIndex(String terrain){
     LOGGER_MAIN.warning("Invalid terrain type, "+terrain);
     return 0;
   }
+  catch (NullPointerException e){
+    LOGGER_MAIN.log(Level.WARNING, "Error most likely due to incorrect JSON code. building:"+terrain, e);
+    return 0;
+  }
   catch (Exception e){
     LOGGER_MAIN.log(Level.WARNING, "Error getting terrain index for:"+terrain, e);
     return 0;
@@ -20,6 +24,10 @@ int buildingIndex(String building){
       return k+1;
     }
     LOGGER_MAIN.warning("Invalid building type, "+building);
+    return 0;
+  }
+  catch (NullPointerException e){
+    LOGGER_MAIN.log(Level.WARNING, "Error most likely due to incorrect JSON code. building:"+building, e);
     return 0;
   }
   catch (Exception e){
@@ -76,6 +84,7 @@ class Game extends State{
 
   Game(){
     try{
+      LOGGER_MAIN.fine("initializing game");
       gameUICanvas = createGraphics(width, height, P2D); 
       initialiseResources();
       initialiseTasks();
@@ -138,7 +147,7 @@ class Game extends State{
       prevIdle = new ArrayList<Integer[]>();
     }
     catch (Exception e){
-      LOGGER_MAIN.log(Level.SEVERE, "Error inititalising game", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error initializing game", e);
     }
   }
 
@@ -153,7 +162,7 @@ class Game extends State{
       }
     }
     catch (Exception e){
-      LOGGER_MAIN.log(Level.SEVERE, "Error inititalising buildings", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error initializing buildings", e);
     }
   }
   void initialiseTasks(){
@@ -179,7 +188,7 @@ class Game extends State{
       }
     }
     catch (Exception e){
-      LOGGER_MAIN.log(Level.SEVERE, "Error inititalising tasks", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error initializing tasks", e);
     }
   }
   void initialiseResources(){
@@ -209,10 +218,17 @@ class Game extends State{
         else if (resourceNames[i].equals("metal")){
           startingResources[i] = jsManager.loadFloatSetting("starting metal");
         }
+        else{
+          startingResources[i] = 0; 
+        }
+        LOGGER_GAME.fine(String.format("Starting resource: %s = %f", resourceNames[i], startingResources[i]));
       }
     }
+    catch (NullPointerException e){
+      LOGGER_MAIN.log(Level.WARNING, "Error most likely due to modified resources in data.json", e);
+    }
     catch (Exception e){
-      LOGGER_MAIN.log(Level.SEVERE, "Error inititalising resources", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error initializing resources", e);
     }
   }
 
@@ -1055,7 +1071,7 @@ class Game extends State{
           newState = "menu";
         }
         else if (event.id.equals("desktop button")){
-          exit();
+          quitGame();
         }
         else if (event.id.equals("resume button")){
           getPanel("pause screen").visible = false;

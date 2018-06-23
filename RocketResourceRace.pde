@@ -63,12 +63,16 @@ int JSONIndex(JSONArray j, String id){
 }
 
 JSONObject findJSONObject(JSONArray j, String id){
-  for (int i=0; i<j.size(); i++){
-    if (j.getJSONObject(i).getString("id").equals(id)){
-      return j.getJSONObject(i);
+  try{
+    for (int i=0; i<j.size(); i++){
+      if (j.getJSONObject(i).getString("id").equals(id)){
+        return j.getJSONObject(i);
+      }
     }
   }
-  LOGGER_MAIN.warning(String.format("Invalid JSON Object id %s", id));
+  catch(Exception e){
+    LOGGER_MAIN.log(Level.SEVERE, String.format("Error finding object in JSON array, with id:'%s'", id), e);
+  }
   return null;
 }
 
@@ -153,6 +157,11 @@ PImage[] partyImages;
 PImage[] taskImages;
 HashMap<String, PImage> lowImages;
 HashMap<String, PImage> tile3DImages;
+
+void quitGame(){
+  LOGGER_MAIN.info("Exitting game...");
+  exit();
+}
 
 void loadSounds(){
   try{
@@ -247,6 +256,8 @@ void setup(){
     gameHandler.setLevel(FILELOGLEVEL);
     LOGGER_GAME.addHandler(gameHandler);
     LOGGER_GAME.setLevel(FILELOGLEVEL);
+    LOGGER_GAME.addHandler(mainHandler);
+    LOGGER_GAME.setLevel(FILELOGLEVEL);
     
     //Logger.getLogger("global").setLevel(Level.WARNING);
     //Logger.getLogger("").setLevel(Level.WARNING);
@@ -283,13 +294,13 @@ void setup(){
   
   catch (Exception e){
     LOGGER_MAIN.log(Level.SEVERE, "Uncaught exception occured during setup", e);
-    exit();
+    quitGame();
   }
 }
 boolean smoothed = false;
 
 void draw(){
-  try{
+  //try{
     background(255);
     prevT = millis();
     String newState = getActiveState().update();
@@ -308,13 +319,13 @@ void draw(){
       textAlign(LEFT, TOP);
       fill(255,0,0);
       text(frameRate, 0, 0);
-    }
+    //}
   }
   
-  catch (Exception e){
-    LOGGER_MAIN.log(Level.SEVERE, "Uncaught exception occured during draw", e);
-    exit();
-  }
+  //catch (Exception e){
+  //  LOGGER_MAIN.log(Level.SEVERE, "Uncaught exception occured during draw", e);
+  //  quitGame();
+  //}
 }
 
 State getActiveState(){

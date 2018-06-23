@@ -223,8 +223,7 @@ class Menu extends State{
           newState = "map";
         }
         else if (event.id.equals("exit")){
-          LOGGER_MAIN.info("Exitting game...");
-          exit();
+          quitGame();
         }
       }
     }

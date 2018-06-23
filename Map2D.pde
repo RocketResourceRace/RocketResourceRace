@@ -40,7 +40,7 @@ interface Map {
 
 
 int getPartySize(Party p){
-  LOGGER_MAIN.fine("Getting party size");
+  LOGGER_MAIN.finer("Getting party size for save");
   try{
     int totalSize = 0;
     ByteBuffer[] actions = new ByteBuffer[p.actions.size()];
@@ -132,6 +132,7 @@ void saveParty(ByteBuffer b, Party p){
   }
 }
 Party loadParty(ByteBuffer b){
+  LOGGER_MAIN.finer("Loading party from save");
   try{
     int actionCount = b.getInt();
     ArrayList<Action> actions = new ArrayList<Action>();
@@ -209,6 +210,7 @@ class BaseMap extends Element{
   boolean updateHoveringScale, drawingTaskIcons, drawingUnitBars;
   boolean cinematicMode;
   void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players){
+    LOGGER_MAIN.info("Starting saving progress");
     try{
       int partiesByteCount = 0;
       for (int y=0; y<mapHeight; y++){
@@ -227,17 +229,31 @@ class BaseMap extends Element{
       int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+3*Integer.BYTES+1)*players.length;
       ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*10+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount+playersByteCount+Float.BYTES);
       buffer.putInt(-SAVEVERSION);
+      LOGGER_MAIN.finer("Saving version: "+(-SAVEVERSION));
       buffer.putInt(mapWidth);
+      LOGGER_MAIN.finer("Saving map width: "+mapWidth);
       buffer.putInt(mapHeight);
+      LOGGER_MAIN.finer("Saving map height: "+mapHeight);
       buffer.putInt(partiesByteCount);
+      LOGGER_MAIN.finer("Saving parties byte count: "+partiesByteCount);
       buffer.putInt(playersByteCount);
+      LOGGER_MAIN.finer("Saving players' byte count: "+playersByteCount);
       buffer.putInt(jsManager.loadIntSetting("party size"));
+      LOGGER_MAIN.finer("Saving party size: "+jsManager.loadIntSetting("party size"));
       buffer.putInt(players.length);
+      LOGGER_MAIN.finer("Saving number of players: "+players.length);
       buffer.putInt(players[0].resources.length);
+      LOGGER_MAIN.finer("Saving number of resources: "+players[0].resources.length);
       buffer.putInt(turnNumber);
+      LOGGER_MAIN.finer("Saving turn number: "+turnNumber);
       buffer.putInt(turnPlayer);
+      LOGGER_MAIN.finer("Saving player turn: "+turnPlayer);
       buffer.putLong(heightMapSeed);
+      LOGGER_MAIN.finer("Saving height map seed: "+heightMapSeed);
       buffer.putFloat(jsManager.loadFloatSetting("water level"));
+      LOGGER_MAIN.finer("Saving water level: "+jsManager.loadFloatSetting("water level"));
+      
+      LOGGER_MAIN.finer("Saving terrain and buildings");
       for (int y=0; y<mapHeight; y++){
         for (int x=0; x<mapWidth; x++){
           buffer.putInt(terrain[y][x]);
@@ -254,6 +270,7 @@ class BaseMap extends Element{
           }
         }
       }
+      LOGGER_MAIN.finer("Saving parties");
       for (int y=0; y<mapHeight; y++){
         for (int x=0; x<mapWidth; x++){
           if(parties[y][x]==null){
@@ -268,6 +285,7 @@ class BaseMap extends Element{
           }
         }
       }
+      LOGGER_MAIN.finer("Saving players");
       for (Player p: players){
         buffer.putFloat(p.mapXOffset);
         buffer.putFloat(p.mapYOffset);
@@ -280,6 +298,7 @@ class BaseMap extends Element{
         buffer.putInt(p.colour);
         buffer.put(byte(p.cellSelected));
       }
+      LOGGER_MAIN.fine("Saving map to file");
       saveBytes(filename, buffer.array());
     }
     catch (Exception e){
@@ -301,6 +320,7 @@ class BaseMap extends Element{
         mapWidth = headerBuffer.getInt();
         versionSpecificData += Integer.BYTES;
       } else {
+        LOGGER_MAIN.info("Loading old save with party size 1000");
         mapWidth = -versionCheck;
         jsManager.saveSetting("party size", 1000);
       }
@@ -323,15 +343,19 @@ class BaseMap extends Element{
       int turnNumber = buffer.getInt();
       int turnPlayer = buffer.getInt();
       heightMapSeed = buffer.getLong();
+      LOGGER_MAIN.finer("Loading water level: "+buffer.getFloat());
       jsManager.saveSetting("water level", buffer.getFloat());
       terrain = new int[mapHeight][mapWidth];
       parties = new Party[mapHeight][mapWidth];
       buildings = new Building[mapHeight][mapWidth];
+      
+      LOGGER_MAIN.finer("Loading terrain");
       for (int y=0; y<mapHeight; y++){
         for (int x=0; x<mapWidth; x++){
           terrain[y][x] = buffer.getInt();
         }
       }
+      LOGGER_MAIN.finer("Loading buildings");
       for (int y=0; y<mapHeight; y++){
         for (int x=0; x<mapWidth; x++){
           int type = buffer.getInt();
@@ -342,10 +366,12 @@ class BaseMap extends Element{
           if(!versionCheckInt){
             if(type==9){
               terrain[y][x] = terrainIndex("quarry site");
+              LOGGER_MAIN.finer("Changing old quarry tiles into quarry sites - only on old maps");
             }
           }
         }
       }
+      LOGGER_MAIN.finer("Loading parties");
       for (int y=0; y<mapHeight; y++){
         for (int x=0; x<mapWidth; x++){
           Byte partyType = buffer.get();
@@ -361,6 +387,7 @@ class BaseMap extends Element{
           }
         }
       }
+      LOGGER_MAIN.finer("Loading players");
       Player[] players = new Player[playerCount];
       for (int i=0;i<playerCount;i++){
         float mapXOffset = buffer.getFloat();
@@ -377,6 +404,7 @@ class BaseMap extends Element{
         players[i] = new Player(mapXOffset, mapYOffset, blockSize, resources, colour);
         players[i].cellSelected = cellSelected;
       }
+      LOGGER_MAIN.finer("Seeding height map noise with: "+heightMapSeed);
       noiseSeed(heightMapSeed);
       generateNoiseMaps();
       

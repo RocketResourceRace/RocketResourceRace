@@ -165,7 +165,7 @@ class Map3D extends BaseMap implements Map {
     updatePossibleMoves();
   }
   void updatePath(ArrayList<int[]> nodes) {
-    LOGGER_MAIN.finer("Updating path");
+    //LOGGER_MAIN.finer("Updating path");
     float x0, y0;
     drawPath = nodes;
     pathLine = createShape();

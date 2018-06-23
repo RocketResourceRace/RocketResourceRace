@@ -549,7 +549,7 @@ class Tooltip extends Element{
       setText(t.replaceAll("\\s+$", ""));
     }
     catch (Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error changing tooltip to task", e);
+      LOGGER_MAIN.log(Level.WARNING, "Error changing tooltip to task: "+task, e);
     }
   }
   
@@ -1163,9 +1163,10 @@ class TaskManager extends Element{
     for (int j=0; j<availableOptions.size(); j++){
       if (options.get(availableOptions.get(j)).equals(s)){
         selectAt(j);
+        return;
       }
     }
-    LOGGER_MAIN.warning("String for selection not found");
+    LOGGER_MAIN.warning("String for selection not found: "+s);
   }
   int getH(PGraphics panelCanvas){
     textFont(getFont(textSize*jsManager.loadFloatSetting("text scale")));
@@ -1234,7 +1235,6 @@ class TaskManager extends Element{
       int j;
       for (j=0; j<availableOptions.size(); j++){
         if (mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y+h*j && mouseY-yOffset <= y+h*(j+1)){
-          LOGGER_MAIN.fine("Mouse over option: " + options.get(availableOptions.get(j)));
           return options.get(availableOptions.get(j));
         }
       }

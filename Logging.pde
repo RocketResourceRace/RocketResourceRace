@@ -10,11 +10,18 @@ class LoggerFormatter extends Formatter {
         buffer.append(" | ");
         buffer.append(calcDate(rec.getMillis()));
         buffer.append(" | ");
-        buffer.append(formatMessage(rec));
+        buffer.append(rec.getMessage());
         buffer.append(" | ");
         buffer.append(rec.getSourceClassName());
         buffer.append(" | ");
         buffer.append(rec.getSourceMethodName());
+        if (rec.getThrown() != null){
+          buffer.append(" | ");
+          for(StackTraceElement st : rec.getThrown().getStackTrace()){
+            buffer.append("\n    at ");
+            buffer.append(st.toString());
+          }
+        }
         buffer.append("\n");
 
         return buffer.toString();
