@@ -118,6 +118,7 @@ class Party{
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Progressing party action failed");
+      return null;
     }
   }
   void clearCurrentAction(){
@@ -356,61 +357,73 @@ class BattleEstimateManager{
     this.parties = parties;
   }
   BigDecimal getEstimate(int x1, int y1, int x2, int y2, int units){
-    if (parties[y2][x2] == null){
-      println("Invalid player location");
-    }
-    Party tempAttacker = parties[y1][x1].clone();
-    tempAttacker.setUnitNumber(units);
-    if (cached&&attackerX==x1&&attackerY==y1&&defenderX==x2&&defenderY==y2&&attackerUnits==units){
-      int TRIALS = 1000;
-      for (int i = 0;i<TRIALS;i++){
-        currentWins+=runTrial(tempAttacker, parties[y2][x2]);
+    try{
+      if (parties[y2][x2] == null){
+        println("Invalid player location");
       }
-      currentTrials+=TRIALS;
-    } else {
-      cached = true;
-      currentWins = 0;
-      currentTrials = 0;
-      attackerX = x1;
-      attackerY = y1;
-      defenderX = x2;
-      defenderY = y2;
-      attackerUnits = units;
-      int TRIALS = 10000;
-      for (int i = 0;i<TRIALS;i++){
-        currentWins+=runTrial(tempAttacker, parties[y2][x2]);
+      Party tempAttacker = parties[y1][x1].clone();
+      tempAttacker.setUnitNumber(units);
+      if (cached&&attackerX==x1&&attackerY==y1&&defenderX==x2&&defenderY==y2&&attackerUnits==units){
+        int TRIALS = 1000;
+        for (int i = 0;i<TRIALS;i++){
+          currentWins+=runTrial(tempAttacker, parties[y2][x2]);
+        }
+        currentTrials+=TRIALS;
+      } else {
+        cached = true;
+        currentWins = 0;
+        currentTrials = 0;
+        attackerX = x1;
+        attackerY = y1;
+        defenderX = x2;
+        defenderY = y2;
+        attackerUnits = units;
+        int TRIALS = 10000;
+        for (int i = 0;i<TRIALS;i++){
+          currentWins+=runTrial(tempAttacker, parties[y2][x2]);
+        }
+        currentTrials = TRIALS;
       }
-      currentTrials = TRIALS;
+      BigDecimal chance = new BigDecimal(""+currentWins).multiply(new BigDecimal(100)).divide(new BigDecimal(""+currentTrials), 1, BigDecimal.ROUND_HALF_UP);
+      return chance;
     }
-    BigDecimal chance = new BigDecimal(""+currentWins).multiply(new BigDecimal(100)).divide(new BigDecimal(""+currentTrials), 1, BigDecimal.ROUND_HALF_UP);
-    return chance;
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.WARNING, String.format("Error getting estimate for battle between party at (%s, %s) and (%s, %s)", x1, y1, x2, y2));
+      return new BigDecimal(0);
+    }
   }
   
   int runTrial(Party attacker, Party defender){
-    Battle battle;
-    Party clone1;
-    Party clone2;
-    if(defender.player==2){
-      battle = (Battle) defender.clone();
-      battle.changeUnitNumber(attacker.player, attacker.getUnitNumber());
-      if(battle.party1.player==attacker.player){
-        clone1 = battle.party1;
-        clone2 = battle.party2;
+    try{
+      Battle battle;
+      Party clone1;
+      Party clone2;
+      if(defender.player==2){
+        battle = (Battle) defender.clone();
+        battle.changeUnitNumber(attacker.player, attacker.getUnitNumber());
+        if(battle.party1.player==attacker.player){
+          clone1 = battle.party1;
+          clone2 = battle.party2;
+        } else {
+          clone1 = battle.party2;
+          clone2 = battle.party1;
+        }
       } else {
-        clone1 = battle.party2;
-        clone2 = battle.party1;
+        clone1 = attacker.clone();
+        clone2 = defender.clone();
+        battle = new Battle(clone1, clone2); 
       }
-    } else {
-      clone1 = attacker.clone();
-      clone2 = defender.clone();
-      battle = new Battle(clone1, clone2); 
+      while (clone1.getUnitNumber()>0&&clone2.getUnitNumber()>0){
+        battle.doBattle();
+      }
+      if(clone1.getUnitNumber()>0){
+        return 1;
+      } else {
+        return 0;
+      }
     }
-    while (clone1.getUnitNumber()>0&&clone2.getUnitNumber()>0){
-      battle.doBattle();
-    }
-    if(clone1.getUnitNumber()>0){
-      return 1;
-    } else {
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.WARNING, "Error running battle trial", e);
       return 0;
     }
   }
