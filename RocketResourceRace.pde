@@ -133,6 +133,7 @@ void setVolume(){
 }
 
 void setFrameRateCap(){
+  LOGGER_MAIN.finer("Setting framerate cap");
   if (jsManager.loadBooleanSetting("framerate cap")){
     frameRate(60);
   }
@@ -179,10 +180,16 @@ void loadSounds(){
 
 void loadImages(){
   try{
+    LOGGER_MAIN.fine("Loading images");
     tileImages = new HashMap<String, PImage>();
     lowImages = new HashMap<String, PImage>();
     tile3DImages = new HashMap<String, PImage>();
     buildingImages = new HashMap<String, PImage[]>();
+    partyImages = new PImage[]{
+      loadImage("data/blue_flag.png"),
+      loadImage("data/red_flag.png"),
+      loadImage("data/battle.png")
+    };
     taskImages = new PImage[gameData.getJSONArray("tasks").size()];
     for (int i=0; i<gameData.getJSONArray("terrain").size(); i++){
       JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
@@ -265,7 +272,8 @@ void setup(){
     //Logger.getLogger("global").setLevel(Level.WARNING);
     //Logger.getLogger("").setLevel(Level.WARNING);
     //LOGGER_MAIN.setUseParentHandlers(false);
-      
+    
+    LOGGER_MAIN.fine("Starting setup");
       
     fonts = new HashMap<Integer, PFont>();
     gameData = loadJSONObject("data.json");
@@ -273,14 +281,11 @@ void setup(){
     loadSounds();
     setFrameRateCap();
     textFont(createFont("GillSans", 32));
-
+  
+  
     loadImages();
-
-    partyImages = new PImage[]{
-      loadImage("data/blue_flag.png"),
-      loadImage("data/red_flag.png"),
-      loadImage("data/battle.png")
-    };
+    LOGGER_MAIN.fine("Loading states");
+    
     states = new HashMap<String, State>();
     addState("menu", new Menu());
     addState("map", new Game());
@@ -291,8 +296,10 @@ void setup(){
     //hint(DISABLE_OPTIMIZED_STROKE);
     halfScreenWidth = width/2;
     halfScreenHeight= height/2;
-    toon = loadShader("ToonFrag.glsl", "ToonVert.glsl");
-    toon.set("fraction", 1.0);
+    //toon = loadShader("ToonFrag.glsl", "ToonVert.glsl");
+    //toon.set("fraction", 1.0);
+    
+    LOGGER_MAIN.fine("Setup finished");
   }
   
   catch(IOException e){

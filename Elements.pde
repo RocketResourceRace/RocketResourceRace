@@ -1242,7 +1242,6 @@ class TaskManager extends Element{
       }
       for (; j<availableButOverBudgetOptions.size()+availableOptions.size(); j++){
         if (mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y+h*j && mouseY-yOffset <= y+h*(j+1)){
-          LOGGER_MAIN.fine("Mouse over option: " + options.get(availableOptions.get(j)));
           return options.get(availableButOverBudgetOptions.get(j-availableOptions.size()));
         }
       }
