@@ -120,7 +120,7 @@ int getPartySize(Party p){
   }
   catch (Exception e){
     LOGGER_MAIN.log(Level.SEVERE, "Error getting party size", e);
-    return -1;
+    throw e;
   }
 }
 void saveParty(ByteBuffer b, Party p){
@@ -129,6 +129,7 @@ void saveParty(ByteBuffer b, Party p){
   }
   catch (Exception e){
     LOGGER_MAIN.log(Level.SEVERE, "Error saving party", e);
+    throw e;
   }
 }
 Party loadParty(ByteBuffer b){
@@ -193,7 +194,7 @@ Party loadParty(ByteBuffer b){
   }
   catch (Exception e){
     LOGGER_MAIN.log(Level.SEVERE, "Error loading party", e);
-    return null;
+    throw e;  
   }
 }
 
@@ -303,6 +304,7 @@ class BaseMap extends Element{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error saving map", e);
+      throw e; 
     }
   }
   MapSave loadMap(String filename, int resourceCountNew){
@@ -343,8 +345,9 @@ class BaseMap extends Element{
       int turnNumber = buffer.getInt();
       int turnPlayer = buffer.getInt();
       heightMapSeed = buffer.getLong();
-      LOGGER_MAIN.finer("Loading water level: "+buffer.getFloat());
-      jsManager.saveSetting("water level", buffer.getFloat());
+      float newWaterLevel = buffer.getFloat();
+      jsManager.saveSetting("water level", newWaterLevel);
+      LOGGER_MAIN.finer("Loading water level: "+newWaterLevel);
       terrain = new int[mapHeight][mapWidth];
       parties = new Party[mapHeight][mapWidth];
       buildings = new Building[mapHeight][mapWidth];
@@ -413,7 +416,7 @@ class BaseMap extends Element{
     
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error loading map", e);
-      return null;
+      throw e;
     }
   }
   
@@ -424,7 +427,7 @@ class BaseMap extends Element{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error converting coordinates to map index", e);
-      return -1;
+      throw e;
     }
   }
   
@@ -638,6 +641,7 @@ class BaseMap extends Element{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error generating map", e);
+      throw e;
     }
   }
   void generateMap(int mapWidth, int mapHeight){
@@ -655,6 +659,7 @@ class BaseMap extends Element{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error generating map", e);
+      throw e;
     }
   }
   void generateNoiseMaps(){
@@ -681,6 +686,7 @@ class BaseMap extends Element{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error generating noise map", e);
+      throw e;
     }
   }
   void setHeightsForCell(int x, int y, float h){
@@ -696,6 +702,7 @@ class BaseMap extends Element{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, String.format("Error setting height for cell with height %s and pos: (%s, %s)", x, y, h), e);
+      throw e;
     }
   }
   float getRawHeight(int x, int y, int x1, int y1) {
@@ -730,7 +737,7 @@ class BaseMap extends Element{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, String.format("Error getting min raw ground height at: (%s, %s)", x1, y1), e);
-      return -1;
+      throw e;
     }
   }
   float groundMaxRawHeightAt(int x1, int y1) {
@@ -741,7 +748,7 @@ class BaseMap extends Element{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, String.format("Error getting max raw ground height at: (%s, %s)", x1, y1), e);
-      return -1;
+      throw e;
     }
   }
   boolean isWater(int x, int y){
@@ -767,7 +774,7 @@ class BaseMap extends Element{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, String.format("Error getting max steepness at: (%s, %s)", x, y), e);
-      return -1;
+      throw e;
     }
   }
 }

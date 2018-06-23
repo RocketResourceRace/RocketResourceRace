@@ -403,7 +403,7 @@ class Tooltip extends Element{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error occured getting lines of tooltip in: "+s, e);
-      return null;
+      throw e;
     }
   }
   
@@ -417,8 +417,8 @@ class Tooltip extends Element{
     return ml;
   }
   void setText(String text){
-    if (text != this.text){
-      LOGGER_MAIN.finest("Tooltip text changing to: " + text);
+    if (!text.equals(this.text)){
+      LOGGER_MAIN.finest(String.format("Tooltip text changing to: '%s'", text.replace("\n", "\\n")));
     }
     this.text = text;
   }
@@ -447,6 +447,7 @@ class Tooltip extends Element{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error getting resource list", e);
+      throw e;
     }
     return returnString;
   }
@@ -466,12 +467,12 @@ class Tooltip extends Element{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error getting resource list", e);
+      throw e;
     }
     return returnString;
   }
   
   void setMoving(int turns, boolean splitting, int cost, boolean is3D){
-    LOGGER_MAIN.finest("Setting tooltip to moving");
     attacking = false;
     //Tooltip text if moving. Turns is the number of turns in move
     JSONObject jo = gameData.getJSONObject("tooltips");
@@ -491,31 +492,26 @@ class Tooltip extends Element{
     setText(t);
   }
   void setAttacking(BigDecimal chance){
-    LOGGER_MAIN.finest("Setting tooltip to attacking with change: "+chance.toString());
     attacking = true;
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(String.format(jo.getString("attacking"), chance.toString()));
   }
   void setTurnsRemaining(){
-    LOGGER_MAIN.finest("Setting tooltip to turns remaining");
     attacking = false;
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(jo.getString("turns remaining"));
   }
   void setMoveButton(){
-    LOGGER_MAIN.finest("Setting tooltip to move button");
     attacking = false;
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(jo.getString("move button"));
   }
   void setMerging(){
-    LOGGER_MAIN.finest("Setting tooltip to merging");
     attacking = false;
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(jo.getString("merging"));
   }
   void setTask(String task, float[] availibleResources, int movementPoints){
-    LOGGER_MAIN.finest(String.format("Setting tooltip to set task. Task:%s, availible resources:%s, movement points:%d", task, Arrays.toString(availibleResources), movementPoints));
     try{
       attacking = false;
       JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task);
@@ -550,6 +546,7 @@ class Tooltip extends Element{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.WARNING, "Error changing tooltip to task: "+task, e);
+      throw e;
     }
   }
   
@@ -668,6 +665,7 @@ class NotificationManager extends Element{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error dismissing notification", e);
+      throw e;
     }
   }
   
@@ -692,6 +690,7 @@ class NotificationManager extends Element{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.WARNING, "Failed to post notification", e);
+      throw e;
     }
   }
   
@@ -702,6 +701,7 @@ class NotificationManager extends Element{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.WARNING, "Failed to post notification", e);
+      throw e;
     }
   }
   
@@ -947,8 +947,8 @@ class ResourceSummary extends Element{
       return (new BigDecimal(v).divide(new BigDecimal("1"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
     }
     catch (Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error creating prefix", e);
-      return "";
+      LOGGER_MAIN.log(Level.SEVERE, "Error creating prefix", e);
+      throw e;
     }
   }
   
@@ -1110,12 +1110,13 @@ class TaskManager extends Element{
       }
     }
     catch (Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error making task available", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error making task available", e);
+      throw e;
     }
   }
   void makeAvailableButOverBudget(String option){
     try{
-      LOGGER_MAIN.finer("Making option availalbe buyt over buject: " + option);
+      LOGGER_MAIN.finer("Making option available but over buject: " + option);
       for (int i=0; i<availableButOverBudgetOptions.size(); i++){
         if (options.get(availableButOverBudgetOptions.get(i)).equals(option)){
           return;
@@ -1129,7 +1130,8 @@ class TaskManager extends Element{
       }
     }
     catch (Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error making task available", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error making task available", e);
+      throw e;
     }
   }
   void makeUnavailableButOverBudget(String option){
@@ -1247,8 +1249,8 @@ class TaskManager extends Element{
       return "";
     }
     catch (Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error finding mouse over option", e);
-      return "";
+      LOGGER_MAIN.log(Level.SEVERE, "Error finding mouse over option", e);
+      throw e;
     }
   }
   
@@ -1361,7 +1363,8 @@ class Button extends Element{
       lines.add(s.substring(j, s.length()));
     }
     catch (Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error setting lines", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error setting lines", e);
+      throw e;
     }
     return lines;
   }
@@ -1514,8 +1517,8 @@ class Slider extends Element{
       (mouseX-xOffset >= xKnobPos && mouseX-xOffset <= xKnobPos+knobSize && mouseY-yOffset >= y && mouseY-yOffset <= y+h); // Over slider or knob box
     }
     catch (Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error finding if mouse over", e);
-      return false;
+      LOGGER_MAIN.log(Level.SEVERE, "Error finding if mouse over", e);
+      throw e;
     }
   }
   
@@ -1732,8 +1735,8 @@ class TextEntry extends Element{
       return cursor;
     }
     catch (Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error getting cursor position", e);
-      return cursor;
+      LOGGER_MAIN.log(Level.SEVERE, "Error getting cursor position", e);
+      throw e;
     }
   }
   
@@ -1760,7 +1763,8 @@ class TextEntry extends Element{
       selected = i;
     }
     catch (Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error double selecting word", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error double selecting word", e);
+      throw e;
     }
   }
   

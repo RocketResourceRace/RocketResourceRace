@@ -128,6 +128,7 @@ void setVolume(){
   }
   catch (Exception e){
     LOGGER_MAIN.log(Level.SEVERE, "Something wrong with setting volume", e);
+      throw e;
   }
 }
 
@@ -172,6 +173,7 @@ void loadSounds(){
   }
   catch (Exception e){
     LOGGER_MAIN.log(Level.SEVERE, "Something wrong with loading sounds", e);
+    throw e;
   }
 }
 
@@ -209,6 +211,7 @@ void loadImages(){
   
   catch (Exception e){
     LOGGER_MAIN.log(Level.SEVERE, "Something wrong with loading images", e);
+    throw e;
   }
 }
 
@@ -225,7 +228,7 @@ PFont getFont(float size){
   }
   catch (Exception e){
     LOGGER_MAIN.log(Level.SEVERE, "Something wrong with loading font", e);
-    return null;
+    throw e;
   }
 }
 
@@ -292,15 +295,19 @@ void setup(){
     toon.set("fraction", 1.0);
   }
   
+  catch(IOException e){
+    LOGGER_MAIN.log(Level.SEVERE, "IO exception occured duing setup", e);
+  }
+  
   catch (Exception e){
-    LOGGER_MAIN.log(Level.SEVERE, "Uncaught exception occured during setup", e);
-    quitGame();
+    LOGGER_MAIN.log(Level.SEVERE, "Error occured during setup", e);
+    throw e;
   }
 }
 boolean smoothed = false;
 
 void draw(){
-  //try{
+  try{
     background(255);
     prevT = millis();
     String newState = getActiveState().update();
@@ -319,13 +326,12 @@ void draw(){
       textAlign(LEFT, TOP);
       fill(255,0,0);
       text(frameRate, 0, 0);
-    //}
+    }
   }
-  
-  //catch (Exception e){
-  //  LOGGER_MAIN.log(Level.SEVERE, "Uncaught exception occured during draw", e);
-  //  quitGame();
-  //}
+  catch (Exception e){
+    LOGGER_MAIN.log(Level.SEVERE, "Uncaught exception occured during draw", e);
+    throw e;
+  }
 }
 
 State getActiveState(){

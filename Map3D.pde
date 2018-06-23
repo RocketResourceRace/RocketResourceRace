@@ -118,7 +118,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, String.format("Error getting downward angle: (%s, %s)", x, y), e);
-      return -1;
+      throw e;
     }
   }
 
@@ -212,6 +212,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error updating possible moves", e);
+      throw e;
     }
   }
   void cancelMoveNodes() {
@@ -357,7 +358,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error generating trees", e);
-      return null;
+      throw e;
     }
   }
   
@@ -458,6 +459,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, String.format("Error loading mao strip: y:%s", y), e);
+      throw e;
     }
   }
   
@@ -469,6 +471,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, String.format("Error replacing map strip: %s", y), e);
+      throw e;
     }
   }
 
@@ -671,6 +674,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error loading models", e);
+      throw e;
     }
   }
 
@@ -779,6 +783,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error updating highlighting grid", e);
+      throw e;
     }
   }
 

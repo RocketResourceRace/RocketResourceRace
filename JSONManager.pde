@@ -5,13 +5,14 @@ class JSONManager{
   
   JSONManager(){
     try{
+      LOGGER_MAIN.fine("Initializing JSON Manager");
       menu = loadJSONObject("menu.json");
-      gameData = loadJSONObject("data.json");
-      
+      gameData = loadJSONObject("data.json");  
       try{
         settings = loadJSONObject("settings.json");
       }
-      catch (Exception e){
+      catch (NullPointerException e){
+        // Create new settings.json
         LOGGER_MAIN.info("creating new settings file");
         PrintWriter w = createWriter("settings.json");
         w.print("{}\n");
@@ -26,6 +27,7 @@ class JSONManager{
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error loading JSON", e);
+      throw e;
     }
   }
   
@@ -36,7 +38,7 @@ class JSONManager{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error getting resource index for: " + s);
-      return 0;
+      throw e;
     }
   }
   String getResString(int r){
@@ -46,7 +48,7 @@ class JSONManager{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error getting resource string for: " + r, e);
-      return "";
+      throw e;
     }
   }
   
@@ -58,6 +60,7 @@ class JSONManager{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error saving setting for: " + id + " with value " + val, e);
+      throw e;
     }
   }
   
@@ -69,6 +72,7 @@ class JSONManager{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error saving setting for: " + id + " with value " + val, e);
+      throw e;
     }
   }
   
@@ -80,6 +84,7 @@ class JSONManager{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error saving setting for: " + id + " with value " + val, e);
+      throw e;
     }
   }
   
@@ -91,6 +96,7 @@ class JSONManager{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error saving setting for: " + id + " with value " + val, e);
+      throw e;
     }
   }
   
@@ -101,6 +107,7 @@ class JSONManager{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error saving settings");
+      throw e;
     }
   }
   
@@ -119,6 +126,7 @@ class JSONManager{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, String.format("Error finding flag for panel:'%s', element:'%s', flag:'%s'", panelID, elemID, flag), e);
+      throw e;
     }
     return false;
   }
@@ -149,6 +157,7 @@ class JSONManager{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error loading default settings", e);
+      throw e;
     }
   }
   
@@ -181,6 +190,7 @@ class JSONManager{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error loading initial settings", e);
+      throw e;
     }
   }
   
@@ -264,9 +274,13 @@ class JSONManager{
       }
       return null;
     }
-    catch (Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error finding JSON object with id: "+ id, e);
+    catch (NullPointerException e){
+      LOGGER_MAIN.log(Level.WARNING, "Error finding JSON object with id likely cause by issue with code in data.json: "+ id, e);
       return null;
+    }
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error finding JSON object with id: "+ id, e);
+      throw e;
     }
   }
   

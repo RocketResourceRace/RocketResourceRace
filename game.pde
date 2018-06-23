@@ -13,8 +13,8 @@ int terrainIndex(String terrain){
     return 0;
   }
   catch (Exception e){
-    LOGGER_MAIN.log(Level.WARNING, "Error getting terrain index for:"+terrain, e);
-    return 0;
+    LOGGER_MAIN.log(Level.SEVERE, "Error getting terrain index for:"+terrain, e);
+    throw e;
   }
 }
 int buildingIndex(String building){
@@ -31,8 +31,8 @@ int buildingIndex(String building){
     return 0;
   }
   catch (Exception e){
-    LOGGER_MAIN.log(Level.WARNING, "Error getting building index for:"+building, e);
-    return 0;
+    LOGGER_MAIN.log(Level.SEVERE, "Error getting building index for:"+building, e);
+      throw e;
   }
 }
 
@@ -148,6 +148,7 @@ class Game extends State{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error initializing game", e);
+      throw e;
     }
   }
 
@@ -163,6 +164,7 @@ class Game extends State{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error initializing buildings", e);
+      throw e;
     }
   }
   void initialiseTasks(){
@@ -189,6 +191,7 @@ class Game extends State{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error initializing tasks", e);
+      throw e;
     }
   }
   void initialiseResources(){
@@ -229,6 +232,7 @@ class Game extends State{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error initializing resources", e);
+      throw e;
     }
   }
 
@@ -244,22 +248,22 @@ class Game extends State{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error getting task initial cost", e);
-      return null;
+      throw e;
     }
   }
   int taskTurns(String task){
     try{
       JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task);
       if (jo==null){
-        print("invalid task type", task);
+        LOGGER_MAIN.warning("invalid task type: "+ task);
         return 0;
       }
       if (jo.isNull("action"))return 0;
       return jo.getJSONObject("action").getInt("turns");
     }
     catch (Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error getting task turn length", e);
-      return 0;
+      LOGGER_MAIN.log(Level.SEVERE, "Error getting task turn length", e);
+      throw e;
     }
   }
   
@@ -273,7 +277,7 @@ class Game extends State{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error getting task action", e);
-      return null;
+      throw e;
     }
   }
   
@@ -291,7 +295,7 @@ class Game extends State{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error converting JSON cost to float cost", e);
-      return null;
+      throw e;
     }
   }
 
@@ -327,11 +331,11 @@ class Game extends State{
     }
     catch (NullPointerException e){
       LOGGER_MAIN.log(Level.SEVERE, "Error due to JSON being incorrectly formatted for building cost", e);
-      return null;
+      throw e;
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error getting building cost", e);
-      return null;
+      throw e;
     }
   }
   boolean postEvent(GameEvent event){
@@ -498,8 +502,8 @@ class Game extends State{
       return valid;
     }
     catch (Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error posting event", e);
-      return false;
+      LOGGER_MAIN.log(Level.SEVERE, "Error posting event", e);
+      throw e;
     }
   }
   boolean anyIdle(int turn){
@@ -607,6 +611,7 @@ class Game extends State{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error checking tasks", e);
+      throw e;
     }
   }
 
@@ -805,6 +810,7 @@ class Game extends State{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error changing turn", e);
+      throw e;
     }
   }
 

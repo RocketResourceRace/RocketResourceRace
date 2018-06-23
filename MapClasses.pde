@@ -251,7 +251,7 @@ class Battle extends Party{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error doing battle", e);
-      return null;
+      throw e;
     }
   }
   Battle clone(){
@@ -388,8 +388,8 @@ class BattleEstimateManager{
       return chance;
     }
     catch (Exception e){
-      LOGGER_MAIN.log(Level.WARNING, String.format("Error getting estimate for battle between party at (%s, %s) and (%s, %s)", x1, y1, x2, y2));
-      return new BigDecimal(0);
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error getting estimate for battle between party at (%s, %s) and (%s, %s)", x1, y1, x2, y2));
+      throw e;
     }
   }
   
@@ -423,8 +423,8 @@ class BattleEstimateManager{
       }
     }
     catch (Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error running battle trial", e);
-      return 0;
+      LOGGER_MAIN.log(Level.SEVERE, "Error running battle trial", e);
+      throw e;
     }
   }
   void refresh(){

@@ -153,7 +153,7 @@ class State{
   void _elementEvent(ArrayList<Event> events){
     for (Event event : events){
       if (LOGGER_MAIN.isLoggable(Level.FINEST)){
-        LOGGER_MAIN.finest(String.format("Element event ID: %s, Panel:%s, Type:%s", event.id, event.panel, event.type));
+        LOGGER_MAIN.finest(String.format("Element event id: '%s', Panel:'%s', Type:'%s'", event.id, event.panel, event.type));
       }
       if (event.type.equals("element to top")){
         elementToTop(event.id, event.panel);
@@ -263,6 +263,7 @@ class State{
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error during keyboard event", e);
+      throw e;
     }
   }
 }
