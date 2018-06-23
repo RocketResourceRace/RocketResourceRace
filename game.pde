@@ -1629,6 +1629,9 @@ class Game extends State{
   }
 
   ArrayList<String> keyboardEvent(String eventType, char _key){
+    if (eventType == "keyPressed" && int(_key)==0 && keyCode == 108){
+      println("yay");
+    }
     if (eventType == "keyPressed" && _key == ESC){
       getPanel("pause screen").visible = !getPanel("pause screen").visible;
       if (getPanel("pause screen").visible){
@@ -1647,10 +1650,10 @@ class Game extends State{
     if (!getPanel("pause screen").visible){
       refreshTooltip();
       if (eventType == "keyTyped"){
-        if (key == ' '&&!cinematicMode){
+        if (_key == ' '&&!cinematicMode){
           postEvent(new EndTurn());
         }
-        else if (key == 'i'&&!cinematicMode){
+        else if (_key == 'i'&&!cinematicMode){
           int[] t = findIdle(turn);
           if (t[0] != -1){
             selectCell(t[0], t[1], false);
