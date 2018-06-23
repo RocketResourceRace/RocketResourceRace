@@ -1629,8 +1629,8 @@ class Game extends State{
   }
 
   ArrayList<String> keyboardEvent(String eventType, char _key){
-    if (eventType == "keyPressed" && int(_key)==0 && keyCode == 108){
-      println("yay");
+    if (eventType == "keyPressed" && int(_key)==0 && keyCode == VK_F12){
+      println("F12 pressed");
     }
     if (eventType == "keyPressed" && _key == ESC){
       getPanel("pause screen").visible = !getPanel("pause screen").visible;

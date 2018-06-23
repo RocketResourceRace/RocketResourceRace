@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.Path;
-import static java.awt.event.KeyEvent.*;
+import static com.jogamp.newt.event.KeyEvent.*;
 
 
 String activeState;
