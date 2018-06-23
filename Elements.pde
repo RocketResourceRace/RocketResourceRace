@@ -138,7 +138,7 @@ class DropDown extends Element{
   
   void setOptions(String[] options){
     this.options = options;
-    LOGGER_MAIN.finer("Options changed to: " + options);
+    LOGGER_MAIN.finer("Options changed to: " + Arrays.toString(options));
   }
   
   void setValue(String value){
@@ -240,7 +240,7 @@ class DropDown extends Element{
         return;
       }
     }
-    LOGGER_MAIN.warning("Invalid selected");
+    LOGGER_MAIN.warning("Invalid selected:"+s);
   }
   
   void contract(){
@@ -402,7 +402,7 @@ class Tooltip extends Element{
       return lines;
     }
     catch (Exception e){
-      LOGGER_MAIN.log(Level.SEVERE, "Error occured getting lines of tooltip", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error occured getting lines of tooltip in: "+s, e);
       return null;
     }
   }
@@ -491,7 +491,7 @@ class Tooltip extends Element{
     setText(t);
   }
   void setAttacking(BigDecimal chance){
-    LOGGER_MAIN.fine("Setting tooltip to attacking");
+    LOGGER_MAIN.fine("Setting tooltip to attacking with change: "+chance.toString());
     attacking = true;
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(String.format(jo.getString("attacking"), chance.toString()));
@@ -515,7 +515,7 @@ class Tooltip extends Element{
     setText(jo.getString("merging"));
   }
   void setTask(String task, float[] availibleResources, int movementPoints){
-    LOGGER_MAIN.fine("Setting tooltip to set task");
+    LOGGER_MAIN.fine(String.format("Setting tooltip to set task. Task:%s, availible resources:%s, movement points:%d", task, Arrays.toString(availibleResources), movementPoints));
     try{
       attacking = false;
       JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task);
@@ -661,7 +661,7 @@ class NotificationManager extends Element{
   }
   
   void dismiss(int i){
-    LOGGER_MAIN.fine("Dismissing notification at index: "+i);
+    LOGGER_MAIN.fine(String.format("Dismissing notification at index: %d which equates to:%s",i, notifications.get(turn).get(i)));
     try{
       notifications.get(turn).remove(i);
       scroll = round(between(0, scroll, notifications.get(turn).size()-displayNots));
@@ -697,7 +697,7 @@ class NotificationManager extends Element{
   
   void post(String name, int x, int y, int turnNum, int turn){
     try{
-      LOGGER_MAIN.fine("Posting notification: "+name);
+      LOGGER_MAIN.fine(String.format("Posting notification: %s at cell:%s, %s turn:%d player:%d",name, x, y, turnNum, turn));
       notifications.get(turn).add(0, new Notification(name, x, y, turnNum));
     }
     catch (Exception e){
@@ -917,7 +917,7 @@ class ResourceSummary extends Element{
   void updateStockpile(float[] v){
     try{
       stockPile = v;
-      LOGGER_MAIN.finest("Stockpile update: " + v);
+      LOGGER_MAIN.finest("Stockpile update: " + Arrays.toString(v));
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.WARNING, "Error updating stockpile", e);
@@ -925,7 +925,7 @@ class ResourceSummary extends Element{
   }
   void updateNet(float[] v){
     try{
-      LOGGER_MAIN.finest("Net update: " + v);
+      LOGGER_MAIN.finest("Net update: " + Arrays.toString(v));
       net = v;
     }
     catch(Exception e){
@@ -1064,7 +1064,7 @@ class TaskManager extends Element{
     taskMActive = true;
   }
   void setOptions(ArrayList<String> options){
-    LOGGER_MAIN.finer("Options changed");
+    LOGGER_MAIN.finer("Options changed to:"+Arrays.toString(options));
     this.options = options;
   }
   void addOption(String option){
@@ -1133,7 +1133,7 @@ class TaskManager extends Element{
     }
   }
   void makeUnavailableButOverBudget(String option){
-    LOGGER_MAIN.finer("Making unavilablae but over over buject");
+    LOGGER_MAIN.finer("Making unavilablae but over over buject option:"+option);
     for (int i=0; i<options.size(); i++){
       if (options.get(i).equals(option)){
         this.availableButOverBudgetOptions.remove(i);
@@ -1142,7 +1142,7 @@ class TaskManager extends Element{
     }
   }
   void makeUnavailable(String option){
-    LOGGER_MAIN.finer("Making unavailable");
+    LOGGER_MAIN.finer("Making unavailable:"+option);
     for (int i=0; i<options.size(); i++){
       if (options.get(i).equals(option)){
         this.availableOptions.remove(i);
@@ -1159,7 +1159,7 @@ class TaskManager extends Element{
     }
   }
   void select(String s){
-    LOGGER_MAIN.finer("Selecting based on string"+s);
+    LOGGER_MAIN.finer("Selecting based on string: "+s);
     for (int j=0; j<availableOptions.size(); j++){
       if (options.get(availableOptions.get(j)).equals(s)){
         selectAt(j);
@@ -1756,7 +1756,7 @@ class TextEntry extends Element{
           break;
         }
       }
-      LOGGER_MAIN.finer("Setting selected characetr to: " + i);
+      LOGGER_MAIN.finer("Setting selected characetr to position: " + i);
       selected = i;
     }
     catch (Exception e){
@@ -1881,7 +1881,7 @@ class ToggleButton extends Element{
     return on;
   }
   void setState(boolean state){
-    LOGGER_MAIN.finest("Setting state to: " + state);
+    LOGGER_MAIN.finest("Setting toggle state to: " + state);
     on = state;
   }
   void draw(PGraphics panelCanvas){

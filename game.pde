@@ -1,19 +1,31 @@
 
 int terrainIndex(String terrain){
-  int k = JSONIndex(gameData.getJSONArray("terrain"), terrain);
-  if (k>=0){
-    return k+1;
+  try{
+    int k = JSONIndex(gameData.getJSONArray("terrain"), terrain);
+    if (k>=0){
+      return k+1;
+    }
+    LOGGER_MAIN.warning("Invalid terrain type, "+terrain);
+    return 0;
   }
-  println("Invalid terrain type, "+terrain);
-  return -1;
+  catch (Exception e){
+    LOGGER_MAIN.log(Level.WARNING, "Error getting terrain index for:"+terrain, e);
+    return 0;
+  }
 }
 int buildingIndex(String building){
-  int k = JSONIndex(gameData.getJSONArray("buildings"), building);
-  if (k>=0){
-    return k+1;
+  try{
+    int k = JSONIndex(gameData.getJSONArray("buildings"), building);
+    if (k>=0){
+      return k+1;
+    }
+    LOGGER_MAIN.warning("Invalid building type, "+building);
+    return 0;
   }
-  println("Invalid building type, "+building);
-  return -1;
+  catch (Exception e){
+    LOGGER_MAIN.log(Level.WARNING, "Error getting building index for:"+building, e);
+    return 0;
+  }
 }
 
 
@@ -63,121 +75,144 @@ class Game extends State{
   int rocketStartTime;
 
   Game(){
-    gameUICanvas = createGraphics(width, height, P2D); 
-    initialiseResources();
-    initialiseTasks();
-    initialiseBuildings();
-
-    addElement("2dmap", new Map2D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
-    addElement("3dmap", new Map3D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
-    addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 8, turn));
-
-    //map = (Map3D)getElement("2map", "default");
-    notificationManager = (NotificationManager)getElement("notification manager", "default");
-    players = new Player[2];
-    totals = new float[resourceNames.length];
-
-    // Initial positions will be focused on starting party
-    //players[0] = new Player(map.focusedX, map.focusedY, map.zoom, startingResources, color(0,0,255));
-    //players[1] = new Player(map.focusedX, map.focusedY, map.zoom, startingResources, color(255,0,0));
-    addPanel("land management", 0, 0, width, height, false, true, color(50, 200, 50), color(0));
-    addPanel("party management", 0, 0, width, height, false, true, color(110, 110, 255), color(0));
-    addPanel("bottom bar", 0, height-70, width, 70, true, true, color(150), color(50));
-    addPanel("end screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
-    addPanel("pause screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
-    addPanel("save screen", (int)(width/2+jsManager.loadFloatSetting("gui scale")*150+(int)(jsManager.loadFloatSetting("gui scale")*20)), (int)(height/2-5*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*500), (int)(jsManager.loadFloatSetting("gui scale")*300), false, false, color(50), color(0));
-    addPanel("overlay", 0, 0, width, height, true, false, color(255,255), color(255, 255));
-    
-    getPanel("save screen").setOverrideBlocking(true);
-
-    addElement("0tooltip", new Tooltip(), "overlay");
-    tooltip = (Tooltip)getElement("0tooltip", "overlay");
-
-    addElement("end game button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2+height/8), (int)(jsManager.loadFloatSetting("gui scale")*width/8), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "End Game"), "end screen");
-    addElement("winner", new Text(width/2, height/2, (int)(jsManager.loadFloatSetting("text scale")*10), "", color(255), CENTER), "end screen");
-
-    addElement("main menu button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*150), (int)(height/2-jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Exit to Main Menu"), "pause screen");
-    addElement("desktop button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*150), (int)(height/2+jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Exit to Desktop"), "pause screen");
-    addElement("save as button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*150), (int)(height/2-3*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Save As"), "pause screen");
-    addElement("resume button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*150), (int)(height/2-5*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Resume"), "pause screen");
-    
-    addElement("save button", new Button(bezel, bezel, (int)(jsManager.loadFloatSetting("gui scale")*300)-2*bezel, (int)(jsManager.loadFloatSetting("gui scale")*60), color(100), color(0), color(255), 14, CENTER, "Save"), "save screen");
-    addElement("saving manager", new BaseFileManager(bezel, (int)(4*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*500)-2*bezel, (int)(jsManager.loadFloatSetting("gui scale")*300), "saves"), "save screen");
-    addElement("save namer", new TextEntry(bezel, (int)(2*jsManager.loadFloatSetting("gui scale")*40)+bezel*2, (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*50), LEFT, color(0), color(100), color(0), "", "Save Name"), "save screen");
- 
-    addElement("turns remaining", new Text(bezel*2+220, bezel*4+30+30, 8, "", color(255), LEFT), "party management");
-    addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
-    addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
-    addElement("tasks", new TaskManager(bezel, bezel*4+30+30, 220, 10, color(150), color(50), tasks), "party management");
-    
-
-    addElement("end turn", new Button(bezel, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"), "bottom bar");
-    addElement("idle party finder", new Button(bezel*2+buttonW, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Idle Party"), "bottom bar");
-    addElement("resource summary", new ResourceSummary(0, 0, 70, resourceNames, startingResources, totals), "bottom bar");
-    int resSummaryX = width-((ResourceSummary)(getElement("resource summary", "bottom bar"))).totalWidth();
-    addElement("resource expander", new Button(resSummaryX-50, bezel, 30, 30, color(150), color(50), color(0), 10, CENTER, "<"), "bottom bar");
-    addElement("turn number", new TextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", color(0,0,255), 0), "bottom bar");
-    addElement("2d 3d toggle", new ToggleButton(bezel*4+buttonW*3, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), jsManager.loadBooleanSetting("map is 3d"), "3D View"), "bottom bar");
-    addElement("task icons toggle", new ToggleButton(round(bezel*5+buttonW*3.5), bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Task Icons"), "bottom bar");
-    addElement("unit number bars toggle", new ToggleButton(bezel*6+buttonW*4, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Unit Bars"), "bottom bar");
-  //int x, int y, int w, int h, color bgColour, color strokeColour, boolean value, String name
+    try{
+      gameUICanvas = createGraphics(width, height, P2D); 
+      initialiseResources();
+      initialiseTasks();
+      initialiseBuildings();
   
-    prevIdle = new ArrayList<Integer[]>();
+      addElement("2dmap", new Map2D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
+      addElement("3dmap", new Map3D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
+      addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 8, turn));
+  
+      //map = (Map3D)getElement("2map", "default");
+      notificationManager = (NotificationManager)getElement("notification manager", "default");
+      players = new Player[2];
+      totals = new float[resourceNames.length];
+  
+      // Initial positions will be focused on starting party
+      //players[0] = new Player(map.focusedX, map.focusedY, map.zoom, startingResources, color(0,0,255));
+      //players[1] = new Player(map.focusedX, map.focusedY, map.zoom, startingResources, color(255,0,0));
+      addPanel("land management", 0, 0, width, height, false, true, color(50, 200, 50), color(0));
+      addPanel("party management", 0, 0, width, height, false, true, color(110, 110, 255), color(0));
+      addPanel("bottom bar", 0, height-70, width, 70, true, true, color(150), color(50));
+      addPanel("end screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
+      addPanel("pause screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
+      addPanel("save screen", (int)(width/2+jsManager.loadFloatSetting("gui scale")*150+(int)(jsManager.loadFloatSetting("gui scale")*20)), (int)(height/2-5*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*500), (int)(jsManager.loadFloatSetting("gui scale")*300), false, false, color(50), color(0));
+      addPanel("overlay", 0, 0, width, height, true, false, color(255,255), color(255, 255));
+      
+      getPanel("save screen").setOverrideBlocking(true);
+  
+      addElement("0tooltip", new Tooltip(), "overlay");
+      tooltip = (Tooltip)getElement("0tooltip", "overlay");
+  
+      addElement("end game button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2+height/8), (int)(jsManager.loadFloatSetting("gui scale")*width/8), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "End Game"), "end screen");
+      addElement("winner", new Text(width/2, height/2, (int)(jsManager.loadFloatSetting("text scale")*10), "", color(255), CENTER), "end screen");
+  
+      addElement("main menu button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*150), (int)(height/2-jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Exit to Main Menu"), "pause screen");
+      addElement("desktop button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*150), (int)(height/2+jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Exit to Desktop"), "pause screen");
+      addElement("save as button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*150), (int)(height/2-3*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Save As"), "pause screen");
+      addElement("resume button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*150), (int)(height/2-5*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Resume"), "pause screen");
+      
+      addElement("save button", new Button(bezel, bezel, (int)(jsManager.loadFloatSetting("gui scale")*300)-2*bezel, (int)(jsManager.loadFloatSetting("gui scale")*60), color(100), color(0), color(255), 14, CENTER, "Save"), "save screen");
+      addElement("saving manager", new BaseFileManager(bezel, (int)(4*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*500)-2*bezel, (int)(jsManager.loadFloatSetting("gui scale")*300), "saves"), "save screen");
+      addElement("save namer", new TextEntry(bezel, (int)(2*jsManager.loadFloatSetting("gui scale")*40)+bezel*2, (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*50), LEFT, color(0), color(100), color(0), "", "Save Name"), "save screen");
+   
+      addElement("turns remaining", new Text(bezel*2+220, bezel*4+30+30, 8, "", color(255), LEFT), "party management");
+      addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
+      addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
+      addElement("tasks", new TaskManager(bezel, bezel*4+30+30, 220, 10, color(150), color(50), tasks), "party management");
+      
+  
+      addElement("end turn", new Button(bezel, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"), "bottom bar");
+      addElement("idle party finder", new Button(bezel*2+buttonW, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Idle Party"), "bottom bar");
+      addElement("resource summary", new ResourceSummary(0, 0, 70, resourceNames, startingResources, totals), "bottom bar");
+      int resSummaryX = width-((ResourceSummary)(getElement("resource summary", "bottom bar"))).totalWidth();
+      addElement("resource expander", new Button(resSummaryX-50, bezel, 30, 30, color(150), color(50), color(0), 10, CENTER, "<"), "bottom bar");
+      addElement("turn number", new TextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", color(0,0,255), 0), "bottom bar");
+      addElement("2d 3d toggle", new ToggleButton(bezel*4+buttonW*3, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), jsManager.loadBooleanSetting("map is 3d"), "3D View"), "bottom bar");
+      addElement("task icons toggle", new ToggleButton(round(bezel*5+buttonW*3.5), bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Task Icons"), "bottom bar");
+      addElement("unit number bars toggle", new ToggleButton(bezel*6+buttonW*4, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Unit Bars"), "bottom bar");
+    //int x, int y, int w, int h, color bgColour, color strokeColour, boolean value, String name
+    
+      prevIdle = new ArrayList<Integer[]>();
+    }
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error inititalising game", e);
+    }
   }
 
   void initialiseBuildings(){
-    JSONObject js;
-    int numBuildings = gameData.getJSONArray("buildings").size();
-    buildingTypes = new String[numBuildings];
-    for (int i=0; i<numBuildings; i++){
-      js = gameData.getJSONArray("buildings").getJSONObject(i);
-      buildingTypes[i] = js.getString("id");
+    try{
+      JSONObject js;
+      int numBuildings = gameData.getJSONArray("buildings").size();
+      buildingTypes = new String[numBuildings];
+      for (int i=0; i<numBuildings; i++){
+        js = gameData.getJSONArray("buildings").getJSONObject(i);
+        buildingTypes[i] = js.getString("id");
+      }
+    }
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error inititalising buildings", e);
     }
   }
   void initialiseTasks(){
-    JSONObject js;
-    int numTasks = gameData.getJSONArray("tasks").size();
-    taskOutcomes = new float[numTasks][numResources];
-    taskCosts = new float[numTasks][numResources];
-    tasks = new String[numTasks];
-    for (int i=0; i<numTasks; i++){
-      js = gameData.getJSONArray("tasks").getJSONObject(i);
-      tasks[i] = js.getString("id");
-      if (!js.isNull("production"))
-        for (int r=0; r<js.getJSONArray("production").size(); r++)
-          taskOutcomes[i][jsManager.getResIndex((js.getJSONArray("production").getJSONObject(r).getString("id")))] = js.getJSONArray("production").getJSONObject(r).getFloat("quantity");
-      if (!js.isNull("consumption"))
-        for (int r=0; r<js.getJSONArray("consumption").size(); r++){
-          taskCosts[i][jsManager.getResIndex((js.getJSONArray("consumption").getJSONObject(r).getString("id")))] = js.getJSONArray("consumption").getJSONObject(r).getFloat("quantity");
+    try{
+      JSONObject js;
+      int numTasks = gameData.getJSONArray("tasks").size();
+      taskOutcomes = new float[numTasks][numResources];
+      taskCosts = new float[numTasks][numResources];
+      tasks = new String[numTasks];
+      for (int i=0; i<numTasks; i++){
+        js = gameData.getJSONArray("tasks").getJSONObject(i);
+        tasks[i] = js.getString("id");
+        if (!js.isNull("production")){
+          for (int r=0; r<js.getJSONArray("production").size(); r++){
+            taskOutcomes[i][jsManager.getResIndex((js.getJSONArray("production").getJSONObject(r).getString("id")))] = js.getJSONArray("production").getJSONObject(r).getFloat("quantity");
+          }
         }
+        if (!js.isNull("consumption")){
+          for (int r=0; r<js.getJSONArray("consumption").size(); r++){
+            taskCosts[i][jsManager.getResIndex((js.getJSONArray("consumption").getJSONObject(r).getString("id")))] = js.getJSONArray("consumption").getJSONObject(r).getFloat("quantity");
+          }
+        }
+      }
+    }
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error inititalising tasks", e);
     }
   }
   void initialiseResources(){
-    JSONObject js;
-    numResources = gameData.getJSONArray("resources").size();
-    resourceNames = new String[numResources];
-    startingResources = new float[numResources];
-    for (int i=0; i<numResources; i++){
-      js = gameData.getJSONArray("resources").getJSONObject(i);
-      resourceNames[i] = js.getString("id");
-      JSONObject sr = findJSONObject(gameData.getJSONObject("game options").getJSONArray("starting resources"), resourceNames[i]);
-      if (sr != null){
-        startingResources[i] = sr.getFloat("quantity");
+    try{
+      JSONObject js;
+      numResources = gameData.getJSONArray("resources").size();
+      resourceNames = new String[numResources];
+      startingResources = new float[numResources];
+      for (int i=0; i<numResources; i++){
+        js = gameData.getJSONArray("resources").getJSONObject(i);
+        resourceNames[i] = js.getString("id");
+        JSONObject sr = findJSONObject(gameData.getJSONObject("game options").getJSONArray("starting resources"), resourceNames[i]);
+        if (sr != null){
+          startingResources[i] = sr.getFloat("quantity");
+        }
+        
+        // If resource has specified starting resource on menu
+        else if (resourceNames[i].equals("food")){
+          startingResources[i] = jsManager.loadFloatSetting("starting food");
+        }
+        else if (resourceNames[i].equals("wood")){
+          startingResources[i] = jsManager.loadFloatSetting("starting wood");
+        }
+        else if (resourceNames[i].equals("stone")){
+          startingResources[i] = jsManager.loadFloatSetting("starting stone");
+        }
+        else if (resourceNames[i].equals("metal")){
+          startingResources[i] = jsManager.loadFloatSetting("starting metal");
+        }
       }
-      
-      // If resource has specified starting resource on menu
-      else if (resourceNames[i].equals("food")){
-        startingResources[i] = jsManager.loadFloatSetting("starting food");
-      }
-      else if (resourceNames[i].equals("wood")){
-        startingResources[i] = jsManager.loadFloatSetting("starting wood");
-      }
-      else if (resourceNames[i].equals("stone")){
-        startingResources[i] = jsManager.loadFloatSetting("starting stone");
-      }
-      else if (resourceNames[i].equals("metal")){
-        startingResources[i] = jsManager.loadFloatSetting("starting metal");
-      }
+    }
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error inititalising resources", e);
     }
   }
 
@@ -187,213 +222,269 @@ class Game extends State{
 
   JSONArray taskInitialCost(int type){
     // Find initial cost for task (such as for buildings, 'Build Farm')
-    JSONArray ja = gameData.getJSONArray("tasks").getJSONObject(type).getJSONArray("initial cost");
-    return ja;
-  }
-  int taskTurns(String task){
-    JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task);
-    if (jo==null){
-      print("invalid task type", task);
-      return 0;
+    try{
+      JSONArray ja = gameData.getJSONArray("tasks").getJSONObject(type).getJSONArray("initial cost");
+      return ja;
     }
-    if (jo.isNull("action"))return 0;
-    return jo.getJSONObject("action").getInt("turns");
-  }
-  Action taskAction(int task){
-    JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(task).getJSONObject("action");
-    if (jo != null)
-      return new Action(task, jo.getString("notification"), jo.getInt("turns"), jo.getString("building"), jo.getString("terrain"));
-    return null;
-  }
-  float[] JSONToCost(JSONArray ja){
-    float[] costs = new float[numResources];
-    if (ja == null){
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error getting task initial cost", e);
       return null;
     }
-    for (int i=0; i<ja.size(); i++){
-      costs[jsManager.getResIndex((ja.getJSONObject(i).getString("id")))] = ja.getJSONObject(i).getFloat("quantity");
+  }
+  int taskTurns(String task){
+    try{
+      JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task);
+      if (jo==null){
+        print("invalid task type", task);
+        return 0;
+      }
+      if (jo.isNull("action"))return 0;
+      return jo.getJSONObject("action").getInt("turns");
     }
-    return costs;
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.WARNING, "Error getting task turn length", e);
+      return 0;
+    }
+  }
+  
+  
+  Action taskAction(int task){
+    try{
+      JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(task).getJSONObject("action");
+      if (jo != null)
+        return new Action(task, jo.getString("notification"), jo.getInt("turns"), jo.getString("building"), jo.getString("terrain"));
+      return null;
+    }
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error getting task action", e);
+      return null;
+    }
+  }
+  
+  
+  float[] JSONToCost(JSONArray ja){
+    try{
+      float[] costs = new float[numResources];
+      if (ja == null){
+        return null;
+      }
+      for (int i=0; i<ja.size(); i++){
+        costs[jsManager.getResIndex((ja.getJSONObject(i).getString("id")))] = ja.getJSONObject(i).getFloat("quantity");
+      }
+      return costs;
+    }
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error converting JSON cost to float cost", e);
+      return null;
+    }
   }
 
   String terrainString(int terrainI){
-    return gameData.getJSONArray("terrain").getJSONObject(terrainI-1).getString("id");
-  }
-  String buildingString(int buildingI){
-    if (gameData.getJSONArray("buildings").isNull(buildingI-1)){
-      println("invalid building string ", buildingI-1);
+    try{
+      return gameData.getJSONArray("terrain").getJSONObject(terrainI-1).getString("id");
+    }
+    catch (NullPointerException e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error due to JSON being incorrectly formatted for terrain string", e);
       return null;
     }
-    return gameData.getJSONArray("buildings").getJSONObject(buildingI-1).getString("id");
+  }
+  String buildingString(int buildingI){
+    try{
+      if (gameData.getJSONArray("buildings").isNull(buildingI-1)){
+        LOGGER_MAIN.warning("invalid building string "+(buildingI-1));
+        return null;
+      }
+      return gameData.getJSONArray("buildings").getJSONObject(buildingI-1).getString("id");
+    }
+    catch (NullPointerException e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error due to JSON being incorrectly formatted for building string", e);
+      return null;
+    }
   }
   float[] buildingCost(int actionType){
-    float[] a = JSONToCost(taskInitialCost(actionType));
-    if (a == null)
-      return new float[numResources];
-    else
-      return a;
+    try{
+      float[] a = JSONToCost(taskInitialCost(actionType));
+      if (a == null)
+        return new float[numResources];
+      else
+        return a;
+    }
+    catch (NullPointerException e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error due to JSON being incorrectly formatted for building cost", e);
+      return null;
+    }
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error getting building cost", e);
+      return null;
+    }
   }
   boolean postEvent(GameEvent event){
-    boolean valid = true;
-    // Returns true if event is valid
-    battleEstimateManager.refresh();
-    if (event instanceof Move){
-
-      Move m = (Move)event;
-      int x = m.endX;
-      int y = m.endY;
-      int cellX = m.startX;
-      int cellY = m.startY;
-
-      if (x<0 || x>=mapWidth || y<0 || y>=mapHeight){
-        println("invalid movement");
-        valid = false;
-      }
-
-      Node[][] nodes = djk(cellX, cellY);
-
-      if (canMove(cellX, cellY)){
-        int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
-        if (sliderVal > 0 && parties[cellY][cellX].getUnitNumber() >= 2 && parties[cellY][cellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle")){
-          map.updateMoveNodes(nodes);
-          moving = true;
-          splittedParty = new Party(turn, sliderVal, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), parties[cellY][cellX].getMovementPoints());
-          parties[cellY][cellX].changeUnitNumber(-sliderVal);
+    try{
+      boolean valid = true;
+      // Returns true if event is valid
+      battleEstimateManager.refresh();
+      if (event instanceof Move){
+  
+        Move m = (Move)event;
+        int x = m.endX;
+        int y = m.endY;
+        int cellX = m.startX;
+        int cellY = m.startY;
+  
+        if (x<0 || x>=mapWidth || y<0 || y>=mapHeight){
+          println("invalid movement");
+          valid = false;
         }
-      }
-
-      if (splittedParty != null){
-        splittedParty.target = new int[]{x, y};
-        splittedParty.path = getPath(cellX, cellY, x, y, nodes);
-        int pathTurns;
-        if (cellX==x&&cellY==y){
-          pathTurns = 0;
+  
+        Node[][] nodes = djk(cellX, cellY);
+  
+        if (canMove(cellX, cellY)){
+          int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
+          if (sliderVal > 0 && parties[cellY][cellX].getUnitNumber() >= 2 && parties[cellY][cellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle")){
+            map.updateMoveNodes(nodes);
+            moving = true;
+            splittedParty = new Party(turn, sliderVal, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), parties[cellY][cellX].getMovementPoints());
+            parties[cellY][cellX].changeUnitNumber(-sliderVal);
+          }
         }
-        else if (!canMove(cellX, cellY)){
-          pathTurns = getMoveTurns(cellX, cellY, x, y, nodes);
+  
+        if (splittedParty != null){
+          splittedParty.target = new int[]{x, y};
+          splittedParty.path = getPath(cellX, cellY, x, y, nodes);
+          int pathTurns;
+          if (cellX==x&&cellY==y){
+            pathTurns = 0;
+          }
+          else if (!canMove(cellX, cellY)){
+            pathTurns = getMoveTurns(cellX, cellY, x, y, nodes);
+          }
+          else{
+            pathTurns = 1+getMoveTurns(cellX, cellY, x, y, nodes);
+          }
+          splittedParty.setPathTurns(pathTurns);
+          Collections.reverse(splittedParty.path);
+          splittedParty.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
+          splittedParty.clearActions();
+          ((Text)getElement("turns remaining", "party management")).setText("");
+          if(cellX==x&&cellY==y){
+            parties[y][x].changeUnitNumber(splittedParty.getUnitNumber());
+            splittedParty = null;
+            parties[y][x].clearPath();
+          } else {
+            moveParty(cellX, cellY, true);
+          }
         }
-        else{
-          pathTurns = 1+getMoveTurns(cellX, cellY, x, y, nodes);
-        }
-        splittedParty.setPathTurns(pathTurns);
-        Collections.reverse(splittedParty.path);
-        splittedParty.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
-        splittedParty.clearActions();
-        ((Text)getElement("turns remaining", "party management")).setText("");
-        if(cellX==x&&cellY==y){
-          parties[y][x].changeUnitNumber(splittedParty.getUnitNumber());
-          splittedParty = null;
-          parties[y][x].clearPath();
-        } else {
-          moveParty(cellX, cellY, true);
-        }
-      }
-      else {
-        parties[cellY][cellX].target = new int[]{x, y};
-        parties[cellY][cellX].path = getPath(cellX, cellY, x, y, nodes);
-        int pathTurns;
-        if (cellX==x&&cellY==y){
-          pathTurns = 0;
-        }
-        else if (!canMove(cellX, cellY)){
-          pathTurns = getMoveTurns(cellX, cellY, x, y, nodes);
-        }
-        else{
-          pathTurns = 1+getMoveTurns(cellX, cellY, x, y, nodes);
-        }
-        parties[cellY][cellX].setPathTurns(pathTurns);
-        Collections.reverse(parties[cellY][cellX].path);
-        parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
-        parties[cellY][cellX].clearActions();
-        ((Text)getElement("turns remaining", "party management")).setText("");
-        moveParty(cellX, cellY);
-      }
-      if (parties[cellY][cellX].getUnitNumber() <= 0){
-        parties[cellY][cellX] = null;
-      }
-    }
-    else if (event instanceof EndTurn){
-      if (!changeTurn)
-        changeTurn();
-      else
-        valid = false;
-    }
-
-    else if (event instanceof ChangeTask){
-      ChangeTask m = (ChangeTask)event;
-      int cellX = m.x;
-      int cellY = m.y;
-      int task = m.task;
-      parties[cellY][cellX].clearPath();
-      parties[cellY][cellX].target = null;
-      JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[cellY][cellX].getTask());
-      if (!jo.isNull("movement points")){
-        //Changing from defending
-        parties[cellY][cellX].setMovementPoints(min(parties[cellY][cellX].getMovementPoints()+jo.getInt("movement points"), gameData.getJSONObject("game options").getInt("movement points")));
-      }
-      parties[cellY][cellX].changeTask(task);
-      if (parties[cellY][cellX].getTask() == JSONIndex(gameData.getJSONArray("tasks"), "Rest")){
-        parties[cellY][cellX].clearActions();
-        ((Text)getElement("turns remaining", "party management")).setText("");
-      }
-      else{
-        moving = false;
-        map.cancelMoveNodes();
-      }
-      jo = gameData.getJSONArray("tasks").getJSONObject(parties[cellY][cellX].getTask());
-      if (!jo.isNull("movement points")){
-        if (parties[cellY][cellX].getMovementPoints()-jo.getInt("movement points") >= 0){
-          parties[cellY][cellX].subMovementPoints(jo.getInt("movement points"));
-        }
-        else{
+        else {
+          parties[cellY][cellX].target = new int[]{x, y};
+          parties[cellY][cellX].path = getPath(cellX, cellY, x, y, nodes);
+          int pathTurns;
+          if (cellX==x&&cellY==y){
+            pathTurns = 0;
+          }
+          else if (!canMove(cellX, cellY)){
+            pathTurns = getMoveTurns(cellX, cellY, x, y, nodes);
+          }
+          else{
+            pathTurns = 1+getMoveTurns(cellX, cellY, x, y, nodes);
+          }
+          parties[cellY][cellX].setPathTurns(pathTurns);
+          Collections.reverse(parties[cellY][cellX].path);
           parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
+          parties[cellY][cellX].clearActions();
+          ((Text)getElement("turns remaining", "party management")).setText("");
+          moveParty(cellX, cellY);
         }
-      } else if (jo.getString("id").equals("Launch Rocket")){
-        startRocketLaunch();
-      }
-      else if (parties[cellY][cellX].getTask()==JSONIndex(gameData.getJSONArray("tasks"), "Produce Rocket")){
-        if(players[turn].resources[jsManager.getResIndex(("rocket progress"))]==-1){
-          players[turn].resources[jsManager.getResIndex(("rocket progress"))] = 0;
+        if (parties[cellY][cellX].getUnitNumber() <= 0){
+          parties[cellY][cellX] = null;
         }
       }
-
-      else{
-        Action a = taskAction(parties[cellY][cellX].getTask());
-        if (a != null){
-          float[] co = buildingCost(parties[cellY][cellX].getTask());
-          if (sufficientResources(players[turn].resources, co, true)){
-            parties[cellY][cellX].clearActions();
-            ((Text)getElement("turns remaining", "party management")).setText("");
-            parties[cellY][cellX].addAction(taskAction(parties[cellY][cellX].getTask()));
-            if (sum(co)>0){
-              spendRes(players[turn], co);
-              buildings[cellY][cellX] = new Building(buildingIndex("Construction"));
-            }
+      else if (event instanceof EndTurn){
+        if (!changeTurn)
+          changeTurn();
+        else
+          valid = false;
+      }
+  
+      else if (event instanceof ChangeTask){
+        ChangeTask m = (ChangeTask)event;
+        int cellX = m.x;
+        int cellY = m.y;
+        int task = m.task;
+        parties[cellY][cellX].clearPath();
+        parties[cellY][cellX].target = null;
+        JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[cellY][cellX].getTask());
+        if (!jo.isNull("movement points")){
+          //Changing from defending
+          parties[cellY][cellX].setMovementPoints(min(parties[cellY][cellX].getMovementPoints()+jo.getInt("movement points"), gameData.getJSONObject("game options").getInt("movement points")));
+        }
+        parties[cellY][cellX].changeTask(task);
+        if (parties[cellY][cellX].getTask() == JSONIndex(gameData.getJSONArray("tasks"), "Rest")){
+          parties[cellY][cellX].clearActions();
+          ((Text)getElement("turns remaining", "party management")).setText("");
+        }
+        else{
+          moving = false;
+          map.cancelMoveNodes();
+        }
+        jo = gameData.getJSONArray("tasks").getJSONObject(parties[cellY][cellX].getTask());
+        if (!jo.isNull("movement points")){
+          if (parties[cellY][cellX].getMovementPoints()-jo.getInt("movement points") >= 0){
+            parties[cellY][cellX].subMovementPoints(jo.getInt("movement points"));
           }
           else{
             parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
           }
+        } else if (jo.getString("id").equals("Launch Rocket")){
+          startRocketLaunch();
         }
-      }
-
-      checkTasks();
-    }
-    if (valid){
-      if (!changeTurn){
-        this.totals = totalResources();
-        ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
-        rs.updateNet(totals);
-        rs.updateStockpile(players[turn].resources);
-
-        if (anyIdle(turn)){
-          ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
+        else if (parties[cellY][cellX].getTask()==JSONIndex(gameData.getJSONArray("tasks"), "Produce Rocket")){
+          if(players[turn].resources[jsManager.getResIndex(("rocket progress"))]==-1){
+            players[turn].resources[jsManager.getResIndex(("rocket progress"))] = 0;
+          }
         }
+  
         else{
-          ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
+          Action a = taskAction(parties[cellY][cellX].getTask());
+          if (a != null){
+            float[] co = buildingCost(parties[cellY][cellX].getTask());
+            if (sufficientResources(players[turn].resources, co, true)){
+              parties[cellY][cellX].clearActions();
+              ((Text)getElement("turns remaining", "party management")).setText("");
+              parties[cellY][cellX].addAction(taskAction(parties[cellY][cellX].getTask()));
+              if (sum(co)>0){
+                spendRes(players[turn], co);
+                buildings[cellY][cellX] = new Building(buildingIndex("Construction"));
+              }
+            }
+            else{
+              parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
+            }
+          }
+        }
+  
+        checkTasks();
+      }
+      if (valid){
+        if (!changeTurn){
+          this.totals = totalResources();
+          ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
+          rs.updateNet(totals);
+          rs.updateStockpile(players[turn].resources);
+  
+          if (anyIdle(turn)){
+            ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
+          }
+          else{
+            ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
+          }
         }
       }
+      return valid;
     }
-    return valid;
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.WARNING, "Error posting event", e);
+      return false;
+    }
   }
   boolean anyIdle(int turn){
     for (int x=0; x<mapWidth; x++){
@@ -436,66 +527,71 @@ class Game extends State{
   //settings
 
   void checkTasks(){
-    resetAvailableTasks();
-    boolean correctTerrain, correctBuilding, enoughResources, enoughMovementPoints;
-    JSONObject js;
-
-    if(parties[cellY][cellX].hasActions()){
-      makeTaskAvailable(parties[cellY][cellX].currentAction());
-    }
-
-    for(int i=0; i<gameData.getJSONArray("tasks").size(); i++){
-      js = gameData.getJSONArray("tasks").getJSONObject(i);
-      if (!js.isNull("terrain"))
-        correctTerrain = JSONContainsStr(js.getJSONArray("terrain"), terrainString(terrain[cellY][cellX]));
-      else
-        correctTerrain = true;
-      correctBuilding = false;
-      enoughResources = true;
-      enoughMovementPoints = true;
-      if (!js.isNull("initial cost")){
-        for (int j=0; j<js.getJSONArray("initial cost").size(); j++){
-          JSONObject initialCost = js.getJSONArray("initial cost").getJSONObject(j);
-          if (players[turn].resources[jsManager.getResIndex((initialCost.getString("id")))]<(initialCost.getInt("quantity"))){
-            enoughResources = false;
+    try{
+      resetAvailableTasks();
+      boolean correctTerrain, correctBuilding, enoughResources, enoughMovementPoints;
+      JSONObject js;
+  
+      if(parties[cellY][cellX].hasActions()){
+        makeTaskAvailable(parties[cellY][cellX].currentAction());
+      }
+  
+      for(int i=0; i<gameData.getJSONArray("tasks").size(); i++){
+        js = gameData.getJSONArray("tasks").getJSONObject(i);
+        if (!js.isNull("terrain"))
+          correctTerrain = JSONContainsStr(js.getJSONArray("terrain"), terrainString(terrain[cellY][cellX]));
+        else
+          correctTerrain = true;
+        correctBuilding = false;
+        enoughResources = true;
+        enoughMovementPoints = true;
+        if (!js.isNull("initial cost")){
+          for (int j=0; j<js.getJSONArray("initial cost").size(); j++){
+            JSONObject initialCost = js.getJSONArray("initial cost").getJSONObject(j);
+            if (players[turn].resources[jsManager.getResIndex((initialCost.getString("id")))]<(initialCost.getInt("quantity"))){
+              enoughResources = false;
+            }
           }
         }
-      }
-      if (!js.isNull("movement points")){
-        if (parties[cellY][cellX].movementPoints < js.getInt("movement points")){
-            enoughMovementPoints = false;
+        if (!js.isNull("movement points")){
+          if (parties[cellY][cellX].movementPoints < js.getInt("movement points")){
+              enoughMovementPoints = false;
+          }
         }
-      }
-
-      if (js.isNull("auto enabled")||!js.getBoolean("auto enabled")){
-        if (js.isNull("buildings")){
-          if (js.getString("id").equals("Demolish") && buildings[cellY][cellX] != null)
-            correctBuilding = true;
-          else if(!js.getString("id").equals("Demolish"))
-            correctBuilding = true;
-        }
-        else{
-          if (js.getJSONArray("buildings").size() > 0){
-            if (buildings[cellY][cellX] != null)
-            if (buildings[cellY][cellX] != null && JSONContainsStr(js.getJSONArray("buildings"), buildingString(buildings[cellY][cellX].type)))
+  
+        if (js.isNull("auto enabled")||!js.getBoolean("auto enabled")){
+          if (js.isNull("buildings")){
+            if (js.getString("id").equals("Demolish") && buildings[cellY][cellX] != null)
+              correctBuilding = true;
+            else if(!js.getString("id").equals("Demolish"))
               correctBuilding = true;
           }
-          else if (buildings[cellY][cellX] == null){
-            correctBuilding = true;
+          else{
+            if (js.getJSONArray("buildings").size() > 0){
+              if (buildings[cellY][cellX] != null)
+              if (buildings[cellY][cellX] != null && JSONContainsStr(js.getJSONArray("buildings"), buildingString(buildings[cellY][cellX].type)))
+                correctBuilding = true;
+            }
+            else if (buildings[cellY][cellX] == null){
+              correctBuilding = true;
+            }
+          }
+        }
+  
+        if (correctTerrain && correctBuilding){
+          if (enoughResources && enoughMovementPoints){
+            makeTaskAvailable(i);
+          }
+          else{
+            makeAvailableButOverBudget(i);
           }
         }
       }
-
-      if (correctTerrain && correctBuilding){
-        if (enoughResources && enoughMovementPoints){
-          makeTaskAvailable(i);
-        }
-        else{
-          makeAvailableButOverBudget(i);
-        }
-      }
+      ((TaskManager)getElement("tasks", "party management")).select(jsManager.gameData.getJSONArray("tasks").getJSONObject(parties[cellY][cellX].getTask()).getString("id"));
     }
-    ((TaskManager)getElement("tasks", "party management")).select(jsManager.gameData.getJSONArray("tasks").getJSONObject(parties[cellY][cellX].getTask()).getString("id"));
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error checking tasks", e);
+    }
   }
 
   boolean UIHovering(){
@@ -506,189 +602,194 @@ class Game extends State{
   }
 
   void turnChange(){
-    float[] totalResourceRequirements = new float[numResources];
-    notificationManager.dismissAll();
-    for (int y=0; y<mapHeight; y++){
-      for (int x=0; x<mapWidth; x++){
-        if (parties[y][x] != null){
-          if (parties[y][x].player == turn){
-            for (int i=0; i<tasks.length;i++){
-              if(parties[y][x].getTask()==i){
-                for(int resource = 0; resource < numResources; resource++){
-                  totalResourceRequirements[resource]+=taskCosts[i][resource]*parties[y][x].getUnitNumber();
-                }
-              }
-            }
-            Action action = parties[y][x].progressAction();
-            if (action != null){
-              if (!(action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction Mid")) && !(action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction End")))
-                notificationManager.post(action.notification, x, y, turnNumber, turn);
-              if (action.building != null){
-                if (action.building.equals(""))
-                  buildings[y][x] = null;
-                else{
-                  buildings[y][x] = new Building(buildingIndex(action.building));
-                  if (buildings[y][x].type == buildingIndex("Quarry")){
-                    //map.setHeightsForCell(x, y, jsManager.loadFloatSetting("water level"));
-                    terrain[y][x] = terrainIndex("quarry site");
-                    map.replaceMapStripWithReloadedStrip(y);
-                  }
-                }
-              }
-              if (action.terrain != null){
-                if (terrain[y][x] == terrainIndex("forest")){
-                  players[turn].resources[jsManager.getResIndex(("wood"))]+=100;
-                  map.removeTreeTile(x, y);
-                }
-                terrain[y][x] = terrainIndex(action.terrain);
-              }
-              if (action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction Mid")){
-                  buildings[y][x].image_id = 1;
-                  action = null;
-              } else if(action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction End")){
-                  buildings[y][x].image_id = 2;
-                  action = null;
-              }
-            }
-            if (action != null){
-              parties[y][x].clearCurrentAction();
-              parties[y][x].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
-            }
-            moveParty(x, y);
-          }
-          else {
-            if(parties[y][x].player==2){
-              int player = ((Battle) parties[y][x]).party1.player;
-              int otherPlayer = ((Battle) parties[y][x]).party2.player;
-              parties[y][x] = ((Battle)parties[y][x]).doBattle();
-              if(parties[y][x].player != 2){
-                notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, player);
-                notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
-              }
-            }
-          }
-        }
-      }
-    }
-    float [] resourceAmountsAvailable = new float[numResources];
-    for(int i=0; i<numResources;i++){
-      if(totalResourceRequirements[i]==0){
-        resourceAmountsAvailable[i] = 1;
-      } else{
-       resourceAmountsAvailable[i] = min(1, players[turn].resources[i]/totalResourceRequirements[i]);
-      }
-    }
-
-    for (int y=0; y<mapHeight; y++){
-      for (int x=0; x<mapWidth; x++){
-        if (parties[y][x] != null){
-          if (parties[y][x].player == turn){
-            float productivity = 1;
-            for (int task=0; task<tasks.length;task++){
-              if(parties[y][x].getTask()==task){
-                for(int resource = 0; resource < numResources; resource++){
-                  if(taskCosts[task][resource]>0){
-                    if(resource==0){
-                      productivity = min(productivity, resourceAmountsAvailable[resource]+0.5);
-                    } else {
-                      productivity = min(productivity, resourceAmountsAvailable[resource]);
-                    }
-                  }
-                }
-              }
-            }
-            for (int task=0; task<tasks.length;task++){
-              if(parties[y][x].getTask()==task){
-                for(int resource = 0; resource < numResources; resource++){
-                  if(resource!=jsManager.getResIndex(("civilians"))){
-                    if(tasks[task]=="Produce Rocket"){
-                      resource = jsManager.getResIndex(("rocket progress"));
-                    }
-                    players[turn].resources[resource] += max((taskOutcomes[task][resource]-taskCosts[task][resource])*productivity*parties[y][x].getUnitNumber(), -players[turn].resources[resource]);
-                    if(tasks[task]=="Produce Rocket"){
-                      break;
-                    }
-                  } else if(resourceAmountsAvailable[jsManager.getResIndex(("food"))]<1){
-                    float lost = (1-resourceAmountsAvailable[jsManager.getResIndex(("food"))])*taskOutcomes[task][resource]*parties[y][x].getUnitNumber();
-                    parties[y][x].setUnitNumber(floor(parties[y][x].getUnitNumber()-lost));
-                    if (parties[y][x].getUnitNumber() == 0)
-                      notificationManager.post("Party Starved", x, y, turnNumber, turn);
-                    else
-                      notificationManager.post(String.format("Party Starving - %d lost", ceil(lost)), x, y, turnNumber, turn);
-                  } else{
-                    int prev = parties[y][x].getUnitNumber();
-                    parties[y][x].setUnitNumber(ceil(parties[y][x].getUnitNumber()+taskOutcomes[task][resource]*(float)parties[y][x].getUnitNumber()));
-                    if (prev != jsManager.loadIntSetting("party size") && parties[y][x].getUnitNumber() == jsManager.loadIntSetting("party size") && parties[y][x].task == JSONIndex(gameData.getJSONArray("tasks"), "Super Rest")){
-                      notificationManager.post("Party Full", x, y, turnNumber, turn);
-                    }
-                  }
-
-                }
-              }
-            }
-            if(parties[y][x].getUnitNumber()==0){
-              parties[y][x] = null;
-            }
-          }
-        }
-      }
-    }
-    if (players[turn].resources[jsManager.getResIndex(("rocket progress"))] > 1000){
-      //display indicator saying rocket produced
+    try{
+      float[] totalResourceRequirements = new float[numResources];
+      notificationManager.dismissAll();
       for (int y=0; y<mapHeight; y++){
         for (int x=0; x<mapWidth; x++){
           if (parties[y][x] != null){
             if (parties[y][x].player == turn){
-              if(parties[y][x].getTask()==JSONIndex(gameData.getJSONArray("tasks"), "Produce Rocket")){
-                notificationManager.post("Rocket Produced", x, y, turnNumber, turn);
+              for (int i=0; i<tasks.length;i++){
+                if(parties[y][x].getTask()==i){
+                  for(int resource = 0; resource < numResources; resource++){
+                    totalResourceRequirements[resource]+=taskCosts[i][resource]*parties[y][x].getUnitNumber();
+                  }
+                }
+              }
+              Action action = parties[y][x].progressAction();
+              if (action != null){
+                if (!(action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction Mid")) && !(action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction End")))
+                  notificationManager.post(action.notification, x, y, turnNumber, turn);
+                if (action.building != null){
+                  if (action.building.equals(""))
+                    buildings[y][x] = null;
+                  else{
+                    buildings[y][x] = new Building(buildingIndex(action.building));
+                    if (buildings[y][x].type == buildingIndex("Quarry")){
+                      //map.setHeightsForCell(x, y, jsManager.loadFloatSetting("water level"));
+                      terrain[y][x] = terrainIndex("quarry site");
+                      map.replaceMapStripWithReloadedStrip(y);
+                    }
+                  }
+                }
+                if (action.terrain != null){
+                  if (terrain[y][x] == terrainIndex("forest")){
+                    players[turn].resources[jsManager.getResIndex(("wood"))]+=100;
+                    map.removeTreeTile(x, y);
+                  }
+                  terrain[y][x] = terrainIndex(action.terrain);
+                }
+                if (action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction Mid")){
+                    buildings[y][x].image_id = 1;
+                    action = null;
+                } else if(action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction End")){
+                    buildings[y][x].image_id = 2;
+                    action = null;
+                }
+              }
+              if (action != null){
+                parties[y][x].clearCurrentAction();
                 parties[y][x].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
-                buildings[y][x].image_id=1;
+              }
+              moveParty(x, y);
+            }
+            else {
+              if(parties[y][x].player==2){
+                int player = ((Battle) parties[y][x]).party1.player;
+                int otherPlayer = ((Battle) parties[y][x]).party2.player;
+                parties[y][x] = ((Battle)parties[y][x]).doBattle();
+                if(parties[y][x].player != 2){
+                  notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, player);
+                  notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
+                }
               }
             }
           }
         }
       }
+      float [] resourceAmountsAvailable = new float[numResources];
+      for(int i=0; i<numResources;i++){
+        if(totalResourceRequirements[i]==0){
+          resourceAmountsAvailable[i] = 1;
+        } else{
+         resourceAmountsAvailable[i] = min(1, players[turn].resources[i]/totalResourceRequirements[i]);
+        }
+      }
+  
+      for (int y=0; y<mapHeight; y++){
+        for (int x=0; x<mapWidth; x++){
+          if (parties[y][x] != null){
+            if (parties[y][x].player == turn){
+              float productivity = 1;
+              for (int task=0; task<tasks.length;task++){
+                if(parties[y][x].getTask()==task){
+                  for(int resource = 0; resource < numResources; resource++){
+                    if(taskCosts[task][resource]>0){
+                      if(resource==0){
+                        productivity = min(productivity, resourceAmountsAvailable[resource]+0.5);
+                      } else {
+                        productivity = min(productivity, resourceAmountsAvailable[resource]);
+                      }
+                    }
+                  }
+                }
+              }
+              for (int task=0; task<tasks.length;task++){
+                if(parties[y][x].getTask()==task){
+                  for(int resource = 0; resource < numResources; resource++){
+                    if(resource!=jsManager.getResIndex(("civilians"))){
+                      if(tasks[task]=="Produce Rocket"){
+                        resource = jsManager.getResIndex(("rocket progress"));
+                      }
+                      players[turn].resources[resource] += max((taskOutcomes[task][resource]-taskCosts[task][resource])*productivity*parties[y][x].getUnitNumber(), -players[turn].resources[resource]);
+                      if(tasks[task]=="Produce Rocket"){
+                        break;
+                      }
+                    } else if(resourceAmountsAvailable[jsManager.getResIndex(("food"))]<1){
+                      float lost = (1-resourceAmountsAvailable[jsManager.getResIndex(("food"))])*taskOutcomes[task][resource]*parties[y][x].getUnitNumber();
+                      parties[y][x].setUnitNumber(floor(parties[y][x].getUnitNumber()-lost));
+                      if (parties[y][x].getUnitNumber() == 0)
+                        notificationManager.post("Party Starved", x, y, turnNumber, turn);
+                      else
+                        notificationManager.post(String.format("Party Starving - %d lost", ceil(lost)), x, y, turnNumber, turn);
+                    } else{
+                      int prev = parties[y][x].getUnitNumber();
+                      parties[y][x].setUnitNumber(ceil(parties[y][x].getUnitNumber()+taskOutcomes[task][resource]*(float)parties[y][x].getUnitNumber()));
+                      if (prev != jsManager.loadIntSetting("party size") && parties[y][x].getUnitNumber() == jsManager.loadIntSetting("party size") && parties[y][x].task == JSONIndex(gameData.getJSONArray("tasks"), "Super Rest")){
+                        notificationManager.post("Party Full", x, y, turnNumber, turn);
+                      }
+                    }
+  
+                  }
+                }
+              }
+              if(parties[y][x].getUnitNumber()==0){
+                parties[y][x] = null;
+              }
+            }
+          }
+        }
+      }
+      if (players[turn].resources[jsManager.getResIndex(("rocket progress"))] > 1000){
+        //display indicator saying rocket produced
+        for (int y=0; y<mapHeight; y++){
+          for (int x=0; x<mapWidth; x++){
+            if (parties[y][x] != null){
+              if (parties[y][x].player == turn){
+                if(parties[y][x].getTask()==JSONIndex(gameData.getJSONArray("tasks"), "Produce Rocket")){
+                  notificationManager.post("Rocket Produced", x, y, turnNumber, turn);
+                  parties[y][x].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
+                  buildings[y][x].image_id=1;
+                }
+              }
+            }
+          }
+        }
+      }
+      partyMovementPointsReset();
+      float mapXOffset;
+      float mapYOffset;
+      if (map.isPanning()){
+        mapXOffset = map.getFocusedX();
+        mapYOffset = map.getFocusedY();
+      } else {
+        mapXOffset = map.getFocusedX();
+        mapYOffset = map.getFocusedY();
+      }
+      float blockSize;
+      if (map.isZooming()){
+        blockSize = map.getTargetZoom();
+      } else{
+        blockSize = map.getZoom();
+      }
+      players[turn].saveSettings(map.getTargetOffsetX(), map.getTargetOffsetY(), blockSize, cellX, cellY, cellSelected);
+      turn = (turn + 1)%2;
+      players[turn].loadSettings(this, map);
+      changeTurn = false;
+      TextBox t = ((TextBox)(getElement("turn number", "bottom bar")));
+      t.setColour(players[turn].colour);
+      t.setText("Turn "+turnNumber);
+  
+      this.totals = totalResources();
+      ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
+      rs.updateNet(totals);
+      rs.updateStockpile(players[turn].resources);
+  
+      notificationManager.turnChange(turn);
+  
+      if (anyIdle(turn)){
+        ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
+      }
+      else{
+        ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
+      }
+  
+      if (turn == 0)
+        turnNumber ++;
     }
-    partyMovementPointsReset();
-    float mapXOffset;
-    float mapYOffset;
-    if (map.isPanning()){
-      mapXOffset = map.getFocusedX();
-      mapYOffset = map.getFocusedY();
-    } else {
-      mapXOffset = map.getFocusedX();
-      mapYOffset = map.getFocusedY();
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error changing turn", e);
     }
-    float blockSize;
-    if (map.isZooming()){
-      blockSize = map.getTargetZoom();
-    } else{
-      blockSize = map.getZoom();
-    }
-    players[turn].saveSettings(map.getTargetOffsetX(), map.getTargetOffsetY(), blockSize, cellX, cellY, cellSelected);
-    turn = (turn + 1)%2;
-    players[turn].loadSettings(this, map);
-    changeTurn = false;
-    TextBox t = ((TextBox)(getElement("turn number", "bottom bar")));
-    t.setColour(players[turn].colour);
-    t.setText("Turn "+turnNumber);
-
-    this.totals = totalResources();
-    ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
-    rs.updateNet(totals);
-    rs.updateStockpile(players[turn].resources);
-
-    notificationManager.turnChange(turn);
-
-    if (anyIdle(turn)){
-      ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
-    }
-    else{
-      ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
-    }
-
-    if (turn == 0)
-      turnNumber ++;
   }
 
   boolean checkForPlayerWin(){
@@ -819,18 +920,24 @@ class Game extends State{
     }
   }
   int[] newPartyLoc(){
-    ArrayList<int[]> locs = new ArrayList<int[]>();
-    locs.add(new int[]{cellX+1, cellY});
-    locs.add(new int[]{cellX-1, cellY});
-    locs.add(new int[]{cellX, cellY+1});
-    locs.add(new int[]{cellX, cellY-1});
-    Collections.shuffle(locs);
-    for (int i=0; i<4; i++){
-      if (parties[locs.get(i)[1]][locs.get(i)[0]] == null && terrain[locs.get(i)[1]][locs.get(i)[0]] != 1){
-        return locs.get(i);
+    try{
+      ArrayList<int[]> locs = new ArrayList<int[]>();
+      locs.add(new int[]{cellX+1, cellY});
+      locs.add(new int[]{cellX-1, cellY});
+      locs.add(new int[]{cellX, cellY+1});
+      locs.add(new int[]{cellX, cellY-1});
+      Collections.shuffle(locs);
+      for (int i=0; i<4; i++){
+        if (parties[locs.get(i)[1]][locs.get(i)[0]] == null && terrain[locs.get(i)[1]][locs.get(i)[0]] != 1){
+          return locs.get(i);
+        }
       }
+      return null;
     }
-    return null;
+    catch (IndexOutOfBoundsException e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error with indices in new party loc", e);
+      return null;
+    }
   }
   boolean canMove(int x, int y){
     float points;
@@ -867,30 +974,42 @@ class Game extends State{
     prevIdle.clear();
   }
   boolean isIdle(int x, int y){
-    return (parties[y][x].task == JSONIndex(gameData.getJSONArray("tasks"), "Rest") && canMove(x, y) && (parties[y][x].path==null||parties[y][x].path!=null&&parties[y][x].path.size()==0));
+    try{
+      return (parties[y][x].task == JSONIndex(gameData.getJSONArray("tasks"), "Rest") && canMove(x, y) && (parties[y][x].path==null||parties[y][x].path!=null&&parties[y][x].path.size()==0));
+    }
+    catch (IndexOutOfBoundsException e){
+      LOGGER_MAIN.log(Level.WARNING, "Error with indices in new party loc", e);
+      return false;
+    }
   }
 
   int[] findIdle(int player){
-    int[] backup = {-1, -1};
-    for (int y=0; y<mapHeight; y++){
-      for (int x=0; x<mapWidth; x++){
-        if (parties[y][x] != null && parties[y][x].player == player && isIdle(x, y)){
-          if (inPrevIdle(x, y)){
-            backup = new int[]{x, y};
-          }
-          else{
-            prevIdle.add(new Integer[]{x, y});
-            return new int[]{x, y};
+    try{
+      int[] backup = {-1, -1};
+      for (int y=0; y<mapHeight; y++){
+        for (int x=0; x<mapWidth; x++){
+          if (parties[y][x] != null && parties[y][x].player == player && isIdle(x, y)){
+            if (inPrevIdle(x, y)){
+              backup = new int[]{x, y};
+            }
+            else{
+              prevIdle.add(new Integer[]{x, y});
+              return new int[]{x, y};
+            }
           }
         }
       }
+      clearPrevIdle();
+      if (backup[0] == -1){
+        return backup;
+      }
+      else{
+        return findIdle(player);
+      }
     }
-    clearPrevIdle();
-    if (backup[0] == -1){
-      return backup;
-    }
-    else{
-      return findIdle(player);
+    catch (IndexOutOfBoundsException e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error with indices out of bounds in new party loc", e);
+      return null;
     }
   }
 
@@ -1113,7 +1232,7 @@ class Game extends State{
                 splittedParty = null;
                 splitting = false;
               } else{
-                parties[py][px] = null;
+                parties[py][px+1000] = null;
               }
             if (overflow>0){
               if(parties[path.get(node-1)[1]][path.get(node-1)[0]]==null){
