@@ -418,7 +418,7 @@ class Tooltip extends Element{
   }
   void setText(String text){
     if (text != this.text){
-      LOGGER_MAIN.fine("Tooltip text changing to: " + text);
+      LOGGER_MAIN.finest("Tooltip text changing to: " + text);
     }
     this.text = text;
   }
@@ -471,7 +471,7 @@ class Tooltip extends Element{
   }
   
   void setMoving(int turns, boolean splitting, int cost, boolean is3D){
-    LOGGER_MAIN.fine("Setting tooltip to moving");
+    LOGGER_MAIN.finest("Setting tooltip to moving");
     attacking = false;
     //Tooltip text if moving. Turns is the number of turns in move
     JSONObject jo = gameData.getJSONObject("tooltips");
@@ -491,31 +491,31 @@ class Tooltip extends Element{
     setText(t);
   }
   void setAttacking(BigDecimal chance){
-    LOGGER_MAIN.fine("Setting tooltip to attacking with change: "+chance.toString());
+    LOGGER_MAIN.finest("Setting tooltip to attacking with change: "+chance.toString());
     attacking = true;
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(String.format(jo.getString("attacking"), chance.toString()));
   }
   void setTurnsRemaining(){
-    LOGGER_MAIN.fine("Setting tooltip to turns remaining");
+    LOGGER_MAIN.finest("Setting tooltip to turns remaining");
     attacking = false;
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(jo.getString("turns remaining"));
   }
   void setMoveButton(){
-    LOGGER_MAIN.fine("Setting tooltip to move button");
+    LOGGER_MAIN.finest("Setting tooltip to move button");
     attacking = false;
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(jo.getString("move button"));
   }
   void setMerging(){
-    LOGGER_MAIN.fine("Setting tooltip to merging");
+    LOGGER_MAIN.finest("Setting tooltip to merging");
     attacking = false;
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(jo.getString("merging"));
   }
   void setTask(String task, float[] availibleResources, int movementPoints){
-    LOGGER_MAIN.fine(String.format("Setting tooltip to set task. Task:%s, availible resources:%s, movement points:%d", task, Arrays.toString(availibleResources), movementPoints));
+    LOGGER_MAIN.finest(String.format("Setting tooltip to set task. Task:%s, availible resources:%s, movement points:%d", task, Arrays.toString(availibleResources), movementPoints));
     try{
       attacking = false;
       JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task);
@@ -1064,7 +1064,7 @@ class TaskManager extends Element{
     taskMActive = true;
   }
   void setOptions(ArrayList<String> options){
-    LOGGER_MAIN.finer("Options changed to:"+Arrays.toString(options));
+    LOGGER_MAIN.finer("Options changed to:["+String.join(", ", options));
     this.options = options;
   }
   void addOption(String option){

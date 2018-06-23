@@ -317,7 +317,7 @@ class Map3D extends BaseMap implements Map {
 
   PShape generateTrees(int num, int vertices, float x1, float y1) {
     try{
-      LOGGER_MAIN.info(String.format("Generating trees at %s, %s", x1, y1));
+      //LOGGER_MAIN.info(String.format("Generating trees at %s, %s", x1, y1));
       PShape shapes = createShape(GROUP);
       PShape stump;
       colorMode(HSB, 100);
@@ -716,7 +716,7 @@ class Map3D extends BaseMap implements Map {
   void updateHighlightingGrid(float x, float y, int horizontals, int verticles) {
     // x, y are cell coordinates
     try{
-      LOGGER_MAIN.finer(String.format("Updating selection rect at:%s, %s", x, y));
+      //LOGGER_MAIN.finer(String.format("Updating selection rect at:%s, %s", x, y));
       PShape line;
       float alpha;
       if (jsManager.loadBooleanSetting("active cell highlighting")) {
@@ -784,7 +784,7 @@ class Map3D extends BaseMap implements Map {
 
   void updateSelectionRect(int cellX, int cellY) {
     try{
-      LOGGER_MAIN.finer(String.format("Updating selection rect at:%s, %s", cellX, cellY));
+      //LOGGER_MAIN.finer(String.format("Updating selection rect at:%s, %s", cellX, cellY));
       int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
       int[] curLoc = {0, 0};
       int a = 0;

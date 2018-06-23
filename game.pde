@@ -1139,158 +1139,163 @@ class Game extends State{
   }
 
   void moveParty(int px, int py, boolean splitting){
-    boolean hasMoved = false;
-    int startPx = px;
-    int startPy = py;
-    Party p;
-
-    if (splitting){
-      p = splittedParty;
-    } else {
-      p = parties[py][px];
-    }
-
-
-    boolean cellFollow = (px==cellX && py==cellY);
-    boolean stillThere = true;
-    if (p.target == null || p.path == null)
-      return;
-    int tx = p.target[0];
-    int ty = p.target[1];
-    if (px == tx && py == ty){
+    try{
+      boolean hasMoved = false;
+      int startPx = px;
+      int startPy = py;
+      Party p;
+  
       if (splitting){
-        if(parties[py][px] == null){
-          parties[py][px] = p;
-        } else {
-          parties[py][px].changeUnitNumber(p.getUnitNumber());
-        }
+        p = splittedParty;
+      } else {
+        p = parties[py][px];
       }
-      p.clearPath();
-      return;
-    }
-
-    ArrayList <int[]> path = p.path;
-    int i=0;
-    boolean moved = false;
-    for (int node=1; node<path.size(); node++){
-      int cost = cost(path.get(node)[0], path.get(node)[1], px, py);
-      if (p.getMovementPoints() >= cost){
-        hasMoved = true;
-        if (parties[path.get(node)[1]][path.get(node)[0]] == null){
-          // empty cell
-          p.subMovementPoints(cost);
-          parties[path.get(node)[1]][path.get(node)[0]] = p;
-          if (splitting){
-            splittedParty = null;
-            splitting = false;
-          } else{
-            parties[py][px] = null;
-          }
-          px = path.get(node)[0];
-          py = path.get(node)[1];
-          p = parties[py][px];
-          if (!moved){
-            p.moved();
-            moved = true;
+  
+  
+      boolean cellFollow = (px==cellX && py==cellY);
+      boolean stillThere = true;
+      if (p.target == null || p.path == null)
+        return;
+      int tx = p.target[0];
+      int ty = p.target[1];
+      if (px == tx && py == ty){
+        if (splitting){
+          if(parties[py][px] == null){
+            parties[py][px] = p;
+          } else {
+            parties[py][px].changeUnitNumber(p.getUnitNumber());
           }
         }
-        else if(path.get(node)[0] != px || path.get(node)[1] != py){
-          p.clearPath();
-          if (parties[path.get(node)[1]][path.get(node)[0]].player == turn){
-            // merge cells
-            notificationManager.post("Parties Merged", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
-            int movementPoints = min(parties[path.get(node)[1]][path.get(node)[0]].getMovementPoints(), p.getMovementPoints()-cost);
-            int overflow = parties[path.get(node)[1]][path.get(node)[0]].changeUnitNumber(p.getUnitNumber());
-            if(cellFollow){
-              selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
-              stillThere = false;
-            }
+        p.clearPath();
+        return;
+      }
+  
+      ArrayList <int[]> path = p.path;
+      int i=0;
+      boolean moved = false;
+      for (int node=1; node<path.size(); node++){
+        int cost = cost(path.get(node)[0], path.get(node)[1], px, py);
+        if (p.getMovementPoints() >= cost){
+          hasMoved = true;
+          if (parties[path.get(node)[1]][path.get(node)[0]] == null){
+            // empty cell
+            p.subMovementPoints(cost);
+            parties[path.get(node)[1]][path.get(node)[0]] = p;
             if (splitting){
               splittedParty = null;
               splitting = false;
             } else{
               parties[py][px] = null;
             }
-            if (overflow>0){
-              if(parties[path.get(node-1)[1]][path.get(node-1)[0]]==null){
-                p.setUnitNumber(overflow);
-                parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
-              } else {
-                parties[path.get(node-1)[1]][path.get(node-1)[0]].changeUnitNumber(overflow);
-              }
-            }
-            parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(movementPoints);
-          } else if (parties[path.get(node)[1]][path.get(node)[0]].player == 2){
-            // merge cells battle
-            notificationManager.post("Battle Reinforced", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
-            int overflow = ((Battle) parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, p.getUnitNumber());
-            if(cellFollow){
-              selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
-              stillThere = false;
-            }
-              if (splitting){
-                splittedParty = null;
-                splitting = false;
-              } else{
-                parties[py][px+1000] = null;
-              }
-            if (overflow>0){
-              if(parties[path.get(node-1)[1]][path.get(node-1)[0]]==null){
-                p.setUnitNumber(overflow);
-                parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
-              } else {
-                parties[path.get(node-1)[1]][path.get(node-1)[0]].changeUnitNumber(overflow);
-              }
+            px = path.get(node)[0];
+            py = path.get(node)[1];
+            p = parties[py][px];
+            if (!moved){
+              p.moved();
+              moved = true;
             }
           }
-          else{
-            int x, y;
-            x = path.get(node)[0];
-            y = path.get(node)[1];
-            int otherPlayer = parties[y][x].player;
-            notificationManager.post("Battle Started", x, y, turnNumber, turn);
-            notificationManager.post("Battle Started", x, y, turnNumber, otherPlayer);
-            p.subMovementPoints(cost);
-            parties[y][x] = new Battle(p, parties[y][x]);
-            parties[y][x] = ((Battle)parties[y][x]).doBattle();
-            if(parties[y][x].player != 2){
-              notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, turn);
-              notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
-            }
-            if(cellFollow){
-              selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
-              stillThere = false;
-            }
-            if (splitting){
+          else if(path.get(node)[0] != px || path.get(node)[1] != py){
+            p.clearPath();
+            if (parties[path.get(node)[1]][path.get(node)[0]].player == turn){
+              // merge cells
+              notificationManager.post("Parties Merged", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
+              int movementPoints = min(parties[path.get(node)[1]][path.get(node)[0]].getMovementPoints(), p.getMovementPoints()-cost);
+              int overflow = parties[path.get(node)[1]][path.get(node)[0]].changeUnitNumber(p.getUnitNumber());
+              if(cellFollow){
+                selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
+                stillThere = false;
+              }
+              if (splitting){
                 splittedParty = null;
                 splitting = false;
               } else{
                 parties[py][px] = null;
               }
-            if(buildings[path.get(node)[1]][path.get(node)[0]]!=null&&buildings[path.get(node)[1]][path.get(node)[0]].type==0){
-              buildings[path.get(node)[1]][path.get(node)[0]] = null;
+              if (overflow>0){
+                if(parties[path.get(node-1)[1]][path.get(node-1)[0]]==null){
+                  p.setUnitNumber(overflow);
+                  parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
+                } else {
+                  parties[path.get(node-1)[1]][path.get(node-1)[0]].changeUnitNumber(overflow);
+                }
+              }
+              parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(movementPoints);
+            } else if (parties[path.get(node)[1]][path.get(node)[0]].player == 2){
+              // merge cells battle
+              notificationManager.post("Battle Reinforced", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
+              int overflow = ((Battle) parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, p.getUnitNumber());
+              if(cellFollow){
+                selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
+                stillThere = false;
+              }
+                if (splitting){
+                  splittedParty = null;
+                  splitting = false;
+                } else{
+                  parties[py][px] = null;
+                }
+              if (overflow>0){
+                if(parties[path.get(node-1)[1]][path.get(node-1)[0]]==null){
+                  p.setUnitNumber(overflow);
+                  parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
+                } else {
+                  parties[path.get(node-1)[1]][path.get(node-1)[0]].changeUnitNumber(overflow);
+                }
+              }
             }
+            else{
+              int x, y;
+              x = path.get(node)[0];
+              y = path.get(node)[1];
+              int otherPlayer = parties[y][x].player;
+              notificationManager.post("Battle Started", x, y, turnNumber, turn);
+              notificationManager.post("Battle Started", x, y, turnNumber, otherPlayer);
+              p.subMovementPoints(cost);
+              parties[y][x] = new Battle(p, parties[y][x]);
+              parties[y][x] = ((Battle)parties[y][x]).doBattle();
+              if(parties[y][x].player != 2){
+                notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, turn);
+                notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
+              }
+              if(cellFollow){
+                selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
+                stillThere = false;
+              }
+              if (splitting){
+                  splittedParty = null;
+                  splitting = false;
+                } else{
+                  parties[py][px] = null;
+                }
+              if(buildings[path.get(node)[1]][path.get(node)[0]]!=null&&buildings[path.get(node)[1]][path.get(node)[0]].type==0){
+                buildings[path.get(node)[1]][path.get(node)[0]] = null;
+              }
+            }
+            break;
           }
+          i++;
+        }
+        else{
+          p.path = new ArrayList(path.subList(i, path.size()));
           break;
         }
-        i++;
+        if (tx==px&&ty==py){
+          p.clearPath();
+        }
       }
-      else{
-        p.path = new ArrayList(path.subList(i, path.size()));
-        break;
+      
+      if(cellFollow&&stillThere){
+        selectCell((int)px, (int)py, false);
       }
-      if (tx==px&&ty==py){
-        p.clearPath();
+      
+      // if the party didnt move then put the splitted party back into the cell
+      if (startPx == px && startPy == py && !hasMoved){
+        parties[py][px] = p;
       }
     }
-    
-    if(cellFollow&&stillThere){
-      selectCell((int)px, (int)py, false);
-    }
-    
-    // if the party didnt move then put the splitted party back into the cell
-    if (startPx == px && startPy == py && !hasMoved){
-      parties[py][px] = p;
+    catch (IndexOutOfBoundsException e){
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error with indices out of bounds when moving party at cell:%s, %s", px, py), e);
     }
   }
   int getMoveTurns(int startX, int startY, int targetX, int targetY, Node[][] nodes){

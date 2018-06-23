@@ -8,6 +8,7 @@ class Menu extends State{
   HashMap<String, String[]> stateChangers, settingChangers;
   
   Menu(){
+    LOGGER_MAIN.fine("Initialising menu");
     BGimg = loadImage("data/menu_background.jpeg");
     bg = createShape(RECT, 0, 0, width, height);
     bg.setTexture(BGimg);
@@ -20,6 +21,7 @@ class Menu extends State{
   }
   
   void loadMenuPanels(){
+    LOGGER_MAIN.fine("Loading menu panels");
     resetPanels();
     jsManager.loadMenuElements(this, jsManager.loadFloatSetting("gui scale"));
     hidePanels();
@@ -65,6 +67,7 @@ class Menu extends State{
   }
   
   void changeMenuPanel(){
+    LOGGER_MAIN.fine("Changing menu panel to: "+newPanel);
     panelToTop(newPanel);
     getPanel(newPanel).setVisible(true);
     getPanel(currentPanel).setVisible(false);
@@ -82,6 +85,7 @@ class Menu extends State{
   
   void saveMenuSetting(String id, Event event){
     if (settingChangers.get(id) != null){
+      LOGGER_MAIN.finer(String.format("Saving setting id:%s, event id:%s", id, event.id));
       String type = jsManager.getElementType(event.panel, id);
       switch (type){
         case "slider":
@@ -105,15 +109,19 @@ class Menu extends State{
               jsManager.saveSetting(settingChangers.get(id)[0], ((DropDown)getElement(id, event.panel)).getIntVal());
               break;
             default:
-              println("invalid dropdown type", type);
+              LOGGER_MAIN.warning("invalid dropdown type: " + ((DropDown)getElement(id, event.panel)).optionTypes);
               break;
           }
+          break;
+        default:
+          LOGGER_MAIN.warning("Invalid element type: "+type);
           break;
       }
     }
   }
   
   void revertChanges(String panel, boolean onlyAutosaving){
+    LOGGER_MAIN.fine("Reverting changes made to settings that are not autosaving");
     for (Element elem : getPanel(panel).elements){
       if ((onlyAutosaving || !jsManager.hasFlag(panel, elem.id, "autosave")) && settingChangers.get(elem.id) != null){
         String type = jsManager.getElementType(panel, elem.id);
@@ -138,7 +146,13 @@ class Menu extends State{
               case "ints":
                 ((DropDown)getElement(elem.id, panel)).setSelected(""+jsManager.loadIntSetting(jsManager.getSettingName(elem.id, panel)));
                 break;
+              default:
+                LOGGER_MAIN.warning("Invalid dropdown type: "+((DropDown)getElement(elem.id, panel)).optionTypes);
+                break;
             }
+            break;
+          default:
+            LOGGER_MAIN.warning("Invalid type for element:"+type);
             break;
         }
       }
@@ -183,6 +197,7 @@ class Menu extends State{
           revertChanges(event.panel, false);
         }
         else if (event.id.equals("reset default map settings")){
+          LOGGER_MAIN.info("Resetting default setting for new map");
           jsManager.saveDefault("hills height");
           jsManager.saveDefault("water level");
           jsManager.saveDefault("map size");
@@ -198,14 +213,17 @@ class Menu extends State{
           revertChanges(event.panel, true);
         }
         else if (event.id.equals("start")){
+          LOGGER_MAIN.info("Starting state change to a new game");
           newState = "map";
           loadingName = null;
         }
         else if (event.id.equals("load")){
-          newState = "map";
           loadingName = ((BaseFileManager)getElement("loading manager", "load game")).selectedSaveName();
+          LOGGER_MAIN.info("Starting state change to game via loading with file name"+loadingName);
+          newState = "map";
         }
         else if (event.id.equals("exit")){
+          LOGGER_MAIN.info("Exitting game...");
           exit();
         }
       }

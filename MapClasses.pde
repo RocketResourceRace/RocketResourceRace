@@ -359,7 +359,7 @@ class BattleEstimateManager{
   BigDecimal getEstimate(int x1, int y1, int x2, int y2, int units){
     try{
       if (parties[y2][x2] == null){
-        println("Invalid player location");
+        LOGGER_MAIN.warning("Invalid player location");
       }
       Party tempAttacker = parties[y1][x1].clone();
       tempAttacker.setUnitNumber(units);
