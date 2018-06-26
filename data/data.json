@@ -459,7 +459,15 @@
         "turns": 4,
         "building": "Wooden Tower"
       }
-    }
+    },
+    {
+      "id": "Siege",
+      "description": "This party is currently engaged in siege.",
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "auto enabled": true
+    },
   ],
 
   "buildings":[
