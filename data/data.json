@@ -440,6 +440,25 @@
       "id": "Construction End",
       "img": "data/task_construction.png",
       "terrain": [],
+    },
+    {
+      "id": "Build Wooden Tower",
+      "description": "Wooden tower is a defence building.",
+      "img": "data/task_construction.png",
+      "obj": "data/task_construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand", "hill"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":300}],
+      "action":{
+        "type": "Build Wooden Tower",
+        "notification": "Wooden Tower Built",
+        "turns": 4,
+        "building": "Wooden Tower"
+      }
     }
   ],
 
@@ -501,6 +520,11 @@
       "obj": ["construction-start.obj",
               "construction-mid.obj",
               "construction-end.obj"]
+    },
+    {
+      "id": "Wooden Tower",
+      "img": ["wooden_tower.png"],
+      "obj": ["wooden_tower.obj"]
     }
   ],
 
