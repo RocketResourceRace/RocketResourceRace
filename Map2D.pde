@@ -625,6 +625,25 @@ class BaseMap extends Element{
       return jsManager.loadFloatSetting("water level");
     }
   }
+  float getRawHeight(int x, int y, float x1, float y1) {
+    try{
+      if((x>=0&&y>=0)&&((x<mapWidth||(x==mapWidth&&x1==0))&&(y<mapHeight||(y==mapHeight&&y1==0)))){
+        float x2 = x1*jsManager.loadFloatSetting("terrain detail");
+        float y2 = y1*jsManager.loadFloatSetting("terrain detail");
+        float xVal1 = lerp(heightMap[toMapIndex(x, y, floor(x2), floor(y2))], heightMap[toMapIndex(x, y, ceil(x2), floor(y2))], x1);
+        float xVal2 = lerp(heightMap[toMapIndex(x, y, floor(x2), ceil(y2))], heightMap[toMapIndex(x, y, ceil(x2), ceil(y2))], x1);
+        float yVal = lerp(xVal1, xVal2, y1);
+        return max(yVal, jsManager.loadFloatSetting("water level"));
+      }
+      else {
+        // println("A request for the height at a tile outside the map has been made. Ideally this should be prevented earlier"); // Uncomment this when we want to fix it
+        return jsManager.loadFloatSetting("water level");
+      }
+    } catch (ArrayIndexOutOfBoundsException e) {
+      println("this message should never appear. Uncaught request for height at ", x, y, x1, y1);
+      return jsManager.loadFloatSetting("water level");
+    }
+  }
   float getRawHeight(int x, int y) {
     return getRawHeight(x, y, 0, 0);
   }
@@ -632,7 +651,7 @@ class BaseMap extends Element{
     if(x<0||y<0){
       return jsManager.loadFloatSetting("water level");
     }
-    return getRawHeight(int(x), int(y), round((x-int(x))*jsManager.loadFloatSetting("terrain detail")), round((y-int(y))*jsManager.loadFloatSetting("terrain detail")));
+    return getRawHeight(int(x), int(y), (x-int(x)), (y-int(y)));
   }
   float groundMinRawHeightAt(int x1, int y1) {
     int x = floor(x1);
