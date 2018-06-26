@@ -87,6 +87,7 @@ class Game extends State{
     addPanel("pause screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
     addPanel("save screen", (int)(width/2+jsManager.loadFloatSetting("gui scale")*150+(int)(jsManager.loadFloatSetting("gui scale")*20)), (int)(height/2-5*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*500), (int)(jsManager.loadFloatSetting("gui scale")*300), false, false, color(50), color(0));
     addPanel("overlay", 0, 0, width, height, true, false, color(255,255), color(255, 255));
+    addPanel("console", 0, height/2, width, height/2, false, true, color(0,200), color(255, 0));
     
     getPanel("save screen").setOverrideBlocking(true);
 
@@ -120,6 +121,7 @@ class Game extends State{
     addElement("2d 3d toggle", new ToggleButton(bezel*4+buttonW*3, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), jsManager.loadBooleanSetting("map is 3d"), "3D View"), "bottom bar");
     addElement("task icons toggle", new ToggleButton(round(bezel*5+buttonW*3.5), bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Task Icons"), "bottom bar");
     addElement("unit number bars toggle", new ToggleButton(bezel*6+buttonW*4, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Unit Bars"), "bottom bar");
+    addElement("console", new Console(0, 0, width, height/2, 10), "console");
   //int x, int y, int w, int h, color bgColour, color strokeColour, boolean value, String name
   
     prevIdle = new ArrayList<Integer[]>();
@@ -1629,8 +1631,10 @@ class Game extends State{
   }
 
   ArrayList<String> keyboardEvent(String eventType, char _key){
-    if (eventType == "keyPressed" && int(_key)==0 && keyCode == VK_F12){
-      println("F12 pressed");
+    if (eventType == "keyPressed" && _key==0 && keyCode == VK_F12){
+      getPanel("console").visible = !getPanel("console").visible;
+      getElement("2dmap", "default").active = !getPanel("console").visible;
+      getElement("3dmap", "default").active = !getPanel("console").visible;
     }
     if (eventType == "keyPressed" && _key == ESC){
       getPanel("pause screen").visible = !getPanel("pause screen").visible;
@@ -1647,7 +1651,7 @@ class Game extends State{
         getElement("3dmap", "default").active = true;
       }
     }
-    if (!getPanel("pause screen").visible){
+    if (!getPanel("pause screen").visible&&!getPanel("console").visible){
       refreshTooltip();
       if (eventType == "keyTyped"){
         if (_key == ' '&&!cinematicMode){
