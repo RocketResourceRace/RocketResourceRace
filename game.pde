@@ -374,7 +374,7 @@ class Game extends State{
         }
   
         if (splittedParty != null){
-          LOGGER_GAME.finer(String.format("Splitted target for movement: (%d, %d)", cellX, cellY, x, y));
+          LOGGER_GAME.finer(String.format("Splitted target for movement: (%d, %d)", x, y));
           splittedParty.target = new int[]{x, y};
           splittedParty.path = getPath(cellX, cellY, x, y, nodes);
           int pathTurns;
