@@ -518,9 +518,11 @@ class Game extends State{
           rs.updateStockpile(players[turn].resources);
   
           if (anyIdle(turn)){
+            LOGGER_GAME.finest("There are idle units so highlighting button red");
             ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
           }
           else{
+            LOGGER_GAME.finest("There are no idle units so not highlighting button red");
             ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
           }
         }
@@ -573,13 +575,16 @@ class Game extends State{
   //settings
 
   void checkTasks(){
+    // Check which tasks should be made available
     try{
+      LOGGER_GAME.finer("Starting checking available tasks");
       resetAvailableTasks();
       boolean correctTerrain, correctBuilding, enoughResources, enoughMovementPoints;
       JSONObject js;
   
       if(parties[cellY][cellX].hasActions()){
         makeTaskAvailable(parties[cellY][cellX].currentAction());
+        LOGGER_GAME.finer("Keeping current task available:"+parties[cellY][cellX].currentAction());
       }
   
       for(int i=0; i<gameData.getJSONArray("tasks").size(); i++){
