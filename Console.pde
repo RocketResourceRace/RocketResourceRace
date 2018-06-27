@@ -53,7 +53,7 @@ class Console extends Element{
     }
     if (drawCursor){
       canvas.stroke(255);
-      canvas.rect(x+canvas.textWidth(getInputString().substring(0, cursorX)), y+height/2-ts*(text.size()), 1, ts*1.2);
+      canvas.rect(x+canvas.textWidth(getInputString().substring(0, cursorX)), y+height/2-ts, 1, ts*1.2);
     }
     canvas.popStyle();
   }
@@ -67,7 +67,7 @@ class Console extends Element{
   int cxyToC(int cx, int cy){
     int a=0;
     for (int i=0; i<cy; i++){
-      a += text.get(i).length();
+      a += text.get(i).length()+1;
     }
     return a + cx;
   }
@@ -98,7 +98,6 @@ class Console extends Element{
     StringBuilder s = toStr();
     String s2 = s.substring(0, cxyToC(cursorX-1, text.size()-1)) + (s.substring(cxyToC(cursorX, text.size()-1), s.length()));
     text = strToText(s2);
-    println(text);
   }
   
   
@@ -144,6 +143,10 @@ class Console extends Element{
         //if (keyCode == SHIFT){
         //  lshed = true;
         //}
+      }
+      if(_key == ENTER){
+        text.add(text.size(), new StringBuilder(" > "));
+        cursorX=3;
       }
       if(_key == VK_BACK_SPACE&&cursorX>3){
         clearTextAt();
