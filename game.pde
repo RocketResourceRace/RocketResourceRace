@@ -667,6 +667,7 @@ class Game extends State{
     }
     players[turn].saveSettings(map.getTargetOffsetX(), map.getTargetOffsetY(), blockSize, cellX, cellY, cellSelected);
     turn = (turn + 1)%2;
+    map.generateFog(turn);
     players[turn].loadSettings(this, map);
     changeTurn = false;
     TextBox t = ((TextBox)(getElement("turn number", "bottom bar")));
@@ -1173,6 +1174,9 @@ class Game extends State{
     if (startPx == px && startPy == py && !hasMoved){
       parties[py][px] = p;
     }
+    
+    map.generateFog(turn);
+    
   }
   int getMoveTurns(int startX, int startY, int targetX, int targetY, Node[][] nodes){
     int movementPoints;
@@ -1733,6 +1737,7 @@ class Game extends State{
       turnNumber = 0;
     }
     
+    map.generateFog(turn);
     battleEstimateManager = new BattleEstimateManager(parties);
     //for(int i=0;i<NUMOFBUILDINGTYPES;i++){
     //  buildings[(int)playerStarts[0].y][(int)playerStarts[0].x+i] = new Building(1+i);

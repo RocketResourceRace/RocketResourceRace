@@ -36,6 +36,7 @@ interface Map {
   boolean isMoving();
   void enableRocket(PVector pos, PVector vel);
   void disableRocket();
+  void generateFog(int player);
 }
 
 
@@ -190,6 +191,27 @@ class BaseMap extends Element{
   Building[][] buildings;
   boolean updateHoveringScale, drawingTaskIcons, drawingUnitBars;
   boolean cinematicMode;
+  boolean[][] fogMap;
+  
+  void generateFogMap(int player){
+    fogMap = null;
+    fogMap = new boolean[mapHeight][mapWidth];
+    int SIGHTRADIUS = 3; // Should be an attribute for parties
+    for(int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        if(parties[y][x]!=null&&parties[y][x].player == player&&parties[y][x].getUnitNumber()>0){
+          for(int y1=y-SIGHTRADIUS;y1<=y+SIGHTRADIUS;y1++){
+            for(int x1=x-SIGHTRADIUS;x1<=x+SIGHTRADIUS;x1++){
+              if(dist(x1, y1, x, y)<=SIGHTRADIUS&&0<=x1&&x1<mapWidth&&0<=y1&&y1<mapHeight){
+                fogMap[y1][x1] = true;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
   void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players){
     int partiesByteCount = 0;
     for (int y=0; y<mapHeight; y++){
@@ -732,6 +754,12 @@ class Map2D extends BaseMap implements Map{
     cancelPath();
     heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(jsManager.loadFloatSetting("terrain detail"), 2))];
   }
+  
+  
+  void generateFog(int player){
+    generateFogMap(player);
+  }
+  
   void generateShape(){
     cinematicMode = false;
     drawRocket = false;
@@ -1135,6 +1163,18 @@ class Map2D extends BaseMap implements Map{
                  }
                }
              }
+           }
+         }
+       }
+     }
+     if (jsManager.loadBooleanSetting("fog of war")){
+       for (int y1=0; y1<mapHeight; y1++){
+         for (int x=0; x<mapWidth; x++){
+           if(!fogMap[y1][x]){
+             c = new PVector(scaleX(x), scaleY(y1));
+             panelCanvas.fill(0, 50);
+             panelCanvas.noStroke();
+             panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
            }
          }
        }
