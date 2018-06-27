@@ -154,6 +154,7 @@ class Game extends State{
 
   void initialiseBuildings(){
     try{
+      LOGGER_MAIN.fine("Initializing buildings");
       JSONObject js;
       int numBuildings = gameData.getJSONArray("buildings").size();
       buildingTypes = new String[numBuildings];
@@ -169,6 +170,7 @@ class Game extends State{
   }
   void initialiseTasks(){
     try{
+      LOGGER_MAIN.fine("Initializing tasks");
       JSONObject js;
       int numTasks = gameData.getJSONArray("tasks").size();
       taskOutcomes = new float[numTasks][numResources];
@@ -340,11 +342,13 @@ class Game extends State{
   }
   boolean postEvent(GameEvent event){
     try{
+      LOGGER_GAME.finer(String.format("Event triggered, player:%d. Cell in question:(%d, %d)", turn, cellX, cellY));
       boolean valid = true;
       // Returns true if event is valid
+      
       battleEstimateManager.refresh();
       if (event instanceof Move){
-  
+        LOGGER_GAME.fine("Move event");
         Move m = (Move)event;
         int x = m.endX;
         int y = m.endY;
@@ -352,7 +356,7 @@ class Game extends State{
         int cellY = m.startY;
   
         if (x<0 || x>=mapWidth || y<0 || y>=mapHeight){
-          println("invalid movement");
+          LOGGER_MAIN.warning(String.format("invalid movement outside map boundries: (%d, %d)", x, y));
           valid = false;
         }
   
@@ -363,12 +367,14 @@ class Game extends State{
           if (sliderVal > 0 && parties[cellY][cellX].getUnitNumber() >= 2 && parties[cellY][cellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle")){
             map.updateMoveNodes(nodes);
             moving = true;
+            LOGGER_GAME.finer(String.format("Splitting party from: (%d, %d). Number = %d.", cellX, cellY, sliderVal));
             splittedParty = new Party(turn, sliderVal, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), parties[cellY][cellX].getMovementPoints());
             parties[cellY][cellX].changeUnitNumber(-sliderVal);
           }
         }
   
         if (splittedParty != null){
+          LOGGER_GAME.finer(String.format("Splitted target for movement: (%d, %d)", cellX, cellY, x, y));
           splittedParty.target = new int[]{x, y};
           splittedParty.path = getPath(cellX, cellY, x, y, nodes);
           int pathTurns;
@@ -386,15 +392,18 @@ class Game extends State{
           splittedParty.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
           splittedParty.clearActions();
           ((Text)getElement("turns remaining", "party management")).setText("");
-          if(cellX==x&&cellY==y){
+          if(cellX==x&&cellY==y){ // Party moving to same tile
+            LOGGER_GAME.finer(String.format("Splitted party put into back tile: (%s, %s)", x, y));
             parties[y][x].changeUnitNumber(splittedParty.getUnitNumber());
             splittedParty = null;
             parties[y][x].clearPath();
-          } else {
+          } 
+          else {
             moveParty(cellX, cellY, true);
           }
         }
         else {
+          LOGGER_GAME.finer(String.format("Party at cell: (%s, %s) target for movement: (%d, %d)", cellX, cellY, x, y));
           parties[cellY][cellX].target = new int[]{x, y};
           parties[cellY][cellX].path = getPath(cellX, cellY, x, y, nodes);
           int pathTurns;
@@ -407,6 +416,7 @@ class Game extends State{
           else{
             pathTurns = 1+getMoveTurns(cellX, cellY, x, y, nodes);
           }
+          LOGGER_GAME.finest(String.format("Path turns set to %d", pathTurns));
           parties[cellY][cellX].setPathTurns(pathTurns);
           Collections.reverse(parties[cellY][cellX].path);
           parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
@@ -419,6 +429,7 @@ class Game extends State{
         }
       }
       else if (event instanceof EndTurn){
+        LOGGER_GAME.info("End turn event");
         if (!changeTurn)
           changeTurn();
         else
@@ -426,6 +437,7 @@ class Game extends State{
       }
   
       else if (event instanceof ChangeTask){
+        LOGGER_GAME.finer(String.format("Change task event for party at: (%s, %s)", cellX, cellY));
         ChangeTask m = (ChangeTask)event;
         int cellX = m.x;
         int cellY = m.y;
@@ -436,47 +448,60 @@ class Game extends State{
         if (!jo.isNull("movement points")){
           //Changing from defending
           parties[cellY][cellX].setMovementPoints(min(parties[cellY][cellX].getMovementPoints()+jo.getInt("movement points"), gameData.getJSONObject("game options").getInt("movement points")));
+          LOGGER_GAME.fine("Changing party from defending");
         }
         parties[cellY][cellX].changeTask(task);
         if (parties[cellY][cellX].getTask() == JSONIndex(gameData.getJSONArray("tasks"), "Rest")){
           parties[cellY][cellX].clearActions();
           ((Text)getElement("turns remaining", "party management")).setText("");
+          LOGGER_GAME.finest("Party task is now rest, so turns remaining set to 0 and actions cleared");
         }
         else{
           moving = false;
           map.cancelMoveNodes();
+          LOGGER_GAME.finest("Party task changed so move nodes canceled and moveing set to false");
         }
         jo = gameData.getJSONArray("tasks").getJSONObject(parties[cellY][cellX].getTask());
-        if (!jo.isNull("movement points")){
+        
+        if (!jo.isNull("movement points")){ // Check if enough movement points to change task
           if (parties[cellY][cellX].getMovementPoints()-jo.getInt("movement points") >= 0){
             parties[cellY][cellX].subMovementPoints(jo.getInt("movement points"));
+            LOGGER_GAME.finer("Sufficient resources to change task to selected");
           }
           else{
+            LOGGER_GAME.fine("Insufficient movement points to change task to specified");
             parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
           }
-        } else if (jo.getString("id").equals("Launch Rocket")){
+        } 
+        else if (jo.getString("id").equals("Launch Rocket")){
           startRocketLaunch();
+          LOGGER_GAME.info("Starting rocket launch");
         }
         else if (parties[cellY][cellX].getTask()==JSONIndex(gameData.getJSONArray("tasks"), "Produce Rocket")){
           if(players[turn].resources[jsManager.getResIndex(("rocket progress"))]==-1){
             players[turn].resources[jsManager.getResIndex(("rocket progress"))] = 0;
+            LOGGER_GAME.fine("Rocket progress set to zero becuase party task is to produce rocket");
           }
         }
   
         else{
           Action a = taskAction(parties[cellY][cellX].getTask());
           if (a != null){
+            LOGGER_GAME.fine("Adding task action"+a.type);
             float[] co = buildingCost(parties[cellY][cellX].getTask());
             if (sufficientResources(players[turn].resources, co, true)){
+              LOGGER_GAME.finer("Party has sufficient resources to change task to:"+parties[cellY][cellX].getTask());
               parties[cellY][cellX].clearActions();
               ((Text)getElement("turns remaining", "party management")).setText("");
               parties[cellY][cellX].addAction(taskAction(parties[cellY][cellX].getTask()));
               if (sum(co)>0){
                 spendRes(players[turn], co);
                 buildings[cellY][cellX] = new Building(buildingIndex("Construction"));
+                LOGGER_GAME.fine(String.format("Changing building at cell:(%d, %d) to construction"));
               }
             }
             else{
+              LOGGER_GAME.finer("Party has insufficient resources to change task to:"+parties[cellY][cellX].getTask());
               parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
             }
           }
@@ -485,6 +510,7 @@ class Game extends State{
         checkTasks();
       }
       if (valid){
+        LOGGER_GAME.finest("Event is valid, so updating things...");
         if (!changeTurn){
           this.totals = totalResources();
           ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
