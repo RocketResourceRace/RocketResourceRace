@@ -475,7 +475,7 @@ class Game extends State{
         } 
         else if (jo.getString("id").equals("Launch Rocket")){
           startRocketLaunch();
-          LOGGER_GAME.info("Starting rocket launch");
+          LOGGER_GAME.finer("Starting rocket launch");
         }
         else if (parties[cellY][cellX].getTask()==JSONIndex(gameData.getJSONArray("tasks"), "Produce Rocket")){
           if(players[turn].resources[jsManager.getResIndex(("rocket progress"))]==-1){
@@ -655,6 +655,7 @@ class Game extends State{
 
   void turnChange(){
     try{
+      LOGGER_GAME.finer(String.format("Turn changing - current player = %s, next player = %s", turn, (turn+1)%players.length));
       float[] totalResourceRequirements = new float[numResources];
       notificationManager.dismissAll();
       for (int y=0; y<mapHeight; y++){
@@ -673,11 +674,15 @@ class Game extends State{
                 if (!(action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction Mid")) && !(action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction End")))
                   notificationManager.post(action.notification, x, y, turnNumber, turn);
                 if (action.building != null){
-                  if (action.building.equals(""))
+                  if (action.building.equals("")){
                     buildings[y][x] = null;
+                    LOGGER_GAME.info(String.format("Building cleared at cell: (%d, %d)", x, y));
+                  }
                   else{
+                    LOGGER_GAME.info(String.format("Action completed building %s, at cell (%d, %d)", action.building, x, y));
                     buildings[y][x] = new Building(buildingIndex(action.building));
                     if (buildings[y][x].type == buildingIndex("Quarry")){
+                      LOGGER_GAME.fine("Quarry type detected so changing terrain...");
                       //map.setHeightsForCell(x, y, jsManager.loadFloatSetting("water level"));
                       terrain[y][x] = terrainIndex("quarry site");
                       map.replaceMapStripWithReloadedStrip(y);
@@ -685,21 +690,25 @@ class Game extends State{
                   }
                 }
                 if (action.terrain != null){
-                  if (terrain[y][x] == terrainIndex("forest")){
+                  if (terrain[y][x] == terrainIndex("forest")){ // Cut down forest
+                    LOGGER_GAME.info("Cutting down forest");
                     players[turn].resources[jsManager.getResIndex(("wood"))]+=100;
                     map.removeTreeTile(x, y);
                   }
                   terrain[y][x] = terrainIndex(action.terrain);
                 }
                 if (action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction Mid")){
+                    LOGGER_GAME.finer("Action reached mid phase so changing building to mid");
                     buildings[y][x].image_id = 1;
                     action = null;
                 } else if(action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction End")){
+                    LOGGER_GAME.finer("Action reached end phase so changing building to end");
                     buildings[y][x].image_id = 2;
                     action = null;
                 }
               }
               if (action != null){
+                LOGGER_MAIN.finer("Action is null so clearing actions and setting task to rest");
                 parties[y][x].clearCurrentAction();
                 parties[y][x].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
               }
@@ -711,6 +720,7 @@ class Game extends State{
                 int otherPlayer = ((Battle) parties[y][x]).party2.player;
                 parties[y][x] = ((Battle)parties[y][x]).doBattle();
                 if(parties[y][x].player != 2){
+                  LOGGER_GAME.fine(String.format("Battle ended at:(%d, %d) winner=&s", x, y, str(parties[y][x].player+1)));
                   notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, player);
                   notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
                 }
@@ -760,15 +770,21 @@ class Game extends State{
                     } else if(resourceAmountsAvailable[jsManager.getResIndex(("food"))]<1){
                       float lost = (1-resourceAmountsAvailable[jsManager.getResIndex(("food"))])*taskOutcomes[task][resource]*parties[y][x].getUnitNumber();
                       parties[y][x].setUnitNumber(floor(parties[y][x].getUnitNumber()-lost));
-                      if (parties[y][x].getUnitNumber() == 0)
+                      if (parties[y][x].getUnitNumber() == 0){
                         notificationManager.post("Party Starved", x, y, turnNumber, turn);
-                      else
+                        LOGGER_GAME.info(String.format("Party starved at cell:(%d, %d) player:%s", x, y, turn));
+                      }
+                      else{
                         notificationManager.post(String.format("Party Starving - %d lost", ceil(lost)), x, y, turnNumber, turn);
-                    } else{
+                        LOGGER_GAME.fine(String.format("Party Starving - %d lost at  cell: (%d, %d) player:%s", ceil(lost), x, y, turn));
+                      }
+                    } 
+                    else{
                       int prev = parties[y][x].getUnitNumber();
                       parties[y][x].setUnitNumber(ceil(parties[y][x].getUnitNumber()+taskOutcomes[task][resource]*(float)parties[y][x].getUnitNumber()));
                       if (prev != jsManager.loadIntSetting("party size") && parties[y][x].getUnitNumber() == jsManager.loadIntSetting("party size") && parties[y][x].task == JSONIndex(gameData.getJSONArray("tasks"), "Super Rest")){
                         notificationManager.post("Party Full", x, y, turnNumber, turn);
+                        LOGGER_GAME.fine(String.format("Party full at  cell: (%d, %d) player:%s", x, y, turn));
                       }
                     }
   
@@ -777,6 +793,7 @@ class Game extends State{
               }
               if(parties[y][x].getUnitNumber()==0){
                 parties[y][x] = null;
+                LOGGER_GAME.finest(String.format("Setting party at cell:(%s, %s) to null becuase it has no units left in it", x, y));
               }
             }
           }
@@ -784,6 +801,7 @@ class Game extends State{
       }
       if (players[turn].resources[jsManager.getResIndex(("rocket progress"))] > 1000){
         //display indicator saying rocket produced
+        LOGGER_GAME.info("Rocket produced");
         for (int y=0; y<mapHeight; y++){
           for (int x=0; x<mapWidth; x++){
             if (parties[y][x] != null){
@@ -799,6 +817,8 @@ class Game extends State{
         }
       }
       partyMovementPointsReset();
+      
+      LOGGER_GAME.finer("Loading other player camera positions");
       float mapXOffset;
       float mapYOffset;
       if (map.isPanning()){
@@ -830,13 +850,15 @@ class Game extends State{
       notificationManager.turnChange(turn);
   
       if (anyIdle(turn)){
+        LOGGER_GAME.finest("Idle party set to red becuase idle parties found");
         ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
       }
       else{
+        LOGGER_GAME.finest("Idle party set to grey becuase no idle parties found");
         ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
       }
   
-      if (turn == 0)
+      if (turn == 0) // Update turn when full cycle of turns has happened
         turnNumber ++;
     }
     catch (Exception e){
