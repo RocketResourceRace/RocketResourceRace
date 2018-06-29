@@ -929,13 +929,16 @@ class Game extends State{
             b.setText(">");
         }
         else if (event.id.equals("end game button")){
+          jsManager.writeSettings();
           newState = "menu";
         }
         else if (event.id.equals("main menu button")){
           // old save place
+          jsManager.writeSettings();
           newState = "menu";
         }
         else if (event.id.equals("desktop button")){
+          jsManager.writeSettings();
           exit();
         }
         else if (event.id.equals("resume button")){
