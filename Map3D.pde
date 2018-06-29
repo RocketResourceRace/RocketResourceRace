@@ -30,7 +30,7 @@ class Map3D extends BaseMap implements Map {
   float hoveringX, hoveringY, oldHoveringX, oldHoveringY;
   float targetXOffset, targetYOffset;
   int selectedCellX, selectedCellY;
-  PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid, drawPossibleMoves;
+  PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid, drawPossibleMoves, fog;
   HashMap<String, PShape> taskObjs;
   HashMap<String, PShape[]> buildingObjs;
   PShape[] unitNumberObjects;
@@ -82,6 +82,7 @@ class Map3D extends BaseMap implements Map {
     updateHoveringScale = false;
     this.keyState = new HashMap<Character, Boolean>();
   }
+  
 
 
   float getDownwardAngle(int x, int y) {
@@ -204,6 +205,12 @@ class Map3D extends BaseMap implements Map {
   void cancelPath() {
     drawPath = null;
   }
+  
+  
+  void generateFog(int player){
+    generateFogMap(player);
+  }
+  
   void loadSettings(float mapXOffset, float mapYOffset, float blockSize) {
     targetXOffset = mapXOffset;
     targetYOffset = mapYOffset;

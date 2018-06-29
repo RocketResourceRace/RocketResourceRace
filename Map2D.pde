@@ -36,6 +36,7 @@ interface Map {
   boolean isMoving();
   void enableRocket(PVector pos, PVector vel);
   void disableRocket();
+  void generateFog(int player);
 }
 
 
@@ -191,7 +192,26 @@ class BaseMap extends Element{
   boolean updateHoveringScale, drawingTaskIcons, drawingUnitBars;
   boolean cinematicMode;
   HashMap<Character, Boolean> keyState;
+  boolean[][] fogMap;
   
+  void generateFogMap(int player){
+    fogMap = null;
+    fogMap = new boolean[mapHeight][mapWidth];
+    int SIGHTRADIUS = 3; // Should be an attribute for parties
+    for(int y=0; y<mapHeight; y++){
+      for (int x=0; x<mapWidth; x++){
+        if(parties[y][x]!=null&&parties[y][x].player == player&&parties[y][x].getUnitNumber()>0){
+          for(int y1=y-SIGHTRADIUS;y1<=y+SIGHTRADIUS;y1++){
+            for(int x1=x-SIGHTRADIUS;x1<=x+SIGHTRADIUS;x1++){
+              if(dist(x1, y1, x, y)<=SIGHTRADIUS&&0<=x1&&x1<mapWidth&&0<=y1&&y1<mapHeight){
+                fogMap[y1][x1] = true;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   
   void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players){
     int partiesByteCount = 0;
@@ -628,6 +648,25 @@ class BaseMap extends Element{
       return jsManager.loadFloatSetting("water level");
     }
   }
+  float getRawHeight(int x, int y, float x1, float y1) {
+    try{
+      if((x>=0&&y>=0)&&((x<mapWidth||(x==mapWidth&&x1==0))&&(y<mapHeight||(y==mapHeight&&y1==0)))){
+        float x2 = x1*jsManager.loadFloatSetting("terrain detail");
+        float y2 = y1*jsManager.loadFloatSetting("terrain detail");
+        float xVal1 = lerp(heightMap[toMapIndex(x, y, floor(x2), floor(y2))], heightMap[toMapIndex(x, y, ceil(x2), floor(y2))], x1);
+        float xVal2 = lerp(heightMap[toMapIndex(x, y, floor(x2), ceil(y2))], heightMap[toMapIndex(x, y, ceil(x2), ceil(y2))], x1);
+        float yVal = lerp(xVal1, xVal2, y1);
+        return max(yVal, jsManager.loadFloatSetting("water level"));
+      }
+      else {
+        // println("A request for the height at a tile outside the map has been made. Ideally this should be prevented earlier"); // Uncomment this when we want to fix it
+        return jsManager.loadFloatSetting("water level");
+      }
+    } catch (ArrayIndexOutOfBoundsException e) {
+      println("this message should never appear. Uncaught request for height at ", x, y, x1, y1);
+      return jsManager.loadFloatSetting("water level");
+    }
+  }
   float getRawHeight(int x, int y) {
     return getRawHeight(x, y, 0, 0);
   }
@@ -635,7 +674,7 @@ class BaseMap extends Element{
     if(x<0||y<0){
       return jsManager.loadFloatSetting("water level");
     }
-    return getRawHeight(int(x), int(y), round((x-int(x))*jsManager.loadFloatSetting("terrain detail")), round((y-int(y))*jsManager.loadFloatSetting("terrain detail")));
+    return getRawHeight(int(x), int(y), (x-int(x)), (y-int(y)));
   }
   float groundMinRawHeightAt(int x1, int y1) {
     int x = floor(x1);
@@ -717,6 +756,12 @@ class Map2D extends BaseMap implements Map{
     heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(jsManager.loadFloatSetting("terrain detail"), 2))];
     this.keyState = new HashMap<Character, Boolean>();
   }
+  
+  
+  void generateFog(int player){
+    generateFogMap(player);
+  }
+  
   void generateShape(){
     cinematicMode = false;
     drawRocket = false;
@@ -1120,6 +1165,18 @@ class Map2D extends BaseMap implements Map{
                  }
                }
              }
+           }
+         }
+       }
+     }
+     if (jsManager.loadBooleanSetting("fog of war")){
+       for (int y1=0; y1<mapHeight; y1++){
+         for (int x=0; x<mapWidth; x++){
+           if(!fogMap[y1][x]){
+             c = new PVector(scaleX(x), scaleY(y1));
+             panelCanvas.fill(0, 50);
+             panelCanvas.noStroke();
+             panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
            }
          }
        }
