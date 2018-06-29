@@ -191,6 +191,7 @@ class BaseMap extends Element{
   Building[][] buildings;
   boolean updateHoveringScale, drawingTaskIcons, drawingUnitBars;
   boolean cinematicMode;
+  HashMap<Character, Boolean> keyState;
   boolean[][] fogMap;
   
   void generateFogMap(int player){
@@ -753,6 +754,7 @@ class Map2D extends BaseMap implements Map{
     cancelMoveNodes();
     cancelPath();
     heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(jsManager.loadFloatSetting("terrain detail"), 2))];
+    this.keyState = new HashMap<Character, Boolean>();
   }
   
   
@@ -763,6 +765,7 @@ class Map2D extends BaseMap implements Map{
   void generateShape(){
     cinematicMode = false;
     drawRocket = false;
+    this.keyState = new HashMap<Character, Boolean>();
   }
   void clearShape(){
 
@@ -824,6 +827,8 @@ class Map2D extends BaseMap implements Map{
   void reset(){
     mapXOffset = 0;
     mapYOffset = 0;
+    mapVelocity[0] = 0;
+    mapVelocity[1] = 0;
     blockSize = min(elementWidth/(float)mapWidth, elementWidth/10);
     setPanningSpeed(0.02);
     resetTime = millis();
@@ -939,40 +944,10 @@ class Map2D extends BaseMap implements Map{
   }
   ArrayList<String> keyboardEvent(String eventType, char _key){
     if (eventType == "keyPressed"){
-      if (_key == 'a'){
-        resetTargetZoom();
-        resetTarget();
-        mapVelocity[0] -= mapMaxSpeed;
-      }
-      if (_key == 's'){
-        resetTargetZoom();
-        resetTarget();
-        mapVelocity[1] += mapMaxSpeed;
-      }
-      if (_key == 'd'){
-        resetTargetZoom();
-        resetTarget();
-        mapVelocity[0] += mapMaxSpeed;
-      }
-      if (_key == 'w'){
-        resetTargetZoom();
-        resetTarget();
-        mapVelocity[1] -= mapMaxSpeed;
-      }
+      keyState.put(_key, true);
     }
     if (eventType == "keyReleased"){
-      if (_key == 'a'){
-        mapVelocity[0] += mapMaxSpeed;
-      }
-      if (_key == 's'){
-        mapVelocity[1] -= mapMaxSpeed;
-      }
-      if (_key == 'd'){
-        mapVelocity[0] -= mapMaxSpeed;
-      }
-      if (_key == 'w'){
-        mapVelocity[1] += mapMaxSpeed;
-      }
+      keyState.put(_key, false);
     }
     return new ArrayList<String>();
   }
@@ -1019,8 +994,35 @@ class Map2D extends BaseMap implements Map{
       resetTargetZoom();
       resetTarget();
     }
-    mapXOffset -= mapVelocity[0]*frameTime*60/1000;
-    mapYOffset -= mapVelocity[1]*frameTime*60/1000;
+    mapVelocity[0] = 0;
+    mapVelocity[1] = 0;
+    if(keyState.containsKey('a')){
+      if(keyState.get('a')){
+        mapVelocity[0] -= mapMaxSpeed;
+      }
+    }
+    if(keyState.containsKey('d')){
+      if(keyState.get('d')){
+        mapVelocity[0] += mapMaxSpeed;
+      }
+    }
+    if(keyState.containsKey('w')){
+      if(keyState.get('w')){
+        mapVelocity[1] -= mapMaxSpeed;
+      }
+    }
+    if(keyState.containsKey('s')){
+      if(keyState.get('s')){
+        mapVelocity[1] += mapMaxSpeed;
+      }
+    }
+    
+    if(mapVelocity[0]!=0||mapVelocity[1]!=0){
+      mapXOffset -= mapVelocity[0]*frameTime*60/1000;
+      mapYOffset -= mapVelocity[1]*frameTime*60/1000;
+      resetTargetZoom();
+      resetTarget();
+    }
     frameStartTime = millis();
     limitCoords();
 
