@@ -80,6 +80,7 @@ class Map3D extends BaseMap implements Map {
     targetXOffset = mapWidth/2*blockSize;
     targetYOffset = mapHeight/2*blockSize;
     updateHoveringScale = false;
+    this.keyState = new HashMap<Character, Boolean>();
   }
 
 
@@ -605,6 +606,7 @@ class Map3D extends BaseMap implements Map {
     popStyle();
     cinematicMode = false;
     drawRocket = false;
+    this.keyState = new HashMap<Character, Boolean>();
   }
 
   void generateHighlightingGrid(int horizontals, int verticles) {
@@ -793,76 +795,11 @@ class Map3D extends BaseMap implements Map {
     return new ArrayList<String>();
   }
   ArrayList<String> keyboardEvent(String eventType, char _key) {
-    if (eventType.equals("keyPressed")) {
-      if (_key == 'w') {
-        focusedV.y -= PANSPEED;
-        panning = false;
-      }
-      if (_key == 's') {
-        focusedV.y += PANSPEED;
-        panning = false;
-      }
-      if (_key == 'a') {
-        focusedV.x -= PANSPEED;
-        panning = false;
-      }
-      if (_key == 'd') {
-        focusedV.x += PANSPEED;
-        panning = false;
-      }
-      if (_key == 'q') {
-        rotv -= ROTSPEED;
-      }
-      if (_key == 'e') {
-        rotv += ROTSPEED;
-      }
-      if (_key == 'x') {
-        tiltv += ROTSPEED;
-      }
-      if (_key == 'c') {
-        tiltv -= ROTSPEED;
-      }
-      if (_key == 'f') {
-        zoomv += PANSPEED;
-      }
-      if (_key == 'r') {
-        zoomv -= PANSPEED;
-      }
-    } else if (eventType.equals("keyReleased")) {
-      if (_key == 'w') {
-        focusedV.y += PANSPEED;
-        panning = false;
-      }
-      if (_key == 's') {
-        focusedV.y -= PANSPEED;
-        panning = false;
-      }
-      if (_key == 'a') {
-        focusedV.x += PANSPEED;
-        panning = false;
-      }
-      if (_key == 'd') {
-        focusedV.x -= PANSPEED;
-        panning = false;
-      }
-      if (_key == 'q') {
-        rotv += ROTSPEED;
-      }
-      if (_key == 'e') {
-        rotv -= ROTSPEED;
-      }
-      if (_key == 'x') {
-        tiltv -= ROTSPEED;
-      }
-      if (_key == 'c') {
-        tiltv += ROTSPEED;
-      }
-      if (_key == 'f') {
-        zoomv -= PANSPEED;
-      }
-      if (_key == 'r') {
-        zoomv += PANSPEED;
-      }
+    if (eventType == "keyPressed"){
+      keyState.put(_key, true);
+    }
+    if (eventType == "keyReleased"){
+      keyState.put(_key, false);
     }
     return new ArrayList<String>();
   }
@@ -924,6 +861,45 @@ class Map3D extends BaseMap implements Map {
     // Update camera position and orientation
     frameTime = millis()-prevT;
     prevT = millis();
+    focusedV.x=0;
+    focusedV.y=0;
+    rotv = 0;
+    tiltv = 0;
+    zoomv = 0;
+    if (keyState.containsKey('w')&&keyState.get('w')) {
+      focusedV.y -= PANSPEED;
+      panning = false;
+    }
+    if (keyState.containsKey('s')&&keyState.get('s')) {
+      focusedV.y += PANSPEED;
+      panning = false;
+    }
+    if (keyState.containsKey('a')&&keyState.get('a')) {
+      focusedV.x -= PANSPEED;
+      panning = false;
+    }
+    if (keyState.containsKey('d')&&keyState.get('d')) {
+      focusedV.x += PANSPEED;
+      panning = false;
+    }
+    if (keyState.containsKey('q')&&keyState.get('q')) {
+      rotv -= ROTSPEED;
+    }
+    if (keyState.containsKey('e')&&keyState.get('e')) {
+      rotv += ROTSPEED;
+    }
+    if (keyState.containsKey('x')&&keyState.get('x')) {
+      tiltv += ROTSPEED;
+    }
+    if (keyState.containsKey('c')&&keyState.get('c')) {
+      tiltv -= ROTSPEED;
+    }
+    if (keyState.containsKey('f')&&keyState.get('f')) {
+      zoomv += PANSPEED;
+    }
+    if (keyState.containsKey('r')&&keyState.get('r')) {
+      zoomv -= PANSPEED;
+    }
     focusedV.x = between(-PANSPEED, focusedV.x, PANSPEED);
     focusedV.y = between(-PANSPEED, focusedV.y, PANSPEED);
     rotv = between(-ROTSPEED, rotv, ROTSPEED);
