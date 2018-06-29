@@ -888,8 +888,10 @@ class Game extends State{
       }
       if (!player1alive){
         winner = 1;
+        LOGGER_GAME.info("Player 2 wins");
       } else if (!player2alive) {
         winner = 0;
+        LOGGER_GAME.info("Player 1 wins");
       } else {
         return false;
       }
@@ -986,15 +988,18 @@ class Game extends State{
   void spendRes(Player player, float[] required){
     for (int i=0; i<numResources;i++){
       player.resources[i] -= required[i];
+      LOGGER_GAME.fine(String.format("Player spending: %d %s", required[i], resourceNames[i]));
     }
   }
   void reclaimRes(Player player, float[] required){
     //reclaim half cost of building
     for (int i=0; i<numResources;i++){
       player.resources[i] += required[i]/2;
+      LOGGER_GAME.fine(String.format("Player reclaiming (half of building cost): %d %s", required[i], resourceNames[i]));
     }
   }
   int[] newPartyLoc(){
+    // Unused
     try{
       ArrayList<int[]> locs = new ArrayList<int[]>();
       locs.add(new int[]{cellX+1, cellY});
@@ -1165,12 +1170,15 @@ class Game extends State{
         }
         else if (event.id.equals("unit number bars toggle")){
           map.setDrawingUnitBars(((ToggleButton)(getElement("unit number bars toggle", "bottom bar"))).getState());
+          LOGGER_MAIN.fine("Unit number bars visibility changed");
         }
         else if (event.id.equals("task icons toggle")){
           map.setDrawingTaskIcons(((ToggleButton)(getElement("task icons toggle", "bottom bar"))).getState());
+          LOGGER_MAIN.fine("Task icons bars visibility changed");
         }
         else if (event.id.equals("2d 3d toggle")){
-          // Save the game
+          // Save the game for toggle between 2d and 3d
+          LOGGER_MAIN.info("Toggling between 2d and 3d, so saving now to 'Autosave.dat'");
           loadingName = "Autosave.dat";
           float blockSize;
           if (map.isZooming()){
@@ -1182,16 +1190,19 @@ class Game extends State{
           ((BaseMap)map).saveMap("saves/"+loadingName, this.turnNumber, this.turn, this.players);
           
           jsManager.saveSetting("map is 3d", ((ToggleButton)(getElement("2d 3d toggle", "bottom bar"))).getState());
+          LOGGER_MAIN.info("Reloading map in new dimension");
           reloadGame();
-          
+          LOGGER_MAIN.fine("Finished reloading map");
         }
         else if (event.id.equals("saving manager")){
           loadingName = ((BaseFileManager)getElement("saving manager", "save screen")).selectedSaveName();
+          LOGGER_MAIN.fine("Changing selected save name to: "+loadingName);
           ((TextEntry)getElement("save namer", "save screen")).setText(loadingName);
         }
       }
       if (event.type.equals("notification selected")){
         int x = notificationManager.lastSelected.x, y = notificationManager.lastSelected.y;
+        LOGGER_GAME.fine(String.format("Notification '%s', cell selected: (%d, %d)", notificationManager.lastSelected.name, x, y));
         map.targetCell(x, y, 100);
         selectCell(x, y, false);
       }
