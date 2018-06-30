@@ -3,6 +3,7 @@ class Console extends Element{
   private ArrayList<StringBuilder> text;
   private boolean drawCursor = false;
   private String allowedChars;
+  private Map map;
   
   Console(int x, int y, int w, int h, int textSize){
     this.x = x;
@@ -15,6 +16,9 @@ class Console extends Element{
     cursorX = 3;
   }
 
+  void giveMap(Map map){
+    this.map = map;
+  }
   StringBuilder toStr(){
     StringBuilder s = new StringBuilder();
     for (StringBuilder s1 : text){
@@ -100,6 +104,56 @@ class Console extends Element{
     text = strToText(s2);
   }
   
+  void sendLine(String line){
+    text.add(text.size()-1, new StringBuilder(line));
+  }
+  
+  void doCommand(String rawCommand){
+    String[] splitCommand = rawCommand.split(" ");
+    if(splitCommand.length==0){
+      sendLine("invalid command");
+      return;
+    }
+    switch(splitCommand[0]){
+      case "display":
+        if(splitCommand.length>1){
+          switch(splitCommand[1]){
+            case "sub_tile_boundaries":
+              if(splitCommand.length==3){
+                String value = splitCommand[2].toLowerCase();
+                Boolean setting;
+                if(value.equals("true") || value.equals("t") || value.equals("1")){
+                  setting = true;
+                } else if (value.equals("false") || value.equals("f")|| value.equals("0")){
+                  setting = false;
+                } else {
+                  sendLine("Invalid argument for display sub_tile_boundaries: give either true or false");
+                  return;
+                }
+                sendLine("Changing sub_tile_boundaries setting");
+                jsManager.saveSetting("tile stroke", setting);
+                if(map != null){
+                  sendLine("This requires regenerating the map. This might take a moment and will mean some randomised features will change");
+                  map.generateShape();
+                }
+                sendLine("sub_tile_boundaries setting changed!");
+              } else {
+                sendLine("Invalid number of arguments for display sub_tile_boundaries");
+              }
+              break;
+            default:
+              sendLine("Invalid argument for display");
+              break;
+          }
+        } else {
+          sendLine("Invalid number of arguments for display");
+        }
+        break;
+      default:
+        sendLine("invalid command");
+        break;
+    }
+  }
   
   ArrayList<String> _keyboardEvent(String eventType, char _key){
     keyboardEvent(eventType, _key);
@@ -145,7 +199,9 @@ class Console extends Element{
         //}
       }
       if(_key == ENTER){
+        String rawCommand = getInputString().substring(3);
         text.add(text.size(), new StringBuilder(" > "));
+        doCommand(rawCommand);
         cursorX=3;
       }
       if(_key == VK_BACK_SPACE&&cursorX>3){

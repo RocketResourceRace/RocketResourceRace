@@ -1699,6 +1699,7 @@ class Game extends State{
       getElement("task icons toggle", "bottom bar").visible = true;
       getElement("unit number bars toggle", "bottom bar").active = true;
       getElement("task icons toggle", "bottom bar").active = true;
+      ((Map3D)map).reset();
     } else {
       map = (Map2D)getElement("2dmap", "default");
       ((Map3D)getElement("3dmap", "default")).visible = false;
@@ -1737,6 +1738,7 @@ class Game extends State{
       turn = 0;
       turnNumber = 0;
     }
+    ((Console)getElement("console", "console")).giveMap(map);
     
     battleEstimateManager = new BattleEstimateManager(parties);
     //for(int i=0;i<NUMOFBUILDINGTYPES;i++){
