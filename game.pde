@@ -497,7 +497,7 @@ class Game extends State{
               if (sum(co)>0){
                 spendRes(players[turn], co);
                 buildings[cellY][cellX] = new Building(buildingIndex("Construction"));
-                LOGGER_GAME.fine(String.format("Changing building at cell:(%d, %d) to construction"));
+                LOGGER_GAME.fine(String.format("Changing building at cell:(%d, %d) to construction", cellX, cellY));
               }
             }
             else{

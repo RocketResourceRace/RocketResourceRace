@@ -227,8 +227,8 @@ class BaseMap extends Element{
             else {
               partiesByteCount+=getPartySize(parties[y][x]);
             }
-            partiesByteCount++;
           }
+          partiesByteCount++;
         }
       }
       int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+3*Integer.BYTES+1)*players.length;

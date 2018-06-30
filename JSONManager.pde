@@ -124,6 +124,9 @@ class JSONManager{
         }
       }
     }
+    catch (NullPointerException e){
+      LOGGER_MAIN.log(Level.WARNING, String.format("Could not find flag for panel:'%s', element:'%s', flag:'%s'", panelID, elemID, flag), e);
+    }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, String.format("Error finding flag for panel:'%s', element:'%s', flag:'%s'", panelID, elemID, flag), e);
       throw e;

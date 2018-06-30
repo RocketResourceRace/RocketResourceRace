@@ -123,7 +123,7 @@ class Menu extends State{
   void revertChanges(String panel, boolean onlyAutosaving){
     LOGGER_MAIN.fine("Reverting changes made to settings that are not autosaving");
     for (Element elem : getPanel(panel).elements){
-      if ((onlyAutosaving || !jsManager.hasFlag(panel, elem.id, "autosave")) && settingChangers.get(elem.id) != null){
+      if (elem.id.equals("loading manager") && ((onlyAutosaving || !jsManager.hasFlag(panel, elem.id, "autosave")) && settingChangers.get(elem.id) != null)){
         String type = jsManager.getElementType(panel, elem.id);
         switch (type){
           case "slider":
