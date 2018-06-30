@@ -2119,6 +2119,7 @@ class Game extends State{
   }
 
   PVector[] generateStartingParties(){
+    LOGGER_GAME.fine("Generating starting positions");
     PVector player1 = generatePartyPosition();
     PVector player2 = generatePartyPosition();
     int counter = 0;
@@ -2127,6 +2128,8 @@ class Game extends State{
       player1 = generatePartyPosition();
       player2 = generatePartyPosition();
     }
+    LOGGER_GAME.fine(String.format("Player 1 party positition: (%d, %d)", player1.x, player1.y));
+    LOGGER_GAME.fine(String.format("Player 2 party positition: (%d, %d)", player2.x, player2.y));
     if(loadingName == null){
       parties[(int)player1.y][(int)player1.x] = new Party(0, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"));
       parties[(int)player2.y][(int)player2.x] = new Party(1, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"));
@@ -2135,6 +2138,7 @@ class Game extends State{
   }
   
   void enterCinematicMode(){
+    LOGGER_GAME.finer("Entering cinematic mode...");
     cinematicMode = true;
     getPanel("bottom bar").setVisible(false);
     getPanel("land management").setVisible(false);
@@ -2142,6 +2146,7 @@ class Game extends State{
     ((BaseMap)map).cinematicMode = true;
   }
   void leaveCinematicMode(){
+    LOGGER_GAME.finer("Leaving cinematic mode...");
     cinematicMode = false;
     getPanel("bottom bar").setVisible(true);
     if(cellSelected){
@@ -2154,6 +2159,7 @@ class Game extends State{
   }
   
   void startRocketLaunch(){
+    LOGGER_GAME.finer("Starting rocket launch");
     rocketVelocity = new PVector(0, 0, 0);
     rocketBehaviour = int(random(10));
     buildings[cellY][cellX].image_id=0;
