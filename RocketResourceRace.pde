@@ -72,6 +72,7 @@ JSONObject findJSONObject(JSONArray j, String id){
   }
   catch(Exception e){
     LOGGER_MAIN.log(Level.SEVERE, String.format("Error finding object in JSON array, with id:'%s'", id), e);
+      throw e;
   }
   return null;
 }
@@ -89,7 +90,7 @@ boolean JSONContainsStr(JSONArray j, String id){
   }
   catch(Exception e){
     LOGGER_MAIN.log(Level.SEVERE, String.format("Error finding string in JSON array, '%s'", id), e);
-    return false;
+      throw e;
   }
 }
 

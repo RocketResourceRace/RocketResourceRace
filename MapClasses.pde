@@ -121,7 +121,7 @@ class Party{
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Progressing party action failed");
-      return null;
+      throw e;
     }
   }
   void clearCurrentAction(){

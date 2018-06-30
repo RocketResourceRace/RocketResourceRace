@@ -29,8 +29,12 @@ class BaseFileManager extends Element{
           try{
             mx = max(mx, Integer.parseInt(saveNames[i].substring(8, saveNames[i].length())));
           }
+          catch(NumberFormatException e){
+            LOGGER_MAIN.log(Level.WARNING, "Save name confusing becuase in autogen format", e);
+          }
           catch(Exception e){
-            LOGGER_MAIN.log(Level.SEVERE, "No autogen names available", e);
+            LOGGER_MAIN.log(Level.SEVERE, "An error occured with finding autogen name", e);
+            throw e;
           }
         }
       }
@@ -921,6 +925,7 @@ class ResourceSummary extends Element{
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.WARNING, "Error updating stockpile", e);
+      throw e;
     }
   }
   void updateNet(float[] v){
@@ -930,6 +935,7 @@ class ResourceSummary extends Element{
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.WARNING, "Error updating net", e);
+      throw e;
     }
   }
   void toggleExpand(){
@@ -1387,7 +1393,8 @@ class Button extends Element{
             sfx.get("click3").play();
           }
           catch(Exception e){
-            LOGGER_MAIN.log(Level.WARNING, "Error playing sound click 3", e);
+            LOGGER_MAIN.log(Level.SEVERE, "Error playing sound click 3", e);
+            throw e;
           }
         }
       }

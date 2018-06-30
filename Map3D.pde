@@ -259,6 +259,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error updaing hovering scale", e);
+      throw e;
     }
   }
   
@@ -281,6 +282,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error removing tree tile", e);
+      throw e;
     }
   }
 
@@ -488,6 +490,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error clearing shape", e);
+      throw e;
     }
   }
 
@@ -714,6 +717,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error generating highlighting grid", e);
+      throw e;
     }
   }
 
@@ -803,6 +807,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error updating selection rect", e);
+      throw e;
     }
   }
 
@@ -817,7 +822,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error finding mouse position on object", e);
-      return null;
+      throw e;
     }
   }
 
@@ -1108,6 +1113,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error drawing 3D map", e);
+      throw e;
     }
   }
 
@@ -1120,6 +1126,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error rendering water", e);
+      throw e;
     }
   }
 
@@ -1132,6 +1139,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error drawing path", e);
+      throw e;
     }
   }
 
@@ -1244,6 +1252,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error rendering scene", e);
+      throw e;
     }
 
   }
@@ -1303,6 +1312,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error drawing unit bar", e);
+      throw e;
     }
   }
 
@@ -1376,7 +1386,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error updaing getting unprojected point on floor", e);
-      return new PVector(-1, -1, -1);
+      throw e;
     }
 
   }
@@ -1424,7 +1434,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error updaing getting local to windows matrix", e);
-      return null;
+      throw e;
     }
 
   }
@@ -1449,6 +1459,7 @@ class Map3D extends BaseMap implements Map {
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error drawing rocket", e);
+      throw e;
     }
   }
 }

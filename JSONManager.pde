@@ -200,8 +200,8 @@ class JSONManager{
       return  settings.getInt(id);
     }
     catch(Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error loading string setting: " + id, e);
-      return -1;
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading string setting: " + id, e);
+      throw e;
     }
   }
   
@@ -211,8 +211,8 @@ class JSONManager{
       return  settings.getFloat(id);
     }
     catch(Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error loading float setting: "+ id, e);
-      return -1;
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading float setting: "+ id, e);
+      throw e;
     }
   }
   
@@ -222,8 +222,8 @@ class JSONManager{
       return  settings.getString(id);
     }
     catch(Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error loading string setting " + id, e);
-      return "";
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading string setting " + id, e);
+      throw e;
     }
   }
   
@@ -233,8 +233,8 @@ class JSONManager{
       return  settings.getBoolean(id);
     }
     catch(Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error loading int setting: "+ id, e);
-      return false;
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading int setting: "+ id, e);
+      throw e;
     }
   }
   
@@ -290,8 +290,8 @@ class JSONManager{
       return findJSONObject(elems, element).getString("type");
     }
     catch(Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error finding element type with id: "+ element + " on panel " + panel, e);
-      return "";
+      LOGGER_MAIN.log(Level.SEVERE, "Error finding element type with id: "+ element + " on panel " + panel, e);
+      throw e;
     }
   }
   
@@ -314,7 +314,7 @@ class JSONManager{
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error getting change state buttons", e);
-      return null;
+      throw e;
     }
   }
   
@@ -337,7 +337,7 @@ class JSONManager{
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error getting buttons that chagne settings", e);
-      return null;
+      throw e;
     }
   }
   
@@ -349,8 +349,8 @@ class JSONManager{
       return element.getString("setting");
     }
     catch(Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error getting setting name with id:"+id+", panel: "+panelID, e);
-      return "";
+      LOGGER_MAIN.log(Level.SEVERE, "Error getting setting name with id:"+id+", panel: "+panelID, e);
+      throw e;
     }
   }
   String menuStateTitle(String id){
@@ -360,8 +360,8 @@ class JSONManager{
       return panel.getString("title");
     }
     catch(Exception e){
-      LOGGER_MAIN.log(Level.WARNING, "Error getting menu state title with id:"+id, e);
-      return "";
+      LOGGER_MAIN.log(Level.SEVERE, "Error getting menu state title with id:"+id, e);
+      throw e;
     }
   }
   
@@ -378,6 +378,7 @@ class JSONManager{
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error loading menu elements", e);
+      throw e;
     }
   }
   
@@ -542,6 +543,7 @@ class JSONManager{
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error loading menu elements", e);
+      throw e;
     }
   }
 }

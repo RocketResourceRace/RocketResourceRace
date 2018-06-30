@@ -190,6 +190,7 @@ class State{
               }
               catch(Exception e){
                 LOGGER_MAIN.log(Level.SEVERE, String.format("Error during mouse event elem id:%s, panel id:%s", panel.elements.get(i).id, panel.id), e);
+                throw e;
               }
             }
           }
@@ -202,6 +203,7 @@ class State{
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error during mouse event", e);
+      throw e;
     }
   }
   void _mouseEvent(String eventType, int button, MouseEvent event){
@@ -233,6 +235,7 @@ class State{
               }
               catch(Exception e){
                 LOGGER_MAIN.log(Level.SEVERE, String.format("Error during mouse event elem id:%s, panel id:%s", panel.id, panel.elements.get(i)), e);
+                throw e;
               }
             }
           }
@@ -243,6 +246,7 @@ class State{
     }
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error during mouse event", e);
+      throw e;
     }
   }
   void _keyboardEvent(String eventType, char _key){
