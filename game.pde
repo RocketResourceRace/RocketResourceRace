@@ -959,13 +959,20 @@ class Game extends State{
         else if (event.id.equals("save button")){
           loadingName = ((TextEntry)getElement("save namer", "save screen")).getText();
           float blockSize;
-          if (map.isZooming()){
-            blockSize = map.getTargetZoom();
+          float cellsPerCoordUnit;
+          if(jsManager.loadBooleanSetting("map is 3d")){
+            blockSize = 0.66*exp(pow(0.9, 2.8*log(map.getZoom()/100000)));
+            cellsPerCoordUnit = 1/((Map3D)map).blockSize;
           } else{
-            blockSize = map.getZoom();
+            if (map.isZooming()){
+              blockSize = map.getTargetZoom();
+            } else{
+              blockSize = map.getZoom();
+            }
+            cellsPerCoordUnit = 1/((Map2D)map).blockSize;
           }
           players[turn].saveSettings(map.getTargetOffsetX(), map.getTargetOffsetY(), blockSize, cellX, cellY, cellSelected);
-          ((BaseMap)map).saveMap("saves/"+loadingName, this.turnNumber, this.turn, this.players);
+          ((BaseMap)map).saveMap("saves/"+loadingName, this.turnNumber, this.turn, this.players, cellsPerCoordUnit);
         }
       }
       if (event.type.equals("valueChanged")){
@@ -982,13 +989,20 @@ class Game extends State{
           // Save the game
           loadingName = "Autosave.dat";
           float blockSize;
-          if (map.isZooming()){
-            blockSize = map.getTargetZoom();
+          float cellsPerCoordUnit;
+          if(jsManager.loadBooleanSetting("map is 3d")){
+            blockSize = 0.66*exp(pow(0.9, 2.8*log(map.getZoom()/100000)));
+            cellsPerCoordUnit = 1/((Map3D)map).blockSize;
           } else{
-            blockSize = map.getZoom();
+            if (map.isZooming()){
+              blockSize = map.getTargetZoom();
+            } else{
+              blockSize = map.getZoom();
+            }
+            cellsPerCoordUnit = 1/((Map2D)map).blockSize;
           }
-          players[turn].saveSettings(map.getTargetOffsetX(), map.getTargetOffsetY(), blockSize, cellX, cellY, cellSelected);
-          ((BaseMap)map).saveMap("saves/"+loadingName, this.turnNumber, this.turn, this.players);
+          players[turn].saveSettings(map.getFocusedX(), map.getFocusedY(), blockSize, cellX, cellY, cellSelected);
+          ((BaseMap)map).saveMap("saves/"+loadingName, this.turnNumber, this.turn, this.players, cellsPerCoordUnit);
           
           jsManager.saveSetting("map is 3d", ((ToggleButton)(getElement("2d 3d toggle", "bottom bar"))).getState());
           reloadGame();
@@ -1718,9 +1732,16 @@ class Game extends State{
       this.turn = mapSave.startPlayer;
       this.players = mapSave.players;
       if(!jsManager.loadBooleanSetting("map is 3d")){
-        ((Map2D)map).mapXOffset = this.players[turn].mapXOffset;
-        ((Map2D)map).mapYOffset = this.players[turn].mapYOffset;
+        ((Map2D)map).mapXOffset = (-this.players[turn].mapXOffset-mapWidth/2)*((Map2D)map).blockSize;
+        ((Map2D)map).mapYOffset = (-this.players[turn].mapYOffset-mapHeight/2)*((Map2D)map).blockSize;
+        ((Map2D)map).targetXOffset = this.players[turn].mapXOffset*((Map2D)map).blockSize;
+        ((Map2D)map).targetYOffset = this.players[turn].mapYOffset*((Map2D)map).blockSize;
         ((Map2D)map).blockSize = this.players[turn].blockSize;
+      } else {
+        ((Map3D)map).focusedX = this.players[turn].mapXOffset*((Map3D)map).blockSize;
+        ((Map3D)map).focusedY = this.players[turn].mapYOffset*((Map3D)map).blockSize;
+        ((Map3D)map).targetXOffset = this.players[turn].mapXOffset*((Map3D)map).blockSize;
+        ((Map3D)map).targetYOffset = this.players[turn].mapYOffset*((Map3D)map).blockSize;
       }
     } else {
       ((BaseMap)map).generateMap(mapWidth, mapHeight);
@@ -1728,10 +1749,10 @@ class Game extends State{
       buildings = ((BaseMap)map).buildings;
       parties = ((BaseMap)map).parties;
       PVector[] playerStarts = generateStartingParties();
-      float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, 42);
-      players[1] = new Player(conditions2[0], conditions2[1], 42, startingResources.clone(), color(255,0,0));
-      float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, 42);
-      players[0] = new Player(conditions1[0], conditions1[1], 42, startingResources.clone(), color(0,0,255));
+      float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, jsManager.loadIntSetting("starting block size"));
+      players[1] = new Player(conditions2[0], conditions2[1], jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255,0,0));
+      float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"));
+      players[0] = new Player(conditions1[0], conditions1[1], jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0,0,255));
       turn = 0;
       turnNumber = 0;
     }

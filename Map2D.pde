@@ -193,7 +193,7 @@ class BaseMap extends Element{
   HashMap<Character, Boolean> keyState;
   
   
-  void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players){
+  void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players, float cellsPerCoordUnit){
     int partiesByteCount = 0;
     for (int y=0; y<mapHeight; y++){
       for (int x=0; x<mapWidth; x++){
@@ -253,9 +253,13 @@ class BaseMap extends Element{
       }
     }
     for (Player p: players){
-      buffer.putFloat(p.mapXOffset);
-      buffer.putFloat(p.mapYOffset);
+      buffer.putFloat(p.mapXOffset*cellsPerCoordUnit);
+      buffer.putFloat(p.mapYOffset*cellsPerCoordUnit);
+      if(p.blockSize==0){
+        p.blockSize = jsManager.loadIntSetting("starting block size");
+      }
       buffer.putFloat(p.blockSize);
+        
       for (float r: p.resources){
         buffer.putFloat(r);
       }
@@ -344,6 +348,7 @@ class BaseMap extends Element{
     for (int i=0;i<playerCount;i++){
       float mapXOffset = buffer.getFloat();
       float mapYOffset = buffer.getFloat();
+      println(mapXOffset, mapYOffset);
       float blockSize = buffer.getFloat();
       float[] resources = new float[resourceCountNew];
       for (int r=0; r<resourceCountOld;r++){
