@@ -604,8 +604,6 @@ class Map3D extends BaseMap implements Map {
     }
 
     popStyle();
-    cinematicMode = false;
-    drawRocket = false;
     this.keyState = new HashMap<Character, Boolean>();
   }
 
@@ -1288,4 +1286,10 @@ class Map3D extends BaseMap implements Map {
     canvas.shape(buildingObjs.get("Rocket Factory")[2]);
     canvas.popMatrix();
   }
+  
+  void reset(){
+    cinematicMode = false;
+    drawRocket = false; 
+  }
+  
 }

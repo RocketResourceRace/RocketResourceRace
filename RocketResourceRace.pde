@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.Path;
+import static com.jogamp.newt.event.KeyEvent.*;
+
 
 String activeState;
 HashMap<String, State> states;
