@@ -290,27 +290,28 @@ class BaseMap extends Element{
           }
         }
       }
-    }
-    LOGGER_MAIN.finer("Saving players");
-    for (Player p: players){
-      buffer.putFloat(p.mapXOffset*cellsPerCoordUnit);
-      buffer.putFloat(p.mapYOffset*cellsPerCoordUnit);
-      if(p.blockSize==0){
-        p.blockSize = jsManager.loadIntSetting("starting block size");
+      LOGGER_MAIN.finer("Saving players");
+      for (Player p: players){
+        buffer.putFloat(p.mapXOffset*cellsPerCoordUnit);
+        buffer.putFloat(p.mapYOffset*cellsPerCoordUnit);
+        if(p.blockSize==0){
+          p.blockSize = jsManager.loadIntSetting("starting block size");
+        }
+        buffer.putFloat(p.blockSize);
+          
+        for (float r: p.resources){
+          buffer.putFloat(r);
+        }
+        LOGGER_MAIN.fine("Saving map to file");
+        saveBytes(filename, buffer.array());
       }
-      buffer.putFloat(p.blockSize);
-        
-      for (float r: p.resources){
-        buffer.putFloat(r);
-      }
-      LOGGER_MAIN.fine("Saving map to file");
-      saveBytes(filename, buffer.array());
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error saving map", e);
       throw e; 
     }
   }
+  
   MapSave loadMap(String filename, int resourceCountNew){
     try{
       boolean versionCheckInt = false;
@@ -399,7 +400,6 @@ class BaseMap extends Element{
       for (int i=0;i<playerCount;i++){
         float mapXOffset = buffer.getFloat();
         float mapYOffset = buffer.getFloat();
-        println(mapXOffset, mapYOffset);
         float blockSize = buffer.getFloat();
         float[] resources = new float[resourceCountNew];
         for (int r=0; r<resourceCountOld;r++){
@@ -408,9 +408,8 @@ class BaseMap extends Element{
         LOGGER_MAIN.finer("Seeding height map noise with: "+heightMapSeed);
         noiseSeed(heightMapSeed);
         generateNoiseMaps();
-
-        return new MapSave(heightMap, mapWidth, mapHeight, terrain, parties, buildings, turnNumber, turnPlayer, players);
       }
+      return new MapSave(heightMap, mapWidth, mapHeight, terrain, parties, buildings, turnNumber, turnPlayer, players);
     }
     
     catch (Exception e){

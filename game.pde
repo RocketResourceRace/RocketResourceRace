@@ -988,7 +988,7 @@ class Game extends State{
   void spendRes(Player player, float[] required){
     for (int i=0; i<numResources;i++){
       player.resources[i] -= required[i];
-      LOGGER_GAME.fine(String.format("Player spending: %d %s", required[i], resourceNames[i]));
+      LOGGER_GAME.fine(String.format("Player spending: %f %s", required[i], resourceNames[i]));
     }
   }
   void reclaimRes(Player player, float[] required){
