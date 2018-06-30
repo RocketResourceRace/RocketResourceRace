@@ -1247,8 +1247,11 @@ class Game extends State{
       if (px == tx && py == ty){
         if (splitting){
           if(parties[py][px] == null){
-            parties[py][px] = p;
-          } else {
+            parties[py][px] = p; 
+            LOGGER_GAME.fine(String.format("Putting party '%s' back into empty cell because target is same as currrent location:(%d, %d)", parties[py][px].getID(), px, py));
+          } 
+          else {
+            LOGGER_GAME.fine(String.format("Merging party '%s' back into empty cell becuase target is same as currrent location:(%d, %d) changing unit number by:%d", parties[py][px].getID(), px, py, p.getUnitNumber()));
             parties[py][px].changeUnitNumber(p.getUnitNumber());
           }
         }
@@ -1267,6 +1270,7 @@ class Game extends State{
             // empty cell
             p.subMovementPoints(cost);
             parties[path.get(node)[1]][path.get(node)[0]] = p;
+            LOGGER_GAME.finer(String.format("Moving party with id:%s to (%d, %d) which is an empty cell, costing %d movement points. Movement points remaining:%d", p.getID(), path.get(node)[0], path.get(node)[1], cost, p.getMovementPoints()));
             if (splitting){
               splittedParty = null;
               splitting = false;
@@ -1287,7 +1291,10 @@ class Game extends State{
               // merge cells
               notificationManager.post("Parties Merged", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
               int movementPoints = min(parties[path.get(node)[1]][path.get(node)[0]].getMovementPoints(), p.getMovementPoints()-cost);
-              int overflow = parties[path.get(node)[1]][path.get(node)[0]].changeUnitNumber(p.getUnitNumber());
+              int overflow = parties[path.get(node)[1]][path.get(node)[0]].changeUnitNumber(p.getUnitNumber()); // Units left over after merging
+              LOGGER_GAME.fine(String.format("Parties merged at (%d, %d) from party with id: %s to party with id:%s. Overflow units:%d, Movement points of combined parties:%d. Units transfered:%d",
+                (int)path.get(node)[0], (int)path.get(node)[1], p.getID(), parties[path.get(node)[1]][path.get(node)[0]].getID(), movementPoints, p.getUnitNumber()));
+                
               if(cellFollow){
                 selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
                 stillThere = false;
@@ -1302,7 +1309,9 @@ class Game extends State{
                 if(parties[path.get(node-1)[1]][path.get(node-1)[0]]==null){
                   p.setUnitNumber(overflow);
                   parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
-                } else {
+                  LOGGER_GAME.finer(String.format("Setting units in party with id:%s to %d as there was overflow", p.getID(), p.getUnitNumber()));
+                } 
+                else {
                   parties[path.get(node-1)[1]][path.get(node-1)[0]].changeUnitNumber(overflow);
                 }
               }
@@ -1311,6 +1320,7 @@ class Game extends State{
               // merge cells battle
               notificationManager.post("Battle Reinforced", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
               int overflow = ((Battle) parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, p.getUnitNumber());
+              LOGGER_GAME.fine(String.format("Battle reinforced at cell:(%d, %d). Merging party id:%s. Overflow:%d", (int)path.get(node)[0], (int)path.get(node)[1], p.getID(), overflow));
               if(cellFollow){
                 selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
                 stillThere = false;
@@ -1325,6 +1335,7 @@ class Game extends State{
                 if(parties[path.get(node-1)[1]][path.get(node-1)[0]]==null){
                   p.setUnitNumber(overflow);
                   parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
+                  LOGGER_GAME.finer(String.format("Setting units in party with id:%s to %d as there was overflow", p.getID(), p.getUnitNumber()));
                 } else {
                   parties[path.get(node-1)[1]][path.get(node-1)[0]].changeUnitNumber(overflow);
                 }
@@ -1335,6 +1346,7 @@ class Game extends State{
               x = path.get(node)[0];
               y = path.get(node)[1];
               int otherPlayer = parties[y][x].player;
+              LOGGER_GAME.fine(String.format("Battle started. Attacker party id:%s, defender party id:%s. Cell: (%d, %d)", p.getID(), parties[y][x].getID(), x, y));
               notificationManager.post("Battle Started", x, y, turnNumber, turn);
               notificationManager.post("Battle Started", x, y, turnNumber, otherPlayer);
               p.subMovementPoints(cost);
@@ -1343,6 +1355,7 @@ class Game extends State{
               if(parties[y][x].player != 2){
                 notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, turn);
                 notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
+                LOGGER_GAME.fine(String.format("Battle ended at cell: (%d, %d). Units remaining:", x, y, parties[y][x].getUnitNumber()));
               }
               if(cellFollow){
                 selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
@@ -1355,7 +1368,9 @@ class Game extends State{
                   parties[py][px] = null;
                 }
               if(buildings[path.get(node)[1]][path.get(node)[0]]!=null&&buildings[path.get(node)[1]][path.get(node)[0]].type==0){
+                // If there is a building under constuction, then delete it when battle
                 buildings[path.get(node)[1]][path.get(node)[0]] = null;
+                LOGGER_GAME.fine(String.format("Building in constuction destroyed due to battle at cell: (%d, %d)", path.get(node)[0], path.get(node)[1]));
               }
             }
             break;
@@ -1566,6 +1581,7 @@ class Game extends State{
       selectCell();
     }
     else if (cellInBounds(x, y)){
+      LOGGER_GAME.finer(String.format("Cell selected at (%d, %d) which is in bounds", x, y));
       tooltip.hide();
       cellX = x;
       cellY = y;
@@ -1863,6 +1879,7 @@ class Game extends State{
           postEvent(new EndTurn());
         }
         else if (key == 'i'&&!cinematicMode){
+          LOGGER_GAME.fine("Finding idle party as 'i' key pressed");
           int[] t = findIdle(turn);
           if (t[0] != -1){
             selectCell(t[0], t[1], false);
@@ -1879,6 +1896,7 @@ class Game extends State{
   }
 
   void reloadGame(){
+    LOGGER_MAIN.fine("Reloading game...");
     mapWidth = jsManager.loadIntSetting("map size");
     mapHeight = jsManager.loadIntSetting("map size");
     updateCellSelection();
@@ -1897,6 +1915,7 @@ class Game extends State{
     winnerMessage.setText("Winner: player /w");
 
     if (jsManager.loadBooleanSetting("map is 3d")){
+      LOGGER_MAIN.finer("Map is 3d");
       map = (Map3D)getElement("3dmap", "default");
       ((Map3D)getElement("3dmap", "default")).visible = true;
       ((Map2D)getElement("2dmap", "default")).visible = false;
@@ -1904,7 +1923,9 @@ class Game extends State{
       getElement("task icons toggle", "bottom bar").visible = true;
       getElement("unit number bars toggle", "bottom bar").active = true;
       getElement("task icons toggle", "bottom bar").active = true;
-    } else {
+    } 
+    else {
+      LOGGER_MAIN.finer("Map is 2d");
       map = (Map2D)getElement("2dmap", "default");
       ((Map3D)getElement("3dmap", "default")).visible = false;
       ((Map2D)getElement("2dmap", "default")).visible = true;
@@ -1915,6 +1936,7 @@ class Game extends State{
       ((Map2D)map).reset();
     }
     if(loadingName != null){
+      LOGGER_MAIN.finer("Loading save");
       MapSave mapSave = ((BaseMap)map).loadMap("saves/"+loadingName, resourceNames.length);
       terrain = mapSave.terrain;
       buildings = mapSave.buildings;
@@ -1929,7 +1951,9 @@ class Game extends State{
         ((Map2D)map).mapYOffset = this.players[turn].mapYOffset;
         ((Map2D)map).blockSize = this.players[turn].blockSize;
       }
-    } else {
+    } 
+    else {
+      LOGGER_MAIN.finer("Creating new map");
       ((BaseMap)map).generateMap(mapWidth, mapHeight);
       terrain = ((BaseMap)map).terrain;
       buildings = ((BaseMap)map).buildings;
@@ -1981,7 +2005,7 @@ class Game extends State{
     
     map.setDrawingTaskIcons(true);
     map.setDrawingUnitBars(true);
-    
+    LOGGER_MAIN.finer("Finished reloading game");
   }
   int cost(int x, int y, int prevX, int prevY){
     float mult = 1;

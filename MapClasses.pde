@@ -40,6 +40,9 @@ class Party{
     target = null;
     pathTurns = 0;
   }
+  String getID(){
+    return "temp";
+  }
   void changeTask(int task){
     LOGGER_GAME.info("Party changing task to:"+gameData.getJSONArray("tasks").getJSONObject(task).getString("id"));
     this.task = task;
