@@ -210,7 +210,10 @@ class BaseMap extends Element{
   Building[][] buildings;
   boolean updateHoveringScale, drawingTaskIcons, drawingUnitBars;
   boolean cinematicMode;
-  void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players){
+  HashMap<Character, Boolean> keyState;
+  
+  
+  void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players, float cellsPerCoordUnit){
     LOGGER_MAIN.info("Starting saving progress");
     try{
       int partiesByteCount = 0;
@@ -220,11 +223,12 @@ class BaseMap extends Element{
             if(parties[y][x].player==2){
               partiesByteCount+=getPartySize(((Battle)parties[y][x]).party1);
               partiesByteCount+=getPartySize(((Battle)parties[y][x]).party2);
-            } else {
+            } 
+            else {
               partiesByteCount+=getPartySize(parties[y][x]);
             }
+            partiesByteCount++;
           }
-          partiesByteCount++;
         }
       }
       int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+3*Integer.BYTES+1)*players.length;
@@ -286,18 +290,18 @@ class BaseMap extends Element{
           }
         }
       }
-      LOGGER_MAIN.finer("Saving players");
-      for (Player p: players){
-        buffer.putFloat(p.mapXOffset);
-        buffer.putFloat(p.mapYOffset);
-        buffer.putFloat(p.blockSize);
-        for (float r: p.resources){
-          buffer.putFloat(r);
-        }
-        buffer.putInt(p.cellX);
-        buffer.putInt(p.cellY);
-        buffer.putInt(p.colour);
-        buffer.put(byte(p.cellSelected));
+    }
+    LOGGER_MAIN.finer("Saving players");
+    for (Player p: players){
+      buffer.putFloat(p.mapXOffset*cellsPerCoordUnit);
+      buffer.putFloat(p.mapYOffset*cellsPerCoordUnit);
+      if(p.blockSize==0){
+        p.blockSize = jsManager.loadIntSetting("starting block size");
+      }
+      buffer.putFloat(p.blockSize);
+        
+      for (float r: p.resources){
+        buffer.putFloat(r);
       }
       LOGGER_MAIN.fine("Saving map to file");
       saveBytes(filename, buffer.array());
@@ -395,23 +399,18 @@ class BaseMap extends Element{
       for (int i=0;i<playerCount;i++){
         float mapXOffset = buffer.getFloat();
         float mapYOffset = buffer.getFloat();
+        println(mapXOffset, mapYOffset);
         float blockSize = buffer.getFloat();
         float[] resources = new float[resourceCountNew];
         for (int r=0; r<resourceCountOld;r++){
           resources[r] = buffer.getFloat();
         }
-        int cellX = buffer.getInt();
-        int cellY = buffer.getInt();
-        int colour = buffer.getInt();
-        boolean cellSelected = boolean(buffer.get());
-        players[i] = new Player(mapXOffset, mapYOffset, blockSize, resources, colour);
-        players[i].cellSelected = cellSelected;
+        LOGGER_MAIN.finer("Seeding height map noise with: "+heightMapSeed);
+        noiseSeed(heightMapSeed);
+        generateNoiseMaps();
+
+        return new MapSave(heightMap, mapWidth, mapHeight, terrain, parties, buildings, turnNumber, turnPlayer, players);
       }
-      LOGGER_MAIN.finer("Seeding height map noise with: "+heightMapSeed);
-      noiseSeed(heightMapSeed);
-      generateNoiseMaps();
-      
-      return new MapSave(heightMap, mapWidth, mapHeight, terrain, parties, buildings, turnNumber, turnPlayer, players);
     }
     
     catch (Exception e){
@@ -827,10 +826,12 @@ class Map2D extends BaseMap implements Map{
     cancelMoveNodes();
     cancelPath();
     heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(jsManager.loadFloatSetting("terrain detail"), 2))];
+    this.keyState = new HashMap<Character, Boolean>();
   }
   void generateShape(){
     cinematicMode = false;
     drawRocket = false;
+    this.keyState = new HashMap<Character, Boolean>();
   }
   void clearShape(){
 
@@ -892,6 +893,8 @@ class Map2D extends BaseMap implements Map{
   void reset(){
     mapXOffset = 0;
     mapYOffset = 0;
+    mapVelocity[0] = 0;
+    mapVelocity[1] = 0;
     blockSize = min(elementWidth/(float)mapWidth, elementWidth/10);
     setPanningSpeed(0.02);
     resetTime = millis();
@@ -1008,40 +1011,10 @@ class Map2D extends BaseMap implements Map{
   }
   ArrayList<String> keyboardEvent(String eventType, char _key){
     if (eventType == "keyPressed"){
-      if (_key == 'a'){
-        resetTargetZoom();
-        resetTarget();
-        mapVelocity[0] -= mapMaxSpeed;
-      }
-      if (_key == 's'){
-        resetTargetZoom();
-        resetTarget();
-        mapVelocity[1] += mapMaxSpeed;
-      }
-      if (_key == 'd'){
-        resetTargetZoom();
-        resetTarget();
-        mapVelocity[0] += mapMaxSpeed;
-      }
-      if (_key == 'w'){
-        resetTargetZoom();
-        resetTarget();
-        mapVelocity[1] -= mapMaxSpeed;
-      }
+      keyState.put(_key, true);
     }
     if (eventType == "keyReleased"){
-      if (_key == 'a'){
-        mapVelocity[0] += mapMaxSpeed;
-      }
-      if (_key == 's'){
-        mapVelocity[1] -= mapMaxSpeed;
-      }
-      if (_key == 'd'){
-        mapVelocity[0] -= mapMaxSpeed;
-      }
-      if (_key == 'w'){
-        mapVelocity[1] += mapMaxSpeed;
-      }
+      keyState.put(_key, false);
     }
     return new ArrayList<String>();
   }
@@ -1088,8 +1061,35 @@ class Map2D extends BaseMap implements Map{
       resetTargetZoom();
       resetTarget();
     }
-    mapXOffset -= mapVelocity[0]*frameTime*60/1000;
-    mapYOffset -= mapVelocity[1]*frameTime*60/1000;
+    mapVelocity[0] = 0;
+    mapVelocity[1] = 0;
+    if(keyState.containsKey('a')){
+      if(keyState.get('a')){
+        mapVelocity[0] -= mapMaxSpeed;
+      }
+    }
+    if(keyState.containsKey('d')){
+      if(keyState.get('d')){
+        mapVelocity[0] += mapMaxSpeed;
+      }
+    }
+    if(keyState.containsKey('w')){
+      if(keyState.get('w')){
+        mapVelocity[1] -= mapMaxSpeed;
+      }
+    }
+    if(keyState.containsKey('s')){
+      if(keyState.get('s')){
+        mapVelocity[1] += mapMaxSpeed;
+      }
+    }
+    
+    if(mapVelocity[0]!=0||mapVelocity[1]!=0){
+      mapXOffset -= mapVelocity[0]*frameTime*60/1000;
+      mapYOffset -= mapVelocity[1]*frameTime*60/1000;
+      resetTargetZoom();
+      resetTarget();
+    }
     frameStartTime = millis();
     limitCoords();
 
