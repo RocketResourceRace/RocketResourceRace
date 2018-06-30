@@ -2128,8 +2128,8 @@ class Game extends State{
       player1 = generatePartyPosition();
       player2 = generatePartyPosition();
     }
-    LOGGER_GAME.fine(String.format("Player 1 party positition: (%d, %d)", player1.x, player1.y));
-    LOGGER_GAME.fine(String.format("Player 2 party positition: (%d, %d)", player2.x, player2.y));
+    LOGGER_GAME.fine(String.format("Player 1 party positition: (%f, %f)", player1.x, player1.y));
+    LOGGER_GAME.fine(String.format("Player 2 party positition: (%f, %f)", player2.x, player2.y));
     if(loadingName == null){
       parties[(int)player1.y][(int)player1.x] = new Party(0, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"));
       parties[(int)player2.y][(int)player2.x] = new Party(1, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"));
