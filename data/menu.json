@@ -410,6 +410,17 @@
           "setting" : "active cell highlighting"
         },
         {
+          "id": "show fps",
+          "flags": ["autosave"],
+          "type": "tickbox",
+          "x": -6,
+          "y": -4,
+          "w": 12,
+          "h": 1,
+          "text": "Show FPS",
+          "setting" : "show fps"
+        },
+        {
           "id": "apply",
           "type": "button",
           "x": 7,
@@ -500,6 +511,7 @@
     {"id": "terrain detail", "value": 2, "type": "int"},
     {"id": "terrain texture resolution", "value": 32, "type": "int"},
     {"id": "active cell highlighting", "value": true, "type": "boolean"},
+    {"id": "show fps", "value": false, "type": "boolean"},
     {"id": "hills height", "value": 0.6, "type": "float"},
     {"id": "forest weighting", "value": 0.4, "type": "float"},
     {"id": "grass weighting", "value": 0.8, "type": "float"},

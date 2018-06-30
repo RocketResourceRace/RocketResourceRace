@@ -4,6 +4,16 @@ import java.util.Arrays;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.Path;
+import java.util.logging.*;
+
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+// Create loggers
+final Logger LOGGER_MAIN = Logger.getLogger("RocketResourceRaceMain"); // Most logs belong here INCLUDING EXCEPTION LOGS. Also I have put saving logs here rather than game
+final Logger LOGGER_GAME = Logger.getLogger("RocketResourceRaceGame"); // For game algorithm related logs (not exceptions here, just things like party moving or ai making decision)
+final Level FILELOGLEVEL = Level.FINEST;
 
 String activeState;
 HashMap<String, State> states;
@@ -48,28 +58,40 @@ int JSONIndex(JSONArray j, String id){
       return i;
     }
   }
-  println("invalid id,", id);
+  LOGGER_MAIN.warning(String.format("Invalid JSON index '%s'", id));
   return -1;
 }
 
 JSONObject findJSONObject(JSONArray j, String id){
-  for (int i=0; i<j.size(); i++){
-    if (j.getJSONObject(i).getString("id").equals(id)){
-      return j.getJSONObject(i);
+  try{
+    for (int i=0; i<j.size(); i++){
+      if (j.getJSONObject(i).getString("id").equals(id)){
+        return j.getJSONObject(i);
+      }
     }
+  }
+  catch(Exception e){
+    LOGGER_MAIN.log(Level.SEVERE, String.format("Error finding object in JSON array, with id:'%s'", id), e);
+      throw e;
   }
   return null;
 }
 
 boolean JSONContainsStr(JSONArray j, String id){
-  if (id == null || j == null)
-    return false;
-  for (int i=0; i<j.size(); i++){
-    if (j.getString(i).equals(id)){
-      return true;
+  try{
+    if (id == null || j == null)
+      return false;
+    for (int i=0; i<j.size(); i++){
+      if (j.getString(i).equals(id)){
+        return true;
+      }
     }
+    return false;
   }
-  return false;
+  catch(Exception e){
+    LOGGER_MAIN.log(Level.SEVERE, String.format("Error finding string in JSON array, '%s'", id), e);
+      throw e;
+  }
 }
 
 void doubleClick(){
@@ -100,12 +122,19 @@ void keyboardEvent(String eventType, char _key){
 }
 
 void setVolume(){
-  for (SoundFile fect:sfx.values()){
-    fect.amp(jsManager.loadFloatSetting("volume"));
+  try{
+    for (SoundFile fect:sfx.values()){
+      fect.amp(jsManager.loadFloatSetting("volume"));
+    }
+  }
+  catch (Exception e){
+    LOGGER_MAIN.log(Level.SEVERE, "Something wrong with setting volume", e);
+      throw e;
   }
 }
 
 void setFrameRateCap(){
+  LOGGER_MAIN.finer("Setting framerate cap");
   if (jsManager.loadBooleanSetting("framerate cap")){
     frameRate(60);
   }
@@ -132,19 +161,36 @@ PImage[] taskImages;
 HashMap<String, PImage> lowImages;
 HashMap<String, PImage> tile3DImages;
 
+void quitGame(){
+  LOGGER_MAIN.info("Exitting game...");
+  exit();
+}
+
 void loadSounds(){
-  if(jsManager.loadBooleanSetting("sound on")){
-    sfx = new HashMap<String, SoundFile>();
-    sfx.put("click3", new SoundFile(this, "click3.wav"));
+  try{
+    if(jsManager.loadBooleanSetting("sound on")){
+      sfx = new HashMap<String, SoundFile>();
+      sfx.put("click3", new SoundFile(this, "click3.wav"));
+    }
+  }
+  catch (Exception e){
+    LOGGER_MAIN.log(Level.SEVERE, "Something wrong with loading sounds", e);
+    throw e;
   }
 }
 
 void loadImages(){
   try{
+    LOGGER_MAIN.fine("Loading images");
     tileImages = new HashMap<String, PImage>();
     lowImages = new HashMap<String, PImage>();
     tile3DImages = new HashMap<String, PImage>();
     buildingImages = new HashMap<String, PImage[]>();
+    partyImages = new PImage[]{
+      loadImage("data/blue_flag.png"),
+      loadImage("data/red_flag.png"),
+      loadImage("data/battle.png")
+    };
     taskImages = new PImage[gameData.getJSONArray("tasks").size()];
     for (int i=0; i<gameData.getJSONArray("terrain").size(); i++){
       JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
@@ -170,20 +216,27 @@ void loadImages(){
       }
     }
   }
+  
   catch (Exception e){
-    println("Error loading images");
-    println(e);
+    LOGGER_MAIN.log(Level.SEVERE, "Something wrong with loading images", e);
+    throw e;
   }
 }
 
 PFont getFont(float size){
-  PFont f=fonts.get(round(size));
-  if (f == null){
-    fonts.put(round(size), createFont("GillSans", size));
-    return fonts.get(round(size));
+  try{
+    PFont f=fonts.get(round(size));
+    if (f == null){
+      fonts.put(round(size), createFont("GillSans", size));
+      return fonts.get(round(size));
+    }
+    else{
+      return f;
+    }
   }
-  else{
-    return f;
+  catch (Exception e){
+    LOGGER_MAIN.log(Level.SEVERE, "Something wrong with loading font", e);
+    throw e;
   }
 }
 
@@ -202,20 +255,38 @@ void setup(){
 
   fullScreen(P3D);
   try{
+    // Set up loggers
+    FileHandler mainHandler = new FileHandler(sketchPath("main_log.log"));
+    mainHandler.setFormatter(new LoggerFormatter());
+    mainHandler.setLevel(FILELOGLEVEL);
+    LOGGER_MAIN.addHandler(mainHandler);
+    LOGGER_MAIN.setLevel(FILELOGLEVEL);
+    
+    FileHandler gameHandler = new FileHandler(sketchPath("game_log.log"));
+    gameHandler.setFormatter(new LoggerFormatter());
+    gameHandler.setLevel(FILELOGLEVEL);
+    LOGGER_GAME.addHandler(gameHandler);
+    LOGGER_GAME.setLevel(FILELOGLEVEL);
+    LOGGER_GAME.addHandler(mainHandler);
+    LOGGER_GAME.setLevel(FILELOGLEVEL);
+    
+    //Logger.getLogger("global").setLevel(Level.WARNING);
+    //Logger.getLogger("").setLevel(Level.WARNING);
+    //LOGGER_MAIN.setUseParentHandlers(false);
+    
+    LOGGER_MAIN.fine("Starting setup");
+      
     fonts = new HashMap<Integer, PFont>();
     gameData = loadJSONObject("data.json");
     jsManager = new JSONManager();
     loadSounds();
     setFrameRateCap();
     textFont(createFont("GillSans", 32));
-
+  
+  
     loadImages();
-
-    partyImages = new PImage[]{
-      loadImage("data/blue_flag.png"),
-      loadImage("data/red_flag.png"),
-      loadImage("data/battle.png")
-    };
+    LOGGER_MAIN.fine("Loading states");
+    
     states = new HashMap<String, State>();
     addState("menu", new Menu());
     addState("map", new Game());
@@ -226,42 +297,57 @@ void setup(){
     //hint(DISABLE_OPTIMIZED_STROKE);
     halfScreenWidth = width/2;
     halfScreenHeight= height/2;
-    toon = loadShader("ToonFrag.glsl", "ToonVert.glsl");
-    toon.set("fraction", 1.0);
+    //toon = loadShader("ToonFrag.glsl", "ToonVert.glsl");
+    //toon.set("fraction", 1.0);
+    
+    LOGGER_MAIN.fine("Setup finished");
   }
-  catch(Exception e){
-    PrintWriter pw = createWriter("error_log");
-    pw.println(""+millis()+e);
-    pw.flush();
-    pw.close();
+  
+  catch(IOException e){
+    LOGGER_MAIN.log(Level.SEVERE, "IO exception occured duing setup", e);
+  }
+  
+  catch (Exception e){
+    LOGGER_MAIN.log(Level.SEVERE, "Error occured during setup", e);
+    throw e;
   }
 }
 boolean smoothed = false;
 
 void draw(){
-  background(255);
-  prevT = millis();
-  String newState = getActiveState().update();
-  if (!newState.equals("")){
-    for (Panel panel : states.get(newState).panels){
-      for (Element elem : panel.elements){
-        elem.mouseEvent("mouseMoved", LEFT);
+  try{
+    background(255);
+    prevT = millis();
+    String newState = getActiveState().update();
+    if (!newState.equals("")){
+      for (Panel panel : states.get(newState).panels){
+        for (Element elem : panel.elements){
+          elem.mouseEvent("mouseMoved", LEFT);
+        }
       }
+      states.get(activeState).leaveState();
+      states.get(newState).enterState();
+      activeState = newState;
     }
-    states.get(activeState).leaveState();
-    states.get(newState).enterState();
-    activeState = newState;
+    if(jsManager.loadBooleanSetting("show fps")){
+      textFont(getFont(10));
+      textAlign(LEFT, TOP);
+      fill(255,0,0);
+      text(frameRate, 0, 0);
+    }
   }
-  textFont(getFont(10));
-  textAlign(LEFT, TOP);
-  fill(255,0,0);
-  text(frameRate, 0, 0);
-
-
+  catch (Exception e){
+    LOGGER_MAIN.log(Level.SEVERE, "Uncaught exception occured during draw", e);
+    throw e;
+  }
 }
 
 State getActiveState(){
-  return states.get(activeState);
+  State state = states.get(activeState);
+  if (state == null){
+    LOGGER_MAIN.severe("State not found "+activeState);
+  }
+  return state;
 }
 
 void addState(String name, State state){
