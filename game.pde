@@ -44,6 +44,7 @@ class Game extends State{
   final int mapElementWidth = round(width);
   final int mapElementHeight = round(height);
   final int CLICKHOLD = 500;
+  final int MOUSEPRESSTOLERANCE = 100;
   PGraphics gameUICanvas;
   String[] tasks;
   String[] buildingTypes;
@@ -1545,7 +1546,7 @@ class Game extends State{
       if (eventType == "mousePressed"){
         mapClickPos = new int[]{mouseX, mouseY, millis()};
       }
-      if (eventType == "mouseReleased" && mapClickPos != null && mapClickPos[0] == mouseX && mapClickPos[1] == mouseY && millis() - mapClickPos[2] < CLICKHOLD){ // Custom mouse click
+      if (eventType == "mouseReleased" && mapClickPos != null && sqrt(pow(mapClickPos[0] - mouseX, 2) + pow(mapClickPos[1] - mouseY, 2))<MOUSEPRESSTOLERANCE && millis() - mapClickPos[2] < CLICKHOLD){ // Custom mouse click
         mapClickPos = null;
         if (activePanel == "default" && !UIHovering()){
           if (map.mouseOver()){
