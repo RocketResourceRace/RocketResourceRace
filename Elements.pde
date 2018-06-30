@@ -209,7 +209,6 @@ class DropDown extends Element{
           toggleExpanded();
         }
         else{
-          print(1);
           events.add("valueChanged");
           selected = hovering;
           contract();
@@ -757,7 +756,7 @@ class TextBox extends Element{
     this.textSize = textSize;
     this.bgColour = bgColour;
     this.textColour = textColour;
-    setText("");
+    setText(text);
   }
   
   void setText(String text){

@@ -532,7 +532,7 @@ class Game extends State{
                   buildings[y][x] = new Building(buildingIndex(action.building));
                   if (buildings[y][x].type == buildingIndex("Quarry")){
                     //map.setHeightsForCell(x, y, jsManager.loadFloatSetting("water level"));
-                    terrain[cellY][cellX] = terrainIndex("quarry site");
+                    terrain[y][x] = terrainIndex("quarry site");
                     map.replaceMapStripWithReloadedStrip(y);
                   }
                 }
@@ -931,13 +931,16 @@ class Game extends State{
             b.setText(">");
         }
         else if (event.id.equals("end game button")){
+          jsManager.writeSettings();
           newState = "menu";
         }
         else if (event.id.equals("main menu button")){
           // old save place
+          jsManager.writeSettings();
           newState = "menu";
         }
         else if (event.id.equals("desktop button")){
+          jsManager.writeSettings();
           exit();
         }
         else if (event.id.equals("resume button")){
@@ -1528,6 +1531,8 @@ class Game extends State{
     panelCanvas.fill(0);
     panelCanvas.textAlign(LEFT, TOP);
     float barY = cellSelectionY + 13*jsManager.loadFloatSetting("text scale");
+    panelCanvas.text(String.format("Cell reference: %s, %s", cellX, cellY), 5+cellSelectionX, barY);
+    barY += 13*jsManager.loadFloatSetting("text scale");
     panelCanvas.text("Cell Type: "+gameData.getJSONArray("terrain").getJSONObject(terrain[cellY][cellX]-1).getString("display name"), 5+cellSelectionX, barY);
     barY += 13*jsManager.loadFloatSetting("text scale");
     if (buildings[cellY][cellX] != null){

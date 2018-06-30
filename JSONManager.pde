@@ -13,7 +13,7 @@ class JSONManager{
       }
       catch (Exception e){
         println("creating new settings file");
-        PrintWriter w = createWriter("data/settings.json");
+        PrintWriter w = createWriter("settings.json");
         w.print("{}\n");
         w.flush();
         w.close();
@@ -60,7 +60,7 @@ class JSONManager{
   }
   
   void writeSettings(){
-    saveJSONObject(settings, "data/settings.json");
+    saveJSONObject(settings, "settings.json");
   }
   
   boolean hasFlag(String panelID, String elemID, String flag){
