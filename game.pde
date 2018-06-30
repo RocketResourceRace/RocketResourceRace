@@ -1902,9 +1902,6 @@ class Game extends State{
         if (_key == ' '&&!cinematicMode){
           postEvent(new EndTurn());
         }
-        else if (key == 'i'&&!cinematicMode){
-          LOGGER_GAME.fine("Finding idle party as 'i' key pressed");
-          }
         else if (_key == 'i'&&!cinematicMode){
           LOGGER_GAME.fine("Finding idle party as 'i' key pressed");
           int[] t = findIdle(turn);
