@@ -856,7 +856,7 @@ class TextBox extends Element{
     this.textSize = textSize;
     this.bgColour = bgColour;
     this.textColour = textColour;
-    setText("");
+    setText(text);
   }
   
   void setText(String text){

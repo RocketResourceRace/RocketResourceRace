@@ -5,8 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.Path;
 import java.util.logging.*;
-
-
+import static com.jogamp.newt.event.KeyEvent.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -14,6 +13,7 @@ import java.util.Date;
 final Logger LOGGER_MAIN = Logger.getLogger("RocketResourceRaceMain"); // Most logs belong here INCLUDING EXCEPTION LOGS. Also I have put saving logs here rather than game
 final Logger LOGGER_GAME = Logger.getLogger("RocketResourceRaceGame"); // For game algorithm related logs (not exceptions here, just things like party moving or ai making decision)
 final Level FILELOGLEVEL = Level.FINEST;
+
 
 String activeState;
 HashMap<String, State> states;
@@ -328,6 +328,12 @@ void draw(){
       states.get(activeState).leaveState();
       states.get(newState).enterState();
       activeState = newState;
+    }
+    if(jsManager.loadBooleanSetting("show fps")){
+      textFont(getFont(10));
+      textAlign(LEFT, TOP);
+      fill(255,0,0);
+      text(frameRate, 0, 0);
     }
     if(jsManager.loadBooleanSetting("show fps")){
       textFont(getFont(10));

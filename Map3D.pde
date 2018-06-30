@@ -680,7 +680,6 @@ class Map3D extends BaseMap implements Map {
       LOGGER_MAIN.log(Level.SEVERE, "Error loading models", e);
       throw e;
     }
-
   }
 
   void generateHighlightingGrid(int horizontals, int verticles) {
@@ -1437,4 +1436,10 @@ class Map3D extends BaseMap implements Map {
       throw e;
     }
   }
+  
+  void reset(){
+    cinematicMode = false;
+    drawRocket = false; 
+  }
+  
 }
