@@ -2,10 +2,10 @@
 
 class BaseFileManager extends Element{
   // Basic file manager that scans a folder and makes a selectable list for all the files
-  final int TEXTSIZE = 14;
+  final int TEXTSIZE = 14, SCROLLWIDTH = 30;
   String folderString;
   String[] saveNames;
-  int selected, rowHeight;
+  int selected, rowHeight, numDisplayed, scroll;
   
   
   BaseFileManager(int x, int y, int w, int h, String folderString){
@@ -17,6 +17,7 @@ class BaseFileManager extends Element{
     saveNames = new String[0];
     selected = 0;
     rowHeight = ceil(TEXTSIZE * jsManager.loadFloatSetting("text scale"))+5;
+    scroll = 0;
   }
   
   String getNextAutoName(){
@@ -71,6 +72,20 @@ class BaseFileManager extends Element{
     return events;
   }
   
+  ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
+    ArrayList<String> events = new ArrayList<String>();
+    if (eventType == "mouseWheel"){
+      float count = event.getCount();
+      if (moveOver() && x+w-mouseX<SCROLLWIDTH){ // Check mouse over scroll bar
+        if (saveNames.length > numDisplayed){
+          scroll = round(between(0, scroll+count, saveNames.length-numDisplayed));
+          LOGGER_MAIN.finest("Changing scroll to: "+scroll);
+        }
+      }
+    }
+    return events;
+  }
+  
   String selectedSaveName(){
     if (saveNames.length == 0){
       return "Untitled";
@@ -85,11 +100,15 @@ class BaseFileManager extends Element{
   void draw(PGraphics panelCanvas){
     
     rowHeight = ceil(TEXTSIZE * jsManager.loadFloatSetting("text scale"))+5;
+    numDisplayed = ceil(h/rowHeight);
     panelCanvas.pushStyle();
+    
+    panelCanvas.fill(200);
+    panelCanvas.rect(x, y, w, h);
     
     panelCanvas.textSize(TEXTSIZE * jsManager.loadFloatSetting("text scale"));
     panelCanvas.textAlign(LEFT, TOP);
-    for (int i=0; i<saveNames.length; i++){
+    for (int i=scroll; i<min(numDisplayed+scroll, saveNames.length); i++){
       if (selected == i){
         panelCanvas.strokeWeight(2);
         panelCanvas.fill(color(100));
@@ -98,9 +117,26 @@ class BaseFileManager extends Element{
         panelCanvas.strokeWeight(1);
         panelCanvas.fill(color(150));
       }
-      panelCanvas.rect(x, y+rowHeight*i, w, rowHeight);
+      panelCanvas.rect(x, y+rowHeight*(i-scroll), w, rowHeight);
       panelCanvas.fill(0);
-      panelCanvas.text(saveNames[i], x, y+rowHeight*i);
+      panelCanvas.text(saveNames[i], x, y+rowHeight*(i-scroll));
+    }
+    
+    // Draw the scroll bar
+    int d = saveNames.length - numDisplayed;
+    if (d > 0){
+      panelCanvas.fill(120);
+      panelCanvas.rect(x+w-SCROLLWIDTH, y, SCROLLWIDTH, h);
+      panelCanvas.fill(50);
+      panelCanvas.stroke(0);
+      panelCanvas.rect(x+w-SCROLLWIDTH, y+(h-h/(d+1))*scroll/d, SCROLLWIDTH, h/(d+1));
+      //draw scroll
+      //if (d > 0){
+      //  panelCanvas.fill(color(200));
+      //  panelCanvas.rect(x-20*jsManager.loadFloatSetting("gui scale")+w, y, 20*jsManager.loadFloatSetting("gui scale"), h-topOffset);
+      //  panelCanvas.fill(color(100));
+      //  panelCanvas.rect(x-20*jsManager.loadFloatSetting("gui scale")+w, y+(h-topOffset-(h-topOffset)/(d+1))*scroll/d+topOffset, 20*jsManager.loadFloatSetting("gui scale"), (h-topOffset)/(d+1));
+      //}
     }
     
     panelCanvas.popStyle();
@@ -113,7 +149,7 @@ class BaseFileManager extends Element{
   int hoveringOption(){
     int s = (mouseY-yOffset-y)/rowHeight;
     if (!(0 <= s && s < saveNames.length)){
-      return selected;
+      return selected-scroll;
     }
     return s;
   }
