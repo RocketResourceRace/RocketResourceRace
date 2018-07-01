@@ -84,67 +84,67 @@ class Game extends State{
   int rocketStartTime;
 
   Game(){
-  try{
-    LOGGER_MAIN.fine("initializing game");
-    gameUICanvas = createGraphics(width, height, P2D); 
-    initialiseResources();
-    initialiseTasks();
-    initialiseBuildings();
-
-    addElement("2dmap", new Map2D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
-    addElement("3dmap", new Map3D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
-    addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 8, turn));
-
-    //map = (Map3D)getElement("2map", "default");
-    notificationManager = (NotificationManager)getElement("notification manager", "default");
-    players = new Player[2];
-    totals = new float[resourceNames.length];
-
-    // Initial positions will be focused on starting party
-    //players[0] = new Player(map.focusedX, map.focusedY, map.zoom, startingResources, color(0,0,255));
-    //players[1] = new Player(map.focusedX, map.focusedY, map.zoom, startingResources, color(255,0,0));
-    addPanel("land management", 0, 0, width, height, false, true, color(50, 200, 50), color(0));
-    addPanel("party management", 0, 0, width, height, false, true, color(110, 110, 255), color(0));
-    addPanel("bottom bar", 0, height-70, width, 70, true, true, color(150), color(50));
-    addPanel("end screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
-    addPanel("pause screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
-    addPanel("save screen", (int)(width/2+jsManager.loadFloatSetting("gui scale")*150+(int)(jsManager.loadFloatSetting("gui scale")*20)), (int)(height/2-5*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*500), (int)(jsManager.loadFloatSetting("gui scale")*300), false, false, color(50), color(0));
-    addPanel("overlay", 0, 0, width, height, true, false, color(255,255), color(255, 255));
-    addPanel("console", 0, height/2, width, height/2, false, true, color(0,200), color(255, 0));
-    
-    getPanel("save screen").setOverrideBlocking(true);
-
-    addElement("0tooltip", new Tooltip(), "overlay");
-    tooltip = (Tooltip)getElement("0tooltip", "overlay");
-
-    addElement("end game button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2+height/8), (int)(jsManager.loadFloatSetting("gui scale")*width/8), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "End Game"), "end screen");
-    addElement("winner", new Text(width/2, height/2, (int)(jsManager.loadFloatSetting("text scale")*10), "", color(255), CENTER), "end screen");
-
-    addElement("main menu button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*150), (int)(height/2-jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Exit to Main Menu"), "pause screen");
-    addElement("desktop button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*150), (int)(height/2+jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Exit to Desktop"), "pause screen");
-    addElement("save as button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*150), (int)(height/2-3*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Save As"), "pause screen");
-    addElement("resume button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*150), (int)(height/2-5*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Resume"), "pause screen");
-    
-    addElement("save button", new Button(bezel, bezel, (int)(jsManager.loadFloatSetting("gui scale")*300)-2*bezel, (int)(jsManager.loadFloatSetting("gui scale")*60), color(100), color(0), color(255), 14, CENTER, "Save"), "save screen");
-    addElement("saving manager", new BaseFileManager(bezel, (int)(4*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*500)-2*bezel, (int)(jsManager.loadFloatSetting("gui scale")*300), "saves"), "save screen");
-    addElement("save namer", new TextEntry(bezel, (int)(2*jsManager.loadFloatSetting("gui scale")*40)+bezel*2, (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*50), LEFT, color(0), color(100), color(0), "", "Save Name"), "save screen");
- 
-    addElement("turns remaining", new Text(bezel*2+220, bezel*4+30+30, 8, "", color(255), LEFT), "party management");
-    addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
-    addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
-    addElement("tasks", new TaskManager(bezel, bezel*4+30+30, 220, 10, color(150), color(50), tasks), "party management");
-    
-
-    addElement("end turn", new Button(bezel, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"), "bottom bar");
-    addElement("idle party finder", new Button(bezel*2+buttonW, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Idle Party"), "bottom bar");
-    addElement("resource summary", new ResourceSummary(0, 0, 70, resourceNames, startingResources, totals), "bottom bar");
-    int resSummaryX = width-((ResourceSummary)(getElement("resource summary", "bottom bar"))).totalWidth();
-    addElement("resource expander", new Button(resSummaryX-50, bezel, 30, 30, color(150), color(50), color(0), 10, CENTER, "<"), "bottom bar");
-    addElement("turn number", new TextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", color(0,0,255), 0), "bottom bar");
-    addElement("2d 3d toggle", new ToggleButton(bezel*4+buttonW*3, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), jsManager.loadBooleanSetting("map is 3d"), "3D View"), "bottom bar");
-    addElement("task icons toggle", new ToggleButton(round(bezel*5+buttonW*3.5), bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Task Icons"), "bottom bar");
-    addElement("unit number bars toggle", new ToggleButton(bezel*6+buttonW*4, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Unit Bars"), "bottom bar");
-    addElement("console", new Console(0, 0, width, height/2, 10), "console");
+    try{
+      LOGGER_MAIN.fine("initializing game");
+      gameUICanvas = createGraphics(width, height, P2D); 
+      initialiseResources();
+      initialiseTasks();
+      initialiseBuildings();
+  
+      addElement("2dmap", new Map2D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
+      addElement("3dmap", new Map3D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
+      addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 8, turn));
+  
+      //map = (Map3D)getElement("2map", "default");
+      notificationManager = (NotificationManager)getElement("notification manager", "default");
+      players = new Player[2];
+      totals = new float[resourceNames.length];
+  
+      // Initial positions will be focused on starting party
+      //players[0] = new Player(map.focusedX, map.focusedY, map.zoom, startingResources, color(0,0,255));
+      //players[1] = new Player(map.focusedX, map.focusedY, map.zoom, startingResources, color(255,0,0));
+      addPanel("land management", 0, 0, width, height, false, true, color(50, 200, 50), color(0));
+      addPanel("party management", 0, 0, width, height, false, true, color(110, 110, 255), color(0));
+      addPanel("bottom bar", 0, height-70, width, 70, true, true, color(150), color(50));
+      addPanel("end screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
+      addPanel("pause screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
+      addPanel("save screen", (int)(width/2+jsManager.loadFloatSetting("gui scale")*150+(int)(jsManager.loadFloatSetting("gui scale")*20)), (int)(height/2-5*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*500), (int)(jsManager.loadFloatSetting("gui scale")*300), false, false, color(50), color(0));
+      addPanel("overlay", 0, 0, width, height, true, false, color(255,255), color(255, 255));
+      addPanel("console", 0, height/2, width, height/2, false, true, color(0,200), color(255, 0));
+      
+      getPanel("save screen").setOverrideBlocking(true);
+  
+      addElement("0tooltip", new Tooltip(), "overlay");
+      tooltip = (Tooltip)getElement("0tooltip", "overlay");
+  
+      addElement("end game button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*width/16), (int)(height/2+height/8), (int)(jsManager.loadFloatSetting("gui scale")*width/8), (int)(jsManager.loadFloatSetting("gui scale")*height/16), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "End Game"), "end screen");
+      addElement("winner", new Text(width/2, height/2, (int)(jsManager.loadFloatSetting("text scale")*10), "", color(255), CENTER), "end screen");
+  
+      addElement("main menu button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*150), (int)(height/2-jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Exit to Main Menu"), "pause screen");
+      addElement("desktop button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*150), (int)(height/2+jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Exit to Desktop"), "pause screen");
+      addElement("save as button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*150), (int)(height/2-3*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Save As"), "pause screen");
+      addElement("resume button", new Button((int)(width/2-jsManager.loadFloatSetting("gui scale")*150), (int)(height/2-5*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*60), color(70, 70, 220), color(50, 50, 200), color(255), 14, CENTER, "Resume"), "pause screen");
+      
+      addElement("save button", new Button(bezel, bezel, (int)(jsManager.loadFloatSetting("gui scale")*300)-2*bezel, (int)(jsManager.loadFloatSetting("gui scale")*60), color(100), color(0), color(255), 14, CENTER, "Save"), "save screen");
+      addElement("saving manager", new BaseFileManager(bezel, (int)(4*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*500)-2*bezel, (int)(jsManager.loadFloatSetting("gui scale")*120), "saves"), "save screen");
+      addElement("save namer", new TextEntry(bezel, (int)(2*jsManager.loadFloatSetting("gui scale")*40)+bezel*2, (int)(jsManager.loadFloatSetting("gui scale")*300), (int)(jsManager.loadFloatSetting("gui scale")*50), LEFT, color(0), color(100), color(0), "", "Save Name"), "save screen");
+   
+      addElement("turns remaining", new Text(bezel*2+220, bezel*4+30+30, 8, "", color(255), LEFT), "party management");
+      addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
+      addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
+      addElement("tasks", new TaskManager(bezel, bezel*4+30+30, 220, 10, color(150), color(50), tasks), "party management");
+      
+  
+      addElement("end turn", new Button(bezel, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"), "bottom bar");
+      addElement("idle party finder", new Button(bezel*2+buttonW, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Idle Party"), "bottom bar");
+      addElement("resource summary", new ResourceSummary(0, 0, 70, resourceNames, startingResources, totals), "bottom bar");
+      int resSummaryX = width-((ResourceSummary)(getElement("resource summary", "bottom bar"))).totalWidth();
+      addElement("resource expander", new Button(resSummaryX-50, bezel, 30, 30, color(150), color(50), color(0), 10, CENTER, "<"), "bottom bar");
+      addElement("turn number", new TextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", color(0,0,255), 0), "bottom bar");
+      addElement("2d 3d toggle", new ToggleButton(bezel*4+buttonW*3, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), jsManager.loadBooleanSetting("map is 3d"), "3D View"), "bottom bar");
+      addElement("task icons toggle", new ToggleButton(round(bezel*5+buttonW*3.5), bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Task Icons"), "bottom bar");
+      addElement("unit number bars toggle", new ToggleButton(bezel*6+buttonW*4, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Unit Bars"), "bottom bar");
+      addElement("console", new Console(0, 0, width, height/2, 10), "console");
     //int x, int y, int w, int h, color bgColour, color strokeColour, boolean value, String name
     
       prevIdle = new ArrayList<Integer[]>();
@@ -589,57 +589,60 @@ class Game extends State{
         makeTaskAvailable(parties[cellY][cellX].currentAction());
         LOGGER_GAME.finer("Keeping current task available:"+parties[cellY][cellX].currentAction());
       }
-  
-      for(int i=0; i<gameData.getJSONArray("tasks").size(); i++){
-        js = gameData.getJSONArray("tasks").getJSONObject(i);
-        if (!js.isNull("terrain"))
-          correctTerrain = JSONContainsStr(js.getJSONArray("terrain"), terrainString(terrain[cellY][cellX]));
-        else
-          correctTerrain = true;
-        correctBuilding = false;
-        enoughResources = true;
-        enoughMovementPoints = true;
-        if (!js.isNull("initial cost")){
-          for (int j=0; j<js.getJSONArray("initial cost").size(); j++){
-            JSONObject initialCost = js.getJSONArray("initial cost").getJSONObject(j);
-            if (players[turn].resources[jsManager.getResIndex((initialCost.getString("id")))]<(initialCost.getInt("quantity"))){
-              enoughResources = false;
+      if(parties[cellY][cellX].isTurn(turn)){
+        for(int i=0; i<gameData.getJSONArray("tasks").size(); i++){
+          js = gameData.getJSONArray("tasks").getJSONObject(i);
+          if (!js.isNull("terrain"))
+            correctTerrain = JSONContainsStr(js.getJSONArray("terrain"), terrainString(terrain[cellY][cellX]));
+          else
+            correctTerrain = true;
+          correctBuilding = false;
+          enoughResources = true;
+          enoughMovementPoints = true;
+          if (!js.isNull("initial cost")){
+            for (int j=0; j<js.getJSONArray("initial cost").size(); j++){
+              JSONObject initialCost = js.getJSONArray("initial cost").getJSONObject(j);
+              if (players[turn].resources[jsManager.getResIndex((initialCost.getString("id")))]<(initialCost.getInt("quantity"))){
+                enoughResources = false;
+              }
             }
           }
-        }
-        if (!js.isNull("movement points")){
-          if (parties[cellY][cellX].movementPoints < js.getInt("movement points")){
-              enoughMovementPoints = false;
+          if (!js.isNull("movement points")){
+            if (parties[cellY][cellX].movementPoints < js.getInt("movement points")){
+                enoughMovementPoints = false;
+            }
           }
-        }
-  
-        if (js.isNull("auto enabled")||!js.getBoolean("auto enabled")){
-          if (js.isNull("buildings")){
-            if (js.getString("id").equals("Demolish") && buildings[cellY][cellX] != null)
-              correctBuilding = true;
-            else if(!js.getString("id").equals("Demolish"))
-              correctBuilding = true;
-          }
-          else{
-            if (js.getJSONArray("buildings").size() > 0){
-              if (buildings[cellY][cellX] != null)
-              if (buildings[cellY][cellX] != null && JSONContainsStr(js.getJSONArray("buildings"), buildingString(buildings[cellY][cellX].type)))
+    
+          if (js.isNull("auto enabled")||!js.getBoolean("auto enabled")){
+            if (js.isNull("buildings")){
+              if (js.getString("id").equals("Demolish") && buildings[cellY][cellX] != null)
+                correctBuilding = true;
+              else if(!js.getString("id").equals("Demolish"))
                 correctBuilding = true;
             }
-            else if (buildings[cellY][cellX] == null){
-              correctBuilding = true;
+            else{
+              if (js.getJSONArray("buildings").size() > 0){
+                if (buildings[cellY][cellX] != null)
+                if (buildings[cellY][cellX] != null && JSONContainsStr(js.getJSONArray("buildings"), buildingString(buildings[cellY][cellX].type)))
+                  correctBuilding = true;
+              }
+              else if (buildings[cellY][cellX] == null){
+                correctBuilding = true;
+              }
+            }
+          }
+    
+          if (correctTerrain && correctBuilding){
+            if (enoughResources && enoughMovementPoints){
+              makeTaskAvailable(i);
+            }
+            else{
+              makeAvailableButOverBudget(i);
             }
           }
         }
-  
-        if (correctTerrain && correctBuilding){
-          if (enoughResources && enoughMovementPoints){
-            makeTaskAvailable(i);
-          }
-          else{
-            makeAvailableButOverBudget(i);
-          }
-        }
+      } else {
+        makeTaskAvailable(parties[cellY][cellX].getTask());
       }
       ((TaskManager)getElement("tasks", "party management")).select(jsManager.gameData.getJSONArray("tasks").getJSONObject(parties[cellY][cellX].getTask()).getString("id"));
     }
@@ -1610,8 +1613,8 @@ class Game extends State{
       map.selectCell(cellX, cellY);
       //map.setWidth(round(width-bezel*2-400));
       getPanel("land management").setVisible(true);
-      if (parties[cellY][cellX] != null && parties[cellY][cellX].isTurn(turn)){
-        if (parties[cellY][cellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle")){
+      if (parties[cellY][cellX] != null && (parties[cellY][cellX].isTurn(turn) || jsManager.loadBooleanSetting("show all party managements"))){
+        if (parties[cellY][cellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle") && parties[cellY][cellX].isTurn(turn)){
           ((Slider)getElement("split units", "party management")).show();
         }
         else{
@@ -1623,7 +1626,7 @@ class Game extends State{
         } else {
           ((Slider)getElement("split units", "party management")).setScale(1, parties[cellY][cellX].getUnitNumber(), parties[cellY][cellX].getUnitNumber(), 1, parties[cellY][cellX].getUnitNumber()/2);
         }
-        if (turn == 1){
+        if (parties[cellY][cellX].player == 1){
           partyManagementColour = color(170, 30, 30);
           getPanel("party management").setColour(color(220, 70, 70));
         } else {
@@ -1773,8 +1776,10 @@ class Game extends State{
     panelCanvas.fill(0);
     panelCanvas.textAlign(LEFT, TOP);
     float barY = cellSelectionY + 13*jsManager.loadFloatSetting("text scale");
-    panelCanvas.text(String.format("Cell reference: %s, %s", cellX, cellY), 5+cellSelectionX, barY);
-    barY += 13*jsManager.loadFloatSetting("text scale");
+    if(jsManager.loadBooleanSetting("show cell coords")){
+      panelCanvas.text(String.format("Cell reference: %s, %s", cellX, cellY), 5+cellSelectionX, barY);
+      barY += 13*jsManager.loadFloatSetting("text scale");
+    }
     panelCanvas.text("Cell Type: "+gameData.getJSONArray("terrain").getJSONObject(terrain[cellY][cellX]-1).getString("display name"), 5+cellSelectionX, barY);
     barY += 13*jsManager.loadFloatSetting("text scale");
     if (buildings[cellY][cellX] != null){
