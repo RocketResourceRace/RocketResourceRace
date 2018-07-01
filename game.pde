@@ -1172,6 +1172,7 @@ class Game extends State{
           }
           players[turn].saveSettings(map.getTargetOffsetX(), map.getTargetOffsetY(), blockSize, cellX, cellY, cellSelected);
           ((BaseMap)map).saveMap("saves/"+loadingName, this.turnNumber, this.turn, this.players, cellsPerCoordUnit);
+          ((BaseFileManager)getElement("saving manager", "save screen")).loadSaveNames();
         }
       }
       if (event.type.equals("valueChanged")){

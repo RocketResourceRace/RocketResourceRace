@@ -96,41 +96,6 @@ class BaseFileManager extends Element{
     
     return events;
   }
-  //ArrayList<String> mouseEvent(String eventType, int button){
-  //  ArrayList<String> events = new ArrayList<String>();
-  //  if (eventType == "mousePressed"){
-  //    if (moveOver() && mouseX-xOffset>x+w-20*jsManager.loadFloatSetting("gui scale") && mouseY-yOffset > topOffset && notifications.get(turn).size() > displayNots){
-  //      scrolling = true;
-  //      scroll = round(between(0, (mouseY-yOffset-y-topOffset)*(notifications.get(turn).size()-displayNots+1)/(h-topOffset), notifications.get(turn).size()-displayNots));
-  //    }
-  //    else{
-  //      scrolling = false;
-  //    }
-  //  }
-  //  if (eventType == "mouseDragged"){
-  //    if (scrolling && notifications.get(turn).size() > displayNots){
-  //      scroll = round(between(0, (mouseY-yOffset-y-topOffset)*(notifications.get(turn).size()-displayNots+1)/(h-topOffset), notifications.get(turn).size()-displayNots));
-  //    }
-      
-  //  }
-  //  if (eventType == "mouseClicked"){
-  //    int hovering = findMouseOver();
-  //    if (hovering >=0){
-  //      if (mouseX-xOffset<x+notHeight){
-  //        dismiss(hovering+scroll);
-  //        events.add("notification dismissed");
-  //      }
-  //      else if (!(notifications.get(turn).size() > displayNots) || !(mouseX-xOffset>x+w-20*jsManager.loadFloatSetting("gui scale"))){
-  //        lastSelected = notifications.get(turn).get(hovering+scroll);
-  //        events.add("notification selected");
-  //      }
-  //    }
-  //    else if (mouseX-xOffset<x+notHeight && hoveringDismissAll()){
-  //      dismissAll();
-  //    }
-  //  }
-  //  return events;
-  //}
   
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
     ArrayList<String> events = new ArrayList<String>();
