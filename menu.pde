@@ -29,7 +29,7 @@ class Menu extends State{
     stateChangers = jsManager.getChangeStateButtons();
     settingChangers = jsManager.getChangeSettingButtons();
     
-    addElement("loading manager", new BaseFileManager(width/4, height/4, width/2, height/2, "saves"), "load game");
+    addElement("loading manager", new BaseFileManager(width/4, height/4, width/2, height/3, "saves"), "load game");
   }
   
   color currentColour(){
