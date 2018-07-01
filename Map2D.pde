@@ -20,7 +20,7 @@ interface Map {
   float getTargetBlockSize();
   float[] targetCell(int x, int y, float zoom);
   void loadSettings(float x, float y, float bs);
-  void unselectCell();
+  void unselectCell(); 
   boolean mouseOver();
   Node[][] getMoveNodes();
   float scaleXInv();
