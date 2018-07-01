@@ -76,12 +76,18 @@ class BaseFileManager extends Element{
     }
     else if (eventType.equals("mousePressed")){
       if (d > 0 && mouseX>x+w-SCROLLWIDTH){  
-        // If hovering over scroll bar, set scroll to move pos
+        // If hovering over scroll bar, set scroll to mouse pos
         scrolling = true;
         scroll = round(between(0, (mouseY-y)*(d+1)/h, d));
       }
       else{
         scrolling = false;
+      }
+    }
+    else if (eventType.equals("mouseDragged")){
+      if (scrolling && d > 0){  
+        // If scrolling, set scroll to mouse pos
+        scroll = round(between(0, (mouseY-y)*(d+1)/h, d));
       }
     }
     
@@ -127,7 +133,7 @@ class BaseFileManager extends Element{
     ArrayList<String> events = new ArrayList<String>();
     if (eventType == "mouseWheel"){
       float count = event.getCount();
-      if (moveOver() && x+w-mouseX<SCROLLWIDTH){ // Check mouse over scroll bar
+      if (moveOver()){ // Check mouse over element
         if (saveNames.length > numDisplayed){
           scroll = round(between(0, scroll+count, saveNames.length-numDisplayed));
           LOGGER_MAIN.finest("Changing scroll to: "+scroll);
@@ -182,13 +188,6 @@ class BaseFileManager extends Element{
       panelCanvas.fill(50);
       panelCanvas.stroke(0);
       panelCanvas.rect(x+w-SCROLLWIDTH, y+(h-h/(d+1))*scroll/d, SCROLLWIDTH, h/(d+1));
-      //draw scroll
-      //if (d > 0){
-      //  panelCanvas.fill(color(200));
-      //  panelCanvas.rect(x-20*jsManager.loadFloatSetting("gui scale")+w, y, 20*jsManager.loadFloatSetting("gui scale"), h-topOffset);
-      //  panelCanvas.fill(color(100));
-      //  panelCanvas.rect(x-20*jsManager.loadFloatSetting("gui scale")+w, y+(h-topOffset-(h-topOffset)/(d+1))*scroll/d+topOffset, 20*jsManager.loadFloatSetting("gui scale"), (h-topOffset)/(d+1));
-      //}
     }
     
     panelCanvas.popStyle();
@@ -200,10 +199,10 @@ class BaseFileManager extends Element{
   
   int hoveringOption(){
     int s = (mouseY-yOffset-y)/rowHeight;
-    if (!(0 <= s && s < saveNames.length)){
-      return selected-scroll;
+    if (!(0 <= s && s < numDisplayed)){
+      return selected;
     }
-    return s;
+    return s+scroll;
   }
 }
 
