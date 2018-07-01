@@ -40,142 +40,162 @@ interface Map {
 
 
 int getPartySize(Party p){
-  int totalSize = 0;
-  ByteBuffer[] actions = new ByteBuffer[p.actions.size()];
-  int index = 0;
-  for (Action a: p.actions){
-    int notificationSize;
-    int terrainSize;
-    int buildingSize;
-    byte[] notification = new byte[0];
-    byte[] terrain = new byte[0];
-    byte[] building = new byte[0];
-    if(a.notification == null){
-      notificationSize = 0;
-    } else {
-      notification = a.notification.getBytes();
-      notificationSize = notification.length;
+  LOGGER_MAIN.finer("Getting party size for save");
+  try{
+    int totalSize = 0;
+    ByteBuffer[] actions = new ByteBuffer[p.actions.size()];
+    int index = 0;
+    for (Action a: p.actions){
+      int notificationSize;
+      int terrainSize;
+      int buildingSize;
+      byte[] notification = new byte[0];
+      byte[] terrain = new byte[0];
+      byte[] building = new byte[0];
+      if(a.notification == null){
+        notificationSize = 0;
+      } else {
+        notification = a.notification.getBytes();
+        notificationSize = notification.length;
+      }
+      if(a.terrain == null){
+        terrainSize = 0;
+      } else {
+        terrain = a.terrain.getBytes();
+        terrainSize = terrain.length;
+      }
+      if(a.building == null){
+        buildingSize = 0;
+      } else {
+        building = a.building.getBytes();
+        buildingSize = building.length;
+      }
+      int actionLength = Float.BYTES*2+Integer.BYTES*4+notificationSize+terrainSize+buildingSize;
+      totalSize += actionLength;
+      actions[index] = ByteBuffer.allocate(actionLength);
+      actions[index].putInt(notificationSize);
+      actions[index].putInt(terrainSize);
+      actions[index].putInt(buildingSize);
+      actions[index].putFloat(a.turns);
+      actions[index].putFloat(a.initialTurns);
+      actions[index].putInt(a.type);
+      if(notificationSize>0){
+        actions[index].put(notification);
+      }
+      if(terrainSize>0){
+        actions[index].put(terrain);
+      }
+      if(buildingSize>0){
+        actions[index].put(building);
+      }
+      index++;
     }
-    if(a.terrain == null){
-      terrainSize = 0;
-    } else {
-      terrain = a.terrain.getBytes();
-      terrainSize = terrain.length;
+    totalSize+=Integer.BYTES; // For action count
+    int pathSize = Integer.BYTES*(2*p.path.size()+1);
+    totalSize += pathSize;
+    
+    ByteBuffer path = ByteBuffer.allocate(pathSize);
+    path.putInt(p.path.size());
+    for (int[] l: p.path){
+      path.putInt(l[0]);
+      path.putInt(l[1]);
     }
-    if(a.building == null){
-      buildingSize = 0;
-    } else {
-      building = a.building.getBytes();
-      buildingSize = building.length;
+    totalSize += Integer.BYTES*5+Float.BYTES;
+    
+    
+    ByteBuffer partyBuffer = ByteBuffer.allocate(totalSize);
+    partyBuffer.putInt(p.actions.size());
+    for (ByteBuffer action: actions){
+      partyBuffer.put(action.array());
     }
-    int actionLength = Float.BYTES*2+Integer.BYTES*4+notificationSize+terrainSize+buildingSize;
-    totalSize += actionLength;
-    actions[index] = ByteBuffer.allocate(actionLength);
-    actions[index].putInt(notificationSize);
-    actions[index].putInt(terrainSize);
-    actions[index].putInt(buildingSize);
-    actions[index].putFloat(a.turns);
-    actions[index].putFloat(a.initialTurns);
-    actions[index].putInt(a.type);
-    if(notificationSize>0){
-      actions[index].put(notification);
-    }
-    if(terrainSize>0){
-      actions[index].put(terrain);
-    }
-    if(buildingSize>0){
-      actions[index].put(building);
-    }
-    index++;
+    partyBuffer.put(path.array());
+    partyBuffer.putInt(p.getUnitNumber());
+    partyBuffer.putInt(p.getMovementPoints());
+    partyBuffer.putInt(p.player);
+    partyBuffer.putFloat(p.strength);
+    partyBuffer.putInt(p.getTask());
+    partyBuffer.putInt(p.pathTurns);
+    p.byteRep = partyBuffer.array();
+    return totalSize;
   }
-  totalSize+=Integer.BYTES; // For action count
-  int pathSize = Integer.BYTES*(2*p.path.size()+1);
-  totalSize += pathSize;
-  
-  ByteBuffer path = ByteBuffer.allocate(pathSize);
-  path.putInt(p.path.size());
-  for (int[] l: p.path){
-    path.putInt(l[0]);
-    path.putInt(l[1]);
+  catch (Exception e){
+    LOGGER_MAIN.log(Level.SEVERE, "Error getting party size", e);
+    throw e;
   }
-  totalSize += Integer.BYTES*5+Float.BYTES;
-  
-  
-  ByteBuffer partyBuffer = ByteBuffer.allocate(totalSize);
-  partyBuffer.putInt(p.actions.size());
-  for (ByteBuffer action: actions){
-    partyBuffer.put(action.array());
-  }
-  partyBuffer.put(path.array());
-  partyBuffer.putInt(p.getUnitNumber());
-  partyBuffer.putInt(p.getMovementPoints());
-  partyBuffer.putInt(p.player);
-  partyBuffer.putFloat(p.strength);
-  partyBuffer.putInt(p.getTask());
-  partyBuffer.putInt(p.pathTurns);
-  p.byteRep = partyBuffer.array();
-  return totalSize;
 }
 void saveParty(ByteBuffer b, Party p){
-  b.put(p.byteRep);
+  try{
+    b.put(p.byteRep);
+  }
+  catch (Exception e){
+    LOGGER_MAIN.log(Level.SEVERE, "Error saving party", e);
+    throw e;
+  }
 }
 Party loadParty(ByteBuffer b){
-  int actionCount = b.getInt();
-  ArrayList<Action> actions = new ArrayList<Action>();
-  for (int i=0; i<actionCount; i++){
-    String notification;
-    String terrain;
-    String building;
-    int notificationTextSize = b.getInt();
-    int terrainTextSize = b.getInt();
-    int buildingTextSize = b.getInt();
-    Float turns = b.getFloat();
-    Float initialTurns = b.getFloat();
-    int type = b.getInt();
-    if(notificationTextSize>0){
-      byte[] notificationTemp = new byte[notificationTextSize];
-      b.get(notificationTemp);
-      notification = new String(notificationTemp);
-    } else {
-      notification = null;
+  LOGGER_MAIN.finer("Loading party from save");
+  try{
+    int actionCount = b.getInt();
+    ArrayList<Action> actions = new ArrayList<Action>();
+    for (int i=0; i<actionCount; i++){
+      String notification;
+      String terrain;
+      String building;
+      int notificationTextSize = b.getInt();
+      int terrainTextSize = b.getInt();
+      int buildingTextSize = b.getInt();
+      Float turns = b.getFloat();
+      Float initialTurns = b.getFloat();
+      int type = b.getInt();
+      if(notificationTextSize>0){
+        byte[] notificationTemp = new byte[notificationTextSize];
+        b.get(notificationTemp);
+        notification = new String(notificationTemp);
+      } else {
+        notification = null;
+      }
+      if(terrainTextSize>0){
+        byte[] terrainTemp = new byte[terrainTextSize];
+        b.get(terrainTemp);
+        terrain = new String(terrainTemp);
+      } else {
+        terrain = null;
+      }
+      if(buildingTextSize>0){
+        byte[] buildingTemp = new byte[buildingTextSize];
+        b.get(buildingTemp);
+        building = new String(buildingTemp);
+      } else {
+        building = null;
+      }
+      actions.add(new Action(type, notification, turns, building, terrain));
+      actions.get(i).initialTurns = initialTurns;
     }
-    if(terrainTextSize>0){
-      byte[] terrainTemp = new byte[terrainTextSize];
-      b.get(terrainTemp);
-      terrain = new String(terrainTemp);
-    } else {
-      terrain = null;
+    int pathSize = b.getInt();
+    ArrayList<int[]> path = new ArrayList<int[]>();
+    for(int i=0; i<pathSize; i++){
+      path.add(new int[]{b.getInt(), b.getInt()});
     }
-    if(buildingTextSize>0){
-      byte[] buildingTemp = new byte[buildingTextSize];
-      b.get(buildingTemp);
-      building = new String(buildingTemp);
-    } else {
-      building = null;
+    int unitNumber = b.getInt();
+    int movementPoints = b.getInt();
+    int player = b.getInt();
+    float strength = b.getFloat();
+    int task = b.getInt();
+    int pathTurns = b.getInt();
+    Party p = new Party(player, unitNumber, task, movementPoints);
+    p.strength = strength;
+    p.pathTurns = pathTurns;
+    p.actions = actions;
+    if (path.size() > 0){
+      p.target = path.get(path.size()-1);
+      p.loadPath(path);
     }
-    actions.add(new Action(type, notification, turns, building, terrain));
-    actions.get(i).initialTurns = initialTurns;
+    return p;
   }
-  int pathSize = b.getInt();
-  ArrayList<int[]> path = new ArrayList<int[]>();
-  for(int i=0; i<pathSize; i++){
-    path.add(new int[]{b.getInt(), b.getInt()});
+  catch (Exception e){
+    LOGGER_MAIN.log(Level.SEVERE, "Error loading party", e);
+    throw e;  
   }
-  int unitNumber = b.getInt();
-  int movementPoints = b.getInt();
-  int player = b.getInt();
-  float strength = b.getFloat();
-  int task = b.getInt();
-  int pathTurns = b.getInt();
-  Party p = new Party(player, unitNumber, task, movementPoints);
-  p.strength = strength;
-  p.pathTurns = pathTurns;
-  p.actions = actions;
-  if (path.size() > 0){
-    p.target = path.get(path.size()-1);
-    p.loadPath(path);
-  }
-  return p;
 }
 
 int SAVEVERSION = 1;
@@ -193,178 +213,235 @@ class BaseMap extends Element{
   HashMap<Character, Boolean> keyState;
   
   
-  void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players){
-    int partiesByteCount = 0;
-    for (int y=0; y<mapHeight; y++){
-      for (int x=0; x<mapWidth; x++){
-        if(parties[y][x] != null){
-          if(parties[y][x].player==2){
-            partiesByteCount+=getPartySize(((Battle)parties[y][x]).party1);
-            partiesByteCount+=getPartySize(((Battle)parties[y][x]).party2);
+  void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players, float cellsPerCoordUnit){
+    LOGGER_MAIN.info("Starting saving progress");
+    try{
+      int partiesByteCount = 0;
+      for (int y=0; y<mapHeight; y++){
+        for (int x=0; x<mapWidth; x++){
+          if(parties[y][x] != null){
+            if(parties[y][x].player==2){
+              partiesByteCount+=getPartySize(((Battle)parties[y][x]).party1);
+              partiesByteCount+=getPartySize(((Battle)parties[y][x]).party2);
+            } 
+            else {
+              partiesByteCount+=getPartySize(parties[y][x]);
+            }
+          }
+          partiesByteCount++;
+        }
+      }
+      int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+3*Integer.BYTES+1)*players.length;
+      ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*10+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount+playersByteCount+Float.BYTES);
+      buffer.putInt(-SAVEVERSION);
+      LOGGER_MAIN.finer("Saving version: "+(-SAVEVERSION));
+      buffer.putInt(mapWidth);
+      LOGGER_MAIN.finer("Saving map width: "+mapWidth);
+      buffer.putInt(mapHeight);
+      LOGGER_MAIN.finer("Saving map height: "+mapHeight);
+      buffer.putInt(partiesByteCount);
+      LOGGER_MAIN.finer("Saving parties byte count: "+partiesByteCount);
+      buffer.putInt(playersByteCount);
+      LOGGER_MAIN.finer("Saving players' byte count: "+playersByteCount);
+      buffer.putInt(jsManager.loadIntSetting("party size"));
+      LOGGER_MAIN.finer("Saving party size: "+jsManager.loadIntSetting("party size"));
+      buffer.putInt(players.length);
+      LOGGER_MAIN.finer("Saving number of players: "+players.length);
+      buffer.putInt(players[0].resources.length);
+      LOGGER_MAIN.finer("Saving number of resources: "+players[0].resources.length);
+      buffer.putInt(turnNumber);
+      LOGGER_MAIN.finer("Saving turn number: "+turnNumber);
+      buffer.putInt(turnPlayer);
+      LOGGER_MAIN.finer("Saving player turn: "+turnPlayer);
+      buffer.putLong(heightMapSeed);
+      LOGGER_MAIN.finer("Saving height map seed: "+heightMapSeed);
+      buffer.putFloat(jsManager.loadFloatSetting("water level"));
+      LOGGER_MAIN.finer("Saving water level: "+jsManager.loadFloatSetting("water level"));
+      
+      LOGGER_MAIN.finer("Saving terrain and buildings");
+      for (int y=0; y<mapHeight; y++){
+        for (int x=0; x<mapWidth; x++){
+          buffer.putInt(terrain[y][x]);
+        }
+      }
+      for (int y=0; y<mapHeight; y++){
+        for (int x=0; x<mapWidth; x++){
+          if(buildings[y][x]==null){
+            buffer.putInt(-1);
+            buffer.putInt(-1);
           } else {
-            partiesByteCount+=getPartySize(parties[y][x]);
+            buffer.putInt(buildings[y][x].type);
+            buffer.putInt(buildings[y][x].image_id);
           }
         }
-        partiesByteCount++;
       }
-    }
-    int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+3*Integer.BYTES+1)*players.length;
-    ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*10+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount+playersByteCount+Float.BYTES);
-    buffer.putInt(-SAVEVERSION);
-    buffer.putInt(mapWidth);
-    buffer.putInt(mapHeight);
-    buffer.putInt(partiesByteCount);
-    buffer.putInt(playersByteCount);
-    buffer.putInt(jsManager.loadIntSetting("party size"));
-    buffer.putInt(players.length);
-    buffer.putInt(players[0].resources.length);
-    buffer.putInt(turnNumber);
-    buffer.putInt(turnPlayer);
-    buffer.putLong(heightMapSeed);
-    buffer.putFloat(jsManager.loadFloatSetting("water level"));
-    for (int y=0; y<mapHeight; y++){
-      for (int x=0; x<mapWidth; x++){
-        buffer.putInt(terrain[y][x]);
-      }
-    }
-    for (int y=0; y<mapHeight; y++){
-      for (int x=0; x<mapWidth; x++){
-        if(buildings[y][x]==null){
-          buffer.putInt(-1);
-          buffer.putInt(-1);
-        } else {
-          buffer.putInt(buildings[y][x].type);
-          buffer.putInt(buildings[y][x].image_id);
+      LOGGER_MAIN.finer("Saving parties");
+      for (int y=0; y<mapHeight; y++){
+        for (int x=0; x<mapWidth; x++){
+          if(parties[y][x]==null){
+            buffer.put(byte(0));
+          } else if (parties[y][x].player == 2){
+            buffer.put(byte(2));
+            saveParty(buffer, ((Battle)parties[y][x]).party1);
+            saveParty(buffer, ((Battle)parties[y][x]).party2);
+          } else {
+            buffer.put(byte(1));
+            saveParty(buffer, parties[y][x]);
+          }
         }
       }
-    }
-    for (int y=0; y<mapHeight; y++){
-      for (int x=0; x<mapWidth; x++){
-        if(parties[y][x]==null){
-          buffer.put(byte(0));
-        } else if (parties[y][x].player == 2){
-          buffer.put(byte(2));
-          saveParty(buffer, ((Battle)parties[y][x]).party1);
-          saveParty(buffer, ((Battle)parties[y][x]).party2);
-        } else {
-          buffer.put(byte(1));
-          saveParty(buffer, parties[y][x]);
+      LOGGER_MAIN.finer("Saving players");
+      for (Player p: players){
+        buffer.putFloat(p.mapXOffset*cellsPerCoordUnit);
+        buffer.putFloat(p.mapYOffset*cellsPerCoordUnit);
+        if(p.blockSize==0){
+          p.blockSize = jsManager.loadIntSetting("starting block size");
         }
+        buffer.putFloat(p.blockSize);
+          
+        for (float r: p.resources){
+          buffer.putFloat(r);
+        }
+        buffer.putInt(p.cellX);
+        buffer.putInt(p.cellY);
+        buffer.putInt(p.colour);
+        buffer.put(byte(p.cellSelected));
       }
+      LOGGER_MAIN.fine("Saving map to file");
+      saveBytes(filename, buffer.array());
     }
-    for (Player p: players){
-      buffer.putFloat(p.mapXOffset);
-      buffer.putFloat(p.mapYOffset);
-      buffer.putFloat(p.blockSize);
-      for (float r: p.resources){
-        buffer.putFloat(r);
-      }
-      buffer.putInt(p.cellX);
-      buffer.putInt(p.cellY);
-      buffer.putInt(p.colour);
-      buffer.put(byte(p.cellSelected));
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error saving map", e);
+      throw e; 
     }
-    saveBytes(filename, buffer.array());
   }
+  
   MapSave loadMap(String filename, int resourceCountNew){
-    boolean versionCheckInt = false;
-    byte tempBuffer[] = loadBytes(filename);
-    int headerSize = Integer.BYTES*5;
-    int versionSpecificData = 0;
-    ByteBuffer headerBuffer = ByteBuffer.allocate(headerSize);
-    headerBuffer.put(Arrays.copyOfRange(tempBuffer, 0, headerSize));
-    headerBuffer.flip();//need flip
-    int versionCheck = -headerBuffer.getInt();
-    if(versionCheck>0){
-      versionCheckInt = true;
-      mapWidth = headerBuffer.getInt();
-      versionSpecificData += Integer.BYTES;
-    } else {
-      mapWidth = -versionCheck;
-      jsManager.saveSetting("party size", 1000);
-    }
-    mapHeight = headerBuffer.getInt();
-    int partiesByteCount = headerBuffer.getInt();
-    int playersByteCount = headerBuffer.getInt();
-    int dataSize = Long.BYTES+partiesByteCount+playersByteCount+(4+mapWidth*mapHeight*3)*Integer.BYTES+Float.BYTES+versionSpecificData;
-    ByteBuffer buffer = ByteBuffer.allocate(dataSize);
-    if(versionCheckInt){
-      buffer.put(Arrays.copyOfRange(tempBuffer, headerSize, headerSize+dataSize));
-    } else {
-      buffer.put(Arrays.copyOfRange(tempBuffer, headerSize-Integer.BYTES, headerSize-Integer.BYTES+dataSize));
-    }
-    buffer.flip();//need flip
-    if(versionCheckInt){
-      jsManager.saveSetting("party size", buffer.getInt());
-    }
-    int playerCount = buffer.getInt();
-    int resourceCountOld = buffer.getInt();
-    int turnNumber = buffer.getInt();
-    int turnPlayer = buffer.getInt();
-    heightMapSeed = buffer.getLong();
-    jsManager.saveSetting("water level", buffer.getFloat());
-    terrain = new int[mapHeight][mapWidth];
-    parties = new Party[mapHeight][mapWidth];
-    buildings = new Building[mapHeight][mapWidth];
-    for (int y=0; y<mapHeight; y++){
-      for (int x=0; x<mapWidth; x++){
-        terrain[y][x] = buffer.getInt();
+    try{
+      boolean versionCheckInt = false;
+      byte tempBuffer[] = loadBytes(filename);
+      int headerSize = Integer.BYTES*5;
+      int versionSpecificData = 0;
+      ByteBuffer headerBuffer = ByteBuffer.allocate(headerSize);
+      headerBuffer.put(Arrays.copyOfRange(tempBuffer, 0, headerSize));
+      headerBuffer.flip();//need flip
+      int versionCheck = -headerBuffer.getInt();
+      if(versionCheck>0){
+        versionCheckInt = true;
+        mapWidth = headerBuffer.getInt();
+        versionSpecificData += Integer.BYTES;
+      } 
+      else {
+        LOGGER_MAIN.info("Loading old save with party size 1000");
+        mapWidth = -versionCheck;
+        jsManager.saveSetting("party size", 1000);
       }
-    }
-    for (int y=0; y<mapHeight; y++){
-      for (int x=0; x<mapWidth; x++){
-        int type = buffer.getInt();
-        int image_id = buffer.getInt();
-        if(type!=-1){
-          buildings[y][x] = new Building(type, image_id);
+      mapHeight = headerBuffer.getInt();
+      int partiesByteCount = headerBuffer.getInt();
+      int playersByteCount = headerBuffer.getInt();
+      int dataSize = Long.BYTES+partiesByteCount+playersByteCount+(4+mapWidth*mapHeight*3)*Integer.BYTES+Float.BYTES+versionSpecificData;
+      ByteBuffer buffer = ByteBuffer.allocate(dataSize);
+      if(versionCheckInt){
+        buffer.put(Arrays.copyOfRange(tempBuffer, headerSize, headerSize+dataSize));
+      } 
+      else {
+        buffer.put(Arrays.copyOfRange(tempBuffer, headerSize-Integer.BYTES, headerSize-Integer.BYTES+dataSize));
+      }
+      buffer.flip();//need flip
+      if(versionCheckInt){
+        jsManager.saveSetting("party size", buffer.getInt());
+      }
+      int playerCount = buffer.getInt();
+      int resourceCountOld = buffer.getInt();
+      int turnNumber = buffer.getInt();
+      int turnPlayer = buffer.getInt();
+      heightMapSeed = buffer.getLong();
+      float newWaterLevel = buffer.getFloat();
+      jsManager.saveSetting("water level", newWaterLevel);
+      LOGGER_MAIN.finer("Loading water level: "+newWaterLevel);
+      terrain = new int[mapHeight][mapWidth];
+      parties = new Party[mapHeight][mapWidth];
+      buildings = new Building[mapHeight][mapWidth];
+      
+      LOGGER_MAIN.finer("Loading terrain");
+      for (int y=0; y<mapHeight; y++){
+        for (int x=0; x<mapWidth; x++){
+          terrain[y][x] = buffer.getInt();
         }
-        if(!versionCheckInt){
-          if(type==9){
-            terrain[y][x] = terrainIndex("quarry site");
+      }
+      LOGGER_MAIN.finer("Loading buildings");
+      for (int y=0; y<mapHeight; y++){
+        for (int x=0; x<mapWidth; x++){
+          int type = buffer.getInt();
+          int image_id = buffer.getInt();
+          if(type!=-1){
+            buildings[y][x] = new Building(type, image_id);
+          }
+          if(!versionCheckInt){
+            if(type==9){
+              terrain[y][x] = terrainIndex("quarry site");
+              LOGGER_MAIN.finer("Changing old quarry tiles into quarry sites - only on old maps");
+            }
           }
         }
       }
-    }
-    for (int y=0; y<mapHeight; y++){
-      for (int x=0; x<mapWidth; x++){
-        Byte partyType = buffer.get();
-        if (partyType == 2){
-          Party p1 = loadParty(buffer);
-          Party p2 = loadParty(buffer);
-          float savedStrength = p1.strength;
-          Battle b = new Battle(p1, p2);
-          b.party1.strength = savedStrength;
-          parties[y][x] = b;
-        } else if (partyType == 1){
-          parties[y][x] = loadParty(buffer);
+      LOGGER_MAIN.finer("Loading parties");
+      for (int y=0; y<mapHeight; y++){
+        for (int x=0; x<mapWidth; x++){
+          Byte partyType = buffer.get();
+          if (partyType == 2){
+            Party p1 = loadParty(buffer);
+            Party p2 = loadParty(buffer);
+            float savedStrength = p1.strength;
+            Battle b = new Battle(p1, p2);
+            b.party1.strength = savedStrength;
+            parties[y][x] = b;
+          } 
+          else if (partyType == 1){
+            parties[y][x] = loadParty(buffer);
+          }
         }
       }
-    }
-    Player[] players = new Player[playerCount];
-    for (int i=0;i<playerCount;i++){
-      float mapXOffset = buffer.getFloat();
-      float mapYOffset = buffer.getFloat();
-      float blockSize = buffer.getFloat();
-      float[] resources = new float[resourceCountNew];
-      for (int r=0; r<resourceCountOld;r++){
-        resources[r] = buffer.getFloat();
+      LOGGER_MAIN.finer("Loading players, count="+playerCount);
+      Player[] players = new Player[playerCount];
+      for (int i=0;i<playerCount;i++){
+        float mapXOffset = buffer.getFloat();
+        float mapYOffset = buffer.getFloat();
+        float blockSize = buffer.getFloat();
+        float[] resources = new float[resourceCountNew];
+        LOGGER_MAIN.finer(String.format("player %d. Map offset: (%f, %f) blocksize:%f, resources:%s", i, mapXOffset, mapYOffset, blockSize, Arrays.toString(resources)));
+        for (int r=0; r<resourceCountOld;r++){
+          resources[r] = buffer.getFloat();
+        }
+        int cellX = buffer.getInt();
+        int cellY = buffer.getInt();
+        int colour = buffer.getInt();
+        boolean cellSelected = boolean(buffer.get());
+        players[i] = new Player(mapXOffset, mapYOffset, blockSize, resources, colour);
+        players[i].cellSelected = cellSelected;
       }
-      int cellX = buffer.getInt();
-      int cellY = buffer.getInt();
-      int colour = buffer.getInt();
-      boolean cellSelected = boolean(buffer.get());
-      players[i] = new Player(mapXOffset, mapYOffset, blockSize, resources, colour);
-      players[i].cellSelected = cellSelected;
+      LOGGER_MAIN.fine("Seeding height map noise with: "+heightMapSeed);
+      noiseSeed(heightMapSeed);
+      generateNoiseMaps();
+      LOGGER_MAIN.fine("Finished loading save");
+      return new MapSave(heightMap, mapWidth, mapHeight, terrain, parties, buildings, turnNumber, turnPlayer, players);
     }
-    noiseSeed(heightMapSeed);
-    generateNoiseMaps();
     
-    return new MapSave(heightMap, mapWidth, mapHeight, terrain, parties, buildings, turnNumber, turnPlayer, players);
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading map", e);
+      throw e;
+    }
   }
   
   
   int toMapIndex(int x, int y, int x1, int y1){
-    return int(x1+x*jsManager.loadFloatSetting("terrain detail")+y1*jsManager.loadFloatSetting("terrain detail")*(mapWidth+1/jsManager.loadFloatSetting("terrain detail"))+y*pow(jsManager.loadFloatSetting("terrain detail"), 2)*(mapWidth+1/jsManager.loadFloatSetting("terrain detail")));
+    try{
+      return int(x1+x*jsManager.loadFloatSetting("terrain detail")+y1*jsManager.loadFloatSetting("terrain detail")*(mapWidth+1/jsManager.loadFloatSetting("terrain detail"))+y*pow(jsManager.loadFloatSetting("terrain detail"), 2)*(mapWidth+1/jsManager.loadFloatSetting("terrain detail")));
+    }
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error converting coordinates to map index", e);
+      throw e;
+    }
   }
   
   void setDrawingUnitBars(boolean v){
@@ -436,182 +513,209 @@ class BaseMap extends Element{
   //  return newMap;
   //}
   void generateTerrain(){
-    noiseDetail(3,0.25);
-    HashMap<Integer, Float> groundWeightings = new HashMap();
-    for (Integer i=1; i<gameData.getJSONArray("terrain").size()+1; i++){
-      if (gameData.getJSONArray("terrain").getJSONObject(i-1).isNull("weighting")){
-        groundWeightings.put(i, jsManager.loadFloatSetting(gameData.getJSONArray("terrain").getJSONObject(i-1).getString("id")+" weighting"));
+    try{
+      LOGGER_MAIN.info("Generating terrain");
+      noiseDetail(3,0.25);
+      HashMap<Integer, Float> groundWeightings = new HashMap();
+      for (Integer i=1; i<gameData.getJSONArray("terrain").size()+1; i++){
+        if (gameData.getJSONArray("terrain").getJSONObject(i-1).isNull("weighting")){
+          groundWeightings.put(i, jsManager.loadFloatSetting(gameData.getJSONArray("terrain").getJSONObject(i-1).getString("id")+" weighting"));
+        }
+        else{
+          groundWeightings.put(i, gameData.getJSONArray("terrain").getJSONObject(i-1).getFloat("weighting"));
+        }
       }
-      else{
-        groundWeightings.put(i, gameData.getJSONArray("terrain").getJSONObject(i-1).getFloat("weighting"));
+  
+      float totalWeighting = 0;
+      for (float weight: groundWeightings.values()){
+        totalWeighting+=weight;
       }
-    }
-
-    float totalWeighting = 0;
-    for (float weight: groundWeightings.values()){
-      totalWeighting+=weight;
-    }
-    //for(int i=0;i<jsManager.loadIntSetting("ground spawns");i++){
-    //  int type = getRandomGroundType(groundWeightings, totalWeighting);
-    //  int x = (int)random(mapWidth);
-    //  int y = (int)random(mapHeight);
-    //  if(isWater(x, y)){
-    //    i--;
-    //  } else {
-    //    terrain[y][x] = type;
-    //  }
-    //}
-    class TempTerrainDetail implements Comparable<TempTerrainDetail>{
-      int x;
-      int y;
-      float noiseValue;
-      TempTerrainDetail(int x, int y, float noiseValue){
-        super();
-        this.x = x;
-        this.y = y;
-        this.noiseValue = noiseValue;
+      //for(int i=0;i<jsManager.loadIntSetting("ground spawns");i++){
+      //  int type = getRandomGroundType(groundWeightings, totalWeighting);
+      //  int x = (int)random(mapWidth);
+      //  int y = (int)random(mapHeight);
+      //  if(isWater(x, y)){
+      //    i--;
+      //  } else {
+      //    terrain[y][x] = type;
+      //  }
+      //}
+      class TempTerrainDetail implements Comparable<TempTerrainDetail>{
+        int x;
+        int y;
+        float noiseValue;
+        TempTerrainDetail(int x, int y, float noiseValue){
+          super();
+          this.x = x;
+          this.y = y;
+          this.noiseValue = noiseValue;
+        }
+        public int compareTo(TempTerrainDetail otherDetail) {
+          if(this.noiseValue>otherDetail.noiseValue){
+            return 1;
+          } else if (this.noiseValue<otherDetail.noiseValue){
+            return -1;
+          } else {
+            return 0;
+          }
+        }
       }
-      public int compareTo(TempTerrainDetail otherDetail) {
-        if(this.noiseValue>otherDetail.noiseValue){
-          return 1;
-        } else if (this.noiseValue<otherDetail.noiseValue){
-          return -1;
-        } else {
-          return 0;
+      ArrayList<TempTerrainDetail> cells = new ArrayList<TempTerrainDetail>();
+      for (int y=0; y<mapHeight;y++){
+        for (int x=0; x<mapWidth;x++){
+          if(isWater(x, y)){
+            terrain[y][x] = terrainIndex("water");
+          } else {
+            cells.add(new TempTerrainDetail(x, y, noise(x*MAPTERRAINNOISESCALE, y*MAPTERRAINNOISESCALE, 1)));
+          }
+        }
+      }
+      TempTerrainDetail[] cellsArray = new TempTerrainDetail[cells.size()];
+      cells.toArray(cellsArray);
+      Arrays.sort(cellsArray);
+      int terrainIndex = 0;
+      int totalBelow = 0;
+      int lastType = 0;
+      for (int type: groundWeightings.keySet()){
+        if(groundWeightings.get(type)>0){
+          while(float(terrainIndex-totalBelow)/cells.size()<groundWeightings.get(type)/totalWeighting){
+            terrain[cellsArray[terrainIndex].y][cellsArray[terrainIndex].x] = type;
+            cellsArray[terrainIndex].noiseValue = 0;
+            terrainIndex++;
+          }
+          totalBelow = terrainIndex-1;
+        }
+        lastType = type;
+      }
+      for(TempTerrainDetail t: cellsArray){
+        if(t.noiseValue!=0){
+          terrain[t.y][t.x] = lastType;
+          //println("map generation possible issue here");
+        }
+      }
+      //ArrayList<int[]> order = new ArrayList<int[]>();
+      //for (int y=0; y<mapHeight;y++){
+      //  for (int x=0; x<mapWidth;x++){
+      //    if(isWater(x, y)){
+      //      terrain[y][x] = terrainIndex("water");
+      //    } else {
+      //      order.add(new int[] {x, y});
+      //    }
+      //  }
+      //}
+      //Collections.shuffle(order);
+      //for (int[] coord: order){
+      //  int x = coord[0];
+      //  int y = coord[1];
+      //  while (terrain[y][x] == 0||terrain[y][x]==terrainIndex("water")){
+      //    int direction = (int) random(8);
+      //    switch(direction){
+      //      case 0:
+      //        x= max(x-1, 0);
+      //        break;
+      //      case 1:
+      //        x = min(x+1, mapWidth-1);
+      //        break;
+      //      case 2:
+      //        y= max(y-1, 0);
+      //        break;
+      //      case 3:
+      //        y = min(y+1, mapHeight-1);
+      //        break;
+      //      case 4:
+      //        x = min(x+1, mapWidth-1);
+      //        y = min(y+1, mapHeight-1);
+      //        break;
+      //      case 5:
+      //        x = min(x+1, mapWidth-1);
+      //        y= max(y-1, 0);
+      //        break;
+      //      case 6:
+      //        y= max(y-1, 0);
+      //        x= max(x-1, 0);
+      //        break;
+      //      case 7:
+      //        y = min(y+1, mapHeight-1);
+      //        x= max(x-1, 0);
+      //        break;
+      //    }
+      //  }
+      //  terrain[coord[1]][coord[0]] = terrain[y][x];
+      //}
+      //terrain = smoothMap(jsManager.loadIntSetting("smoothing"), 2, terrain);
+      //terrain = smoothMap(jsManager.loadIntSetting("smoothing")+2, 1, terrain);
+      for (int y=0; y<mapHeight;y++){
+        for (int x=0; x<mapWidth;x++){
+          if(terrain[y][x] != terrainIndex("water") && (groundMaxRawHeightAt(x, y) > jsManager.loadFloatSetting("hills height")) || getMaxSteepness(x, y)>HILLSTEEPNESS){
+            terrain[y][x] = terrainIndex("hills");
+          }
         }
       }
     }
-    ArrayList<TempTerrainDetail> cells = new ArrayList<TempTerrainDetail>();
-    for (int y=0; y<mapHeight;y++){
-      for (int x=0; x<mapWidth;x++){
-        if(isWater(x, y)){
-          terrain[y][x] = terrainIndex("water");
-        } else {
-          cells.add(new TempTerrainDetail(x, y, noise(x*MAPTERRAINNOISESCALE, y*MAPTERRAINNOISESCALE, 1)));
-        }
-      }
-    }
-    TempTerrainDetail[] cellsArray = new TempTerrainDetail[cells.size()];
-    cells.toArray(cellsArray);
-    Arrays.sort(cellsArray);
-    int terrainIndex = 0;
-    int totalBelow = 0;
-    int lastType = 0;
-    for (int type: groundWeightings.keySet()){
-      if(groundWeightings.get(type)>0){
-        while(float(terrainIndex-totalBelow)/cells.size()<groundWeightings.get(type)/totalWeighting){
-          terrain[cellsArray[terrainIndex].y][cellsArray[terrainIndex].x] = type;
-          cellsArray[terrainIndex].noiseValue = 0;
-          terrainIndex++;
-        }
-        totalBelow = terrainIndex-1;
-      }
-      lastType = type;
-    }
-    for(TempTerrainDetail t: cellsArray){
-      if(t.noiseValue!=0){
-        terrain[t.y][t.x] = lastType;
-        //println("map generation possible issue here");
-      }
-    }
-    //ArrayList<int[]> order = new ArrayList<int[]>();
-    //for (int y=0; y<mapHeight;y++){
-    //  for (int x=0; x<mapWidth;x++){
-    //    if(isWater(x, y)){
-    //      terrain[y][x] = terrainIndex("water");
-    //    } else {
-    //      order.add(new int[] {x, y});
-    //    }
-    //  }
-    //}
-    //Collections.shuffle(order);
-    //for (int[] coord: order){
-    //  int x = coord[0];
-    //  int y = coord[1];
-    //  while (terrain[y][x] == 0||terrain[y][x]==terrainIndex("water")){
-    //    int direction = (int) random(8);
-    //    switch(direction){
-    //      case 0:
-    //        x= max(x-1, 0);
-    //        break;
-    //      case 1:
-    //        x = min(x+1, mapWidth-1);
-    //        break;
-    //      case 2:
-    //        y= max(y-1, 0);
-    //        break;
-    //      case 3:
-    //        y = min(y+1, mapHeight-1);
-    //        break;
-    //      case 4:
-    //        x = min(x+1, mapWidth-1);
-    //        y = min(y+1, mapHeight-1);
-    //        break;
-    //      case 5:
-    //        x = min(x+1, mapWidth-1);
-    //        y= max(y-1, 0);
-    //        break;
-    //      case 6:
-    //        y= max(y-1, 0);
-    //        x= max(x-1, 0);
-    //        break;
-    //      case 7:
-    //        y = min(y+1, mapHeight-1);
-    //        x= max(x-1, 0);
-    //        break;
-    //    }
-    //  }
-    //  terrain[coord[1]][coord[0]] = terrain[y][x];
-    //}
-    //terrain = smoothMap(jsManager.loadIntSetting("smoothing"), 2, terrain);
-    //terrain = smoothMap(jsManager.loadIntSetting("smoothing")+2, 1, terrain);
-    for (int y=0; y<mapHeight;y++){
-      for (int x=0; x<mapWidth;x++){
-        if(terrain[y][x] != terrainIndex("water") && (groundMaxRawHeightAt(x, y) > jsManager.loadFloatSetting("hills height")) || getMaxSteepness(x, y)>HILLSTEEPNESS){
-          terrain[y][x] = terrainIndex("hills");
-        }
-      }
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error generating map", e);
+      throw e;
     }
   }
   void generateMap(int mapWidth, int mapHeight){
-    terrain = new int[mapHeight][mapWidth];
-    buildings = new Building[mapHeight][mapWidth];
-    parties = new Party[mapHeight][mapWidth];
-    this.mapWidth = mapWidth;
-    this.mapHeight = mapHeight;
-    heightMapSeed = (long)random(Long.MIN_VALUE, Long.MAX_VALUE);
-    noiseSeed(heightMapSeed);
-    generateNoiseMaps();
-    generateTerrain();
+    try{
+      LOGGER_MAIN.fine("Generating map");
+      terrain = new int[mapHeight][mapWidth];
+      buildings = new Building[mapHeight][mapWidth];
+      parties = new Party[mapHeight][mapWidth];
+      this.mapWidth = mapWidth;
+      this.mapHeight = mapHeight;
+      heightMapSeed = (long)random(Long.MIN_VALUE, Long.MAX_VALUE);
+      noiseSeed(heightMapSeed);
+      generateNoiseMaps();
+      generateTerrain();
+    }
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error generating map", e);
+      throw e;
+    }
   }
   void generateNoiseMaps(){
-    noiseDetail(4,0.5);
-    heightMap = new float[int((mapWidth+1/jsManager.loadFloatSetting("terrain detail"))*(mapHeight+1/jsManager.loadFloatSetting("terrain detail"))*pow(jsManager.loadFloatSetting("terrain detail"), 2))];
-    for(int y = 0;y<mapHeight;y++){
-      for(int y1 = 0;y1<jsManager.loadFloatSetting("terrain detail");y1++){
-        for(int x = 0;x<mapWidth;x++){
-          for(int x1 = 0;x1<jsManager.loadFloatSetting("terrain detail");x1++){
-            heightMap[toMapIndex(x, y, x1, y1)] = noise((x+x1/jsManager.loadFloatSetting("terrain detail"))*MAPHEIGHTNOISESCALE, (y+y1/jsManager.loadFloatSetting("terrain detail"))*MAPHEIGHTNOISESCALE);
+    try{
+      LOGGER_MAIN.info("Generating noise map");
+      noiseDetail(4,0.5);
+      heightMap = new float[int((mapWidth+1/jsManager.loadFloatSetting("terrain detail"))*(mapHeight+1/jsManager.loadFloatSetting("terrain detail"))*pow(jsManager.loadFloatSetting("terrain detail"), 2))];
+      for(int y = 0;y<mapHeight;y++){
+        for(int y1 = 0;y1<jsManager.loadFloatSetting("terrain detail");y1++){
+          for(int x = 0;x<mapWidth;x++){
+            for(int x1 = 0;x1<jsManager.loadFloatSetting("terrain detail");x1++){
+              heightMap[toMapIndex(x, y, x1, y1)] = noise((x+x1/jsManager.loadFloatSetting("terrain detail"))*MAPHEIGHTNOISESCALE, (y+y1/jsManager.loadFloatSetting("terrain detail"))*MAPHEIGHTNOISESCALE);
+            }
           }
+          heightMap[toMapIndex(mapWidth, y, 0, y1)] = noise(((mapWidth+1))*MAPHEIGHTNOISESCALE, (y+y1/jsManager.loadFloatSetting("terrain detail"))*MAPHEIGHTNOISESCALE);
         }
-        heightMap[toMapIndex(mapWidth, y, 0, y1)] = noise(((mapWidth+1))*MAPHEIGHTNOISESCALE, (y+y1/jsManager.loadFloatSetting("terrain detail"))*MAPHEIGHTNOISESCALE);
       }
-    }
-    for(int x = 0;x<mapWidth;x++){
-      for(int x1 = 0;x1<jsManager.loadFloatSetting("terrain detail");x1++){
-        heightMap[toMapIndex(x, mapHeight, x1, 0)] = noise((x+x1/jsManager.loadFloatSetting("terrain detail"))*MAPHEIGHTNOISESCALE, (mapHeight)*MAPHEIGHTNOISESCALE);
+      for(int x = 0;x<mapWidth;x++){
+        for(int x1 = 0;x1<jsManager.loadFloatSetting("terrain detail");x1++){
+          heightMap[toMapIndex(x, mapHeight, x1, 0)] = noise((x+x1/jsManager.loadFloatSetting("terrain detail"))*MAPHEIGHTNOISESCALE, (mapHeight)*MAPHEIGHTNOISESCALE);
+        }
       }
+      heightMap[toMapIndex(mapWidth, mapHeight, 0, 0)] = noise(((mapWidth+1))*MAPHEIGHTNOISESCALE, (mapHeight)*MAPHEIGHTNOISESCALE);
     }
-    heightMap[toMapIndex(mapWidth, mapHeight, 0, 0)] = noise(((mapWidth+1))*MAPHEIGHTNOISESCALE, (mapHeight)*MAPHEIGHTNOISESCALE);
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error generating noise map", e);
+      throw e;
+    }
   }
   void setHeightsForCell(int x, int y, float h){
     // Set all the heightmap heights in cell to h
-    int cellIndex;
-    for (int x1 = 0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++){
-      for (int y1 = 0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++){
-        cellIndex = toMapIndex(x, y, x1, y1);
-        heightMap[cellIndex] = h;
+    try{
+      int cellIndex;
+      for (int x1 = 0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++){
+        for (int y1 = 0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++){
+          cellIndex = toMapIndex(x, y, x1, y1);
+          heightMap[cellIndex] = h;
+        }
       }
+    }
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error setting height for cell with height %s and pos: (%s, %s)", x, y, h), e);
+      throw e;
     }
   }
   float getRawHeight(int x, int y, int x1, int y1) {
@@ -623,8 +727,9 @@ class BaseMap extends Element{
         // println("A request for the height at a tile outside the map has been made. Ideally this should be prevented earlier"); // Uncomment this when we want to fix it
         return jsManager.loadFloatSetting("water level");
       }
-    } catch (ArrayIndexOutOfBoundsException e) {
-      println("this message should never appear. Uncaught request for height at ", x, y, x1, y1);
+    } 
+    catch (ArrayIndexOutOfBoundsException e) {
+      LOGGER_MAIN.warning(String.format("Uncaught request for height at (%s, %s) (%s, %s)", x, y, x1, y1));
       return jsManager.loadFloatSetting("water level");
     }
   }
@@ -638,36 +743,55 @@ class BaseMap extends Element{
     return getRawHeight(int(x), int(y), round((x-int(x))*jsManager.loadFloatSetting("terrain detail")), round((y-int(y))*jsManager.loadFloatSetting("terrain detail")));
   }
   float groundMinRawHeightAt(int x1, int y1) {
-    int x = floor(x1);
-    int y = floor(y1);
-    return min(new float[]{getRawHeight(x, y), getRawHeight(x+1, y), getRawHeight(x, y+1), getRawHeight(x+1, y+1)});
+    try{
+      int x = floor(x1);
+      int y = floor(y1);
+      return min(new float[]{getRawHeight(x, y), getRawHeight(x+1, y), getRawHeight(x, y+1), getRawHeight(x+1, y+1)});
+    }
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error getting min raw ground height at: (%s, %s)", x1, y1), e);
+      throw e;
+    }
   }
   float groundMaxRawHeightAt(int x1, int y1) {
-    int x = floor(x1);
-    int y = floor(y1);
-    return max(new float[]{getRawHeight(x, y), getRawHeight(x+1, y), getRawHeight(x, y+1), getRawHeight(x+1, y+1)});
+    try{
+      int x = floor(x1);
+      int y = floor(y1);
+      return max(new float[]{getRawHeight(x, y), getRawHeight(x+1, y), getRawHeight(x, y+1), getRawHeight(x+1, y+1)});
+    }
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error getting max raw ground height at: (%s, %s)", x1, y1), e);
+      throw e;
+    }
   }
   boolean isWater(int x, int y){
     return groundMaxRawHeightAt(x, y) == jsManager.loadFloatSetting("water level");
   }
   
   float getMaxSteepness(int x, int y){
-    float maxZ, minZ;
-    maxZ = 0;
-    minZ = 1;
-    for (float y1 = y; y1<=y+1;y1+=1.0/jsManager.loadFloatSetting("terrain detail")){
-      for (float x1 = x; x1<=x+1;x1+=1.0/jsManager.loadFloatSetting("terrain detail")){
-        float z = getRawHeight(x1, y1);
-        if(z>maxZ){
-          maxZ = z;
-        } else if (z<minZ){
-          minZ = z;
+    try{
+      float maxZ, minZ;
+      maxZ = 0;
+      minZ = 1;
+      for (float y1 = y; y1<=y+1;y1+=1.0/jsManager.loadFloatSetting("terrain detail")){
+        for (float x1 = x; x1<=x+1;x1+=1.0/jsManager.loadFloatSetting("terrain detail")){
+          float z = getRawHeight(x1, y1);
+          if(z>maxZ){
+            maxZ = z;
+          } else if (z<minZ){
+            minZ = z;
+          }
         }
       }
+      return maxZ-minZ;
     }
-    return maxZ-minZ;
+    catch (Exception e){
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error getting max steepness at: (%s, %s)", x, y), e);
+      throw e;
+    }
   }
 }
+
 
 class Map2D extends BaseMap implements Map{
   final int EW, EH, INITIALHOLD=1000;
@@ -694,6 +818,7 @@ class Map2D extends BaseMap implements Map{
   PVector rocketVelocity;
 
   Map2D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight){
+    LOGGER_MAIN.fine("Initialsing map");
     xPos = x;
     yPos = y;
     EW = w;
@@ -814,6 +939,7 @@ class Map2D extends BaseMap implements Map{
     return targetBlockSize;
   }
   float [] targetCell(int x, int y, float bs){
+    LOGGER_MAIN.finer(String.format("Targetting cell: %s, %s block size: ", x, y, bs));
     targetBlockSize = bs;
     targetXOffset = -(x+0.5)*targetBlockSize+elementWidth/2+xPos;
     targetYOffset = -(y+0.5)*targetBlockSize+elementHeight/2+yPos;
@@ -1194,12 +1320,14 @@ class Map2D extends BaseMap implements Map{
   }
   
   void enableRocket(PVector pos, PVector vel){
+    LOGGER_MAIN.fine("Rocket enabled in 2d map");
     drawRocket = true;
     rocketPosition = pos;
     rocketVelocity = vel;
   }
   
   void disableRocket(){
+    LOGGER_MAIN.fine("Rocket disabled in 2d map");
     drawRocket = false;
   }
   
