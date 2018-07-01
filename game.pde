@@ -1309,7 +1309,7 @@ class Game extends State{
               notificationManager.post("Parties Merged", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
               int movementPoints = min(parties[path.get(node)[1]][path.get(node)[0]].getMovementPoints(), p.getMovementPoints()-cost);
               int overflow = parties[path.get(node)[1]][path.get(node)[0]].changeUnitNumber(p.getUnitNumber()); // Units left over after merging
-              LOGGER_GAME.fine(String.format("Parties merged at (%d, %d) from party with id: %s to party with id:%s. Overflow units:%d, Movement points of combined parties:%d. Units transfered:%d",
+              LOGGER_GAME.fine(String.format("Parties merged at (%d, %d) from party with id: %s to party with id:%s. Movement points of combined parties:%d. Units transfered:%d",
                 (int)path.get(node)[0], (int)path.get(node)[1], p.getID(), parties[path.get(node)[1]][path.get(node)[0]].getID(), movementPoints, p.getUnitNumber()));
                 
               if(cellFollow){
