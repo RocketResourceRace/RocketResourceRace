@@ -44,7 +44,7 @@ class Party{
     return "temp";
   }
   void changeTask(int task){
-    LOGGER_GAME.info("Party changing task to:"+gameData.getJSONArray("tasks").getJSONObject(task).getString("id"));
+    //LOGGER_GAME.info("Party changing task to:"+gameData.getJSONArray("tasks").getJSONObject(task).getString("id")); Removed as this is called too much for battle estimates
     this.task = task;
     JSONObject jTask = gameData.getJSONArray("tasks").getJSONObject(this.getTask());
     if (!jTask.isNull("strength")){
@@ -81,7 +81,7 @@ class Party{
     path.remove(0);
   }
   void clearPath(){
-    LOGGER_GAME.finer("Clearing party path");
+    //LOGGER_GAME.finer("Clearing party path"); Removed as this is called too much for battle estimates
     path = new ArrayList<int[]>();
     pathTurns=0;
   }
