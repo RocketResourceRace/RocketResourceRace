@@ -6,6 +6,7 @@ class BaseFileManager extends Element{
   String folderString;
   String[] saveNames;
   int selected, rowHeight, numDisplayed, scroll;
+  boolean scrolling;
   
   
   BaseFileManager(int x, int y, int w, int h, String folderString){
@@ -18,6 +19,7 @@ class BaseFileManager extends Element{
     selected = 0;
     rowHeight = ceil(TEXTSIZE * jsManager.loadFloatSetting("text scale"))+5;
     scroll = 0;
+    scrolling = false;
   }
   
   String getNextAutoName(){
@@ -61,16 +63,65 @@ class BaseFileManager extends Element{
   
   ArrayList<String> mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
-    
+    int d = saveNames.length - numDisplayed;
     if (eventType.equals("mouseClicked")){
       if (moveOver()){
-        selected = hoveringOption();
-        events.add("valueChanged");
+        if (d <= 0 || mouseX<x+w-SCROLLWIDTH){
+          // If not hovering over scroll bar, then select item
+          selected = hoveringOption();
+          events.add("valueChanged");
+          scrolling = false;
+        }
+      }
+    }
+    else if (eventType.equals("mousePressed")){
+      if (d > 0 && mouseX>x+w-SCROLLWIDTH){  
+        // If hovering over scroll bar, set scroll to move pos
+        scrolling = true;
+        scroll = round(between(0, (mouseY-y)*(d+1)/h, d));
+      }
+      else{
+        scrolling = false;
       }
     }
     
     return events;
   }
+  //ArrayList<String> mouseEvent(String eventType, int button){
+  //  ArrayList<String> events = new ArrayList<String>();
+  //  if (eventType == "mousePressed"){
+  //    if (moveOver() && mouseX-xOffset>x+w-20*jsManager.loadFloatSetting("gui scale") && mouseY-yOffset > topOffset && notifications.get(turn).size() > displayNots){
+  //      scrolling = true;
+  //      scroll = round(between(0, (mouseY-yOffset-y-topOffset)*(notifications.get(turn).size()-displayNots+1)/(h-topOffset), notifications.get(turn).size()-displayNots));
+  //    }
+  //    else{
+  //      scrolling = false;
+  //    }
+  //  }
+  //  if (eventType == "mouseDragged"){
+  //    if (scrolling && notifications.get(turn).size() > displayNots){
+  //      scroll = round(between(0, (mouseY-yOffset-y-topOffset)*(notifications.get(turn).size()-displayNots+1)/(h-topOffset), notifications.get(turn).size()-displayNots));
+  //    }
+      
+  //  }
+  //  if (eventType == "mouseClicked"){
+  //    int hovering = findMouseOver();
+  //    if (hovering >=0){
+  //      if (mouseX-xOffset<x+notHeight){
+  //        dismiss(hovering+scroll);
+  //        events.add("notification dismissed");
+  //      }
+  //      else if (!(notifications.get(turn).size() > displayNots) || !(mouseX-xOffset>x+w-20*jsManager.loadFloatSetting("gui scale"))){
+  //        lastSelected = notifications.get(turn).get(hovering+scroll);
+  //        events.add("notification selected");
+  //      }
+  //    }
+  //    else if (mouseX-xOffset<x+notHeight && hoveringDismissAll()){
+  //      dismissAll();
+  //    }
+  //  }
+  //  return events;
+  //}
   
   ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
     ArrayList<String> events = new ArrayList<String>();
@@ -123,6 +174,7 @@ class BaseFileManager extends Element{
     }
     
     // Draw the scroll bar
+    panelCanvas.strokeWeight(2);
     int d = saveNames.length - numDisplayed;
     if (d > 0){
       panelCanvas.fill(120);

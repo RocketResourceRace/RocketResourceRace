@@ -16,3 +16,4 @@ error_log
 data/settings.json
 *.log
 *.lck
+settings.json
