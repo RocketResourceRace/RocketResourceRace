@@ -589,57 +589,60 @@ class Game extends State{
         makeTaskAvailable(parties[cellY][cellX].currentAction());
         LOGGER_GAME.finer("Keeping current task available:"+parties[cellY][cellX].currentAction());
       }
-  
-      for(int i=0; i<gameData.getJSONArray("tasks").size(); i++){
-        js = gameData.getJSONArray("tasks").getJSONObject(i);
-        if (!js.isNull("terrain"))
-          correctTerrain = JSONContainsStr(js.getJSONArray("terrain"), terrainString(terrain[cellY][cellX]));
-        else
-          correctTerrain = true;
-        correctBuilding = false;
-        enoughResources = true;
-        enoughMovementPoints = true;
-        if (!js.isNull("initial cost")){
-          for (int j=0; j<js.getJSONArray("initial cost").size(); j++){
-            JSONObject initialCost = js.getJSONArray("initial cost").getJSONObject(j);
-            if (players[turn].resources[jsManager.getResIndex((initialCost.getString("id")))]<(initialCost.getInt("quantity"))){
-              enoughResources = false;
+      if(parties[cellY][cellX].isTurn(turn)){
+        for(int i=0; i<gameData.getJSONArray("tasks").size(); i++){
+          js = gameData.getJSONArray("tasks").getJSONObject(i);
+          if (!js.isNull("terrain"))
+            correctTerrain = JSONContainsStr(js.getJSONArray("terrain"), terrainString(terrain[cellY][cellX]));
+          else
+            correctTerrain = true;
+          correctBuilding = false;
+          enoughResources = true;
+          enoughMovementPoints = true;
+          if (!js.isNull("initial cost")){
+            for (int j=0; j<js.getJSONArray("initial cost").size(); j++){
+              JSONObject initialCost = js.getJSONArray("initial cost").getJSONObject(j);
+              if (players[turn].resources[jsManager.getResIndex((initialCost.getString("id")))]<(initialCost.getInt("quantity"))){
+                enoughResources = false;
+              }
             }
           }
-        }
-        if (!js.isNull("movement points")){
-          if (parties[cellY][cellX].movementPoints < js.getInt("movement points")){
-              enoughMovementPoints = false;
+          if (!js.isNull("movement points")){
+            if (parties[cellY][cellX].movementPoints < js.getInt("movement points")){
+                enoughMovementPoints = false;
+            }
           }
-        }
-  
-        if (js.isNull("auto enabled")||!js.getBoolean("auto enabled")){
-          if (js.isNull("buildings")){
-            if (js.getString("id").equals("Demolish") && buildings[cellY][cellX] != null)
-              correctBuilding = true;
-            else if(!js.getString("id").equals("Demolish"))
-              correctBuilding = true;
-          }
-          else{
-            if (js.getJSONArray("buildings").size() > 0){
-              if (buildings[cellY][cellX] != null)
-              if (buildings[cellY][cellX] != null && JSONContainsStr(js.getJSONArray("buildings"), buildingString(buildings[cellY][cellX].type)))
+    
+          if (js.isNull("auto enabled")||!js.getBoolean("auto enabled")){
+            if (js.isNull("buildings")){
+              if (js.getString("id").equals("Demolish") && buildings[cellY][cellX] != null)
+                correctBuilding = true;
+              else if(!js.getString("id").equals("Demolish"))
                 correctBuilding = true;
             }
-            else if (buildings[cellY][cellX] == null){
-              correctBuilding = true;
+            else{
+              if (js.getJSONArray("buildings").size() > 0){
+                if (buildings[cellY][cellX] != null)
+                if (buildings[cellY][cellX] != null && JSONContainsStr(js.getJSONArray("buildings"), buildingString(buildings[cellY][cellX].type)))
+                  correctBuilding = true;
+              }
+              else if (buildings[cellY][cellX] == null){
+                correctBuilding = true;
+              }
+            }
+          }
+    
+          if (correctTerrain && correctBuilding){
+            if (enoughResources && enoughMovementPoints){
+              makeTaskAvailable(i);
+            }
+            else{
+              makeAvailableButOverBudget(i);
             }
           }
         }
-  
-        if (correctTerrain && correctBuilding){
-          if (enoughResources && enoughMovementPoints){
-            makeTaskAvailable(i);
-          }
-          else{
-            makeAvailableButOverBudget(i);
-          }
-        }
+      } else {
+        makeTaskAvailable(parties[cellY][cellX].getTask());
       }
       ((TaskManager)getElement("tasks", "party management")).select(jsManager.gameData.getJSONArray("tasks").getJSONObject(parties[cellY][cellX].getTask()).getString("id"));
     }
@@ -1610,8 +1613,8 @@ class Game extends State{
       map.selectCell(cellX, cellY);
       //map.setWidth(round(width-bezel*2-400));
       getPanel("land management").setVisible(true);
-      if (parties[cellY][cellX] != null && parties[cellY][cellX].isTurn(turn)){
-        if (parties[cellY][cellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle")){
+      if (parties[cellY][cellX] != null && (parties[cellY][cellX].isTurn(turn) || jsManager.loadBooleanSetting("show all party managements"))){
+        if (parties[cellY][cellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle") && parties[cellY][cellX].isTurn(turn)){
           ((Slider)getElement("split units", "party management")).show();
         }
         else{
@@ -1623,7 +1626,7 @@ class Game extends State{
         } else {
           ((Slider)getElement("split units", "party management")).setScale(1, parties[cellY][cellX].getUnitNumber(), parties[cellY][cellX].getUnitNumber(), 1, parties[cellY][cellX].getUnitNumber()/2);
         }
-        if (turn == 1){
+        if (parties[cellY][cellX].player == 1){
           partyManagementColour = color(170, 30, 30);
           getPanel("party management").setColour(color(220, 70, 70));
         } else {
