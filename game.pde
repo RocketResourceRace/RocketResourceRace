@@ -820,8 +820,8 @@ class Game extends State{
         }
       }
       partyMovementPointsReset();
-      
       LOGGER_GAME.finer("Loading other player camera positions");
+      partyMovementPointsReset();
       float mapXOffset;
       float mapYOffset;
       if (map.isPanning()){
@@ -839,19 +839,20 @@ class Game extends State{
       }
       players[turn].saveSettings(map.getTargetOffsetX(), map.getTargetOffsetY(), blockSize, cellX, cellY, cellSelected);
       turn = (turn + 1)%2;
+      map.generateFog(turn);
       players[turn].loadSettings(this, map);
       changeTurn = false;
       TextBox t = ((TextBox)(getElement("turn number", "bottom bar")));
       t.setColour(players[turn].colour);
       t.setText("Turn "+turnNumber);
-  
+
       this.totals = totalResources();
       ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
       rs.updateNet(totals);
       rs.updateStockpile(players[turn].resources);
-  
+
       notificationManager.turnChange(turn);
-  
+
       if (anyIdle(turn)){
         LOGGER_GAME.finest("Idle party set to red becuase idle parties found");
         ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
@@ -860,10 +861,6 @@ class Game extends State{
         LOGGER_GAME.finest("Idle party set to grey becuase no idle parties found");
         ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
       }
-  
-      if (turn == 0) // Update turn when full cycle of turns has happened
-        turnNumber ++;
-    }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error changing turn", e);
       throw e;
@@ -1418,6 +1415,9 @@ class Game extends State{
     catch (IndexOutOfBoundsException e){
       LOGGER_MAIN.log(Level.SEVERE, String.format("Error with indices out of bounds when moving party at cell:%s, %s", px, py), e);
     }
+    
+    map.generateFog(turn);
+    
   }
   int getMoveTurns(int startX, int startY, int targetX, int targetY, Node[][] nodes){
     int movementPoints;
@@ -2001,6 +2001,7 @@ class Game extends State{
     }
     ((Console)getElement("console", "console")).giveMap(map);
     
+    map.generateFog(turn);
     battleEstimateManager = new BattleEstimateManager(parties);
     //for(int i=0;i<NUMOFBUILDINGTYPES;i++){
     //  buildings[(int)playerStarts[0].y][(int)playerStarts[0].x+i] = new Building(1+i);
