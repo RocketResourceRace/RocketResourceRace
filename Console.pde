@@ -141,6 +141,25 @@ class Console extends Element{
                 sendLine("Invalid number of arguments for display sub_tile_boundaries");
               }
               break;
+            case "cell_coords":
+              if(splitCommand.length==3){
+                String value = splitCommand[2].toLowerCase();
+                Boolean setting;
+                if(value.equals("true") || value.equals("t") || value.equals("1")){
+                  setting = true;
+                } else if (value.equals("false") || value.equals("f")|| value.equals("0")){
+                  setting = false;
+                } else {
+                  sendLine("Invalid argument for display cell_coords: give either true or false");
+                  return;
+                }
+                sendLine("Changing cell_coords setting");
+                jsManager.saveSetting("show cell coords", setting);
+                sendLine("cell_coords setting changed!");
+              } else {
+                sendLine("Invalid number of arguments for display cell_coords");
+              }
+              break;
             default:
               sendLine("Invalid argument for display");
               break;
