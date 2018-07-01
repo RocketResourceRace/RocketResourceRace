@@ -90,6 +90,9 @@ class BaseFileManager extends Element{
         scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/h, d));
       }
     }
+    else if (eventType.equals("mouseReleased")){
+      scrolling = false;
+    }
     
     return events;
   }
@@ -185,7 +188,12 @@ class BaseFileManager extends Element{
     if (d > 0){
       panelCanvas.fill(120);
       panelCanvas.rect(x+w-SCROLLWIDTH, y, SCROLLWIDTH, h);
-      panelCanvas.fill(50);
+      if (scrolling){
+        panelCanvas.fill(40);
+      }
+      else{
+        panelCanvas.fill(70);
+      }
       panelCanvas.stroke(0);
       panelCanvas.rect(x+w-SCROLLWIDTH, y+(h-h/(d+1))*scroll/d, SCROLLWIDTH, h/(d+1));
     }
