@@ -163,9 +163,6 @@ class BaseFileManager extends Element{
     numDisplayed = ceil(h/rowHeight);
     panelCanvas.pushStyle();
     
-    panelCanvas.fill(200);
-    panelCanvas.rect(x, y, w, h);
-    
     panelCanvas.textSize(TEXTSIZE * jsManager.loadFloatSetting("text scale"));
     panelCanvas.textAlign(LEFT, TOP);
     for (int i=scroll; i<min(numDisplayed+scroll, saveNames.length); i++){

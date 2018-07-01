@@ -219,7 +219,7 @@ class State{
         }
       }
       for (Panel panel : panels){
-        if(activePanel == panel.id && panel.mouseOver() && panel.visible){
+        if(activePanel == panel.id && panel.mouseOver() && panel.visible || panel.overrideBlocking){
           // Iterate in reverse order
           for (int i=panel.elements.size()-1; i>=0; i--){
             if (panel.elements.get(i).active){
