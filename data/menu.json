@@ -524,5 +524,6 @@
     {"id": "tile stroke", "value": false, "type": "boolean"},
     {"id": "starting block size", "value": 42, "type": "int"},
     {"id": "fog of war", "value": false, "type": "boolean"},
+    {"id": "show cell coords", "value": false, "type": "boolean"},
   ]
 }

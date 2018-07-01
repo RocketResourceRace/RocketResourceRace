@@ -1773,8 +1773,10 @@ class Game extends State{
     panelCanvas.fill(0);
     panelCanvas.textAlign(LEFT, TOP);
     float barY = cellSelectionY + 13*jsManager.loadFloatSetting("text scale");
-    panelCanvas.text(String.format("Cell reference: %s, %s", cellX, cellY), 5+cellSelectionX, barY);
-    barY += 13*jsManager.loadFloatSetting("text scale");
+    if(jsManager.loadBooleanSetting("show cell coords")){
+      panelCanvas.text(String.format("Cell reference: %s, %s", cellX, cellY), 5+cellSelectionX, barY);
+      barY += 13*jsManager.loadFloatSetting("text scale");
+    }
     panelCanvas.text("Cell Type: "+gameData.getJSONArray("terrain").getJSONObject(terrain[cellY][cellX]-1).getString("display name"), 5+cellSelectionX, barY);
     barY += 13*jsManager.loadFloatSetting("text scale");
     if (buildings[cellY][cellX] != null){
