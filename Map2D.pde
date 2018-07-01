@@ -302,9 +302,13 @@ class BaseMap extends Element{
         for (float r: p.resources){
           buffer.putFloat(r);
         }
-        LOGGER_MAIN.fine("Saving map to file");
-        saveBytes(filename, buffer.array());
+        buffer.putInt(p.cellX);
+        buffer.putInt(p.cellY);
+        buffer.putInt(p.colour);
+        buffer.put(byte(p.cellSelected));
       }
+      LOGGER_MAIN.fine("Saving map to file");
+      saveBytes(filename, buffer.array());
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error saving map", e);
@@ -395,20 +399,27 @@ class BaseMap extends Element{
           }
         }
       }
-      LOGGER_MAIN.finer("Loading players");
+      LOGGER_MAIN.finer("Loading players, count="+playerCount);
       Player[] players = new Player[playerCount];
       for (int i=0;i<playerCount;i++){
         float mapXOffset = buffer.getFloat();
         float mapYOffset = buffer.getFloat();
         float blockSize = buffer.getFloat();
         float[] resources = new float[resourceCountNew];
+        LOGGER_MAIN.finer(String.format("player %d. Map offset: (%f, %f) blocksize:%f, resources:%s", i, mapXOffset, mapYOffset, blockSize, Arrays.toString(resources)));
         for (int r=0; r<resourceCountOld;r++){
           resources[r] = buffer.getFloat();
         }
-        LOGGER_MAIN.finer("Seeding height map noise with: "+heightMapSeed);
-        noiseSeed(heightMapSeed);
-        generateNoiseMaps();
+        int cellX = buffer.getInt();
+        int cellY = buffer.getInt();
+        int colour = buffer.getInt();
+        boolean cellSelected = boolean(buffer.get());
+        players[i] = new Player(mapXOffset, mapYOffset, blockSize, resources, colour);
+        players[i].cellSelected = cellSelected;
       }
+      LOGGER_MAIN.finer("Seeding height map noise with: "+heightMapSeed);
+      noiseSeed(heightMapSeed);
+      generateNoiseMaps();
       return new MapSave(heightMap, mapWidth, mapHeight, terrain, parties, buildings, turnNumber, turnPlayer, players);
     }
     
