@@ -66,7 +66,7 @@ class BaseFileManager extends Element{
     int d = saveNames.length - numDisplayed;
     if (eventType.equals("mouseClicked")){
       if (moveOver()){
-        if (d <= 0 || mouseX<x+w-SCROLLWIDTH){
+        if (d <= 0 || mouseX-xOffset<x+w-SCROLLWIDTH){
           // If not hovering over scroll bar, then select item
           selected = hoveringOption();
           events.add("valueChanged");
@@ -75,10 +75,10 @@ class BaseFileManager extends Element{
       }
     }
     else if (eventType.equals("mousePressed")){
-      if (d > 0 && mouseX>x+w-SCROLLWIDTH){  
+      if (d > 0 && mouseX-xOffset>x+w-SCROLLWIDTH){  
         // If hovering over scroll bar, set scroll to mouse pos
         scrolling = true;
-        scroll = round(between(0, (mouseY-y)*(d+1)/h, d));
+        scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/h, d));
       }
       else{
         scrolling = false;
@@ -87,7 +87,7 @@ class BaseFileManager extends Element{
     else if (eventType.equals("mouseDragged")){
       if (scrolling && d > 0){  
         // If scrolling, set scroll to mouse pos
-        scroll = round(between(0, (mouseY-y)*(d+1)/h, d));
+        scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/h, d));
       }
     }
     
