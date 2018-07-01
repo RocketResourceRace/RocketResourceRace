@@ -302,9 +302,13 @@ class BaseMap extends Element{
         for (float r: p.resources){
           buffer.putFloat(r);
         }
-        LOGGER_MAIN.fine("Saving map to file");
-        saveBytes(filename, buffer.array());
+        buffer.putInt(p.cellX);
+        buffer.putInt(p.cellY);
+        buffer.putInt(p.colour);
+        buffer.put(byte(p.cellSelected));
       }
+      LOGGER_MAIN.fine("Saving map to file");
+      saveBytes(filename, buffer.array());
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error saving map", e);
@@ -326,7 +330,8 @@ class BaseMap extends Element{
         versionCheckInt = true;
         mapWidth = headerBuffer.getInt();
         versionSpecificData += Integer.BYTES;
-      } else {
+      } 
+      else {
         LOGGER_MAIN.info("Loading old save with party size 1000");
         mapWidth = -versionCheck;
         jsManager.saveSetting("party size", 1000);
@@ -338,7 +343,8 @@ class BaseMap extends Element{
       ByteBuffer buffer = ByteBuffer.allocate(dataSize);
       if(versionCheckInt){
         buffer.put(Arrays.copyOfRange(tempBuffer, headerSize, headerSize+dataSize));
-      } else {
+      } 
+      else {
         buffer.put(Arrays.copyOfRange(tempBuffer, headerSize-Integer.BYTES, headerSize-Integer.BYTES+dataSize));
       }
       buffer.flip();//need flip
@@ -390,7 +396,8 @@ class BaseMap extends Element{
             Battle b = new Battle(p1, p2);
             b.party1.strength = savedStrength;
             parties[y][x] = b;
-          } else if (partyType == 1){
+          } 
+          else if (partyType == 1){
             parties[y][x] = loadParty(buffer);
           }
         }
