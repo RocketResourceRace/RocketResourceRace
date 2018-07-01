@@ -15,6 +15,7 @@
   "terrain detail": 2,
   "party size": 200,
   "terrain texture resolution": 32,
+  "fog of war": true,
   "sand weighting": 0.20000000298023224,
   "framerate cap": true,
   "volume": 0.75,

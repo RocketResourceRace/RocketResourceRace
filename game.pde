@@ -861,6 +861,7 @@ class Game extends State{
         LOGGER_GAME.finest("Idle party set to grey becuase no idle parties found");
         ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
       }
+    }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error changing turn", e);
       throw e;
