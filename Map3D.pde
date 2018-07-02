@@ -253,7 +253,7 @@ class Map3D extends BaseMap implements Map {
   }
   void updateHoveringScale() {
     try{
-      PVector mo = MousePosOnObject(mouseX, mouseY);
+      PVector mo = MousePosOnObject();
       hoveringX = (mo.x)/getObjectWidth()*mapWidth;
       hoveringY = (mo.y)/getObjectHeight()*mapHeight;
     }
@@ -813,7 +813,7 @@ class Map3D extends BaseMap implements Map {
     }
   }
 
-  PVector MousePosOnObject(int mx, int my) {
+  PVector MousePosOnObject() {
     try{
       applyCameraPerspective();
       PVector floorPos = new PVector(focusedX+width/2, focusedY+height/2, 0);
@@ -1107,7 +1107,6 @@ class Map3D extends BaseMap implements Map {
 
   void drawPath(PGraphics canvas) {
     try{
-      float x0, y0;
       if (drawPath != null) {
         canvas.shape(pathLine);
       }
@@ -1232,9 +1231,9 @@ class Map3D extends BaseMap implements Map {
 
   }
 
-  void renderTexturedEntities(PGraphics canvas) {
+  //void renderTexturedEntities(PGraphics canvas) {
     
-  }
+  //}
   
   void drawUnitBar(int x, int y, PGraphics canvas){
     try{
@@ -1326,8 +1325,8 @@ class Map3D extends BaseMap implements Map {
   PVector getUnProjectedPointOnFloor(float screen_x, float screen_y, PVector floorPosition, PVector floorDirection) {
     
     try{
-      PVector f = floorPosition.get(); // Position of the floor
-      PVector n = floorDirection.get(); // The direction of the floor ( normal vector )
+      PVector f = floorPosition.copy(); // Position of the floor
+      PVector n = floorDirection.copy(); // The direction of the floor ( normal vector )
       PVector w = unProject(screen_x, screen_y, -1.0); // 3 -dimensional coordinate corresponding to a point on the screen
       PVector e = getEyePosition(); // Viewpoint position
   

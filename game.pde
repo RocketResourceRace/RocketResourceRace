@@ -819,15 +819,6 @@ class Game extends State{
       partyMovementPointsReset();
       
       LOGGER_GAME.finer("Loading other player camera positions");
-      float mapXOffset;
-      float mapYOffset;
-      if (map.isPanning()){
-        mapXOffset = map.getFocusedX();
-        mapYOffset = map.getFocusedY();
-      } else {
-        mapXOffset = map.getFocusedX();
-        mapYOffset = map.getFocusedY();
-      }
       float blockSize;
       if (map.isZooming()){
         blockSize = map.getTargetZoom();
@@ -1797,7 +1788,7 @@ class Game extends State{
     }
   }
 
-  String getResourceString(float amount, PGraphics panelCanvas){
+  String getResourceString(float amount){
     String tempString = roundDp(""+amount, 1);
     if (amount >= 0){
       fill(0);
@@ -1990,13 +1981,13 @@ class Game extends State{
       players[0] = new Player(conditions1[0], conditions1[1], jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0,0,255));
       turn = 0;
       turnNumber = 0;
+      deselectCell();
     }
     
     battleEstimateManager = new BattleEstimateManager(parties);
     //for(int i=0;i<NUMOFBUILDINGTYPES;i++){
     //  buildings[(int)playerStarts[0].y][(int)playerStarts[0].x+i] = new Building(1+i);
     //}
-    deselectCell();
     tooltip.hide();
     winner = -1;
     this.totals = totalResources();

@@ -416,6 +416,8 @@ class BaseMap extends Element{
         boolean cellSelected = boolean(buffer.get());
         players[i] = new Player(mapXOffset, mapYOffset, blockSize, resources, colour);
         players[i].cellSelected = cellSelected;
+        players[i].cellX = cellX;
+        players[i].cellY = cellY;
       }
       LOGGER_MAIN.finer("Seeding height map noise with: "+heightMapSeed);
       noiseSeed(heightMapSeed);
