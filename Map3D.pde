@@ -165,23 +165,38 @@ class Map3D extends BaseMap implements Map {
     moveNodes = nodes;
     updatePossibleMoves();
   }
-  void updatePath(ArrayList<int[]> nodes) {
-    //LOGGER_MAIN.finer("Updating path");
+  
+  void updatePath (ArrayList<int[]> path, int[] target){
+    // Use when updaing with a target node
+    ArrayList<int[]> tempPath = new ArrayList<int[]>(path);
+    tempPath.add(target);
+    updatePath(tempPath);
+  }
+  
+  void updatePath(ArrayList<int[]> path) {
+    LOGGER_MAIN.finer("Updating path");
     float x0, y0;
-    drawPath = nodes;
     pathLine = createShape();
     pathLine.beginShape();
     pathLine.noFill();
-    pathLine.stroke(255, 0, 0);
-    for (int i=0; i<drawPath.size()-1; i++) {
+    if (drawPath == null){
+      pathLine.stroke(150);
+    }
+    else{
+      pathLine.stroke(255, 0, 0);
+    }
+    for (int i=0; i<path.size()-1; i++) {
       for (int u=0; u<blockSize/8; u++) {
-        x0 = drawPath.get(i)[0]+(drawPath.get(i+1)[0]-drawPath.get(i)[0])*u/8+0.5;
-        y0 = drawPath.get(i)[1]+(drawPath.get(i+1)[1]-drawPath.get(i)[1])*u/8+0.5;
+        x0 = path.get(i)[0]+(path.get(i+1)[0]-path.get(i)[0])*u/8+0.5;
+        y0 = path.get(i)[1]+(path.get(i+1)[1]-path.get(i)[1])*u/8+0.5;
         pathLine.vertex(x0*blockSize, y0*blockSize, 5+getHeight(x0, y0));
       }
     }
-    pathLine.vertex((selectedCellX+0.5)*blockSize, (selectedCellY+0.5)*blockSize, 5+getHeight(selectedCellX+0.5, selectedCellY+0.5));
+    if (drawPath != null){
+      pathLine.vertex((selectedCellX+0.5)*blockSize, (selectedCellY+0.5)*blockSize, 5+getHeight(selectedCellX+0.5, selectedCellY+0.5));
+    }
     pathLine.endShape();
+    drawPath = path;
   }
   void updatePossibleMoves(){
     // For the shape that indicateds where a party can move
@@ -366,7 +381,7 @@ class Map3D extends BaseMap implements Map {
   
   void loadMapStrip(int y, PShape tiles, boolean loading){
     try{
-      LOGGER_MAIN.fine("Loading map strip y:"+y+" loading: "+loading);
+      LOGGER_MAIN.finer("Loading map strip y:"+y+" loading: "+loading);
       tempTerrain = createGraphics(round((1+mapWidth)*jsManager.loadIntSetting("terrain texture resolution")), round(jsManager.loadIntSetting("terrain texture resolution")));
       tempSingleRow = createShape();
       tempRow = createShape(GROUP);
@@ -467,7 +482,7 @@ class Map3D extends BaseMap implements Map {
   
   void replaceMapStripWithReloadedStrip(int y){
     try{
-      LOGGER_MAIN.fine("Replace strip y: "+y);
+      LOGGER_MAIN.fine("Replacing strip y: "+y);
       tiles.removeChild(y);
       loadMapStrip(y, tiles, false);
     }
@@ -955,6 +970,10 @@ class Map3D extends BaseMap implements Map {
   void applyInvCamera(PGraphics canvas) {
     canvas.camera(focusedX+width/2+zoom*sin(tilt)*sin(rot), focusedY+height/2+zoom*sin(tilt)*cos(rot), -zoom*cos(tilt), focusedX+width/2, focusedY+height/2, 0, 0, 0, -1);
   }
+  
+  void keyboardControls(){
+    
+  }
 
 
   void draw(PGraphics panelCanvas) {
@@ -1044,6 +1063,12 @@ class Map3D extends BaseMap implements Map {
         oldHoveringX = hoveringX;
         oldHoveringY = hoveringY;
       }
+      
+      
+     if (drawPath == null && cellSelected && parties[selectedCellY][selectedCellX] != null){
+       ArrayList<int[]> path = parties[selectedCellY][selectedCellX].path;
+       updatePath(path, parties[selectedCellY][selectedCellX].target);
+     }
   
   
       pushStyle();
