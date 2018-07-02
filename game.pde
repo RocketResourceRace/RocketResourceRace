@@ -1868,7 +1868,7 @@ class Game extends State{
     panelCanvas.textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
     panelCanvas.textAlign(CENTER, BOTTOM);
     panelCanvas.fill(200);
-    int tw = ceil((textWidth(progressMessage)));
+    int tw = ceil((panelCanvas.textWidth(progressMessage)));
     panelCanvas.rect(width/2 -tw/2, y-10*jsManager.loadFloatSetting("text scale"), tw, 10*jsManager.loadFloatSetting("text scale"));
     panelCanvas.fill(0);
     panelCanvas.text(progressMessage, width/2, y);
