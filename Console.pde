@@ -179,6 +179,25 @@ class Console extends Element{
                 sendLine("Invalid number of arguments for display all_party_details");
               }
               break;
+            case "party_id":
+              if(splitCommand.length==3){
+                String value = splitCommand[2].toLowerCase();
+                Boolean setting;
+                if(value.equals("true") || value.equals("t") || value.equals("1")){
+                  setting = true;
+                } else if (value.equals("false") || value.equals("f")|| value.equals("0")){
+                  setting = false;
+                } else {
+                  sendLine("Invalid argument for display party_id: give either true or false");
+                  return;
+                }
+                sendLine("Changing party_id setting");
+                jsManager.saveSetting("show party id", setting);
+                sendLine("party_id setting changed!");
+              } else {
+                sendLine("Invalid number of arguments for display party_id");
+              }
+              break;
             default:
               sendLine("Invalid argument for display");
               break;
