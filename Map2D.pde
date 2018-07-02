@@ -439,6 +439,8 @@ class BaseMap extends Element{
         boolean cellSelected = boolean(buffer.get());
         players[i] = new Player(mapXOffset, mapYOffset, blockSize, resources, colour);
         players[i].cellSelected = cellSelected;
+        players[i].cellX = cellX;
+        players[i].cellY = cellY;
       }
       LOGGER_MAIN.fine("Seeding height map noise with: "+heightMapSeed);
       noiseSeed(heightMapSeed);
@@ -992,7 +994,7 @@ class Map2D extends BaseMap implements Map{
     zooming = true;
     return new float[]{targetXOffset, targetYOffset, targetBlockSize};
   }
-  void focusMapMouse(int x, int y){
+  void focusMapMouse(){
     // based on mouse click
     if(mouseOver()){
       targetXOffset = -scaleXInv()*blockSize+elementWidth/2+xPos;
@@ -1351,12 +1353,12 @@ class Map2D extends BaseMap implements Map{
   }
   void drawCroppedImage(int x, int y, int w, int h, PImage img, PGraphics panelCanvas){
     if (x+w>xPos && x<elementWidth+xPos && y+h>yPos && y<elementHeight+yPos){
-      int newX = max(min(x, xPos+elementWidth), xPos);
-      int newY = max(min(y, yPos+elementHeight), yPos);
-      int imgX = max(0, newX-x, 0);
-      int imgY = max(0, newY-y, 0);
-      int imgW = min(max(elementWidth+xPos-x, -sign(elementWidth+xPos-x)*(x+w-newX)), img.width);
-      int imgH = min(max(elementHeight+yPos-y, -sign(elementHeight+yPos-y)*(y+h-newY)), img.height);
+      //int newX = max(min(x, xPos+elementWidth), xPos);
+      //int newY = max(min(y, yPos+elementHeight), yPos);
+      //int imgX = max(0, newX-x, 0);
+      //int imgY = max(0, newY-y, 0);
+      //int imgW = min(max(elementWidth+xPos-x, -sign(elementWidth+xPos-x)*(x+w-newX)), img.width);
+      //int imgH = min(max(elementHeight+yPos-y, -sign(elementHeight+yPos-y)*(y+h-newY)), img.height);
       panelCanvas.image(img, x, y);
     }
   }

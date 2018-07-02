@@ -390,7 +390,7 @@ class JSONManager{
     // NOTE: "default value" in elements object means value is not saved to setting (and if not defined will be saved)
     try{
       int bgColour, strokeColour, textColour, textSize, major, minor;
-      float x, y, w, h, scale, lower, defaultValue, upper, step;
+      float x, y, w, h, scale, lower, upper, step;
       String type, id, text, setting;
       String[] options;
       JSONArray elements = findJSONObject(menu.getJSONArray("states"), panelID).getJSONArray("elements");

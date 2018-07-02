@@ -6,6 +6,7 @@ class BaseFileManager extends Element{
   String folderString;
   String[] saveNames;
   int selected, rowHeight, numDisplayed, scroll;
+  boolean scrolling;
   
   
   BaseFileManager(int x, int y, int w, int h, String folderString){
@@ -18,6 +19,7 @@ class BaseFileManager extends Element{
     selected = 0;
     rowHeight = ceil(TEXTSIZE * jsManager.loadFloatSetting("text scale"))+5;
     scroll = 0;
+    scrolling = false;
   }
   
   String getNextAutoName(){
@@ -61,12 +63,35 @@ class BaseFileManager extends Element{
   
   ArrayList<String> mouseEvent(String eventType, int button){
     ArrayList<String> events = new ArrayList<String>();
-    
+    int d = saveNames.length - numDisplayed;
     if (eventType.equals("mouseClicked")){
       if (moveOver()){
-        selected = hoveringOption();
-        events.add("valueChanged");
+        if (d <= 0 || mouseX-xOffset<x+w-SCROLLWIDTH){
+          // If not hovering over scroll bar, then select item
+          selected = hoveringOption();
+          events.add("valueChanged");
+          scrolling = false;
+        }
       }
+    }
+    else if (eventType.equals("mousePressed")){
+      if (d > 0 && mouseX-xOffset>x+w-SCROLLWIDTH){  
+        // If hovering over scroll bar, set scroll to mouse pos
+        scrolling = true;
+        scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/h, d));
+      }
+      else{
+        scrolling = false;
+      }
+    }
+    else if (eventType.equals("mouseDragged")){
+      if (scrolling && d > 0){  
+        // If scrolling, set scroll to mouse pos
+        scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/h, d));
+      }
+    }
+    else if (eventType.equals("mouseReleased")){
+      scrolling = false;
     }
     
     return events;
@@ -76,7 +101,7 @@ class BaseFileManager extends Element{
     ArrayList<String> events = new ArrayList<String>();
     if (eventType == "mouseWheel"){
       float count = event.getCount();
-      if (moveOver() && x+w-mouseX<SCROLLWIDTH){ // Check mouse over scroll bar
+      if (moveOver()){ // Check mouse over element
         if (saveNames.length > numDisplayed){
           scroll = round(between(0, scroll+count, saveNames.length-numDisplayed));
           LOGGER_MAIN.finest("Changing scroll to: "+scroll);
@@ -103,9 +128,6 @@ class BaseFileManager extends Element{
     numDisplayed = ceil(h/rowHeight);
     panelCanvas.pushStyle();
     
-    panelCanvas.fill(200);
-    panelCanvas.rect(x, y, w, h);
-    
     panelCanvas.textSize(TEXTSIZE * jsManager.loadFloatSetting("text scale"));
     panelCanvas.textAlign(LEFT, TOP);
     for (int i=scroll; i<min(numDisplayed+scroll, saveNames.length); i++){
@@ -123,20 +145,19 @@ class BaseFileManager extends Element{
     }
     
     // Draw the scroll bar
+    panelCanvas.strokeWeight(2);
     int d = saveNames.length - numDisplayed;
     if (d > 0){
       panelCanvas.fill(120);
       panelCanvas.rect(x+w-SCROLLWIDTH, y, SCROLLWIDTH, h);
-      panelCanvas.fill(50);
+      if (scrolling){
+        panelCanvas.fill(40);
+      }
+      else{
+        panelCanvas.fill(70);
+      }
       panelCanvas.stroke(0);
       panelCanvas.rect(x+w-SCROLLWIDTH, y+(h-h/(d+1))*scroll/d, SCROLLWIDTH, h/(d+1));
-      //draw scroll
-      //if (d > 0){
-      //  panelCanvas.fill(color(200));
-      //  panelCanvas.rect(x-20*jsManager.loadFloatSetting("gui scale")+w, y, 20*jsManager.loadFloatSetting("gui scale"), h-topOffset);
-      //  panelCanvas.fill(color(100));
-      //  panelCanvas.rect(x-20*jsManager.loadFloatSetting("gui scale")+w, y+(h-topOffset-(h-topOffset)/(d+1))*scroll/d+topOffset, 20*jsManager.loadFloatSetting("gui scale"), (h-topOffset)/(d+1));
-      //}
     }
     
     panelCanvas.popStyle();
@@ -148,10 +169,10 @@ class BaseFileManager extends Element{
   
   int hoveringOption(){
     int s = (mouseY-yOffset-y)/rowHeight;
-    if (!(0 <= s && s < saveNames.length)){
-      return selected-scroll;
+    if (!(0 <= s && s < numDisplayed)){
+      return selected;
     }
-    return s;
+    return s+scroll;
   }
 }
 

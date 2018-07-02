@@ -1,4 +1,4 @@
-# Blender v2.78 (sub 0) OBJ File: 'quarry.blend'
+# Blender v2.79 (sub 0) OBJ File: 'quarry_site.blend'
 # www.blender.org
 mtllib quarry_site.mtl
 o Plane_Plane.002
@@ -22,7 +22,6 @@ v -6.707015 -7.186900 -6.739252
 v 6.731815 -7.186900 -6.739252
 v -6.707015 -7.186900 6.699578
 v 6.731815 -7.186900 6.699578
-v -5.320705 -0.054164 -6.711326
 vn 0.0000 1.0000 0.0000
 vn 0.0000 0.1747 -0.9846
 vn 0.9846 0.1747 0.0000
