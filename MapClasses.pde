@@ -29,7 +29,8 @@ class Party{
   int[] target;
   int pathTurns;
   byte[]byteRep;
-  Party(int player, int startingUnits, int startingTask, int movementPoints){
+  String id;
+  Party(int player, int startingUnits, int startingTask, int movementPoints, String id){
     unitNumber = startingUnits;
     task = startingTask;
     this.player = player;
@@ -39,9 +40,10 @@ class Party{
     clearPath();
     target = null;
     pathTurns = 0;
+    this.id = id;
   }
   String getID(){
-    return "temp";
+    return id;
   }
   void changeTask(int task){
     //LOGGER_GAME.info("Party changing task to:"+gameData.getJSONArray("tasks").getJSONObject(task).getString("id")); Removed as this is called too much for battle estimates
@@ -166,7 +168,7 @@ class Party{
     return overflow;
   }
   Party clone(){
-    Party newParty = new Party(player, unitNumber, task, movementPoints);
+    Party newParty = new Party(player, unitNumber, task, movementPoints, id);
     newParty.actions = new ArrayList<Action>(actions);
     newParty.strength = strength;
     return newParty;
@@ -176,8 +178,8 @@ class Party{
 class Battle extends Party{
   Party party1;
   Party party2;
-  Battle(Party attacker, Party defender){
-    super(2, attacker.getUnitNumber()+defender.getUnitNumber(), JSONIndex(gameData.getJSONArray("tasks"), "Battle"), 0);
+  Battle(Party attacker, Party defender, String id){
+    super(2, attacker.getUnitNumber()+defender.getUnitNumber(), JSONIndex(gameData.getJSONArray("tasks"), "Battle"), 0, id);
     party1 = attacker;
     party1.strength = 2;
     party2 = defender;
@@ -258,13 +260,13 @@ class Battle extends Party{
     }
   }
   Battle clone(){
-    Battle newParty = new Battle(this.party1.clone(), this.party2.clone());
+    Battle newParty = new Battle(this.party1.clone(), this.party2.clone(), id);
     return newParty;
   }
 }
 class Siege extends Party{
-  Siege (Party attacker, Building defence, Party garrison){
-    super(3, attacker.getUnitNumber()+garrison.getUnitNumber(), JSONIndex(gameData.getJSONArray("tasks"), "Siege"), 0);
+  Siege (Party attacker, Building defence, Party garrison, String id){
+    super(3, attacker.getUnitNumber()+garrison.getUnitNumber(), JSONIndex(gameData.getJSONArray("tasks"), "Siege"), 0, id);
   }
 }
 
@@ -279,13 +281,15 @@ class Player{
   float[] resources;
   int cellX, cellY, colour;
   boolean cellSelected = false;
+  String name;
   // Resources: food wood metal energy concrete cable spaceship_parts ore people
-  Player(float mapXOffset, float mapYOffset, float blockSize, float[] resources, int colour){
+  Player(float mapXOffset, float mapYOffset, float blockSize, float[] resources, int colour, String name){
     this.mapXOffset = mapXOffset;
     this.mapYOffset = mapYOffset;
     this.blockSize = blockSize;
     this.resources = resources;
     this.colour = colour;
+    this.name = name;
   }
   void saveSettings(float mapXOffset, float mapYOffset, float blockSize, int cellX, int cellY, boolean cellSelected){
     this.mapXOffset = mapXOffset;
@@ -419,7 +423,7 @@ class BattleEstimateManager{
       } else {
         clone1 = attacker.clone();
         clone2 = defender.clone();
-        battle = new Battle(clone1, clone2); 
+        battle = new Battle(clone1, clone2, ".battle");
       }
       while (clone1.getUnitNumber()>0&&clone2.getUnitNumber()>0){
         battle.doBattle();

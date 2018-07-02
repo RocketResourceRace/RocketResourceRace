@@ -370,9 +370,15 @@ class Game extends State{
           if (sliderVal > 0 && parties[cellY][cellX].getUnitNumber() >= 2 && parties[cellY][cellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle")){
             map.updateMoveNodes(nodes);
             moving = true;
-            LOGGER_GAME.finer(String.format("Splitting party from: (%d, %d). Number = %d.", cellX, cellY, sliderVal));
-            splittedParty = new Party(turn, sliderVal, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), parties[cellY][cellX].getMovementPoints());
             parties[cellY][cellX].changeUnitNumber(-sliderVal);
+            String newPartyName;
+            if(parties[cellY][cellX].unitNumber==0){
+              newPartyName = parties[cellY][cellX].id;
+            } else {
+              newPartyName = nextRollingId(players[turn].name);
+            }
+            LOGGER_GAME.finer(String.format("Splitting party (id:%s) from party (id:%s) at (%d, %d). Number = %d.", newPartyName, parties[cellY][cellX].id, cellX, cellY, sliderVal));
+            splittedParty = new Party(turn, sliderVal, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), parties[cellY][cellX].getMovementPoints(), newPartyName);
           }
         }
   
@@ -1362,7 +1368,7 @@ class Game extends State{
               notificationManager.post("Battle Started", x, y, turnNumber, turn);
               notificationManager.post("Battle Started", x, y, turnNumber, otherPlayer);
               p.subMovementPoints(cost);
-              parties[y][x] = new Battle(p, parties[y][x]);
+              parties[y][x] = new Battle(p, parties[y][x], ".battle");
               parties[y][x] = ((Battle)parties[y][x]).doBattle();
               if(parties[y][x].player != 2){
                 notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, turn);
@@ -1990,9 +1996,9 @@ class Game extends State{
       parties = ((BaseMap)map).parties;
       PVector[] playerStarts = generateStartingParties();
       float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, jsManager.loadIntSetting("starting block size"));
-      players[1] = new Player(conditions2[0], conditions2[1], jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255,0,0));
+      players[1] = new Player(conditions2[0], conditions2[1], jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255,0,0), "Player 1  ");
       float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"));
-      players[0] = new Player(conditions1[0], conditions1[1], jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0,0,255));
+      players[0] = new Player(conditions1[0], conditions1[1], jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0,0,255), "Player 2  ");
       turn = 0;
       turnNumber = 0;
       deselectCell();
@@ -2163,8 +2169,8 @@ class Game extends State{
     LOGGER_GAME.fine(String.format("Player 1 party positition: (%f, %f)", player1.x, player1.y));
     LOGGER_GAME.fine(String.format("Player 2 party positition: (%f, %f)", player2.x, player2.y));
     if(loadingName == null){
-      parties[(int)player1.y][(int)player1.x] = new Party(0, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"));
-      parties[(int)player2.y][(int)player2.x] = new Party(1, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"));
+      parties[(int)player1.y][(int)player1.x] = new Party(0, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"),  "Player 1  #1");
+      parties[(int)player2.y][(int)player2.x] = new Party(1, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"),  "Player 2  #1");
     }
     return  new PVector[]{player1, player2};
   }
@@ -2230,4 +2236,23 @@ class Game extends State{
     }
     leaveCinematicMode();
   }
+  
+  String nextRollingId(String playerName){
+    int maxN = 0;
+    for (int y=0; y<mapHeight; y++){
+      for(int x=0; x<mapWidth; x++){ 
+        try{
+          if(parties[y][x] != null && parties[y][x].id.substring(0,10).equals(playerName) && parties[y][x].id.charAt(11)=='#'){
+              int n = Integer.valueOf(parties[y][x].id.substring(12, 16));
+              maxN = max(maxN, n);
+          }
+        } catch (Exception e){
+          LOGGER_GAME.severe("error looking at party "+parties[y][x].id);
+          throw(e);
+        }
+      }
+    }
+    return String.format("%s #%d", playerName, maxN);
+  }
+  
 }

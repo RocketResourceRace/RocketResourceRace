@@ -44,6 +44,7 @@ int getPartySize(Party p){
   LOGGER_MAIN.finer("Getting party size for save");
   try{
     int totalSize = 0;
+    totalSize += Character.BYTES*16;
     ByteBuffer[] actions = new ByteBuffer[p.actions.size()];
     int index = 0;
     for (Action a: p.actions){
@@ -105,6 +106,15 @@ int getPartySize(Party p){
     
     
     ByteBuffer partyBuffer = ByteBuffer.allocate(totalSize);
+    for(int i=0;i<16;i++){
+      if(i<p.id.length()){
+        partyBuffer.putChar(p.id.charAt(i));
+      }
+      else{
+        partyBuffer.putChar(' ');
+      }
+    }
+    
     partyBuffer.putInt(p.actions.size());
     for (ByteBuffer action: actions){
       partyBuffer.put(action.array());
@@ -133,7 +143,7 @@ void saveParty(ByteBuffer b, Party p){
     throw e;
   }
 }
-Party loadParty(ByteBuffer b){
+Party loadParty(ByteBuffer b, String id){
   LOGGER_MAIN.finer("Loading party from save");
   try{
     int actionCount = b.getInt();
@@ -183,7 +193,7 @@ Party loadParty(ByteBuffer b){
     float strength = b.getFloat();
     int task = b.getInt();
     int pathTurns = b.getInt();
-    Party p = new Party(player, unitNumber, task, movementPoints);
+    Party p = new Party(player, unitNumber, task, movementPoints, id);
     p.strength = strength;
     p.pathTurns = pathTurns;
     p.actions = actions;
@@ -199,7 +209,7 @@ Party loadParty(ByteBuffer b){
   }
 }
 
-int SAVEVERSION = 1;
+int SAVEVERSION = 2;
 
 
 class BaseMap extends Element{
@@ -241,6 +251,7 @@ class BaseMap extends Element{
         for (int x=0; x<mapWidth; x++){
           if(parties[y][x] != null){
             if(parties[y][x].player==2){
+              partiesByteCount+= Character.BYTES*16;
               partiesByteCount+=getPartySize(((Battle)parties[y][x]).party1);
               partiesByteCount+=getPartySize(((Battle)parties[y][x]).party2);
             } 
@@ -251,7 +262,7 @@ class BaseMap extends Element{
           partiesByteCount++;
         }
       }
-      int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+3*Integer.BYTES+1)*players.length;
+      int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+3*Integer.BYTES+Character.BYTES*10+1)*players.length;
       ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*10+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount+playersByteCount+Float.BYTES);
       buffer.putInt(-SAVEVERSION);
       LOGGER_MAIN.finer("Saving version: "+(-SAVEVERSION));
@@ -302,6 +313,13 @@ class BaseMap extends Element{
             buffer.put(byte(0));
           } else if (parties[y][x].player == 2){
             buffer.put(byte(2));
+            for (int i=0; i<16; i++){
+              if(i<parties[y][x].id.length()){
+                buffer.putChar(parties[y][x].id.charAt(i));
+              } else {
+                buffer.putChar(' ');
+              }
+            }
             saveParty(buffer, ((Battle)parties[y][x]).party1);
             saveParty(buffer, ((Battle)parties[y][x]).party2);
           } else {
@@ -326,6 +344,14 @@ class BaseMap extends Element{
         buffer.putInt(p.cellY);
         buffer.putInt(p.colour);
         buffer.put(byte(p.cellSelected));
+        for(int i=0;i<10;i++){
+          if(i<p.name.length()){
+            buffer.putChar(p.name.charAt(i));
+          }
+          else{
+            buffer.putChar(' ');
+          }
+        }
       }
       LOGGER_MAIN.fine("Saving map to file");
       saveBytes(filename, buffer.array());
@@ -406,19 +432,55 @@ class BaseMap extends Element{
         }
       }
       LOGGER_MAIN.finer("Loading parties");
+      int battleCount = 0;
+      int partyCount = 0;
       for (int y=0; y<mapHeight; y++){
         for (int x=0; x<mapWidth; x++){
           Byte partyType = buffer.get();
           if (partyType == 2){
-            Party p1 = loadParty(buffer);
-            Party p2 = loadParty(buffer);
+            char[] rawid;
+            char[] p1id;
+            char[] p2id;
+            if(versionCheck>1){
+              rawid = new char[16];
+              for (int i=0;i<16;i++){
+                rawid[i] = buffer.getChar();
+              }
+              p1id = new char[16];
+              for (int i=0;i<16;i++){
+                p1id[i] = buffer.getChar();
+              }
+              p2id = new char[16];
+              for (int i=0;i<16;i++){
+                p2id[i] = buffer.getChar();
+              }
+            } else {
+              rawid = String.format("Old Battle #%d", battleCount).toCharArray();
+              battleCount++;
+              p1id = String.format("Old Party #%s", partyCount).toCharArray();
+              partyCount++;
+              p2id = String.format("Old Party #%s", partyCount).toCharArray();
+              partyCount++;
+            }
+            Party p1 = loadParty(buffer, new String(p1id));
+            Party p2 = loadParty(buffer, new String(p2id));
             float savedStrength = p1.strength;
-            Battle b = new Battle(p1, p2);
+            Battle b = new Battle(p1, p2, new String(rawid));
             b.party1.strength = savedStrength;
             parties[y][x] = b;
           } 
           else if (partyType == 1){
-            parties[y][x] = loadParty(buffer);
+            char[] rawid;
+            if(versionCheck>1){
+              rawid = new char[16];
+              for (int i=0;i<16;i++){
+                rawid[i] = buffer.getChar();
+              }
+            } else {
+              rawid = String.format("Old Party #%s", partyCount).toCharArray();
+              partyCount++;
+            }
+            parties[y][x] = loadParty(buffer, new String(rawid));
           }
         }
       }
@@ -437,7 +499,15 @@ class BaseMap extends Element{
         int cellY = buffer.getInt();
         int colour = buffer.getInt();
         boolean cellSelected = boolean(buffer.get());
-        players[i] = new Player(mapXOffset, mapYOffset, blockSize, resources, colour);
+        char[] playerName = new char[10];
+        if(versionCheck>1){
+          for (int j=0;j<10;j++){
+            playerName[j] = buffer.getChar();
+          }
+        } else {
+          playerName = String.format("Player %d", i).toCharArray();
+        }
+        players[i] = new Player(mapXOffset, mapYOffset, blockSize, resources, colour, new String(playerName));
         players[i].cellSelected = cellSelected;
         players[i].cellX = cellX;
         players[i].cellY = cellY;
