@@ -835,7 +835,7 @@ class Map3D extends BaseMap implements Map {
     return mapHeight*blockSize;
   }
   void setZoom(float zoom) {
-    this.zoom =  between(height/4, zoom, min(mapHeight*blockSize, height*4));
+    this.zoom =  between(height/3, zoom, min(mapHeight*blockSize, height*4));
   }
   void setTilt(float tilt) {
     this.tilt = between(0.01, tilt, 3*PI/8);
