@@ -1720,6 +1720,10 @@ class Game extends State{
     panelCanvas.textAlign(LEFT, CENTER);
     panelCanvas.textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
     float barY = cellSelectionY + 13*jsManager.loadFloatSetting("text scale") + cellSelectionH*0.15 + bezel*2;
+    if(jsManager.loadBooleanSetting("show party id")){
+      panelCanvas.text("Party id: "+parties[cellY][cellX].id, 120+cellSelectionX, barY);
+      barY += 13*jsManager.loadFloatSetting("text scale");
+    }
     panelCanvas.text("Movement Points Remaining: "+parties[cellY][cellX].getMovementPoints(turn) + "/"+gameData.getJSONObject("game options").getInt("movement points"), 120+cellSelectionX, barY);
     barY += 13*jsManager.loadFloatSetting("text scale");
     panelCanvas.text("Units: "+parties[cellY][cellX].getUnitNumber(turn) + "/" + jsManager.loadIntSetting("party size"), 120+cellSelectionX, barY);
@@ -1996,9 +2000,9 @@ class Game extends State{
       parties = ((BaseMap)map).parties;
       PVector[] playerStarts = generateStartingParties();
       float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, jsManager.loadIntSetting("starting block size"));
-      players[1] = new Player(conditions2[0], conditions2[1], jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255,0,0), "Player 1  ");
+      players[1] = new Player(conditions2[0], conditions2[1], jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255,0,0), "Player 2  ");
       float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"));
-      players[0] = new Player(conditions1[0], conditions1[1], jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0,0,255), "Player 2  ");
+      players[0] = new Player(conditions1[0], conditions1[1], jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0,0,255), "Player 1  ");
       turn = 0;
       turnNumber = 0;
       deselectCell();
@@ -2169,8 +2173,8 @@ class Game extends State{
     LOGGER_GAME.fine(String.format("Player 1 party positition: (%f, %f)", player1.x, player1.y));
     LOGGER_GAME.fine(String.format("Player 2 party positition: (%f, %f)", player2.x, player2.y));
     if(loadingName == null){
-      parties[(int)player1.y][(int)player1.x] = new Party(0, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"),  "Player 1  #1");
-      parties[(int)player2.y][(int)player2.x] = new Party(1, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"),  "Player 2  #1");
+      parties[(int)player1.y][(int)player1.x] = new Party(0, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"),  "Player 1   #0");
+      parties[(int)player2.y][(int)player2.x] = new Party(1, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"),  "Player 2   #0");
     }
     return  new PVector[]{player1, player2};
   }
@@ -2243,7 +2247,7 @@ class Game extends State{
       for(int x=0; x<mapWidth; x++){ 
         try{
           if(parties[y][x] != null && parties[y][x].id.substring(0,10).equals(playerName) && parties[y][x].id.charAt(11)=='#'){
-              int n = Integer.valueOf(parties[y][x].id.substring(12, 16));
+              int n = Integer.valueOf(parties[y][x].id.substring(12));
               maxN = max(maxN, n);
           }
         } catch (Exception e){
@@ -2252,7 +2256,7 @@ class Game extends State{
         }
       }
     }
-    return String.format("%s #%d", playerName, maxN);
+    return String.format("%s #%d", playerName, maxN+1);
   }
   
 }
