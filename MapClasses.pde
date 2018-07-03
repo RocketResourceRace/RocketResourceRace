@@ -15,7 +15,8 @@ class Building{
 
 
 class Division{
-  private int unitNumber;
+  final int PARTICIPATE = 0, RESEVERES = 1, FLEE = 2; // battle activity constants
+  private int unitNumber, battleActivity;
   private float meleeProficiency, rangedProficiency, buildingProficiency;
   private String id;
   
@@ -25,6 +26,7 @@ class Division{
     this.meleeProficiency = 0;
     this.rangedProficiency = 0;
     this.buildingProficiency = 0;
+    this.battleActivity = PARTICIPATE;
   }
   
   Division(int startingUnits, float meleeProficiency, float rangedProficiency, float buildingProficiency){
@@ -33,6 +35,7 @@ class Division{
     this.meleeProficiency = meleeProficiency;
     this.rangedProficiency = rangedProficiency;
     this.buildingProficiency = buildingProficiency;
+    this.battleActivity = PARTICIPATE;
   }
   
   float mergeAttribute(int units1, float attrib1, int units2, float attrib2){
@@ -41,14 +44,15 @@ class Division{
   }
   
   void mergeEntireFrom(Division other){
+    // Note: will need to remove other division
     mergeFrom(other, other.getUnitNumber());
   }
   
   void mergeFrom(Division other, int unitsTransfered){
     // Take units from other party into this party and merge attributes, weighted by unit number
-    this.buildingProficiency = mergeAttribute(this.getUnitNumber(), this.getBuildingProficiency(), unitsTransfered, other.getBuildingProficiency());
-    this.rangedProficiency = mergeAttribute(this.getUnitNumber(), this.getRangedProficiency(), unitsTransfered, other.getRangedProficiency());
     this.meleeProficiency = mergeAttribute(this.getUnitNumber(), this.getMeleeProficiency(), unitsTransfered, other.getMeleeProficiency());
+    this.rangedProficiency = mergeAttribute(this.getUnitNumber(), this.getRangedProficiency(), unitsTransfered, other.getRangedProficiency());
+    this.buildingProficiency = mergeAttribute(this.getUnitNumber(), this.getBuildingProficiency(), unitsTransfered, other.getBuildingProficiency());
     // Note: other division attributes unaffected by merge
     
     this.unitNumber += unitsTransfered;
@@ -61,6 +65,14 @@ class Division{
   
   void setID(String value){
     this.id = value;
+  }
+  
+  int getBattleActivity(){
+    return battleActivity;
+  }
+  
+  void setBattleActivity(int value){
+    this.battleActivity = value;
   }
   
   int getUnitNumber(){
