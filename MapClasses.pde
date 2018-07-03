@@ -14,8 +14,63 @@ class Building{
 }
 
 
-
-
+class Division{
+  private int unitNumber;
+  private float meleeProficiency, rangedProficiency, buildingProficiency;
+  private String id;
+  
+  Division(int startingUnits){
+    // Default proficiencies = 0
+    this.unitNumber = startingUnits;
+    this.meleeProficiency = 0;
+    this.rangedProficiency = 0;
+    this.buildingProficiency = 0;
+  }
+  
+  Division(int startingUnits, float meleeProficiency, float rangedProficiency, float buildingProficiency){
+    // Known proficiencies
+    this.unitNumber = startingUnits;
+    this.meleeProficiency = meleeProficiency;
+    this.rangedProficiency = rangedProficiency;
+    this.buildingProficiency = buildingProficiency;
+  }
+  
+  String getID(){
+    return id;
+  }
+  
+  int getUnitNumber(){
+    return unitNumber;
+  }
+  
+  void setUnitNumber(int value){
+    this.unitNumber = value;
+  }
+  
+  float getMeleeProficiency(){
+    return rangedProficiency;
+  }
+  
+  void setMeleeProficiency(float value){
+    this.meleeProficiency = value;
+  }
+  
+  float getRangedProficiency(){
+    return meleeProficiency;
+  }
+  
+  void setRangedProficiency(float value){
+    this.rangedProficiency = value;
+  }
+  
+  float getBuildingProficiency(){
+    return buildingProficiency;
+  }
+  
+  void setBuildingProficiency(float value){
+    this.buildingProficiency = value;
+  }
+}
 
 
 class Party{
