@@ -1726,8 +1726,20 @@ class Game extends State{
     }
     panelCanvas.text("Movement Points Remaining: "+parties[cellY][cellX].getMovementPoints(turn) + "/"+gameData.getJSONObject("game options").getInt("movement points"), 120+cellSelectionX, barY);
     barY += 13*jsManager.loadFloatSetting("text scale");
-    panelCanvas.text("Units: "+parties[cellY][cellX].getUnitNumber(turn) + "/" + jsManager.loadIntSetting("party size"), 120+cellSelectionX, barY);
-    barY += 13*jsManager.loadFloatSetting("text scale");
+    if(jsManager.loadBooleanSetting("show all party managements")&&parties[cellY][cellX].player==2){
+      String t1 = ((Battle)parties[cellY][cellX]).party1.id;
+      String t2 = "Units: "+((Battle)parties[cellY][cellX]).party1.getUnitNumber() + "/" + jsManager.loadIntSetting("party size");
+      float offset = max(panelCanvas.textWidth(t1+" "), panelCanvas.textWidth(t2+" "));
+      panelCanvas.text(t1, 120+cellSelectionX, barY);
+      panelCanvas.text(((Battle)parties[cellY][cellX]).party2.id, 120+cellSelectionX+offset, barY);
+      barY += 13*jsManager.loadFloatSetting("text scale");
+      panelCanvas.text(t2, 120+cellSelectionX, barY);
+      panelCanvas.text("Units: "+((Battle)parties[cellY][cellX]).party2.getUnitNumber() + "/" + jsManager.loadIntSetting("party size"), 120+cellSelectionX+offset, barY);
+      barY += 13*jsManager.loadFloatSetting("text scale");
+    } else {
+      panelCanvas.text("Units: "+parties[cellY][cellX].getUnitNumber(turn) + "/" + jsManager.loadIntSetting("party size"), 120+cellSelectionX, barY);
+      barY += 13*jsManager.loadFloatSetting("text scale");
+    }
     if (parties[cellY][cellX].pathTurns > 0){
       ((Text)getElement("turns remaining", "party management")).setText("Turns Remaining: "+ parties[cellY][cellX].pathTurns);
     }
