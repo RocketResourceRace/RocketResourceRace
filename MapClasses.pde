@@ -35,8 +35,32 @@ class Division{
     this.buildingProficiency = buildingProficiency;
   }
   
+  float mergeAttribute(int units1, float attrib1, int units2, float attrib2){
+    // Calcaulate the attributes for merge weighted by units number
+    return (units1 * attrib1 + units2 * attrib2) / (units1 + units2);
+  }
+  
+  void mergeEntireFrom(Division other){
+    mergeFrom(other, other.getUnitNumber());
+  }
+  
+  void mergeFrom(Division other, int unitsTransfered){
+    // Take units from other party into this party and merge attributes, weighted by unit number
+    this.buildingProficiency = mergeAttribute(this.getUnitNumber(), this.getBuildingProficiency(), unitsTransfered, other.getBuildingProficiency());
+    this.rangedProficiency = mergeAttribute(this.getUnitNumber(), this.getRangedProficiency(), unitsTransfered, other.getRangedProficiency());
+    this.meleeProficiency = mergeAttribute(this.getUnitNumber(), this.getMeleeProficiency(), unitsTransfered, other.getMeleeProficiency());
+    // Note: other division attributes unaffected by merge
+    
+    this.unitNumber += unitsTransfered;
+    other.unitNumber -= unitsTransfered;
+  }
+  
   String getID(){
     return id;
+  }
+  
+  void setID(String value){
+    this.id = value;
   }
   
   int getUnitNumber(){
