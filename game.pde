@@ -851,6 +851,9 @@ class Game extends State{
       rs.updateStockpile(players[turn].resources);
 
       notificationManager.turnChange(turn);
+      
+      if(turn==0)
+        turnNumber++;
 
       if (anyIdle(turn)){
         LOGGER_GAME.finest("Idle party set to red becuase idle parties found");
