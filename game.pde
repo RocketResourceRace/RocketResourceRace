@@ -1092,6 +1092,24 @@ class Game extends State{
       return null;
     }
   }
+  
+  void saveGame(){
+    float blockSize;
+    float cellsPerCoordUnit;
+    if(jsManager.loadBooleanSetting("map is 3d")){
+      blockSize = 0.66*exp(pow(0.9, 2.8*log(map.getZoom()/100000)));
+      cellsPerCoordUnit = 1/((Map3D)map).blockSize;
+    } else{
+      if (map.isZooming()){
+        blockSize = map.getTargetZoom();
+      } else{
+        blockSize = map.getZoom();
+      }
+      cellsPerCoordUnit = 1/((Map2D)map).blockSize;
+    }
+    players[turn].saveSettings(map.getFocusedX(), map.getFocusedY(), blockSize, cellX, cellY, cellSelected);
+    ((BaseMap)map).saveMap("saves/"+loadingName, this.turnNumber, this.turn, this.players, cellsPerCoordUnit);
+  }
 
   void elementEvent(ArrayList<Event> events){
     for (Event event : events){
@@ -1157,21 +1175,7 @@ class Game extends State{
         }
         else if (event.id.equals("save button")){
           loadingName = ((TextEntry)getElement("save namer", "save screen")).getText();
-          float blockSize;
-          float cellsPerCoordUnit;
-          if(jsManager.loadBooleanSetting("map is 3d")){
-            blockSize = 0.66*exp(pow(0.9, 2.8*log(map.getZoom()/100000)));
-            cellsPerCoordUnit = 1/((Map3D)map).blockSize;
-          } else{
-            if (map.isZooming()){
-              blockSize = map.getTargetZoom();
-            } else{
-              blockSize = map.getZoom();
-            }
-            cellsPerCoordUnit = 1/((Map2D)map).blockSize;
-          }
-          players[turn].saveSettings(map.getTargetOffsetX(), map.getTargetOffsetY(), blockSize, cellX, cellY, cellSelected);
-          ((BaseMap)map).saveMap("saves/"+loadingName, this.turnNumber, this.turn, this.players, cellsPerCoordUnit);
+          saveGame();
           ((BaseFileManager)getElement("saving manager", "save screen")).loadSaveNames();
         }
       }
@@ -1191,22 +1195,7 @@ class Game extends State{
           // Save the game for toggle between 2d and 3d
           LOGGER_MAIN.info("Toggling between 2d and 3d, so saving now to 'Autosave.dat'");
           loadingName = "Autosave.dat";
-          float blockSize;
-          float cellsPerCoordUnit;
-          if(jsManager.loadBooleanSetting("map is 3d")){
-            blockSize = 0.66*exp(pow(0.9, 2.8*log(map.getZoom()/100000)));
-            cellsPerCoordUnit = 1/((Map3D)map).blockSize;
-          } else{
-            if (map.isZooming()){
-              blockSize = map.getTargetZoom();
-            } else{
-              blockSize = map.getZoom();
-            }
-            cellsPerCoordUnit = 1/((Map2D)map).blockSize;
-          }
-          players[turn].saveSettings(map.getFocusedX(), map.getFocusedY(), blockSize, cellX, cellY, cellSelected);
-          ((BaseMap)map).saveMap("saves/"+loadingName, this.turnNumber, this.turn, this.players, cellsPerCoordUnit);
-          
+          saveGame();
           jsManager.saveSetting("map is 3d", ((ToggleButton)(getElement("2d 3d toggle", "bottom bar"))).getState());
           LOGGER_MAIN.info("Reloading map in new dimension");
           reloadGame();
