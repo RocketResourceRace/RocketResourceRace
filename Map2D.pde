@@ -243,7 +243,7 @@ class BaseMap extends Element{
     }
   }
   
-  void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players, float cellsPerCoordUnit){
+  void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players){
     LOGGER_MAIN.info("Starting saving progress");
     try{
       int partiesByteCount = 0;
@@ -330,8 +330,8 @@ class BaseMap extends Element{
       }
       LOGGER_MAIN.finer("Saving players");
       for (Player p: players){
-        buffer.putFloat(p.mapXOffset*cellsPerCoordUnit);
-        buffer.putFloat(p.mapYOffset*cellsPerCoordUnit);
+        buffer.putFloat(p.mapXOffset);
+        buffer.putFloat(p.mapYOffset);
         if(p.blockSize==0){
           p.blockSize = jsManager.loadIntSetting("starting block size");
         }
@@ -1033,8 +1033,7 @@ class Map2D extends BaseMap implements Map{
     cancelMoveNodes();
   }
   void loadSettings(float x, float y, float bs){
-    targetZoom(bs);
-    targetOffset(x, y);
+    targetCell(int(x), int(y), bs);
   }
   void targetOffset(float x, float y){
     targetXOffset = x;

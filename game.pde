@@ -836,7 +836,15 @@ class Game extends State{
       } else{
         blockSize = map.getZoom();
       }
-      players[turn].saveSettings(map.getTargetOffsetX(), map.getTargetOffsetY(), blockSize, cellX, cellY, cellSelected);
+      float tempX=0, tempY=0;
+      if(jsManager.loadBooleanSetting("map is 3d")){
+        tempX = (map.getTargetOffsetX()+width/2)/((Map3D)map).blockSize;
+        tempY = (map.getTargetOffsetY()+height/2)/((Map3D)map).blockSize;
+      } else {
+        tempX = (width/2-map.getTargetOffsetX()-((Map2D)map).xPos)/((Map2D)map).targetBlockSize;
+        tempY = (height/2-map.getTargetOffsetY()-((Map2D)map).yPos)/((Map2D)map).targetBlockSize;
+      }
+      players[turn].saveSettings(tempX, tempY, blockSize, cellX, cellY, cellSelected);
       turn = (turn + 1)%2;
       map.generateFog(turn);
       players[turn].loadSettings(this, map);
@@ -1098,20 +1106,22 @@ class Game extends State{
   
   void saveGame(){
     float blockSize;
-    float cellsPerCoordUnit;
+    float x=0, y=0;
     if(jsManager.loadBooleanSetting("map is 3d")){
       blockSize = 0.66*exp(pow(0.9, 2.8*log(map.getZoom()/100000)));
-      cellsPerCoordUnit = 1/((Map3D)map).blockSize;
+      x = (map.getFocusedX()+width/2)/((Map3D)map).blockSize;
+      y = (map.getFocusedY()+height/2)/((Map3D)map).blockSize;
     } else{
       if (map.isZooming()){
         blockSize = map.getTargetZoom();
       } else{
         blockSize = map.getZoom();
       }
-      cellsPerCoordUnit = 1/((Map2D)map).blockSize;
+      x = (width/2-map.getFocusedX()-((Map2D)map).xPos)/((Map2D)map).blockSize;
+      y = (height/2-map.getFocusedY()-((Map2D)map).yPos)/((Map2D)map).blockSize;
     }
-    players[turn].saveSettings(map.getFocusedX(), map.getFocusedY(), blockSize, cellX, cellY, cellSelected);
-    ((BaseMap)map).saveMap("saves/"+loadingName, this.turnNumber, this.turn, this.players, cellsPerCoordUnit);
+    players[turn].saveSettings(x, y, blockSize, cellX, cellY, cellSelected);
+    ((BaseMap)map).saveMap("saves/"+loadingName, this.turnNumber, this.turn, this.players);
   }
 
   void elementEvent(ArrayList<Event> events){
@@ -1983,17 +1993,16 @@ class Game extends State{
       this.turnNumber = mapSave.startTurn;
       this.turn = mapSave.startPlayer;
       this.players = mapSave.players;
-      if(!jsManager.loadBooleanSetting("map is 3d")){
-        ((Map2D)map).mapXOffset = (-this.players[turn].mapXOffset-mapWidth/2)*((Map2D)map).blockSize;
-        ((Map2D)map).mapYOffset = (-this.players[turn].mapYOffset-mapHeight/2)*((Map2D)map).blockSize;
-        ((Map2D)map).targetXOffset = this.players[turn].mapXOffset*((Map2D)map).blockSize;
-        ((Map2D)map).targetYOffset = this.players[turn].mapYOffset*((Map2D)map).blockSize;
-        ((Map2D)map).blockSize = this.players[turn].blockSize;
+      if(jsManager.loadBooleanSetting("map is 3d")){
+        map.targetCell(int(this.players[turn].mapXOffset), int(this.players[turn].mapYOffset), this.players[turn].blockSize);
+        ((Map3D)map).focusedX = ((Map3D)map).targetXOffset;
+        ((Map3D)map).focusedY = ((Map3D)map).targetYOffset;
+        ((Map3D)map).zoom = this.players[turn].blockSize;
       } else {
-        ((Map3D)map).focusedX = this.players[turn].mapXOffset*((Map3D)map).blockSize;
-        ((Map3D)map).focusedY = this.players[turn].mapYOffset*((Map3D)map).blockSize;
-        ((Map3D)map).targetXOffset = this.players[turn].mapXOffset*((Map3D)map).blockSize;
-        ((Map3D)map).targetYOffset = this.players[turn].mapYOffset*((Map3D)map).blockSize;
+        map.targetCell(int(this.players[turn].mapXOffset), int(this.players[turn].mapYOffset), this.players[turn].blockSize);
+        ((Map2D)map).mapXOffset = ((Map2D)map).targetXOffset;
+        ((Map2D)map).mapYOffset = ((Map2D)map).targetYOffset;
+        ((Map2D)map).blockSize = this.players[turn].blockSize;
       }
     } 
     else {
@@ -2004,9 +2013,9 @@ class Game extends State{
       parties = ((BaseMap)map).parties;
       PVector[] playerStarts = generateStartingParties();
       float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, jsManager.loadIntSetting("starting block size"));
-      players[1] = new Player(conditions2[0], conditions2[1], jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255,0,0), "Player 2  ");
+      players[1] = new Player((int)playerStarts[1].x, (int)playerStarts[1].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255,0,0), "Player 2  ");
       float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"));
-      players[0] = new Player(conditions1[0], conditions1[1], jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0,0,255), "Player 1  ");
+      players[0] = new Player((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0,0,255), "Player 1  ");
       turn = 0;
       turnNumber = 0;
       deselectCell();
@@ -2037,7 +2046,7 @@ class Game extends State{
       for (int i = players.length-1; i >= 0; i--){
         int[] t1 = findIdle(i);
         float[] targetOffsets = map.targetCell(t1[0], t1[1], 64);
-        players[i].saveSettings(targetOffsets[0], targetOffsets[1], 64, cellX, cellY, false);
+        players[i].saveSettings(t1[0], t1[1], 64, cellX, cellY, false);
       }
     }
 

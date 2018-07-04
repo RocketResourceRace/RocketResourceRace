@@ -245,8 +245,8 @@ class Map3D extends BaseMap implements Map {
   
   void loadSettings(float mapXOffset, float mapYOffset, float blockSize) {
     LOGGER_MAIN.fine(String.format("Loading camera settings. xoff:%s, yoff:%s, block size: %s", mapXOffset, mapYOffset, blockSize));
-    targetXOffset = mapXOffset;
-    targetYOffset = mapYOffset;
+    targetCell(int(mapXOffset), int(mapYOffset), blockSize);
+    
     panning = true;
   }
   float[] targetCell(int x, int y, float zoom) {
