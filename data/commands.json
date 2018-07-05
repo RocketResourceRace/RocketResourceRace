@@ -1,0 +1,52 @@
+{
+  "display": {
+    "type": "container",
+    "sub commands": {
+      "sub_tile_boundaries": {
+        "type": "setting",
+        "setting id": "tile stroke",
+        "value type": "boolean",
+        "regenerate map" : true,
+        "basic description": "",
+        "detailed description": ""
+      },
+      "cell_coords": {
+        "type": "setting",
+        "setting id": "show cell coords",
+        "value type": "boolean",
+        "basic description": "",
+        "detailed description": ""
+      },
+      "all_party_details": {
+        "type": "setting",
+        "setting id": "show all party managements",
+        "value type": "boolean",
+        "basic description": "",
+        "detailed description": ""
+      },
+      "party_id": {
+        "type": "setting",
+        "setting id": "show party id",
+        "value type": "boolean",
+        "basic description": "",
+        "detailed description": ""
+      }
+    },
+    "basic description": "",
+    "detailed description": ""
+  },
+  "test": {
+    "type": "container",
+    "sub commands": {
+      "fog_of_war": {
+        "type": "setting",
+        "setting id": "fog of war",
+        "value type": "boolean",
+        "basic description": "",
+        "detailed description": ""
+      }
+    },
+    "basic description": "",
+    "detailed description": ""
+  }
+}
