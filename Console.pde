@@ -4,6 +4,7 @@ class Console extends Element{
   private boolean drawCursor = false;
   private String allowedChars;
   private Map map;
+  private JSONObject commands; 
   
   Console(int x, int y, int w, int h, int textSize){
     this.x = x;
@@ -14,6 +15,7 @@ class Console extends Element{
     text = new ArrayList<StringBuilder>();
     text.add(new StringBuilder(" > "));
     cursorX = 3;
+    commands = loadJSONObject("commands.json");
   }
 
   void giveMap(Map map){
@@ -108,7 +110,118 @@ class Console extends Element{
     text.add(text.size()-1, new StringBuilder(line));
   }
   
+  void invalid(String message){
+    sendLine("Invalid command. "+message);
+  }
+  
+  void invalid(){
+    invalid("");
+  }
+  
+  String[] getPossibleSubCommands(JSONObject command){
+    Iterable keys = command.getJSONObject("sub commands").keys();
+    String[] commandsList = new String[command.getJSONObject("sub commands").size()];
+    int i=0;
+    for (Object subCommand: keys){
+      commandsList[i] = subCommand.toString();
+      i++;
+    }
+    return commandsList;
+  }
+  
+  void invalidSubcommand(JSONObject command, String[] args, int position){
+    String[] commandsList = getPossibleSubCommands(command);
+    invalid(String.format("Sub-command not found: %s. Possible sub-commands for command %s: %s", args[position], join(Arrays.copyOfRange(args, 0, position), " "), join(commandsList, " ")));
+  }
+  
+  void invalidMissingSubCommand(JSONObject command, String[] args, int position){
+    String[] commandsList = getPossibleSubCommands(command);
+    getPossibleSubCommands(command);
+    invalid(String.format("Sub-command required for %s. Possible sub-commands for command %s: %s", args[position], join(Arrays.copyOfRange(args, 0, position), " "), join(commandsList, " ")));
+  }
+  
+  void invalidMissingValue(JSONObject command, String[] args, int position){
+    invalid(String.format("Value required for %s. Value type: %s", args[position], command.getString("value type")));
+  }
+  
+  void invalidValue(JSONObject command, String[] args, int position){
+    invalid(String.format("Invalid value for %s. Value type: %s", args[position], command.getString("value type")));
+  }
+  
+  void commandFileError(String error){
+    invalid(error);
+    LOGGER_GAME.severe(error);
+  }
+  
   void doCommand(String rawCommand){
+    String[] splitCommand = rawCommand.split(" ");
+    if(splitCommand.length==0){
+      invalid();
+      return;
+    }
+    if(commands.hasKey(splitCommand[0])){
+      JSONObject command = commands.getJSONObject(splitCommand[0]);
+      handleCommand(command, splitCommand, 0);
+    } else {
+      invalid();
+    }
+  }
+  
+  void handleCommand(JSONObject command, String[] arguments, int position){
+    switch(command.getString("type")){
+      case "container":
+        if(arguments.length>position+1){
+          JSONObject subCommands = command.getJSONObject("sub commands");
+          if(subCommands.hasKey(arguments[position+1])){
+            handleCommand(subCommands.getJSONObject(arguments[position+1]), arguments, position+1);
+          } else {
+            invalidSubcommand(command, arguments, position+1);
+          }
+        } else {
+          invalidMissingSubCommand(command, arguments, position);
+        }
+        break;
+      case "setting":
+        if(command.hasKey("value type")){
+          if(arguments.length>position+1){
+            switch(command.getString("value type")){
+              case "boolean":
+                  String value = arguments[position+1].toLowerCase();
+                  Boolean setting;
+                  if(value.equals("true") || value.equals("t") || value.equals("1")){
+                    setting = true;
+                  } else if (value.equals("false") || value.equals("f")|| value.equals("0")){
+                    setting = false;
+                  } else {
+                    invalidValue(command, arguments, position);
+                    return;
+                  }
+                  sendLine(String.format("Changing %s setting", arguments[position]));
+                  jsManager.saveSetting(command.getString("setting id"), setting);
+                  if(command.hasKey("regenerate map")&&command.getBoolean("regenerate map")&&map != null){
+                    sendLine("This requires regenerating the map. This might take a moment and will mean some randomised features will change");
+                    map.generateShape();
+                  }
+                  sendLine(String.format("%s setting changed!", arguments[position]));
+                  break;
+              default:
+                commandFileError("Command defines invalid value type");
+                break;
+            }
+          } else {
+            invalidMissingValue(command, arguments, position);
+          }
+        } else {
+          commandFileError("Command doesn't define a value type");
+        }
+        break;
+      default:
+        commandFileError("Command has invalid type");
+        break;
+    }
+  }
+  
+  void doCommandOld(String rawCommand){
     String[] splitCommand = rawCommand.split(" ");
     if(splitCommand.length==0){
       sendLine("invalid command");
