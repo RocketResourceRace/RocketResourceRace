@@ -1,5 +1,7 @@
 
 
+
+
 class BaseFileManager extends Element{
   // Basic file manager that scans a folder and makes a selectable list for all the files
   final int TEXTSIZE = 14, SCROLLWIDTH = 30;
@@ -7,6 +9,7 @@ class BaseFileManager extends Element{
   String[] saveNames;
   int selected, rowHeight, numDisplayed, scroll;
   boolean scrolling;
+  float fakeHeight;
   
   
   BaseFileManager(int x, int y, int w, int h, String folderString){
@@ -20,6 +23,11 @@ class BaseFileManager extends Element{
     rowHeight = ceil(TEXTSIZE * jsManager.loadFloatSetting("text scale"))+5;
     scroll = 0;
     scrolling = false;
+    updateFakeHeight();
+  }
+  
+  void updateFakeHeight(){
+    fakeHeight = rowHeight * numDisplayed;
   }
   
   String getNextAutoName(){
@@ -75,7 +83,7 @@ class BaseFileManager extends Element{
       }
     }
     else if (eventType.equals("mousePressed")){
-      if (d > 0 && mouseX-xOffset>x+w-SCROLLWIDTH){  
+      if (d > 0 && moveOver() && mouseX-xOffset>x+w-SCROLLWIDTH){  
         // If hovering over scroll bar, set scroll to mouse pos
         scrolling = true;
         scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/h, d));
@@ -125,6 +133,8 @@ class BaseFileManager extends Element{
   void draw(PGraphics panelCanvas){
     
     rowHeight = ceil(TEXTSIZE * jsManager.loadFloatSetting("text scale"))+5;
+    updateFakeHeight();
+    
     numDisplayed = ceil(h/rowHeight);
     panelCanvas.pushStyle();
     
@@ -149,7 +159,7 @@ class BaseFileManager extends Element{
     int d = saveNames.length - numDisplayed;
     if (d > 0){
       panelCanvas.fill(120);
-      panelCanvas.rect(x+w-SCROLLWIDTH, y, SCROLLWIDTH, h);
+      panelCanvas.rect(x+w-SCROLLWIDTH, y, SCROLLWIDTH, fakeHeight);
       if (scrolling){
         panelCanvas.fill(40);
       }
@@ -157,14 +167,14 @@ class BaseFileManager extends Element{
         panelCanvas.fill(70);
       }
       panelCanvas.stroke(0);
-      panelCanvas.rect(x+w-SCROLLWIDTH, y+(h-h/(d+1))*scroll/d, SCROLLWIDTH, h/(d+1));
+      panelCanvas.rect(x+w-SCROLLWIDTH, y+(fakeHeight-fakeHeight/(d+1))*scroll/d, SCROLLWIDTH, fakeHeight/(d+1));
     }
     
     panelCanvas.popStyle();
   }
   
   boolean moveOver(){
-    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h*(saveNames.length+1);
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+fakeHeight;
   }
   
   int hoveringOption(){
