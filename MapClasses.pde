@@ -42,6 +42,7 @@ class Party{
     this.id = id;
     
     // Default proficiencies = 0
+    resetProficiencies();
     for (int i = 0; i < jsManager.getNumProficiencies(); i++){
       this.setProficiency(i, 0);
     }
@@ -63,6 +64,7 @@ class Party{
     
     // Load proficiencies given
     try{
+      resetProficiencies();
       for (int i = 0; i < jsManager.getNumProficiencies(); i++){
         this.setProficiency(i, proficiencies[i]);
       }
@@ -300,6 +302,10 @@ class Party{
   void setProficiency(int index, float value){
     // Use this if have access to index not string id
     proficiencies[index] = value;
+  }
+  
+  void resetProficiencies(){
+    proficiencies = new float[jsManager.getNumProficiencies()];
   }
 }
 
