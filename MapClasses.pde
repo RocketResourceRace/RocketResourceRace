@@ -14,113 +14,20 @@ class Building{
 }
 
 
-class Division{
-  final int PARTICIPATE = 0, RESEVERES = 1, FLEE = 2; // battle activity constants
-  private int unitNumber, battleActivity;
-  private float meleeProficiency, rangedProficiency, buildingProficiency;
-  private String id;
-  
-  Division(int startingUnits){
-    // Default proficiencies = 0
-    this.unitNumber = startingUnits;
-    this.meleeProficiency = 0;
-    this.rangedProficiency = 0;
-    this.buildingProficiency = 0;
-    this.battleActivity = PARTICIPATE;
-  }
-  
-  Division(int startingUnits, float meleeProficiency, float rangedProficiency, float buildingProficiency){
-    // Known proficiencies
-    this.unitNumber = startingUnits;
-    this.meleeProficiency = meleeProficiency;
-    this.rangedProficiency = rangedProficiency;
-    this.buildingProficiency = buildingProficiency;
-    this.battleActivity = PARTICIPATE;
-  }
-  
-  float mergeAttribute(int units1, float attrib1, int units2, float attrib2){
-    // Calcaulate the attributes for merge weighted by units number
-    return (units1 * attrib1 + units2 * attrib2) / (units1 + units2);
-  }
-  
-  void mergeEntireFrom(Division other){
-    // Note: will need to remove other division
-    mergeFrom(other, other.getUnitNumber());
-  }
-  
-  void mergeFrom(Division other, int unitsTransfered){
-    // Take units from other party into this party and merge attributes, weighted by unit number
-    this.meleeProficiency = mergeAttribute(this.getUnitNumber(), this.getMeleeProficiency(), unitsTransfered, other.getMeleeProficiency());
-    this.rangedProficiency = mergeAttribute(this.getUnitNumber(), this.getRangedProficiency(), unitsTransfered, other.getRangedProficiency());
-    this.buildingProficiency = mergeAttribute(this.getUnitNumber(), this.getBuildingProficiency(), unitsTransfered, other.getBuildingProficiency());
-    // Note: other division attributes unaffected by merge
-    
-    this.unitNumber += unitsTransfered;
-    other.unitNumber -= unitsTransfered;
-  }
-  
-  String getID(){
-    return id;
-  }
-  
-  void setID(String value){
-    this.id = value;
-  }
-  
-  int getBattleActivity(){
-    return battleActivity;
-  }
-  
-  void setBattleActivity(int value){
-    this.battleActivity = value;
-  }
-  
-  int getUnitNumber(){
-    return unitNumber;
-  }
-  
-  void setUnitNumber(int value){
-    this.unitNumber = value;
-  }
-  
-  float getMeleeProficiency(){
-    return rangedProficiency;
-  }
-  
-  void setMeleeProficiency(float value){
-    this.meleeProficiency = value;
-  }
-  
-  float getRangedProficiency(){
-    return meleeProficiency;
-  }
-  
-  void setRangedProficiency(float value){
-    this.rangedProficiency = value;
-  }
-  
-  float getBuildingProficiency(){
-    return buildingProficiency;
-  }
-  
-  void setBuildingProficiency(float value){
-    this.buildingProficiency = value;
-  }
-}
-
-
 class Party{
   private int unitNumber;
   private int movementPoints;
+  private float meleeProficiency, rangedProficiency, buildingProficiency;
+  private int task;
+  String id;
   int player;
   float strength;
-  private int task;
   ArrayList<Action> actions;
   ArrayList<int[]> path;
   int[] target;
   int pathTurns;
-  byte[]byteRep;
-  String id;
+  byte[] byteRep;
+  
   Party(int player, int startingUnits, int startingTask, int movementPoints, String id){
     unitNumber = startingUnits;
     task = startingTask;
@@ -132,10 +39,66 @@ class Party{
     target = null;
     pathTurns = 0;
     this.id = id;
+    
+    // Default proficiencies = 0
+    this.meleeProficiency = 0;
+    this.rangedProficiency = 0;
+    this.buildingProficiency = 0;
   }
+  
+  Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float meleeProficiency, float rangedProficiency, float buildingProficiency){
+    unitNumber = startingUnits;
+    task = startingTask;
+    this.player = player;
+    this.movementPoints = movementPoints;
+    this.actions = new ArrayList<Action>();
+    this.strength = 1.5;
+    this.clearPath();
+    this.target = null;
+    this.pathTurns = 0;
+    this.id = id;
+    
+    // Use proficiencies given
+    this.meleeProficiency = meleeProficiency;
+    this.rangedProficiency = rangedProficiency;
+    this.buildingProficiency = buildingProficiency;
+  }
+  
+  void mergeEntireFrom(Party other){
+    // Note: will need to remove other division
+    boolean fullyMerged = mergeFrom(other, other.getUnitNumber());
+    
+    if (!fullyMerged){
+      LOGGER_MAIN.warning(String.format("Party was not fully merged, id: %s, left=%d", id, other.getUnitNumber()));
+    }
+  }
+  
+  boolean mergeFrom(Party other, int unitsTransfered){
+    // Take units from other party into this party and merge attributes, weighted by unit number
+    this.meleeProficiency = mergeAttribute(this.getUnitNumber(), this.getMeleeProficiency(), unitsTransfered, other.getMeleeProficiency());
+    this.rangedProficiency = mergeAttribute(this.getUnitNumber(), this.getRangedProficiency(), unitsTransfered, other.getRangedProficiency());
+    this.buildingProficiency = mergeAttribute(this.getUnitNumber(), this.getBuildingProficiency(), unitsTransfered, other.getBuildingProficiency());
+    // Note: other division attributes unaffected by merge
+    
+    this.changeUnitNumber(unitsTransfered);
+    other.changeUnitNumber(unitsTransfered);
+    
+    return other.getUnitNumber() > 0; // Return true if any units left, else false
+  }
+  
   String getID(){
     return id;
   }
+  
+  void setID(String value){
+    this.id = value;
+  }
+  
+  float mergeAttribute(int units1, float attrib1, int units2, float attrib2){
+    // Calcaulate the attributes for merge weighted by units number
+    return (units1 * attrib1 + units2 * attrib2) / (units1 + units2);
+  }
+  
   void changeTask(int task){
     //LOGGER_GAME.info("Party changing task to:"+gameData.getJSONArray("tasks").getJSONObject(task).getString("id")); Removed as this is called too much for battle estimates
     this.task = task;
@@ -146,17 +109,21 @@ class Party{
     else
       this.strength = 1.5;
   }
+  
   void setPathTurns(int v){
     LOGGER_GAME.finer("Setting path turns to: "+v);
     pathTurns = v;
   }
+  
   void moved(){
     LOGGER_GAME.finest("Decreasing pathTurns due to party moving");
     pathTurns = max(pathTurns-1, 0);
   }
+  
   int getTask(){
     return task;
   }
+  
   int[] nextNode(){
     try{
       return path.get(0);
@@ -166,31 +133,39 @@ class Party{
       return null;
     }
   }
+  
   void loadPath(ArrayList<int[]> p){
     LOGGER_GAME.finer("Loading path into party");
     path = p;
   }
+  
   void clearNode(){
     path.remove(0);
   }
+  
   void clearPath(){
     //LOGGER_GAME.finer("Clearing party path"); Removed as this is called too much for battle estimates
     path = new ArrayList<int[]>();
     pathTurns=0;
   }
+  
   void addAction(Action a){
     actions.add(a);
   }
+  
   boolean hasActions(){
     return actions.size()>0;
   }
+  
   int turnsLeft(){
     return calcTurns(actions.get(0).turns);
   }
+  
   int calcTurns(float turnsCost){
     //Use this to calculate the number of turns a task will take for this party
     return ceil(turnsCost/(sqrt(unitNumber)/10));
   }
+  
   Action progressAction(){
     try{
       if (actions.size() == 0){
@@ -223,46 +198,82 @@ class Party{
       actions.remove(0);
     }
   }
+  
   void clearActions(){
     actions = new ArrayList<Action>();
   }
+  
   int currentAction(){
     return actions.get(0).type;
   }
+  
   boolean isTurn(int turn){
     return this.player==turn;
   }
+  
   int getMovementPoints(){
     return movementPoints;
   }
+  
   void subMovementPoints(int p){
     movementPoints -= p;
   }
+  
   void setMovementPoints(int p){
     movementPoints = p;
   }
+  
   int getMovementPoints(int turn){
     return movementPoints;
   }
+  
   int getUnitNumber(){
     return unitNumber;
   }
+  
   int getUnitNumber(int turn){
     return unitNumber;
   }
+  
   void setUnitNumber(int newUnitNumber){
     unitNumber = (int)between(0, newUnitNumber, jsManager.loadIntSetting("party size"));
   }
+  
   int changeUnitNumber(int changeInUnitNumber){
     int overflow = max(0, changeInUnitNumber+unitNumber-jsManager.loadIntSetting("party size"));
     this.setUnitNumber(unitNumber+changeInUnitNumber);
     return overflow;
   }
+  
   Party clone(){
     Party newParty = new Party(player, unitNumber, task, movementPoints, id);
     newParty.actions = new ArrayList<Action>(actions);
     newParty.strength = strength;
     return newParty;
+  }
+  
+  float getMeleeProficiency(){
+    return rangedProficiency;
+  }
+  
+  void setMeleeProficiency(float value){
+    this.meleeProficiency = value;
+  }
+  
+  float getRangedProficiency(){
+    return meleeProficiency;
+  }
+  
+  void setRangedProficiency(float value){
+    this.rangedProficiency = value;
+  }
+  
+  float getBuildingProficiency(){
+    return buildingProficiency;
+  }
+  
+  void setBuildingProficiency(float value){
+    this.buildingProficiency = value;
   }
 }
 
