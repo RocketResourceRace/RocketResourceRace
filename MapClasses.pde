@@ -15,6 +15,8 @@ class Building{
 
 
 class Party{
+  private int MELEEFOCUS = 0, RANGEDFOCUS = 0, BUILDINGFOCUS = 0;
+  private int trainingFocus;
   private int unitNumber;
   private int movementPoints;
   private float meleeProficiency, rangedProficiency, buildingProficiency;
@@ -41,12 +43,14 @@ class Party{
     this.id = id;
     
     // Default proficiencies = 0
-    this.meleeProficiency = 0;
-    this.rangedProficiency = 0;
-    this.buildingProficiency = 0;
+    this.setMeleeProficiency(0);
+    this.setRangedProficiency(0);
+    this.setBuildingProficiency(0);
+    
+    setTrainingFocus(MELEEFOCUS);
   }
   
-  Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float meleeProficiency, float rangedProficiency, float buildingProficiency){
+  Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float meleeProficiency, float rangedProficiency, float buildingProficiency, int trainingFocus){
     unitNumber = startingUnits;
     task = startingTask;
     this.player = player;
@@ -59,9 +63,19 @@ class Party{
     this.id = id;
     
     // Use proficiencies given
-    this.meleeProficiency = meleeProficiency;
-    this.rangedProficiency = rangedProficiency;
-    this.buildingProficiency = buildingProficiency;
+    this.setMeleeProficiency(meleeProficiency);
+    this.setRangedProficiency(rangedProficiency);
+    this.setBuildingProficiency(buildingProficiency);
+    
+    setTrainingFocus(trainingFocus);
+  }
+  
+  void setTrainingFocus(int value){
+    this.trainingFocus = value;
+  }
+  
+  int getTrainingFocus(){
+    return this.trainingFocus;
   }
   
   void mergeEntireFrom(Party other){
