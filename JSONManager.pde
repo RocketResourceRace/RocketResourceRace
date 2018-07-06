@@ -7,7 +7,7 @@ class JSONManager{
     try{
       LOGGER_MAIN.fine("Initializing JSON Manager");
       menu = loadJSONObject("menu.json");
-      gameData = loadJSONObject("data.json");  
+      gameData = loadJSONObject("data.json");
       try{
         settings = loadJSONObject("settings.json");
       }
@@ -28,6 +28,45 @@ class JSONManager{
     catch(Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error loading JSON", e);
       throw e;
+    }
+  }
+  
+  int getNumProficiencies(){
+    try{
+      JSONArray proficienciesJSON = gameData.getJSONArray("proficiencies");
+      return proficienciesJSON.size();
+    }
+    catch (NullPointerException e){
+      LOGGER_MAIN.log(Level.WARNING, "Error loading proficiencies from data.json", e);
+      return 0;
+    }
+  }
+  
+  String indexToProficiencyID(int index){
+    try{
+      JSONArray proficienciesJSON = gameData.getJSONArray("proficiencies");
+      return proficienciesJSON.getJSONObject(index).getString("id");
+    }
+    catch (IndexOutOfBoundsException e){
+      LOGGER_MAIN.warning("Proficiency index out of range: "+index);
+      return "";
+    }
+  }
+  
+  int proficiencyIDToIndex(String id){
+    try{
+      JSONArray proficienciesJSON = gameData.getJSONArray("proficiencies");
+      for (int i = 0; i < proficienciesJSON.size(); i++){
+        if (proficienciesJSON.getJSONObject(i).getString("id").equals(id)){
+          return i;
+        }
+      }
+      LOGGER_MAIN.severe("Could not find proficiency id: "+id);
+      return -1;
+    }
+    catch (NullPointerException e){
+      LOGGER_MAIN.log(Level.WARNING, "Error loading proficiencies from data.json", e);
+      return -1;
     }
   }
   

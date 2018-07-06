@@ -582,6 +582,25 @@
       "resource manager": 0
     },
   ],
+  
+  "proficiencies":[
+    {
+      "id":"melee",
+      "diplay name": "Melee Strength"
+    },
+    {
+      "id":"ranged",
+      "diplay name": "Ranged Strength"
+    },
+    {
+      "id":"building",
+      "diplay name": "Building Proficiency"
+    },
+    {
+      "id":"pathfinding",
+      "diplay name": "Pathfinding Proficiency"
+    }
+  ],
 
   "tooltips":{
     "move button": "A party can only move if it has enough\nmovement points",

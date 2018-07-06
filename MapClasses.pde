@@ -15,11 +15,10 @@ class Building{
 
 
 class Party{
-  private int MELEEFOCUS = 0, RANGEDFOCUS = 0, BUILDINGFOCUS = 0;
   private int trainingFocus;
   private int unitNumber;
   private int movementPoints;
-  private float meleeProficiency, rangedProficiency, buildingProficiency;
+  private float[] proficiencies;
   private int task;
   String id;
   int player;
@@ -47,10 +46,10 @@ class Party{
     this.setRangedProficiency(0);
     this.setBuildingProficiency(0);
     
-    setTrainingFocus(MELEEFOCUS);
+    setTrainingFocus(jsManager.proficiencyIDToIndex("melee"));
   }
   
-  Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float meleeProficiency, float rangedProficiency, float buildingProficiency, int trainingFocus){
+  Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float[] proficiencies, String trainingFocus){
     unitNumber = startingUnits;
     task = startingTask;
     this.player = player;
@@ -62,12 +61,17 @@ class Party{
     this.pathTurns = 0;
     this.id = id;
     
-    // Use proficiencies given
-    this.setMeleeProficiency(meleeProficiency);
-    this.setRangedProficiency(rangedProficiency);
-    this.setBuildingProficiency(buildingProficiency);
+    // Load proficiencies given
+    try{
+      for (int i = 0; i < jsManager.getNumProficiencies(); i++){
+        this.setProficiency(i, proficiencies[i]);
+      }
+    }
+    catch (IndexOutOfBoundsException e){
+      LOGGER_MAIN.severe(String.format("Not enough proficiencies given to party:%d (needs %d)  id:%s", proficiencies.length, jsManager.getNumProficiencies(), id));
+    }
     
-    setTrainingFocus(trainingFocus);
+    setTrainingFocus(jsManager.proficiencyIDToIndex(trainingFocus));  // 'trainingFocus' is an id string
   }
   
   void setTrainingFocus(int value){
@@ -91,9 +95,12 @@ class Party{
   boolean mergeFrom(Party other, int unitsTransfered){
     // Take units from other party into this party and merge attributes, weighted by unit number
     LOGGER_GAME.fine(String.format("Merging %d units from party with id:%s into party with id:%s", unitsTransfered, other.id, this.id));
-    this.setMeleeProficiency(mergeAttribute(this.getUnitNumber(), this.getMeleeProficiency(), unitsTransfered, other.getMeleeProficiency()));
-    this.setRangedProficiency(mergeAttribute(this.getUnitNumber(), this.getRangedProficiency(), unitsTransfered, other.getRangedProficiency()));
-    this.setBuildingProficiency(mergeAttribute(this.getUnitNumber(), this.getBuildingProficiency(), unitsTransfered, other.getBuildingProficiency()));
+    
+    // Merge all proficiencies with other party
+    for (int i = 0; i < jsManager.getNumProficiencies(); i++){
+      this.setProficiency(i, mergeAttribute(this.getUnitNumber(), this.getProficiency(i), unitsTransfered, other.getProficiency(i)));
+    }
+      
     LOGGER_GAME.finer(String.format("New proficiency values: melee=%f, ranged=%f, building=%f for party with id:%s", getMeleeProficiency(), getRangedProficiency(), getBuildingProficiency(), id));
     // Note: other division attributes unaffected by merge
     
@@ -129,7 +136,7 @@ class Party{
       }
     }
     catch (NullPointerException e){
-      LOGGER_MAIN.log(Level.SEVERE, String.format("Error changing party task, id:%s, task=%s. Likely cause is something wrong in data.json",id, task), e);
+      LOGGER_MAIN.log(Level.WARNING, String.format("Error changing party task, id:%s, task=%s. Likely cause is something wrong in data.json",id, task), e);
     }
   }
   
@@ -152,7 +159,7 @@ class Party{
       return path.get(0);
     }
     catch (IndexOutOfBoundsException e){
-      LOGGER_MAIN.log(Level.SEVERE, "Party run out of nodes id:"+id, e);
+      LOGGER_MAIN.log(Level.WARNING, "Party run out of nodes id:"+id, e);
       return null;
     }
   }
@@ -275,28 +282,24 @@ class Party{
     return newParty;
   }
   
-  float getMeleeProficiency(){
-    return rangedProficiency;
+  float getProficiency(String id){
+    // Use this if have access to string id
+    return proficiencies[jsManager.proficiencyIDToIndex(id)];
   }
   
-  void setMeleeProficiency(float value){
-    this.meleeProficiency = value;
+  void setProficiency(String id, float value){
+    // Use this if have access to string id
+    proficiencies[jsManager.proficiencyIDToIndex(id)] = value;
   }
   
-  float getRangedProficiency(){
-    return meleeProficiency;
+  float getProficiency(int index){
+    // Use this if have access to index not string id
+    return proficiencies[index];
   }
   
-  void setRangedProficiency(float value){
-    this.rangedProficiency = value;
-  }
-  
-  float getBuildingProficiency(){
-    return buildingProficiency;
-  }
-  
-  void setBuildingProficiency(float value){
-    this.buildingProficiency = value;
+  void setProficiency(int index, float value){
+    // Use this if have access to index not string id
+    proficiencies[index] = value;
   }
 }
 
