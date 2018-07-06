@@ -66,6 +66,7 @@ class Party{
   
   void mergeEntireFrom(Party other){
     // Note: will need to remove other division
+    LOGGER_GAME.fine(String.format("Merging entire party from id:%s into party with id:%s", other.id, this.id));
     boolean fullyMerged = mergeFrom(other, other.getUnitNumber());
     
     if (!fullyMerged){
@@ -75,9 +76,11 @@ class Party{
   
   boolean mergeFrom(Party other, int unitsTransfered){
     // Take units from other party into this party and merge attributes, weighted by unit number
-    this.meleeProficiency = mergeAttribute(this.getUnitNumber(), this.getMeleeProficiency(), unitsTransfered, other.getMeleeProficiency());
-    this.rangedProficiency = mergeAttribute(this.getUnitNumber(), this.getRangedProficiency(), unitsTransfered, other.getRangedProficiency());
-    this.buildingProficiency = mergeAttribute(this.getUnitNumber(), this.getBuildingProficiency(), unitsTransfered, other.getBuildingProficiency());
+    LOGGER_GAME.fine(String.format("Merging %d units from party with id:%s into party with id:%s", unitsTransfered, other.id, this.id));
+    this.setMeleeProficiency(mergeAttribute(this.getUnitNumber(), this.getMeleeProficiency(), unitsTransfered, other.getMeleeProficiency()));
+    this.setRangedProficiency(mergeAttribute(this.getUnitNumber(), this.getRangedProficiency(), unitsTransfered, other.getRangedProficiency()));
+    this.setBuildingProficiency(mergeAttribute(this.getUnitNumber(), this.getBuildingProficiency(), unitsTransfered, other.getBuildingProficiency()));
+    LOGGER_GAME.finer(String.format("New proficiency values: melee=%f, ranged=%f, building=%f for party with id:%s", getMeleeProficiency(), getRangedProficiency(), getBuildingProficiency(), id));
     // Note: other division attributes unaffected by merge
     
     this.changeUnitNumber(unitsTransfered);
@@ -101,22 +104,28 @@ class Party{
   
   void changeTask(int task){
     //LOGGER_GAME.info("Party changing task to:"+gameData.getJSONArray("tasks").getJSONObject(task).getString("id")); Removed as this is called too much for battle estimates
-    this.task = task;
-    JSONObject jTask = gameData.getJSONArray("tasks").getJSONObject(this.getTask());
-    if (!jTask.isNull("strength")){
-      this.strength = jTask.getInt("strength");
+    try{
+      this.task = task;
+      JSONObject jTask = gameData.getJSONArray("tasks").getJSONObject(this.getTask());
+      if (!jTask.isNull("strength")){
+        this.strength = jTask.getInt("strength");
+      }
+      else{
+        this.strength = 1.5;
+      }
     }
-    else
-      this.strength = 1.5;
+    catch (NullPointerException e){
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error changing party task, id:%s, task=%s. Likely cause is something wrong in data.json",id, task), e);
+    }
   }
   
   void setPathTurns(int v){
-    LOGGER_GAME.finer("Setting path turns to: "+v);
+    LOGGER_GAME.finer(String.format("Setting path turns to:%s, party id:%s", v, id));
     pathTurns = v;
   }
   
   void moved(){
-    LOGGER_GAME.finest("Decreasing pathTurns due to party moving");
+    LOGGER_GAME.finest("Decreasing pathTurns due to party moving id: "+id);
     pathTurns = max(pathTurns-1, 0);
   }
   
@@ -129,13 +138,13 @@ class Party{
       return path.get(0);
     }
     catch (IndexOutOfBoundsException e){
-      LOGGER_MAIN.log(Level.SEVERE, "Party run out of nodes", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Party run out of nodes id:"+id, e);
       return null;
     }
   }
   
   void loadPath(ArrayList<int[]> p){
-    LOGGER_GAME.finer("Loading path into party");
+    LOGGER_GAME.finer("Loading path into party id:"+id);
     path = p;
   }
   
@@ -171,7 +180,7 @@ class Party{
       if (actions.size() == 0){
         return null;
       }
-      LOGGER_GAME.finer("Party action progressing"+actions.get(0).type);
+      LOGGER_GAME.finer(String.format("Party action progressing: '%s', id:%s", actions.get(0).type, id));
       if (actions.get(0).turns-sqrt((float)unitNumber)/10 <= 0){
         return actions.get(0);
       }
@@ -188,13 +197,13 @@ class Party{
       }
     }
     catch(Exception e){
-      LOGGER_MAIN.log(Level.SEVERE, "Progressing party action failed");
+      LOGGER_MAIN.log(Level.SEVERE, "Progressing party action failed id:"+id);
       throw e;
     }
   }
   void clearCurrentAction(){
     if (actions.size() > 0){
-      LOGGER_GAME.finest("Clearing party current action of type:"+actions.get(0).type);
+      LOGGER_GAME.finest(String.format("Clearing party current action of type:%s, id:%s",actions.get(0).type, id));
       actions.remove(0);
     }
   }
