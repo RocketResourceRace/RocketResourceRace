@@ -42,9 +42,9 @@ class Party{
     this.id = id;
     
     // Default proficiencies = 0
-    this.setMeleeProficiency(0);
-    this.setRangedProficiency(0);
-    this.setBuildingProficiency(0);
+    for (int i = 0; i < jsManager.getNumProficiencies(); i++){
+      this.setProficiency(i, 0);
+    }
     
     setTrainingFocus(jsManager.proficiencyIDToIndex("melee"));
   }
@@ -101,7 +101,7 @@ class Party{
       this.setProficiency(i, mergeAttribute(this.getUnitNumber(), this.getProficiency(i), unitsTransfered, other.getProficiency(i)));
     }
       
-    LOGGER_GAME.finer(String.format("New proficiency values: melee=%f, ranged=%f, building=%f for party with id:%s", getMeleeProficiency(), getRangedProficiency(), getBuildingProficiency(), id));
+    LOGGER_GAME.finer(String.format("New proficiency values: %s for party with id:%s", Arrays.toString(proficiencies), id));
     // Note: other division attributes unaffected by merge
     
     this.changeUnitNumber(unitsTransfered);
