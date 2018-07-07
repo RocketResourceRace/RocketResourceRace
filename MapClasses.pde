@@ -77,10 +77,12 @@ class Party{
   }
   
   void setTrainingFocus(int value){
+    // Training focus is the index of the proficiency in data.json
     this.trainingFocus = value;
   }
   
   int getTrainingFocus(){
+    // Training focus is the index of the proficiency in data.json
     return this.trainingFocus;
   }
   

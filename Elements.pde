@@ -422,6 +422,10 @@ class DropDown extends Element{
     }
   }
   
+  int getOptionIndex(){
+    return selected;
+  }
+  
   boolean moveOver(){
     if (expanded){
       return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset < y+h*(options.length+1);

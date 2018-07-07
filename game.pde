@@ -524,6 +524,13 @@ class Game extends State{
   
         checkTasks();
       }
+      
+      else if (event instanceof ChangePartyTrainingFocus){
+        int newFocus = ((ChangePartyTrainingFocus)event).newFocus;
+        LOGGER_GAME.fine(String.format("Changing party focus for cell (%d, %d) id:%s to '%s'", cellX, cellY, parties[cellY][cellX].getID(), newFocus));
+        parties[cellY][cellX].setTrainingFocus(newFocus);
+      }
+      
       if (valid){
         LOGGER_GAME.finest("Event is valid, so updating things...");
         if (!changeTurn){
@@ -1229,6 +1236,9 @@ class Game extends State{
           LOGGER_MAIN.fine("Changing selected save name to: "+loadingName);
           ((TextEntry)getElement("save namer", "save screen")).setText(loadingName);
         }
+        else if (event.id.equals("party training focus")){
+          postEvent(new ChangePartyTrainingFocus(cellX, cellY, ((DropDown)getElement("party training focus", "party management")).getOptionIndex()));
+        }
       }
       if (event.type.equals("notification selected")){
         int x = notificationManager.lastSelected.x, y = notificationManager.lastSelected.y;
@@ -1645,13 +1655,22 @@ class Game extends State{
         }
         checkTasks();
         updatePartyManagementProficiencies();
+        updateCurrentPartyTrainingFocus();
       }
     }
   }
+  
   void updatePartyManagementProficiencies(){
     // Update proficiencies with those for current party
     ((ProficiencySummary)getElement("proficiency summary", "party management")).setProficiencies(parties[cellY][cellX].getProficiencies());
   }
+  
+  void updateCurrentPartyTrainingFocus(){
+    int trainingFocus = parties[cellY][cellX].getTrainingFocus();
+    ((DropDown)getElement("party training focus", "party management")).setValue(jsManager.indexToProficiencyDisplayName(trainingFocus));
+    
+  }
+  
   float[] resourceProduction(int x, int y){
     float[] totalResourceRequirements = new float[numResources];
     float [] resourceAmountsAvailable = new float[numResources];

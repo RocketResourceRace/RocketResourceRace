@@ -79,6 +79,16 @@ class ChangeTask extends GameEvent{
   }
 }
 
+class ChangePartyTrainingFocus extends GameEvent { 
+  int x, y;
+  int newFocus;
+  ChangePartyTrainingFocus(int x, int y, int newFocus){
+    this.x = x;
+    this.y = y;
+    this.newFocus = newFocus;
+  }
+}
+
 class EndTurn extends GameEvent{
 
 }
