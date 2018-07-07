@@ -1620,6 +1620,7 @@ class Game extends State{
       cellY = y;
       cellSelected = true;
       map.selectCell(cellX, cellY);
+      
       //map.setWidth(round(width-bezel*2-400));
       getPanel("land management").setVisible(true);
       if (parties[cellY][cellX] != null && (parties[cellY][cellX].isTurn(turn) || jsManager.loadBooleanSetting("show all party managements"))){
@@ -1643,8 +1644,13 @@ class Game extends State{
           getPanel("party management").setColour(color(70, 70, 220));
         }
         checkTasks();
+        updatePartyManagementProficiencies();
       }
     }
+  }
+  void updatePartyManagementProficiencies(){
+    // Update proficiencies with those for current party
+    ((ProficiencySummary)getElement("proficiency summary", "party management")).setProficiencies(parties[cellY][cellX].getProficiencies());
   }
   float[] resourceProduction(int x, int y){
     float[] totalResourceRequirements = new float[numResources];

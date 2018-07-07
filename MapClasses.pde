@@ -307,6 +307,14 @@ class Party{
   void resetProficiencies(){
     proficiencies = new float[jsManager.getNumProficiencies()];
   }
+  
+  float[] getProficiencies(){
+    return proficiencies;
+  }
+  
+  void setProficiencies(float[] values){
+    this.proficiencies = values;
+  }
 }
 
 class Battle extends Party{
