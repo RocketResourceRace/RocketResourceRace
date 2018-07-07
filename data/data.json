@@ -586,19 +586,19 @@
   "proficiencies":[
     {
       "id":"melee",
-      "display name": "Melee Strength"
+      "display name": "Melee"
     },
     {
       "id":"ranged",
-      "display name": "Ranged Strength"
+      "display name": "Ranged"
     },
     {
       "id":"building",
-      "display name": "Building Proficiency"
+      "display name": "Building"
     },
     {
       "id":"pathfinding",
-      "display name": "Pathfinding Proficiency"
+      "display name": "Pathfinding"
     }
   ],
 

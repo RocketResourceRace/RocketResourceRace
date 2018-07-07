@@ -21,6 +21,7 @@ class ProficiencySummary extends Element {
     this.w = w;
     this.h = h;
     updateProficiencyDisplayNames();
+    updateRowHeight();
   }
   
   void setProficiencies(float[] proficiencies){
@@ -40,12 +41,18 @@ class ProficiencySummary extends Element {
   }
   
   void draw(PGraphics panelCanvas){
-    updateRowHeight();
     panelCanvas.pushStyle();
     
+    //Draw background
+    panelCanvas.strokeWeight(2);
+    panelCanvas.fill(150);
+    panelCanvas.rect(x, y, w, h); // Added and subtracted values are for stroke to line up well with other boxes
+    
+    //Draw each proficiency box
+    panelCanvas.strokeWeight(1);
     for (int i = 0 ; i < proficiencyDisplayNames.length; i ++){
-      panelCanvas.fill(150);
-      panelCanvas.rect(x, y+rowHeight*i, w, rowHeight);
+      panelCanvas.noFill();
+      panelCanvas.line(x, y+rowHeight*i, x+w, y+rowHeight*i);
       panelCanvas.fill(0);
       panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
       panelCanvas.textAlign(LEFT, CENTER);
@@ -239,11 +246,11 @@ class BaseFileManager extends Element{
 
 class DropDown extends Element{
   String[] options;  // Either strings or floats
-  int selected, bgColour;
+  int selected, bgColour, textSize;
   String name, optionTypes;
   boolean expanded, postExpandedEvent;
   
-  DropDown(int x, int y, int w, int h, int bgColour, String name, String optionTypes){
+  DropDown(int x, int y, int w, int h, int bgColour, String name, String optionTypes, int textSize){
     // h here means the height of one dropper box
     this.x = x;
     this.y = y;
@@ -253,6 +260,7 @@ class DropDown extends Element{
     this.name = name;
     this.expanded = false;
     this.optionTypes = optionTypes;
+    this.textSize = textSize;
   }
   
   void setOptions(String[] options){
@@ -284,7 +292,7 @@ class DropDown extends Element{
     }
     panelCanvas.rect(x, y, w, h);
     panelCanvas.textAlign(LEFT, TOP);
-    panelCanvas.textFont(getFont((min(h*0.8, 10))*jsManager.loadFloatSetting("text scale")));
+    panelCanvas.textFont(getFont((min(h*0.8, textSize))*jsManager.loadFloatSetting("text scale")));
     panelCanvas.fill(color(0));
     panelCanvas.text(String.format("%s: %s", name, options[selected]), x+3, y);
     

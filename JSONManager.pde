@@ -31,6 +31,14 @@ class JSONManager{
     }
   }
   
+  String[] getProficiencies(){
+    String[] returnArray = new String[getNumProficiencies()];
+    for (int i = 0; i < returnArray.length; i ++){
+      returnArray[i] = indexToProficiencyDisplayName(i);
+    }
+    return returnArray;
+  }
+  
   int getNumProficiencies(){
     try{
       JSONArray proficienciesJSON = gameData.getJSONArray("proficiencies");
@@ -576,7 +584,7 @@ class JSONManager{
             }
             break;
           case "dropdown":
-            DropDown dd = new DropDown((int)x, (int)y, (int)w, (int)h, color(150), text, elem.getString("options type"));
+            DropDown dd = new DropDown((int)x, (int)y, (int)w, (int)h, color(150), text, elem.getString("options type"), 10);
             dd.setOptions(options);
             if (elem.isNull("default value")){
               switch (dd.optionTypes){
