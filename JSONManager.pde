@@ -45,7 +45,26 @@ class JSONManager{
   String indexToProficiencyID(int index){
     try{
       JSONArray proficienciesJSON = gameData.getJSONArray("proficiencies");
-      return proficienciesJSON.getJSONObject(index).getString("id");
+      String rs = proficienciesJSON.getJSONObject(index).getString("id");
+      if (rs == null){
+        LOGGER_MAIN.warning("Could not find proficiency id with index: "+index);
+      }
+      return rs;
+    }
+    catch (IndexOutOfBoundsException e){
+      LOGGER_MAIN.warning("Proficiency index out of range: "+index);
+      return "";
+    }
+  }
+  
+  String indexToProficiencyDisplayName(int index){
+    try{
+      JSONArray proficienciesJSON = gameData.getJSONArray("proficiencies");
+      String rs = proficienciesJSON.getJSONObject(index).getString("display name");
+      if (rs == null){
+        LOGGER_MAIN.warning("Could not find proficiency display name with index: "+index);
+      }
+      return rs;
     }
     catch (IndexOutOfBoundsException e){
       LOGGER_MAIN.warning("Proficiency index out of range: "+index);

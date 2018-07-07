@@ -1,5 +1,63 @@
 
 
+class ProficiencySummary extends Element {
+  final int TEXTSIZE = 8;
+  String[] proficiencyDisplayNames;
+  float[] proficiencies;
+  int rowHeight;
+  
+  ProficiencySummary(int x, int y, int w, int h){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    updateProficiencyDisplayNames();
+    proficiencies = new float[jsManager.getNumProficiencies()];
+  }
+  
+  void transform(int x, int y, int w, int h){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    updateProficiencyDisplayNames();
+  }
+  
+  void setProficiencies(float[] proficiencies){
+    this.proficiencies = proficiencies;
+  }
+  
+  void updateProficiencyDisplayNames(){
+    proficiencyDisplayNames = new String[jsManager.getNumProficiencies()];
+    for (int i = 0 ; i < jsManager.getNumProficiencies(); i ++){
+      proficiencyDisplayNames[i] = jsManager.indexToProficiencyDisplayName(i);
+    }
+    LOGGER_MAIN.finer("Updated proficiency display names to: "+Arrays.toString(proficiencyDisplayNames));
+  }
+  
+  void updateRowHeight(){
+    rowHeight = h/proficiencyDisplayNames.length;
+  }
+  
+  void draw(PGraphics panelCanvas){
+    updateRowHeight();
+    panelCanvas.pushStyle();
+    
+    for (int i = 0 ; i < proficiencyDisplayNames.length; i ++){
+      panelCanvas.fill(150);
+      panelCanvas.rect(x, y+rowHeight*i, w, rowHeight);
+      panelCanvas.fill(0);
+      panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
+      panelCanvas.textAlign(LEFT, CENTER);
+      panelCanvas.text(proficiencyDisplayNames[i], x+5, y+rowHeight*(i+0.5)); // Display name aligned left, middle height within row
+      panelCanvas.textAlign(RIGHT, CENTER);
+      panelCanvas.text(proficiencies[i], x+w-5, y+rowHeight*(i+0.5)); // Display name aligned right, middle height within row
+    }
+    
+    panelCanvas.popStyle();
+  }
+}
+
 class BaseFileManager extends Element{
   // Basic file manager that scans a folder and makes a selectable list for all the files
   final int TEXTSIZE = 14, SCROLLWIDTH = 30;
