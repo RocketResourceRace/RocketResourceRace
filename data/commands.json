@@ -8,32 +8,32 @@
         "value type": "boolean",
         "regenerate map" : true,
         "basic description": "stroke for 3d map sub tiles",
-        "detailed description": ""
+        "detailed description": "stroke for 3d map sub tiles"
       },
       "cell_coords": {
         "type": "setting",
         "setting id": "show cell coords",
         "value type": "boolean",
         "basic description": "cell coordinates in land management panel",
-        "detailed description": ""
+        "detailed description": "cell coordinates in land management panel"
       },
       "all_party_details": {
         "type": "setting",
         "setting id": "show all party managements",
         "value type": "boolean",
         "basic description": "party management for parties of the other player",
-        "detailed description": ""
+        "detailed description": "party management for parties of the other player"
       },
       "party_id": {
         "type": "setting",
         "setting id": "show party id",
         "value type": "boolean",
         "basic description": "party id in party management panel",
-        "detailed description": ""
+        "detailed description": "party id in party management panel"
       }
     },
     "basic description": "toggle settings for displayed features",
-    "detailed description": ""
+    "detailed description": "toggle settings for displayed features"
   },
   "test": {
     "type": "container",
@@ -43,11 +43,11 @@
         "setting id": "fog of war",
         "value type": "boolean",
         "basic description": "tiles outside of the view of any parties are dimmed",
-        "detailed description": ""
+        "detailed description": "tiles outside of the view of any parties are dimmed"
       }
     },
     "basic description": "unfinished features",
-    "detailed description": ""
+    "detailed description": "these are temporary unfinished features that are just tests"
   },
   "help": {
     "type": "help",

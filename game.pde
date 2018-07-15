@@ -110,7 +110,7 @@ class Game extends State{
       addPanel("pause screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
       addPanel("save screen", (int)(width/2+jsManager.loadFloatSetting("gui scale")*150+(int)(jsManager.loadFloatSetting("gui scale")*20)), (int)(height/2-5*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*500), (int)(jsManager.loadFloatSetting("gui scale")*500), false, false, color(50), color(0));
       addPanel("overlay", 0, 0, width, height, true, false, color(255,255), color(255, 255));
-      addPanel("console", 0, height/2, width, height/2, false, true, color(0,200), color(255, 0));
+      addPanel("console", 0, height/2, width, height/2, false, true, color(0,220), color(255, 0));
       
       getPanel("save screen").setOverrideBlocking(true);
   

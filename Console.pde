@@ -55,11 +55,11 @@ class Console extends Element{
     drawCursor = (time/500)%2==0 || keyPressed;
     canvas.fill(255);
     for (int i=0; i < text.size(); i++){
-      canvas.text(""+text.get(i), x, height/2-((text.size()-i-1)*ts));
+      canvas.text(""+text.get(i), x, height/2-((text.size()-i-1)*ts*1.2));
     }
     if (drawCursor){
       canvas.stroke(255);
-      canvas.rect(x+canvas.textWidth(getInputString().substring(0, cursorX)), y+height/2-ts, 1, ts*1.2);
+      canvas.rect(x+canvas.textWidth(getInputString().substring(0, cursorX)), y+height/2-ts*1.2, 1, ts*1.2);
     }
     canvas.popStyle();
   }
@@ -158,30 +158,49 @@ class Console extends Element{
   }
     
   void getHelp(String[] splitCommand){
-    if(splitCommand.length == 1){
-      sendLine("Command list:");
-      for (Object c: commands.keys()){
-        String c1 = c.toString();
-        sendLine(String.format("%-22s%-22s", c1, commands.getJSONObject(c1).getString("basic description")));
-      }
-    } else {
-      if (commands.hasKey(splitCommand[1])) {
-        JSONObject command = commands.getJSONObject(splitCommand[1]);
-        for (int i = 1; i < splitCommand.length; i++){
-          if (command.getString("type").equals("container")){
-            
-            sendLine("Command list:");
-            for (Object c: command.getJSONObject("sub commands").keys()){
-              String c1 = c.toString();
-              sendLine(String.format("%-22s%-22s", c1, command.getJSONObject("sub commands").getJSONObject(c1).getString("basic description")));
-            }
-          } else {
-            
-          }
+    try {
+      if(splitCommand.length == 1){
+        sendLine("Command list:");
+        for (Object c: commands.keys()){
+          String c1 = c.toString();
+          sendLine(String.format("%-22s%-22s", c1, commands.getJSONObject(c1).getString("basic description")));
         }
       } else {
-        invalidHelp(splitCommand[1]);
+        if (commands.hasKey(splitCommand[1])) {
+          JSONObject command = commands.getJSONObject(splitCommand[1]);
+          for (int i = 1; i < splitCommand.length; i++){
+            if (command.getString("type").equals("container")){
+              if (i == splitCommand.length-1){
+                sendLine(String.format("%s: %s", splitCommand[i], command.getString("detailed description")));
+                sendLine("Command list:");
+                for (Object c: command.getJSONObject("sub commands").keys()){
+                  String c1 = c.toString();
+                  sendLine(String.format("%-22s%-22s", c1, command.getJSONObject("sub commands").getJSONObject(c1).getString("basic description")));
+                }
+                return;
+              } else if (command.getJSONObject("sub commands").hasKey(splitCommand[i+1])) {
+                command = command.getJSONObject("sub commands").getJSONObject(splitCommand[i+1]);
+              } else {
+                invalidHelp(splitCommand[i+1]);
+                return;
+              }
+            } else if (i == splitCommand.length-1) {
+              String c1 = splitCommand[i];
+              sendLine(c1+":");
+              sendLine(command.getString("detailed description"));
+              return;
+            } else {
+              invalidHelp(splitCommand[i+1]);
+              return;
+            }
+          }
+        } else {
+          invalidHelp(splitCommand[1]);
+        }
       }
+    } catch (Exception e) {
+      LOGGER_MAIN.severe("Error getting help in console");
+      throw (e);
     }
   }
   
