@@ -49,7 +49,7 @@ class Console extends Element{
   void draw(PGraphics canvas){
     canvas.pushStyle();
     float ts = textSize*jsManager.loadFloatSetting("text scale");
-    canvas.textSize(ts);
+    canvas.textFont(createFont("Monospaced", ts));
     canvas.textAlign(LEFT, BOTTOM);
     int time = millis();
     drawCursor = (time/500)%2==0 || keyPressed;
@@ -148,9 +148,41 @@ class Console extends Element{
     invalid(String.format("Invalid value for %s. Value type: %s", args[position], command.getString("value type")));
   }
   
+  void invalidHelp(String command){
+    invalid(String.format("help: invalid command '%s'", command)); 
+  }
+  
   void commandFileError(String error){
     invalid(error);
     LOGGER_GAME.severe(error);
+  }
+    
+  void getHelp(String[] splitCommand){
+    if(splitCommand.length == 1){
+      sendLine("Command list:");
+      for (Object c: commands.keys()){
+        String c1 = c.toString();
+        sendLine(String.format("%-22s%-22s", c1, commands.getJSONObject(c1).getString("basic description")));
+      }
+    } else {
+      if (commands.hasKey(splitCommand[1])) {
+        JSONObject command = commands.getJSONObject(splitCommand[1]);
+        for (int i = 1; i < splitCommand.length; i++){
+          if (command.getString("type").equals("container")){
+            
+            sendLine("Command list:");
+            for (Object c: command.getJSONObject("sub commands").keys()){
+              String c1 = c.toString();
+              sendLine(String.format("%-22s%-22s", c1, command.getJSONObject("sub commands").getJSONObject(c1).getString("basic description")));
+            }
+          } else {
+            
+          }
+        }
+      } else {
+        invalidHelp(splitCommand[1]);
+      }
+    }
   }
   
   void doCommand(String rawCommand){
@@ -161,7 +193,11 @@ class Console extends Element{
     }
     if(commands.hasKey(splitCommand[0])){
       JSONObject command = commands.getJSONObject(splitCommand[0]);
-      handleCommand(command, splitCommand, 0);
+      if (command.getString("type").equals("help")){
+        getHelp(splitCommand);
+      } else {
+        handleCommand(command, splitCommand, 0);
+      }
     } else {
       invalid();
     }

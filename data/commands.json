@@ -7,32 +7,32 @@
         "setting id": "tile stroke",
         "value type": "boolean",
         "regenerate map" : true,
-        "basic description": "",
+        "basic description": "stroke for 3d map sub tiles",
         "detailed description": ""
       },
       "cell_coords": {
         "type": "setting",
         "setting id": "show cell coords",
         "value type": "boolean",
-        "basic description": "",
+        "basic description": "cell coordinates in land management panel",
         "detailed description": ""
       },
       "all_party_details": {
         "type": "setting",
         "setting id": "show all party managements",
         "value type": "boolean",
-        "basic description": "",
+        "basic description": "party management for parties of the other player",
         "detailed description": ""
       },
       "party_id": {
         "type": "setting",
         "setting id": "show party id",
         "value type": "boolean",
-        "basic description": "",
+        "basic description": "party id in party management panel",
         "detailed description": ""
       }
     },
-    "basic description": "",
+    "basic description": "toggle settings for displayed features",
     "detailed description": ""
   },
   "test": {
@@ -42,11 +42,15 @@
         "type": "setting",
         "setting id": "fog of war",
         "value type": "boolean",
-        "basic description": "",
+        "basic description": "tiles outside of the view of any parties are dimmed",
         "detailed description": ""
       }
     },
-    "basic description": "",
+    "basic description": "unfinished features",
     "detailed description": ""
+  },
+  "help": {
+    "type": "help",
+    "basic description": "find out about possible commands"
   }
 }
