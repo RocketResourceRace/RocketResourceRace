@@ -69,7 +69,7 @@ class Game extends State{
   Map2D map2d;
   Map map;
   Player[] players;
-  int cellX, cellY, cellSelectionX, cellSelectionY, cellSelectionW, cellSelectionH;
+  int selectedCellX, selectedCellY, cellManagementX, cellManagementY, cellManagementW, cellManagementH;
   boolean cellSelected=false, moving=false;
   color partyManagementColour;
   ArrayList<Integer[]> prevIdle;
@@ -345,7 +345,7 @@ class Game extends State{
   }
   boolean postEvent(GameEvent event){
     try{
-      LOGGER_GAME.finer(String.format("Event triggered, player:%d. Cell in question:(%d, %d)", turn, cellX, cellY));
+      LOGGER_GAME.finer(String.format("Event triggered, player:%d. Cell in question:(%d, %d)", turn, selectedCellX, selectedCellY));
       boolean valid = true;
       // Returns true if event is valid
       
@@ -446,7 +446,7 @@ class Game extends State{
       }
   
       else if (event instanceof ChangeTask){
-        LOGGER_GAME.finer(String.format("Change task event for party at: (%s, %s)", cellX, cellY));
+        LOGGER_GAME.finer(String.format("Change task event for party at: (%s, %s)", selectedCellX, selectedCellY));
         ChangeTask m = (ChangeTask)event;
         int cellX = m.x;
         int cellY = m.y;
@@ -554,16 +554,16 @@ class Game extends State{
     return false;
   }
   void updateCellSelection(){
-    cellSelectionX = round((width-400-bezel*2)/jsManager.loadFloatSetting("gui scale"))+bezel*2;
-    cellSelectionY = bezel*2;
-    cellSelectionW = width-cellSelectionX-bezel*2;
-    cellSelectionH = round(mapElementHeight);
-    getPanel("land management").transform(cellSelectionX, cellSelectionY, cellSelectionW, round(cellSelectionH*0.15));
-    getPanel("party management").transform(cellSelectionX, cellSelectionY+round(cellSelectionH*0.15)+bezel, cellSelectionW, round(cellSelectionH*0.5)-bezel*3);
-    ((NotificationManager)(getElement("notification manager", "default"))).transform(bezel, bezel, cellSelectionW, round(cellSelectionH*0.2)-bezel*2);
+    cellManagementX = round((width-400-bezel*2)/jsManager.loadFloatSetting("gui scale"))+bezel*2;
+    cellManagementY = bezel*2;
+    cellManagementW = width-cellManagementX-bezel*2;
+    cellManagementH = round(mapElementHeight);
+    getPanel("land management").transform(cellManagementX, cellManagementY, cellManagementW, round(cellManagementH*0.15));
+    getPanel("party management").transform(cellManagementX, cellManagementY+round(cellManagementH*0.15)+bezel, cellManagementW, round(cellManagementH*0.5)-bezel*3);
+    ((NotificationManager)(getElement("notification manager", "default"))).transform(bezel, bezel, cellManagementW, round(cellManagementH*0.2)-bezel*2);
     ((Button)getElement("move button", "party management")).transform(bezel, round(13*jsManager.loadFloatSetting("text scale")+bezel), 100, 30);
-    ((Slider)getElement("split units", "party management")).transform(round(10*jsManager.loadFloatSetting("gui scale")+bezel), round(bezel*3+2*jsManager.loadFloatSetting("text scale")*13), cellSelectionW-2*bezel-round(20*jsManager.loadFloatSetting("gui scale")),round(jsManager.loadFloatSetting("text scale")*2*13));
-    ((TaskManager)getElement("tasks", "party management")).transform(bezel, round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13), cellSelectionW-2*bezel, 30);
+    ((Slider)getElement("split units", "party management")).transform(round(10*jsManager.loadFloatSetting("gui scale")+bezel), round(bezel*3+2*jsManager.loadFloatSetting("text scale")*13), cellManagementW-2*bezel-round(20*jsManager.loadFloatSetting("gui scale")),round(jsManager.loadFloatSetting("text scale")*2*13));
+    ((TaskManager)getElement("tasks", "party management")).transform(bezel, round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13), cellManagementW-2*bezel, 30);
     ((Text)getElement("turns remaining", "party management")).translate(100+bezel*2, round(13*jsManager.loadFloatSetting("text scale")*2 + bezel*3));
   }
 
@@ -591,15 +591,15 @@ class Game extends State{
       boolean correctTerrain, correctBuilding, enoughResources, enoughMovementPoints;
       JSONObject js;
   
-      if(parties[cellY][cellX].hasActions()){
-        makeTaskAvailable(parties[cellY][cellX].currentAction());
-        LOGGER_GAME.finer("Keeping current task available:"+parties[cellY][cellX].currentAction());
+      if(parties[selectedCellY][selectedCellX].hasActions()){
+        makeTaskAvailable(parties[selectedCellY][selectedCellX].currentAction());
+        LOGGER_GAME.finer("Keeping current task available:"+parties[selectedCellY][selectedCellX].currentAction());
       }
-      if(parties[cellY][cellX].isTurn(turn)){
+      if(parties[selectedCellY][selectedCellX].isTurn(turn)){
         for(int i=0; i<gameData.getJSONArray("tasks").size(); i++){
           js = gameData.getJSONArray("tasks").getJSONObject(i);
           if (!js.isNull("terrain"))
-            correctTerrain = JSONContainsStr(js.getJSONArray("terrain"), terrainString(terrain[cellY][cellX]));
+            correctTerrain = JSONContainsStr(js.getJSONArray("terrain"), terrainString(terrain[selectedCellY][selectedCellX]));
           else
             correctTerrain = true;
           correctBuilding = false;
@@ -614,25 +614,25 @@ class Game extends State{
             }
           }
           if (!js.isNull("movement points")){
-            if (parties[cellY][cellX].movementPoints < js.getInt("movement points")){
+            if (parties[selectedCellY][selectedCellX].movementPoints < js.getInt("movement points")){
                 enoughMovementPoints = false;
             }
           }
     
           if (js.isNull("auto enabled")||!js.getBoolean("auto enabled")){
             if (js.isNull("buildings")){
-              if (js.getString("id").equals("Demolish") && buildings[cellY][cellX] != null)
+              if (js.getString("id").equals("Demolish") && buildings[selectedCellY][selectedCellX] != null)
                 correctBuilding = true;
               else if(!js.getString("id").equals("Demolish"))
                 correctBuilding = true;
             }
             else{
               if (js.getJSONArray("buildings").size() > 0){
-                if (buildings[cellY][cellX] != null)
-                if (buildings[cellY][cellX] != null && JSONContainsStr(js.getJSONArray("buildings"), buildingString(buildings[cellY][cellX].type)))
+                if (buildings[selectedCellY][selectedCellX] != null)
+                if (buildings[selectedCellY][selectedCellX] != null && JSONContainsStr(js.getJSONArray("buildings"), buildingString(buildings[selectedCellY][selectedCellX].type)))
                   correctBuilding = true;
               }
-              else if (buildings[cellY][cellX] == null){
+              else if (buildings[selectedCellY][selectedCellX] == null){
                 correctBuilding = true;
               }
             }
@@ -648,9 +648,9 @@ class Game extends State{
           }
         }
       } else {
-        makeTaskAvailable(parties[cellY][cellX].getTask());
+        makeTaskAvailable(parties[selectedCellY][selectedCellX].getTask());
       }
-      ((TaskManager)getElement("tasks", "party management")).select(jsManager.gameData.getJSONArray("tasks").getJSONObject(parties[cellY][cellX].getTask()).getString("id"));
+      ((TaskManager)getElement("tasks", "party management")).select(jsManager.gameData.getJSONArray("tasks").getJSONObject(parties[selectedCellY][selectedCellX].getTask()).getString("id"));
     }
     catch (Exception e){
       LOGGER_MAIN.log(Level.SEVERE, "Error checking tasks", e);
@@ -844,7 +844,7 @@ class Game extends State{
         tempX = (width/2-map.getTargetOffsetX()-((Map2D)map).xPos)/((Map2D)map).targetBlockSize;
         tempY = (height/2-map.getTargetOffsetY()-((Map2D)map).yPos)/((Map2D)map).targetBlockSize;
       }
-      players[turn].saveSettings(tempX, tempY, blockSize, cellX, cellY, cellSelected);
+      players[turn].saveSettings(tempX, tempY, blockSize, selectedCellX, selectedCellY, cellSelected);
       turn = (turn + 1)%2;
       map.generateFog(turn);
       players[turn].loadSettings(this, map);
@@ -940,7 +940,7 @@ class Game extends State{
       int x = floor(map.scaleXInv());
       int y = floor(map.scaleYInv());
       if(0<=x&&x<mapWidth&&0<=y&&y<mapHeight && parties[y][x] != null){
-        BigDecimal chance = battleEstimateManager.getEstimate(cellX, cellY, x, y, splitUnitsNum());
+        BigDecimal chance = battleEstimateManager.getEstimate(selectedCellX, selectedCellY, x, y, splitUnitsNum());
         tooltip.setAttacking(chance);
       }
     }
@@ -952,7 +952,7 @@ class Game extends State{
       if(getPanel("land management").visible){
         drawCellManagement(gameUICanvas);
       }
-      if(parties[cellY][cellX] != null && getPanel("party management").visible)
+      if(parties[selectedCellY][selectedCellX] != null && getPanel("party management").visible)
         drawPartyManagement(gameUICanvas);
     }
     gameUICanvas.endDraw();
@@ -1013,10 +1013,10 @@ class Game extends State{
     // Unused
     try{
       ArrayList<int[]> locs = new ArrayList<int[]>();
-      locs.add(new int[]{cellX+1, cellY});
-      locs.add(new int[]{cellX-1, cellY});
-      locs.add(new int[]{cellX, cellY+1});
-      locs.add(new int[]{cellX, cellY-1});
+      locs.add(new int[]{selectedCellX+1, selectedCellY});
+      locs.add(new int[]{selectedCellX-1, selectedCellY});
+      locs.add(new int[]{selectedCellX, selectedCellY+1});
+      locs.add(new int[]{selectedCellX, selectedCellY-1});
       Collections.shuffle(locs);
       for (int i=0; i<4; i++){
         if (parties[locs.get(i)[1]][locs.get(i)[0]] == null && terrain[locs.get(i)[1]][locs.get(i)[0]] != 1){
@@ -1120,7 +1120,7 @@ class Game extends State{
       x = (width/2-map.getFocusedX()-((Map2D)map).xPos)/((Map2D)map).blockSize;
       y = (height/2-map.getFocusedY()-((Map2D)map).yPos)/((Map2D)map).blockSize;
     }
-    players[turn].saveSettings(x, y, blockSize, cellX, cellY, cellSelected);
+    players[turn].saveSettings(x, y, blockSize, selectedCellX, selectedCellY, cellSelected);
     ((BaseMap)map).saveMap("saves/"+loadingName, this.turnNumber, this.turn, this.players);
   }
 
@@ -1138,10 +1138,10 @@ class Game extends State{
           postEvent(new EndTurn());
         }
         else if (event.id == "move button"){
-          if (parties[cellY][cellX].player == turn){
+          if (parties[selectedCellY][selectedCellX].player == turn){
             moving = !moving;
             if (moving){
-              map.updateMoveNodes(djk(cellX, cellY));
+              map.updateMoveNodes(djk(selectedCellX, selectedCellY));
             }
             else{
               map.cancelMoveNodes();
@@ -1194,7 +1194,7 @@ class Game extends State{
       }
       if (event.type.equals("valueChanged")){
         if (event.id.equals("tasks")){
-          postEvent(new ChangeTask(cellX, cellY, JSONIndex(jsManager.gameData.getJSONArray("tasks"), ((TaskManager)getElement("tasks", "party management")).getSelected())));
+          postEvent(new ChangeTask(selectedCellX, selectedCellY, JSONIndex(jsManager.gameData.getJSONArray("tasks"), ((TaskManager)getElement("tasks", "party management")).getSelected())));
         }
         else if (event.id.equals("unit number bars toggle")){
           map.setDrawingUnitBars(((ToggleButton)(getElement("unit number bars toggle", "bottom bar"))).getState());
@@ -1258,7 +1258,7 @@ class Game extends State{
       }
   
   
-      boolean cellFollow = (px==cellX && py==cellY);
+      boolean cellFollow = (px==selectedCellX && py==selectedCellY);
       boolean stillThere = true;
       if (p.target == null || p.path == null)
         return;
@@ -1450,7 +1450,7 @@ class Game extends State{
   void refreshTooltip(){
     if (!getPanel("pause screen").visible){
       if (((TaskManager)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible){
-        tooltip.setTask(((TaskManager)getElement("tasks", "party management")).findMouseOver(), players[turn].resources, parties[cellY][cellX].getMovementPoints());
+        tooltip.setTask(((TaskManager)getElement("tasks", "party management")).findMouseOver(), players[turn].resources, parties[selectedCellY][selectedCellX].getMovementPoints());
         tooltip.show();
       }
       else if(((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").visible){
@@ -1467,19 +1467,19 @@ class Game extends State{
           Node [][] nodes = map.getMoveNodes();
           int x = floor(map.scaleXInv()); 
           int y = floor(map.scaleYInv());
-          if (cellX == x && cellY == y){
+          if (selectedCellX == x && selectedCellY == y){
             tooltip.hide();
             map.cancelPath();
           }
           else if (x < mapWidth && y<mapHeight && x>=0 && y>=0 && nodes[y][x] != null){
-            if (parties[cellY][cellX] != null){
-              map.updatePath(getPath(cellX, cellY, x, y, map.getMoveNodes()));
+            if (parties[selectedCellY][selectedCellX] != null){
+              map.updatePath(getPath(selectedCellX, selectedCellY, x, y, map.getMoveNodes()));
             }
             if(parties[y][x]==null){
               //Moving into empty tile
-              int turns = getMoveTurns(cellX, cellY, x, y, nodes);
+              int turns = getMoveTurns(selectedCellX, selectedCellY, x, y, nodes);
               int cost = nodes[y][x].cost;
-              boolean splitting = splitUnitsNum()!=parties[cellY][cellX].getUnitNumber();
+              boolean splitting = splitUnitsNum()!=parties[selectedCellY][selectedCellX].getUnitNumber();
               tooltip.setMoving(turns, splitting, cost, jsManager.loadBooleanSetting("map is 3d"));
               tooltip.show();
             }
@@ -1491,7 +1491,7 @@ class Game extends State{
               }
               else {
                 //Attack
-                BigDecimal chance = battleEstimateManager.getEstimate(cellX, cellY, x, y, splitUnitsNum());
+                BigDecimal chance = battleEstimateManager.getEstimate(selectedCellX, selectedCellY, x, y, splitUnitsNum());
                 tooltip.setAttacking(chance);
                 tooltip.show();
               }
@@ -1515,7 +1515,7 @@ class Game extends State{
     refreshTooltip();
     if (button == RIGHT){
       if (eventType == "mousePressed"){
-        if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn && cellSelected && !UIHovering()){
+        if (parties[selectedCellY][selectedCellX] != null && parties[selectedCellY][selectedCellX].player == turn && cellSelected && !UIHovering()){
           if (map.mouseOver()){
             if (moving){
               map.cancelPath();
@@ -1524,19 +1524,19 @@ class Game extends State{
             }
             else{
               moving = true;
-              map.updateMoveNodes(djk(cellX, cellY));
+              map.updateMoveNodes(djk(selectedCellX, selectedCellY));
               refreshTooltip();
             }
           } 
         }
       }
       if (eventType == "mouseReleased"){
-        if (parties[cellY][cellX] != null && parties[cellY][cellX].player == turn && !UIHovering()){ 
+        if (parties[selectedCellY][selectedCellX] != null && parties[selectedCellY][selectedCellX].player == turn && !UIHovering()){ 
           if (moving){
             int x = floor(map.scaleXInv());
             int y = floor(map.scaleYInv());
             if (0<=x&&x<mapWidth&&0<=y&&y<mapHeight){
-              postEvent(new Move(cellX, cellY, x, y));
+              postEvent(new Move(selectedCellX, selectedCellY, x, y));
             }
             map.cancelPath();
             moving = false;
@@ -1567,7 +1567,7 @@ class Game extends State{
                 int x = floor(map.scaleXInv());
                 int y = floor(map.scaleYInv());
                 if (0<=x&&x<mapWidth&&0<=y&&y<mapHeight){
-                  postEvent(new Move(cellX, cellY, x, y));
+                  postEvent(new Move(selectedCellX, selectedCellY, x, y));
                 }
                 map.cancelPath();
                 moving = false;
@@ -1575,7 +1575,7 @@ class Game extends State{
               }
             }
             else{
-              if(floor(map.scaleXInv())==cellX&&floor(map.scaleYInv())==cellY&&cellSelected){
+              if(floor(map.scaleXInv())==selectedCellX&&floor(map.scaleYInv())==selectedCellY&&cellSelected){
                 deselectCell();
               } else if (!cinematicMode){
                 selectCell();
@@ -1606,26 +1606,26 @@ class Game extends State{
     else if (cellInBounds(x, y)){
       LOGGER_GAME.finer(String.format("Cell selected at (%d, %d) which is in bounds", x, y));
       tooltip.hide();
-      cellX = x;
-      cellY = y;
+      selectedCellX = x;
+      selectedCellY = y;
       cellSelected = true;
-      map.selectCell(cellX, cellY);
+      map.selectCell(selectedCellX, selectedCellY);
       //map.setWidth(round(width-bezel*2-400));
       getPanel("land management").setVisible(true);
-      if (parties[cellY][cellX] != null && (parties[cellY][cellX].isTurn(turn) || jsManager.loadBooleanSetting("show all party managements"))){
-        if (parties[cellY][cellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle") && parties[cellY][cellX].isTurn(turn)){
+      if (parties[selectedCellY][selectedCellX] != null && (parties[selectedCellY][selectedCellX].isTurn(turn) || jsManager.loadBooleanSetting("show all party managements"))){
+        if (parties[selectedCellY][selectedCellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle") && parties[selectedCellY][selectedCellX].isTurn(turn)){
           ((Slider)getElement("split units", "party management")).show();
         }
         else{
           ((Slider)getElement("split units", "party management")).hide();
         }
         getPanel("party management").setVisible(true);
-        if (parties[cellY][cellX].getUnitNumber() <= 1){
+        if (parties[selectedCellY][selectedCellX].getUnitNumber() <= 1){
           ((Slider)getElement("split units", "party management")).hide();
         } else {
-          ((Slider)getElement("split units", "party management")).setScale(1, parties[cellY][cellX].getUnitNumber(), parties[cellY][cellX].getUnitNumber(), 1, parties[cellY][cellX].getUnitNumber()/2);
+          ((Slider)getElement("split units", "party management")).setScale(1, parties[selectedCellY][selectedCellX].getUnitNumber(), parties[selectedCellY][selectedCellX].getUnitNumber(), 1, parties[selectedCellY][selectedCellX].getUnitNumber()/2);
         }
-        if (parties[cellY][cellX].player == 1){
+        if (parties[selectedCellY][selectedCellX].player == 1){
           partyManagementColour = color(170, 30, 30);
           getPanel("party management").setColour(color(220, 70, 70));
         } else {
@@ -1712,41 +1712,41 @@ class Game extends State{
     Panel pp = getPanel("party management");
     panelCanvas.pushStyle();
     panelCanvas.fill(partyManagementColour);
-    panelCanvas.rect(cellSelectionX, pp.y, cellSelectionW, 13*jsManager.loadFloatSetting("text scale"));
+    panelCanvas.rect(cellManagementX, pp.y, cellManagementW, 13*jsManager.loadFloatSetting("text scale"));
     panelCanvas.fill(255);
     panelCanvas.textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
     panelCanvas.textAlign(CENTER, TOP);
-    panelCanvas.text("Party Management", cellSelectionX+cellSelectionW/2, pp.y);
+    panelCanvas.text("Party Management", cellManagementX+cellManagementW/2, pp.y);
 
     panelCanvas.fill(0);
     panelCanvas.textAlign(LEFT, CENTER);
     panelCanvas.textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
-    float barY = cellSelectionY + 13*jsManager.loadFloatSetting("text scale") + cellSelectionH*0.15 + bezel*2;
+    float barY = cellManagementY + 13*jsManager.loadFloatSetting("text scale") + cellManagementH*0.15 + bezel*2;
     if(jsManager.loadBooleanSetting("show party id")){
-      panelCanvas.text("Party id: "+parties[cellY][cellX].id, 120+cellSelectionX, barY);
+      panelCanvas.text("Party id: "+parties[selectedCellY][selectedCellX].id, 120+cellManagementX, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     }
-    panelCanvas.text("Movement Points Remaining: "+parties[cellY][cellX].getMovementPoints(turn) + "/"+gameData.getJSONObject("game options").getInt("movement points"), 120+cellSelectionX, barY);
+    panelCanvas.text("Movement Points Remaining: "+parties[selectedCellY][selectedCellX].getMovementPoints(turn) + "/"+gameData.getJSONObject("game options").getInt("movement points"), 120+cellManagementX, barY);
     barY += 13*jsManager.loadFloatSetting("text scale");
-    if(jsManager.loadBooleanSetting("show all party managements")&&parties[cellY][cellX].player==2){
-      String t1 = ((Battle)parties[cellY][cellX]).party1.id;
-      String t2 = "Units: "+((Battle)parties[cellY][cellX]).party1.getUnitNumber() + "/" + jsManager.loadIntSetting("party size");
+    if(jsManager.loadBooleanSetting("show all party managements")&&parties[selectedCellY][selectedCellX].player==2){
+      String t1 = ((Battle)parties[selectedCellY][selectedCellX]).party1.id;
+      String t2 = "Units: "+((Battle)parties[selectedCellY][selectedCellX]).party1.getUnitNumber() + "/" + jsManager.loadIntSetting("party size");
       float offset = max(panelCanvas.textWidth(t1+" "), panelCanvas.textWidth(t2+" "));
-      panelCanvas.text(t1, 120+cellSelectionX, barY);
-      panelCanvas.text(((Battle)parties[cellY][cellX]).party2.id, 120+cellSelectionX+offset, barY);
+      panelCanvas.text(t1, 120+cellManagementX, barY);
+      panelCanvas.text(((Battle)parties[selectedCellY][selectedCellX]).party2.id, 120+cellManagementX+offset, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
-      panelCanvas.text(t2, 120+cellSelectionX, barY);
-      panelCanvas.text("Units: "+((Battle)parties[cellY][cellX]).party2.getUnitNumber() + "/" + jsManager.loadIntSetting("party size"), 120+cellSelectionX+offset, barY);
+      panelCanvas.text(t2, 120+cellManagementX, barY);
+      panelCanvas.text("Units: "+((Battle)parties[selectedCellY][selectedCellX]).party2.getUnitNumber() + "/" + jsManager.loadIntSetting("party size"), 120+cellManagementX+offset, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     } else {
-      panelCanvas.text("Units: "+parties[cellY][cellX].getUnitNumber(turn) + "/" + jsManager.loadIntSetting("party size"), 120+cellSelectionX, barY);
+      panelCanvas.text("Units: "+parties[selectedCellY][selectedCellX].getUnitNumber(turn) + "/" + jsManager.loadIntSetting("party size"), 120+cellManagementX, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     }
-    if (parties[cellY][cellX].pathTurns > 0){
-      ((Text)getElement("turns remaining", "party management")).setText("Turns Remaining: "+ parties[cellY][cellX].pathTurns);
+    if (parties[selectedCellY][selectedCellX].pathTurns > 0){
+      ((Text)getElement("turns remaining", "party management")).setText("Turns Remaining: "+ parties[selectedCellY][selectedCellX].pathTurns);
     }
-    else if (parties[cellY][cellX].actions.size() > 0 && parties[cellY][cellX].actions.get(0).initialTurns > 0){
-      ((Text)getElement("turns remaining", "party management")).setText("Turns Remaining: "+parties[cellY][cellX].turnsLeft() + "/"+round(parties[cellY][cellX].calcTurns(parties[cellY][cellX].actions.get(0).initialTurns)));
+    else if (parties[selectedCellY][selectedCellX].actions.size() > 0 && parties[selectedCellY][selectedCellX].actions.get(0).initialTurns > 0){
+      ((Text)getElement("turns remaining", "party management")).setText("Turns Remaining: "+parties[selectedCellY][selectedCellX].turnsLeft() + "/"+round(parties[selectedCellY][selectedCellX].calcTurns(parties[selectedCellY][selectedCellX].actions.get(0).initialTurns)));
     }
   }
 
@@ -1782,40 +1782,40 @@ class Game extends State{
   void drawCellManagement(PGraphics panelCanvas){
     panelCanvas.pushStyle();
     panelCanvas.fill(0, 150, 0);
-    panelCanvas.rect(cellSelectionX, cellSelectionY, cellSelectionW, 13*jsManager.loadFloatSetting("text scale"));
+    panelCanvas.rect(cellManagementX, cellManagementY, cellManagementW, 13*jsManager.loadFloatSetting("text scale"));
     panelCanvas.fill(255);
     panelCanvas.textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
     panelCanvas.textAlign(CENTER, TOP);
-    panelCanvas.text("Land Management", cellSelectionX+cellSelectionW/2, cellSelectionY);
+    panelCanvas.text("Land Management", cellManagementX+cellManagementW/2, cellManagementY);
 
     panelCanvas.fill(0);
     panelCanvas.textAlign(LEFT, TOP);
-    float barY = cellSelectionY + 13*jsManager.loadFloatSetting("text scale");
+    float barY = cellManagementY + 13*jsManager.loadFloatSetting("text scale");
     if(jsManager.loadBooleanSetting("show cell coords")){
-      panelCanvas.text(String.format("Cell reference: %s, %s", cellX, cellY), 5+cellSelectionX, barY);
+      panelCanvas.text(String.format("Cell reference: %s, %s", selectedCellX, selectedCellY), 5+cellManagementX, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     }
-    panelCanvas.text("Cell Type: "+gameData.getJSONArray("terrain").getJSONObject(terrain[cellY][cellX]-1).getString("display name"), 5+cellSelectionX, barY);
+    panelCanvas.text("Cell Type: "+gameData.getJSONArray("terrain").getJSONObject(terrain[selectedCellY][selectedCellX]-1).getString("display name"), 5+cellManagementX, barY);
     barY += 13*jsManager.loadFloatSetting("text scale");
-    if (buildings[cellY][cellX] != null){
-      if (buildings[cellY][cellX].type != 0)
-        panelCanvas.text("Building: "+buildingTypes[buildings[cellY][cellX].type-1], 5+cellSelectionX, barY);
+    if (buildings[selectedCellY][selectedCellX] != null){
+      if (buildings[selectedCellY][selectedCellX].type != 0)
+        panelCanvas.text("Building: "+buildingTypes[buildings[selectedCellY][selectedCellX].type-1], 5+cellManagementX, barY);
       else
-        panelCanvas.text("Building: Construction Site", 5+cellSelectionX, barY);
+        panelCanvas.text("Building: Construction Site", 5+cellManagementX, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     }
-    float[] production = resourceProduction(cellX, cellY);
-    float[] consumption = resourceConsumption(cellX, cellY);
+    float[] production = resourceProduction(selectedCellX, selectedCellY);
+    float[] consumption = resourceConsumption(selectedCellX, selectedCellY);
     String pl = resourcesList(production);
     String cl = resourcesList(consumption);
     panelCanvas.fill(0);
     if (!pl.equals("Nothing/Unknown")){
-      panelCanvas.text("Producing: "+pl, 5+cellSelectionX, barY);
+      panelCanvas.text("Producing: "+pl, 5+cellManagementX, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     }
     if (!cl.equals("Nothing/Unknown")){
       panelCanvas.fill(255,0,0);
-      panelCanvas.text("Consuming: "+cl, 5+cellSelectionX, barY);
+      panelCanvas.text("Consuming: "+cl, 5+cellManagementX, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     }
   }
@@ -1994,12 +1994,12 @@ class Game extends State{
       this.turn = mapSave.startPlayer;
       this.players = mapSave.players;
       if(jsManager.loadBooleanSetting("map is 3d")){
-        map.targetCell(int(this.players[turn].mapXOffset), int(this.players[turn].mapYOffset), this.players[turn].blockSize);
+        map.targetCell(int(this.players[turn].cameraCellX), int(this.players[turn].cameraCellY), this.players[turn].blockSize);
         ((Map3D)map).focusedX = ((Map3D)map).targetXOffset;
         ((Map3D)map).focusedY = ((Map3D)map).targetYOffset;
         ((Map3D)map).zoom = this.players[turn].blockSize;
       } else {
-        map.targetCell(int(this.players[turn].mapXOffset), int(this.players[turn].mapYOffset), this.players[turn].blockSize);
+        map.targetCell(int(this.players[turn].cameraCellX), int(this.players[turn].cameraCellY), this.players[turn].blockSize);
         ((Map2D)map).mapXOffset = ((Map2D)map).targetXOffset;
         ((Map2D)map).mapYOffset = ((Map2D)map).targetYOffset;
         ((Map2D)map).blockSize = this.players[turn].blockSize;
@@ -2046,7 +2046,7 @@ class Game extends State{
       for (int i = players.length-1; i >= 0; i--){
         int[] t1 = findIdle(i);
         float[] targetOffsets = map.targetCell(t1[0], t1[1], 64);
-        players[i].saveSettings(t1[0], t1[1], 64, cellX, cellY, false);
+        players[i].saveSettings(t1[0], t1[1], 64, selectedCellX, selectedCellY, false);
       }
     }
 
@@ -2206,7 +2206,7 @@ class Game extends State{
     getPanel("bottom bar").setVisible(true);
     if(cellSelected){
       getPanel("land management").setVisible(true);
-      if (parties[cellY][cellX] != null && parties[cellY][cellX].isTurn(turn)){
+      if (parties[selectedCellY][selectedCellX] != null && parties[selectedCellY][selectedCellX].isTurn(turn)){
         getPanel("party management").setVisible(true);
       }
     }
@@ -2217,9 +2217,9 @@ class Game extends State{
     LOGGER_GAME.finer("Starting rocket launch");
     rocketVelocity = new PVector(0, 0, 0);
     rocketBehaviour = int(random(10));
-    buildings[cellY][cellX].image_id=0;
+    buildings[selectedCellY][selectedCellX].image_id=0;
     rocketLaunching = true;
-    rocketPosition = new PVector(cellX, cellY, 0);
+    rocketPosition = new PVector(selectedCellX, selectedCellY, 0);
     map.enableRocket(rocketPosition, rocketVelocity);
     enterCinematicMode();
     rocketStartTime = millis();
@@ -2249,7 +2249,7 @@ class Game extends State{
     }
     else {
       players[turn].resources[jsManager.getResIndex(("rocket progress"))] = 0;
-      parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
+      parties[selectedCellY][selectedCellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
     }
     leaveCinematicMode();
   }

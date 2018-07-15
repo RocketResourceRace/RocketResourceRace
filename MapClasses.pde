@@ -277,23 +277,23 @@ int getBattleUnitChange(Party p1, Party p2){
 
 
 class Player{
-  float mapXOffset, mapYOffset, blockSize;
+  float cameraCellX, cameraCellY, blockSize;
   float[] resources;
   int cellX, cellY, colour;
   boolean cellSelected = false;
   String name;
   // Resources: food wood metal energy concrete cable spaceship_parts ore people
-  Player(float mapXOffset, float mapYOffset, float blockSize, float[] resources, int colour, String name){
-    this.mapXOffset = mapXOffset;
-    this.mapYOffset = mapYOffset;
+  Player(float x, float y, float blockSize, float[] resources, int colour, String name){
+    this.cameraCellX = x;
+    this.cameraCellY = y;
     this.blockSize = blockSize;
     this.resources = resources;
     this.colour = colour;
     this.name = name;
   }
-  void saveSettings(float mapXOffset, float mapYOffset, float blockSize, int cellX, int cellY, boolean cellSelected){
-    this.mapXOffset = mapXOffset;
-    this.mapYOffset = mapYOffset;
+  void saveSettings(float x, float y, float blockSize, int cellX, int cellY, boolean cellSelected){
+    this.cameraCellX = x;
+    this.cameraCellY = y;
     this.blockSize = blockSize;
     this.cellX = cellX;
     this.cellY = cellY;
@@ -301,7 +301,7 @@ class Player{
   }
   void loadSettings(Game g, Map m){
     LOGGER_MAIN.fine("Loading player camera settings");
-    m.loadSettings(mapXOffset, mapYOffset, blockSize);
+    m.loadSettings(cameraCellX, cameraCellY, blockSize);
     if(cellSelected){
       g.selectCell((int)this.cellX, (int)this.cellY, false);
     } else {

@@ -243,9 +243,9 @@ class Map3D extends BaseMap implements Map {
     generateFogMap(player);
   }
   
-  void loadSettings(float mapXOffset, float mapYOffset, float blockSize) {
-    LOGGER_MAIN.fine(String.format("Loading camera settings. xoff:%s, yoff:%s, block size: %s", mapXOffset, mapYOffset, blockSize));
-    targetCell(int(mapXOffset), int(mapYOffset), blockSize);
+  void loadSettings(float x, float y, float blockSize) {
+    LOGGER_MAIN.fine(String.format("Loading camera settings. cellX:%s, cellY:%s, block size: %s", x, y, blockSize));
+    targetCell(int(x), int(y), blockSize);
     
     panning = true;
   }

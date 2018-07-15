@@ -330,8 +330,8 @@ class BaseMap extends Element{
       }
       LOGGER_MAIN.finer("Saving players");
       for (Player p: players){
-        buffer.putFloat(p.mapXOffset);
-        buffer.putFloat(p.mapYOffset);
+        buffer.putFloat(p.cameraCellX);
+        buffer.putFloat(p.cameraCellY);
         if(p.blockSize==0){
           p.blockSize = jsManager.loadIntSetting("starting block size");
         }
@@ -487,16 +487,16 @@ class BaseMap extends Element{
       LOGGER_MAIN.finer("Loading players, count="+playerCount);
       Player[] players = new Player[playerCount];
       for (int i=0;i<playerCount;i++){
-        float mapXOffset = buffer.getFloat();
-        float mapYOffset = buffer.getFloat();
+        float cameraCellX = buffer.getFloat();
+        float cameraCellY = buffer.getFloat();
         float blockSize = buffer.getFloat();
         float[] resources = new float[resourceCountNew];
-        LOGGER_MAIN.finer(String.format("player %d. Map offset: (%f, %f) blocksize:%f, resources:%s", i, mapXOffset, mapYOffset, blockSize, Arrays.toString(resources)));
+        LOGGER_MAIN.finer(String.format("player %d. Camera Position: (%f, %f) blocksize:%f, resources:%s", i, cameraCellX, cameraCellY, blockSize, Arrays.toString(resources)));
         for (int r=0; r<resourceCountOld;r++){
           resources[r] = buffer.getFloat();
         }
-        int cellX = buffer.getInt();
-        int cellY = buffer.getInt();
+        int selectedCellX = buffer.getInt();
+        int selectedCellY = buffer.getInt();
         int colour = buffer.getInt();
         boolean cellSelected = boolean(buffer.get());
         char[] playerName = new char[10];
@@ -507,10 +507,10 @@ class BaseMap extends Element{
         } else {
           playerName = String.format("Player %d", i).toCharArray();
         }
-        players[i] = new Player(mapXOffset, mapYOffset, blockSize, resources, colour, new String(playerName));
+        players[i] = new Player(cameraCellX, cameraCellY, blockSize, resources, colour, new String(playerName));
         players[i].cellSelected = cellSelected;
-        players[i].cellX = cellX;
-        players[i].cellY = cellY;
+        players[i].cellX = selectedCellX;
+        players[i].cellY = selectedCellY;
       }
       LOGGER_MAIN.fine("Seeding height map noise with: "+heightMapSeed);
       noiseSeed(heightMapSeed);
