@@ -51,6 +51,7 @@
   },
   "help": {
     "type": "help",
-    "basic description": "find out about possible commands"
+    "basic description": "find out about possible commands. For example, type 'help display' to find out more about the display command",
+    "detailed description": "find out about possible commands. For example, type 'help display' to find out more about the display command"
   }
 }
