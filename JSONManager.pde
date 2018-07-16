@@ -101,6 +101,44 @@ class JSONManager{
     }
   }
   
+  int getNumEquipmentTypes(){
+    try{
+      return gameData.getJSONArray("equipment").size();
+    }
+    catch (NullPointerException e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
+      throw e;
+    }
+  }
+  
+  String getEquipmentType(int index){
+    try{
+      return gameData.getJSONArray("equipment").getJSONObject(index).getString("id");
+    }
+    catch (NullPointerException e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
+      throw e;
+    }
+    catch (IndexOutOfBoundsException e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
+      throw e;
+    }
+  }
+  
+  String getEquipmentTypeDisplayName(int index){
+    try{
+      return gameData.getJSONArray("equipment").getJSONObject(index).getString("display name");
+    }
+    catch (NullPointerException e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
+      throw e;
+    }
+    catch (IndexOutOfBoundsException e){
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
+      throw e;
+    }
+  }
+  
   int getResIndex(String s){
     // Get the index for a resource
     try{

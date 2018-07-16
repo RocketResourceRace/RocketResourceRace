@@ -135,6 +135,7 @@ class Game extends State{
       addElement("tasks", new TaskManager(bezel, bezel*4+30+30, 220, 10, color(150), color(50), tasks), "party management");
       addElement("proficiency summary", new ProficiencySummary(bezel, bezel*5+30+200, 220, 100), "party management");
       addElement("proficiencies", new Text(0, 0, 10, "Proficiencies", color(0), LEFT), "party management");
+      addElement("equipment manager", new EquipmentManager(0, 0, 1), "party management");
       
       DropDown partyTrainingFocusDropdown = new DropDown(0, 0, 1, 1, color(150), "Training Focus", "strings", 8);
       partyTrainingFocusDropdown.setOptions(jsManager.getProficiencies());
@@ -582,6 +583,7 @@ class Game extends State{
     ((ProficiencySummary)getElement("proficiency summary", "party management")).transform(bezel, round(bezel*5+4*jsManager.loadFloatSetting("text scale")*12)+30*8, cellSelectionW-bezel*2, int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13));
     ((DropDown)getElement("party training focus", "party management")).transform(bezel, round(bezel*6+4*jsManager.loadFloatSetting("text scale")*12)+30*8+int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13), int(cellSelectionW-100*jsManager.loadFloatSetting("text scale")), int(jsManager.loadFloatSetting("text scale")*13));
     ((Text)getElement("proficiencies", "party management")).translate(bezel, round(bezel*5+4*jsManager.loadFloatSetting("text scale")*8)+30*8+5);
+    ((EquipmentManager)getElement("equipment manager", "party management")).transform(bezel, round(bezel*7+4*jsManager.loadFloatSetting("text scale")*12)+30*8+int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13+int(jsManager.loadFloatSetting("text scale")*13)), cellSelectionW-bezel*2);
   }
 
 

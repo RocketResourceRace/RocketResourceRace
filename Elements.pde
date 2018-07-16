@@ -1,5 +1,55 @@
 
 
+class EquipmentManager extends Element {
+  final int TEXTSIZE = 7;
+  String[] equipmentTypeDisplayNames;
+  int[] currentEquipment;
+  int boxSize;
+  
+  EquipmentManager(int x, int y, int w){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    
+    // Load display names for equipment types
+    equipmentTypeDisplayNames = new String[jsManager.getNumEquipmentTypes()];
+    for (int i = 0; i < equipmentTypeDisplayNames.length; i ++){
+      equipmentTypeDisplayNames[i] = jsManager.getEquipmentTypeDisplayName(i);
+    }
+    
+    currentEquipment = new int[jsManager.getNumEquipmentTypes()];
+    
+    boxSize = w/jsManager.getNumEquipmentTypes();
+  }
+  
+  void transform(int x, int y, int w){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    boxSize = w/jsManager.getNumEquipmentTypes();
+  }
+  
+  void setEquipment(int[] equipment){
+    this.currentEquipment = equipment;
+  }
+  
+  void draw(PGraphics panelCanvas){
+    panelCanvas.pushStyle();
+    
+    panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
+    panelCanvas.textAlign(CENTER, TOP);
+    panelCanvas.strokeWeight(2);
+    for (int i = 0; i < jsManager.getNumEquipmentTypes(); i ++){
+      panelCanvas.fill(0);
+      panelCanvas.text(equipmentTypeDisplayNames[i], x+boxSize*(i+0.5), y);
+      panelCanvas.noFill();
+      panelCanvas.rect(x+boxSize*i, y, boxSize, boxSize);
+    }
+    
+    panelCanvas.popStyle();
+  }
+}
+
 class ProficiencySummary extends Element {
   final int TEXTSIZE = 8;
   String[] proficiencyDisplayNames;
