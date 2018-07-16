@@ -601,6 +601,121 @@
       "display name": "Pathfinding"
     }
   ],
+  
+  "equipment":[
+    {
+      "id": "armour",
+      "display name": "Armour",
+      "display stats": ["weight", "defence"],
+      "types":[
+        {
+          "id": "wooden armour",
+          "display name": "Wooden Armour",
+          "weight": 20,
+          "defence": 1.5,
+        },
+        {
+          "id": "iron armour",
+          "display name": "Iron Armour",
+          "weight": 40,
+          "defence": 2.5,
+        },
+        {
+          "id": "reinforced steel armour",
+          "display name": "Reinforced Steel Armour",
+          "weight": 50,
+          "defence": 3,
+        },
+      ]
+    },
+    
+    {
+      "id": "primary",
+      "display name": "Primary Weapon",
+      "display stats": ["weight", "attack", "range"],
+      "types":[
+        {
+          "id": "sword",
+          "display name": "Sword",
+          "attack": 5,
+          "weight": 3,
+        },
+        {
+          "id": "bow",
+          "display name": "Bow",
+          "range": 2,
+          "attack": 2,
+          "weight": 2,
+        },
+        {
+          "id": "musket",
+          "display name": "Musket",
+          "range": 3,
+          "attack": 10,
+          "weight": 4,
+        },
+      ]
+    },
+    
+    {
+      "id": "secondary",
+      "display name": "Secondary Weapon",
+      "display stats": ["weight", "attack", "range", "defence"],
+      "types":[
+        {
+          "id": "shield",
+          "display name": "Sword",
+          "defence": 1,
+          "weight": 10,
+        },
+        {
+          "id": "javelin",
+          "display name": "Javelin",
+          "range": 1,
+          "attack": 6,
+          "weight": 4,
+        },
+        {
+          "id": "pistol",
+          "display name": "Pistol",
+          "range": 2,
+          "attack": 8,
+          "weight": 2,
+        },
+      ]
+    },
+    
+    {
+      "id": "mounts",
+      "display name": "Mounts/Vehicles",
+      "display stats": ["speed", "defence"],
+      "types":[
+        {
+          "id": "horse",
+          "display name": "Horse",
+          "speed": 1.5,
+        },
+        {
+          "id": "apc",
+          "display name": "Armoured Personnel carrier",
+          "speed": 2,
+          "defence": 3
+        },
+      ]
+    },
+    
+    {
+      "id": "tooltips",
+      "display name": "Tools",
+      "display stats": [],
+      "types":[
+        {
+          "id": "hammer",
+          "display name": "Hammer",
+        },
+      ]
+    },
+  ],
 
   "tooltips":{
     "move button": "A party can only move if it has enough\nmovement points",

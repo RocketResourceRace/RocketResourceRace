@@ -1328,7 +1328,7 @@ class Game extends State{
           else if(path.get(node)[0] != px || path.get(node)[1] != py){
             p.clearPath();
             if (parties[path.get(node)[1]][path.get(node)[0]].player == turn){
-              // merge cells
+              // merge parties
               notificationManager.post("Parties Merged", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
               int movementPoints = min(parties[path.get(node)[1]][path.get(node)[0]].getMovementPoints(), p.getMovementPoints()-cost);
               int overflow = parties[path.get(node)[1]][path.get(node)[0]].changeUnitNumber(p.getUnitNumber()); // Units left over after merging
