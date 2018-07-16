@@ -14,22 +14,22 @@ class Building{
 }
 
 
-
-
-
-
 class Party{
+  private int trainingFocus;
   private int unitNumber;
   private int movementPoints;
+  private float[] proficiencies;
+  private int task;
+  private int[] equipment;
+  String id;
   int player;
   float strength;
-  private int task;
   ArrayList<Action> actions;
   ArrayList<int[]> path;
   int[] target;
   int pathTurns;
-  byte[]byteRep;
-  String id;
+  byte[] byteRep;
+  
   Party(int player, int startingUnits, int startingTask, int movementPoints, String id){
     unitNumber = startingUnits;
     task = startingTask;
@@ -41,71 +41,192 @@ class Party{
     target = null;
     pathTurns = 0;
     this.id = id;
+    
+    // Default proficiencies = 1
+    resetProficiencies();
+    for (int i = 0; i < jsManager.getNumProficiencies(); i++){
+      this.setProficiency(i, 1);
+    }
+    
+    setTrainingFocus(jsManager.proficiencyIDToIndex("melee attack"));
+    
+    equipment = new int[jsManager.getNumEquipmentTypes()];
   }
+  
+  Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float[] proficiencies, String trainingFocus, int[] equipment){
+    // For parties that already exist and are being splitted or loaded from save
+    unitNumber = startingUnits;
+    task = startingTask;
+    this.player = player;
+    this.movementPoints = movementPoints;
+    this.actions = new ArrayList<Action>();
+    this.strength = 1.5;
+    this.clearPath();
+    this.target = null;
+    this.pathTurns = 0;
+    this.id = id;
+    this.equipment = equipment;
+    
+    // Load proficiencies given
+    try{
+      resetProficiencies();
+      for (int i = 0; i < jsManager.getNumProficiencies(); i++){
+        this.setProficiency(i, proficiencies[i]);
+      }
+    }
+    catch (IndexOutOfBoundsException e){
+      LOGGER_MAIN.severe(String.format("Not enough proficiencies given to party:%d (needs %d)  id:%s", proficiencies.length, jsManager.getNumProficiencies(), id));
+    }
+    
+    setTrainingFocus(jsManager.proficiencyIDToIndex(trainingFocus));  // 'trainingFocus' is an id string
+  }
+  
+  void setTrainingFocus(int value){
+    // Training focus is the index of the proficiency in data.json
+    this.trainingFocus = value;
+  }
+  
+  int getTrainingFocus(){
+    // Training focus is the index of the proficiency in data.json
+    return this.trainingFocus;
+  }
+  
+  void setAllEquipment(int[] v){
+    equipment = v;
+  }
+  
+  int[] getAllEquipment(){
+    return equipment;
+  }
+  
+  void setEquipment(int typeIndex, int equipmentIndex){
+    equipment[typeIndex] = equipmentIndex;
+  }
+  
+  int getEquipment(int typeIndex){
+    return equipment[typeIndex];
+  }
+  
+  void mergeEntireFrom(Party other){
+    // Note: will need to remove other division
+    LOGGER_GAME.fine(String.format("Merging entire party from id:%s into party with id:%s", other.id, this.id));
+    boolean fullyMerged = mergeFrom(other, other.getUnitNumber());
+    
+    if (!fullyMerged){
+      LOGGER_MAIN.warning(String.format("Party was not fully merged, id: %s, left=%d", id, other.getUnitNumber()));
+    }
+  }
+  
+  boolean mergeFrom(Party other, int unitsTransfered){
+    // Take units from other party into this party and merge attributes, weighted by unit number
+    LOGGER_GAME.fine(String.format("Merging %d units from party with id:%s into party with id:%s", unitsTransfered, other.id, this.id));
+    
+    // Merge all proficiencies with other party
+    for (int i = 0; i < jsManager.getNumProficiencies(); i++){
+      this.setProficiency(i, mergeAttribute(this.getUnitNumber(), this.getProficiency(i), unitsTransfered, other.getProficiency(i)));
+    }
+      
+    LOGGER_GAME.finer(String.format("New proficiency values: %s for party with id:%s", Arrays.toString(proficiencies), id));
+    // Note: other division attributes unaffected by merge
+    
+    this.changeUnitNumber(unitsTransfered);
+    other.changeUnitNumber(unitsTransfered);
+    
+    return other.getUnitNumber() > 0; // Return true if any units left, else false
+  }
+  
   String getID(){
     return id;
   }
+  
+  void setID(String value){
+    this.id = value;
+  }
+  
+  float mergeAttribute(int units1, float attrib1, int units2, float attrib2){
+    // Calcaulate the attributes for merge weighted by units number
+    return (units1 * attrib1 + units2 * attrib2) / (units1 + units2);
+  }
+  
   void changeTask(int task){
     //LOGGER_GAME.info("Party changing task to:"+gameData.getJSONArray("tasks").getJSONObject(task).getString("id")); Removed as this is called too much for battle estimates
-    this.task = task;
-    JSONObject jTask = gameData.getJSONArray("tasks").getJSONObject(this.getTask());
-    if (!jTask.isNull("strength")){
-      this.strength = jTask.getInt("strength");
+    try{
+      this.task = task;
+      JSONObject jTask = gameData.getJSONArray("tasks").getJSONObject(this.getTask());
+      if (!jTask.isNull("strength")){
+        this.strength = jTask.getInt("strength");
+      }
+      else{
+        this.strength = 1.5;
+      }
     }
-    else
-      this.strength = 1.5;
+    catch (NullPointerException e){
+      LOGGER_MAIN.log(Level.WARNING, String.format("Error changing party task, id:%s, task=%s. Likely cause is something wrong in data.json",id, task), e);
+    }
   }
+  
   void setPathTurns(int v){
-    LOGGER_GAME.finer("Setting path turns to: "+v);
+    LOGGER_GAME.finer(String.format("Setting path turns to:%s, party id:%s", v, id));
     pathTurns = v;
   }
+  
   void moved(){
-    LOGGER_GAME.finest("Decreasing pathTurns due to party moving");
+    LOGGER_GAME.finest("Decreasing pathTurns due to party moving id: "+id);
     pathTurns = max(pathTurns-1, 0);
   }
+  
   int getTask(){
     return task;
   }
+  
   int[] nextNode(){
     try{
       return path.get(0);
     }
     catch (IndexOutOfBoundsException e){
-      LOGGER_MAIN.log(Level.SEVERE, "Party run out of nodes", e);
+      LOGGER_MAIN.log(Level.WARNING, "Party run out of nodes id:"+id, e);
       return null;
     }
   }
+  
   void loadPath(ArrayList<int[]> p){
-    LOGGER_GAME.finer("Loading path into party");
+    LOGGER_GAME.finer("Loading path into party id:"+id);
     path = p;
   }
+  
   void clearNode(){
     path.remove(0);
   }
+  
   void clearPath(){
     //LOGGER_GAME.finer("Clearing party path"); Removed as this is called too much for battle estimates
     path = new ArrayList<int[]>();
     pathTurns=0;
   }
+  
   void addAction(Action a){
     actions.add(a);
   }
+  
   boolean hasActions(){
     return actions.size()>0;
   }
+  
   int turnsLeft(){
     return calcTurns(actions.get(0).turns);
   }
+  
   int calcTurns(float turnsCost){
     //Use this to calculate the number of turns a task will take for this party
     return ceil(turnsCost/(sqrt(unitNumber)/10));
   }
+  
   Action progressAction(){
     try{
       if (actions.size() == 0){
         return null;
       }
-      LOGGER_GAME.finer("Party action progressing"+actions.get(0).type);
+      LOGGER_GAME.finer(String.format("Party action progressing: '%s', id:%s", actions.get(0).type, id));
       if (actions.get(0).turns-sqrt((float)unitNumber)/10 <= 0){
         return actions.get(0);
       }
@@ -122,56 +243,100 @@ class Party{
       }
     }
     catch(Exception e){
-      LOGGER_MAIN.log(Level.SEVERE, "Progressing party action failed");
+      LOGGER_MAIN.log(Level.SEVERE, "Progressing party action failed id:"+id);
       throw e;
     }
   }
   void clearCurrentAction(){
     if (actions.size() > 0){
-      LOGGER_GAME.finest("Clearing party current action of type:"+actions.get(0).type);
+      LOGGER_GAME.finest(String.format("Clearing party current action of type:%s, id:%s",actions.get(0).type, id));
       actions.remove(0);
     }
   }
+  
   void clearActions(){
     actions = new ArrayList<Action>();
   }
+  
   int currentAction(){
     return actions.get(0).type;
   }
+  
   boolean isTurn(int turn){
     return this.player==turn;
   }
+  
   int getMovementPoints(){
     return movementPoints;
   }
+  
   void subMovementPoints(int p){
     movementPoints -= p;
   }
+  
   void setMovementPoints(int p){
     movementPoints = p;
   }
+  
   int getMovementPoints(int turn){
     return movementPoints;
   }
+  
   int getUnitNumber(){
     return unitNumber;
   }
+  
   int getUnitNumber(int turn){
     return unitNumber;
   }
+  
   void setUnitNumber(int newUnitNumber){
     unitNumber = (int)between(0, newUnitNumber, jsManager.loadIntSetting("party size"));
   }
+  
   int changeUnitNumber(int changeInUnitNumber){
     int overflow = max(0, changeInUnitNumber+unitNumber-jsManager.loadIntSetting("party size"));
     this.setUnitNumber(unitNumber+changeInUnitNumber);
     return overflow;
   }
+  
   Party clone(){
     Party newParty = new Party(player, unitNumber, task, movementPoints, id);
     newParty.actions = new ArrayList<Action>(actions);
     newParty.strength = strength;
     return newParty;
+  }
+  
+  float getProficiency(String id){
+    // Use this if have access to string id
+    return proficiencies[jsManager.proficiencyIDToIndex(id)];
+  }
+  
+  void setProficiency(String id, float value){
+    // Use this if have access to string id
+    proficiencies[jsManager.proficiencyIDToIndex(id)] = value;
+  }
+  
+  float getProficiency(int index){
+    // Use this if have access to index not string id
+    return proficiencies[index];
+  }
+  
+  void setProficiency(int index, float value){
+    // Use this if have access to index not string id
+    proficiencies[index] = value;
+  }
+  
+  void resetProficiencies(){
+    proficiencies = new float[jsManager.getNumProficiencies()];
+  }
+  
+  float[] getProficiencies(){
+    return proficiencies;
+  }
+  
+  void setProficiencies(float[] values){
+    this.proficiencies = values;
   }
 }
 

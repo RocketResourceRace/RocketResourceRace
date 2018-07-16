@@ -582,6 +582,134 @@
       "resource manager": 0
     },
   ],
+  
+  "proficiencies":[
+    {
+      "id":"melee attack",
+      "display name": "Melee Attack"
+    },
+    {
+      "id":"ranged attack",
+      "display name": "Ranged Attack"
+    },
+    {
+      "id":"defence",
+      "display name": "Defence"
+    },
+    {
+      "id":"building speed",
+      "display name": "Building"
+    },
+    {
+      "id":"speed",
+      "display name": "Movement Speed"
+    }
+  ],
+  
+  "equipment":[
+    {
+      "id": "armour",
+      "display name": "Armour",
+      "display multipliers": ["speed", "defence"],
+      "types":[
+        {
+          "id": "wooden armour",
+          "display name": "Wooden Armour",
+          "speed": -0.25,
+          "defence": 1,
+        },
+        {
+          "id": "iron armour",
+          "display name": "Iron Armour",
+          "speed": -0.4,
+          "defence": 2.5,
+        },
+        {
+          "id": "reinforced steel armour",
+          "display name": "Reinforced Steel Armour",
+          "speed": -0.5,
+          "defence": 4,
+        },
+      ]
+    },
+    
+    {
+      "id": "weapons",
+      "display name": "Weapons",
+      "display multipliers": ["speed", "defence", "ranged attack", "melee attack", "range"],
+      "types":[
+        {
+          "id": "sword and shield",
+          "display name": "Sword and Shield",
+          "melee attack": 1,
+          "speed": -0.1,
+          "defence": 0.5
+        },
+        {
+          "id": "bow",
+          "display name": "Bow",
+          "range": 2,
+          "ranged attack": 0.25,
+        },
+        {
+          "id": "musket",
+          "display name": "Musket",
+          "range": 3,
+          "speed": -0.1,
+          "ranged attack": 4,
+        },
+        {
+          "id": "pistol",
+          "display name": "Pistol",
+          "range": 2,
+          "ranged attack": 3,
+        },
+        {
+          "id": "javelin",
+          "display name": "Javlin",
+          "range": 1,
+          "ranged attack": 1,
+        },
+      ]
+    },
+    
+    {
+      "id": "mounts",
+      "display name": "Mounts/Vehicles",
+      "display multipliers": ["speed", "defence"],
+      "types":[
+        {
+          "id": "horse",
+          "display name": "Horse",
+          "speed": 1.5,
+        },
+        {
+          "id": "apc",
+          "display name": "Armoured Personnel carrier",
+          "speed": 2,
+          "defence": 5
+        },
+      ]
+    },
+    
+    {
+      "id": "tools",
+      "display name": "Tools",
+      "display multipliers": ["building speed"],
+      "types":[
+        {
+          "id": "hammer",
+          "display name": "Hammer",
+          "building speed": 0.5
+        },
+        {
+          "id": "power tools",
+          "display name": "Power Tools",
+          "building speed": 2
+        },
+      ]
+    },
+  ],
 
   "tooltips":{
     "move button": "A party can only move if it has enough\nmovement points",
