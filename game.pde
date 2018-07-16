@@ -134,6 +134,13 @@ class Game extends State {
       addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
       addElement("tasks", new TaskManager(bezel, bezel*4+30+30, 220, 10, color(150), color(50), tasks), "party management");
 
+      addElement("proficiency summary", new ProficiencySummary(bezel, bezel*5+30+200, 220, 100), "party management");
+      addElement("proficiencies", new Text(0, 0, 10, "Proficiencies", color(0), LEFT), "party management");
+      addElement("equipment manager", new EquipmentManager(0, 0, 1), "party management");
+
+      DropDown partyTrainingFocusDropdown = new DropDown(0, 0, 1, 1, color(150), "Training Focus", "strings", 8);
+      partyTrainingFocusDropdown.setOptions(jsManager.getProficiencies());
+      addElement("party training focus", partyTrainingFocusDropdown, "party management");
 
       addElement("end turn", new Button(bezel, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"), "bottom bar");
       addElement("idle party finder", new Button(bezel*2+buttonW, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Idle Party"), "bottom bar");
@@ -367,80 +374,80 @@ class Game extends State {
         Move m = (Move)event;
         int x = m.endX;
         int y = m.endY;
-        int cellX = m.startX;
-        int cellY = m.startY;
+        int selectedCellX = m.startX;
+        int selectedCellY = m.startY;
 
         if (x<0 || x>=mapWidth || y<0 || y>=mapHeight) {
           LOGGER_MAIN.warning(String.format("invalid movement outside map boundries: (%d, %d)", x, y));
           valid = false;
         }
 
-        Node[][] nodes = djk(cellX, cellY);
+        Node[][] nodes = djk(selectedCellX, selectedCellY);
 
-        if (canMove(cellX, cellY)) {
+        if (canMove(selectedCellX, selectedCellY)) {
           int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
-          if (sliderVal > 0 && parties[cellY][cellX].getUnitNumber() >= 2 && parties[cellY][cellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle")) {
+          if (sliderVal > 0 && parties[selectedCellY][selectedCellX].getUnitNumber() >= 2 && parties[selectedCellY][selectedCellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle")) {
             map.updateMoveNodes(nodes);
             moving = true;
-            parties[cellY][cellX].changeUnitNumber(-sliderVal);
+            parties[selectedCellY][selectedCellX].changeUnitNumber(-sliderVal);
             String newPartyName;
-            if (parties[cellY][cellX].unitNumber==0) {
-              newPartyName = parties[cellY][cellX].id;
+            if (parties[selectedCellY][selectedCellX].unitNumber==0) {
+              newPartyName = parties[selectedCellY][selectedCellX].id;
             } else {
               newPartyName = nextRollingId(players[turn].name);
             }
-            LOGGER_GAME.finer(String.format("Splitting party (id:%s) from party (id:%s) at (%d, %d). Number = %d.", newPartyName, parties[cellY][cellX].id, cellX, cellY, sliderVal));
-            splittedParty = new Party(turn, sliderVal, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), parties[cellY][cellX].getMovementPoints(), newPartyName);
+            LOGGER_GAME.finer(String.format("Splitting party (id:%s) from party (id:%s) at (%d, %d). Number = %d.", newPartyName, parties[selectedCellY][selectedCellX].id, selectedCellX, selectedCellY, sliderVal));
+            splittedParty = new Party(turn, sliderVal, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), parties[selectedCellY][selectedCellX].getMovementPoints(), newPartyName);
           }
         }
 
         if (splittedParty != null) {
           LOGGER_GAME.finer(String.format("Splitted target for movement: (%d, %d)", x, y));
           splittedParty.target = new int[]{x, y};
-          splittedParty.path = getPath(cellX, cellY, x, y, nodes);
+          splittedParty.path = getPath(selectedCellX, selectedCellY, x, y, nodes);
           int pathTurns;
-          if (cellX==x&&cellY==y) {
+          if (selectedCellX==x&&selectedCellY==y) {
             pathTurns = 0;
-          } else if (!canMove(cellX, cellY)) {
-            pathTurns = getMoveTurns(cellX, cellY, x, y, nodes);
+          } else if (!canMove(selectedCellX, selectedCellY)) {
+            pathTurns = getMoveTurns(selectedCellX, selectedCellY, x, y, nodes);
           } else {
-            pathTurns = 1+getMoveTurns(cellX, cellY, x, y, nodes);
+            pathTurns = 1+getMoveTurns(selectedCellX, selectedCellY, x, y, nodes);
           }
           splittedParty.setPathTurns(pathTurns);
           Collections.reverse(splittedParty.path);
           splittedParty.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
           splittedParty.clearActions();
           ((Text)getElement("turns remaining", "party management")).setText("");
-          if (cellX==x&&cellY==y) { // Party moving to same tile
+          if (selectedCellX==x&&selectedCellY==y) { // Party moving to same tile
             LOGGER_GAME.finer(String.format("Splitted party put into back tile: (%s, %s)", x, y));
             parties[y][x].changeUnitNumber(splittedParty.getUnitNumber());
             splittedParty = null;
             parties[y][x].clearPath();
           } else {
-            moveParty(cellX, cellY, true);
+            moveParty(selectedCellX, selectedCellY, true);
           }
         } else {
-          LOGGER_GAME.finer(String.format("Party at cell: (%s, %s) target for movement: (%d, %d)", cellX, cellY, x, y));
-          parties[cellY][cellX].target = new int[]{x, y};
-          parties[cellY][cellX].path = getPath(cellX, cellY, x, y, nodes);
+          LOGGER_GAME.finer(String.format("Party at cell: (%s, %s) target for movement: (%d, %d)", selectedCellX, selectedCellY, x, y));
+          parties[selectedCellY][selectedCellX].target = new int[]{x, y};
+          parties[selectedCellY][selectedCellX].path = getPath(selectedCellX, selectedCellY, x, y, nodes);
           int pathTurns;
-          if (cellX==x&&cellY==y) {
+          if (selectedCellX==x&&selectedCellY==y) {
             pathTurns = 0;
-          } else if (!canMove(cellX, cellY)) {
-            pathTurns = getMoveTurns(cellX, cellY, x, y, nodes);
+          } else if (!canMove(selectedCellX, selectedCellY)) {
+            pathTurns = getMoveTurns(selectedCellX, selectedCellY, x, y, nodes);
           } else {
-            pathTurns = 1+getMoveTurns(cellX, cellY, x, y, nodes);
+            pathTurns = 1+getMoveTurns(selectedCellX, selectedCellY, x, y, nodes);
           }
           LOGGER_GAME.finest(String.format("Path turns set to %d", pathTurns));
-          parties[cellY][cellX].setPathTurns(pathTurns);
-          Collections.reverse(parties[cellY][cellX].path);
-          parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
-          parties[cellY][cellX].clearActions();
+          parties[selectedCellY][selectedCellX].setPathTurns(pathTurns);
+          Collections.reverse(parties[selectedCellY][selectedCellX].path);
+          parties[selectedCellY][selectedCellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
+          parties[selectedCellY][selectedCellX].clearActions();
           ((Text)getElement("turns remaining", "party management")).setText("");
-          moveParty(cellX, cellY);
+          moveParty(selectedCellX, selectedCellY);
         }
-        if (parties[cellY][cellX].getUnitNumber() <= 0) {
-          parties[cellY][cellX] = null;
+        if (parties[selectedCellY][selectedCellX].getUnitNumber() <= 0) {
+          parties[selectedCellY][selectedCellX] = null;
         }
       } else if (event instanceof EndTurn) {
         LOGGER_GAME.info("End turn event");
@@ -451,20 +458,20 @@ class Game extends State {
       } else if (event instanceof ChangeTask) {
         LOGGER_GAME.finer(String.format("Change task event for party at: (%s, %s)", selectedCellX, selectedCellY));
         ChangeTask m = (ChangeTask)event;
-        int cellX = m.x;
-        int cellY = m.y;
+        int selectedCellX = m.x;
+        int selectedCellY = m.y;
         int task = m.task;
-        parties[cellY][cellX].clearPath();
-        parties[cellY][cellX].target = null;
-        JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[cellY][cellX].getTask());
+        parties[selectedCellY][selectedCellX].clearPath();
+        parties[selectedCellY][selectedCellX].target = null;
+        JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[selectedCellY][selectedCellX].getTask());
         if (!jo.isNull("movement points")) {
           //Changing from defending
-          parties[cellY][cellX].setMovementPoints(min(parties[cellY][cellX].getMovementPoints()+jo.getInt("movement points"), gameData.getJSONObject("game options").getInt("movement points")));
+          parties[selectedCellY][selectedCellX].setMovementPoints(min(parties[selectedCellY][selectedCellX].getMovementPoints()+jo.getInt("movement points"), gameData.getJSONObject("game options").getInt("movement points")));
           LOGGER_GAME.fine("Changing party from defending");
         }
-        parties[cellY][cellX].changeTask(task);
-        if (parties[cellY][cellX].getTask() == JSONIndex(gameData.getJSONArray("tasks"), "Rest")) {
-          parties[cellY][cellX].clearActions();
+        parties[selectedCellY][selectedCellX].changeTask(task);
+        if (parties[selectedCellY][selectedCellX].getTask() == JSONIndex(gameData.getJSONArray("tasks"), "Rest")) {
+          parties[selectedCellY][selectedCellX].clearActions();
           ((Text)getElement("turns remaining", "party management")).setText("");
           LOGGER_GAME.finest("Party task is now rest, so turns remaining set to 0 and actions cleared");
         } else {
@@ -472,48 +479,53 @@ class Game extends State {
           map.cancelMoveNodes();
           LOGGER_GAME.finest("Party task changed so move nodes canceled and moveing set to false");
         }
-        jo = gameData.getJSONArray("tasks").getJSONObject(parties[cellY][cellX].getTask());
+        jo = gameData.getJSONArray("tasks").getJSONObject(parties[selectedCellY][selectedCellX].getTask());
 
         if (!jo.isNull("movement points")) { // Check if enough movement points to change task
-          if (parties[cellY][cellX].getMovementPoints()-jo.getInt("movement points") >= 0) {
-            parties[cellY][cellX].subMovementPoints(jo.getInt("movement points"));
+          if (parties[selectedCellY][selectedCellX].getMovementPoints()-jo.getInt("movement points") >= 0) {
+            parties[selectedCellY][selectedCellX].subMovementPoints(jo.getInt("movement points"));
             LOGGER_GAME.finer("Sufficient resources to change task to selected");
           } else {
             LOGGER_GAME.fine("Insufficient movement points to change task to specified");
-            parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
+            parties[selectedCellY][selectedCellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
           }
         } else if (jo.getString("id").equals("Launch Rocket")) {
           startRocketLaunch();
           LOGGER_GAME.finer("Starting rocket launch");
-        } else if (parties[cellY][cellX].getTask()==JSONIndex(gameData.getJSONArray("tasks"), "Produce Rocket")) {
+        } else if (parties[selectedCellY][selectedCellX].getTask()==JSONIndex(gameData.getJSONArray("tasks"), "Produce Rocket")) {
           if (players[turn].resources[jsManager.getResIndex(("rocket progress"))]==-1) {
             players[turn].resources[jsManager.getResIndex(("rocket progress"))] = 0;
             LOGGER_GAME.fine("Rocket progress set to zero becuase party task is to produce rocket");
           }
         } else {
-          Action a = taskAction(parties[cellY][cellX].getTask());
+          Action a = taskAction(parties[selectedCellY][selectedCellX].getTask());
           if (a != null) {
             LOGGER_GAME.fine("Adding task action"+a.type);
-            float[] co = buildingCost(parties[cellY][cellX].getTask());
+            float[] co = buildingCost(parties[selectedCellY][selectedCellX].getTask());
             if (sufficientResources(players[turn].resources, co, true)) {
-              LOGGER_GAME.finer("Party has sufficient resources to change task to:"+parties[cellY][cellX].getTask());
-              parties[cellY][cellX].clearActions();
+              LOGGER_GAME.finer("Party has sufficient resources to change task to:"+parties[selectedCellY][selectedCellX].getTask());
+              parties[selectedCellY][selectedCellX].clearActions();
               ((Text)getElement("turns remaining", "party management")).setText("");
-              parties[cellY][cellX].addAction(taskAction(parties[cellY][cellX].getTask()));
+              parties[selectedCellY][selectedCellX].addAction(taskAction(parties[selectedCellY][selectedCellX].getTask()));
               if (sum(co)>0) {
                 spendRes(players[turn], co);
-                buildings[cellY][cellX] = new Building(buildingIndex("Construction"));
-                LOGGER_GAME.fine(String.format("Changing building at cell:(%d, %d) to construction", cellX, cellY));
+                buildings[selectedCellY][selectedCellX] = new Building(buildingIndex("Construction"));
+                LOGGER_GAME.fine(String.format("Changing building at cell:(%d, %d) to construction", selectedCellX, selectedCellY));
               }
             } else {
-              LOGGER_GAME.finer("Party has insufficient resources to change task to:"+parties[cellY][cellX].getTask());
-              parties[cellY][cellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
+              LOGGER_GAME.finer("Party has insufficient resources to change task to:"+parties[selectedCellY][selectedCellX].getTask());
+              parties[selectedCellY][selectedCellX].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
             }
           }
         }
 
         checkTasks();
+      } else if (event instanceof ChangePartyTrainingFocus) {
+        int newFocus = ((ChangePartyTrainingFocus)event).newFocus;
+        LOGGER_GAME.fine(String.format("Changing party focus for cell (%d, %d) id:%s to '%s'", selectedCellX, selectedCellY, parties[selectedCellY][selectedCellX].getID(), newFocus));
+        parties[selectedCellY][selectedCellX].setTrainingFocus(newFocus);
       }
+
       if (valid) {
         LOGGER_GAME.finest("Event is valid, so updating things...");
         if (!changeTurn) {
@@ -549,17 +561,22 @@ class Game extends State {
     return false;
   }
   void updateCellSelection() {
+    // Update the size of elements on the party panel and cell management panel
     cellManagementX = round((width-400-bezel*2)/jsManager.loadFloatSetting("gui scale"))+bezel*2;
     cellManagementY = bezel*2;
     cellManagementW = width-cellManagementX-bezel*2;
-    cellManagementH = round(mapElementHeight);
+    cellManagementH = round(mapElementHeight)-70;
     getPanel("land management").transform(cellManagementX, cellManagementY, cellManagementW, round(cellManagementH*0.15));
-    getPanel("party management").transform(cellManagementX, cellManagementY+round(cellManagementH*0.15)+bezel, cellManagementW, round(cellManagementH*0.5)-bezel*3);
+    getPanel("party management").transform(cellManagementX, cellManagementY+round(cellManagementH*0.15)+bezel, cellManagementW, round(cellManagementH*0.85)-bezel*4);
     ((NotificationManager)(getElement("notification manager", "default"))).transform(bezel, bezel, cellManagementW, round(cellManagementH*0.2)-bezel*2);
     ((Button)getElement("move button", "party management")).transform(bezel, round(13*jsManager.loadFloatSetting("text scale")+bezel), 100, 30);
     ((Slider)getElement("split units", "party management")).transform(round(10*jsManager.loadFloatSetting("gui scale")+bezel), round(bezel*3+2*jsManager.loadFloatSetting("text scale")*13), cellManagementW-2*bezel-round(20*jsManager.loadFloatSetting("gui scale")), round(jsManager.loadFloatSetting("text scale")*2*13));
     ((TaskManager)getElement("tasks", "party management")).transform(bezel, round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13), cellManagementW-2*bezel, 30);
     ((Text)getElement("turns remaining", "party management")).translate(100+bezel*2, round(13*jsManager.loadFloatSetting("text scale")*2 + bezel*3));
+    ((ProficiencySummary)getElement("proficiency summary", "party management")).transform(bezel, round(bezel*5+4*jsManager.loadFloatSetting("text scale")*12)+30*8, cellManagementW-bezel*2, int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13));
+    ((DropDown)getElement("party training focus", "party management")).transform(bezel, round(bezel*6+4*jsManager.loadFloatSetting("text scale")*12)+30*8+int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13), int(cellManagementW-100*jsManager.loadFloatSetting("text scale")), int(jsManager.loadFloatSetting("text scale")*13));
+    ((Text)getElement("proficiencies", "party management")).translate(bezel, round(bezel*5+4*jsManager.loadFloatSetting("text scale")*8)+30*8+5);
+    ((EquipmentManager)getElement("equipment manager", "party management")).transform(bezel, round(bezel*7+4*jsManager.loadFloatSetting("text scale")*12)+30*8+int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13+int(jsManager.loadFloatSetting("text scale")*13)), cellManagementW-bezel*2);
   }
 
 
@@ -1219,6 +1236,8 @@ class Game extends State {
           loadingName = ((BaseFileManager)getElement("saving manager", "save screen")).selectedSaveName();
           LOGGER_MAIN.fine("Changing selected save name to: "+loadingName);
           ((TextEntry)getElement("save namer", "save screen")).setText(loadingName);
+        } else if (event.id.equals("party training focus")) {
+          postEvent(new ChangePartyTrainingFocus(selectedCellX, selectedCellY, ((DropDown)getElement("party training focus", "party management")).getOptionIndex()));
         }
       }
       if (event.type.equals("notification selected")) {
@@ -1307,7 +1326,7 @@ class Game extends State {
           } else if (path.get(node)[0] != px || path.get(node)[1] != py) {
             p.clearPath();
             if (parties[path.get(node)[1]][path.get(node)[0]].player == turn) {
-              // merge cells
+              // merge parties
               notificationManager.post("Parties Merged", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
               int movementPoints = min(parties[path.get(node)[1]][path.get(node)[0]].getMovementPoints(), p.getMovementPoints()-cost);
               int overflow = parties[path.get(node)[1]][path.get(node)[0]].changeUnitNumber(p.getUnitNumber()); // Units left over after merging
@@ -1542,7 +1561,7 @@ class Game extends State {
             if (moving) {
               //int x = floor(map.scaleXInv(mouseX));
               //int y = floor(map.scaleYInv(mouseY));
-              //postEvent(new Move(cellX, cellY, x, y));
+              //postEvent(new Move(selectedCellX, selectedCellY, x, y));
               //map.cancelPath();
               if (mousePressed) {
                 map.cancelPath();
@@ -1615,9 +1634,22 @@ class Game extends State {
           getPanel("party management").setColour(color(70, 70, 220));
         }
         checkTasks();
+        updatePartyManagementProficiencies();
+        updateCurrentPartyTrainingFocus();
       }
     }
   }
+
+  void updatePartyManagementProficiencies() {
+    // Update proficiencies with those for current party
+    ((ProficiencySummary)getElement("proficiency summary", "party management")).setProficiencies(parties[selectedCellY][selectedCellX].getProficiencies());
+  }
+
+  void updateCurrentPartyTrainingFocus() {
+    int trainingFocus = parties[selectedCellY][selectedCellX].getTrainingFocus();
+    ((DropDown)getElement("party training focus", "party management")).setValue(jsManager.indexToProficiencyDisplayName(trainingFocus));
+  }
+
   float[] resourceProduction(int x, int y) {
     float[] totalResourceRequirements = new float[numResources];
     float [] resourceAmountsAvailable = new float[numResources];

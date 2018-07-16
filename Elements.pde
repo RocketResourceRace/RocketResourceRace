@@ -1,6 +1,125 @@
 
 
+class EquipmentManager extends Element {
+  final int TEXTSIZE = 7;
+  final float BOXWIDTHHEIGHTRATIO = 0.75;
+  String[] equipmentTypeDisplayNames;
+  int[] currentEquipment;
+  float boxWidth, boxHeight;
 
+  EquipmentManager(int x, int y, int w) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+
+    // Load display names for equipment types
+    equipmentTypeDisplayNames = new String[jsManager.getNumEquipmentTypes()];
+    for (int i = 0; i < equipmentTypeDisplayNames.length; i ++) {
+      equipmentTypeDisplayNames[i] = jsManager.getEquipmentTypeDisplayName(i);
+    }
+
+    currentEquipment = new int[jsManager.getNumEquipmentTypes()];
+
+    boxWidth = w/jsManager.getNumEquipmentTypes();
+    boxHeight = boxWidth*BOXWIDTHHEIGHTRATIO;
+  }
+
+  void transform(int x, int y, int w) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    boxWidth = w/jsManager.getNumEquipmentTypes();
+    boxHeight = boxWidth*BOXWIDTHHEIGHTRATIO;
+  }
+
+  void setEquipment(int[] equipment) {
+    this.currentEquipment = equipment;
+  }
+
+  void draw(PGraphics panelCanvas) {
+    panelCanvas.pushStyle();
+
+    panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
+    panelCanvas.textAlign(CENTER, TOP);
+    panelCanvas.strokeWeight(2);
+    panelCanvas.fill(200);
+    panelCanvas.rect(x, y, w, boxHeight);
+    panelCanvas.strokeWeight(1);
+    for (int i = 0; i < jsManager.getNumEquipmentTypes(); i ++) {
+      panelCanvas.noFill();
+      panelCanvas.rect(x+boxWidth*i, y, boxWidth, boxHeight);
+      panelCanvas.fill(0);
+      panelCanvas.text(equipmentTypeDisplayNames[i], x+boxWidth*(i+0.5), y);
+    }
+
+    panelCanvas.popStyle();
+  }
+}
+
+class ProficiencySummary extends Element {
+  final int TEXTSIZE = 8;
+  String[] proficiencyDisplayNames;
+  float[] proficiencies;
+  int rowHeight;
+
+  ProficiencySummary(int x, int y, int w, int h) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    updateProficiencyDisplayNames();
+    proficiencies = new float[jsManager.getNumProficiencies()];
+  }
+
+  void transform(int x, int y, int w, int h) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    updateProficiencyDisplayNames();
+    updateRowHeight();
+  }
+
+  void setProficiencies(float[] proficiencies) {
+    this.proficiencies = proficiencies;
+  }
+
+  void updateProficiencyDisplayNames() {
+    proficiencyDisplayNames = new String[jsManager.getNumProficiencies()];
+    for (int i = 0; i < jsManager.getNumProficiencies(); i ++) {
+      proficiencyDisplayNames[i] = jsManager.indexToProficiencyDisplayName(i);
+    }
+    LOGGER_MAIN.finer("Updated proficiency display names to: "+Arrays.toString(proficiencyDisplayNames));
+  }
+
+  void updateRowHeight() {
+    rowHeight = h/proficiencyDisplayNames.length;
+  }
+
+  void draw(PGraphics panelCanvas) {
+    panelCanvas.pushStyle();
+
+    //Draw background
+    panelCanvas.strokeWeight(2);
+    panelCanvas.fill(150);
+    panelCanvas.rect(x, y, w, h); // Added and subtracted values are for stroke to line up well with other boxes
+
+    //Draw each proficiency box
+    panelCanvas.strokeWeight(1);
+    for (int i = 0; i < proficiencyDisplayNames.length; i ++) {
+      panelCanvas.noFill();
+      panelCanvas.line(x, y+rowHeight*i, x+w, y+rowHeight*i);
+      panelCanvas.fill(0);
+      panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
+      panelCanvas.textAlign(LEFT, CENTER);
+      panelCanvas.text(proficiencyDisplayNames[i], x+5, y+rowHeight*(i+0.5)); // Display name aligned left, middle height within row
+      panelCanvas.textAlign(RIGHT, CENTER);
+      panelCanvas.text(proficiencies[i], x+w-5, y+rowHeight*(i+0.5)); // Display name aligned right, middle height within row
+    }
+
+    panelCanvas.popStyle();
+  }
+}
 
 class BaseFileManager extends Element {
   // Basic file manager that scans a folder and makes a selectable list for all the files
@@ -184,11 +303,11 @@ class BaseFileManager extends Element {
 
 class DropDown extends Element {
   String[] options;  // Either strings or floats
-  int selected, bgColour;
+  int selected, bgColour, textSize;
   String name, optionTypes;
   boolean expanded, postExpandedEvent;
 
-  DropDown(int x, int y, int w, int h, int bgColour, String name, String optionTypes) {
+  DropDown(int x, int y, int w, int h, int bgColour, String name, String optionTypes, int textSize) {
     // h here means the height of one dropper box
     this.x = x;
     this.y = y;
@@ -198,6 +317,7 @@ class DropDown extends Element {
     this.name = name;
     this.expanded = false;
     this.optionTypes = optionTypes;
+    this.textSize = textSize;
   }
 
   void setOptions(String[] options) {
@@ -228,7 +348,7 @@ class DropDown extends Element {
     }
     panelCanvas.rect(x, y, w, h);
     panelCanvas.textAlign(LEFT, TOP);
-    panelCanvas.textFont(getFont((min(h*0.8, 10))*jsManager.loadFloatSetting("text scale")));
+    panelCanvas.textFont(getFont((min(h*0.8, textSize))*jsManager.loadFloatSetting("text scale")));
     panelCanvas.fill(color(0));
     panelCanvas.text(String.format("%s: %s", name, options[selected]), x+3, y);
 
@@ -352,6 +472,10 @@ class DropDown extends Element {
     }
   }
 
+  int getOptionIndex() {
+    return selected;
+  }
+  
   boolean moveOver() {
     if (expanded) {
       return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset < y+h*(options.length+1);

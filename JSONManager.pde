@@ -7,7 +7,7 @@ class JSONManager {
     try {
       LOGGER_MAIN.fine("Initializing JSON Manager");
       menu = loadJSONObject("menu.json");
-      gameData = loadJSONObject("data.json");  
+      gameData = loadJSONObject("data.json");
       try {
         settings = loadJSONObject("settings.json");
       }
@@ -27,6 +27,114 @@ class JSONManager {
     }
     catch(Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error loading JSON", e);
+      throw e;
+    }
+  }
+
+  String[] getProficiencies() {
+    String[] returnArray = new String[getNumProficiencies()];
+    for (int i = 0; i < returnArray.length; i ++) {
+      returnArray[i] = indexToProficiencyDisplayName(i);
+    }
+    return returnArray;
+  }
+
+  int getNumProficiencies() {
+    try {
+      JSONArray proficienciesJSON = gameData.getJSONArray("proficiencies");
+      return proficienciesJSON.size();
+    }
+    catch (NullPointerException e) {
+      LOGGER_MAIN.log(Level.WARNING, "Error loading proficiencies from data.json", e);
+      return 0;
+    }
+  }
+
+  String indexToProficiencyID(int index) {
+    try {
+      JSONArray proficienciesJSON = gameData.getJSONArray("proficiencies");
+      String rs = proficienciesJSON.getJSONObject(index).getString("id");
+      if (rs == null) {
+        LOGGER_MAIN.warning("Could not find proficiency id with index: "+index);
+      }
+      return rs;
+    }
+    catch (IndexOutOfBoundsException e) {
+      LOGGER_MAIN.warning("Proficiency index out of range: "+index);
+      return "";
+    }
+  }
+
+  String indexToProficiencyDisplayName(int index) {
+    try {
+      if (index < 0) {
+        LOGGER_MAIN.warning("Could not find proficiency display name with index: "+index);
+        return "";
+      }
+      JSONArray proficienciesJSON = gameData.getJSONArray("proficiencies");
+      String rs = proficienciesJSON.getJSONObject(index).getString("display name");
+      if (rs == null) {
+        LOGGER_MAIN.warning("Could not find proficiency display name with index: "+index);
+      }
+      return rs;
+    }
+    catch (IndexOutOfBoundsException e) {
+      LOGGER_MAIN.warning("Proficiency index out of range: "+index);
+      return "";
+    }
+  }
+
+  int proficiencyIDToIndex(String id) {
+    try {
+      JSONArray proficienciesJSON = gameData.getJSONArray("proficiencies");
+      for (int i = 0; i < proficienciesJSON.size(); i++) {
+        if (proficienciesJSON.getJSONObject(i).getString("id").equals(id)) {
+          return i;
+        }
+      }
+      LOGGER_MAIN.severe("Could not find proficiency id: "+id);
+      return -1;
+    }
+    catch (NullPointerException e) {
+      LOGGER_MAIN.log(Level.WARNING, "Error loading proficiencies from data.json", e);
+      return -1;
+    }
+  }
+
+  int getNumEquipmentTypes() {
+    try {
+      return gameData.getJSONArray("equipment").size();
+    }
+    catch (NullPointerException e) {
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
+      throw e;
+    }
+  }
+
+  String getEquipmentType(int index) {
+    try {
+      return gameData.getJSONArray("equipment").getJSONObject(index).getString("id");
+    }
+    catch (NullPointerException e) {
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
+      throw e;
+    }
+    catch (IndexOutOfBoundsException e) {
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
+      throw e;
+    }
+  }
+
+  String getEquipmentTypeDisplayName(int index) {
+    try {
+      return gameData.getJSONArray("equipment").getJSONObject(index).getString("display name");
+    }
+    catch (NullPointerException e) {
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
+      throw e;
+    }
+    catch (IndexOutOfBoundsException e) {
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
       throw e;
     }
   }
@@ -492,7 +600,7 @@ class JSONManager {
           }
           break;
         case "dropdown":
-          DropDown dd = new DropDown((int)x, (int)y, (int)w, (int)h, color(150), text, elem.getString("options type"));
+          DropDown dd = new DropDown((int)x, (int)y, (int)w, (int)h, color(150), text, elem.getString("options type"), 10);
           dd.setOptions(options);
           if (elem.isNull("default value")) {
             switch (dd.optionTypes) {
