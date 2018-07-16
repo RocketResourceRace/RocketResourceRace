@@ -634,8 +634,8 @@
     },
     
     {
-      "id": "weapons",
-      "display name": "Weapons",
+      "id": "weapon",
+      "display name": "Weapon",
       "display multipliers": ["speed", "defence", "ranged attack", "melee attack", "range"],
       "types":[
         {
@@ -674,8 +674,8 @@
     },
     
     {
-      "id": "mounts",
-      "display name": "Mounts/Vehicles",
+      "id": "mount",
+      "display name": "Mount/Vehicle",
       "display multipliers": ["speed", "defence"],
       "types":[
         {
@@ -693,8 +693,8 @@
     },
     
     {
-      "id": "tools",
-      "display name": "Tools",
+      "id": "tool",
+      "display name": "Tool",
       "display multipliers": ["building speed"],
       "types":[
         {
