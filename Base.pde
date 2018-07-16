@@ -431,4 +431,8 @@ class Element{
     LOGGER_MAIN.finest("Deactivated");
     active = false;
   }
+  
+  boolean pointOver(int posX, int posY) {
+    return posX >= x && posX <= x+w && posY >= y && posY <= y+h;
+  }
 }

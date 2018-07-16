@@ -621,6 +621,23 @@ class Tooltip extends Element{
     }
   }
   
+  void setResource(HashMap<String, Float> buildings, String resource){
+    attacking = false;
+    try {
+      String t = "";
+      for (String building: buildings.keySet()) {
+        if (buildings.get(resource)>0){
+          t += String.format("%s: +%f", building, buildings.get(resource));
+        } else {
+          t += String.format("%s: %f", building, buildings.get(resource));
+        }
+      }
+    } catch (Exception e){
+      LOGGER_MAIN.log(Level.WARNING, "Error changing tooltip to resource: "+resource, e);
+      throw e;
+    }
+  }
+  
   void drawColouredLine(PGraphics canvas, String line, float startX, float startY){
     int start=0, end=0;
     float tw=0;
@@ -1066,6 +1083,10 @@ class ResourceSummary extends Element{
      return color(100);
     }
     return color(155*(timings[i]-millis())/FLASHTIMES+100, 100, 100);
+  }
+  
+  String getResourceAt(int x, int y) {
+    return "";
   }
   
   void draw(PGraphics panelCanvas){
