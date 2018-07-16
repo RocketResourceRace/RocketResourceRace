@@ -694,6 +694,10 @@ class Tooltip extends Element {
       attacking = false;
       JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task);
       String t="";
+      if (jo == null){
+        setText("Problem");
+        return;
+      }
       if (!jo.isNull("description")) {
         t += jo.getString("description")+"\n\n";
       }
@@ -1234,12 +1238,14 @@ class TaskManager extends Element {
   ArrayList<Integer> availableButOverBudgetOptions;
   int textSize;
   int scroll;
-  boolean dropped, taskMActive;
+  int numDisplayed;
+  boolean taskMActive;
   boolean scrolling;
   color bgColour, strokeColour;
   private final int HOVERINGOFFSET = 80, ONOFFSET = -50;
+  final int SCROLLWIDTH = 20;
   
-  TaskManager(int x, int y, int w, int textSize, color bgColour, color strokeColour, String[] options) {
+  TaskManager(int x, int y, int w, int textSize, color bgColour, color strokeColour, String[] options, int numDisplayed) {
     this.x = x;
     this.y = y;
     this.w = w;
@@ -1254,10 +1260,10 @@ class TaskManager extends Element {
     for (String option : options) {
       this.options.add(option);
     }
-    dropped = true;
     resetAvailable();
     taskMActive = true;
     resetScroll();
+    this.numDisplayed = numDisplayed;
   }
   
   void resetScroll(){
@@ -1397,109 +1403,118 @@ class TaskManager extends Element {
   void draw(PGraphics panelCanvas) {
     panelCanvas.pushStyle();
     h = getH(panelCanvas); //Also sets the font
+    
+    //Draw background
+    panelCanvas.strokeWeight(2);
+    panelCanvas.stroke(0);
+    panelCanvas.fill(150);
+    panelCanvas.rect(x, y, w+1, h*numDisplayed+1);
+    
+    // Draw current task box
+    panelCanvas.strokeWeight(1);
     panelCanvas.fill(brighten(bgColour, ONOFFSET));
     panelCanvas.stroke(strokeColour);
     panelCanvas.rect(x, y, w, h);
     panelCanvas.fill(0);
     panelCanvas.textAlign(LEFT, TOP);
     panelCanvas.text("Current Task: "+options.get(availableOptions.get(0)), x+5, y);
-
-    if (dropped) {
-      int j;
-      for (j=1; j< availableOptions.size(); j++) {
-        if (taskMActive && mouseOver(j)) {
-          panelCanvas.fill(brighten(bgColour, HOVERINGOFFSET));
-        } else {
-          panelCanvas.fill(bgColour);
-        }
-        panelCanvas.rect(x, y+h*j, w, h);
-        panelCanvas.fill(0);
-        panelCanvas.text(options.get(availableOptions.get(j+scroll)), x+5, y+h*j);
+     
+    // Draw other tasks
+    int j;
+    for (j=1; j < min(availableOptions.size()-scroll, numDisplayed); j++) {
+      if (taskMActive && mouseOver(j)) {
+        panelCanvas.fill(brighten(bgColour, HOVERINGOFFSET));
+      } else {
+        panelCanvas.fill(bgColour);
       }
-      for (; j< availableButOverBudgetOptions.size()+availableOptions.size(); j++) {
-        panelCanvas.fill(brighten(bgColour, HOVERINGOFFSET/2));
-        panelCanvas.rect(x, y+h*j, w, h);
-        panelCanvas.fill(120);
-        panelCanvas.text(options.get(availableButOverBudgetOptions.get(j-availableOptions.size())+scroll), x+5, y+h*j);
-      }
+      panelCanvas.rect(x, y+h*j, w, h);
+      panelCanvas.fill(0);
+      panelCanvas.text(options.get(availableOptions.get(j+scroll)), x+5, y+h*j);
     }
+    for (; j < min(availableButOverBudgetOptions.size()+availableOptions.size()-scroll, numDisplayed); j++) {
+      panelCanvas.fill(brighten(bgColour, HOVERINGOFFSET/2));
+      panelCanvas.rect(x, y+h*j, w, h);
+      panelCanvas.fill(120);
+      panelCanvas.text(options.get(availableButOverBudgetOptions.get(j-min(availableOptions.size()-scroll, numDisplayed))), x+5, y+h*j);
+    }
+    
+    //draw scroll
+    int d = availableOptions.size() + availableButOverBudgetOptions.size()-1 - numDisplayed;
+    if (d > 0) {
+      panelCanvas.strokeWeight(1);
+      panelCanvas.fill(brighten(bgColour, 100));
+      panelCanvas.rect(x-SCROLLWIDTH*jsManager.loadFloatSetting("gui scale")+w, y, SCROLLWIDTH*jsManager.loadFloatSetting("gui scale"), h*numDisplayed);
+      panelCanvas.strokeWeight(2);
+      panelCanvas.fill(brighten(bgColour, -20));
+      panelCanvas.rect(x-SCROLLWIDTH*jsManager.loadFloatSetting("gui scale")+w, y+(h*numDisplayed-(h*numDisplayed)/(d+1))*scroll/d, SCROLLWIDTH*jsManager.loadFloatSetting("gui scale"), (h*numDisplayed)/(d+1));
+    }
+    
     panelCanvas.popStyle();
   }
 
   ArrayList<String> mouseEvent(String eventType, int button) {
     ArrayList<String> events = new ArrayList<String>();
-    //int d = saveNames.length - numDisplayed;
+    int d = availableOptions.size() + availableButOverBudgetOptions.size()-1 - numDisplayed;
     if (eventType == "mouseMoved") {
       taskMActive = moveOver();
     }
     if (eventType == "mouseClicked" && button == LEFT) {
       for (int j=1; j < availableOptions.size(); j++) {
         if (mouseOver(j)) {
-          selectAt(j);
-          events.add("valueChanged");
+          if (d <= 0 || mouseX-xOffset<x+w-SCROLLWIDTH) {
+            selectAt(j-scroll);
+            events.add("valueChanged");
+            scrolling = false;
+          }
+        }
+      }
+    } else if (eventType.equals("mousePressed")) {
+      if (d > 0 && moveOver() && mouseX-xOffset>x+w-SCROLLWIDTH) {  
+        // If hovering over scroll bar, set scroll to mouse pos
+        scrolling = true;
+        scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/h, d));
+      } else {
+        scrolling = false;
+      }
+    } else if (eventType.equals("mouseDragged")) {
+      if (scrolling && d > 0) {  
+        // If scrolling, set scroll to mouse pos
+        scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/h, d));
+      }
+    } else if (eventType.equals("mouseReleased")) {
+      scrolling = false;
+    }
+    return events;
+  }
+
+  ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event) {
+    ArrayList<String> events = new ArrayList<String>();
+    if (eventType == "mouseWheel") {
+      float count = event.getCount();
+      if (moveOver()) { // Check mouse over element
+        if (availableOptions.size() + availableButOverBudgetOptions.size()-1 > numDisplayed) {
+          scroll = round(between(0, scroll+count, availableOptions.size() + availableButOverBudgetOptions.size()-1-numDisplayed));
+          LOGGER_MAIN.finest("Changing scroll to: "+scroll);
         }
       }
     }
     return events;
   }
 
-  //ArrayList<String> mouseEvent(String eventType, int button) {
-  //  ArrayList<String> events = new ArrayList<String>();
-  //  int d = saveNames.length - numDisplayed;
-  //  if (eventType.equals("mouseClicked")) {
-  //    if (moveOver()) {
-  //      if (d <= 0 || mouseX-xOffset<x+w-SCROLLWIDTH) {
-  //        // If not hovering over scroll bar, then select item
-  //        selected = hoveringOption();
-  //        events.add("valueChanged");
-  //        scrolling = false;
-  //      }
-  //    }
-  //  } else if (eventType.equals("mousePressed")) {
-  //    if (d > 0 && moveOver() && mouseX-xOffset>x+w-SCROLLWIDTH) {  
-  //      // If hovering over scroll bar, set scroll to mouse pos
-  //      scrolling = true;
-  //      scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/h, d));
-  //    } else {
-  //      scrolling = false;
-  //    }
-  //  } else if (eventType.equals("mouseDragged")) {
-  //    if (scrolling && d > 0) {  
-  //      // If scrolling, set scroll to mouse pos
-  //      scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/h, d));
-  //    }
-  //  } else if (eventType.equals("mouseReleased")) {
-  //    scrolling = false;
-  //  }
-
-  //  return events;
-  //}
-
-  //ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event) {
-  //  ArrayList<String> events = new ArrayList<String>();
-  //  if (eventType == "mouseWheel") {
-  //    float count = event.getCount();
-  //    if (moveOver()) { // Check mouse over element
-  //      if (saveNames.length > numDisplayed) {
-  //        scroll = round(between(0, scroll+count, saveNames.length-numDisplayed));
-  //        LOGGER_MAIN.finest("Changing scroll to: "+scroll);
-  //      }
-  //    }
-  //  }
-  //  return events;
-  //}
-
   String findMouseOver() {
     try {
       int j;
-      for (j=0; j<availableOptions.size(); j++) {
+      if (mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h) {
+        return options.get(0);
+      }
+      for (j=scroll; j<min(availableOptions.size()-scroll, numDisplayed); j++) {
         if (mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y+h*j && mouseY-yOffset <= y+h*(j+1)) {
-          return options.get(availableOptions.get(j));
+          return options.get(availableOptions.get(j+scroll));
         }
       }
-      for (; j<availableButOverBudgetOptions.size()+availableOptions.size(); j++) {
+      for (; j<min(availableButOverBudgetOptions.size()+availableOptions.size()-scroll, numDisplayed); j++) {
         if (mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y+h*j && mouseY-yOffset <= y+h*(j+1)) {
-          return options.get(availableButOverBudgetOptions.get(j-availableOptions.size()));
+          return options.get(availableButOverBudgetOptions.get(j-min(availableOptions.size()-scroll, numDisplayed)));
         }
       }
       return "";
@@ -1511,7 +1526,7 @@ class TaskManager extends Element {
   }
 
   boolean moveOver() {
-    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset > y && mouseY-yOffset < y+h*(availableOptions.size()+availableButOverBudgetOptions.size());
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset > y && mouseY-yOffset < y+h*min(availableButOverBudgetOptions.size()+availableOptions.size()-scroll, numDisplayed);
   }
   boolean mouseOver(int j) {
     return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset > y+h*j && mouseY-yOffset <= y+h*(j+1);

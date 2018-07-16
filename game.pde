@@ -93,7 +93,7 @@ class Game extends State {
 
       addElement("2dmap", new Map2D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
       addElement("3dmap", new Map3D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
-      addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 8, turn));
+      addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 10, turn));
 
       //map = (Map3D)getElement("2map", "default");
       notificationManager = (NotificationManager)getElement("notification manager", "default");
@@ -132,7 +132,7 @@ class Game extends State {
       addElement("turns remaining", new Text(bezel*2+220, bezel*4+30+30, 8, "", color(255), LEFT), "party management");
       addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
       addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
-      addElement("tasks", new TaskManager(bezel, bezel*4+30+30, 220, 8, color(150), color(50), tasks), "party management");
+      addElement("tasks", new TaskManager(bezel, bezel*4+30+30, 220, 8, color(150), color(50), tasks, 8), "party management");
 
       addElement("proficiency summary", new ProficiencySummary(bezel, bezel*5+30+200, 220, 100), "party management");
       addElement("proficiencies", new Text(0, 0, 10, "Proficiencies", color(0), LEFT), "party management");
