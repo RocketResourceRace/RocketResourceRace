@@ -634,8 +634,8 @@
     },
     
     {
-      "id": "weapon",
-      "display name": "Weapon",
+      "id": "weapons",
+      "display name": "Weapons",
       "display multipliers": ["speed", "defence", "ranged attack", "melee attack", "range"],
       "types":[
         {

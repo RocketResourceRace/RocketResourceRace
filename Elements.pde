@@ -2,9 +2,10 @@
 
 class EquipmentManager extends Element {
   final int TEXTSIZE = 7;
+  final float BOXWIDTHHEIGHTRATIO = 0.75;
   String[] equipmentTypeDisplayNames;
   int[] currentEquipment;
-  int boxSize;
+  float boxWidth, boxHeight;
   
   EquipmentManager(int x, int y, int w){
     this.x = x;
@@ -19,14 +20,16 @@ class EquipmentManager extends Element {
     
     currentEquipment = new int[jsManager.getNumEquipmentTypes()];
     
-    boxSize = w/jsManager.getNumEquipmentTypes();
+    boxWidth = w/jsManager.getNumEquipmentTypes();
+    boxHeight = boxWidth*BOXWIDTHHEIGHTRATIO;
   }
   
   void transform(int x, int y, int w){
     this.x = x;
     this.y = y;
     this.w = w;
-    boxSize = w/jsManager.getNumEquipmentTypes();
+    boxWidth = w/jsManager.getNumEquipmentTypes();
+    boxHeight = boxWidth*BOXWIDTHHEIGHTRATIO;
   }
   
   void setEquipment(int[] equipment){
@@ -39,11 +42,14 @@ class EquipmentManager extends Element {
     panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
     panelCanvas.textAlign(CENTER, TOP);
     panelCanvas.strokeWeight(2);
+    panelCanvas.fill(200);
+    panelCanvas.rect(x, y, w, boxHeight);
+    panelCanvas.strokeWeight(1);
     for (int i = 0; i < jsManager.getNumEquipmentTypes(); i ++){
-      panelCanvas.fill(0);
-      panelCanvas.text(equipmentTypeDisplayNames[i], x+boxSize*(i+0.5), y);
       panelCanvas.noFill();
-      panelCanvas.rect(x+boxSize*i, y, boxSize, boxSize);
+      panelCanvas.rect(x+boxWidth*i, y, boxWidth, boxHeight);
+      panelCanvas.fill(0);
+      panelCanvas.text(equipmentTypeDisplayNames[i], x+boxWidth*(i+0.5), y);
     }
     
     panelCanvas.popStyle();
