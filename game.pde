@@ -309,7 +309,7 @@ class Game extends State {
       return null;
     }
   }
-  
+
   String buildingString(int buildingI) {
     try {
       if (gameData.getJSONArray("buildings").isNull(buildingI-1)) {
@@ -323,7 +323,7 @@ class Game extends State {
       return null;
     }
   }
-  
+
   String taskString(int task) {
     try {
       if (gameData.getJSONArray("tasks").isNull(task)) {
@@ -337,7 +337,7 @@ class Game extends State {
       return null;
     }
   }
-  
+
   float[] buildingCost(int actionType) {
     try {
       float[] a = JSONToCost(taskInitialCost(actionType));
@@ -654,8 +654,8 @@ class Game extends State {
     return !((!getPanel("party management").mouseOver() || !getPanel("party management").visible) && (!getPanel("land management").mouseOver() || !getPanel("land management").visible) &&
       (!nm.moveOver()||nm.empty()));
   }
-  
-  float[] getTotalResourceRequirements(){
+
+  float[] getTotalResourceRequirements() {
     float[] totalResourceRequirements = new float[numResources];
     for (int y=0; y<mapHeight; y++) {
       for (int x=0; x<mapWidth; x++) {
@@ -674,7 +674,7 @@ class Game extends State {
     }
     return totalResourceRequirements;
   }
-  float[] getResourceAmountsAvailable(float[] totalResourceRequirements){
+  float[] getResourceAmountsAvailable(float[] totalResourceRequirements) {
     float [] resourceAmountsAvailable = new float[numResources];
     for (int i=0; i<numResources; i++) {
       if (totalResourceRequirements[i]==0) {
@@ -685,8 +685,8 @@ class Game extends State {
     }
     return resourceAmountsAvailable;
   }
-  
-  void updateResources(float[] resourceAmountsAvailable){
+
+  void updateResources(float[] resourceAmountsAvailable) {
     for (int y=0; y<mapHeight; y++) {
       for (int x=0; x<mapWidth; x++) {
         if (parties[y][x] != null) {
@@ -764,7 +764,7 @@ class Game extends State {
     }
   }
 
-  void processParties(){
+  void processParties() {
     for (int y=0; y<mapHeight; y++) {
       for (int x=0; x<mapWidth; x++) {
         if (parties[y][x] != null) {
@@ -828,7 +828,7 @@ class Game extends State {
       }
     }
   }
-  
+
   void turnChange() {
     try {
       LOGGER_GAME.finer(String.format("Turn changing - current player = %s, next player = %s", turn, (turn+1)%players.length));
@@ -968,11 +968,10 @@ class Game extends State {
     if (resSum.pointOver(mouseX, mouseY)) {
       String resource = resSum.getResourceAt(mouseX, mouseY);
       HashMap <String, Float> tasksMap = new HashMap <String, Float>();
-      for (int y = 0; y < mapHeight; y++){
-        for (int x = 0; x < mapWidth; x++){
-          if(parties[y][x]!=null){
+      for (int y = 0; y < mapHeight; y++) {
+        for (int x = 0; x < mapWidth; x++) {
+          if (parties[y][x]!=null) {
             int taskId = parties[y][x].getTask();
-            
           }
         }
       }
