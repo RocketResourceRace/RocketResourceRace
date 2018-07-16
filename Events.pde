@@ -1,8 +1,8 @@
 
-class Notification{
+class Notification {
   String name;
   int x, y, turn;
-  Notification(String name, int x, int y, int turn){
+  Notification(String name, int x, int y, int turn) {
     this.x = x;
     this.y = y;
     this.name = name;
@@ -10,24 +10,24 @@ class Notification{
   }
 }
 
-class Event{
+class Event {
   String id, type, panel;
-  Event(String id, String panel, String type){
+  Event(String id, String panel, String type) {
     this.id = id;
     this.type = type;
     this.panel = panel;
   }
-  String info(){
+  String info() {
     return "id:"+id+", type:"+type+", panel:"+panel;
   }
 }
 
 
-class Action{
+class Action {
   float turns, initialTurns;
   int type;
   String notification, terrain, building;
-  Action(int type, String notification, float turns, String building, String terrain){
+  Action(int type, String notification, float turns, String building, String terrain) {
     this.type = type;
     this.turns = turns;
     this.notification = notification;
@@ -43,13 +43,13 @@ class Action{
 //ChangeTask sx sy task
 //
 
-class GameEvent{
+class GameEvent {
   String type;
 }
 
-class Move extends GameEvent{
+class Move extends GameEvent {
   int startX, startY, endX, endY;
-  Move(int startX, int startY, int endX, int endY){
+  Move(int startX, int startY, int endX, int endY) {
     this.startX = startX;
     this.startY = startY;
     this.endX = endX;
@@ -57,22 +57,21 @@ class Move extends GameEvent{
   }
 }
 
-class Split extends GameEvent{
+class Split extends GameEvent {
   int startX, startY, endX, endY, units;
-  Split(int startX, int startY, int endX, int endY, int units){
+  Split(int startX, int startY, int endX, int endY, int units) {
     this.startX = startX;
     this.startY = startY;
     this.endX = endX;
     this.endY = endY;
     this.units = units;
   }
-
 }
 
-class ChangeTask extends GameEvent{
+class ChangeTask extends GameEvent {
   int x, y;
   int task;
-  ChangeTask(int x, int y, int task){
+  ChangeTask(int x, int y, int task) {
     this.x = x;
     this.y = y;
     this.task = task;
@@ -82,13 +81,12 @@ class ChangeTask extends GameEvent{
 class ChangePartyTrainingFocus extends GameEvent { 
   int x, y;
   int newFocus;
-  ChangePartyTrainingFocus(int x, int y, int newFocus){
+  ChangePartyTrainingFocus(int x, int y, int newFocus) {
     this.x = x;
     this.y = y;
     this.newFocus = newFocus;
   }
 }
 
-class EndTurn extends GameEvent{
-
+class EndTurn extends GameEvent {
 }

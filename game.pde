@@ -137,11 +137,11 @@ class Game extends State {
       addElement("proficiency summary", new ProficiencySummary(bezel, bezel*5+30+200, 220, 100), "party management");
       addElement("proficiencies", new Text(0, 0, 10, "Proficiencies", color(0), LEFT), "party management");
       addElement("equipment manager", new EquipmentManager(0, 0, 1), "party management");
-      
+
       DropDown partyTrainingFocusDropdown = new DropDown(0, 0, 1, 1, color(150), "Training Focus", "strings", 8);
       partyTrainingFocusDropdown.setOptions(jsManager.getProficiencies());
       addElement("party training focus", partyTrainingFocusDropdown, "party management");
-      
+
       addElement("end turn", new Button(bezel, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Next Turn"), "bottom bar");
       addElement("idle party finder", new Button(bezel*2+buttonW, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Idle Party"), "bottom bar");
       addElement("resource summary", new ResourceSummary(0, 0, 70, resourceNames, startingResources, totals), "bottom bar");
@@ -316,7 +316,7 @@ class Game extends State {
       return null;
     }
   }
-  
+
   String buildingString(int buildingI) {
     try {
       if (gameData.getJSONArray("buildings").isNull(buildingI-1)) {
@@ -330,7 +330,7 @@ class Game extends State {
       return null;
     }
   }
-  
+
   String taskString(int task) {
     try {
       if (gameData.getJSONArray("tasks").isNull(task)) {
@@ -344,7 +344,7 @@ class Game extends State {
       return null;
     }
   }
-  
+
   float[] buildingCost(int actionType) {
     try {
       float[] a = JSONToCost(taskInitialCost(actionType));
@@ -520,15 +520,13 @@ class Game extends State {
         }
 
         checkTasks();
-      }
-      
-      else if (event instanceof ChangePartyTrainingFocus){
+      } else if (event instanceof ChangePartyTrainingFocus) {
         int newFocus = ((ChangePartyTrainingFocus)event).newFocus;
         LOGGER_GAME.fine(String.format("Changing party focus for cell (%d, %d) id:%s to '%s'", selectedCellX, selectedCellY, parties[selectedCellY][selectedCellX].getID(), newFocus));
         parties[selectedCellY][selectedCellX].setTrainingFocus(newFocus);
       }
-      
-      if (valid){
+
+      if (valid) {
         LOGGER_GAME.finest("Event is valid, so updating things...");
         if (!changeTurn) {
           this.totals = totalResources();
@@ -562,7 +560,7 @@ class Game extends State {
     }
     return false;
   }
-  void updateCellSelection(){
+  void updateCellSelection() {
     // Update the size of elements on the party panel and cell management panel
     cellManagementX = round((width-400-bezel*2)/jsManager.loadFloatSetting("gui scale"))+bezel*2;
     cellManagementY = bezel*2;
@@ -673,8 +671,8 @@ class Game extends State {
     return !((!getPanel("party management").mouseOver() || !getPanel("party management").visible) && (!getPanel("land management").mouseOver() || !getPanel("land management").visible) &&
       (!nm.moveOver()||nm.empty()));
   }
-  
-  float[] getTotalResourceRequirements(){
+
+  float[] getTotalResourceRequirements() {
     float[] totalResourceRequirements = new float[numResources];
     for (int y=0; y<mapHeight; y++) {
       for (int x=0; x<mapWidth; x++) {
@@ -693,7 +691,7 @@ class Game extends State {
     }
     return totalResourceRequirements;
   }
-  float[] getResourceAmountsAvailable(float[] totalResourceRequirements){
+  float[] getResourceAmountsAvailable(float[] totalResourceRequirements) {
     float [] resourceAmountsAvailable = new float[numResources];
     for (int i=0; i<numResources; i++) {
       if (totalResourceRequirements[i]==0) {
@@ -704,8 +702,8 @@ class Game extends State {
     }
     return resourceAmountsAvailable;
   }
-  
-  void updateResources(float[] resourceAmountsAvailable){
+
+  void updateResources(float[] resourceAmountsAvailable) {
     for (int y=0; y<mapHeight; y++) {
       for (int x=0; x<mapWidth; x++) {
         if (parties[y][x] != null) {
@@ -783,7 +781,7 @@ class Game extends State {
     }
   }
 
-  void processParties(){
+  void processParties() {
     for (int y=0; y<mapHeight; y++) {
       for (int x=0; x<mapWidth; x++) {
         if (parties[y][x] != null) {
@@ -847,7 +845,7 @@ class Game extends State {
       }
     }
   }
-  
+
   void turnChange() {
     try {
       LOGGER_GAME.finer(String.format("Turn changing - current player = %s, next player = %s", turn, (turn+1)%players.length));
@@ -987,11 +985,10 @@ class Game extends State {
     if (resSum.pointOver(mouseX, mouseY)) {
       String resource = resSum.getResourceAt(mouseX, mouseY);
       HashMap <String, Float> tasksMap = new HashMap <String, Float>();
-      for (int y = 0; y < mapHeight; y++){
-        for (int x = 0; x < mapWidth; x++){
-          if(parties[y][x]!=null){
+      for (int y = 0; y < mapHeight; y++) {
+        for (int x = 0; x < mapWidth; x++) {
+          if (parties[y][x]!=null) {
             int taskId = parties[y][x].getTask();
-            
           }
         }
       }
@@ -1239,8 +1236,7 @@ class Game extends State {
           loadingName = ((BaseFileManager)getElement("saving manager", "save screen")).selectedSaveName();
           LOGGER_MAIN.fine("Changing selected save name to: "+loadingName);
           ((TextEntry)getElement("save namer", "save screen")).setText(loadingName);
-        }
-        else if (event.id.equals("party training focus")){
+        } else if (event.id.equals("party training focus")) {
           postEvent(new ChangePartyTrainingFocus(selectedCellX, selectedCellY, ((DropDown)getElement("party training focus", "party management")).getOptionIndex()));
         }
       }
@@ -1329,7 +1325,7 @@ class Game extends State {
             }
           } else if (path.get(node)[0] != px || path.get(node)[1] != py) {
             p.clearPath();
-            if (parties[path.get(node)[1]][path.get(node)[0]].player == turn){
+            if (parties[path.get(node)[1]][path.get(node)[0]].player == turn) {
               // merge parties
               notificationManager.post("Parties Merged", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
               int movementPoints = min(parties[path.get(node)[1]][path.get(node)[0]].getMovementPoints(), p.getMovementPoints()-cost);
@@ -1643,19 +1639,18 @@ class Game extends State {
       }
     }
   }
-  
-  void updatePartyManagementProficiencies(){
+
+  void updatePartyManagementProficiencies() {
     // Update proficiencies with those for current party
     ((ProficiencySummary)getElement("proficiency summary", "party management")).setProficiencies(parties[selectedCellY][selectedCellX].getProficiencies());
   }
-  
-  void updateCurrentPartyTrainingFocus(){
+
+  void updateCurrentPartyTrainingFocus() {
     int trainingFocus = parties[selectedCellY][selectedCellX].getTrainingFocus();
     ((DropDown)getElement("party training focus", "party management")).setValue(jsManager.indexToProficiencyDisplayName(trainingFocus));
-    
   }
-  
-  float[] resourceProduction(int x, int y){
+
+  float[] resourceProduction(int x, int y) {
     float[] totalResourceRequirements = new float[numResources];
     float [] resourceAmountsAvailable = new float[numResources];
     float [] production = new float[numResources];

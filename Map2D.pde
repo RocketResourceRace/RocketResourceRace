@@ -40,33 +40,33 @@ interface Map {
 }
 
 
-int getPartySize(Party p){
+int getPartySize(Party p) {
   LOGGER_MAIN.finer("Getting party size for save");
-  try{
+  try {
     int totalSize = 0;
     totalSize += Character.BYTES*16;
     ByteBuffer[] actions = new ByteBuffer[p.actions.size()];
     int index = 0;
-    for (Action a: p.actions){
+    for (Action a : p.actions) {
       int notificationSize;
       int terrainSize;
       int buildingSize;
       byte[] notification = new byte[0];
       byte[] terrain = new byte[0];
       byte[] building = new byte[0];
-      if(a.notification == null){
+      if (a.notification == null) {
         notificationSize = 0;
       } else {
         notification = a.notification.getBytes();
         notificationSize = notification.length;
       }
-      if(a.terrain == null){
+      if (a.terrain == null) {
         terrainSize = 0;
       } else {
         terrain = a.terrain.getBytes();
         terrainSize = terrain.length;
       }
-      if(a.building == null){
+      if (a.building == null) {
         buildingSize = 0;
       } else {
         building = a.building.getBytes();
@@ -81,13 +81,13 @@ int getPartySize(Party p){
       actions[index].putFloat(a.turns);
       actions[index].putFloat(a.initialTurns);
       actions[index].putInt(a.type);
-      if(notificationSize>0){
+      if (notificationSize>0) {
         actions[index].put(notification);
       }
-      if(terrainSize>0){
+      if (terrainSize>0) {
         actions[index].put(terrain);
       }
-      if(buildingSize>0){
+      if (buildingSize>0) {
         actions[index].put(building);
       }
       index++;
@@ -95,28 +95,27 @@ int getPartySize(Party p){
     totalSize+=Integer.BYTES; // For action count
     int pathSize = Integer.BYTES*(2*p.path.size()+1);
     totalSize += pathSize;
-    
+
     ByteBuffer path = ByteBuffer.allocate(pathSize);
     path.putInt(p.path.size());
-    for (int[] l: p.path){
+    for (int[] l : p.path) {
       path.putInt(l[0]);
       path.putInt(l[1]);
     }
     totalSize += Integer.BYTES*5+Float.BYTES;
-    
-    
+
+
     ByteBuffer partyBuffer = ByteBuffer.allocate(totalSize);
-    for(int i=0;i<16;i++){
-      if(i<p.id.length()){
+    for (int i=0; i<16; i++) {
+      if (i<p.id.length()) {
         partyBuffer.putChar(p.id.charAt(i));
-      }
-      else{
+      } else {
         partyBuffer.putChar(' ');
       }
     }
-    
+
     partyBuffer.putInt(p.actions.size());
-    for (ByteBuffer action: actions){
+    for (ByteBuffer action : actions) {
       partyBuffer.put(action.array());
     }
     partyBuffer.put(path.array());
@@ -129,26 +128,26 @@ int getPartySize(Party p){
     p.byteRep = partyBuffer.array();
     return totalSize;
   }
-  catch (Exception e){
+  catch (Exception e) {
     LOGGER_MAIN.log(Level.SEVERE, "Error getting party size", e);
     throw e;
   }
 }
-void saveParty(ByteBuffer b, Party p){
-  try{
+void saveParty(ByteBuffer b, Party p) {
+  try {
     b.put(p.byteRep);
   }
-  catch (Exception e){
+  catch (Exception e) {
     LOGGER_MAIN.log(Level.SEVERE, "Error saving party", e);
     throw e;
   }
 }
-Party loadParty(ByteBuffer b, String id){
+Party loadParty(ByteBuffer b, String id) {
   LOGGER_MAIN.finer("Loading party from save");
-  try{
+  try {
     int actionCount = b.getInt();
     ArrayList<Action> actions = new ArrayList<Action>();
-    for (int i=0; i<actionCount; i++){
+    for (int i=0; i<actionCount; i++) {
       String notification;
       String terrain;
       String building;
@@ -158,21 +157,21 @@ Party loadParty(ByteBuffer b, String id){
       Float turns = b.getFloat();
       Float initialTurns = b.getFloat();
       int type = b.getInt();
-      if(notificationTextSize>0){
+      if (notificationTextSize>0) {
         byte[] notificationTemp = new byte[notificationTextSize];
         b.get(notificationTemp);
         notification = new String(notificationTemp);
       } else {
         notification = null;
       }
-      if(terrainTextSize>0){
+      if (terrainTextSize>0) {
         byte[] terrainTemp = new byte[terrainTextSize];
         b.get(terrainTemp);
         terrain = new String(terrainTemp);
       } else {
         terrain = null;
       }
-      if(buildingTextSize>0){
+      if (buildingTextSize>0) {
         byte[] buildingTemp = new byte[buildingTextSize];
         b.get(buildingTemp);
         building = new String(buildingTemp);
@@ -184,7 +183,7 @@ Party loadParty(ByteBuffer b, String id){
     }
     int pathSize = b.getInt();
     ArrayList<int[]> path = new ArrayList<int[]>();
-    for(int i=0; i<pathSize; i++){
+    for (int i=0; i<pathSize; i++) {
       path.add(new int[]{b.getInt(), b.getInt()});
     }
     int unitNumber = b.getInt();
@@ -197,22 +196,22 @@ Party loadParty(ByteBuffer b, String id){
     p.strength = strength;
     p.pathTurns = pathTurns;
     p.actions = actions;
-    if (path.size() > 0){
+    if (path.size() > 0) {
       p.target = path.get(path.size()-1);
       p.loadPath(path);
     }
     return p;
   }
-  catch (Exception e){
+  catch (Exception e) {
     LOGGER_MAIN.log(Level.SEVERE, "Error loading party", e);
-    throw e;  
+    throw e;
   }
 }
 
 int SAVEVERSION = 2;
 
 
-class BaseMap extends Element{
+class BaseMap extends Element {
   float[] heightMap;
   int mapWidth, mapHeight;
   long heightMapSeed;
@@ -223,17 +222,17 @@ class BaseMap extends Element{
   boolean cinematicMode;
   HashMap<Character, Boolean> keyState;
   boolean[][] fogMap;
-  
-  void generateFogMap(int player){
+
+  void generateFogMap(int player) {
     fogMap = null;
     fogMap = new boolean[mapHeight][mapWidth];
     int SIGHTRADIUS = 3; // Should be an attribute for parties
-    for(int y=0; y<mapHeight; y++){
-      for (int x=0; x<mapWidth; x++){
-        if(parties[y][x]!=null&&parties[y][x].player == player&&parties[y][x].getUnitNumber()>0){
-          for(int y1=y-SIGHTRADIUS;y1<=y+SIGHTRADIUS;y1++){
-            for(int x1=x-SIGHTRADIUS;x1<=x+SIGHTRADIUS;x1++){
-              if(dist(x1, y1, x, y)<=SIGHTRADIUS&&0<=x1&&x1<mapWidth&&0<=y1&&y1<mapHeight){
+    for (int y=0; y<mapHeight; y++) {
+      for (int x=0; x<mapWidth; x++) {
+        if (parties[y][x]!=null&&parties[y][x].player == player&&parties[y][x].getUnitNumber()>0) {
+          for (int y1=y-SIGHTRADIUS; y1<=y+SIGHTRADIUS; y1++) {
+            for (int x1=x-SIGHTRADIUS; x1<=x+SIGHTRADIUS; x1++) {
+              if (dist(x1, y1, x, y)<=SIGHTRADIUS&&0<=x1&&x1<mapWidth&&0<=y1&&y1<mapHeight) {
                 fogMap[y1][x1] = true;
               }
             }
@@ -242,20 +241,19 @@ class BaseMap extends Element{
       }
     }
   }
-  
-  void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players){
+
+  void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players) {
     LOGGER_MAIN.info("Starting saving progress");
-    try{
+    try {
       int partiesByteCount = 0;
-      for (int y=0; y<mapHeight; y++){
-        for (int x=0; x<mapWidth; x++){
-          if(parties[y][x] != null){
-            if(parties[y][x].player==2){
+      for (int y=0; y<mapHeight; y++) {
+        for (int x=0; x<mapWidth; x++) {
+          if (parties[y][x] != null) {
+            if (parties[y][x].player==2) {
               partiesByteCount+= Character.BYTES*16;
               partiesByteCount+=getPartySize(((Battle)parties[y][x]).party1);
               partiesByteCount+=getPartySize(((Battle)parties[y][x]).party2);
-            } 
-            else {
+            } else {
               partiesByteCount+=getPartySize(parties[y][x]);
             }
           }
@@ -288,16 +286,16 @@ class BaseMap extends Element{
       LOGGER_MAIN.finer("Saving height map seed: "+heightMapSeed);
       buffer.putFloat(jsManager.loadFloatSetting("water level"));
       LOGGER_MAIN.finer("Saving water level: "+jsManager.loadFloatSetting("water level"));
-      
+
       LOGGER_MAIN.finer("Saving terrain and buildings");
-      for (int y=0; y<mapHeight; y++){
-        for (int x=0; x<mapWidth; x++){
+      for (int y=0; y<mapHeight; y++) {
+        for (int x=0; x<mapWidth; x++) {
           buffer.putInt(terrain[y][x]);
         }
       }
-      for (int y=0; y<mapHeight; y++){
-        for (int x=0; x<mapWidth; x++){
-          if(buildings[y][x]==null){
+      for (int y=0; y<mapHeight; y++) {
+        for (int x=0; x<mapWidth; x++) {
+          if (buildings[y][x]==null) {
             buffer.putInt(-1);
             buffer.putInt(-1);
           } else {
@@ -307,14 +305,14 @@ class BaseMap extends Element{
         }
       }
       LOGGER_MAIN.finer("Saving parties");
-      for (int y=0; y<mapHeight; y++){
-        for (int x=0; x<mapWidth; x++){
-          if(parties[y][x]==null){
+      for (int y=0; y<mapHeight; y++) {
+        for (int x=0; x<mapWidth; x++) {
+          if (parties[y][x]==null) {
             buffer.put(byte(0));
-          } else if (parties[y][x].player == 2){
+          } else if (parties[y][x].player == 2) {
             buffer.put(byte(2));
-            for (int i=0; i<16; i++){
-              if(i<parties[y][x].id.length()){
+            for (int i=0; i<16; i++) {
+              if (i<parties[y][x].id.length()) {
                 buffer.putChar(parties[y][x].id.charAt(i));
               } else {
                 buffer.putChar(' ');
@@ -329,26 +327,25 @@ class BaseMap extends Element{
         }
       }
       LOGGER_MAIN.finer("Saving players");
-      for (Player p: players){
+      for (Player p : players) {
         buffer.putFloat(p.cameraCellX);
         buffer.putFloat(p.cameraCellY);
-        if(p.blockSize==0){
+        if (p.blockSize==0) {
           p.blockSize = jsManager.loadIntSetting("starting block size");
         }
         buffer.putFloat(p.blockSize);
-          
-        for (float r: p.resources){
+
+        for (float r : p.resources) {
           buffer.putFloat(r);
         }
         buffer.putInt(p.cellX);
         buffer.putInt(p.cellY);
         buffer.putInt(p.colour);
         buffer.put(byte(p.cellSelected));
-        for(int i=0;i<10;i++){
-          if(i<p.name.length()){
+        for (int i=0; i<10; i++) {
+          if (i<p.name.length()) {
             buffer.putChar(p.name.charAt(i));
-          }
-          else{
+          } else {
             buffer.putChar(' ');
           }
         }
@@ -356,14 +353,14 @@ class BaseMap extends Element{
       LOGGER_MAIN.fine("Saving map to file");
       saveBytes(filename, buffer.array());
     }
-    catch (Exception e){
+    catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error saving map", e);
-      throw e; 
+      throw e;
     }
   }
-  
-  MapSave loadMap(String filename, int resourceCountNew){
-    try{
+
+  MapSave loadMap(String filename, int resourceCountNew) {
+    try {
       boolean versionCheckInt = false;
       byte tempBuffer[] = loadBytes(filename);
       int headerSize = Integer.BYTES*5;
@@ -372,12 +369,11 @@ class BaseMap extends Element{
       headerBuffer.put(Arrays.copyOfRange(tempBuffer, 0, headerSize));
       headerBuffer.flip();//need flip
       int versionCheck = -headerBuffer.getInt();
-      if(versionCheck>0){
+      if (versionCheck>0) {
         versionCheckInt = true;
         mapWidth = headerBuffer.getInt();
         versionSpecificData += Integer.BYTES;
-      } 
-      else {
+      } else {
         LOGGER_MAIN.info("Loading old save with party size 1000");
         mapWidth = -versionCheck;
         jsManager.saveSetting("party size", 1000);
@@ -387,14 +383,13 @@ class BaseMap extends Element{
       int playersByteCount = headerBuffer.getInt();
       int dataSize = Long.BYTES+partiesByteCount+playersByteCount+(4+mapWidth*mapHeight*3)*Integer.BYTES+Float.BYTES+versionSpecificData;
       ByteBuffer buffer = ByteBuffer.allocate(dataSize);
-      if(versionCheckInt){
+      if (versionCheckInt) {
         buffer.put(Arrays.copyOfRange(tempBuffer, headerSize, headerSize+dataSize));
-      } 
-      else {
+      } else {
         buffer.put(Arrays.copyOfRange(tempBuffer, headerSize-Integer.BYTES, headerSize-Integer.BYTES+dataSize));
       }
       buffer.flip();//need flip
-      if(versionCheckInt){
+      if (versionCheckInt) {
         jsManager.saveSetting("party size", buffer.getInt());
       }
       int playerCount = buffer.getInt();
@@ -408,23 +403,23 @@ class BaseMap extends Element{
       terrain = new int[mapHeight][mapWidth];
       parties = new Party[mapHeight][mapWidth];
       buildings = new Building[mapHeight][mapWidth];
-      
+
       LOGGER_MAIN.finer("Loading terrain");
-      for (int y=0; y<mapHeight; y++){
-        for (int x=0; x<mapWidth; x++){
+      for (int y=0; y<mapHeight; y++) {
+        for (int x=0; x<mapWidth; x++) {
           terrain[y][x] = buffer.getInt();
         }
       }
       LOGGER_MAIN.finer("Loading buildings");
-      for (int y=0; y<mapHeight; y++){
-        for (int x=0; x<mapWidth; x++){
+      for (int y=0; y<mapHeight; y++) {
+        for (int x=0; x<mapWidth; x++) {
           int type = buffer.getInt();
           int image_id = buffer.getInt();
-          if(type!=-1){
+          if (type!=-1) {
             buildings[y][x] = new Building(type, image_id);
           }
-          if(!versionCheckInt){
-            if(type==9){
+          if (!versionCheckInt) {
+            if (type==9) {
               terrain[y][x] = terrainIndex("quarry site");
               LOGGER_MAIN.finer("Changing old quarry tiles into quarry sites - only on old maps");
             }
@@ -434,24 +429,24 @@ class BaseMap extends Element{
       LOGGER_MAIN.finer("Loading parties");
       int battleCount = 0;
       int partyCount = 0;
-      for (int y=0; y<mapHeight; y++){
-        for (int x=0; x<mapWidth; x++){
+      for (int y=0; y<mapHeight; y++) {
+        for (int x=0; x<mapWidth; x++) {
           Byte partyType = buffer.get();
-          if (partyType == 2){
+          if (partyType == 2) {
             char[] rawid;
             char[] p1id;
             char[] p2id;
-            if(versionCheck>1){
+            if (versionCheck>1) {
               rawid = new char[16];
-              for (int i=0;i<16;i++){
+              for (int i=0; i<16; i++) {
                 rawid[i] = buffer.getChar();
               }
               p1id = new char[16];
-              for (int i=0;i<16;i++){
+              for (int i=0; i<16; i++) {
                 p1id[i] = buffer.getChar();
               }
               p2id = new char[16];
-              for (int i=0;i<16;i++){
+              for (int i=0; i<16; i++) {
                 p2id[i] = buffer.getChar();
               }
             } else {
@@ -468,12 +463,11 @@ class BaseMap extends Element{
             Battle b = new Battle(p1, p2, new String(rawid));
             b.party1.strength = savedStrength;
             parties[y][x] = b;
-          } 
-          else if (partyType == 1){
+          } else if (partyType == 1) {
             char[] rawid;
-            if(versionCheck>1){
+            if (versionCheck>1) {
               rawid = new char[16];
-              for (int i=0;i<16;i++){
+              for (int i=0; i<16; i++) {
                 rawid[i] = buffer.getChar();
               }
             } else {
@@ -486,13 +480,13 @@ class BaseMap extends Element{
       }
       LOGGER_MAIN.finer("Loading players, count="+playerCount);
       Player[] players = new Player[playerCount];
-      for (int i=0;i<playerCount;i++){
+      for (int i=0; i<playerCount; i++) {
         float cameraCellX = buffer.getFloat();
         float cameraCellY = buffer.getFloat();
         float blockSize = buffer.getFloat();
         float[] resources = new float[resourceCountNew];
         LOGGER_MAIN.finer(String.format("player %d. Camera Position: (%f, %f) blocksize:%f, resources:%s", i, cameraCellX, cameraCellY, blockSize, Arrays.toString(resources)));
-        for (int r=0; r<resourceCountOld;r++){
+        for (int r=0; r<resourceCountOld; r++) {
           resources[r] = buffer.getFloat();
         }
         int selectedCellX = buffer.getInt();
@@ -500,8 +494,8 @@ class BaseMap extends Element{
         int colour = buffer.getInt();
         boolean cellSelected = boolean(buffer.get());
         char[] playerName = new char[10];
-        if(versionCheck>1){
-          for (int j=0;j<10;j++){
+        if (versionCheck>1) {
+          for (int j=0; j<10; j++) {
             playerName[j] = buffer.getChar();
           }
         } else {
@@ -518,32 +512,32 @@ class BaseMap extends Element{
       LOGGER_MAIN.fine("Finished loading save");
       return new MapSave(heightMap, mapWidth, mapHeight, terrain, parties, buildings, turnNumber, turnPlayer, players);
     }
-    
-    catch (Exception e){
+
+    catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error loading map", e);
       throw e;
     }
   }
-  
-  
-  int toMapIndex(int x, int y, int x1, int y1){
-    try{
+
+
+  int toMapIndex(int x, int y, int x1, int y1) {
+    try {
       return int(x1+x*jsManager.loadFloatSetting("terrain detail")+y1*jsManager.loadFloatSetting("terrain detail")*(mapWidth+1/jsManager.loadFloatSetting("terrain detail"))+y*pow(jsManager.loadFloatSetting("terrain detail"), 2)*(mapWidth+1/jsManager.loadFloatSetting("terrain detail")));
     }
-    catch (Exception e){
+    catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error converting coordinates to map index", e);
       throw e;
     }
   }
-  
-  void setDrawingUnitBars(boolean v){
+
+  void setDrawingUnitBars(boolean v) {
     drawingUnitBars = v;
   }
-  
-  void setDrawingTaskIcons(boolean v){
+
+  void setDrawingTaskIcons(boolean v) {
     drawingTaskIcons = v;
   }
-  
+
   //int getRandomGroundType(HashMap<Integer, Float> groundWeightings, float total){
   //  float randomNum = random(0, 1);
   //  float min = 0;
@@ -604,22 +598,21 @@ class BaseMap extends Element{
   //  }
   //  return newMap;
   //}
-  void generateTerrain(){
-    try{
+  void generateTerrain() {
+    try {
       LOGGER_MAIN.info("Generating terrain");
-      noiseDetail(3,0.25);
+      noiseDetail(3, 0.25);
       HashMap<Integer, Float> groundWeightings = new HashMap();
-      for (Integer i=1; i<gameData.getJSONArray("terrain").size()+1; i++){
-        if (gameData.getJSONArray("terrain").getJSONObject(i-1).isNull("weighting")){
+      for (Integer i=1; i<gameData.getJSONArray("terrain").size()+1; i++) {
+        if (gameData.getJSONArray("terrain").getJSONObject(i-1).isNull("weighting")) {
           groundWeightings.put(i, jsManager.loadFloatSetting(gameData.getJSONArray("terrain").getJSONObject(i-1).getString("id")+" weighting"));
-        }
-        else{
+        } else {
           groundWeightings.put(i, gameData.getJSONArray("terrain").getJSONObject(i-1).getFloat("weighting"));
         }
       }
-  
+
       float totalWeighting = 0;
-      for (float weight: groundWeightings.values()){
+      for (float weight : groundWeightings.values()) {
         totalWeighting+=weight;
       }
       //for(int i=0;i<jsManager.loadIntSetting("ground spawns");i++){
@@ -632,20 +625,20 @@ class BaseMap extends Element{
       //    terrain[y][x] = type;
       //  }
       //}
-      class TempTerrainDetail implements Comparable<TempTerrainDetail>{
+      class TempTerrainDetail implements Comparable<TempTerrainDetail> {
         int x;
         int y;
         float noiseValue;
-        TempTerrainDetail(int x, int y, float noiseValue){
+        TempTerrainDetail(int x, int y, float noiseValue) {
           super();
           this.x = x;
           this.y = y;
           this.noiseValue = noiseValue;
         }
         public int compareTo(TempTerrainDetail otherDetail) {
-          if(this.noiseValue>otherDetail.noiseValue){
+          if (this.noiseValue>otherDetail.noiseValue) {
             return 1;
-          } else if (this.noiseValue<otherDetail.noiseValue){
+          } else if (this.noiseValue<otherDetail.noiseValue) {
             return -1;
           } else {
             return 0;
@@ -653,9 +646,9 @@ class BaseMap extends Element{
         }
       }
       ArrayList<TempTerrainDetail> cells = new ArrayList<TempTerrainDetail>();
-      for (int y=0; y<mapHeight;y++){
-        for (int x=0; x<mapWidth;x++){
-          if(isWater(x, y)){
+      for (int y=0; y<mapHeight; y++) {
+        for (int x=0; x<mapWidth; x++) {
+          if (isWater(x, y)) {
             terrain[y][x] = terrainIndex("water");
           } else {
             cells.add(new TempTerrainDetail(x, y, noise(x*MAPTERRAINNOISESCALE, y*MAPTERRAINNOISESCALE, 1)));
@@ -668,9 +661,9 @@ class BaseMap extends Element{
       int terrainIndex = 0;
       int totalBelow = 0;
       int lastType = 0;
-      for (int type: groundWeightings.keySet()){
-        if(groundWeightings.get(type)>0){
-          while(float(terrainIndex-totalBelow)/cells.size()<groundWeightings.get(type)/totalWeighting){
+      for (int type : groundWeightings.keySet()) {
+        if (groundWeightings.get(type)>0) {
+          while (float(terrainIndex-totalBelow)/cells.size()<groundWeightings.get(type)/totalWeighting) {
             terrain[cellsArray[terrainIndex].y][cellsArray[terrainIndex].x] = type;
             cellsArray[terrainIndex].noiseValue = 0;
             terrainIndex++;
@@ -679,8 +672,8 @@ class BaseMap extends Element{
         }
         lastType = type;
       }
-      for(TempTerrainDetail t: cellsArray){
-        if(t.noiseValue!=0){
+      for (TempTerrainDetail t : cellsArray) {
+        if (t.noiseValue!=0) {
           terrain[t.y][t.x] = lastType;
           //println("map generation possible issue here");
         }
@@ -736,21 +729,21 @@ class BaseMap extends Element{
       //}
       //terrain = smoothMap(jsManager.loadIntSetting("smoothing"), 2, terrain);
       //terrain = smoothMap(jsManager.loadIntSetting("smoothing")+2, 1, terrain);
-      for (int y=0; y<mapHeight;y++){
-        for (int x=0; x<mapWidth;x++){
-          if(terrain[y][x] != terrainIndex("water") && (groundMaxRawHeightAt(x, y) > jsManager.loadFloatSetting("hills height")) || getMaxSteepness(x, y)>HILLSTEEPNESS){
+      for (int y=0; y<mapHeight; y++) {
+        for (int x=0; x<mapWidth; x++) {
+          if (terrain[y][x] != terrainIndex("water") && (groundMaxRawHeightAt(x, y) > jsManager.loadFloatSetting("hills height")) || getMaxSteepness(x, y)>HILLSTEEPNESS) {
             terrain[y][x] = terrainIndex("hills");
           }
         }
       }
     }
-    catch (Exception e){
+    catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error generating map", e);
       throw e;
     }
   }
-  void generateMap(int mapWidth, int mapHeight){
-    try{
+  void generateMap(int mapWidth, int mapHeight) {
+    try {
       LOGGER_MAIN.fine("Generating map");
       terrain = new int[mapHeight][mapWidth];
       buildings = new Building[mapHeight][mapWidth];
@@ -762,60 +755,59 @@ class BaseMap extends Element{
       generateNoiseMaps();
       generateTerrain();
     }
-    catch (Exception e){
+    catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error generating map", e);
       throw e;
     }
   }
-  void generateNoiseMaps(){
-    try{
+  void generateNoiseMaps() {
+    try {
       LOGGER_MAIN.info("Generating noise map");
-      noiseDetail(4,0.5);
+      noiseDetail(4, 0.5);
       heightMap = new float[int((mapWidth+1/jsManager.loadFloatSetting("terrain detail"))*(mapHeight+1/jsManager.loadFloatSetting("terrain detail"))*pow(jsManager.loadFloatSetting("terrain detail"), 2))];
-      for(int y = 0;y<mapHeight;y++){
-        for(int y1 = 0;y1<jsManager.loadFloatSetting("terrain detail");y1++){
-          for(int x = 0;x<mapWidth;x++){
-            for(int x1 = 0;x1<jsManager.loadFloatSetting("terrain detail");x1++){
+      for (int y = 0; y<mapHeight; y++) {
+        for (int y1 = 0; y1<jsManager.loadFloatSetting("terrain detail"); y1++) {
+          for (int x = 0; x<mapWidth; x++) {
+            for (int x1 = 0; x1<jsManager.loadFloatSetting("terrain detail"); x1++) {
               heightMap[toMapIndex(x, y, x1, y1)] = noise((x+x1/jsManager.loadFloatSetting("terrain detail"))*MAPHEIGHTNOISESCALE, (y+y1/jsManager.loadFloatSetting("terrain detail"))*MAPHEIGHTNOISESCALE);
             }
           }
           heightMap[toMapIndex(mapWidth, y, 0, y1)] = noise(((mapWidth+1))*MAPHEIGHTNOISESCALE, (y+y1/jsManager.loadFloatSetting("terrain detail"))*MAPHEIGHTNOISESCALE);
         }
       }
-      for(int x = 0;x<mapWidth;x++){
-        for(int x1 = 0;x1<jsManager.loadFloatSetting("terrain detail");x1++){
+      for (int x = 0; x<mapWidth; x++) {
+        for (int x1 = 0; x1<jsManager.loadFloatSetting("terrain detail"); x1++) {
           heightMap[toMapIndex(x, mapHeight, x1, 0)] = noise((x+x1/jsManager.loadFloatSetting("terrain detail"))*MAPHEIGHTNOISESCALE, (mapHeight)*MAPHEIGHTNOISESCALE);
         }
       }
       heightMap[toMapIndex(mapWidth, mapHeight, 0, 0)] = noise(((mapWidth+1))*MAPHEIGHTNOISESCALE, (mapHeight)*MAPHEIGHTNOISESCALE);
     }
-    catch (Exception e){
+    catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error generating noise map", e);
       throw e;
     }
   }
-  void setHeightsForCell(int x, int y, float h){
+  void setHeightsForCell(int x, int y, float h) {
     // Set all the heightmap heights in cell to h
-    try{
+    try {
       int cellIndex;
-      for (int x1 = 0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++){
-        for (int y1 = 0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++){
+      for (int x1 = 0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
+        for (int y1 = 0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
           cellIndex = toMapIndex(x, y, x1, y1);
           heightMap[cellIndex] = h;
         }
       }
     }
-    catch (Exception e){
+    catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, String.format("Error setting height for cell with height %s and pos: (%s, %s)", x, y, h), e);
       throw e;
     }
   }
   float getRawHeight(int x, int y, int x1, int y1) {
-    try{
-      if((x>=0&&y>=0)&&((x<mapWidth||(x==mapWidth&&x1==0))&&(y<mapHeight||(y==mapHeight&&y1==0)))){
+    try {
+      if ((x>=0&&y>=0)&&((x<mapWidth||(x==mapWidth&&x1==0))&&(y<mapHeight||(y==mapHeight&&y1==0)))) {
         return max(heightMap[toMapIndex(x, y, x1, y1)], jsManager.loadFloatSetting("water level"));
-      } 
-      else {
+      } else {
         // println("A request for the height at a tile outside the map has been made. Ideally this should be prevented earlier"); // Uncomment this when we want to fix it
         return jsManager.loadFloatSetting("water level");
       }
@@ -826,20 +818,20 @@ class BaseMap extends Element{
     }
   }
   float getRawHeight(int x, int y, float x1, float y1) {
-    try{
-      if((x>=0&&y>=0)&&((x<mapWidth||(x==mapWidth&&x1==0))&&(y<mapHeight||(y==mapHeight&&y1==0)))){
+    try {
+      if ((x>=0&&y>=0)&&((x<mapWidth||(x==mapWidth&&x1==0))&&(y<mapHeight||(y==mapHeight&&y1==0)))) {
         float x2 = x1*jsManager.loadFloatSetting("terrain detail");
         float y2 = y1*jsManager.loadFloatSetting("terrain detail");
         float xVal1 = lerp(heightMap[toMapIndex(x, y, floor(x2), floor(y2))], heightMap[toMapIndex(x, y, ceil(x2), floor(y2))], x1);
         float xVal2 = lerp(heightMap[toMapIndex(x, y, floor(x2), ceil(y2))], heightMap[toMapIndex(x, y, ceil(x2), ceil(y2))], x1);
         float yVal = lerp(xVal1, xVal2, y1);
         return max(yVal, jsManager.loadFloatSetting("water level"));
-      }
-      else {
+      } else {
         // println("A request for the height at a tile outside the map has been made. Ideally this should be prevented earlier"); // Uncomment this when we want to fix it
         return jsManager.loadFloatSetting("water level");
       }
-    } catch (ArrayIndexOutOfBoundsException e) {
+    } 
+    catch (ArrayIndexOutOfBoundsException e) {
       println("this message should never appear. Uncaught request for height at ", x, y, x1, y1);
       return jsManager.loadFloatSetting("water level");
     }
@@ -847,56 +839,56 @@ class BaseMap extends Element{
   float getRawHeight(int x, int y) {
     return getRawHeight(x, y, 0, 0);
   }
-  float getRawHeight(float x, float y){
-    if(x<0||y<0){
+  float getRawHeight(float x, float y) {
+    if (x<0||y<0) {
       return jsManager.loadFloatSetting("water level");
     }
     return getRawHeight(int(x), int(y), (x-int(x)), (y-int(y)));
   }
   float groundMinRawHeightAt(int x1, int y1) {
-    try{
+    try {
       int x = floor(x1);
       int y = floor(y1);
       return min(new float[]{getRawHeight(x, y), getRawHeight(x+1, y), getRawHeight(x, y+1), getRawHeight(x+1, y+1)});
     }
-    catch (Exception e){
+    catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, String.format("Error getting min raw ground height at: (%s, %s)", x1, y1), e);
       throw e;
     }
   }
   float groundMaxRawHeightAt(int x1, int y1) {
-    try{
+    try {
       int x = floor(x1);
       int y = floor(y1);
       return max(new float[]{getRawHeight(x, y), getRawHeight(x+1, y), getRawHeight(x, y+1), getRawHeight(x+1, y+1)});
     }
-    catch (Exception e){
+    catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, String.format("Error getting max raw ground height at: (%s, %s)", x1, y1), e);
       throw e;
     }
   }
-  boolean isWater(int x, int y){
+  boolean isWater(int x, int y) {
     return groundMaxRawHeightAt(x, y) == jsManager.loadFloatSetting("water level");
   }
-  
-  float getMaxSteepness(int x, int y){
-    try{
+
+  float getMaxSteepness(int x, int y) {
+    try {
       float maxZ, minZ;
       maxZ = 0;
       minZ = 1;
-      for (float y1 = y; y1<=y+1;y1+=1.0/jsManager.loadFloatSetting("terrain detail")){
-        for (float x1 = x; x1<=x+1;x1+=1.0/jsManager.loadFloatSetting("terrain detail")){
+      for (float y1 = y; y1<=y+1; y1+=1.0/jsManager.loadFloatSetting("terrain detail")) {
+        for (float x1 = x; x1<=x+1; x1+=1.0/jsManager.loadFloatSetting("terrain detail")) {
           float z = getRawHeight(x1, y1);
-          if(z>maxZ){
+          if (z>maxZ) {
             maxZ = z;
-          } else if (z<minZ){
+          } else if (z<minZ) {
             minZ = z;
           }
         }
       }
       return maxZ-minZ;
     }
-    catch (Exception e){
+    catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, String.format("Error getting max steepness at: (%s, %s)", x, y), e);
       throw e;
     }
@@ -904,7 +896,7 @@ class BaseMap extends Element{
 }
 
 
-class Map2D extends BaseMap implements Map{
+class Map2D extends BaseMap implements Map {
   final int EW, EH, INITIALHOLD=1000;
   float blockSize, targetBlockSize;
   float mapXOffset, mapYOffset, targetXOffset, targetYOffset, panningSpeed, resetTime;
@@ -912,7 +904,7 @@ class Map2D extends BaseMap implements Map{
   float mapMaxSpeed;
   int elementWidth;
   int elementHeight;
-  float[] mapVelocity = {0,0};
+  float[] mapVelocity = {0, 0};
   int startX;
   int startY;
   int frameStartTime;
@@ -928,7 +920,7 @@ class Map2D extends BaseMap implements Map{
   PVector rocketPosition;
   PVector rocketVelocity;
 
-  Map2D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight){
+  Map2D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
     LOGGER_MAIN.fine("Initialsing map");
     xPos = x;
     yPos = y;
@@ -953,75 +945,71 @@ class Map2D extends BaseMap implements Map{
     heightMap = new float[int((mapWidth+1)*(mapHeight+1)*pow(jsManager.loadFloatSetting("terrain detail"), 2))];
     this.keyState = new HashMap<Character, Boolean>();
   }
-  
-  
-  void generateFog(int player){
+
+
+  void generateFog(int player) {
     generateFogMap(player);
   }
-  
-  void generateShape(){
+
+  void generateShape() {
     cinematicMode = false;
     drawRocket = false;
     this.keyState = new HashMap<Character, Boolean>();
   }
-  void clearShape(){
-
+  void clearShape() {
   }
-  void updateHoveringScale(){
-    
+  void updateHoveringScale() {
   }
-  void doUpdateHoveringScale(){
-    
+  void doUpdateHoveringScale() {
   }
-  void replaceMapStripWithReloadedStrip(int y){
-    
+  void replaceMapStripWithReloadedStrip(int y) {
   }
-  boolean isMoving(){
+  boolean isMoving() {
     return mapVelocity[0] != 0 || mapVelocity[1] != 0;
   }
-  Node[][] getMoveNodes(){
+  Node[][] getMoveNodes() {
     return moveNodes;
   }
-  float getTargetZoom(){
+  float getTargetZoom() {
     return targetBlockSize;
   }
-  float getZoom(){
+  float getZoom() {
     return blockSize;
   }
-  boolean isZooming(){
+  boolean isZooming() {
     return zooming;
   }
-  boolean isPanning(){
+  boolean isPanning() {
     return panning;
   }
-  float getFocusedX(){
+  float getFocusedX() {
     return mapXOffset;
   }
-  float getFocusedY(){
+  float getFocusedY() {
     return mapYOffset;
   }
   void removeTreeTile(int cellX, int cellY) {
     terrain[cellY][cellX] = terrainIndex("grass");
   }
-  void setActive(boolean a){
+  void setActive(boolean a) {
     this.mapActive = a;
   }
-  void selectCell(int x, int y){
+  void selectCell(int x, int y) {
     cellSelected = true;
     selectedCellX = x;
     selectedCellY = y;
   }
-  void unselectCell(){
+  void unselectCell() {
     cellSelected = false;
   }
-  void setPanningSpeed(float s){
+  void setPanningSpeed(float s) {
     panningSpeed = s;
   }
-  void limitCoords(){
+  void limitCoords() {
     mapXOffset = min(max(mapXOffset, -mapWidth*blockSize+elementWidth*0.5), elementWidth*0.5);
     mapYOffset = min(max(mapYOffset, -mapHeight*blockSize+elementHeight*0.5), elementHeight*0.5);
   }
-  void reset(){
+  void reset() {
     mapXOffset = 0;
     mapYOffset = 0;
     mapVelocity[0] = 0;
@@ -1032,29 +1020,29 @@ class Map2D extends BaseMap implements Map{
     frameStartTime = 0;
     cancelMoveNodes();
   }
-  void loadSettings(float x, float y, float bs){
+  void loadSettings(float x, float y, float bs) {
     targetCell(int(x), int(y), bs);
   }
-  void targetOffset(float x, float y){
+  void targetOffset(float x, float y) {
     targetXOffset = x;
     targetYOffset = y;
     limitCoords();
     panning = true;
   }
-  void targetZoom(float bs){
+  void targetZoom(float bs) {
     zooming = true;
     targetBlockSize = bs;
   }
-  float getTargetOffsetX(){
+  float getTargetOffsetX() {
     return targetXOffset;
   }
-  float getTargetOffsetY(){
+  float getTargetOffsetY() {
     return targetYOffset;
   }
-  float getTargetBlockSize(){
+  float getTargetBlockSize() {
     return targetBlockSize;
   }
-  float [] targetCell(int x, int y, float bs){
+  float [] targetCell(int x, int y, float bs) {
     LOGGER_MAIN.finer(String.format("Targetting cell: %s, %s block size: ", x, y, bs));
     targetBlockSize = bs;
     targetXOffset = -(x+0.5)*targetBlockSize+elementWidth/2+xPos;
@@ -1063,46 +1051,46 @@ class Map2D extends BaseMap implements Map{
     zooming = true;
     return new float[]{targetXOffset, targetYOffset, targetBlockSize};
   }
-  void focusMapMouse(){
+  void focusMapMouse() {
     // based on mouse click
-    if(mouseOver()){
+    if (mouseOver()) {
       targetXOffset = -scaleXInv()*blockSize+elementWidth/2+xPos;
       targetYOffset = -scaleYInv()*blockSize+elementHeight/2+yPos;
       limitCoords();
       panning = true;
     }
   }
-  void resetTarget(){
+  void resetTarget() {
     targetXOffset = mapXOffset;
     targetYOffset = mapYOffset;
     panning = false;
   }
-  void resetTargetZoom(){
+  void resetTargetZoom() {
     zooming = false;
     targetBlockSize = blockSize;
     setPanningSpeed(0.05);
   }
 
-  void updateMoveNodes(Node[][] nodes){
+  void updateMoveNodes(Node[][] nodes) {
     moveNodes = nodes;
   }
-  void updatePath(ArrayList<int[]> nodes){
+  void updatePath(ArrayList<int[]> nodes) {
     drawPath = nodes;
   }
-  void cancelMoveNodes(){
+  void cancelMoveNodes() {
     moveNodes = null;
   }
-  void cancelPath(){
+  void cancelPath() {
     drawPath = null;
   }
 
-  ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event){
-    if (eventType == "mouseWheel"){
+  ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event) {
+    if (eventType == "mouseWheel") {
       float count = event.getCount();
-      if(mouseOver() && mapActive){
+      if (mouseOver() && mapActive) {
         float zoom = pow(0.9, count);
         float newBlockSize = max(min(blockSize*zoom, (float)elementWidth/10), (float)elementWidth/(float)jsManager.loadIntSetting("map size"));
-        if (blockSize != newBlockSize){
+        if (blockSize != newBlockSize) {
           mapXOffset = scaleX(((mouseX-mapXOffset-xPos)/blockSize))-xPos-((mouseX-mapXOffset-xPos)*newBlockSize/blockSize);
           mapYOffset = scaleY(((mouseY-mapYOffset-yPos)/blockSize))-yPos-((mouseY-mapYOffset-yPos)*newBlockSize/blockSize);
           blockSize = newBlockSize;
@@ -1115,9 +1103,9 @@ class Map2D extends BaseMap implements Map{
     return new ArrayList<String>();
   }
 
-  ArrayList<String> mouseEvent(String eventType, int button){
-    if (button == LEFT&mapActive){
-      if (eventType=="mouseDragged" && mapFocused){
+  ArrayList<String> mouseEvent(String eventType, int button) {
+    if (button == LEFT&mapActive) {
+      if (eventType=="mouseDragged" && mapFocused) {
         mapXOffset += (mouseX-startX);
         mapYOffset += (mouseY-startY);
         limitCoords();
@@ -1126,95 +1114,94 @@ class Map2D extends BaseMap implements Map{
         resetTarget();
         resetTargetZoom();
       }
-      if (eventType == "mousePressed"){
-        if (mouseOver()){
+      if (eventType == "mousePressed") {
+        if (mouseOver()) {
           startX = mouseX;
           startY = mouseY;
           mapFocused = true;
-        }
-        else{
+        } else {
           mapFocused = false;
         }
       }
     }
     return new ArrayList<String>();
   }
-  ArrayList<String> keyboardEvent(String eventType, char _key){
-    if (eventType == "keyPressed"){
+  ArrayList<String> keyboardEvent(String eventType, char _key) {
+    if (eventType == "keyPressed") {
       keyState.put(_key, true);
     }
-    if (eventType == "keyReleased"){
+    if (eventType == "keyReleased") {
       keyState.put(_key, false);
     }
     return new ArrayList<String>();
   }
 
-  void setWidth(int w){
+  void setWidth(int w) {
     this.elementWidth = w;
   }
 
-  void drawSelectedCell(PVector c, PGraphics panelCanvas){
-   //cell selection
-   panelCanvas.stroke(0);
-   if (cellSelected){
-     if (max(c.x, xPos)+min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)>xPos && max(c.x, xPos) < elementWidth+xPos && max(c.y, yPos)+min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos)>yPos && max(c.y, yPos) < elementHeight+yPos){
-       panelCanvas.fill(50, 100);
-       panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize-1, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize-1, yPos+elementHeight-c.y, blockSize+c.y-yPos));
-     }
-   }
+  void drawSelectedCell(PVector c, PGraphics panelCanvas) {
+    //cell selection
+    panelCanvas.stroke(0);
+    if (cellSelected) {
+      if (max(c.x, xPos)+min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)>xPos && max(c.x, xPos) < elementWidth+xPos && max(c.y, yPos)+min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos)>yPos && max(c.y, yPos) < elementHeight+yPos) {
+        panelCanvas.fill(50, 100);
+        panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize-1, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize-1, yPos+elementHeight-c.y, blockSize+c.y-yPos));
+      }
+    }
   }
 
-  void draw(PGraphics panelCanvas){
+  void draw(PGraphics panelCanvas) {
 
     // Terrain
     PImage[] tempTileImages = new PImage[gameData.getJSONArray("terrain").size()];
     PImage[][] tempBuildingImages = new PImage[gameData.getJSONArray("buildings").size()][];
     PImage[] tempPartyImages = new PImage[3];
     PImage[] tempTaskImages = new PImage[taskImages.length];
-    if (frameStartTime == 0){
+    if (frameStartTime == 0) {
       frameStartTime = millis();
     }
     int frameTime = millis()-frameStartTime;
-    if (millis()-resetTime < INITIALHOLD){
+    if (millis()-resetTime < INITIALHOLD) {
       frameTime = 0;
     }
-    if (zooming){
+    if (zooming) {
       blockSize += (targetBlockSize-blockSize)*panningSpeed*frameTime*60/1000;
     }
 
     // Resize map based on scale
-    if (panning){
+    if (panning) {
       mapXOffset -= (mapXOffset-targetXOffset)*panningSpeed*frameTime*60/1000;
       mapYOffset -= (mapYOffset-targetYOffset)*panningSpeed*frameTime*60/1000;
     }
-    if ((zooming || panning) && pow(mapXOffset-targetXOffset, 2) + pow(mapYOffset-targetYOffset, 2) < blockSize*0.02 && abs(blockSize-targetBlockSize) < 1){
+    if ((zooming || panning) && pow(mapXOffset-targetXOffset, 2) + pow(mapYOffset-targetYOffset, 2) < blockSize*0.02 && abs(blockSize-targetBlockSize) < 1) {
       resetTargetZoom();
       resetTarget();
     }
     mapVelocity[0] = 0;
     mapVelocity[1] = 0;
-    if(keyState.containsKey('a')){
-      if(keyState.get('a')){
+    if (keyState.containsKey('a')) {
+      if (keyState.get('a')) {
         mapVelocity[0] -= mapMaxSpeed;
       }
     }
-    if(keyState.containsKey('d')){
-      if(keyState.get('d')){
+    if (keyState.containsKey('d')) {
+      if (keyState.get('d')) {
         mapVelocity[0] += mapMaxSpeed;
       }
     }
-    if(keyState.containsKey('w')){
-      if(keyState.get('w')){
+    if (keyState.containsKey('w')) {
+      if (keyState.get('w')) {
         mapVelocity[1] -= mapMaxSpeed;
       }
     }
-    if(keyState.containsKey('s')){
-      if(keyState.get('s')){
+    if (keyState.containsKey('s')) {
+      if (keyState.get('s')) {
         mapVelocity[1] += mapMaxSpeed;
       }
     }
-    
-    if(mapVelocity[0]!=0||mapVelocity[1]!=0){
+
+    if (mapVelocity[0]!=0||mapVelocity[1]!=0) {
       mapXOffset -= mapVelocity[0]*frameTime*60/1000;
       mapYOffset -= mapVelocity[1]*frameTime*60/1000;
       resetTargetZoom();
@@ -1226,9 +1213,9 @@ class Map2D extends BaseMap implements Map{
     if (blockSize <= 0)
       return;
 
-    for (int i=0; i<gameData.getJSONArray("terrain").size(); i++){
+    for (int i=0; i<gameData.getJSONArray("terrain").size(); i++) {
       JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
-      if(blockSize<24&&!tileType.isNull("low img")){
+      if (blockSize<24&&!tileType.isNull("low img")) {
         tempTileImages[i] = lowImages.get(tileType.getString("id")).copy();
         tempTileImages[i].resize(ceil(blockSize), 0);
       } else {
@@ -1236,20 +1223,20 @@ class Map2D extends BaseMap implements Map{
         tempTileImages[i].resize(ceil(blockSize), 0);
       }
     }
-    for (int i=0; i<gameData.getJSONArray("buildings").size(); i++){
+    for (int i=0; i<gameData.getJSONArray("buildings").size(); i++) {
       JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
       tempBuildingImages[i] = new PImage[buildingImages.get(buildingType.getString("id")).length];
-      for (int j=0; j<buildingImages.get(buildingType.getString("id")).length; j++){
+      for (int j=0; j<buildingImages.get(buildingType.getString("id")).length; j++) {
         tempBuildingImages[i][j] = buildingImages.get(buildingType.getString("id"))[j].copy();
         tempBuildingImages[i][j].resize(ceil(blockSize*48/64), 0);
       }
     }
-    for (int i=0; i<3; i++){
+    for (int i=0; i<3; i++) {
       tempPartyImages[i] = partyImages[i].copy();
       tempPartyImages[i].resize(ceil(blockSize), 0);
     }
-    for(int i=0; i<taskImages.length; i++){
-      if(taskImages[i] != null){
+    for (int i=0; i<taskImages.length; i++) {
+      if (taskImages[i] != null) {
         tempTaskImages[i] = taskImages[i].copy();
         tempTaskImages[i].resize(ceil(3*blockSize/16), 0);
       }
@@ -1262,166 +1249,163 @@ class Map2D extends BaseMap implements Map{
     PVector c;
     PVector selectedCell = new PVector(scaleX(selectedCellX), scaleY(selectedCellY));
 
-    for(int y=ly;y<hy;y++){
-      for (int x=lx; x<hx; x++){
+    for (int y=ly; y<hy; y++) {
+      for (int x=lx; x<hx; x++) {
         float x2 = round(scaleX(x));
         float y2 = round(scaleY(y));
         panelCanvas.image(tempTileImages[terrain[y][x]-1], x2, y2);
 
-         //Buildings
-         if (buildings[y][x] != null){
-           c = new PVector(scaleX(x), scaleY(y));
-           int border = round((64-48)*blockSize/(2*64));
-           int imgSize = round(blockSize*48/60);
-           drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, tempBuildingImages[buildings[y][x].type-1][buildings[y][x].image_id], panelCanvas);
-         }
-         //Parties
-         if(parties[y][x]!=null){
-           c = new PVector(scaleX(x), scaleY(y));
-           if(c.x<xPos+elementWidth&&c.y+blockSize/8+blockSize>yPos&&c.y<yPos+elementHeight){
-             panelCanvas.noStroke();
-             if(parties[y][x].player == 2){
-               Battle battle = (Battle) parties[y][x];
-               if (c.x+blockSize>xPos){
-                 panelCanvas.fill(120, 120, 120);
-                 panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), max(0, min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y, blockSize/16+c.y-yPos)));
-               }
-               if (c.x+blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size")>xPos){
-                 panelCanvas.fill(playerColours[battle.party1.player]);
-                 panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), max(0, min(blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size"), xPos+elementWidth-c.x, blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size")+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y, blockSize/16+c.y-yPos)));
-               }
-               if (c.x+blockSize>xPos){
-                 panelCanvas.fill(120, 120, 120);
-                 panelCanvas.rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/16+c.y-yPos)));
-               }
-               if (c.x+blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size")>xPos){
-                 panelCanvas.fill(playerColours[battle.party2.player]);
-                 panelCanvas.rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size"), xPos+elementWidth-c.x, blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size")+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/8+c.y-yPos)));
-               }
+        //Buildings
+        if (buildings[y][x] != null) {
+          c = new PVector(scaleX(x), scaleY(y));
+          int border = round((64-48)*blockSize/(2*64));
+          int imgSize = round(blockSize*48/60);
+          drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, tempBuildingImages[buildings[y][x].type-1][buildings[y][x].image_id], panelCanvas);
+        }
+        //Parties
+        if (parties[y][x]!=null) {
+          c = new PVector(scaleX(x), scaleY(y));
+          if (c.x<xPos+elementWidth&&c.y+blockSize/8+blockSize>yPos&&c.y<yPos+elementHeight) {
+            panelCanvas.noStroke();
+            if (parties[y][x].player == 2) {
+              Battle battle = (Battle) parties[y][x];
+              if (c.x+blockSize>xPos) {
+                panelCanvas.fill(120, 120, 120);
+                panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), max(0, min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y, blockSize/16+c.y-yPos)));
+              }
+              if (c.x+blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size")>xPos) {
+                panelCanvas.fill(playerColours[battle.party1.player]);
+                panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), max(0, min(blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size"), xPos+elementWidth-c.x, blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size")+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y, blockSize/16+c.y-yPos)));
+              }
+              if (c.x+blockSize>xPos) {
+                panelCanvas.fill(120, 120, 120);
+                panelCanvas.rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/16+c.y-yPos)));
+              }
+              if (c.x+blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size")>xPos) {
+                panelCanvas.fill(playerColours[battle.party2.player]);
+                panelCanvas.rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size"), xPos+elementWidth-c.x, blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size")+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/8+c.y-yPos)));
+              }
+            } else {
+              if (c.x+blockSize>xPos) {
+                panelCanvas.fill(120, 120, 120);
+                panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
+              }
+              if (c.x+blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size")>xPos) {
+                panelCanvas.fill(playerColours[parties[y][x].player]);
+                panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size"), xPos+elementWidth-c.x, blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size")+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
+              }
+            }
+            int imgSize = round(blockSize);
+            drawCroppedImage(floor(c.x), floor(c.y), imgSize, imgSize, tempPartyImages[parties[y][x].player], panelCanvas);
+            JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].getTask());
+            if (jo != null && !jo.isNull("img")) {
+              drawCroppedImage(floor(c.x+13*blockSize/32), floor(c.y+blockSize/2), ceil(3*blockSize/16), ceil(3*blockSize/16), tempTaskImages[parties[y][x].getTask()], panelCanvas);
+            }
+          }
+        }
+        if (cellSelected&&y==selectedCellY&&x==selectedCellX&&!cinematicMode) {
+          drawSelectedCell(selectedCell, panelCanvas);
+        }
+        if (parties[y][x]!=null) {
+          c = new PVector(scaleX(x), scaleY(y));
+          if (c.x<xPos+elementWidth&&c.y+blockSize/8+blockSize>yPos&&c.y<yPos+elementHeight) {
+            panelCanvas.textFont(getFont(blockSize/7));
+            panelCanvas.fill(255);
+            panelCanvas.textAlign(CENTER, CENTER);
+            if (parties[y][x].actions.size() > 0 && parties[y][x].actions.get(0).initialTurns>0) {
+              int totalTurns = parties[y][x].calcTurns(parties[y][x].actions.get(0).initialTurns);
+              String turnsLeftString = str(totalTurns-parties[y][x].turnsLeft())+"/"+str(totalTurns);
+              if (c.x+textWidth(turnsLeftString) < elementWidth+xPos && c.y+2*(textAscent()+textDescent()) < elementHeight+yPos) {
+                panelCanvas.text(turnsLeftString, c.x+blockSize/2, c.y+3*blockSize/4);
+              }
+            }
+          }
+        }
+        //if (millis()-pt > 10){
+        //  println(millis()-pt);
+        //}
+      }
+    }
 
-             } else {
-               if (c.x+blockSize>xPos){
-                 panelCanvas.fill(120, 120, 120);
-                 panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
-               }
-               if (c.x+blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size")>xPos){
-                 panelCanvas.fill(playerColours[parties[y][x].player]);
-                 panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size"), xPos+elementWidth-c.x, blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size")+c.x-xPos), min(blockSize/8, yPos+elementHeight-c.y, blockSize/8+c.y-yPos));
-               }
-             }
-             int imgSize = round(blockSize);
-             drawCroppedImage(floor(c.x), floor(c.y), imgSize, imgSize, tempPartyImages[parties[y][x].player], panelCanvas);
-             JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].getTask());
-             if (jo != null && !jo.isNull("img")){
-               drawCroppedImage(floor(c.x+13*blockSize/32), floor(c.y+blockSize/2), ceil(3*blockSize/16), ceil(3*blockSize/16), tempTaskImages[parties[y][x].getTask()], panelCanvas);
-             }
-           }
-         }
-         if (cellSelected&&y==selectedCellY&&x==selectedCellX&&!cinematicMode){
-           drawSelectedCell(selectedCell, panelCanvas);
-         }
-         if(parties[y][x]!=null){
-           c = new PVector(scaleX(x), scaleY(y));
-           if(c.x<xPos+elementWidth&&c.y+blockSize/8+blockSize>yPos&&c.y<yPos+elementHeight){
-             panelCanvas.textFont(getFont(blockSize/7));
-             panelCanvas.fill(255);
-             panelCanvas.textAlign(CENTER, CENTER);
-             if(parties[y][x].actions.size() > 0 && parties[y][x].actions.get(0).initialTurns>0){
-               int totalTurns = parties[y][x].calcTurns(parties[y][x].actions.get(0).initialTurns);
-               String turnsLeftString = str(totalTurns-parties[y][x].turnsLeft())+"/"+str(totalTurns);
-               if (c.x+textWidth(turnsLeftString) < elementWidth+xPos && c.y+2*(textAscent()+textDescent()) < elementHeight+yPos){
-                 panelCanvas.text(turnsLeftString, c.x+blockSize/2, c.y+3*blockSize/4);
-               }
-             }
-           }
-         }
-         //if (millis()-pt > 10){
-         //  println(millis()-pt);
-         //}
-       }
-     }
+    if (moveNodes != null) {
+      for (int y1=0; y1<mapHeight; y1++) {
+        for (int x=0; x<mapWidth; x++) {
+          if (moveNodes[y1][x] != null) {
+            c = new PVector(scaleX(x), scaleY(y1));
+            if (max(c.x, xPos)+min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)>xPos && max(c.x, xPos) < elementWidth+xPos && max(c.y, yPos)+min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos)>yPos && max(c.y, yPos) < elementHeight+yPos) {
+              if (blockSize > 10*jsManager.loadFloatSetting("text scale") && moveNodes[y1][x].cost <= parties[selectedCellY][selectedCellX].getMovementPoints()) {
+                panelCanvas.fill(50, 150);
+                panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
+                panelCanvas.fill(255);
+                panelCanvas.textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
+                panelCanvas.textAlign(CENTER, CENTER);
+                String s = ""+moveNodes[y1][x].cost;
+                s = s.substring(0, min(s.length(), 3));
+                BigDecimal cost = new BigDecimal(s);
+                String s2 = cost.stripTrailingZeros().toPlainString();
+                if (c.x+panelCanvas.textWidth(s2) < elementWidth+xPos && c.y+2*(textAscent()+textDescent()) < elementHeight+yPos) {
+                  panelCanvas.text(s2, c.x+blockSize/2, c.y+blockSize/2);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    if (jsManager.loadBooleanSetting("fog of war")) {
+      for (int y1=0; y1<mapHeight; y1++) {
+        for (int x=0; x<mapWidth; x++) {
+          if (!fogMap[y1][x]) {
+            c = new PVector(scaleX(x), scaleY(y1));
+            panelCanvas.fill(0, 50);
+            panelCanvas.noStroke();
+            panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
+          }
+        }
+      }
+    }
 
-     if (moveNodes != null){
-       for (int y1=0; y1<mapHeight; y1++){
-         for (int x=0; x<mapWidth; x++){
-           if (moveNodes[y1][x] != null){
-             c = new PVector(scaleX(x), scaleY(y1));
-             if (max(c.x, xPos)+min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)>xPos && max(c.x, xPos) < elementWidth+xPos && max(c.y, yPos)+min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos)>yPos && max(c.y, yPos) < elementHeight+yPos){
-               if (blockSize > 10*jsManager.loadFloatSetting("text scale") && moveNodes[y1][x].cost <= parties[selectedCellY][selectedCellX].getMovementPoints()){
-                 panelCanvas.fill(50, 150);
-                 panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
-                 panelCanvas.fill(255);
-                 panelCanvas.textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
-                 panelCanvas.textAlign(CENTER, CENTER);
-                 String s = ""+moveNodes[y1][x].cost;
-                 s = s.substring(0, min(s.length(), 3));
-                 BigDecimal cost = new BigDecimal(s);
-                 String s2 = cost.stripTrailingZeros().toPlainString();
-                 if (c.x+panelCanvas.textWidth(s2) < elementWidth+xPos && c.y+2*(textAscent()+textDescent()) < elementHeight+yPos){
-                   panelCanvas.text(s2, c.x+blockSize/2, c.y+blockSize/2);
-                 }
-               }
-             }
-           }
-         }
-       }
-     }
-     if (jsManager.loadBooleanSetting("fog of war")){
-       for (int y1=0; y1<mapHeight; y1++){
-         for (int x=0; x<mapWidth; x++){
-           if(!fogMap[y1][x]){
-             c = new PVector(scaleX(x), scaleY(y1));
-             panelCanvas.fill(0, 50);
-             panelCanvas.noStroke();
-             panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
-           }
-         }
-       }
-     }
-
-    if(drawRocket){
+    if (drawRocket) {
       drawRocket(panelCanvas, tempBuildingImages);
     }
 
-     if (drawPath != null){
-       for (int i=0; i<drawPath.size()-1;i++){
-         if (lx <= drawPath.get(i)[0] && drawPath.get(i)[0] < hx && ly <= drawPath.get(i)[1] && drawPath.get(i)[1] < hy){
-           panelCanvas.pushStyle();
-           panelCanvas.stroke(255,0,0);
-           panelCanvas.line(scaleX(drawPath.get(i)[0])+blockSize/2, scaleY(drawPath.get(i)[1])+blockSize/2, scaleX(drawPath.get(i+1)[0])+blockSize/2, scaleY(drawPath.get(i+1)[1])+blockSize/2);
-           panelCanvas.popStyle();
-         }
-       }
-     }
-     else if (cellSelected && parties[selectedCellY][selectedCellX] != null){
-       ArrayList<int[]> path = parties[selectedCellY][selectedCellX].path;
-       if (path != null){
-         for (int i=0; i<path.size()-1;i++){
-           if (lx <= path.get(i)[0] && path.get(i)[0] < hx && ly <= path.get(i)[1] && path.get(i)[1] < hy){
-             panelCanvas.pushStyle();
-             panelCanvas.stroke(100);
-             panelCanvas.line(scaleX(path.get(i)[0])+blockSize/2, scaleY(path.get(i)[1])+blockSize/2, scaleX(path.get(i+1)[0])+blockSize/2, scaleY(path.get(i+1)[1])+blockSize/2);
-             panelCanvas.popStyle();
-           }
-         }
-       }
-     }
-
-     panelCanvas.noFill();
-     panelCanvas.stroke(0);
-     panelCanvas.rect(xPos, yPos, elementWidth, elementHeight);
-  }
-  int sign(float x){
-    if(x > 0){
-      return 1;
+    if (drawPath != null) {
+      for (int i=0; i<drawPath.size()-1; i++) {
+        if (lx <= drawPath.get(i)[0] && drawPath.get(i)[0] < hx && ly <= drawPath.get(i)[1] && drawPath.get(i)[1] < hy) {
+          panelCanvas.pushStyle();
+          panelCanvas.stroke(255, 0, 0);
+          panelCanvas.line(scaleX(drawPath.get(i)[0])+blockSize/2, scaleY(drawPath.get(i)[1])+blockSize/2, scaleX(drawPath.get(i+1)[0])+blockSize/2, scaleY(drawPath.get(i+1)[1])+blockSize/2);
+          panelCanvas.popStyle();
+        }
+      }
+    } else if (cellSelected && parties[selectedCellY][selectedCellX] != null) {
+      ArrayList<int[]> path = parties[selectedCellY][selectedCellX].path;
+      if (path != null) {
+        for (int i=0; i<path.size()-1; i++) {
+          if (lx <= path.get(i)[0] && path.get(i)[0] < hx && ly <= path.get(i)[1] && path.get(i)[1] < hy) {
+            panelCanvas.pushStyle();
+            panelCanvas.stroke(100);
+            panelCanvas.line(scaleX(path.get(i)[0])+blockSize/2, scaleY(path.get(i)[1])+blockSize/2, scaleX(path.get(i+1)[0])+blockSize/2, scaleY(path.get(i+1)[1])+blockSize/2);
+            panelCanvas.popStyle();
+          }
+        }
+      }
     }
-    else if (x < 0){
+
+    panelCanvas.noFill();
+    panelCanvas.stroke(0);
+    panelCanvas.rect(xPos, yPos, elementWidth, elementHeight);
+  }
+  int sign(float x) {
+    if (x > 0) {
+      return 1;
+    } else if (x < 0) {
       return -1;
     }
     return 0;
   }
-  void drawCroppedImage(int x, int y, int w, int h, PImage img, PGraphics panelCanvas){
-    if (x+w>xPos && x<elementWidth+xPos && y+h>yPos && y<elementHeight+yPos){
+  void drawCroppedImage(int x, int y, int w, int h, PImage img, PGraphics panelCanvas) {
+    if (x+w>xPos && x<elementWidth+xPos && y+h>yPos && y<elementHeight+yPos) {
       //int newX = max(min(x, xPos+elementWidth), xPos);
       //int newY = max(min(y, yPos+elementHeight), yPos);
       //int imgX = max(0, newX-x, 0);
@@ -1431,42 +1415,42 @@ class Map2D extends BaseMap implements Map{
       panelCanvas.image(img, x, y);
     }
   }
-  float scaleX(float x){
+  float scaleX(float x) {
     return x*blockSize + mapXOffset + xPos;
   }
-  float scaleY(float y){
+  float scaleY(float y) {
     return y*blockSize + mapYOffset + yPos;
   }
-  float scaleXInv(){
+  float scaleXInv() {
     return (mouseX-mapXOffset-xPos)/blockSize;
   }
-  float scaleYInv(){
+  float scaleYInv() {
     return (mouseY-mapYOffset-yPos)/blockSize;
   }
-  boolean mouseOver(){
+  boolean mouseOver() {
     return mouseX > xPos && mouseX < xPos+elementWidth && mouseY > yPos && mouseY < yPos+elementHeight;
   }
-  
-  void enableRocket(PVector pos, PVector vel){
+
+  void enableRocket(PVector pos, PVector vel) {
     LOGGER_MAIN.fine("Rocket enabled in 2d map");
     drawRocket = true;
     rocketPosition = pos;
     rocketVelocity = vel;
   }
-  
-  void disableRocket(){
+
+  void disableRocket() {
     LOGGER_MAIN.fine("Rocket disabled in 2d map");
     drawRocket = false;
   }
-  
-  void drawRocket(PGraphics canvas, PImage[][] buildingImages){
-     PVector c = new PVector(scaleX(rocketPosition.x+0.5), scaleY(rocketPosition.y+0.5-rocketPosition.z));
-     int border = round((64-48)*blockSize/(2*64));
-     canvas.pushMatrix();
-     canvas.translate(round(c.x+border), round(c.y+border*2));
-     canvas.rotate(atan2(rocketVelocity.x, rocketVelocity.z));
-     canvas.translate(-blockSize/2, -blockSize/2);
-     canvas.image(buildingImages[buildingIndex("Rocket Factory")-1][2], 0, 0);
-     canvas.popMatrix();
+
+  void drawRocket(PGraphics canvas, PImage[][] buildingImages) {
+    PVector c = new PVector(scaleX(rocketPosition.x+0.5), scaleY(rocketPosition.y+0.5-rocketPosition.z));
+    int border = round((64-48)*blockSize/(2*64));
+    canvas.pushMatrix();
+    canvas.translate(round(c.x+border), round(c.y+border*2));
+    canvas.rotate(atan2(rocketVelocity.x, rocketVelocity.z));
+    canvas.translate(-blockSize/2, -blockSize/2);
+    canvas.image(buildingImages[buildingIndex("Rocket Factory")-1][2], 0, 0);
+    canvas.popMatrix();
   }
 }
