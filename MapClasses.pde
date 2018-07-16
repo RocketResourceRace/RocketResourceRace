@@ -41,10 +41,10 @@ class Party{
     pathTurns = 0;
     this.id = id;
     
-    // Default proficiencies = 0
+    // Default proficiencies = 1
     resetProficiencies();
     for (int i = 0; i < jsManager.getNumProficiencies(); i++){
-      this.setProficiency(i, 0);
+      this.setProficiency(i, 1);
     }
     
     setTrainingFocus(jsManager.proficiencyIDToIndex("melee"));
