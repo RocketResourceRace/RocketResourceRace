@@ -53,7 +53,8 @@ class Party{
     equipment = new int[jsManager.getNumEquipmentTypes()];
   }
   
-  Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float[] proficiencies, String trainingFocus){
+  Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float[] proficiencies, String trainingFocus, int[] equipment){
+    // For parties that already exist and are being splitted or loaded from save
     unitNumber = startingUnits;
     task = startingTask;
     this.player = player;
@@ -64,6 +65,7 @@ class Party{
     this.target = null;
     this.pathTurns = 0;
     this.id = id;
+    this.equipment = equipment;
     
     // Load proficiencies given
     try{
@@ -87,6 +89,22 @@ class Party{
   int getTrainingFocus(){
     // Training focus is the index of the proficiency in data.json
     return this.trainingFocus;
+  }
+  
+  void setAllEquipment(int[] v){
+    equipment = v;
+  }
+  
+  int[] getAllEquipment(){
+    return equipment;
+  }
+  
+  void setEquipment(int typeIndex, int equipmentIndex){
+    equipment[typeIndex] = equipmentIndex;
+  }
+  
+  int getEquipment(int typeIndex){
+    return equipment[typeIndex];
   }
   
   void mergeEntireFrom(Party other){
