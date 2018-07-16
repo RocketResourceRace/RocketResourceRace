@@ -13,7 +13,6 @@ class Building {
   }
 }
 
-
 class Party {
   private int trainingFocus;
   private int unitNumber;
@@ -28,7 +27,7 @@ class Party {
   ArrayList<int[]> path;
   int[] target;
   int pathTurns;
-  byte[] byteRep;
+  byte[]byteRep;
 
   Party(int player, int startingUnits, int startingTask, int movementPoints, String id) {
     unitNumber = startingUnits;
@@ -85,6 +84,13 @@ class Party {
     // Training focus is the index of the proficiency in data.json
     this.trainingFocus = value;
   }
+  String getID() {
+    return id;
+  }
+  
+  int getTask() {
+    return task;
+  }
 
   int getTrainingFocus() {
     // Training focus is the index of the proficiency in data.json
@@ -135,10 +141,6 @@ class Party {
     return other.getUnitNumber() > 0; // Return true if any units left, else false
   }
 
-  String getID() {
-    return id;
-  }
-
   void setID(String value) {
     this.id = value;
   }
@@ -174,10 +176,6 @@ class Party {
     pathTurns = max(pathTurns-1, 0);
   }
 
-  int getTask() {
-    return task;
-  }
-
   int[] nextNode() {
     try {
       return path.get(0);
@@ -196,21 +194,21 @@ class Party {
   void clearNode() {
     path.remove(0);
   }
-
+  
   void clearPath() {
     //LOGGER_GAME.finer("Clearing party path"); Removed as this is called too much for battle estimates
     path = new ArrayList<int[]>();
     pathTurns=0;
   }
-
+  
   void addAction(Action a) {
     actions.add(a);
   }
-
+  
   boolean hasActions() {
     return actions.size()>0;
   }
-
+  
   int turnsLeft() {
     return calcTurns(actions.get(0).turns);
   }
@@ -219,7 +217,7 @@ class Party {
     //Use this to calculate the number of turns a task will take for this party
     return ceil(turnsCost/(sqrt(unitNumber)/10));
   }
-
+  
   Action progressAction() {
     try {
       if (actions.size() == 0) {
@@ -251,7 +249,7 @@ class Party {
       actions.remove(0);
     }
   }
-
+  
   void clearActions() {
     actions = new ArrayList<Action>();
   }
@@ -297,7 +295,6 @@ class Party {
     this.setUnitNumber(unitNumber+changeInUnitNumber);
     return overflow;
   }
-
   Party clone() {
     Party newParty = new Party(player, unitNumber, task, movementPoints, id);
     newParty.actions = new ArrayList<Action>(actions);
