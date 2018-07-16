@@ -67,6 +67,10 @@ class JSONManager{
   
   String indexToProficiencyDisplayName(int index){
     try{
+      if (index < 0){
+        LOGGER_MAIN.warning("Could not find proficiency display name with index: "+index);
+        return "";
+      }
       JSONArray proficienciesJSON = gameData.getJSONArray("proficiencies");
       String rs = proficienciesJSON.getJSONObject(index).getString("display name");
       if (rs == null){

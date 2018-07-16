@@ -47,7 +47,7 @@ class Party{
       this.setProficiency(i, 1);
     }
     
-    setTrainingFocus(jsManager.proficiencyIDToIndex("melee"));
+    setTrainingFocus(jsManager.proficiencyIDToIndex("melee attack"));
   }
   
   Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float[] proficiencies, String trainingFocus){
