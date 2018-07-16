@@ -132,7 +132,7 @@ class Game extends State {
       addElement("turns remaining", new Text(bezel*2+220, bezel*4+30+30, 8, "", color(255), LEFT), "party management");
       addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
       addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
-      addElement("tasks", new TaskManager(bezel, bezel*4+30+30, 220, 10, color(150), color(50), tasks), "party management");
+      addElement("tasks", new TaskManager(bezel, bezel*4+30+30, 220, 8, color(150), color(50), tasks), "party management");
 
       addElement("proficiency summary", new ProficiencySummary(bezel, bezel*5+30+200, 220, 100), "party management");
       addElement("proficiencies", new Text(0, 0, 10, "Proficiencies", color(0), LEFT), "party management");
@@ -566,17 +566,18 @@ class Game extends State {
     cellManagementY = bezel*2;
     cellManagementW = width-cellManagementX-bezel*2;
     cellManagementH = round(mapElementHeight)-70;
+    float taskRowHeight = ((TaskManager)getElement("tasks", "party management")).getH(new PGraphics());
     getPanel("land management").transform(cellManagementX, cellManagementY, cellManagementW, round(cellManagementH*0.15));
     getPanel("party management").transform(cellManagementX, cellManagementY+round(cellManagementH*0.15)+bezel, cellManagementW, round(cellManagementH*0.85)-bezel*4);
     ((NotificationManager)(getElement("notification manager", "default"))).transform(bezel, bezel, cellManagementW, round(cellManagementH*0.2)-bezel*2);
     ((Button)getElement("move button", "party management")).transform(bezel, round(13*jsManager.loadFloatSetting("text scale")+bezel), 100, 30);
     ((Slider)getElement("split units", "party management")).transform(round(10*jsManager.loadFloatSetting("gui scale")+bezel), round(bezel*3+2*jsManager.loadFloatSetting("text scale")*13), cellManagementW-2*bezel-round(20*jsManager.loadFloatSetting("gui scale")), round(jsManager.loadFloatSetting("text scale")*2*13));
-    ((TaskManager)getElement("tasks", "party management")).transform(bezel, round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13), cellManagementW-2*bezel, 30);
+    ((TaskManager)getElement("tasks", "party management")).transform(bezel, round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13), cellManagementW-2*bezel, 0);
     ((Text)getElement("turns remaining", "party management")).translate(100+bezel*2, round(13*jsManager.loadFloatSetting("text scale")*2 + bezel*3));
-    ((ProficiencySummary)getElement("proficiency summary", "party management")).transform(bezel, round(bezel*5+4*jsManager.loadFloatSetting("text scale")*12)+30*8, cellManagementW-bezel*2, int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13));
-    ((DropDown)getElement("party training focus", "party management")).transform(bezel, round(bezel*6+4*jsManager.loadFloatSetting("text scale")*12)+30*8+int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13), int(cellManagementW-100*jsManager.loadFloatSetting("text scale")), int(jsManager.loadFloatSetting("text scale")*13));
-    ((Text)getElement("proficiencies", "party management")).translate(bezel, round(bezel*5+4*jsManager.loadFloatSetting("text scale")*8)+30*8+5);
-    ((EquipmentManager)getElement("equipment manager", "party management")).transform(bezel, round(bezel*7+4*jsManager.loadFloatSetting("text scale")*12)+30*8+int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13+int(jsManager.loadFloatSetting("text scale")*13)), cellManagementW-bezel*2);
+    ((ProficiencySummary)getElement("proficiency summary", "party management")).transform(bezel, round(bezel*6+5*jsManager.loadFloatSetting("text scale")*13+taskRowHeight*12), cellManagementW-bezel*2, int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13));
+    ((DropDown)getElement("party training focus", "party management")).transform(bezel, round(bezel*7+5*jsManager.loadFloatSetting("text scale")*13+taskRowHeight*12)+int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13), int(cellManagementW-100*jsManager.loadFloatSetting("text scale")), int(jsManager.loadFloatSetting("text scale")*13));
+    ((Text)getElement("proficiencies", "party management")).translate(bezel, round(bezel*6+4*jsManager.loadFloatSetting("text scale")*13+taskRowHeight*12));
+    ((EquipmentManager)getElement("equipment manager", "party management")).transform(bezel, round(bezel*8+5*jsManager.loadFloatSetting("text scale")*13+taskRowHeight*12)+int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13+int(jsManager.loadFloatSetting("text scale")*13)), cellManagementW-bezel*2);
   }
 
 

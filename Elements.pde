@@ -1233,9 +1233,12 @@ class TaskManager extends Element {
   ArrayList<Integer> availableOptions;
   ArrayList<Integer> availableButOverBudgetOptions;
   int textSize;
+  int scroll;
   boolean dropped, taskMActive;
+  boolean scrolling;
   color bgColour, strokeColour;
   private final int HOVERINGOFFSET = 80, ONOFFSET = -50;
+  
   TaskManager(int x, int y, int w, int textSize, color bgColour, color strokeColour, String[] options) {
     this.x = x;
     this.y = y;
@@ -1254,14 +1257,23 @@ class TaskManager extends Element {
     dropped = true;
     resetAvailable();
     taskMActive = true;
+    resetScroll();
   }
+  
+  void resetScroll(){
+    scroll = 0;
+    scrolling = false;
+  }
+  
   void setOptions(ArrayList<String> options) {
     LOGGER_MAIN.finer("Options changed to:["+String.join(", ", options));
     this.options = options;
+    resetScroll();
   }
   void addOption(String option) {
     LOGGER_MAIN.finer("Option added: " + option);
     this.options.add(option);
+    resetScroll();
   }
   void removeOption(String option) {
     LOGGER_MAIN.finer("Option removed: " + option);
@@ -1270,18 +1282,22 @@ class TaskManager extends Element {
         options.remove(i);
       }
     }
+    resetScroll();
   }
   void removeAllOptions() {
     LOGGER_MAIN.finer("Options all removed");
     this.options.clear();
+    resetScroll();
   }
   void resetAvailable() {
     LOGGER_MAIN.finer("Available Options all removed");
     this.availableOptions.clear();
+    resetScroll();
   }
   void resetAvailableButOverBudget() {
     LOGGER_MAIN.finer("Available But Over Budget Options all removed");
     this.availableButOverBudgetOptions.clear();
+    resetScroll();
   }
   String getSelected() {
     return options.get(availableOptions.get(0));
@@ -1300,6 +1316,7 @@ class TaskManager extends Element {
           return;
         }
       }
+      resetScroll();
     }
     catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error making task available", e);
@@ -1320,6 +1337,7 @@ class TaskManager extends Element {
           return;
         }
       }
+      resetScroll();
     }
     catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error making task available", e);
@@ -1334,6 +1352,7 @@ class TaskManager extends Element {
         return;
       }
     }
+    resetScroll();
   }
   void makeUnavailable(String option) {
     LOGGER_MAIN.finer("Making unavailable:"+option);
@@ -1343,6 +1362,7 @@ class TaskManager extends Element {
         return;
       }
     }
+    resetScroll();
   }
   void selectAt(int j) {
     LOGGER_MAIN.finer("Selecting based on position, " + j);
@@ -1363,7 +1383,7 @@ class TaskManager extends Element {
     LOGGER_MAIN.warning("String for selection not found: "+s);
   }
   int getH(PGraphics panelCanvas) {
-    textFont(getFont(textSize*jsManager.loadFloatSetting("text scale")));
+    panelCanvas.textFont(getFont(textSize*jsManager.loadFloatSetting("text scale")));
     return ceil(panelCanvas.textAscent() + panelCanvas.textDescent());
   }
   boolean optionAvailable(int i) {
@@ -1376,7 +1396,7 @@ class TaskManager extends Element {
   }
   void draw(PGraphics panelCanvas) {
     panelCanvas.pushStyle();
-    h = getH(panelCanvas);
+    h = getH(panelCanvas); //Also sets the font
     panelCanvas.fill(brighten(bgColour, ONOFFSET));
     panelCanvas.stroke(strokeColour);
     panelCanvas.rect(x, y, w, h);
@@ -1394,13 +1414,13 @@ class TaskManager extends Element {
         }
         panelCanvas.rect(x, y+h*j, w, h);
         panelCanvas.fill(0);
-        panelCanvas.text(options.get(availableOptions.get(j)), x+5, y+h*j);
+        panelCanvas.text(options.get(availableOptions.get(j+scroll)), x+5, y+h*j);
       }
       for (; j< availableButOverBudgetOptions.size()+availableOptions.size(); j++) {
         panelCanvas.fill(brighten(bgColour, HOVERINGOFFSET/2));
         panelCanvas.rect(x, y+h*j, w, h);
         panelCanvas.fill(120);
-        panelCanvas.text(options.get(availableButOverBudgetOptions.get(j-availableOptions.size())), x+5, y+h*j);
+        panelCanvas.text(options.get(availableButOverBudgetOptions.get(j-availableOptions.size())+scroll), x+5, y+h*j);
       }
     }
     panelCanvas.popStyle();
@@ -1408,6 +1428,7 @@ class TaskManager extends Element {
 
   ArrayList<String> mouseEvent(String eventType, int button) {
     ArrayList<String> events = new ArrayList<String>();
+    //int d = saveNames.length - numDisplayed;
     if (eventType == "mouseMoved") {
       taskMActive = moveOver();
     }
@@ -1421,6 +1442,52 @@ class TaskManager extends Element {
     }
     return events;
   }
+
+  //ArrayList<String> mouseEvent(String eventType, int button) {
+  //  ArrayList<String> events = new ArrayList<String>();
+  //  int d = saveNames.length - numDisplayed;
+  //  if (eventType.equals("mouseClicked")) {
+  //    if (moveOver()) {
+  //      if (d <= 0 || mouseX-xOffset<x+w-SCROLLWIDTH) {
+  //        // If not hovering over scroll bar, then select item
+  //        selected = hoveringOption();
+  //        events.add("valueChanged");
+  //        scrolling = false;
+  //      }
+  //    }
+  //  } else if (eventType.equals("mousePressed")) {
+  //    if (d > 0 && moveOver() && mouseX-xOffset>x+w-SCROLLWIDTH) {  
+  //      // If hovering over scroll bar, set scroll to mouse pos
+  //      scrolling = true;
+  //      scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/h, d));
+  //    } else {
+  //      scrolling = false;
+  //    }
+  //  } else if (eventType.equals("mouseDragged")) {
+  //    if (scrolling && d > 0) {  
+  //      // If scrolling, set scroll to mouse pos
+  //      scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/h, d));
+  //    }
+  //  } else if (eventType.equals("mouseReleased")) {
+  //    scrolling = false;
+  //  }
+
+  //  return events;
+  //}
+
+  //ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event) {
+  //  ArrayList<String> events = new ArrayList<String>();
+  //  if (eventType == "mouseWheel") {
+  //    float count = event.getCount();
+  //    if (moveOver()) { // Check mouse over element
+  //      if (saveNames.length > numDisplayed) {
+  //        scroll = round(between(0, scroll+count, saveNames.length-numDisplayed));
+  //        LOGGER_MAIN.finest("Changing scroll to: "+scroll);
+  //      }
+  //    }
+  //  }
+  //  return events;
+  //}
 
   String findMouseOver() {
     try {
