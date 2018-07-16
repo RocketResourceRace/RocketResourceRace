@@ -42,7 +42,7 @@ class EquipmentManager extends Element {
     panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
     panelCanvas.textAlign(CENTER, TOP);
     panelCanvas.strokeWeight(2);
-    panelCanvas.fill(200);
+    panelCanvas.fill(170);
     panelCanvas.rect(x, y, w, boxHeight);
     panelCanvas.strokeWeight(1);
     for (int i = 0; i < jsManager.getNumEquipmentTypes(); i ++) {
@@ -1407,7 +1407,7 @@ class TaskManager extends Element {
     //Draw background
     panelCanvas.strokeWeight(2);
     panelCanvas.stroke(0);
-    panelCanvas.fill(150);
+    panelCanvas.fill(170);
     panelCanvas.rect(x, y, w+1, h*numDisplayed+1);
     
     // Draw current task box
