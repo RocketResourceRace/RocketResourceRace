@@ -93,7 +93,7 @@ class Game extends State {
 
       addElement("2dmap", new Map2D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
       addElement("3dmap", new Map3D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
-      addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 10, turn));
+      addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 8, turn));
 
       //map = (Map3D)getElement("2map", "default");
       notificationManager = (NotificationManager)getElement("notification manager", "default");
@@ -132,7 +132,7 @@ class Game extends State {
       addElement("turns remaining", new Text(bezel*2+220, bezel*4+30+30, 8, "", color(255), LEFT), "party management");
       addElement("move button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Move"), "party management");
       addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
-      addElement("tasks", new TaskManager(bezel, bezel*4+30+30, 220, 8, color(150), color(50), tasks, 8), "party management");
+      addElement("tasks", new TaskManager(bezel, bezel*4+30+30, 220, 8, color(150), color(50), tasks, 10), "party management");
 
       addElement("proficiency summary", new ProficiencySummary(bezel, bezel*5+30+200, 220, 100), "party management");
       addElement("proficiencies", new Text(0, 0, 10, "Proficiencies", color(0), LEFT), "party management");
@@ -575,7 +575,7 @@ class Game extends State {
     ((TaskManager)getElement("tasks", "party management")).transform(bezel, round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13), cellManagementW-2*bezel, 0);
     ((Text)getElement("turns remaining", "party management")).translate(100+bezel*2, round(13*jsManager.loadFloatSetting("text scale")*2 + bezel*3));
     ((ProficiencySummary)getElement("proficiency summary", "party management")).transform(bezel, round(bezel*6+5*jsManager.loadFloatSetting("text scale")*13+taskRowHeight*12), cellManagementW-bezel*2, int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13));
-    ((DropDown)getElement("party training focus", "party management")).transform(bezel, round(bezel*7+5*jsManager.loadFloatSetting("text scale")*13+taskRowHeight*12)+int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13), int(cellManagementW-100*jsManager.loadFloatSetting("text scale")), int(jsManager.loadFloatSetting("text scale")*13));
+    ((DropDown)getElement("party training focus", "party management")).transform(bezel, round(bezel*7+5*jsManager.loadFloatSetting("text scale")*13+taskRowHeight*12)+int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13), cellManagementW-bezel*2, int(jsManager.loadFloatSetting("text scale")*13));
     ((Text)getElement("proficiencies", "party management")).translate(bezel, round(bezel*6+4*jsManager.loadFloatSetting("text scale")*13+taskRowHeight*12));
     ((EquipmentManager)getElement("equipment manager", "party management")).transform(bezel, round(bezel*8+5*jsManager.loadFloatSetting("text scale")*13+taskRowHeight*12)+int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13+int(jsManager.loadFloatSetting("text scale")*13)), cellManagementW-bezel*2);
   }
