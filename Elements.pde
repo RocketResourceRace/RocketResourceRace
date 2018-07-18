@@ -6,6 +6,7 @@ class EquipmentManager extends Element {
   String[] equipmentTypeDisplayNames;
   int[] currentEquipment;
   float boxWidth, boxHeight;
+  int selectedType;
 
   EquipmentManager(int x, int y, int w) {
     this.x = x;
@@ -22,6 +23,8 @@ class EquipmentManager extends Element {
 
     boxWidth = w/jsManager.getNumEquipmentTypes();
     boxHeight = boxWidth*BOXWIDTHHEIGHTRATIO;
+    
+    selectedType = -1;  // -1 represents nothing being selected
   }
 
   void transform(int x, int y, int w) {
@@ -35,6 +38,25 @@ class EquipmentManager extends Element {
   void setEquipment(int[] equipment) {
     this.currentEquipment = equipment;
   }
+  
+  ArrayList<String> mouseEvent(String eventType, int button) {
+    ArrayList<String> events = new ArrayList<String>();
+    if (eventType.equals("mouseClicked")) {
+      if (mouseOverTypes()) {
+        int newSelectedType = hoveringOverType();
+        if (newSelectedType == selectedType){  // If selecting same option
+          selectedType = -1;
+        }
+        else{
+          selectedType = newSelectedType;
+        }
+      }
+      else{
+        selectedType = -1;
+      }
+    }
+    return events;
+  }
 
   void draw(PGraphics panelCanvas) {
     panelCanvas.pushStyle();
@@ -44,15 +66,34 @@ class EquipmentManager extends Element {
     panelCanvas.strokeWeight(2);
     panelCanvas.fill(170);
     panelCanvas.rect(x, y, w, boxHeight);
-    panelCanvas.strokeWeight(1);
     for (int i = 0; i < jsManager.getNumEquipmentTypes(); i ++) {
-      panelCanvas.noFill();
+      if (selectedType == i){
+        panelCanvas.strokeWeight(3);
+        panelCanvas.fill(140);
+      }
+      else{
+        panelCanvas.strokeWeight(1);
+        panelCanvas.noFill();
+      }
       panelCanvas.rect(x+boxWidth*i, y, boxWidth, boxHeight);
       panelCanvas.fill(0);
       panelCanvas.text(equipmentTypeDisplayNames[i], x+boxWidth*(i+0.5), y);
     }
 
     panelCanvas.popStyle();
+  }
+  
+  boolean mouseOverTypes() {
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+boxHeight;
+  }
+  
+  int hoveringOverType() {
+    for (int i = 0; i < jsManager.getNumEquipmentTypes(); i ++) {
+      if (mouseX-xOffset >= x+boxWidth*i && mouseX-xOffset <= x+boxWidth*(i+1) && mouseY-yOffset >= y && mouseY-yOffset <= y+boxHeight){
+        return i;
+      }
+    }
+    return -1;
   }
 }
 
