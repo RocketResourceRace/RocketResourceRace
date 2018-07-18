@@ -100,8 +100,38 @@ class JSONManager {
       return -1;
     }
   }
+  
+  int getNumEquipmentTypesFromClass(int type){
+    // type is the index of the type in data.json
+    try {
+      return gameData.getJSONArray("equipment").getJSONObject(type).getJSONArray("types").size();
+    }
+    catch (NullPointerException e) {
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
+      throw e;
+    }
+  }
+  
+  String[] getEquipmentFromClass(int type) {
+    // type is the index of the type in data.json
+    try {
+      String[] rss = new String[getNumEquipmentTypesFromClass(type)];
+      JSONArray types = gameData.getJSONArray("equipment").getJSONObject(type).getJSONArray("types");
+      for(int i = 0; i < rss.length; i ++) {
+        rss[i] = types.getJSONObject(i).getString("display name");
+        if (rss[i] == null){
+          LOGGER_MAIN.warning("No value for display name found for equipment type:"+type);
+        }
+      }
+      return rss;
+    }
+    catch (NullPointerException e) {
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
+      throw e;
+    }
+  }
 
-  int getNumEquipmentTypes() {
+  int getNumEquipmentClasses() {
     try {
       return gameData.getJSONArray("equipment").size();
     }
@@ -111,7 +141,7 @@ class JSONManager {
     }
   }
 
-  String getEquipmentType(int index) {
+  String getEquipmentClass(int index) {
     try {
       return gameData.getJSONArray("equipment").getJSONObject(index).getString("id");
     }
@@ -125,7 +155,7 @@ class JSONManager {
     }
   }
 
-  String getEquipmentTypeDisplayName(int index) {
+  String getEquipmentClassDisplayName(int index) {
     try {
       return gameData.getJSONArray("equipment").getJSONObject(index).getString("display name");
     }
