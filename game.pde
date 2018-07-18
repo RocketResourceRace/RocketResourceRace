@@ -2065,7 +2065,7 @@ class Game extends State {
       turnNumber = 0;
       deselectCell();
     }
-    ((Console)getElement("console", "console")).giveMap(map);
+    ((Console)getElement("console", "console")).giveObjects(map, players);
 
     map.generateFog(turn);
     battleEstimateManager = new BattleEstimateManager(parties);

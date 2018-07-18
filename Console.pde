@@ -5,6 +5,7 @@ class Console extends Element {
   private String allowedChars;
   private Map map;
   private JSONObject commands; 
+  private Player[] players;
 
   Console(int x, int y, int w, int h, int textSize) {
     this.x = x;
@@ -18,8 +19,9 @@ class Console extends Element {
     commands = loadJSONObject("commands.json");
   }
 
-  void giveMap(Map map) {
+  void giveObjects(Map map, Player[] players) {
     this.map = map;
+    this.players = players;
   }
   StringBuilder toStr() {
     StringBuilder s = new StringBuilder();
@@ -142,6 +144,34 @@ class Console extends Element {
   void invalidMissingValue(JSONObject command, String[] args, int position) {
     invalid(String.format("Value required for %s. Value type: %s", args[position], command.getString("value type")));
   }
+  
+  String getRequiredArgs(JSONObject command){
+    JSONArray requiredArgs = command.getJSONArray("args");
+    String requiredArgsString = "";
+    for (int i = 0; i < requiredArgs.size(); i++){
+      JSONArray requiredArg = requiredArgs.getJSONArray(i);
+      requiredArgsString += String.format("%s (%s) ", requiredArg.getString(0), requiredArg.getString(1));
+    }
+    return requiredArgsString;
+  }
+  
+  void invalidArg(JSONObject command, String[] args, int position1, int position2) {
+    if (command.hasKey("args")) {
+      String requiredArgsString = getRequiredArgs(command);
+      invalid(String.format("Invalid Argument (%s) for %s. Arguments required: %s", args[position2], args[position1], requiredArgsString));
+    } else {
+      commandFileError("No args array for command which requires args"); 
+    }
+  }
+  
+  void invalidMissingArg(JSONObject command, String[] args, int position) {
+    if (command.hasKey("args")) {
+      String requiredArgsString = getRequiredArgs(command);
+      invalid(String.format("Missing argument required for %s. Arguments required: %s", args[position], requiredArgsString));
+    } else {
+      commandFileError("No args array for command which requires args"); 
+    }
+  }
 
   void invalidValue(JSONObject command, String[] args, int position) {
     invalid(String.format("Invalid value for %s. Value type: %s", args[position], command.getString("value type")));
@@ -205,7 +235,42 @@ class Console extends Element {
   }
 
   void doCommand(String rawCommand) {
-    String[] splitCommand = rawCommand.split(" ");
+    String[] rawSplitCommand = rawCommand.split(" ");
+    String[] tempSplitCommand = new String[rawSplitCommand.length];
+    boolean connected = false;
+    int i = 0;
+    for (String commandComponent: rawSplitCommand){
+      if (commandComponent.length()==0) {
+        if (connected) {
+          tempSplitCommand[i] += " ";
+        }
+      } else {
+        if (byte(commandComponent.charAt(0)) == 34) {
+          connected = true;
+        }
+        if (byte(commandComponent.charAt(commandComponent.length()-1))==34) {
+          connected = false;
+        }
+        if (connected){
+          if (tempSplitCommand[i] == null){
+            tempSplitCommand[i] = commandComponent.replace('"', ' ').trim();
+          } else {
+            tempSplitCommand[i] += " " + commandComponent.replace('"', ' ').trim();
+          }
+        } else {
+          if (tempSplitCommand[i] == null){
+            tempSplitCommand[i] = commandComponent;
+          } else {
+            tempSplitCommand[i] += " " + commandComponent.replace('"', ' ').trim();
+          }
+          i++;
+        }
+      }
+    }
+    String[] splitCommand = new String[i+1];
+    for (int j = 0; j < i; j++) {
+      splitCommand[j] = tempSplitCommand[j];
+    }
     if (splitCommand.length==0) {
       invalid();
       return;
@@ -270,142 +335,38 @@ class Console extends Element {
         commandFileError("Command doesn't define a value type");
       }
       break;
+    case "resource":
+      if (command.hasKey("action")){
+        switch (command.getString("action")){
+          case "reset":
+            if(arguments.length>position+2){
+              String playerId = arguments[position+1];
+              if (playerExists(players, playerId)) {
+                Player p = getPlayer(players, playerId);
+                if (jsManager.resourceExists(arguments[position+2])) {
+                  int resourceId = jsManager.getResIndex(arguments[position+2]);
+                  p.resources[resourceId] = 0;
+                  sendLine(String.format("Set %s for %s to 0", arguments[position+2], arguments[position+1])); 
+                } else {
+                  invalidArg(command, arguments, position, position+2);
+                }
+              } else {
+                invalidArg(command, arguments, position, position+1);
+              }
+            } else {
+              invalidMissingArg(command, arguments, position);
+            }
+            break;
+          default:
+            commandFileError("Command defines invalid action but is of type resource");
+            break;
+        }
+      } else {
+        commandFileError("Command doesn't define an action but is of type resource");
+      }
+      break;
     default:
       commandFileError("Command has invalid type");
-      break;
-    }
-  }
-
-  void doCommandOld(String rawCommand) {
-    String[] splitCommand = rawCommand.split(" ");
-    if (splitCommand.length==0) {
-      sendLine("invalid command");
-      return;
-    }
-    switch(splitCommand[0]) {
-    case "display":
-      if (splitCommand.length>1) {
-        switch(splitCommand[1]) {
-        case "sub_tile_boundaries":
-          if (splitCommand.length==3) {
-            String value = splitCommand[2].toLowerCase();
-            Boolean setting;
-            if (value.equals("true") || value.equals("t") || value.equals("1")) {
-              setting = true;
-            } else if (value.equals("false") || value.equals("f")|| value.equals("0")) {
-              setting = false;
-            } else {
-              sendLine("Invalid argument for display sub_tile_boundaries: give either true or false");
-              return;
-            }
-            sendLine("Changing sub_tile_boundaries setting");
-            jsManager.saveSetting("tile stroke", setting);
-            if (map != null) {
-              sendLine("This requires regenerating the map. This might take a moment and will mean some randomised features will change");
-              map.generateShape();
-            }
-            sendLine("sub_tile_boundaries setting changed!");
-          } else {
-            sendLine("Invalid number of arguments for display sub_tile_boundaries");
-          }
-          break;
-        case "cell_coords":
-          if (splitCommand.length==3) {
-            String value = splitCommand[2].toLowerCase();
-            Boolean setting;
-            if (value.equals("true") || value.equals("t") || value.equals("1")) {
-              setting = true;
-            } else if (value.equals("false") || value.equals("f")|| value.equals("0")) {
-              setting = false;
-            } else {
-              sendLine("Invalid argument for display cell_coords: give either true or false");
-              return;
-            }
-            sendLine("Changing cell_coords setting");
-            jsManager.saveSetting("show cell coords", setting);
-            sendLine("cell_coords setting changed!");
-          } else {
-            sendLine("Invalid number of arguments for display cell_coords");
-          }
-          break;
-        case "all_party_details":
-          if (splitCommand.length==3) {
-            String value = splitCommand[2].toLowerCase();
-            Boolean setting;
-            if (value.equals("true") || value.equals("t") || value.equals("1")) {
-              setting = true;
-            } else if (value.equals("false") || value.equals("f")|| value.equals("0")) {
-              setting = false;
-            } else {
-              sendLine("Invalid argument for display all_party_details: give either true or false");
-              return;
-            }
-            sendLine("Changing all_party_details setting");
-            jsManager.saveSetting("show all party managements", setting);
-            sendLine("all_party_details setting changed!");
-          } else {
-            sendLine("Invalid number of arguments for display all_party_details");
-          }
-          break;
-        case "party_id":
-          if (splitCommand.length==3) {
-            String value = splitCommand[2].toLowerCase();
-            Boolean setting;
-            if (value.equals("true") || value.equals("t") || value.equals("1")) {
-              setting = true;
-            } else if (value.equals("false") || value.equals("f")|| value.equals("0")) {
-              setting = false;
-            } else {
-              sendLine("Invalid argument for display party_id: give either true or false");
-              return;
-            }
-            sendLine("Changing party_id setting");
-            jsManager.saveSetting("show party id", setting);
-            sendLine("party_id setting changed!");
-          } else {
-            sendLine("Invalid number of arguments for display party_id");
-          }
-          break;
-        default:
-          sendLine("Invalid argument for display");
-          break;
-        }
-      } else {
-        sendLine("Invalid number of arguments for display");
-      }
-      break;
-    case "test":
-      if (splitCommand.length>1) {
-        switch(splitCommand[1]) {
-        case "fog_of_war":
-          if (splitCommand.length==3) {
-            String value = splitCommand[2].toLowerCase();
-            Boolean setting;
-            if (value.equals("true") || value.equals("t") || value.equals("1")) {
-              setting = true;
-            } else if (value.equals("false") || value.equals("f")|| value.equals("0")) {
-              setting = false;
-            } else {
-              sendLine("Invalid argument for test fog_of_war: give either true or false");
-              return;
-            }
-            sendLine("Changing fog_of_war setting");
-            jsManager.saveSetting("fog of war", setting);
-            sendLine("fog_of_war setting changed!");
-          } else {
-            sendLine("Invalid number of arguments for test fog_of_war");
-          }
-          break;
-        default:
-          sendLine("Invalid argument for test");
-          break;
-        }
-      } else {
-        sendLine("Invalid number of arguments for test");
-      }
-      break;
-    default:
-      sendLine("invalid command");
       break;
     }
   }

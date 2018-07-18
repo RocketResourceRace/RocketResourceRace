@@ -435,7 +435,24 @@ int getBattleUnitChange(Party p1, Party p2) {
   return floor(-0.2*(p2.getUnitNumber()+pow(p2.getUnitNumber(), 2)/p1.getUnitNumber())*random(0.75, 1.5)*p2.strength/p1.strength);
 }
 
+boolean playerExists(Player[] players, String name) {
+  for (Player p: players) {
+    if (p.name.trim().equals(name.trim())){
+      return true;
+    }
+  }
+  return false;
+}
 
+Player getPlayer(Player[] players, String name){
+  for (Player p: players) {
+    if (p.name.trim().equals(name.trim())){
+      return p;
+    }
+  }
+  LOGGER_MAIN.severe(String.format("Tried to find player: %s but this player was not found. Returned first player, this will likely cause problems", name));
+  return players[0];
+}
 
 class Player {
   float cameraCellX, cameraCellY, blockSize;
