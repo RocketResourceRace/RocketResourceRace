@@ -923,9 +923,9 @@ class Game extends State {
   void turnChange() {
     try {
       LOGGER_GAME.finer(String.format("Turn changing - current player = %s, next player = %s", turn, (turn+1)%players.length));
+      notificationManager.dismissAll();
       processParties();
       updateResources(getResourceAmountsAvailable(getTotalResourceRequirements()));
-      notificationManager.dismissAll();
       partyMovementPointsReset();
       LOGGER_GAME.finer("Loading other player camera positions");
       float blockSize;
