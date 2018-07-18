@@ -93,7 +93,7 @@ class EquipmentManager extends Element {
           events.add("valueChanged");
           equipmentToChange.add(new int[] {selectedClass, -1});
         }
-        if (newSelectedType != currentEquipment[selectedClass]){
+        else if (newSelectedType != currentEquipment[selectedClass]){
           events.add("valueChanged");
           if (equipmentAvailable[newSelectedType]){
             equipmentToChange.add(new int[] {selectedClass, newSelectedType});
@@ -162,12 +162,12 @@ class EquipmentManager extends Element {
         catch (ArrayIndexOutOfBoundsException e){
           LOGGER_MAIN.log(Level.WARNING, String.format("Equipment available not updated properly. Array size:%d, size needed: %d", equipmentAvailable.length, equipmentTypes.length), e);
         }
-        if (currentEquipment[selectedClass] != -1){
-            panelCanvas.fill(170);
-            panelCanvas.rect(x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight, boxWidth, dropBoxHeight);
-            panelCanvas.fill(0);
-            panelCanvas.text("Unequip", x+selectedClass*boxWidth, y+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropBoxHeight+boxHeight);
-        }
+      }
+      if (currentEquipment[selectedClass] != -1){
+          panelCanvas.fill(170);
+          panelCanvas.rect(x+selectedClass*boxWidth, y+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropBoxHeight+boxHeight, boxWidth, dropBoxHeight);
+          panelCanvas.fill(0);
+          panelCanvas.text("Unequip", x+selectedClass*boxWidth, y+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropBoxHeight+boxHeight);
       }
     }
 

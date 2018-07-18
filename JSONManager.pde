@@ -171,6 +171,26 @@ class JSONManager {
     }
   }
   
+  String getEquipmentTypeID(int equipmentClass, int equipmentType){
+    if (equipmentType == -1){
+      LOGGER_MAIN.warning("No equipment type selected");
+    }
+    if (equipmentClass == -1){
+      LOGGER_MAIN.warning("No equipment class selected");
+    }
+    try {
+      return gameData.getJSONArray("equipment").getJSONObject(equipmentClass).getJSONArray("types").getJSONObject(equipmentType).getString("id");
+    }
+    catch (NullPointerException e) {
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
+      throw e;
+    }
+    catch (IndexOutOfBoundsException e) {
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
+      throw e;
+    }
+  }
+  
   String getEquipmentTypeDisplayName(int equipmentClass, int equipmentType){
     try {
       return gameData.getJSONArray("equipment").getJSONObject(equipmentClass).getJSONArray("types").getJSONObject(equipmentType).getString("display name");
