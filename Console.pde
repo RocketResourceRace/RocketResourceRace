@@ -343,7 +343,7 @@ class Console extends Element {
               String playerId = arguments[position+1];
               if (playerExists(players, playerId)) {
                 Player p = getPlayer(players, playerId);
-                if (resourceExists(arguments[position+2])) {
+                if (jsManager.resourceExists(arguments[position+2])) {
                   int resourceId = jsManager.getResIndex(arguments[position+2]);
                   p.resources[resourceId] = 0;
                   sendLine(String.format("Set %s for %s to 0", arguments[position+2], arguments[position+1])); 

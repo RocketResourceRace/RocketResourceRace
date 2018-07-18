@@ -628,13 +628,13 @@ class JSONManager {
       throw e;
     }
   }
-}
-
-boolean resourceExists(String id) {
-  for (int i = 0; i < gameData.getJSONArray("resources").size(); i++) {
-    if (gameData.getJSONArray("resources").getJSONObject(i).getString("id").equals(id)) {
-      return true;
+  
+  boolean resourceExists(String id) {
+    for (int i = 0; i < gameData.getJSONArray("resources").size(); i++) {
+      if (gameData.getJSONArray("resources").getJSONObject(i).getString("id").equals(id)) {
+        return true;
+      }
     }
+    return false;
   }
-  return false;
 }
