@@ -545,6 +545,7 @@ class Game extends State {
         int y = ((DisbandParty)event).y;
         parties[y][x] = null;
         LOGGER_GAME.fine(String.format("Party at cell: (%d, %d) disbanded", x, y));
+        selectCell(x, y, false);
       }
 
       if (valid) {
@@ -1660,6 +1661,7 @@ class Game extends State {
   }
 
   void selectCell(int x, int y, boolean raw) {
+    // raw means from mouse position
     deselectCell();
     if (raw) {
       selectCell();
