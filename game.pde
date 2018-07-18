@@ -778,7 +778,7 @@ class Game extends State {
                     }
                   } else {
                     int prev = parties[y][x].getUnitNumber();
-                    parties[y][x].setUnitNumber(ceil(parties[y][x].getUnitNumber()+taskOutcomes[task][resource]*(float)parties[y][x].getUnitNumber()));
+                    parties[y][x].setUnitNumber(floor(parties[y][x].getUnitNumber()+taskOutcomes[task][resource]*(float)parties[y][x].getUnitNumber()));
                     if (prev != jsManager.loadIntSetting("party size") && parties[y][x].getUnitNumber() == jsManager.loadIntSetting("party size") && parties[y][x].task == JSONIndex(gameData.getJSONArray("tasks"), "Super Rest")) {
                       notificationManager.post("Party Full", x, y, turnNumber, turn);
                       LOGGER_GAME.fine(String.format("Party full at  cell: (%d, %d) player:%s", x, y, turn));
