@@ -157,10 +157,10 @@ class Console extends Element {
     return requiredArgsString;
   }
   
-  void invalidArg(JSONObject command, String[] args, int position1, int position2) {
+  void invalidArg(JSONObject command, String[] args, int commandPosition, int argPosition) {
     if (command.hasKey("args")) {
       String requiredArgsString = getRequiredArgs(command);
-      invalid(String.format("Invalid Argument (%s) for %s. Arguments required: %s", args[position2], args[position1], requiredArgsString));
+      invalid(String.format("Invalid Argument #%d (%s) for %s. Arguments required: %s", argPosition-commandPosition, args[argPosition], args[commandPosition], requiredArgsString));
     } else {
       commandFileError("No args array for command which requires args"); 
     }
@@ -349,6 +349,78 @@ class Console extends Element {
                   int resourceId = jsManager.getResIndex(arguments[position+2]);
                   p.resources[resourceId] = 0;
                   sendLine(String.format("Set %s for %s to 0", arguments[position+2], arguments[position+1])); 
+                } else {
+                  invalidArg(command, arguments, position, position+2);
+                }
+              } else {
+                invalidArg(command, arguments, position, position+1);
+              }
+            } else {
+              invalidMissingArg(command, arguments, position);
+            }
+            break;
+          case "set":
+            if(arguments.length>position+3){
+              String playerId = arguments[position+1];
+              if (playerExists(players, playerId)) {
+                Player p = getPlayer(players, playerId);
+                if (jsManager.resourceExists(arguments[position+2])) {
+                  int resourceId = jsManager.getResIndex(arguments[position+2]);
+                  try{
+                    float amount = Float.parseFloat(arguments[position+3]);
+                    p.resources[resourceId] = amount;
+                    sendLine(String.format("Set %s for %s to %s", arguments[position+2], arguments[position+1], arguments[position+3]));
+                  } catch (NumberFormatException e){
+                    invalidArg(command, arguments, position, position+3);
+                  }
+                } else {
+                  invalidArg(command, arguments, position, position+2);
+                }
+              } else {
+                invalidArg(command, arguments, position, position+1);
+              }
+            } else {
+              invalidMissingArg(command, arguments, position);
+            }
+            break;
+          case "add":
+            if(arguments.length>position+3){
+              String playerId = arguments[position+1];
+              if (playerExists(players, playerId)) {
+                Player p = getPlayer(players, playerId);
+                if (jsManager.resourceExists(arguments[position+2])) {
+                  int resourceId = jsManager.getResIndex(arguments[position+2]);
+                  try{
+                    float amount = Float.parseFloat(arguments[position+3]);
+                    p.resources[resourceId] += amount;
+                    sendLine(String.format("Added %s %s to %s", arguments[position+3], arguments[position+2], arguments[position+1]));
+                  } catch (NumberFormatException e){
+                    invalidArg(command, arguments, position, position+3);
+                  }
+                } else {
+                  invalidArg(command, arguments, position, position+2);
+                }
+              } else {
+                invalidArg(command, arguments, position, position+1);
+              }
+            } else {
+              invalidMissingArg(command, arguments, position);
+            }
+            break;
+          case "subtract":
+            if(arguments.length>position+3){
+              String playerId = arguments[position+1];
+              if (playerExists(players, playerId)) {
+                Player p = getPlayer(players, playerId);
+                if (jsManager.resourceExists(arguments[position+2])) {
+                  int resourceId = jsManager.getResIndex(arguments[position+2]);
+                  try{
+                    float amount = Float.parseFloat(arguments[position+3]);
+                    p.resources[resourceId] -= amount;
+                    sendLine(String.format("Subtracted %s %s to %s", arguments[position+3], arguments[position+2], arguments[position+1]));
+                  } catch (NumberFormatException e){
+                    invalidArg(command, arguments, position, position+3);
+                  }
                 } else {
                   invalidArg(command, arguments, position, position+2);
                 }
