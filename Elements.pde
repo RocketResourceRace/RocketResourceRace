@@ -1,39 +1,110 @@
 
 
 class EquipmentManager extends Element {
-  final int TEXTSIZE = 7;
+  final int TEXTSIZE = 8;
   final float BOXWIDTHHEIGHTRATIO = 0.75;
-  String[] equipmentTypeDisplayNames;
+  String[] equipmentClassDisplayNames;
   int[] currentEquipment;
-  float boxWidth, boxHeight;
+  float boxWidth, boxHeight, dropBoxHeight;
+  int selectedClass;
+  boolean[] equipmentAvailable;
+  ArrayList<int[]> equipmentToChange;
 
   EquipmentManager(int x, int y, int w) {
     this.x = x;
     this.y = y;
     this.w = w;
 
-    // Load display names for equipment types
-    equipmentTypeDisplayNames = new String[jsManager.getNumEquipmentTypes()];
-    for (int i = 0; i < equipmentTypeDisplayNames.length; i ++) {
-      equipmentTypeDisplayNames[i] = jsManager.getEquipmentTypeDisplayName(i);
+    // Load display names for equipment classes
+    equipmentClassDisplayNames = new String[jsManager.getNumEquipmentClasses()];
+    for (int i = 0; i < equipmentClassDisplayNames.length; i ++) {
+      equipmentClassDisplayNames[i] = jsManager.getEquipmentClassDisplayName(i);
     }
 
-    currentEquipment = new int[jsManager.getNumEquipmentTypes()];
+    currentEquipment = new int[jsManager.getNumEquipmentClasses()];
+    for (int i=0; i<currentEquipment.length;i ++){
+      currentEquipment[i] = -1; // -1 represens no equipment
+    }
 
-    boxWidth = w/jsManager.getNumEquipmentTypes();
+    updateSizes();
+    
+    selectedClass = -1;  // -1 represents nothing being selected
+    resetAvailableEquipment();
+    equipmentToChange = new ArrayList<int[]>();
+  }
+  
+  void updateSizes(){
+
+    boxWidth = w/jsManager.getNumEquipmentClasses();
     boxHeight = boxWidth*BOXWIDTHHEIGHTRATIO;
+    dropBoxHeight = jsManager.loadFloatSetting("text scale") * TEXTSIZE * 1.2;
   }
 
   void transform(int x, int y, int w) {
     this.x = x;
     this.y = y;
     this.w = w;
-    boxWidth = w/jsManager.getNumEquipmentTypes();
-    boxHeight = boxWidth*BOXWIDTHHEIGHTRATIO;
+    
+    updateSizes();
   }
 
   void setEquipment(int[] equipment) {
     this.currentEquipment = equipment;
+    LOGGER_GAME.finer(String.format("changing equipment for manager to :%s", Arrays.toString(equipment)));
+  }
+  
+  void resetAvailableEquipment(){
+    if (selectedClass == -1){
+      this.equipmentAvailable = new boolean[0];
+    }
+    else{
+      this.equipmentAvailable = new boolean[jsManager.getNumEquipmentTypesFromClass(selectedClass)];
+    }
+  }
+  
+  void makeEquipmentAvailable(int index){
+    equipmentAvailable[index] = true;
+  }
+  
+  ArrayList<int[]> getEquipmentToChange(){
+    // Also clears equipmentToChange
+    ArrayList<int[]> temp = new ArrayList<int[]>(equipmentToChange);
+    equipmentToChange.clear();
+    return temp;
+  }
+  
+  ArrayList<String> mouseEvent(String eventType, int button) {
+    ArrayList<String> events = new ArrayList<String>();
+    if (eventType.equals("mouseClicked")) {
+      if (mouseOverClasses()) {
+        int newSelectedClass = hoveringOverClass();
+        if (newSelectedClass == selectedClass){  // If selecting same option
+          selectedClass = -1;
+        }
+        else{
+          selectedClass = newSelectedClass;
+          events.add("dropped");
+        }
+      }
+      else if (mouseOverTypes()){
+        int newSelectedType = hoveringOverType();
+        if (newSelectedType != currentEquipment[selectedClass]){
+          events.add("valueChanged");
+          if (equipmentAvailable[newSelectedType]){
+            equipmentToChange.add(new int[] {selectedClass, newSelectedType});
+          }
+        }
+        selectedClass = -1;
+      }
+      else{
+        selectedClass = -1;
+      }
+    }
+    return events;
+  }
+  
+  int getSelectedClass(){
+   return selectedClass; 
   }
 
   void draw(PGraphics panelCanvas) {
@@ -44,15 +115,77 @@ class EquipmentManager extends Element {
     panelCanvas.strokeWeight(2);
     panelCanvas.fill(170);
     panelCanvas.rect(x, y, w, boxHeight);
-    panelCanvas.strokeWeight(1);
-    for (int i = 0; i < jsManager.getNumEquipmentTypes(); i ++) {
-      panelCanvas.noFill();
+    for (int i = 0; i < jsManager.getNumEquipmentClasses(); i ++) {
+      if (selectedClass == i){
+        panelCanvas.strokeWeight(3);
+        panelCanvas.fill(140);
+      }
+      else{
+        panelCanvas.strokeWeight(1);
+        panelCanvas.noFill();
+      }
       panelCanvas.rect(x+boxWidth*i, y, boxWidth, boxHeight);
       panelCanvas.fill(0);
-      panelCanvas.text(equipmentTypeDisplayNames[i], x+boxWidth*(i+0.5), y);
+      panelCanvas.text(equipmentClassDisplayNames[i], x+boxWidth*(i+0.5), y);
+    }
+    
+    // Draw dropdown if an equipment class is selected
+    if (selectedClass != -1){
+      panelCanvas.textAlign(LEFT, TOP);
+      String[] equipmentTypes = jsManager.getEquipmentFromClass(selectedClass);
+      for (int i = 0; i < jsManager.getNumEquipmentTypesFromClass(selectedClass); i ++){
+        try{
+          panelCanvas.strokeWeight(1);
+          if (equipmentAvailable[i]){
+            panelCanvas.fill(170);
+            panelCanvas.rect(x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight, boxWidth, dropBoxHeight);
+            panelCanvas.fill(0);
+            panelCanvas.text(equipmentTypes[i], x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight);
+          }
+          else{
+            panelCanvas.fill(220);
+            panelCanvas.rect(x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight, boxWidth, dropBoxHeight);
+            panelCanvas.fill(150);
+            panelCanvas.text(equipmentTypes[i], x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight);
+          }
+        }
+        catch (ArrayIndexOutOfBoundsException e){
+          LOGGER_MAIN.log(Level.WARNING, String.format("Equipment available not updated properly. Array size:%d, size needed: %d", equipmentAvailable.length, equipmentTypes.length), e);
+        }
+      }
     }
 
     panelCanvas.popStyle();
+  }
+  
+  boolean mouseOverClasses() {
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+boxHeight;
+  }
+  
+  boolean mouseOverTypes() {
+    if (selectedClass == -1){
+      return false;
+    } else{
+      return mouseX-xOffset >= x+boxWidth*selectedClass && mouseX-xOffset <= x+boxWidth*(selectedClass+1) && mouseY-yOffset >= y+boxHeight && mouseY-yOffset <= y+dropBoxHeight*jsManager.getNumEquipmentTypesFromClass(selectedClass)+boxHeight;
+    }
+  }
+  
+  int hoveringOverType() {
+    for (int i = 0; i < jsManager.getNumEquipmentTypesFromClass(selectedClass); i ++) {
+      if (mouseX-xOffset >= x+boxWidth*selectedClass && mouseX-xOffset <= x+boxWidth*(selectedClass+1) && mouseY-yOffset >= y+dropBoxHeight*i+boxHeight && mouseY-yOffset <= y+dropBoxHeight*(i+1)+boxHeight){
+        return i;
+      }
+    }
+    return -1;
+  }
+  
+  int hoveringOverClass() {
+    for (int i = 0; i < jsManager.getNumEquipmentClasses(); i ++) {
+      if (mouseX-xOffset >= x+boxWidth*i && mouseX-xOffset <= x+boxWidth*(i+1) && mouseY-yOffset >= y && mouseY-yOffset <= y+boxHeight){
+        return i;
+      }
+    }
+    return -1;
   }
 }
 

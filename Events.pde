@@ -88,5 +88,14 @@ class ChangePartyTrainingFocus extends GameEvent {
   }
 }
 
+class ChangeEquipment extends GameEvent{
+  int equipmentClass;
+  int newEqupmentType;
+  ChangeEquipment(int equipmentClass, int newEqupmentType){
+    this.equipmentClass = equipmentClass;
+    this.newEqupmentType = newEqupmentType;
+  }
+}
+
 class EndTurn extends GameEvent {
 }

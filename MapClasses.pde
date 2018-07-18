@@ -49,7 +49,10 @@ class Party {
 
     setTrainingFocus(jsManager.proficiencyIDToIndex("melee attack"));
 
-    equipment = new int[jsManager.getNumEquipmentTypes()];
+    equipment = new int[jsManager.getNumEquipmentClasses()];
+    for (int i=0; i<equipment.length;i ++){
+      equipment[i] = -1; // -1 represens no equipment
+    }
   }
 
   Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float[] proficiencies, String trainingFocus, int[] equipment) {
@@ -64,7 +67,11 @@ class Party {
     this.target = null;
     this.pathTurns = 0;
     this.id = id;
+    
     this.equipment = equipment;
+    for (int i=0; i<equipment.length;i ++){
+      equipment[i] = -1; // -1 represens no equipment
+    }
 
     // Load proficiencies given
     try {
@@ -107,6 +114,7 @@ class Party {
 
   void setEquipment(int typeIndex, int equipmentIndex) {
     equipment[typeIndex] = equipmentIndex;
+    LOGGER_GAME.finer(String.format("changing equipment for party with id:'%s' which now has equipment:%s", id, Arrays.toString(equipment)));
   }
 
   int getEquipment(int typeIndex) {
