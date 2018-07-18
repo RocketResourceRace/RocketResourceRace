@@ -530,6 +530,12 @@ class Game extends State {
         LOGGER_GAME.fine(String.format("Changing party focus for cell (%d, %d) id:%s to '%s'", selectedCellX, selectedCellY, parties[selectedCellY][selectedCellX].getID(), newFocus));
         parties[selectedCellY][selectedCellX].setTrainingFocus(newFocus);
       }
+      else if (event instanceof ChangeEquipment){
+        int equipmentClass = ((ChangeEquipment)event).equipmentClass;
+        int newEqupmentType = ((ChangeEquipment)event).newEqupmentType;
+        LOGGER_GAME.fine(String.format("Changing equipment type for cell (%d, %d) id:%s class:'%d' new equipment index:'%d'", selectedCellX, selectedCellY, parties[selectedCellY][selectedCellX].getID(), equipmentClass, newEqupmentType));
+        parties[selectedCellY][selectedCellX].setEquipment(equipmentClass, newEqupmentType);
+      }
 
       if (valid) {
         LOGGER_GAME.finest("Event is valid, so updating things...");
@@ -1263,6 +1269,11 @@ class Game extends State {
           ((TextEntry)getElement("save namer", "save screen")).setText(loadingName);
         } else if (event.id.equals("party training focus")) {
           postEvent(new ChangePartyTrainingFocus(selectedCellX, selectedCellY, ((DropDown)getElement("party training focus", "party management")).getOptionIndex()));
+        }
+        else if (event.id.equals("equipment manager")){
+          for (int [] equipmentChange : ((EquipmentManager)getElement("equipment manager", "party management")).getEquipmentToChange()){
+            postEvent(new ChangeEquipment(equipmentChange[0], equipmentChange[1]));
+          }
         }
       }
       if (event.type.equals("dropped")){

@@ -8,6 +8,7 @@ class EquipmentManager extends Element {
   float boxWidth, boxHeight, dropBoxHeight;
   int selectedClass;
   boolean[] equipmentAvailable;
+  ArrayList<int[]> equipmentToChange;
 
   EquipmentManager(int x, int y, int w) {
     this.x = x;
@@ -21,11 +22,15 @@ class EquipmentManager extends Element {
     }
 
     currentEquipment = new int[jsManager.getNumEquipmentClasses()];
+    for (int i=0; i<currentEquipment.length;i ++){
+      currentEquipment[i] = -1; // -1 represens no equipment
+    }
 
     updateSizes();
     
     selectedClass = -1;  // -1 represents nothing being selected
     resetAvailableEquipment();
+    equipmentToChange = new ArrayList<int[]>();
   }
   
   void updateSizes(){
@@ -60,6 +65,13 @@ class EquipmentManager extends Element {
     equipmentAvailable[index] = true;
   }
   
+  ArrayList<int[]> getEquipmentToChange(){
+    // Also clears equipmentToChange
+    ArrayList<int[]> temp = new ArrayList<int[]>(equipmentToChange);
+    equipmentToChange.clear();
+    return temp;
+  }
+  
   ArrayList<String> mouseEvent(String eventType, int button) {
     ArrayList<String> events = new ArrayList<String>();
     if (eventType.equals("mouseClicked")) {
@@ -72,6 +84,16 @@ class EquipmentManager extends Element {
           selectedClass = newSelectedClass;
           events.add("dropped");
         }
+      }
+      else if (mouseOverTypes()){
+        int newSelectedType = hoveringOverType();
+        if (newSelectedType != currentEquipment[selectedClass]){
+          events.add("valueChanged");
+          if (equipmentAvailable[newSelectedType]){
+            equipmentToChange.add(new int[] {selectedClass, newSelectedType});
+          }
+        }
+        selectedClass = -1;
       }
       else{
         selectedClass = -1;
@@ -137,6 +159,23 @@ class EquipmentManager extends Element {
   
   boolean mouseOverClasses() {
     return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+boxHeight;
+  }
+  
+  boolean mouseOverTypes() {
+    if (selectedClass == -1){
+      return false;
+    } else{
+      return mouseX-xOffset >= x+boxWidth*selectedClass && mouseX-xOffset <= x+boxWidth*(selectedClass+1) && mouseY-yOffset >= y+boxHeight && mouseY-yOffset <= y+dropBoxHeight*jsManager.getNumEquipmentTypesFromClass(selectedClass)+boxHeight;
+    }
+  }
+  
+  int hoveringOverType() {
+    for (int i = 0; i < jsManager.getNumEquipmentTypesFromClass(selectedClass); i ++) {
+      if (mouseX-xOffset >= x+boxWidth*selectedClass && mouseX-xOffset <= x+boxWidth*(selectedClass+1) && mouseY-yOffset >= y+dropBoxHeight*i+boxHeight && mouseY-yOffset <= y+dropBoxHeight*(i+1)+boxHeight){
+        return i;
+      }
+    }
+    return -1;
   }
   
   int hoveringOverClass() {

@@ -1,7 +1,8 @@
 
 {
   "game options":{
-    "starting resources":[],
+    "starting resources":[
+      {"id": "tank","quantity":100}],
     "movement points": 64
   },
   "terrain":[
