@@ -520,6 +520,11 @@ class Game extends State {
         }
 
         checkTasks();
+        int selectedEquipmentType = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
+        if (selectedEquipmentType != -1){
+          checkEquipment(selectedEquipmentType);
+        }
+        
       } else if (event instanceof ChangePartyTrainingFocus) {
         int newFocus = ((ChangePartyTrainingFocus)event).newFocus;
         LOGGER_GAME.fine(String.format("Changing party focus for cell (%d, %d) id:%s to '%s'", selectedCellX, selectedCellY, parties[selectedCellY][selectedCellX].getID(), newFocus));
@@ -591,8 +596,27 @@ class Game extends State {
   void makeAvailableButOverBudget(int task) {
     ((TaskManager)getElement("tasks", "party management")).makeAvailableButOverBudget(gameData.getJSONArray("tasks").getJSONObject(task).getString("id"));
   }
-  //tasks building
-  //settings
+  
+  void checkEquipment(int equipmentClass){
+    // Check which equipment is available to buy
+    LOGGER_GAME.finer("Starting checking available equipment");
+    ((EquipmentManager)getElement("equipment manager", "party management")).resetAvailableEquipment();
+    float equipmentAvailable = 0;
+    if (parties[selectedCellY][selectedCellX].isTurn(turn)) {
+      JSONArray equipmentTypesJSON = gameData.getJSONArray("equipment").getJSONObject(equipmentClass).getJSONArray("types");
+      for (int i = 0; i<equipmentTypesJSON.size(); i++){
+        try{
+          equipmentAvailable = players[turn].resources[jsManager.getResIndex(equipmentTypesJSON.getJSONObject(i).getString("id"))];
+        }
+        catch (Exception e){
+          LOGGER_MAIN.log(Level.WARNING, String.format("Error finding amount of equipment available class:'%s', type index:'%d'", equipmentClass, i), e);
+        }
+        if (equipmentAvailable >= parties[selectedCellY][selectedCellX].getUnitNumber()){  // Check if player has sufficient resources for equipment 
+          ((EquipmentManager)getElement("equipment manager", "party management")).makeEquipmentAvailable(i);
+        }
+      }
+    }
+  }
 
   void checkTasks() {
     // Check which tasks should be made available
@@ -1241,7 +1265,15 @@ class Game extends State {
           postEvent(new ChangePartyTrainingFocus(selectedCellX, selectedCellY, ((DropDown)getElement("party training focus", "party management")).getOptionIndex()));
         }
       }
-      if (event.type.equals("notification selected")) {
+      if (event.type.equals("dropped")){
+        if (event.id.equals("equipment manager")){
+          int selectedEquipmentType = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
+          if (selectedEquipmentType != -1){
+            checkEquipment(selectedEquipmentType);
+          }
+        }
+      }
+      else if (event.type.equals("notification selected")) {
         int x = notificationManager.lastSelected.x, y = notificationManager.lastSelected.y;
         LOGGER_GAME.fine(String.format("Notification '%s', cell selected: (%d, %d)", notificationManager.lastSelected.name, x, y));
         map.targetCell(x, y, 100);
@@ -1635,6 +1667,10 @@ class Game extends State {
           getPanel("party management").setColour(color(70, 70, 220));
         }
         checkTasks();
+        int selectedEquipmentType = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
+        if (selectedEquipmentType != -1){
+          checkEquipment(selectedEquipmentType);
+        }
         updatePartyManagementProficiencies();
         updateCurrentPartyTrainingFocus();
       }

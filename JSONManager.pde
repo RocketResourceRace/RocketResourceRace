@@ -101,10 +101,14 @@ class JSONManager {
     }
   }
   
-  int getNumEquipmentTypesFromClass(int type){
+  int getNumEquipmentTypesFromClass(int classType){
     // type is the index of the type in data.json
+    if (classType<0){
+      LOGGER_MAIN.warning("Class is invalid");
+      return 0;
+    }
     try {
-      return gameData.getJSONArray("equipment").getJSONObject(type).getJSONArray("types").size();
+      return gameData.getJSONArray("equipment").getJSONObject(classType).getJSONArray("types").size();
     }
     catch (NullPointerException e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);

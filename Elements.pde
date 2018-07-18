@@ -1,12 +1,13 @@
 
 
 class EquipmentManager extends Element {
-  final int TEXTSIZE = 7;
+  final int TEXTSIZE = 8;
   final float BOXWIDTHHEIGHTRATIO = 0.75;
   String[] equipmentClassDisplayNames;
   int[] currentEquipment;
   float boxWidth, boxHeight, dropBoxHeight;
   int selectedClass;
+  boolean[] equipmentAvailable;
 
   EquipmentManager(int x, int y, int w) {
     this.x = x;
@@ -24,6 +25,7 @@ class EquipmentManager extends Element {
     updateSizes();
     
     selectedClass = -1;  // -1 represents nothing being selected
+    resetAvailableEquipment();
   }
   
   void updateSizes(){
@@ -45,6 +47,19 @@ class EquipmentManager extends Element {
     this.currentEquipment = equipment;
   }
   
+  void resetAvailableEquipment(){
+    if (selectedClass == -1){
+      this.equipmentAvailable = new boolean[0];
+    }
+    else{
+      this.equipmentAvailable = new boolean[jsManager.getNumEquipmentTypesFromClass(selectedClass)];
+    }
+  }
+  
+  void makeEquipmentAvailable(int index){
+    equipmentAvailable[index] = true;
+  }
+  
   ArrayList<String> mouseEvent(String eventType, int button) {
     ArrayList<String> events = new ArrayList<String>();
     if (eventType.equals("mouseClicked")) {
@@ -55,6 +70,7 @@ class EquipmentManager extends Element {
         }
         else{
           selectedClass = newSelectedClass;
+          events.add("dropped");
         }
       }
       else{
@@ -62,6 +78,10 @@ class EquipmentManager extends Element {
       }
     }
     return events;
+  }
+  
+  int getSelectedClass(){
+   return selectedClass; 
   }
 
   void draw(PGraphics panelCanvas) {
@@ -91,11 +111,24 @@ class EquipmentManager extends Element {
       panelCanvas.textAlign(LEFT, TOP);
       String[] equipmentTypes = jsManager.getEquipmentFromClass(selectedClass);
       for (int i = 0; i < jsManager.getNumEquipmentTypesFromClass(selectedClass); i ++){
-        panelCanvas.strokeWeight(1);
-        panelCanvas.fill(170);
-        panelCanvas.rect(x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight, boxWidth, dropBoxHeight);
-        panelCanvas.fill(0);
-        panelCanvas.text(equipmentTypes[i], x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight);
+        try{
+          panelCanvas.strokeWeight(1);
+          if (equipmentAvailable[i]){
+            panelCanvas.fill(170);
+            panelCanvas.rect(x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight, boxWidth, dropBoxHeight);
+            panelCanvas.fill(0);
+            panelCanvas.text(equipmentTypes[i], x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight);
+          }
+          else{
+            panelCanvas.fill(220);
+            panelCanvas.rect(x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight, boxWidth, dropBoxHeight);
+            panelCanvas.fill(150);
+            panelCanvas.text(equipmentTypes[i], x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight);
+          }
+        }
+        catch (ArrayIndexOutOfBoundsException e){
+          LOGGER_MAIN.log(Level.WARNING, String.format("Equipment available not updated properly. Array size:%d, size needed: %d", equipmentAvailable.length, equipmentTypes.length), e);
+        }
       }
     }
 
