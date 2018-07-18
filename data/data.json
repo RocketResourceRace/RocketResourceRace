@@ -690,8 +690,8 @@
           "defence": 2.5,
         },
         {
-          "id": "reinforced steel armour",
-          "display name": "Reinforced Steel Armour",
+          "id": "reinforced armour",
+          "display name": "Reinforced Armour",
           "speed": -0.5,
           "defence": 4,
         },
@@ -793,9 +793,9 @@
       "display multipliers": ["building speed"],
       "types":[
         {
-          "id": "hammer",
-          "display name": "Hammer",
-          "building speed": 0.5
+          "id": "hand tools",
+          "display name": "hand tools",
+          "building speed": 1
         },
         {
           "id": "power tools",
