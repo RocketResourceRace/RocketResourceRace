@@ -1,7 +1,8 @@
 
 {
   "game options":{
-    "starting resources":[],
+    "starting resources":[
+      {"id": "tank","quantity":100}],
     "movement points": 64
   },
   "terrain":[
@@ -581,6 +582,70 @@
       "id": "civilians",
       "resource manager": 0
     },
+    {
+      "id": "wooden armour",
+      "resource manager": 0
+    },
+    {
+      "id": "iron armour",
+      "resource manager": 0
+    },
+    {
+      "id": "reinforced steel armour",
+      "resource manager": 0
+    },
+    {
+      "id": "sword and shield",
+      "resource manager": 0
+    },
+    {
+      "id": "bow",
+      "resource manager": 0
+    },
+    {
+      "id": "javelin",
+      "resource manager": 0
+    },
+    {
+      "id": "pikes",
+      "resource manager": 0
+    },
+    {
+      "id": "musket",
+      "resource manager": 0
+    },
+    {
+      "id": "rifle",
+      "resource manager": 0
+    },
+    {
+      "id": "machine gun",
+      "resource manager": 0
+    },
+    {
+      "id": "tank",
+      "resource manager": 0
+    },
+    {
+      "id": "horse",
+      "resource manager": 0
+    },
+    {
+      "id": "chariot",
+      "resource manager": 0
+    },
+    {
+      "id": "apc",
+      "resource manager": 0
+    },
+    {
+      "id": "hammer",
+      "resource manager": 0
+    },
+    {
+      "id": "power tools",
+      "resource manager": 0
+    },
   ],
   
   "proficiencies":[
@@ -715,7 +780,7 @@
         },
         {
           "id": "apc",
-          "display name": "Armoured Personnel carrier",
+          "display name": "APC",
           "speed": 2,
           "defence": 5
         },
