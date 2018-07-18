@@ -49,6 +49,40 @@
     "basic description": "unfinished features",
     "detailed description": "these are temporary unfinished features that are just tests"
   },
+  "player": {
+    "type": "container",
+    "sub commands": {
+      "resource": {
+        "type": "container",
+        "sub commands": {
+          "reset": {
+            "type": "resource",
+            "action": "reset",
+            "args": [["player", "string"], ["resource", "string"]]
+          },
+          "add": {
+            "type": "resource",
+            "action": "add",
+            "args": [["player", "string"], ["resource", "string"], ["amount", "float"]]
+          },
+          "set": {
+            "type": "resource",
+            "action": "set",
+            "args": [["player", "string"], ["resource", "string"], ["amount", "float"]]
+          },
+          "subtract": {
+            "type": "resource",
+            "action": "subtract",
+            "args": [["player", "string"], ["resource", "string"], ["amount", "float"]]
+          }
+        },
+        "basic description": "Change resource quantities",
+        "detailed description": "Change resource quantities"
+      }
+    },
+    "basic description": "Change player details",
+    "detailed description": "Change player details"
+  },
   "help": {
     "type": "help",
     "basic description": "find out about possible commands. For example, type 'help display' to find out more about the display command",
