@@ -50,6 +50,7 @@ class EquipmentManager extends Element {
 
   void setEquipment(int[] equipment) {
     this.currentEquipment = equipment;
+    LOGGER_GAME.finer(String.format("changing equipment for manager to :%s", Arrays.toString(equipment)));
   }
   
   void resetAvailableEquipment(){

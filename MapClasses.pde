@@ -50,6 +50,9 @@ class Party {
     setTrainingFocus(jsManager.proficiencyIDToIndex("melee attack"));
 
     equipment = new int[jsManager.getNumEquipmentClasses()];
+    for (int i=0; i<equipment.length;i ++){
+      equipment[i] = -1; // -1 represens no equipment
+    }
   }
 
   Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float[] proficiencies, String trainingFocus, int[] equipment) {

@@ -535,6 +535,8 @@ class Game extends State {
         int newEqupmentType = ((ChangeEquipment)event).newEqupmentType;
         LOGGER_GAME.fine(String.format("Changing equipment type for cell (%d, %d) id:%s class:'%d' new equipment index:'%d'", selectedCellX, selectedCellY, parties[selectedCellY][selectedCellX].getID(), equipmentClass, newEqupmentType));
         parties[selectedCellY][selectedCellX].setEquipment(equipmentClass, newEqupmentType);
+        
+        ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX].equipment);  // Update equipment manager with new equipment
       }
 
       if (valid) {
@@ -1682,6 +1684,7 @@ class Game extends State {
         if (selectedEquipmentType != -1){
           checkEquipment(selectedEquipmentType);
         }
+        ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX].equipment);
         updatePartyManagementProficiencies();
         updateCurrentPartyTrainingFocus();
       }
