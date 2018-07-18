@@ -269,7 +269,7 @@ class Console extends Element {
         }
       }
     }
-    String[] splitCommand = new String[i+1];
+    String[] splitCommand = new String[i];
     for (int j = 0; j < i; j++) {
       splitCommand[j] = tempSplitCommand[j];
     }
