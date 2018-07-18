@@ -584,10 +584,7 @@ class Game extends State {
       if (valid) {
         LOGGER_GAME.finest("Event is valid, so updating things...");
         if (!changeTurn) {
-          this.totals = totalResources();
-          ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
-          rs.updateNet(totals);
-          rs.updateStockpile(players[turn].resources);
+          updateResourcesSummary();
 
           if (anyIdle(turn)) {
             LOGGER_GAME.finest("There are idle units so highlighting button red");
@@ -930,9 +927,9 @@ class Game extends State {
   void turnChange() {
     try {
       LOGGER_GAME.finer(String.format("Turn changing - current player = %s, next player = %s", turn, (turn+1)%players.length));
+      notificationManager.dismissAll();
       processParties();
       updateResources(getResourceAmountsAvailable(getTotalResourceRequirements()));
-      notificationManager.dismissAll();
       partyMovementPointsReset();
       LOGGER_GAME.finer("Loading other player camera positions");
       float blockSize;
@@ -957,12 +954,7 @@ class Game extends State {
       TextBox t = ((TextBox)(getElement("turn number", "bottom bar")));
       t.setColour(players[turn].colour);
       t.setText("Turn "+turnNumber);
-
-      this.totals = totalResources();
-      ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
-      rs.updateNet(totals);
-      rs.updateStockpile(players[turn].resources);
-
+      updateResourcesSummary();
       notificationManager.turnChange(turn);
 
       if (turn==0)
@@ -1881,17 +1873,54 @@ class Game extends State {
     return returnString;
   }
 
-  float[] totalResources() {
-    float[] amount=new float[resourceNames.length];
-    for (int x=0; x<mapWidth; x++) {
-      for (int y=0; y<mapHeight; y++) {
-        for (int res=0; res<9; res++) {
+  float[] grossResources() {
+    float[] amount = new float[resourceNames.length];
+    for (int x = 0; x < mapWidth; x++) {
+      for (int y = 0; y < mapHeight; y++) {
+        for (int res = 0; res < 9; res++) {
           amount[res]+=resourceProduction(x, y)[res];
-          amount[res]-=resourceConsumption(x, y)[res];
         }
       }
     }
     return amount;
+  }
+  
+  float[] costsResources() {
+    float[] amount = new float[resourceNames.length];
+    for (int x = 0; x < mapWidth; x++) {
+      for (int y = 0; y < mapHeight; y++) {
+        for (int res = 0; res < 9; res++) {
+          amount[res] += resourceConsumption(x, y)[res];
+        }
+      }
+    }
+    return amount;
+  }
+  
+  void updateResourcesSummary(){
+    float[] gross = grossResources();
+    float[] costs = costsResources();
+    this.totals = netResources(gross, costs);
+    ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
+    rs.updateNet(totals);
+    rs.updateStockpile(players[turn].resources);
+    rs.updateWarnings(getResourceWarnings(costs));
+  }
+  
+  float[] netResources(float[] grossResources, float[] costsResources) {
+    float[] amount = new float[resourceNames.length];
+    for (int res=0; res<9; res++) {
+      amount[res] = grossResources[res] - costsResources[res];
+    }
+    return amount;
+  }
+  
+  boolean[] getResourceWarnings(float[] costs){
+    boolean[] warnings = new boolean[costs.length];
+    for (int i = 0; i < costs.length; i++) {
+      warnings[i] = players[turn].resources[i] < costs[i];
+    }
+    return warnings;
   }
 
   void drawCellManagement(PGraphics panelCanvas) {
@@ -2130,7 +2159,7 @@ class Game extends State {
       turnNumber = 0;
       deselectCell();
     }
-    ((Console)getElement("console", "console")).giveObjects(map, players);
+    ((Console)getElement("console", "console")).giveObjects(map, players, this);
 
     map.generateFog(turn);
     battleEstimateManager = new BattleEstimateManager(parties);
@@ -2139,14 +2168,11 @@ class Game extends State {
     //}
     tooltip.hide();
     winner = -1;
-    this.totals = totalResources();
     TextBox t = ((TextBox)(getElement("turn number", "bottom bar")));
     t.setColour(players[turn].colour);
     t.setText("Turn "+turnNumber);
 
-    ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
-    rs.updateNet(totals);
-    rs.updateStockpile(players[turn].resources);
+    updateResourcesSummary();
     getPanel("pause screen").visible = false;
 
     notificationManager.reset();

@@ -1245,6 +1245,7 @@ class ResourceSummary extends Element {
   int numRes, scroll;
   boolean expanded;
   int[] timings;
+  boolean[] warnings;
 
   final int GAP = 10;
   final int FLASHTIMES = 500;
@@ -1259,6 +1260,7 @@ class ResourceSummary extends Element {
     this.net = net;
     this.expanded = false;
     this.timings = new int[resNames.length];
+    this.warnings = new boolean[resNames.length];
   }
 
   void updateStockpile(float[] v) {
@@ -1281,6 +1283,18 @@ class ResourceSummary extends Element {
       throw e;
     }
   }
+  
+  void updateWarnings(boolean[] v) {
+    try {
+      LOGGER_MAIN.finest("Warnings update: " + Arrays.toString(v));
+      warnings = v;
+    }
+    catch(Exception e) {
+      LOGGER_MAIN.log(Level.WARNING, "Error updating warnings", e);
+      throw e;
+    }
+  }
+  
   void toggleExpand() {
     expanded = !expanded;
     LOGGER_MAIN.finest("Expanded changed to: " + expanded);
@@ -1372,6 +1386,9 @@ class ResourceSummary extends Element {
       yLevel += panelCanvas.textAscent()+panelCanvas.textDescent();
 
       panelCanvas.textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
+      if (warnings[i]) {
+        panelCanvas.fill(255, 50, 10);
+      }
       panelCanvas.text(getStockString(i), width-cw, y+yLevel);
       yLevel += panelCanvas.textAscent()+panelCanvas.textDescent();
 

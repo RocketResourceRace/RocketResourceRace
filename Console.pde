@@ -7,6 +7,7 @@ class Console extends Element {
   private JSONObject commands; 
   private Player[] players;
   private PFont monoFont;
+  private Game game;
 
   Console(int x, int y, int w, int h, int textSize) {
     this.x = x;
@@ -21,9 +22,10 @@ class Console extends Element {
     monoFont = createFont("Monospaced", textSize*jsManager.loadFloatSetting("text scale"));
   }
 
-  void giveObjects(Map map, Player[] players) {
+  void giveObjects(Map map, Player[] players, Game game) {
     this.map = map;
     this.players = players;
+    this.game = game;
   }
   StringBuilder toStr() {
     StringBuilder s = new StringBuilder();
@@ -348,6 +350,7 @@ class Console extends Element {
                 if (jsManager.resourceExists(arguments[position+2])) {
                   int resourceId = jsManager.getResIndex(arguments[position+2]);
                   p.resources[resourceId] = 0;
+                  game.updateResourcesSummary();
                   sendLine(String.format("Set %s for %s to 0", arguments[position+2], arguments[position+1])); 
                 } else {
                   invalidArg(command, arguments, position, position+2);
@@ -369,6 +372,7 @@ class Console extends Element {
                   try{
                     float amount = Float.parseFloat(arguments[position+3]);
                     p.resources[resourceId] = amount;
+                    game.updateResourcesSummary();
                     sendLine(String.format("Set %s for %s to %s", arguments[position+2], arguments[position+1], arguments[position+3]));
                   } catch (NumberFormatException e){
                     invalidArg(command, arguments, position, position+3);
@@ -393,6 +397,7 @@ class Console extends Element {
                   try{
                     float amount = Float.parseFloat(arguments[position+3]);
                     p.resources[resourceId] += amount;
+                    game.updateResourcesSummary();
                     sendLine(String.format("Added %s %s to %s", arguments[position+3], arguments[position+2], arguments[position+1]));
                   } catch (NumberFormatException e){
                     invalidArg(command, arguments, position, position+3);
@@ -417,6 +422,7 @@ class Console extends Element {
                   try{
                     float amount = Float.parseFloat(arguments[position+3]);
                     p.resources[resourceId] -= amount;
+                    game.updateResourcesSummary();
                     sendLine(String.format("Subtracted %s %s to %s", arguments[position+3], arguments[position+2], arguments[position+1]));
                   } catch (NumberFormatException e){
                     invalidArg(command, arguments, position, position+3);
