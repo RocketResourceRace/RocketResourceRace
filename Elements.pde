@@ -88,6 +88,11 @@ class EquipmentManager extends Element {
       }
       else if (mouseOverTypes()){
         int newSelectedType = hoveringOverType();
+        if (newSelectedType == jsManager.getNumEquipmentTypesFromClass(selectedClass)){
+          // Unequip (final option)
+          events.add("valueChanged");
+          equipmentToChange.add(new int[] {selectedClass, -1});
+        }
         if (newSelectedType != currentEquipment[selectedClass]){
           events.add("valueChanged");
           if (equipmentAvailable[newSelectedType]){
@@ -128,7 +133,7 @@ class EquipmentManager extends Element {
       panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
       panelCanvas.text(equipmentClassDisplayNames[i], x+boxWidth*(i+0.5), y);
       if (currentEquipment[i] != -1){
-      panelCanvas.textFont(getFont((TEXTSIZE-1)*jsManager.loadFloatSetting("text scale")));
+        panelCanvas.textFont(getFont((TEXTSIZE-1)*jsManager.loadFloatSetting("text scale")));
         panelCanvas.textAlign(CENTER, BOTTOM);
         panelCanvas.text(jsManager.getEquipmentTypeDisplayName(i, currentEquipment[i]), x+boxWidth*(i+0.5), y+boxHeight);
       }
@@ -157,6 +162,12 @@ class EquipmentManager extends Element {
         catch (ArrayIndexOutOfBoundsException e){
           LOGGER_MAIN.log(Level.WARNING, String.format("Equipment available not updated properly. Array size:%d, size needed: %d", equipmentAvailable.length, equipmentTypes.length), e);
         }
+        if (currentEquipment[selectedClass] != -1){
+            panelCanvas.fill(170);
+            panelCanvas.rect(x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight, boxWidth, dropBoxHeight);
+            panelCanvas.fill(0);
+            panelCanvas.text("Unequip", x+selectedClass*boxWidth, y+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropBoxHeight+boxHeight);
+        }
       }
     }
 
@@ -171,12 +182,13 @@ class EquipmentManager extends Element {
     if (selectedClass == -1){
       return false;
     } else{
-      return mouseX-xOffset >= x+boxWidth*selectedClass && mouseX-xOffset <= x+boxWidth*(selectedClass+1) && mouseY-yOffset >= y+boxHeight && mouseY-yOffset <= y+dropBoxHeight*jsManager.getNumEquipmentTypesFromClass(selectedClass)+boxHeight;
+      return mouseX-xOffset >= x+boxWidth*selectedClass && mouseX-xOffset <= x+boxWidth*(selectedClass+1) && mouseY-yOffset >= y+boxHeight && mouseY-yOffset <= y+dropBoxHeight*(jsManager.getNumEquipmentTypesFromClass(selectedClass)+1)+boxHeight;
     }
   }
   
   int hoveringOverType() {
-    for (int i = 0; i < jsManager.getNumEquipmentTypesFromClass(selectedClass); i ++) {
+    int num = jsManager.getNumEquipmentTypesFromClass(selectedClass);
+    for (int i = 0; i < num+1; i ++) {
       if (mouseX-xOffset >= x+boxWidth*selectedClass && mouseX-xOffset <= x+boxWidth*(selectedClass+1) && mouseY-yOffset >= y+dropBoxHeight*i+boxHeight && mouseY-yOffset <= y+dropBoxHeight*(i+1)+boxHeight){
         return i;
       }
