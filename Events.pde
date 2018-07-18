@@ -97,5 +97,13 @@ class ChangeEquipment extends GameEvent{
   }
 }
 
+class DisbandParty extends GameEvent { 
+  int x, y;
+  DisbandParty(int x, int y) {
+    this.x = x;
+    this.y = y;
+  }
+}
+
 class EndTurn extends GameEvent {
 }
