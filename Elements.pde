@@ -53,6 +53,10 @@ class EquipmentManager extends Element {
     LOGGER_GAME.finer(String.format("changing equipment for manager to :%s", Arrays.toString(equipment)));
   }
   
+  float getBoxHeight(){
+    return boxHeight;
+  }
+  
   void resetAvailableEquipment(){
     if (selectedClass == -1){
       this.equipmentAvailable = new boolean[0];
@@ -84,6 +88,7 @@ class EquipmentManager extends Element {
         else{
           selectedClass = newSelectedClass;
           events.add("dropped");
+          events.add("stop events");
         }
       }
       else if (mouseOverTypes()){
@@ -91,10 +96,12 @@ class EquipmentManager extends Element {
         if (newSelectedType == jsManager.getNumEquipmentTypesFromClass(selectedClass)){
           // Unequip (final option)
           events.add("valueChanged");
+          events.add("stop events");
           equipmentToChange.add(new int[] {selectedClass, -1});
         }
         else if (newSelectedType != currentEquipment[selectedClass]){
           events.add("valueChanged");
+          events.add("stop events");
           if (equipmentAvailable[newSelectedType]){
             equipmentToChange.add(new int[] {selectedClass, newSelectedType});
           }
@@ -1539,8 +1546,7 @@ class TaskManager extends Element {
     LOGGER_MAIN.warning("String for selection not found: "+s);
   }
   int getH(PGraphics panelCanvas) {
-    panelCanvas.textFont(getFont(textSize*jsManager.loadFloatSetting("text scale")));
-    return ceil(panelCanvas.textAscent() + panelCanvas.textDescent());
+    return ceil(textSize*jsManager.loadFloatSetting("text scale")+5);
   }
   boolean optionAvailable(int i) {
     for (int option : availableOptions) {
@@ -1553,7 +1559,6 @@ class TaskManager extends Element {
   void draw(PGraphics panelCanvas) {
     panelCanvas.pushStyle();
     h = getH(panelCanvas); //Also sets the font
-    
     //Draw background
     panelCanvas.strokeWeight(2);
     panelCanvas.stroke(0);

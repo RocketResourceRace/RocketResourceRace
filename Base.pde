@@ -347,6 +347,7 @@ class Panel {
     this.w = w;
     this.h = h;
     setOffset();
+    panelCanvas = createGraphics(w+1, h+1, P2D);
     LOGGER_MAIN.finest("Panel transformed");
   }
 
