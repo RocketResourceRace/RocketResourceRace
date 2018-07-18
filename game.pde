@@ -69,7 +69,7 @@ class Game extends State {
   Map2D map2d;
   Map map;
   Player[] players;
-  int selectedCellX, selectedCellY, cellManagementX, cellManagementY, cellManagementW, cellManagementH;
+  int selectedCellX, selectedCellY, sidePanelX, sidePanelY, sidePanelW, sidePanelH;
   boolean cellSelected=false, moving=false;
   color partyManagementColour;
   ArrayList<Integer[]> prevIdle;
@@ -581,26 +581,26 @@ class Game extends State {
     }
     return false;
   }
-  void updateCellSelection() {
+  void updateSidePanelElementsSizes() {
     // Update the size of elements on the party panel and cell management panel
-    cellManagementX = round(width-450*jsManager.loadFloatSetting("gui scale"));
-    cellManagementY = bezel;
-    cellManagementW = width-cellManagementX-bezel;
-    cellManagementH = round(mapElementHeight)-70;
+    sidePanelX = round(width-450*jsManager.loadFloatSetting("gui scale"));
+    sidePanelY = bezel;
+    sidePanelW = width-sidePanelX-bezel;
+    sidePanelH = round(mapElementHeight)-70;
     float taskRowHeight = ((TaskManager)getElement("tasks", "party management")).getH(new PGraphics());
-    getPanel("land management").transform(cellManagementX, cellManagementY, cellManagementW, round(cellManagementH*0.15));
-    getPanel("party management").transform(cellManagementX, cellManagementY+round(cellManagementH*0.15)+bezel, cellManagementW, round(cellManagementH*0.85)-bezel*3);
-    ((NotificationManager)(getElement("notification manager", "default"))).transform(bezel, bezel, cellManagementW, round(cellManagementH*0.2)-bezel*2);
+    getPanel("land management").transform(sidePanelX, sidePanelY, sidePanelW, round(sidePanelH*0.15));
+    getPanel("party management").transform(sidePanelX, sidePanelY+round(sidePanelH*0.15)+bezel, sidePanelW, round(sidePanelH*0.85)-bezel*3);
+    ((NotificationManager)(getElement("notification manager", "default"))).transform(bezel, bezel, sidePanelW, round(sidePanelH*0.2)-bezel*2);
     ((Button)getElement("move button", "party management")).transform(bezel, round(13*jsManager.loadFloatSetting("text scale")+bezel), 60, 30);
-    ((Button)getElement("disband button", "party management")).transform(cellManagementW-bezel-80, int(cellManagementH*0.85-bezel*4-30), 80, 30);
-    ((Slider)getElement("split units", "party management")).transform(round(10*jsManager.loadFloatSetting("gui scale")+bezel), round(bezel*3+2*jsManager.loadFloatSetting("text scale")*13), cellManagementW-2*bezel-round(20*jsManager.loadFloatSetting("gui scale")), round(jsManager.loadFloatSetting("text scale")*2*13));
-    ((TaskManager)getElement("tasks", "party management")).transform(bezel, round(bezel*4+5*jsManager.loadFloatSetting("text scale")*13), cellManagementW/2-int(1.5*bezel), 0);
+    ((Button)getElement("disband button", "party management")).transform(sidePanelW-bezel-80, int(sidePanelH*0.85-bezel*4-30), 80, 30);
+    ((Slider)getElement("split units", "party management")).transform(round(10*jsManager.loadFloatSetting("gui scale")+bezel), round(bezel*3+2*jsManager.loadFloatSetting("text scale")*13), sidePanelW-2*bezel-round(20*jsManager.loadFloatSetting("gui scale")), round(jsManager.loadFloatSetting("text scale")*2*13));
+    ((TaskManager)getElement("tasks", "party management")).transform(bezel, round(bezel*4+5*jsManager.loadFloatSetting("text scale")*13), sidePanelW/2-int(1.5*bezel), 0);
     ((Text)getElement("task text", "party management")).translate(bezel, round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13));
-    ((ProficiencySummary)getElement("proficiency summary", "party management")).transform(cellManagementW/2+int(bezel*0.5), round(bezel*4+5*jsManager.loadFloatSetting("text scale")*13), cellManagementW/2-int(1.5*bezel), int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13));
-    ((Text)getElement("proficiencies", "party management")).translate(cellManagementW/2+int(bezel*0.5), round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13));
+    ((ProficiencySummary)getElement("proficiency summary", "party management")).transform(sidePanelW/2+int(bezel*0.5), round(bezel*4+5*jsManager.loadFloatSetting("text scale")*13), sidePanelW/2-int(1.5*bezel), int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13));
+    ((Text)getElement("proficiencies", "party management")).translate(sidePanelW/2+int(bezel*0.5), round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13));
     ((Text)getElement("turns remaining", "party management")).translate(100+bezel*2, round(13*jsManager.loadFloatSetting("text scale")*2 + bezel*3));
-    ((DropDown)getElement("party training focus", "party management")).transform(bezel, round(bezel*7+5*jsManager.loadFloatSetting("text scale")*13+taskRowHeight*12), cellManagementW/2-int(bezel*(1.5)), int(jsManager.loadFloatSetting("text scale")*13));
-    ((EquipmentManager)getElement("equipment manager", "party management")).transform(bezel, round(bezel*8+5*jsManager.loadFloatSetting("text scale")*13+taskRowHeight*12)+int(int(jsManager.loadFloatSetting("text scale")*13)), cellManagementW-bezel*2);
+    ((DropDown)getElement("party training focus", "party management")).transform(bezel, round(bezel*7+5*jsManager.loadFloatSetting("text scale")*13+taskRowHeight*12), sidePanelW/2-int(bezel*(1.5)), int(jsManager.loadFloatSetting("text scale")*13));
+    ((EquipmentManager)getElement("equipment manager", "party management")).transform(bezel, round(bezel*8+5*jsManager.loadFloatSetting("text scale")*13+taskRowHeight*12)+int(int(jsManager.loadFloatSetting("text scale")*13)), sidePanelW-bezel*2);
   }
 
 
@@ -1789,34 +1789,34 @@ class Game extends State {
     Panel pp = getPanel("party management");
     panelCanvas.pushStyle();
     panelCanvas.fill(partyManagementColour);
-    panelCanvas.rect(cellManagementX, pp.y, cellManagementW, 13*jsManager.loadFloatSetting("text scale"));
+    panelCanvas.rect(sidePanelX, pp.y, sidePanelW, 13*jsManager.loadFloatSetting("text scale"));
     panelCanvas.fill(255);
     panelCanvas.textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
     panelCanvas.textAlign(CENTER, TOP);
-    panelCanvas.text("Party Management", cellManagementX+cellManagementW/2, pp.y);
+    panelCanvas.text("Party Management", sidePanelX+sidePanelW/2, pp.y);
 
     panelCanvas.fill(0);
     panelCanvas.textAlign(LEFT, CENTER);
     panelCanvas.textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
-    float barY = cellManagementY + 13*jsManager.loadFloatSetting("text scale") + cellManagementH*0.15 + bezel*2;
+    float barY = sidePanelY + 13*jsManager.loadFloatSetting("text scale") + sidePanelH*0.15 + bezel*2;
     if (jsManager.loadBooleanSetting("show party id")) {
-      panelCanvas.text("Party id: "+parties[selectedCellY][selectedCellX].id, 120+cellManagementX, barY);
+      panelCanvas.text("Party id: "+parties[selectedCellY][selectedCellX].id, 120+sidePanelX, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     }
-    panelCanvas.text("Movement Points Remaining: "+parties[selectedCellY][selectedCellX].getMovementPoints(turn) + "/"+gameData.getJSONObject("game options").getInt("movement points"), 120+cellManagementX, barY);
+    panelCanvas.text("Movement Points Remaining: "+parties[selectedCellY][selectedCellX].getMovementPoints(turn) + "/"+gameData.getJSONObject("game options").getInt("movement points"), 120+sidePanelX, barY);
     barY += 13*jsManager.loadFloatSetting("text scale");
     if (jsManager.loadBooleanSetting("show all party managements")&&parties[selectedCellY][selectedCellX].player==2) {
       String t1 = ((Battle)parties[selectedCellY][selectedCellX]).party1.id;
       String t2 = "Units: "+((Battle)parties[selectedCellY][selectedCellX]).party1.getUnitNumber() + "/" + jsManager.loadIntSetting("party size");
       float offset = max(panelCanvas.textWidth(t1+" "), panelCanvas.textWidth(t2+" "));
-      panelCanvas.text(t1, 120+cellManagementX, barY);
-      panelCanvas.text(((Battle)parties[selectedCellY][selectedCellX]).party2.id, 120+cellManagementX+offset, barY);
+      panelCanvas.text(t1, 120+sidePanelX, barY);
+      panelCanvas.text(((Battle)parties[selectedCellY][selectedCellX]).party2.id, 120+sidePanelX+offset, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
-      panelCanvas.text(t2, 120+cellManagementX, barY);
-      panelCanvas.text("Units: "+((Battle)parties[selectedCellY][selectedCellX]).party2.getUnitNumber() + "/" + jsManager.loadIntSetting("party size"), 120+cellManagementX+offset, barY);
+      panelCanvas.text(t2, 120+sidePanelX, barY);
+      panelCanvas.text("Units: "+((Battle)parties[selectedCellY][selectedCellX]).party2.getUnitNumber() + "/" + jsManager.loadIntSetting("party size"), 120+sidePanelX+offset, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     } else {
-      panelCanvas.text("Units: "+parties[selectedCellY][selectedCellX].getUnitNumber(turn) + "/" + jsManager.loadIntSetting("party size"), 120+cellManagementX, barY);
+      panelCanvas.text("Units: "+parties[selectedCellY][selectedCellX].getUnitNumber(turn) + "/" + jsManager.loadIntSetting("party size"), 120+sidePanelX, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     }
     if (parties[selectedCellY][selectedCellX].pathTurns > 0) {
@@ -1858,26 +1858,26 @@ class Game extends State {
   void drawCellManagement(PGraphics panelCanvas) {
     panelCanvas.pushStyle();
     panelCanvas.fill(0, 150, 0);
-    panelCanvas.rect(cellManagementX, cellManagementY, cellManagementW, 13*jsManager.loadFloatSetting("text scale"));
+    panelCanvas.rect(sidePanelX, sidePanelY, sidePanelW, 13*jsManager.loadFloatSetting("text scale"));
     panelCanvas.fill(255);
     panelCanvas.textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
     panelCanvas.textAlign(CENTER, TOP);
-    panelCanvas.text("Land Management", cellManagementX+cellManagementW/2, cellManagementY);
+    panelCanvas.text("Land Management", sidePanelX+sidePanelW/2, sidePanelY);
 
     panelCanvas.fill(0);
     panelCanvas.textAlign(LEFT, TOP);
-    float barY = cellManagementY + 13*jsManager.loadFloatSetting("text scale");
+    float barY = sidePanelY + 13*jsManager.loadFloatSetting("text scale");
     if (jsManager.loadBooleanSetting("show cell coords")) {
-      panelCanvas.text(String.format("Cell reference: %s, %s", selectedCellX, selectedCellY), 5+cellManagementX, barY);
+      panelCanvas.text(String.format("Cell reference: %s, %s", selectedCellX, selectedCellY), 5+sidePanelX, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     }
-    panelCanvas.text("Cell Type: "+gameData.getJSONArray("terrain").getJSONObject(terrain[selectedCellY][selectedCellX]-1).getString("display name"), 5+cellManagementX, barY);
+    panelCanvas.text("Cell Type: "+gameData.getJSONArray("terrain").getJSONObject(terrain[selectedCellY][selectedCellX]-1).getString("display name"), 5+sidePanelX, barY);
     barY += 13*jsManager.loadFloatSetting("text scale");
     if (buildings[selectedCellY][selectedCellX] != null) {
       if (buildings[selectedCellY][selectedCellX].type != 0)
-        panelCanvas.text("Building: "+buildingTypes[buildings[selectedCellY][selectedCellX].type-1], 5+cellManagementX, barY);
+        panelCanvas.text("Building: "+buildingTypes[buildings[selectedCellY][selectedCellX].type-1], 5+sidePanelX, barY);
       else
-        panelCanvas.text("Building: Construction Site", 5+cellManagementX, barY);
+        panelCanvas.text("Building: Construction Site", 5+sidePanelX, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     }
     float[] production = resourceProduction(selectedCellX, selectedCellY);
@@ -1886,12 +1886,12 @@ class Game extends State {
     String cl = resourcesList(consumption);
     panelCanvas.fill(0);
     if (!pl.equals("Nothing/Unknown")) {
-      panelCanvas.text("Producing: "+pl, 5+cellManagementX, barY);
+      panelCanvas.text("Producing: "+pl, 5+sidePanelX, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     }
     if (!cl.equals("Nothing/Unknown")) {
       panelCanvas.fill(255, 0, 0);
-      panelCanvas.text("Consuming: "+cl, 5+cellManagementX, barY);
+      panelCanvas.text("Consuming: "+cl, 5+sidePanelX, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     }
   }
@@ -2018,7 +2018,7 @@ class Game extends State {
     LOGGER_MAIN.fine("Reloading game...");
     mapWidth = jsManager.loadIntSetting("map size");
     mapHeight = jsManager.loadIntSetting("map size");
-    updateCellSelection();
+    updateSidePanelElementsSizes();
 
     // Default on for showing task icons and unit bars
 
