@@ -6,6 +6,7 @@ class Console extends Element {
   private Map map;
   private JSONObject commands; 
   private Player[] players;
+  private PFont monoFont;
 
   Console(int x, int y, int w, int h, int textSize) {
     this.x = x;
@@ -17,6 +18,7 @@ class Console extends Element {
     text.add(new StringBuilder(" > "));
     cursorX = 3;
     commands = loadJSONObject("commands.json");
+    monoFont = createFont("Monospaced", textSize*jsManager.loadFloatSetting("text scale"));
   }
 
   void giveObjects(Map map, Player[] players) {
@@ -50,7 +52,7 @@ class Console extends Element {
   void draw(PGraphics canvas) {
     canvas.pushStyle();
     float ts = textSize*jsManager.loadFloatSetting("text scale");
-    canvas.textFont(createFont("Monospaced", ts));
+    canvas.textFont(monoFont);
     canvas.textAlign(LEFT, BOTTOM);
     int time = millis();
     drawCursor = (time/500)%2==0 || keyPressed;
