@@ -110,8 +110,6 @@ class EquipmentManager extends Element {
   void draw(PGraphics panelCanvas) {
     panelCanvas.pushStyle();
 
-    panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
-    panelCanvas.textAlign(CENTER, TOP);
     panelCanvas.strokeWeight(2);
     panelCanvas.fill(170);
     panelCanvas.rect(x, y, w, boxHeight);
@@ -126,7 +124,14 @@ class EquipmentManager extends Element {
       }
       panelCanvas.rect(x+boxWidth*i, y, boxWidth, boxHeight);
       panelCanvas.fill(0);
+      panelCanvas.textAlign(CENTER, TOP);
+      panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
       panelCanvas.text(equipmentClassDisplayNames[i], x+boxWidth*(i+0.5), y);
+      if (currentEquipment[i] != -1){
+      panelCanvas.textFont(getFont((TEXTSIZE-1)*jsManager.loadFloatSetting("text scale")));
+        panelCanvas.textAlign(CENTER, BOTTOM);
+        panelCanvas.text(jsManager.getEquipmentTypeDisplayName(i, currentEquipment[i]), x+boxWidth*(i+0.5), y+boxHeight);
+      }
     }
     
     // Draw dropdown if an equipment class is selected
