@@ -2320,9 +2320,8 @@ class Game extends State {
             maxN = max(maxN, n);
           }
         } 
-        catch (Exception e) {
-          LOGGER_GAME.severe("error looking at party "+parties[y][x].id);
-          throw(e);
+        catch (NumberFormatException e) {
+          LOGGER_GAME.severe("error finding next party id while looking at party "+parties[y][x].id);
         }
       }
     }

@@ -192,7 +192,7 @@ Party loadParty(ByteBuffer b, String id) {
     float strength = b.getFloat();
     int task = b.getInt();
     int pathTurns = b.getInt();
-    Party p = new Party(player, unitNumber, task, movementPoints, id);
+    Party p = new Party(player, unitNumber, task, movementPoints, id.trim());
     p.strength = strength;
     p.pathTurns = pathTurns;
     p.actions = actions;
