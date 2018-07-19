@@ -781,20 +781,29 @@ class Game extends State {
     return resourceProductivities;
   }
   
+  float getProductivityAtCell(int x, int y, float[] resourceProductivities){
+    float productivity = 1;
+    for (int task=0; task<tasks.length; task++) {
+      if (parties[y][x].getTask()==task) {
+        for (int resource = 0; resource < numResources; resource++) {
+          if (taskCosts[task][resource] > 0) {
+            if (resource == 0 && players[turn].resources[resource]==0) {
+              productivity = min(productivity, resourceProductivities[resource]+0.5);
+            } else {
+              productivity = min(productivity, resourceProductivities[resource]);
+            }
+          }
+        }
+      }
+    }
+    return productivity;
+  }
+  
   float[] resourceProductionAtCell(int x, int y, float[] resourceProductivities) {
     float [] production = new float[numResources];
     if (parties[y][x] != null) {
       if (parties[y][x].player == turn) {
-        float productivity = 1;
-        for (int task=0; task<tasks.length; task++) {
-          if (parties[y][x].getTask()==task) {
-            for (int resource = 0; resource < numResources; resource++) {
-              if (taskCosts[task][resource]>0) {
-                productivity = min(productivity, resourceProductivities[resource]);
-              }
-            }
-          }
-        }
+        float productivity = getProductivityAtCell(x, y, resourceProductivities);
         for (int task=0; task<tasks.length; task++) {
           if (parties[y][x].getTask()==task) {
             for (int resource = 0; resource < numResources; resource++) {
@@ -825,16 +834,7 @@ class Game extends State {
     float [] production = new float[numResources];
     if (parties[y][x] != null) {
       if (parties[y][x].player == turn) {
-        float productivity = 1;
-        for (int task=0; task<tasks.length; task++) {
-          if (parties[y][x].getTask()==task) {
-            for (int resource = 0; resource < numResources; resource++) {
-              if (taskCosts[task][resource]>0) {
-                productivity = min(productivity, resourceProductivities[resource]);
-              }
-            }
-          }
-        }
+        float productivity = getProductivityAtCell(x, y, resourceProductivities);
         for (int task=0; task<tasks.length; task++) {
           if (parties[y][x].getTask()==task) {
             for (int resource = 0; resource < numResources; resource++) {
@@ -901,25 +901,12 @@ class Game extends State {
     rs.updateWarnings(getResourceWarnings(resourceProductivities));
   }
 
-  void updateResources(float[] resourceAmountsAvailable) {
+  void updateResources(float[] resourceProductivities) {
     for (int y=0; y<mapHeight; y++) {
       for (int x=0; x<mapWidth; x++) {
         if (parties[y][x] != null) {
           if (parties[y][x].player == turn) {
-            float productivity = 1;
-            for (int task=0; task<tasks.length; task++) {
-              if (parties[y][x].getTask()==task) {
-                for (int resource = 0; resource < numResources; resource++) {
-                  if (taskCosts[task][resource]>0) {
-                    if (resource==0) {
-                      productivity = min(productivity, resourceAmountsAvailable[resource]+0.5);
-                    } else {
-                      productivity = min(productivity, resourceAmountsAvailable[resource]);
-                    }
-                  }
-                }
-              }
-            }
+            float productivity = getProductivityAtCell(x, y, resourceProductivities);
             for (int task=0; task<tasks.length; task++) {
               if (parties[y][x].getTask()==task) {
                 for (int resource = 0; resource < numResources; resource++) {
@@ -931,8 +918,8 @@ class Game extends State {
                     if (tasks[task]=="Produce Rocket") {
                       break;
                     }
-                  } else if (resourceAmountsAvailable[jsManager.getResIndex(("food"))]<1) {
-                    float lost = (1-resourceAmountsAvailable[jsManager.getResIndex(("food"))])*taskOutcomes[task][resource]*parties[y][x].getUnitNumber();
+                  } else if (resourceProductivities[jsManager.getResIndex(("food"))]<1) {
+                    float lost = (1-resourceProductivities[jsManager.getResIndex(("food"))])*taskOutcomes[task][resource]*parties[y][x].getUnitNumber();
                     parties[y][x].setUnitNumber(floor(parties[y][x].getUnitNumber()-lost));
                     if (parties[y][x].getUnitNumber() == 0) {
                       notificationManager.post("Party Starved", x, y, turnNumber, turn);
