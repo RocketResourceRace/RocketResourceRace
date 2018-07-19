@@ -191,6 +191,18 @@ class JSONManager {
     }
   }
   
+  int[] getEquipmentTypeClassFromID(String id){
+    for (int c=0; c < getNumEquipmentClasses(); c ++){
+      for (int t=0; t < getNumEquipmentTypesFromClass(c); t ++){
+        if (getEquipmentTypeID(c, t).equals(id)){
+          return new int[] {c, t};
+        }
+      }
+    }
+    LOGGER_MAIN.warning("Equipment not found id:"+id);
+    return null;
+  }
+  
   String getEquipmentTypeDisplayName(int equipmentClass, int equipmentType){
     try {
       return gameData.getJSONArray("equipment").getJSONObject(equipmentClass).getJSONArray("types").getJSONObject(equipmentType).getString("display name");
@@ -222,6 +234,21 @@ class JSONManager {
     }
     catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error getting resource string for: " + r, e);
+      throw e;
+    }
+  }
+  
+  boolean resourceIsEquipment(int r){
+    // Check if a resource represents a type of equipment
+    try {
+      if (!gameData.getJSONArray("resources").getJSONObject(r).isNull("is equipment")){
+        return gameData.getJSONArray("resources").getJSONObject(r).getBoolean("is equipment");
+      } else{
+        return false;
+      }
+    }
+    catch (Exception e) {
+      LOGGER_MAIN.log(Level.SEVERE, "Error checking if resource is equipment index: " + r, e);
       throw e;
     }
   }

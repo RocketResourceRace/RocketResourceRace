@@ -584,67 +584,83 @@
     },
     {
       "id": "wooden armour",
-      "resource manager": 0
+      "resource manager": 0,
+      "is equipment": true
     },
     {
       "id": "iron armour",
-      "resource manager": 0
+      "resource manager": 0,
+      "is equipment": true
     },
     {
       "id": "reinforced armour",
-      "resource manager": 0
+      "resource manager": 0,
+      "is equipment": true
     },
     {
       "id": "sword and shield",
-      "resource manager": 0
+      "resource manager": 0,
+      "is equipment": true
     },
     {
       "id": "bow",
-      "resource manager": 0
+      "resource manager": 0,
+      "is equipment": true
     },
     {
       "id": "javelin",
-      "resource manager": 0
+      "resource manager": 0,
+      "is equipment": true
     },
     {
       "id": "pikes",
-      "resource manager": 0
+      "resource manager": 0,
+      "is equipment": true
     },
     {
       "id": "musket",
-      "resource manager": 0
+      "resource manager": 0,
+      "is equipment": true
     },
     {
       "id": "rifle",
-      "resource manager": 0
+      "resource manager": 0,
+      "is equipment": true
     },
     {
       "id": "machine gun",
-      "resource manager": 0
+      "resource manager": 0,
+      "is equipment": true
     },
     {
       "id": "tank",
-      "resource manager": 0
+      "resource manager": 2,
+      "is equipment": true
     },
     {
       "id": "horse",
-      "resource manager": 0
+      "resource manager": 0,
+      "is equipment": true
     },
     {
       "id": "chariot",
-      "resource manager": 0
+      "resource manager": 0,
+      "is equipment": true
     },
     {
       "id": "apc",
-      "resource manager": 0
+      "resource manager": 0,
+      "is equipment": true
     },
     {
       "id": "hand tools",
-      "resource manager": 0
+      "resource manager": 0,
+      "is equipment": true
     },
     {
       "id": "power tools",
-      "resource manager": 0
+      "resource manager": 0,
+      "is equipment": true
     },
   ],
   
@@ -794,7 +810,7 @@
       "types":[
         {
           "id": "hand tools",
-          "display name": "hand tools",
+          "display name": "Hand tools",
           "building speed": 1
         },
         {
