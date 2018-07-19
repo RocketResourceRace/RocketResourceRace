@@ -391,7 +391,6 @@ class Game extends State {
           if (sliderVal > 0 && parties[selectedCellY][selectedCellX].getUnitNumber() >= 2 && parties[selectedCellY][selectedCellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle")) {
             map.updateMoveNodes(nodes);
             moving = true;
-            parties[selectedCellY][selectedCellX].changeUnitNumber(-sliderVal);
             String newPartyName;
             if (parties[selectedCellY][selectedCellX].unitNumber==0) {
               newPartyName = parties[selectedCellY][selectedCellX].id;
@@ -399,7 +398,7 @@ class Game extends State {
               newPartyName = nextRollingId(players[turn].name);
             }
             LOGGER_GAME.finer(String.format("Splitting party (id:%s) from party (id:%s) at (%d, %d). Number = %d.", newPartyName, parties[selectedCellY][selectedCellX].id, selectedCellX, selectedCellY, sliderVal));
-            splittedParty = new Party(turn, sliderVal, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), parties[selectedCellY][selectedCellX].getMovementPoints(), newPartyName);
+            splittedParty = parties[selectedCellY][selectedCellX].splitParty(sliderVal, newPartyName);
           }
         }
 

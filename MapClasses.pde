@@ -58,7 +58,7 @@ class Party {
     }
   }
 
-  Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float[] proficiencies, String trainingFocus, int[] equipment, int unitCap) {
+  Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float[] proficiencies, int trainingFocus, int[] equipment, int unitCap) {
     // For parties that already exist and are being splitted or loaded from save
     unitNumber = startingUnits;
     task = startingTask;
@@ -73,9 +73,6 @@ class Party {
     this.unitCap = unitCap;
     
     this.equipment = equipment;
-    for (int i=0; i<equipment.length;i ++){
-      equipment[i] = -1; // -1 represens no equipment
-    }
 
     // Load proficiencies given
     try {
@@ -88,7 +85,7 @@ class Party {
       LOGGER_MAIN.severe(String.format("Not enough proficiencies given to party:%d (needs %d)  id:%s", proficiencies.length, jsManager.getNumProficiencies(), id));
     }
 
-    setTrainingFocus(jsManager.proficiencyIDToIndex(trainingFocus));  // 'trainingFocus' is an id string
+    setTrainingFocus(trainingFocus);  // 'trainingFocus' is an id string
   }
   
   void setUnitCap(int value){
@@ -131,6 +128,17 @@ class Party {
 
   int getEquipment(int typeIndex) {
     return equipment[typeIndex];
+  }
+  
+  Party splitParty(int numUnitsSplitted, String newID){
+    if (numUnitsSplitted <= getUnitNumber()){
+      changeUnitNumber(-numUnitsSplitted);
+      return new Party(player, numUnitsSplitted, getTask(), getMovementPoints(), newID, Arrays.copyOf(getProficiencies(), getProficiencies().length), getTrainingFocus(), Arrays.copyOf(getAllEquipment(), getAllEquipment().length), getUnitCap());
+    }
+    else{
+      LOGGER_GAME.warning(String.format("Num units splitted more than in party. ID:%s", numUnitsSplitted));
+      return null;
+    }
   }
 
   void mergeEntireFrom(Party other) {
