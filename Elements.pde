@@ -296,6 +296,18 @@ class ProficiencySummary extends Element {
 
     panelCanvas.popStyle();
   }
+  
+  int hoveringOption(){
+    for (int i = 0; i < proficiencyDisplayNames.length; i++){
+      if (mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y+rowHeight*i && mouseY-yOffset <= y+rowHeight*(i+1)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+  boolean mouseOver() {
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
+  }
 }
 
 class BaseFileManager extends Element {
@@ -1004,6 +1016,29 @@ class Tooltip extends Element {
     }
     catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, String.format("Error changing tooltip to equipment class:%dk, type:%d", equipmentClass, equipmentType), e);
+      throw e;
+    }
+  }
+  
+  void setProficiencies(int proficiencyIndex){
+    String t="";
+    JSONObject proficiencyJO;
+    if (!(0 <= proficiencyIndex && proficiencyIndex < jsManager.getNumProficiencies())){
+      LOGGER_MAIN.warning("Invalid proficiency index given");
+      return;
+    }
+    try{
+      proficiencyJO = gameData.getJSONArray("proficiencies").getJSONObject(proficiencyIndex);
+      if (!proficiencyJO.isNull("display name")){
+        t += proficiencyJO.getString("display name") + "\n";
+      }
+      if (!proficiencyJO.isNull("tooltip")){
+        t += proficiencyJO.getString("tooltip") + "\n";
+      }
+      setText(t.replaceAll("\\s+$", ""));
+    }
+    catch (Exception e) {
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error changing tooltip to proficiencies index:%d", proficiencyIndex), e);
       throw e;
     }
   }

@@ -1726,7 +1726,10 @@ class Game extends State {
       } else if (((TaskManager)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible) {
         tooltip.setTask(((TaskManager)getElement("tasks", "party management")).findMouseOver(), players[turn].resources, parties[selectedCellY][selectedCellX].getMovementPoints());
         tooltip.show();
-      } else if (((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").visible) {
+      } else if(((ProficiencySummary)getElement("proficiency summary", "party management")).mouseOver() && getPanel("party management").visible) {
+        tooltip.setProficiencies(((ProficiencySummary)getElement("proficiency summary", "party management")).hoveringOption());
+        tooltip.show();
+      }else if (((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").visible) {
         tooltip.setTurnsRemaining();
         tooltip.show();
       } else if (((Button)getElement("move button", "party management")).mouseOver()&& getPanel("party management").visible) {

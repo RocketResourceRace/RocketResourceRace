@@ -667,23 +667,28 @@
   "proficiencies":[
     {
       "id":"melee attack",
-      "display name": "Melee Attack"
+      "display name": "Melee Attack",
+      "tooltip": "Increases damage done in battles"
     },
     {
       "id":"ranged attack",
-      "display name": "Ranged Attack"
+      "display name": "Ranged Attack",
+      "tooltip": "Increases damage done in ranged bombardments"
     },
     {
       "id":"defence",
-      "display name": "Defence"
+      "display name": "Defence",
+      "tooltip": "Reduces damage taken in battles\nand from ranged bombardments"
     },
     {
       "id":"building speed",
-      "display name": "Building"
+      "display name": "Building Speed",
+      "tooltip": "Reduces building speed. Disabled until v0.5"
     },
     {
       "id":"speed",
-      "display name": "Movement Speed"
+      "display name": "Movement Speed",
+      "tooltip": "Increases movement points for the party"
     }
   ],
   
