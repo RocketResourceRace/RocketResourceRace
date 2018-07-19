@@ -769,16 +769,136 @@ class Game extends State {
     }
     return totalResourceRequirements;
   }
-  float[] getResourceAmountsAvailable(float[] totalResourceRequirements) {
-    float [] resourceAmountsAvailable = new float[numResources];
+  float[] getResourceProductivities(float[] totalResourceRequirements) {
+    float [] resourceProductivities = new float[numResources];
     for (int i=0; i<numResources; i++) {
       if (totalResourceRequirements[i]==0) {
-        resourceAmountsAvailable[i] = 1;
+        resourceProductivities[i] = 1;
       } else {
-        resourceAmountsAvailable[i] = min(1, players[turn].resources[i]/totalResourceRequirements[i]);
+        resourceProductivities[i] = min(1, players[turn].resources[i]/totalResourceRequirements[i]);
       }
     }
-    return resourceAmountsAvailable;
+    return resourceProductivities;
+  }
+  
+  float[] resourceProductionAtCell(int x, int y, float[] resourceProductivities) {
+    float [] production = new float[numResources];
+    if (parties[y][x] != null) {
+      if (parties[y][x].player == turn) {
+        float productivity = 1;
+        for (int task=0; task<tasks.length; task++) {
+          if (parties[y][x].getTask()==task) {
+            for (int resource = 0; resource < numResources; resource++) {
+              if (taskCosts[task][resource]>0) {
+                productivity = min(productivity, resourceProductivities[resource]);
+              }
+            }
+          }
+        }
+        for (int task=0; task<tasks.length; task++) {
+          if (parties[y][x].getTask()==task) {
+            for (int resource = 0; resource < numResources; resource++) {
+              if (resource<numResources) {
+                production[resource] = (taskOutcomes[task][resource])*productivity*parties[y][x].getUnitNumber();
+              }
+            }
+          }
+        }
+      }
+    }
+    return production; 
+  }
+  
+  float[] getTotalResourceProductions(float[] resourceProductivities) {
+    float[] amount = new float[resourceNames.length];
+    for (int x = 0; x < mapWidth; x++) {
+      for (int y = 0; y < mapHeight; y++) {
+        for (int res = 0; res < 9; res++) {
+          amount[res]+=resourceProductionAtCell(x, y, resourceProductivities)[res];
+        }
+      }
+    }
+    return amount;
+  }
+  
+  float[] getResourceConsumptionAtCell(int x, int y, float[] resourceProductivities) {
+    float [] production = new float[numResources];
+    if (parties[y][x] != null) {
+      if (parties[y][x].player == turn) {
+        float productivity = 1;
+        for (int task=0; task<tasks.length; task++) {
+          if (parties[y][x].getTask()==task) {
+            for (int resource = 0; resource < numResources; resource++) {
+              if (taskCosts[task][resource]>0) {
+                productivity = min(productivity, resourceProductivities[resource]);
+              }
+            }
+          }
+        }
+        for (int task=0; task<tasks.length; task++) {
+          if (parties[y][x].getTask()==task) {
+            for (int resource = 0; resource < numResources; resource++) {
+              if (resource<numResources) {
+                production[resource] = (taskCosts[task][resource])*productivity*parties[y][x].getUnitNumber();
+              }
+            }
+          }
+        }
+      }
+    }
+    return production;
+  }
+  
+  float[] getTotalResourceConsumptions(float[] resourceProductivities) {
+    float[] amount = new float[resourceNames.length];
+    for (int x = 0; x < mapWidth; x++) {
+      for (int y = 0; y < mapHeight; y++) {
+        for (int res = 0; res < 9; res++) {
+          amount[res] += getResourceConsumptionAtCell(x, y, resourceProductivities)[res];
+        }
+      }
+    }
+    return amount;
+  }
+  
+  float[] getTotalResourceChanges(float[] grossResources, float[] costsResources) {
+    float[] amount = new float[resourceNames.length];
+    for (int res=0; res<9; res++) {
+      amount[res] = grossResources[res] - costsResources[res];
+    }
+    return amount;
+  }
+  
+  float[] getRresourceChangesAtCell(int x, int y, float[] resourceProductivities){
+    float[] amount = new float[resourceNames.length];
+    for (int res = 0; res < 9; res++) {
+      amount[res] = resourceProductionAtCell(x, y, resourceProductivities)[res] - getResourceConsumptionAtCell(x, y, resourceProductivities)[res];
+    }
+    return amount;
+  }
+  
+  byte[] getResourceWarnings(float[] productivities){
+    byte[] warnings = new byte[productivities.length];
+    for (int i = 0; i < productivities.length; i++) {
+      if (productivities[i] == 0){
+        warnings[i] = 2;
+      } else if (productivities[i] < 1) {
+        warnings[i] = 1;
+      }
+    }
+    return warnings;
+  }
+  
+  void updateResourcesSummary(){
+    float[] totalResourceRequirements = getTotalResourceRequirements();
+    float[] resourceProductivities = getResourceProductivities(totalResourceRequirements);
+    float[] gross = getTotalResourceProductions(resourceProductivities);
+    float[] costs = getTotalResourceConsumptions(resourceProductivities);
+    this.totals = getTotalResourceChanges(gross, costs);
+    ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
+    rs.updateNet(totals);
+    rs.updateStockpile(players[turn].resources);
+    rs.updateWarnings(getResourceWarnings(resourceProductivities));
   }
 
   void updateResources(float[] resourceAmountsAvailable) {
@@ -929,7 +1049,7 @@ class Game extends State {
       LOGGER_GAME.finer(String.format("Turn changing - current player = %s, next player = %s", turn, (turn+1)%players.length));
       notificationManager.dismissAll();
       processParties();
-      updateResources(getResourceAmountsAvailable(getTotalResourceRequirements()));
+      updateResources(getResourceProductivities(getTotalResourceRequirements()));
       partyMovementPointsReset();
       LOGGER_GAME.finer("Loading other player camera positions");
       float blockSize;
@@ -1745,78 +1865,6 @@ class Game extends State {
     ((DropDown)getElement("party training focus", "party management")).setValue(jsManager.indexToProficiencyDisplayName(trainingFocus));
   }
 
-  float[] resourceProduction(int x, int y) {
-    float[] totalResourceRequirements = new float[numResources];
-    float [] resourceAmountsAvailable = new float[numResources];
-    float [] production = new float[numResources];
-    for (int i=0; i<numResources; i++) {
-      if (totalResourceRequirements[i]==0) {
-        resourceAmountsAvailable[i] = 1;
-      } else {
-        resourceAmountsAvailable[i] = min(1, players[turn].resources[i]/totalResourceRequirements[i]);
-      }
-    }
-    if (parties[y][x] != null) {
-      if (parties[y][x].player == turn) {
-        float productivity = 1;
-        for (int task=0; task<tasks.length; task++) {
-          if (parties[y][x].getTask()==task) {
-            for (int resource = 0; resource < numResources; resource++) {
-              if (taskCosts[task][resource]>0) {
-                productivity = min(productivity, resourceAmountsAvailable[resource]);
-              }
-            }
-          }
-        }
-        for (int task=0; task<tasks.length; task++) {
-          if (parties[y][x].getTask()==task) {
-            for (int resource = 0; resource < numResources; resource++) {
-              if (resource<numResources) {
-                production[resource] = (taskOutcomes[task][resource])*productivity*parties[y][x].getUnitNumber();
-              }
-            }
-          }
-        }
-      }
-    }
-    return production; 
-  }
-  float[] resourceConsumption(int x, int y) {
-    float[] totalResourceRequirements = new float[numResources];
-    float [] resourceAmountsAvailable = new float[numResources];
-    float [] production = new float[numResources];
-    for (int i=0; i<numResources; i++) {
-      if (totalResourceRequirements[i]==0) {
-        resourceAmountsAvailable[i] = 1;
-      } else {
-        resourceAmountsAvailable[i] = min(1, players[turn].resources[i]/totalResourceRequirements[i]);
-      }
-    }
-    if (parties[y][x] != null) {
-      if (parties[y][x].player == turn) {
-        float productivity = 1;
-        for (int task=0; task<tasks.length; task++) {
-          if (parties[y][x].getTask()==task) {
-            for (int resource = 0; resource < numResources; resource++) {
-              if (taskCosts[task][resource]>0) {
-                productivity = min(productivity, resourceAmountsAvailable[resource]);
-              }
-            }
-          }
-        }
-        for (int task=0; task<tasks.length; task++) {
-          if (parties[y][x].getTask()==task) {
-            for (int resource = 0; resource < numResources; resource++) {
-              if (resource<numResources) {
-                production[resource] = (taskCosts[task][resource])*productivity*parties[y][x].getUnitNumber();
-              }
-            }
-          }
-        }
-      }
-    }
-    return production;
-  }
   void drawPartyManagement(PGraphics panelCanvas) {
     Panel pp = getPanel("party management");
     panelCanvas.pushStyle();
@@ -1874,56 +1922,6 @@ class Game extends State {
     return returnString;
   }
 
-  float[] grossResources() {
-    float[] amount = new float[resourceNames.length];
-    for (int x = 0; x < mapWidth; x++) {
-      for (int y = 0; y < mapHeight; y++) {
-        for (int res = 0; res < 9; res++) {
-          amount[res]+=resourceProduction(x, y)[res];
-        }
-      }
-    }
-    return amount;
-  }
-  
-  float[] costsResources() {
-    float[] amount = new float[resourceNames.length];
-    for (int x = 0; x < mapWidth; x++) {
-      for (int y = 0; y < mapHeight; y++) {
-        for (int res = 0; res < 9; res++) {
-          amount[res] += resourceConsumption(x, y)[res];
-        }
-      }
-    }
-    return amount;
-  }
-  
-  void updateResourcesSummary(){
-    float[] gross = grossResources();
-    float[] costs = costsResources();
-    this.totals = netResources(gross, costs);
-    ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
-    rs.updateNet(totals);
-    rs.updateStockpile(players[turn].resources);
-    rs.updateWarnings(getResourceWarnings(costs));
-  }
-  
-  float[] netResources(float[] grossResources, float[] costsResources) {
-    float[] amount = new float[resourceNames.length];
-    for (int res=0; res<9; res++) {
-      amount[res] = grossResources[res] - costsResources[res];
-    }
-    return amount;
-  }
-  
-  boolean[] getResourceWarnings(float[] costs){
-    boolean[] warnings = new boolean[costs.length];
-    for (int i = 0; i < costs.length; i++) {
-      warnings[i] = players[turn].resources[i] < costs[i];
-    }
-    return warnings;
-  }
-
   void drawCellManagement(PGraphics panelCanvas) {
     panelCanvas.pushStyle();
     panelCanvas.fill(0, 150, 0);
@@ -1949,8 +1947,9 @@ class Game extends State {
         panelCanvas.text("Building: Construction Site", 5+sidePanelX, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     }
-    float[] production = resourceProduction(selectedCellX, selectedCellY);
-    float[] consumption = resourceConsumption(selectedCellX, selectedCellY);
+    float[] resourceProductivities = getResourceProductivities(getTotalResourceRequirements());
+    float[] production = resourceProductionAtCell(selectedCellX, selectedCellY, resourceProductivities);
+    float[] consumption = getResourceConsumptionAtCell(selectedCellX, selectedCellY, resourceProductivities);
     String pl = resourcesList(production);
     String cl = resourcesList(consumption);
     panelCanvas.fill(0);
