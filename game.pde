@@ -1778,7 +1778,7 @@ class Game extends State {
         }
       }
     }
-    return production;
+    return production; 
   }
   float[] resourceConsumption(int x, int y) {
     float[] totalResourceRequirements = new float[numResources];
@@ -2048,6 +2048,7 @@ class Game extends State {
     }
     if (eventType == "keyPressed" && _key == ESC) {
       getPanel("pause screen").visible = !getPanel("pause screen").visible;
+      tooltip.hide();
       if (getPanel("pause screen").visible) {
         ((BaseFileManager)getElement("saving manager", "save screen")).loadSaveNames();
         // Disable map
