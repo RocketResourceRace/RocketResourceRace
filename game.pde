@@ -467,7 +467,7 @@ class Game extends State {
         JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[selectedCellY][selectedCellX].getTask());
         if (!jo.isNull("movement points")) {
           //Changing from defending
-          parties[selectedCellY][selectedCellX].setMovementPoints(min(parties[selectedCellY][selectedCellX].getMovementPoints()+jo.getInt("movement points"), gameData.getJSONObject("game options").getInt("movement points")));
+          parties[selectedCellY][selectedCellX].setMovementPoints(min(parties[selectedCellY][selectedCellX].getMovementPoints()+jo.getInt("movement points"), parties[selectedCellY][selectedCellX].getMaxMovementPoints()));
           LOGGER_GAME.fine("Changing party from defending");
         }
         parties[selectedCellY][selectedCellX].changeTask(task);
@@ -572,6 +572,8 @@ class Game extends State {
           LOGGER_MAIN.warning("Index problem with equipment change");
           throw e;
         }
+        parties[selectedCellY][selectedCellX].updateMaxMovementPoints();
+        updatePartyManagementProficiencies();
       }
       else if (event instanceof DisbandParty){
         int x = ((DisbandParty)event).x;
@@ -1234,7 +1236,7 @@ class Game extends State {
       for (int x=0; x<mapWidth; x++) {
         if (parties[y][x] != null) {
           if (parties[y][x].player != 2) {
-            parties[y][x].setMovementPoints(gameData.getJSONObject("game options").getInt("movement points"));
+            parties[y][x].resetMovementPoints();
           }
         }
       }
@@ -1700,7 +1702,7 @@ class Game extends State {
       int cost = cost(path.get(node)[0], path.get(node)[1], path.get(node-1)[0], path.get(node-1)[1]);
       if (movementPoints < cost) {
         turns += 1;
-        movementPoints = gameData.getJSONObject("game options").getInt("movement points");
+        movementPoints = parties[startY][startX].getMaxMovementPoints();
       }
       movementPoints -= cost;
     }
@@ -1929,7 +1931,7 @@ class Game extends State {
       panelCanvas.text("Party id: "+parties[selectedCellY][selectedCellX].id, 120+sidePanelX, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     }
-    panelCanvas.text("Movement Points Remaining: "+parties[selectedCellY][selectedCellX].getMovementPoints(turn) + "/"+gameData.getJSONObject("game options").getInt("movement points"), 120+sidePanelX, barY);
+    panelCanvas.text("Movement Points Remaining: "+parties[selectedCellY][selectedCellX].getMovementPoints(turn) + "/"+parties[selectedCellY][selectedCellX].getMaxMovementPoints(), 120+sidePanelX, barY);
     barY += 13*jsManager.loadFloatSetting("text scale");
     if (jsManager.loadBooleanSetting("show all party managements")&&parties[selectedCellY][selectedCellX].player==2) {
       String t1 = ((Battle)parties[selectedCellY][selectedCellX]).party1.id;
@@ -2271,13 +2273,11 @@ class Game extends State {
   }
   Node[][] djk(int x, int y) {
     int[][] mvs = {{1, 0}, {0, 1}, {1, 1}, {-1, 0}, {0, -1}, {-1, -1}, {1, -1}, {-1, 1}};
-    int xOff = 0;
-    int yOff = 0;
     int w = mapWidth;
     int h = mapHeight;
     Node[][] nodes = new Node[h][w];
-    int cx = x-xOff;
-    int cy = y-yOff;
+    int cx = x;
+    int cy = y;
     nodes[cy][cx] = new Node(0, false, cx, cy);
     ArrayList<Integer> curMinCosts = new ArrayList<Integer>();
     ArrayList<int[]> curMinNodes = new ArrayList<int[]>();
@@ -2293,7 +2293,7 @@ class Game extends State {
           int newCost = cost(nx, ny, curMinNodes.get(0)[0], curMinNodes.get(0)[1]);
           int prevCost = curMinCosts.get(0);
           int totalNewCost = prevCost+newCost;
-          if (totalNewCost < gameData.getJSONObject("game options").getInt("movement points")*100) {
+          if (totalNewCost < parties[y][x].getMaxMovementPoints()*100) {
             if (nodes[ny][nx] == null) {
               nodes[ny][nx] = new Node(totalNewCost, false, curMinNodes.get(0)[0], curMinNodes.get(0)[1]);
               if (!sticky) {

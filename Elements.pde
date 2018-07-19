@@ -9,10 +9,8 @@ class EquipmentManager extends Element {
   int selectedClass;
   boolean[] equipmentAvailable;
   ArrayList<int[]> equipmentToChange;
-  DecimalFormat proficiencyFormatter;
 
   EquipmentManager(int x, int y, int w) {
-    proficiencyFormatter = new DecimalFormat("#.##");
     this.x = x;
     this.y = y;
     this.w = w;
@@ -925,6 +923,14 @@ class Tooltip extends Element {
     String t="";
     try{
       attacking = false;
+      if (equipmentClass >= jsManager.getNumEquipmentClasses()){
+        LOGGER_MAIN.warning("equipment class out of bounds");
+        return;
+      }
+      if (equipmentType >= jsManager.getNumEquipmentTypesFromClass(equipmentClass)){
+        LOGGER_MAIN.warning("equipment class out of bounds");
+        return;
+      }
       JSONObject equipmentClassJO = gameData.getJSONArray("equipment").getJSONObject(equipmentClass);
       if (equipmentClassJO == null){
         setText("Problem");

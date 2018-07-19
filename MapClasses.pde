@@ -17,7 +17,7 @@ class Party {
   private int trainingFocus;
   private int unitNumber;
   private int unitCap;
-  private int movementPoints;
+  private int movementPoints, maxMovementPoints;
   private float[] proficiencies;
   private int task;
   private int[] equipment;
@@ -56,6 +56,8 @@ class Party {
     for (int i=0; i<equipment.length;i ++){
       equipment[i] = -1; // -1 represens no equipment
     }
+    
+    updateMaxMovementPoints();
   }
 
   Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float[] proficiencies, int trainingFocus, int[] equipment, int unitCap) {
@@ -86,6 +88,23 @@ class Party {
     }
 
     setTrainingFocus(trainingFocus);  // 'trainingFocus' is an id string
+    
+    updateMaxMovementPoints();
+  }
+  
+  void updateMaxMovementPoints(){
+    // Based on speed proficiency
+    this.maxMovementPoints = floor(gameData.getJSONObject("game options").getInt("movement points") * getTotalProficiency(jsManager.proficiencyIDToIndex("speed")));
+    setMovementPoints(min(maxMovementPoints, getMovementPoints()));
+  }
+  
+  void resetMovementPoints(){
+    updateMaxMovementPoints();
+    setMovementPoints(maxMovementPoints);
+  }
+  
+  int getMaxMovementPoints(){
+    return this.maxMovementPoints;
   }
   
   void setUnitCap(int value){
