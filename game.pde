@@ -391,7 +391,6 @@ class Game extends State {
           if (sliderVal > 0 && parties[selectedCellY][selectedCellX].getUnitNumber() >= 2 && parties[selectedCellY][selectedCellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle")) {
             map.updateMoveNodes(nodes);
             moving = true;
-            parties[selectedCellY][selectedCellX].changeUnitNumber(-sliderVal);
             String newPartyName;
             if (parties[selectedCellY][selectedCellX].unitNumber==0) {
               newPartyName = parties[selectedCellY][selectedCellX].id;
@@ -399,7 +398,7 @@ class Game extends State {
               newPartyName = nextRollingId(players[turn].name);
             }
             LOGGER_GAME.finer(String.format("Splitting party (id:%s) from party (id:%s) at (%d, %d). Number = %d.", newPartyName, parties[selectedCellY][selectedCellX].id, selectedCellX, selectedCellY, sliderVal));
-            splittedParty = new Party(turn, sliderVal, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), parties[selectedCellY][selectedCellX].getMovementPoints(), newPartyName);
+            splittedParty = parties[selectedCellY][selectedCellX].splitParty(sliderVal, newPartyName);
           }
         }
 
@@ -1708,8 +1707,13 @@ class Game extends State {
     return round(((Slider)getElement("split units", "party management")).getValue());
   }
   void refreshTooltip() {
-    if (!getPanel("pause screen").visible) {
-      if (((TaskManager)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible) {
+    if (!getPanel("pause screen").visible) { 
+      if (((EquipmentManager)getElement("equipment manager", "party management")).mouseOverTypes() && getPanel("party management").visible) {
+        int hoveringType = ((EquipmentManager)getElement("equipment manager", "party management")).hoveringOverType();
+        int equipmentClass = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
+        tooltip.setEquipment(equipmentClass, hoveringType, players[turn].resources, parties[selectedCellY][selectedCellX]);
+        tooltip.show();
+      } else if (((TaskManager)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible) {
         tooltip.setTask(((TaskManager)getElement("tasks", "party management")).findMouseOver(), players[turn].resources, parties[selectedCellY][selectedCellX].getMovementPoints());
         tooltip.show();
       } else if (((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").visible) {

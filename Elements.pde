@@ -188,6 +188,8 @@ class EquipmentManager extends Element {
   boolean mouseOverTypes() {
     if (selectedClass == -1){
       return false;
+    } else if (currentEquipment[selectedClass] == -1){  // If nothing equipped, there is not unequip option at the bottom
+      return mouseX-xOffset >= x+boxWidth*selectedClass && mouseX-xOffset <= x+boxWidth*(selectedClass+1) && mouseY-yOffset >= y+boxHeight && mouseY-yOffset <= y+dropBoxHeight*(jsManager.getNumEquipmentTypesFromClass(selectedClass))+boxHeight;
     } else{
       return mouseX-xOffset >= x+boxWidth*selectedClass && mouseX-xOffset <= x+boxWidth*(selectedClass+1) && mouseY-yOffset >= y+boxHeight && mouseY-yOffset <= y+dropBoxHeight*(jsManager.getNumEquipmentTypesFromClass(selectedClass)+1)+boxHeight;
     }
@@ -810,7 +812,7 @@ class Tooltip extends Element {
         if (availableResources[jsManager.getResIndex(jo.getString("id"))] >= jo.getFloat("quantity")) { // Check if has enough resources
           returnString += String.format("  %s %s\n", roundDp(""+jo.getFloat("quantity"), 2), jo.getString("id"));
         } else {
-          returnString += String.format("  <i>%s</i> %s\n", roundDp(""+jo.getFloat("quantity"), 2), jo.getString("id"));
+          returnString += String.format("  <r>%s</r> %s\n", roundDp(""+jo.getFloat("quantity"), 2), jo.getString("id"));
         }
       }
     }
@@ -866,6 +868,7 @@ class Tooltip extends Element {
       String t="";
       if (jo == null){
         setText("Problem");
+        LOGGER_MAIN.warning("Could not find task:"+task);
         return;
       }
       if (!jo.isNull("description")) {
@@ -878,7 +881,7 @@ class Tooltip extends Element {
         if (movementPoints >= jo.getInt("movement points")) {
           t += String.format("Movement Points: %d\n", jo.getInt("movement points"));
         } else {
-          t += String.format("Movement Points: <i>%d</i>\n", jo.getInt("movement points"));
+          t += String.format("Movement Points: <r>%d</r>\n", jo.getInt("movement points"));
         }
       }
       if (!jo.isNull("action")) {
@@ -896,7 +899,84 @@ class Tooltip extends Element {
       setText(t.replaceAll("\\s+$", ""));
     }
     catch (Exception e) {
-      LOGGER_MAIN.log(Level.WARNING, "Error changing tooltip to task: "+task, e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error changing tooltip to task: "+task, e);
+      throw e;
+    }
+  }
+  
+  void setEquipment(int equipmentClass, int equipmentType, float availableResources[], Party party){
+    // Tooltip is hovering over equipment manager, specifically over one of the equipmment types
+    String t="";
+    try{
+      attacking = false;
+      JSONObject equipmentClassJO = gameData.getJSONArray("equipment").getJSONObject(equipmentClass);
+      if (equipmentClassJO == null){
+        setText("Problem");
+        LOGGER_MAIN.warning("Equipment class not found with tooltip:"+equipmentClass);
+        return;
+      }
+      JSONObject equipmentTypeJO = equipmentClassJO.getJSONArray("types").getJSONObject(equipmentType);
+      if (equipmentTypeJO == null){
+        setText("Problem");
+        LOGGER_MAIN.warning("Equipment type not found with tooltip:"+equipmentType);
+        return;
+      }
+      
+      if (!equipmentTypeJO.isNull("display name")) {
+        t += equipmentTypeJO.getString("display name")+"\n\n";
+      }
+      
+      if (!equipmentTypeJO.isNull("description")) {
+        t += equipmentTypeJO.getString("description")+"\n\n";
+      }
+      
+      // Using 'display multipliers' array so ordering is consistant
+      if (!equipmentClassJO.isNull("display multipliers")){
+        t += "Proficiency Bonus Multipliers:\n";
+        for (int i=0; i < equipmentClassJO.getJSONArray("display multipliers").size(); i++){
+          String multiplierName = equipmentClassJO.getJSONArray("display multipliers").getString(i);
+          if (!equipmentTypeJO.isNull(multiplierName)){
+            if (equipmentTypeJO.getFloat(multiplierName) > 0){
+              t += String.format("%s: <g>+%s</g>\n", multiplierName, roundDp("+"+equipmentTypeJO.getFloat(multiplierName), 2));
+            } else {
+              t += String.format("%s: <r>%s</r>\n", multiplierName, roundDp(""+equipmentTypeJO.getFloat(multiplierName), 2));
+            }
+          }
+        }
+        t += "\n";
+      }
+      
+      // Other attributes e.g. range
+      if (!equipmentClassJO.isNull("other attributes")){
+        t += "Other Attributes:\n";
+        for (int i=0; i < equipmentClassJO.getJSONArray("other attributes").size(); i++){
+          String attribute = equipmentClassJO.getJSONArray("other attributes").getString(i);
+          if (!equipmentTypeJO.isNull(attribute)){
+            t += String.format("%s: %s\n", attribute, roundDp("+"+equipmentTypeJO.getFloat(attribute), 0));
+          }
+        }
+        t += "\n";
+      }
+      
+      // Display amount of equipment available vs needed for party
+      int resourceIndex = 0;
+      try{
+        resourceIndex = jsManager.getResIndex(equipmentTypeJO.getString("id"));
+      } 
+      catch (Exception e){
+        LOGGER_MAIN.log(Level.WARNING, String.format("Error finding resource for equipment class:%d, type:%d", equipmentClass, equipmentType), e);
+        throw e;
+      }
+      if (floor(availableResources[resourceIndex]) >= party.getUnitNumber()){
+        t += String.format("Equipment Available: %d/%d", floor(availableResources[resourceIndex]), party.getUnitNumber());
+      } else{
+        t += String.format("Equipment Available: <r>%d</r>/%d", floor(availableResources[resourceIndex]), party.getUnitNumber());
+      }
+      
+      setText(t.replaceAll("\\s+$", ""));
+    }
+    catch (Exception e) {
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error changing tooltip to equipment class:%dk, type:%d", equipmentClass, equipmentType), e);
       throw e;
     }
   }
@@ -919,7 +999,7 @@ class Tooltip extends Element {
     }
   }
 
-  void drawColouredLine(PGraphics canvas, String line, float startX, float startY) {
+  void drawColouredLine(PGraphics canvas, String line, float startX, float startY, int colour, char indicatingChar) {
     int start=0, end=0;
     float tw=0;
     boolean coloured = false;
@@ -927,17 +1007,17 @@ class Tooltip extends Element {
       while (end != line.length()) {
         start = end;
         if (coloured) {
-          canvas.fill(255, 0, 0);
-          end = line.indexOf("</i>", end);
+          canvas.fill(colour);
+          end = line.indexOf("</"+indicatingChar+">", end);
         } else {
           canvas.fill(0);
-          end = line.indexOf("<i>", end);
+          end = line.indexOf("<"+indicatingChar+">", end);
         }
         if (end == -1) { // indexOf returns -1 when not found
           end = line.length();
         }
-        canvas.text(line.substring(start, end).replace("<i>", "").replace("</i>", ""), startX+tw, startY);
-        tw += canvas.textWidth(line.substring(start, end).replace("<i>", "").replace("</i>", ""));
+        canvas.text(line.substring(start, end).replace("<"+indicatingChar+">", "").replace("</"+indicatingChar+">", ""), startX+tw, startY);
+        tw += canvas.textWidth(line.substring(start, end).replace("<"+indicatingChar+">", "").replace("</"+indicatingChar+">", ""));
         coloured = !coloured;
       };
     }
@@ -955,15 +1035,17 @@ class Tooltip extends Element {
       int th = ceil(panelCanvas.textAscent()+panelCanvas.textDescent())*lines.size();
       int tx = round(between(0, mouseX-xOffset-tw/2, width-tw));
       int ty = round(between(0, mouseY-yOffset+20, height-th-20));
-      panelCanvas.fill(200, 230);
+      panelCanvas.fill(200, 240);
       panelCanvas.stroke(0);
       panelCanvas.rectMode(CORNER);
       panelCanvas.rect(tx, ty, tw, th);
       panelCanvas.fill(0);
       panelCanvas.textAlign(LEFT, TOP);
       for (int i=0; i<lines.size(); i++) {
-        if (lines.get(i).contains("<i>")) {
-          drawColouredLine(panelCanvas, lines.get(i), tx+2, ty+i*gap);
+        if (lines.get(i).contains("<r>")) {
+          drawColouredLine(panelCanvas, lines.get(i), tx+2, ty+i*gap, color(255,0,0), 'r');
+        } else if (lines.get(i).contains("<g>")) {
+          drawColouredLine(panelCanvas, lines.get(i), tx+2, ty+i*gap, color(50,255,50), 'g');
         } else {
           panelCanvas.text(lines.get(i), tx+2, ty+i*gap);
         }
