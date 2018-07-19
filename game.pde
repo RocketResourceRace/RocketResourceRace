@@ -1898,7 +1898,7 @@ class Game extends State {
 
   void updatePartyManagementProficiencies() {
     // Update proficiencies with those for current party
-    ((ProficiencySummary)getElement("proficiency summary", "party management")).setProficiencies(parties[selectedCellY][selectedCellX].getProficiencies());
+    ((ProficiencySummary)getElement("proficiency summary", "party management")).setProficiencies(parties[selectedCellY][selectedCellX].getRawProficiencies());
   }
 
   void updateCurrentPartyTrainingFocus() {

@@ -45,9 +45,9 @@ class Party {
     this.unitCap = jsManager.loadIntSetting("party size");  // Set unit cap to default
 
     // Default proficiencies = 1
-    resetProficiencies();
+    resetRawProficiencies();
     for (int i = 0; i < jsManager.getNumProficiencies(); i++) {
-      this.setProficiency(i, 1);
+      this.setRawProficiency(i, 1);
     }
 
     setTrainingFocus(jsManager.proficiencyIDToIndex("melee attack"));
@@ -76,9 +76,9 @@ class Party {
 
     // Load proficiencies given
     try {
-      resetProficiencies();
+      resetRawProficiencies();
       for (int i = 0; i < jsManager.getNumProficiencies(); i++) {
-        this.setProficiency(i, proficiencies[i]);
+        this.setRawProficiency(i, proficiencies[i]);
       }
     }
     catch (IndexOutOfBoundsException e) {
@@ -133,7 +133,7 @@ class Party {
   Party splitParty(int numUnitsSplitted, String newID){
     if (numUnitsSplitted <= getUnitNumber()){
       changeUnitNumber(-numUnitsSplitted);
-      return new Party(player, numUnitsSplitted, getTask(), getMovementPoints(), newID, Arrays.copyOf(getProficiencies(), getProficiencies().length), getTrainingFocus(), Arrays.copyOf(getAllEquipment(), getAllEquipment().length), getUnitCap());
+      return new Party(player, numUnitsSplitted, getTask(), getMovementPoints(), newID, Arrays.copyOf(getRawProficiencies(), getRawProficiencies().length), getTrainingFocus(), Arrays.copyOf(getAllEquipment(), getAllEquipment().length), getUnitCap());
     }
     else{
       LOGGER_GAME.warning(String.format("Num units splitted more than in party. ID:%s", numUnitsSplitted));
@@ -157,7 +157,7 @@ class Party {
 
     // Merge all proficiencies with other party
     for (int i = 0; i < jsManager.getNumProficiencies(); i++) {
-      this.setProficiency(i, mergeAttribute(this.getUnitNumber(), this.getProficiency(i), unitsTransfered, other.getProficiency(i)));
+      this.setRawProficiency(i, mergeAttribute(this.getUnitNumber(), this.getRawProficiency(i), unitsTransfered, other.getRawProficiency(i)));
     }
 
     LOGGER_GAME.finer(String.format("New proficiency values: %s for party with id:%s", Arrays.toString(proficiencies), id));
@@ -330,36 +330,57 @@ class Party {
     return newParty;
   }
 
-  float getProficiency(String id) {
-    // Use this if have access to string id
-    return proficiencies[jsManager.proficiencyIDToIndex(id)];
-  }
-
-  void setProficiency(String id, float value) {
-    // Use this if have access to string id
-    proficiencies[jsManager.proficiencyIDToIndex(id)] = value;
-  }
-
-  float getProficiency(int index) {
-    // Use this if have access to index not string id
+  float getRawProficiency(int index) {
+    // index is index of proficiency in data.json
     return proficiencies[index];
   }
 
-  void setProficiency(int index, float value) {
-    // Use this if have access to index not string id
+  void setRawProficiency(int index, float value) {
+    // index is index of proficiency in data.json
     proficiencies[index] = value;
   }
 
-  void resetProficiencies() {
+  void resetRawProficiencies() {
     proficiencies = new float[jsManager.getNumProficiencies()];
   }
 
-  float[] getProficiencies() {
+  float[] getRawProficiencies() {
     return proficiencies;
   }
 
-  void setProficiencies(float[] values) {
+  void setRawProficiencies(float[] values) {
     this.proficiencies = values;
+  }
+  
+  float getProficiencyBonusMultiplier(int index){
+    // index is index of proficiency in data.json
+    float bonusMultiplier = 0;
+    JSONObject equipmentClassJO;
+    JSONObject equipmentTypeJO;
+    String proficiencyID = jsManager.indexToProficiencyID(index);
+    for (int i = 0 ; i < getAllEquipment().length; i++){
+      if (getAllEquipment()[i] != -1){
+        try{
+          equipmentClassJO = gameData.getJSONArray("equipment").getJSONObject(i);
+          equipmentTypeJO = equipmentClassJO.getJSONArray("types").getJSONObject(getEquipment(i));
+          
+          // Check each equipment equipped for proficiencies to calculate bonus
+          if (!equipmentTypeJO.isNull(proficiencyID)){
+            bonusMultiplier += equipmentTypeJO.getFloat(proficiencyID);
+          }
+        }
+        catch (Exception e){
+          LOGGER_GAME.log(Level.WARNING, "Error loading equipment", e);
+        }
+      }
+    }
+    return bonusMultiplier;
+  }
+  
+  float getTotalProficiency(int index){
+    // USE THIS METHOD FOR BATTLES
+    // index is index of proficiency in data.json
+    return getRawProficiency(index) * (1+getProficiencyBonusMultiplier(index));
   }
 }
 
