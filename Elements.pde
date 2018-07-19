@@ -943,7 +943,6 @@ class Tooltip extends Element {
         LOGGER_MAIN.warning("Equipment type not found with tooltip:"+equipmentType);
         return;
       }
-      
       if (!equipmentTypeJO.isNull("display name")) {
         t += equipmentTypeJO.getString("display name")+"\n\n";
       }
@@ -993,6 +992,12 @@ class Tooltip extends Element {
         t += String.format("Equipment Available: %d/%d", floor(availableResources[resourceIndex]), party.getUnitNumber());
       } else{
         t += String.format("Equipment Available: <r>%d</r>/%d", floor(availableResources[resourceIndex]), party.getUnitNumber());
+      }
+      
+      if (party.getMovementPoints() != party.getMaxMovementPoints()){
+        t += "\n<r>Equipment can only be changed if party has full movement points</r>";
+      } else{
+        t += "\n(Equipment can only be changed if party has full movement points)";
       }
       
       setText(t.replaceAll("\\s+$", ""));

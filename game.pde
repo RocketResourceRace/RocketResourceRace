@@ -533,47 +533,52 @@ class Game extends State {
         parties[selectedCellY][selectedCellX].setTrainingFocus(newFocus);
       }
       else if (event instanceof ChangeEquipment){
-        int newResID=-1, oldResID=-1;
-        
-        int equipmentClass = ((ChangeEquipment)event).equipmentClass;
-        int newEqupmentType = ((ChangeEquipment)event).newEqupmentType;
-        
-        if (equipmentClass == -1){
-          LOGGER_GAME.warning("No equipment class selected for change equipment event");
-        }
-        
-        if (newEqupmentType != -1){
-          newResID = jsManager.getResIndex(jsManager.getEquipmentTypeID(equipmentClass, newEqupmentType));
-        }
-        if (parties[selectedCellY][selectedCellX].getEquipment(equipmentClass) != -1){
-          oldResID = jsManager.getResIndex(jsManager.getEquipmentTypeID(equipmentClass, parties[selectedCellY][selectedCellX].getEquipment(equipmentClass)));
-        }
-        
-        try{
-          if (newResID == -1 || players[turn].resources[newResID] >= parties[selectedCellY][selectedCellX].getUnitNumber()) {  // Check sufficient resources for equipment change
-            // Subtract equipment resource
-            if (newResID != -1){
-              players[turn].resources[newResID] -= parties[selectedCellY][selectedCellX].getUnitNumber();
-            }
-            
-            LOGGER_GAME.fine(String.format("Changing equipment type for cell (%d, %d) id:%s class:'%d' new equipment index:'%d'", selectedCellX, selectedCellY, parties[selectedCellY][selectedCellX].getID(), equipmentClass, newEqupmentType));
-            
-            if (parties[selectedCellY][selectedCellX].getEquipment(equipmentClass) != -1){
-              // Recycle equipment if not nothing
-              players[turn].resources[oldResID] += parties[selectedCellY][selectedCellX].getUnitNumber();
-            }
-            
-            parties[selectedCellY][selectedCellX].setEquipment(equipmentClass, newEqupmentType);  // Change party equipment
-            
-            ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX].equipment);  // Update equipment manager with new equipment
+        if (parties[selectedCellY][selectedCellX].getMovementPoints() == parties[selectedCellY][selectedCellX].getMaxMovementPoints()){
+          int newResID=-1, oldResID=-1;
+          
+          int equipmentClass = ((ChangeEquipment)event).equipmentClass;
+          int newEqupmentType = ((ChangeEquipment)event).newEqupmentType;
+          
+          if (equipmentClass == -1){
+            LOGGER_GAME.warning("No equipment class selected for change equipment event");
           }
+          
+          if (newEqupmentType != -1){
+            newResID = jsManager.getResIndex(jsManager.getEquipmentTypeID(equipmentClass, newEqupmentType));
+          }
+          if (parties[selectedCellY][selectedCellX].getEquipment(equipmentClass) != -1){
+            oldResID = jsManager.getResIndex(jsManager.getEquipmentTypeID(equipmentClass, parties[selectedCellY][selectedCellX].getEquipment(equipmentClass)));
+          }
+          
+          try{
+            if (newResID == -1 || players[turn].resources[newResID] >= parties[selectedCellY][selectedCellX].getUnitNumber()) {  // Check sufficient resources for equipment change
+              // Subtract equipment resource
+              if (newResID != -1){
+                players[turn].resources[newResID] -= parties[selectedCellY][selectedCellX].getUnitNumber();
+              }
+              
+              LOGGER_GAME.fine(String.format("Changing equipment type for cell (%d, %d) id:%s class:'%d' new equipment index:'%d'", selectedCellX, selectedCellY, parties[selectedCellY][selectedCellX].getID(), equipmentClass, newEqupmentType));
+              
+              if (parties[selectedCellY][selectedCellX].getEquipment(equipmentClass) != -1){
+                // Recycle equipment if not nothing
+                players[turn].resources[oldResID] += parties[selectedCellY][selectedCellX].getUnitNumber();
+              }
+              
+              parties[selectedCellY][selectedCellX].setEquipment(equipmentClass, newEqupmentType);  // Change party equipment
+              
+              ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX].equipment);  // Update equipment manager with new equipment
+            }
+          }
+          catch (ArrayIndexOutOfBoundsException e){
+            LOGGER_MAIN.warning("Index problem with equipment change");
+            throw e;
+          }
+          parties[selectedCellY][selectedCellX].updateMaxMovementPoints();
+          updatePartyManagementProficiencies();
         }
-        catch (ArrayIndexOutOfBoundsException e){
-          LOGGER_MAIN.warning("Index problem with equipment change");
-          throw e;
+        else {
+          valid = false;
         }
-        parties[selectedCellY][selectedCellX].updateMaxMovementPoints();
-        updatePartyManagementProficiencies();
       }
       else if (event instanceof DisbandParty){
         int x = ((DisbandParty)event).x;
