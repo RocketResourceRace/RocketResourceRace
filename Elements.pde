@@ -1485,7 +1485,7 @@ class ResourceSummary extends Element {
 
       panelCanvas.textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
       if (warnings[i] == 1) {
-        panelCanvas.fill(255, 50, 10);
+        panelCanvas.fill(255, 127, 0);
       } else if (warnings[i] == 2){
         panelCanvas.fill(255, 0, 0);
       }
