@@ -9,8 +9,10 @@ class EquipmentManager extends Element {
   int selectedClass;
   boolean[] equipmentAvailable;
   ArrayList<int[]> equipmentToChange;
+  DecimalFormat proficiencyFormatter;
 
   EquipmentManager(int x, int y, int w) {
+    proficiencyFormatter = new DecimalFormat("#.##");
     this.x = x;
     this.y = y;
     this.w = w;
@@ -221,8 +223,9 @@ class EquipmentManager extends Element {
 
 class ProficiencySummary extends Element {
   final int TEXTSIZE = 8;
+  final int DECIMALPLACES = 2;
   String[] proficiencyDisplayNames;
-  float[] proficiencies;
+  float[] proficiencies, bonuses;
   int rowHeight;
 
   ProficiencySummary(int x, int y, int w, int h) {
@@ -232,6 +235,7 @@ class ProficiencySummary extends Element {
     this.h = h;
     updateProficiencyDisplayNames();
     proficiencies = new float[jsManager.getNumProficiencies()];
+    bonuses = new float[jsManager.getNumProficiencies()];
   }
 
   void transform(int x, int y, int w, int h) {
@@ -245,6 +249,10 @@ class ProficiencySummary extends Element {
 
   void setProficiencies(float[] proficiencies) {
     this.proficiencies = proficiencies;
+  }
+  
+  void setProficiencyBonuses(float[] bonuses){
+    this.bonuses = bonuses;
   }
 
   void updateProficiencyDisplayNames() {
@@ -277,7 +285,15 @@ class ProficiencySummary extends Element {
       panelCanvas.textAlign(LEFT, CENTER);
       panelCanvas.text(proficiencyDisplayNames[i], x+5, y+rowHeight*(i+0.5)); // Display name aligned left, middle height within row
       panelCanvas.textAlign(RIGHT, CENTER);
-      panelCanvas.text(proficiencies[i], x+w-5, y+rowHeight*(i+0.5)); // Display name aligned right, middle height within row
+      panelCanvas.text(roundDpTrailing(""+proficiencies[i], DECIMALPLACES), x+w-10-panelCanvas.textWidth("0")*(DECIMALPLACES+4), y+rowHeight*(i+0.5));
+      if (bonuses[i] > 0){
+        panelCanvas.fill(0, 255, 0);
+        panelCanvas.text("+"+roundDpTrailing(""+bonuses[i], DECIMALPLACES), x+w-5, y+rowHeight*(i+0.5)); // Display bonus aligned right, middle height within row
+      }
+      else if (bonuses[i] < 0){
+        panelCanvas.fill(255, 0, 0);
+        panelCanvas.text(roundDpTrailing(""+bonuses[i], DECIMALPLACES), x+w-5, y+rowHeight*(i+0.5)); // Display bonus aligned right, middle height within row
+      }
     }
 
     panelCanvas.popStyle();

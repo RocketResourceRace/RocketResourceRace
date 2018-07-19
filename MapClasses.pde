@@ -382,6 +382,19 @@ class Party {
     // index is index of proficiency in data.json
     return getRawProficiency(index) * (1+getProficiencyBonusMultiplier(index));
   }
+  
+  float getRawBonusProficiency(int index){
+    // For getting bonus amount
+    return getProficiencyBonusMultiplier(index) * getRawProficiency(index);
+  }
+  
+  float[] getRawBonusProficiencies(){
+    float [] r = new float[getRawProficiencies().length];
+    for (int i = 0; i < r.length; i++){
+      r[i] = getRawBonusProficiency(i);
+    }
+    return r;
+  }
 }
 
 class Battle extends Party {

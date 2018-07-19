@@ -8,6 +8,8 @@ import java.util.logging.*;
 import static com.jogamp.newt.event.KeyEvent.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.text.DecimalFormat;
+import java.math.RoundingMode;
 
 // Create loggers
 final Logger LOGGER_MAIN = Logger.getLogger("RocketResourceRaceMain"); // Most logs belong here INCLUDING EXCEPTION LOGS. Also I have put saving logs here rather than game
@@ -70,6 +72,10 @@ color brighten(color old, int off) {
 String roundDp(String val, int dps) {
   return (new BigDecimal(""+val).divide(new BigDecimal("1"), dps, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
 }
+
+String roundDpTrailing(String val, int dps){
+  return (new BigDecimal(""+val).divide(new BigDecimal("1"), dps, BigDecimal.ROUND_HALF_EVEN)).toPlainString();
+} 
 
 int JSONIndex(JSONArray j, String id) {
   for (int i=0; i<j.size(); i++) {

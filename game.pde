@@ -524,6 +524,7 @@ class Game extends State {
         int selectedEquipmentType = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
         if (selectedEquipmentType != -1){
           checkEquipment(selectedEquipmentType);
+          updatePartyManagementProficiencies();
         }
         
       } else if (event instanceof ChangePartyTrainingFocus) {
@@ -1475,6 +1476,7 @@ class Game extends State {
           for (int [] equipmentChange : ((EquipmentManager)getElement("equipment manager", "party management")).getEquipmentToChange()){
             postEvent(new ChangeEquipment(equipmentChange[0], equipmentChange[1]));
           }
+          updatePartyManagementProficiencies();
         }
       }
       if (event.type.equals("dropped")){
@@ -1482,6 +1484,7 @@ class Game extends State {
           int selectedEquipmentType = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
           if (selectedEquipmentType != -1){
             checkEquipment(selectedEquipmentType);
+            updatePartyManagementProficiencies();
           }
         }
       }
@@ -1888,6 +1891,7 @@ class Game extends State {
         int selectedEquipmentType = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
         if (selectedEquipmentType != -1){
           checkEquipment(selectedEquipmentType);
+          updatePartyManagementProficiencies();
         }
         ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX].equipment);
         updatePartyManagementProficiencies();
@@ -1899,6 +1903,7 @@ class Game extends State {
   void updatePartyManagementProficiencies() {
     // Update proficiencies with those for current party
     ((ProficiencySummary)getElement("proficiency summary", "party management")).setProficiencies(parties[selectedCellY][selectedCellX].getRawProficiencies());
+    ((ProficiencySummary)getElement("proficiency summary", "party management")).setProficiencyBonuses(parties[selectedCellY][selectedCellX].getRawBonusProficiencies());
   }
 
   void updateCurrentPartyTrainingFocus() {
