@@ -130,6 +130,7 @@ class State {
   }
 
   void drawPanels() {
+    checkElementOnTop();
     // Draw the panels in reverse order (highest in the list are drawn last so appear on top)
     for (int i=panels.size()-1; i>=0; i--) {
       if (panels.get(i).visible) {
@@ -210,6 +211,39 @@ class State {
       throw e;
     }
   }
+  
+  void checkElementOnTop(){
+    String elemID = null;
+    String panelID = null;
+    boolean blocked = false;
+    //Find panel and elem on top
+    for (int i=panels.size()-1; i>=0; i--) {
+      Panel panel = panels.get(i);
+      if (panel.mouseOver() && panel.visible) {
+        if (panel.blockEvent){
+          blocked = true;
+        }
+        for (Element elem : panel.elements) {
+          if (elem.pointOver() && elem.visible){
+            elemID = elem.id;
+            panelID = panel.id;
+            blocked = false;
+          }
+        }
+      }
+    }
+    for (Panel panel : panels) {
+      for (Element elem : panel.elements) {
+        if (elem.id.equals(elemID) && panel.id.equals(panelID) && !blocked){
+          elem.setElemOnTop(true);
+        }
+        else{
+          elem.setElemOnTop(false);
+        }
+      }
+    }
+  }
+  
   void _mouseEvent(String eventType, int button, MouseEvent event) {
     try {
       ArrayList<Event> events = new ArrayList<Event>();
@@ -395,8 +429,17 @@ class Panel {
 class Element {
   boolean active = true;
   boolean visible = true;
+  boolean elemOnTop;
   int x, y, w, h, xOffset, yOffset;
   String id;
+  
+  void setElemOnTop(boolean value){
+    elemOnTop = value;
+  }
+  boolean getElemOnTop(){
+    // For checking if hover highlighting is needed
+    return elemOnTop;
+  }
 
   void draw(PGraphics panelCanvas) {
   }
@@ -414,7 +457,6 @@ class Element {
     this.y = y;
     this.w = w;
     this.h = h;
-    LOGGER_MAIN.finest("Transformed");
   }
   void setOffset(int xOffset, int yOffset) {
     this.xOffset = xOffset;
@@ -435,15 +477,13 @@ class Element {
     return keyboardEvent(eventType, _key);
   }
   void activate() {
-    LOGGER_MAIN.finest("Actived");
     active = true;
   }
   void deactivate() {
-    LOGGER_MAIN.finest("Deactivated");
     active = false;
   }
 
-  boolean pointOver(int posX, int posY) {
-    return posX >= x && posX <= x+w && posY >= y && posY <= y+h;
+  boolean pointOver() {
+    return mouseX >= x && mouseX <= x+w && mouseY >= y && mouseY <= y+h;
   }
 }

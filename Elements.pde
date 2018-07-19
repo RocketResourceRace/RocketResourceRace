@@ -211,6 +211,10 @@ class EquipmentManager extends Element {
     }
     return -1;
   }
+  
+  boolean pointOver() {
+    return mouseOverTypes() || mouseOverClasses();
+  }
 }
 
 class ProficiencySummary extends Element {
@@ -445,6 +449,9 @@ class BaseFileManager extends Element {
   boolean moveOver() {
     return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+fakeHeight;
   }
+  boolean pointOver() {
+    return moveOver();
+  }
 
   int hoveringOption() {
     int s = (mouseY-yOffset-y)/rowHeight;
@@ -498,7 +505,7 @@ class DropDown extends Element {
 
     // draw selected option
     panelCanvas.stroke(color(0));
-    if (moveOver() && hovering == -1) {
+    if (moveOver() && hovering == -1 && getElemOnTop()) {  // Hovering over top selected option
       panelCanvas.fill(brighten(bgColour, -20));
     } else {
       panelCanvas.fill(brighten(bgColour, -40));
@@ -524,7 +531,7 @@ class DropDown extends Element {
         if (i == selected) {
           panelCanvas.fill(brighten(bgColour, 50));
         } else {
-          if (moveOver() && i == hovering) {
+          if (moveOver() && i == hovering && getElemOnTop()) {
             panelCanvas.fill(brighten(bgColour, 20));
           } else {
             panelCanvas.fill(bgColour);
@@ -640,6 +647,9 @@ class DropDown extends Element {
       return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset < y+h;
     }
   }
+  boolean pointOver() {
+    return moveOver();
+  }
 
   int hoveringOption() {
     if (!expanded) {
@@ -688,6 +698,9 @@ class Tickbox extends Element {
 
   boolean moveOver() {
     return mouseX-xOffset >= x && mouseX-xOffset <= x+h && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
+  }
+  boolean pointOver() {
+    return moveOver();
   }
 
   void draw(PGraphics panelCanvas) {
@@ -984,7 +997,10 @@ class NotificationManager extends Element {
   }
 
   boolean moveOver() {
-    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+notHeight*notifications.get(turn).size();
+  }
+  boolean pointOver() {
+    return moveOver();
   }
 
   boolean mouseOver(int i) {
@@ -1124,7 +1140,7 @@ class NotificationManager extends Element {
     panelCanvas.textAlign(CENTER, TOP);
     panelCanvas.text("Notification Manager", x+w/2, y);
 
-    if (hoveringDismissAll()) {
+    if (hoveringDismissAll() && getElemOnTop()) {
       panelCanvas.fill(brighten(bgColour, 80));
     } else {
       panelCanvas.fill(brighten(bgColour, -20));
@@ -1138,7 +1154,7 @@ class NotificationManager extends Element {
     int hovering = findMouseOver();
     for (int i=0; i<min(notifications.get(turn).size(), displayNots); i++) {
 
-      if (hovering == i) {
+      if (hovering == i && getElemOnTop()) {
         panelCanvas.fill(brighten(bgColour, 20));
       } else {
         panelCanvas.fill(brighten(bgColour, -10));
@@ -1594,7 +1610,7 @@ class TaskManager extends Element {
     // Draw other tasks
     int j;
     for (j=1; j < min(availableOptions.size()-scroll, numDisplayed); j++) {
-      if (taskMActive && mouseOver(j)) {
+      if (taskMActive && mouseOver(j) && getElemOnTop()) {
         panelCanvas.fill(brighten(bgColour, HOVERINGOFFSET));
       } else {
         panelCanvas.fill(bgColour);
@@ -1700,6 +1716,9 @@ class TaskManager extends Element {
   boolean moveOver() {
     return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset > y && mouseY-yOffset < y+h*min(availableButOverBudgetOptions.size()+availableOptions.size()-scroll, numDisplayed);
   }
+  boolean pointOver() {
+    return moveOver();
+  }
   boolean mouseOver(int j) {
     return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset > y+h*j && mouseY-yOffset <= y+h*(j+1);
   }
@@ -1763,7 +1782,7 @@ class Button extends Element {
     panelCanvas.fill(bgColour);
     if (state == "off") {
       panelCanvas.fill(bgColour);
-    } else if (state == "hovering") {
+    } else if (state == "hovering" && getElemOnTop()) {
       panelCanvas.fill(min(r+HOVERINGOFFSET, 255), min(g+HOVERINGOFFSET, 255), min(b+HOVERINGOFFSET, 255));
     } else if (state == "on") {
       panelCanvas.fill(min(r+ONOFFSET, 255), min(g+ONOFFSET, 255), min(b+ONOFFSET, 255));
@@ -1841,6 +1860,9 @@ class Button extends Element {
 
   Boolean mouseOver() {
     return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
+  }
+  boolean pointOver() {
+    return mouseOver();
   }
 }
 
@@ -1958,6 +1980,9 @@ class Slider extends Element {
       throw e;
     }
   }
+  boolean pointOver() {
+    return mouseOver();
+  }
 
   BigDecimal getInc(BigDecimal i) {
     return i.stripTrailingZeros();
@@ -2054,6 +2079,9 @@ class Text extends Element {
   }
   boolean mouseOver() {
     return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
+  }
+  boolean pointOver() {
+    return mouseOver();
   }
 }
 
@@ -2278,6 +2306,9 @@ class TextEntry extends Element {
   Boolean mouseOver() {
     return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
   }
+  boolean pointOver() {
+    return mouseOver();
+  }
 }
 
 
@@ -2339,5 +2370,8 @@ class ToggleButton extends Element {
   }
   Boolean mouseOver() {
     return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
+  }
+  boolean pointOver() {
+    return mouseOver();
   }
 }

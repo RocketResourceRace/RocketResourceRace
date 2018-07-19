@@ -1010,6 +1010,7 @@ class Game extends State {
 
 
   void drawPanels() {
+    checkElementOnTop();
     if (rocketLaunching) {
       handleRocket();
     }
@@ -1055,7 +1056,7 @@ class Game extends State {
     gameUICanvas.popStyle();
     image(gameUICanvas, 0, 0);
     ResourceSummary resSum = ((ResourceSummary)getElement("resource summary", "bottom bar"));
-    if (resSum.pointOver(mouseX, mouseY)) {
+    if (resSum.pointOver()) {
       String resource = resSum.getResourceAt(mouseX, mouseY);
       HashMap <String, Float> tasksMap = new HashMap <String, Float>();
       for (int y = 0; y < mapHeight; y++) {
