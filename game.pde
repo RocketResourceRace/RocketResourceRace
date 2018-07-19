@@ -1712,8 +1712,13 @@ class Game extends State {
     return round(((Slider)getElement("split units", "party management")).getValue());
   }
   void refreshTooltip() {
-    if (!getPanel("pause screen").visible) {
-      if (((TaskManager)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible) {
+    if (!getPanel("pause screen").visible) { 
+      if (((EquipmentManager)getElement("equipment manager", "party management")).mouseOverTypes() && getPanel("party management").visible) {
+        int hoveringType = ((EquipmentManager)getElement("equipment manager", "party management")).hoveringOverType();
+        int equipmentClass = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
+        tooltip.setEquipment(equipmentClass, hoveringType, players[turn].resources, parties[selectedCellY][selectedCellX]);
+        tooltip.show();
+      } else if (((TaskManager)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible) {
         tooltip.setTask(((TaskManager)getElement("tasks", "party management")).findMouseOver(), players[turn].resources, parties[selectedCellY][selectedCellX].getMovementPoints());
         tooltip.show();
       } else if (((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").visible) {

@@ -717,7 +717,8 @@
     {
       "id": "weapon",
       "display name": "Weapon",
-      "display multipliers": ["speed", "defence", "ranged attack", "melee attack", "range"],
+      "display multipliers": ["speed", "defence", "ranged attack", "melee attack"],
+      "other attributes": ["range"],
       "types":[
         {
           "id": "sword and shield",
