@@ -396,6 +396,31 @@ class Party {
     return bonusMultiplier;
   }
   
+  ArrayList<String[]> getProficiencyBonusMultiplierBreakdown(int index){
+    // index is index of proficiency in data.json
+    JSONObject equipmentClassJO;
+    JSONObject equipmentTypeJO;
+    ArrayList<String[]> returnMe = new ArrayList<String[]>();
+    String proficiencyID = jsManager.indexToProficiencyID(index);
+    for (int i = 0 ; i < getAllEquipment().length; i++){
+      if (getAllEquipment()[i] != -1){
+        try{
+          equipmentClassJO = gameData.getJSONArray("equipment").getJSONObject(i);
+          equipmentTypeJO = equipmentClassJO.getJSONArray("types").getJSONObject(getEquipment(i));
+          
+          // Check each equipment equipped for proficiencies to calculate bonus
+          if (!equipmentTypeJO.isNull(proficiencyID)){
+            returnMe.add(new String[]{equipmentTypeJO.getString("display name"), roundDpTrailing(""+equipmentTypeJO.getFloat(proficiencyID), 2)});
+          }
+        }
+        catch (Exception e){
+          LOGGER_GAME.log(Level.WARNING, "Error loading equipment", e);
+        }
+      }
+    }
+    return returnMe;
+  }
+  
   float getTotalProficiency(int index){
     // USE THIS METHOD FOR BATTLES
     // index is index of proficiency in data.json

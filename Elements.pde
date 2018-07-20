@@ -1020,7 +1020,7 @@ class Tooltip extends Element {
     }
   }
   
-  void setProficiencies(int proficiencyIndex){
+  void setProficiencies(int proficiencyIndex, Party party){
     String t="";
     JSONObject proficiencyJO;
     if (!(0 <= proficiencyIndex && proficiencyIndex < jsManager.getNumProficiencies())){
@@ -1035,6 +1035,15 @@ class Tooltip extends Element {
       if (!proficiencyJO.isNull("tooltip")){
         t += proficiencyJO.getString("tooltip") + "\n";
       }
+      float bonusMultiplier = party.getProficiencyBonusMultiplier(proficiencyIndex);
+      if (bonusMultiplier != 0){
+        ArrayList<String[]> bonusBreakdown = party.getProficiencyBonusMultiplierBreakdown(proficiencyIndex);
+        t += "\nBonus breakdown:\n";
+        for (int i = 0; i < bonusBreakdown.size(); i ++){
+          t += String.format("%s from %s", bonusBreakdown.get(i)[1], bonusBreakdown.get(i)[0]);
+        }
+      }
+      
       setText(t.replaceAll("\\s+$", ""));
     }
     catch (Exception e) {
