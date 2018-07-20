@@ -398,6 +398,7 @@ class Party {
   
   ArrayList<String[]> getProficiencyBonusMultiplierBreakdown(int index){
     // index is index of proficiency in data.json
+    // This method is for the breakdown used by tooltip of bonus
     JSONObject equipmentClassJO;
     JSONObject equipmentTypeJO;
     ArrayList<String[]> returnMe = new ArrayList<String[]>();
@@ -410,7 +411,12 @@ class Party {
           
           // Check each equipment equipped for proficiencies to calculate bonus
           if (!equipmentTypeJO.isNull(proficiencyID)){
-            returnMe.add(new String[]{equipmentTypeJO.getString("display name"), roundDpTrailing(""+equipmentTypeJO.getFloat(proficiencyID), 2)});
+            if (equipmentTypeJO.getFloat(proficiencyID) > 0){
+              returnMe.add(new String[]{equipmentTypeJO.getString("display name"), String.format("<g>+%s</g>", roundDpTrailing("+"+equipmentTypeJO.getFloat(proficiencyID), 2))});
+            }
+            else if (equipmentTypeJO.getFloat(proficiencyID) < 0){
+              returnMe.add(new String[]{equipmentTypeJO.getString("display name"), String.format("<r>%s</r>", roundDpTrailing(""+equipmentTypeJO.getFloat(proficiencyID), 2))});
+            }
           }
         }
         catch (Exception e){

@@ -1007,9 +1007,9 @@ class Tooltip extends Element {
       }
       
       if (party.getMovementPoints() != party.getMaxMovementPoints()){
-        t += "\n<r>Equipment can only be changed if party has full movement points</r>";
+        t += "\n<r>Equipment can only be changed\nif party has full movement points</r>";
       } else{
-        t += "\n(Equipment can only be changed if party has full movement points)";
+        t += "\n(Equipment can only be changed\nif party has full movement points)";
       }
       
       setText(t.replaceAll("\\s+$", ""));
@@ -1040,7 +1040,7 @@ class Tooltip extends Element {
         ArrayList<String[]> bonusBreakdown = party.getProficiencyBonusMultiplierBreakdown(proficiencyIndex);
         t += "\nBonus breakdown:\n";
         for (int i = 0; i < bonusBreakdown.size(); i ++){
-          t += String.format("%s from %s", bonusBreakdown.get(i)[1], bonusBreakdown.get(i)[0]);
+          t += String.format("%s from %s\n", bonusBreakdown.get(i)[1], bonusBreakdown.get(i)[0]);
         }
       }
       
