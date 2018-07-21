@@ -8,6 +8,9 @@ class Console extends Element {
   private Player[] players;
   private PFont monoFont;
   private Game game;
+  private ArrayList<String> commandLog;
+  private int commandLogPosition;
+  private String LINESTART = " > ";
 
   Console(int x, int y, int w, int h, int textSize) {
     this.x = x;
@@ -16,7 +19,9 @@ class Console extends Element {
     this.h = h;
     this.textSize = textSize;
     text = new ArrayList<StringBuilder>();
-    text.add(new StringBuilder(" > "));
+    text.add(new StringBuilder(LINESTART));
+    commandLog = new ArrayList<String>();
+    commandLogPosition = 0;
     cursorX = 3;
     commands = loadJSONObject("commands.json");
     monoFont = createFont("Monospaced", textSize*jsManager.loadFloatSetting("text scale"));
@@ -74,7 +79,14 @@ class Console extends Element {
   StringBuilder getInputString(ArrayList<StringBuilder> t) {
     return t.get(t.size()-1);
   }
-
+  
+  void setInputString(String t) {
+    setInputString(text, t);
+  }
+  StringBuilder setInputString(ArrayList<StringBuilder> t1, String t2) {
+    return t1.set(t1.size()-1, new StringBuilder(t2));
+  }
+  
   int cxyToC(int cx, int cy) {
     int a=0;
     for (int i=0; i<cy; i++) {
@@ -450,6 +462,18 @@ class Console extends Element {
       break;
     }
   }
+  
+  void saveCommandLog() {
+    if (commandLog.size() == commandLogPosition) {
+      commandLog.add("");
+    }
+    commandLog.set(commandLogPosition, getInputString().substring(LINESTART.length()));
+  }
+  
+  void accessCommandLog() {
+    setInputString(LINESTART+commandLog.get(commandLogPosition));
+    cursorX = getInputString().length();
+  }
 
   ArrayList<String> _keyboardEvent(String eventType, char _key) {
     keyboardEvent(eventType, _key);
@@ -480,22 +504,31 @@ class Console extends Element {
         if (keyCode == RIGHT) {
           cursorX = min(cursorX+1, getInputString().length());
         }
-        //if (keyCode == UP){
-        //  cursorY = max(cursorY-1, 0);
-        //  cursorX = min(cursorX, text.get(cursorY).length());
-        //}
-        //if(keyCode == DOWN){
-        //  cursorY = min(cursorY+1, text.size()-1);
-        //  cursorX = min(cursorX, text.get(cursorY).length());
-        //}
+        if (keyCode == UP && commandLogPosition > 0){
+          saveCommandLog();
+          commandLogPosition--;
+          accessCommandLog();
+        }
+        if(keyCode == DOWN && commandLog.size() > commandLogPosition+1){
+          saveCommandLog();
+          commandLogPosition++;
+          accessCommandLog();
+        }
         //if (keyCode == SHIFT){
         //  lshed = true;
         //}
       }
       if (_key == ENTER) {
-        String rawCommand = getInputString().substring(3);
-        text.add(text.size(), new StringBuilder(" > "));
-        doCommand(rawCommand);
+        boolean commandThere = getInputString().length() > LINESTART.length();
+        String rawCommand = getInputString().substring(LINESTART.length());
+        if (commandThere) {
+          saveCommandLog();
+        }
+        commandLogPosition = commandLog.size();
+        text.add(text.size(), new StringBuilder(LINESTART));
+        if (commandThere) {
+          doCommand(rawCommand);
+        }
         cursorX=3;
       }
       if (_key == VK_BACK_SPACE&&cursorX>3) {
