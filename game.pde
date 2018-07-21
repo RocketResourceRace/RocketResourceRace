@@ -838,7 +838,11 @@ class Game extends State {
         for (int task = 0; task < tasks.length; task++) {
           if (parties[y][x].getTask()==task) {
             for (int resource = 0; resource < numResources; resource++) {
-              production[resource] = taskOutcomes[task][resource] * productivity * (float) parties[y][x].getUnitNumber();
+              if (resource == jsManager.getResIndex("civilians") && resourceProductivities[jsManager.getResIndex(("food"))] < 1) {
+                production[resource] = 0;
+              } else {
+                production[resource] = taskOutcomes[task][resource] * productivity * (float) parties[y][x].getUnitNumber();
+              }
             }
           }
         }
@@ -875,8 +879,10 @@ class Game extends State {
         for (int task = 0; task <tasks.length; task++) {
           if (parties[y][x].getTask() == task) {
             for (int resource = 0; resource < numResources; resource++) {
-              if (resource == 0) {
+              if (resource == jsManager.getResIndex("food")) {
                 consumption[resource] += max(getResourceRequirementsAtCell(x, y, resource) * productivity, taskCosts[task][resource]*parties[y][x].getUnitNumber());
+              } else if (resource == jsManager.getResIndex("civilians") && resourceProductivities[jsManager.getResIndex(("food"))] < 1) {
+                consumption[resource] += (1-resourceProductivities[jsManager.getResIndex(("food"))]) * taskOutcomes[task][resource] * parties[y][x].getUnitNumber();
               } else {
                 consumption[resource] += getResourceRequirementsAtCell(x, y, resource) * productivity;
               }
