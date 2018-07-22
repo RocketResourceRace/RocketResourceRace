@@ -342,6 +342,7 @@ class Party {
     this.setUnitNumber(unitNumber+changeInUnitNumber);
     return overflow;
   }
+
   Party clone() {
     Party newParty = new Party(player, unitNumber, task, movementPoints, id);
     newParty.actions = new ArrayList<Action>(actions);
