@@ -1,6 +1,6 @@
 # Blender v2.79 (sub 0) OBJ File: 'task_clear_forest.blend'
 # www.blender.org
-mtllib task_clear_forest.mtl
+mtllib clear_forest.mtl
 o Plane
 v -1.456251 0.282213 -0.000000
 v 3.217308 3.471683 0.000000

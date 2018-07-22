@@ -1,6 +1,6 @@
 # Blender v2.79 (sub 0) OBJ File: 'task_farm.blend'
 # www.blender.org
-mtllib task_farm.mtl
+mtllib farm.mtl
 o Plane
 v -0.900000 -4.000000 0.000000
 v 1.000000 0.400000 0.000000

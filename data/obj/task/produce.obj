@@ -1,6 +1,6 @@
 # Blender v2.79 (sub 0) OBJ File: 'task_produce.blend'
 # www.blender.org
-mtllib task_produce.mtl
+mtllib produce.mtl
 o Plane
 v -2.506361 -4.000000 0.000000
 v 4.000000 2.006239 0.000000

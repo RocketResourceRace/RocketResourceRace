@@ -58,7 +58,7 @@
         {"id": "food","quantity":0.1}
       ],
       "production":[
-        {"id": "civilians","quantity":0.02}
+        {"id": "units","quantity":0.02}
       ]
     },
     {
@@ -117,7 +117,7 @@
     },
     {
       "id": "Build Homes",
-      "description": "Homes can produce civilians, which are the basic unit.",
+      "description": "Homes can produce units, which are the basic unit.",
       "img": "construction.png",
       "obj": "construction.obj",
       "type": "building",
@@ -275,13 +275,13 @@
     },
     {
       "id": "Super Rest",
-      "description": "Super Rest produces civilians faster than rest.",
+      "description": "Super Rest produces units faster than rest.",
       "img": "super_rest.png",
       "obj": "super_rest.obj",
       "consumption":[
         {"id": "food","quantity":0.6}
       ],
-      "production": [{"id": "civilians", "quantity":0.1}],
+      "production": [{"id": "units", "quantity":0.1}],
       "buildings": ["Homes"]
     },
     {
@@ -579,7 +579,7 @@
       "resource manager": 0
     },
     {
-      "id": "civilians",
+      "id": "units",
       "resource manager": 0
     },
     {

@@ -1,6 +1,6 @@
 # Blender v2.79 (sub 0) OBJ File: 'task_demolish.blend'
 # www.blender.org
-mtllib task_demolish.mtl
+mtllib demolish.mtl
 o Plane
 v -2.200000 1.700000 0.000000
 v 4.000000 0.200000 0.000000
