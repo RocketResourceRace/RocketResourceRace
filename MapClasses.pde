@@ -21,6 +21,7 @@ class Party {
   private float[] proficiencies;
   private int task;
   private int[] equipment;
+  private int [] equipmentQuantities;
   String id;
   int player;
   float strength;
@@ -51,6 +52,8 @@ class Party {
     }
 
     setTrainingFocus(jsManager.proficiencyIDToIndex("melee attack"));
+    
+    this.equipmentQuantities = new int[jsManager.getNumEquipmentClasses()];
 
     equipment = new int[jsManager.getNumEquipmentClasses()];
     for (int i=0; i<equipment.length;i ++){
@@ -60,7 +63,7 @@ class Party {
     updateMaxMovementPoints();
   }
 
-  Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float[] proficiencies, int trainingFocus, int[] equipment, int unitCap) {
+  Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float[] proficiencies, int trainingFocus, int[] equipment, int[] equipmentQuantities, int unitCap) {
     // For parties that already exist and are being splitted or loaded from save
     unitNumber = startingUnits;
     task = startingTask;
@@ -75,6 +78,7 @@ class Party {
     this.unitCap = unitCap;
     
     this.equipment = equipment;
+    this.equipmentQuantities = equipmentQuantities;
 
     // Load proficiencies given
     try {
@@ -139,6 +143,14 @@ class Party {
   int[] getAllEquipment() {
     return equipment;
   }
+  
+  int getEquipmentQuantity(int typeIndex){
+    return equipmentQuantities[typeIndex];
+  }
+  
+  void setEquipmentQuantity(int typeIndex, int quantity){
+    equipmentQuantities[typeIndex] = quantity;
+  }
 
   void setEquipment(int typeIndex, int equipmentIndex) {
     equipment[typeIndex] = equipmentIndex;
@@ -152,7 +164,12 @@ class Party {
   Party splitParty(int numUnitsSplitted, String newID){
     if (numUnitsSplitted <= getUnitNumber()){
       changeUnitNumber(-numUnitsSplitted);
-      return new Party(player, numUnitsSplitted, getTask(), getMovementPoints(), newID, Arrays.copyOf(getRawProficiencies(), getRawProficiencies().length), getTrainingFocus(), Arrays.copyOf(getAllEquipment(), getAllEquipment().length), getUnitCap());
+      int[] splittedEquipmentQuantities = new int[equipment.length];
+      for (int i=0; i < equipment.length; i ++){
+        splittedEquipmentQuantities[i] = ceil(getEquipmentQuantity(i)/2);
+        setEquipmentQuantity(i, floor(getEquipmentQuantity(i)/2));
+      }
+      return new Party(player, numUnitsSplitted, getTask(), getMovementPoints(), newID, Arrays.copyOf(getRawProficiencies(), getRawProficiencies().length), getTrainingFocus(), Arrays.copyOf(getAllEquipment(), getAllEquipment().length), splittedEquipmentQuantities, getUnitCap());
     }
     else{
       LOGGER_GAME.warning(String.format("Num units splitted more than in party. ID:%s", numUnitsSplitted));
