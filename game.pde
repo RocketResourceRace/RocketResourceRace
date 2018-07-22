@@ -761,16 +761,16 @@ class Game extends State {
     float resourceRequirements = 0;
     for (int i = 0; i < tasks.length; i++) {
       if (parties[y][x].getTask() == i) {
-        if (jsManager.resourceIsEquipment(resource)){
-          // If resource is a type of equipment then check if it is this party's equipment
-          int[] equipmentTypeClass = jsManager.getEquipmentTypeClassFromID(jsManager.getResString(resource));
-          if (parties[y][x].getEquipment(equipmentTypeClass[0]) == equipmentTypeClass[1]){
-            // Add cost for equipment equivilent to number of units that could be produced (usually zero, unless resting)
-            resourceRequirements += floor(taskOutcomes[i][jsManager.getResIndex("units")] * parties[y][x].getUnitNumber());
-          }
-        } else{
-          resourceRequirements += taskCosts[i][resource] * parties[y][x].getUnitNumber();
-        }
+      //  if (jsManager.resourceIsEquipment(resource)){
+      //    // If resource is a type of equipment then check if it is this party's equipment
+      //    int[] equipmentTypeClass = jsManager.getEquipmentTypeClassFromID(jsManager.getResString(resource));
+      //    if (parties[y][x].getEquipment(equipmentTypeClass[0]) == equipmentTypeClass[1]){
+      //      // Add cost for equipment equivilent to number of units that could be produced (usually zero, unless resting)
+      //      resourceRequirements += floor(taskOutcomes[i][jsManager.getResIndex("units")] * parties[y][x].getUnitNumber());
+      //    }
+      //  } else{
+        resourceRequirements += taskCosts[i][resource] * parties[y][x].getUnitNumber();
+        //}
       }
     }
     return resourceRequirements;
