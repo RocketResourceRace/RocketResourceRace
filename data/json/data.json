@@ -731,6 +731,7 @@
         {
           "id": "sword and shield",
           "display name": "Sword and Shield",
+          "img": "sword and shield.png",
           "melee attack": 1,
           "speed": -0.1,
           "defence": 0.5
