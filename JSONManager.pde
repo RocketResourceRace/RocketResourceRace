@@ -4,20 +4,20 @@ class JSONManager {
   JSONManager() {
     try {
       LOGGER_MAIN.fine("Initializing JSON Manager");
-      menu = loadJSONObject("menu.json");
-      gameData = loadJSONObject("data.json");
+      menu = loadJSONObject("json/menu.json");
+      gameData = loadJSONObject("json/data.json");
       try {
-        settings = loadJSONObject("settings.json");
+        settings = loadJSONObject("json/settings.json");
       }
       catch (NullPointerException e) {
         // Create new settings.json
         LOGGER_MAIN.info("creating new settings file");
-        PrintWriter w = createWriter("settings.json");
+        PrintWriter w = createWriter("json/settings.json");
         w.print("{}\n");
         w.flush();
         w.close();
         LOGGER_MAIN.info("Finished creating new settings file");
-        settings = loadJSONObject("settings.json");
+        settings = loadJSONObject("json/settings.json");
         LOGGER_MAIN.info("loading settings... ");
         loadDefaultSettings();
       }

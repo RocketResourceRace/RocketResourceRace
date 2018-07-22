@@ -23,7 +23,7 @@ class Console extends Element {
     commandLog = new ArrayList<String>();
     commandLogPosition = 0;
     cursorX = 3;
-    commands = loadJSONObject("commands.json");
+    commands = loadJSONObject("json/commands.json");
     monoFont = createFont("Monospaced", textSize*jsManager.loadFloatSetting("text scale"));
   }
 

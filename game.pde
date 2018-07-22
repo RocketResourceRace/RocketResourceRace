@@ -742,7 +742,7 @@ class Game extends State {
       } else {
         makeTaskAvailable(parties[selectedCellY][selectedCellX].getTask());
       }
-      ((TaskManager)getElement("tasks", "party management")).select(jsManager.gameData.getJSONArray("tasks").getJSONObject(parties[selectedCellY][selectedCellX].getTask()).getString("id"));
+      ((TaskManager)getElement("tasks", "party management")).select(gameData.getJSONArray("tasks").getJSONObject(parties[selectedCellY][selectedCellX].getTask()).getString("id"));
     }
     catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error checking tasks", e);
@@ -1462,7 +1462,7 @@ class Game extends State {
       }
       if (event.type.equals("valueChanged")) {
         if (event.id.equals("tasks")) {
-          postEvent(new ChangeTask(selectedCellX, selectedCellY, JSONIndex(jsManager.gameData.getJSONArray("tasks"), ((TaskManager)getElement("tasks", "party management")).getSelected())));
+          postEvent(new ChangeTask(selectedCellX, selectedCellY, JSONIndex(gameData.getJSONArray("tasks"), ((TaskManager)getElement("tasks", "party management")).getSelected())));
         } else if (event.id.equals("unit number bars toggle")) {
           map.setDrawingUnitBars(((ToggleButton)(getElement("unit number bars toggle", "bottom bar"))).getState());
           LOGGER_MAIN.fine("Unit number bars visibility changed");

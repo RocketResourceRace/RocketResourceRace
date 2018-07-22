@@ -22,12 +22,12 @@ final int DOUBLECLICKWAIT = 500;
 final String LETTERSNUMBERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890/\\_ ";
 HashMap<String, SoundFile> sfx;
 int prevT;
-JSONObject gameData;
 HashMap<Integer, PFont> fonts;
 PShader toon;
 String loadingName;
 
 JSONManager jsManager;
+JSONObject gameData;
 
 // Event-driven methods
 void mouseClicked() {
@@ -191,7 +191,7 @@ void loadSounds() {
   try {
     if (jsManager.loadBooleanSetting("sound on")) {
       sfx = new HashMap<String, SoundFile>();
-      sfx.put("click3", new SoundFile(this, "click3.wav"));
+      sfx.put("click3", new SoundFile(this, "wav/click3.wav"));
     }
   }
   catch (Exception e) {
@@ -208,32 +208,32 @@ void loadImages() {
     tile3DImages = new HashMap<String, PImage>();
     buildingImages = new HashMap<String, PImage[]>();
     partyImages = new PImage[]{
-      loadImage("data/blue_flag.png"), 
-      loadImage("data/red_flag.png"), 
-      loadImage("data/battle.png")
+      loadImage("img/party/blue_flag.png"), 
+      loadImage("img/party/red_flag.png"), 
+      loadImage("img/party/battle.png")
     };
     taskImages = new PImage[gameData.getJSONArray("tasks").size()];
     for (int i=0; i<gameData.getJSONArray("terrain").size(); i++) {
       JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
-      tileImages.put(tileType.getString("id"), loadImage(tileType.getString("img")));
+      tileImages.put(tileType.getString("id"), loadImage("img/terrain/"+tileType.getString("img")));
       if (!tileType.isNull("low img")) {
-        lowImages.put(tileType.getString("id"), loadImage(tileType.getString("low img")));
+        lowImages.put(tileType.getString("id"), loadImage("img/terrain/"+tileType.getString("low img")));
       }
       if (!tileType.isNull("img3d")) {
-        tile3DImages.put(tileType.getString("id"), loadImage(tileType.getString("img3d")));
+        tile3DImages.put(tileType.getString("id"), loadImage("img/terrain/"+tileType.getString("img3d")));
       }
     }
     for (int i=0; i<gameData.getJSONArray("buildings").size(); i++) {
       JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
       PImage[] p = new PImage[buildingType.getJSONArray("img").size()];
       for (int i2=0; i2< buildingType.getJSONArray("img").size(); i2++)
-        p[i2] = loadImage(buildingType.getJSONArray("img").getString(i2));
+        p[i2] = loadImage("img/building/"+buildingType.getJSONArray("img").getString(i2));
       buildingImages.put(buildingType.getString("id"), p);
     }
     for (int i=0; i<gameData.getJSONArray("tasks").size(); i++) {
       JSONObject task = gameData.getJSONArray("tasks").getJSONObject(i);
       if (!task.isNull("img")) {
-        taskImages[i] = loadImage(task.getString("img"));
+        taskImages[i] = loadImage("img/task/"+task.getString("img"));
       }
     }
   }
@@ -297,8 +297,8 @@ void setup() {
     LOGGER_MAIN.fine("Starting setup");
 
     fonts = new HashMap<Integer, PFont>();
-    gameData = loadJSONObject("data.json");
     jsManager = new JSONManager();
+    gameData = jsManager.gameData;
     loadSounds();
     setFrameRateCap();
     textFont(createFont("GillSans", 32));

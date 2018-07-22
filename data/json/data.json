@@ -9,42 +9,42 @@
     {
       "id": "water",
       "display name": "Water",
-      "img": "data/water.png",
-      "low img": "data/water_low.png",
+      "img": "water.png",
+      "low img": "water_low.png",
       "weighting": 0,
       "movement cost": 16
     },
     {
       "id": "quarry site",
       "display name": "Quarry Site",
-      "img": "data/hill.png",
+      "img": "hill.png",
       "weighting": 0,
       "movement cost": 32
     },
     {
       "id": "sand",
       "display name": "Desert",
-      "img": "data/sand.png",
+      "img": "sand.png",
       "movement cost": 12
     },
     {
       "id": "grass",
       "display name": "Grassland",
-      "img": "data/grass.png",
+      "img": "grass.png",
       "movement cost": 8
     },
     {
       "id": "forest",
       "display name": "Forest",
-      "img": "data/forest.png",
-      "img3d": "data/grass.png",
-      "low img": "data/forest_low.png",
+      "img": "forest.png",
+      "img3d": "grass.png",
+      "low img": "forest_low.png",
       "movement cost": 12
     },
     {
       "id": "hills",
       "display name": "Hills",
-      "img": "data/hill.png",
+      "img": "hill.png",
       "weighting": 0,
       "movement cost": 28
     },
@@ -64,8 +64,8 @@
     {
       "id": "Demolish",
       "description": "Demolish the building on this tile.",
-      "img": "data/task_demolish.png",
-      "obj": "data/task_demolish.obj",
+      "img": "demolish.png",
+      "obj": "demolish.obj",
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
@@ -79,8 +79,8 @@
     {
       "id": "Build Farm",
       "description": "Farms can produce food, which units need to survive.",
-      "img": "data/task_construction.png",
-      "obj": "data/task_construction.obj",
+      "img": "construction.png",
+      "obj": "construction.obj",
       "type": "building",
       "buildings":[],
       "terrain": ["grass"],
@@ -98,8 +98,8 @@
     {
       "id": "Build Sawmill",
       "description": "Farms can produce wood, which can be\nused to create buildings and work farms.",
-      "img": "data/task_construction.png",
-      "obj": "data/task_construction.obj",
+      "img": "construction.png",
+      "obj": "construction.obj",
       "type": "building",
       "buildings":[],
       "terrain": ["forest"],
@@ -118,8 +118,8 @@
     {
       "id": "Build Homes",
       "description": "Homes can produce civilians, which are the basic unit.",
-      "img": "data/task_construction.png",
-      "obj": "data/task_construction.obj",
+      "img": "construction.png",
+      "obj": "construction.obj",
       "type": "building",
       "buildings":[],
       "terrain": ["grass", "sand"],
@@ -137,8 +137,8 @@
     {
       "id": "Build Factory",
       "description": "Factories can produce concrete and cable.",
-      "img": "data/task_construction.png",
-      "obj": "data/task_construction.obj",
+      "img": "construction.png",
+      "obj": "construction.obj",
       "type": "building",
       "buildings":[],
       "terrain": ["grass", "sand"],
@@ -157,8 +157,8 @@
     {
       "id": "Build Mine",
       "description": "Mines can produce ore, which can be smelted into metal.",
-      "img": "data/task_construction.png",
-      "obj": "data/task_construction.obj",
+      "img": "construction.png",
+      "obj": "construction.obj",
       "type": "building",
       "buildings":[],
       "terrain": ["hills"],
@@ -176,8 +176,8 @@
     {
       "id": "Build Smelter",
       "description": "Smelters can produce metal from ore.",
-      "img": "data/task_construction.png",
-      "obj": "data/task_construction.obj",
+      "img": "construction.png",
+      "obj": "construction.obj",
       "type": "building",
       "buildings":[],
       "terrain": ["grass", "sand"],
@@ -198,8 +198,8 @@
     {
       "id": "Build Quarry",
       "description": "Quarries can mine stone.",
-      "img": "data/task_construction.png",
-      "obj": "data/task_construction.obj",
+      "img": "construction.png",
+      "obj": "construction.obj",
       "type": "building",
       "buildings":[],
       "terrain": ["grass", "sand", "hill"],
@@ -217,8 +217,8 @@
     {
       "id": "Build Big Factory",
       "description": "Big Factories can produce rocket parts,\nwhich allow you to build a rocket.",
-      "img": "data/task_construction.png",
-      "obj": "data/task_construction.obj",
+      "img": "construction.png",
+      "obj": "construction.obj",
       "type": "building",
       "buildings":[],
       "terrain": ["grass", "sand"],
@@ -237,8 +237,8 @@
     {
       "id": "Build Rocket Factory",
       "description": "Rocket Factories can produce Rockets, which allows you to win.",
-      "img": "data/task_construction.png",
-      "obj": "data/task_construction.obj",
+      "img": "construction.png",
+      "obj": "construction.obj",
       "type": "building",
       "buildings":[],
       "terrain": ["grass", "sand"],
@@ -257,8 +257,8 @@
     {
       "id": "Defend",
       "description": "Defending increases the strength of the party in battle.",
-      "img": "data/task_defend.png",
-      "obj": "data/task_defend.obj",
+      "img": "defend.png",
+      "obj": "defend.obj",
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
@@ -276,8 +276,8 @@
     {
       "id": "Super Rest",
       "description": "Super Rest produces civilians faster than rest.",
-      "img": "data/task_super_rest.png",
-      "obj": "data/task_super_rest.obj",
+      "img": "super_rest.png",
+      "obj": "super_rest.obj",
       "consumption":[
         {"id": "food","quantity":0.6}
       ],
@@ -287,8 +287,8 @@
     {
       "id": "Clear Forest",
       "description": "Clear a forrest tile and add 100 wood to stockpile.",
-      "img": "data/task_clear_forest.png",
-      "obj": "data/task_clear_forest.obj",
+      "img": "clear_forest.png",
+      "obj": "clear_forest.obj",
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
@@ -304,8 +304,8 @@
     {
       "id": "Work Farm",
       "description": "Produce food from farm.",
-      "img": "data/task_farm.png",
-      "obj": "data/task_farm.obj",
+      "img": "farm.png",
+      "obj": "farm.obj",
       "production":[
         {"id": "food","quantity":0.5}
       ],
@@ -317,8 +317,8 @@
     },
     {
       "id": "Produce Stone",
-      "img": "data/task_produce.png",
-      "obj": "data/task_produce.obj",
+      "img": "produce.png",
+      "obj": "produce.obj",
       "production":[
         {"id": "stone","quantity":0.5}
       ],
@@ -330,8 +330,8 @@
     },
     {
       "id": "Produce Ore",
-      "img": "data/task_produce.png",
-      "obj": "data/task_produce.obj",
+      "img": "produce.png",
+      "obj": "produce.obj",
       "production":[
         {"id": "ore","quantity":0.1}
       ],
@@ -343,8 +343,8 @@
     },
     {
       "id": "Produce Metal",
-      "img": "data/task_produce.png",
-      "obj": "data/task_produce.obj",
+      "img": "produce.png",
+      "obj": "produce.obj",
       "production":[
         {"id": "metal","quantity":0.1}
       ],
@@ -357,8 +357,8 @@
     },
     {
       "id": "Produce Concrete",
-      "img": "data/task_produce.png",
-      "obj": "data/task_produce.obj",
+      "img": "produce.png",
+      "obj": "produce.obj",
       "production":[
         {"id": "concrete","quantity":0.05}
       ],
@@ -370,8 +370,8 @@
     },
     {
       "id": "Produce Cable",
-      "img": "data/task_produce.png",
-      "obj": "data/task_produce.obj",
+      "img": "produce.png",
+      "obj": "produce.obj",
       "production":[
         {"id": "cable","quantity":0.05}
       ],
@@ -383,8 +383,8 @@
     },
     {
       "id": "Produce Wood",
-      "img": "data/task_produce.png",
-      "obj": "data/task_produce.obj",
+      "img": "produce.png",
+      "obj": "produce.obj",
       "production":[
         {"id": "wood","quantity":0.2}
       ],
@@ -395,8 +395,8 @@
     },
     {
       "id": "Produce Rocket Parts",
-      "img": "data/task_produce.png",
-      "obj": "data/task_produce.obj",
+      "img": "produce.png",
+      "obj": "produce.obj",
       "production":[
         {"id": "rocket parts","quantity":0.1}
       ],
@@ -409,8 +409,8 @@
     {
       "id": "Produce Rocket",
       "description": "Needed to launch rocket.",
-      "img": "data/task_produce.png",
-      "obj": "data/task_produce.obj",
+      "img": "produce.png",
+      "obj": "produce.obj",
       "production":[
         {"id": "rocket progress","quantity":0.1}
       ],
@@ -424,8 +424,8 @@
     {
       "id": "Launch Rocket",
       "description": "Attempt to win the game.",
-      "img": "data/task_produce.png",
-      "obj": "data/task_produce.obj",
+      "img": "produce.png",
+      "obj": "produce.obj",
       "initial cost":[{"id":"rocket progress", "quantity":1000}],
       "buildings":["Rocket Factory"],
       "consumption":[
@@ -434,19 +434,19 @@
     },
     {
       "id": "Construction Mid",
-      "img": "data/task_construction.png",
+      "img": "construction.png",
       "terrain": [],
     },
     {
       "id": "Construction End",
-      "img": "data/task_construction.png",
+      "img": "construction.png",
       "terrain": [],
     },
     {
       "id": "Build Wooden Tower",
       "description": "Wooden tower is a defence building.",
-      "img": "data/task_construction.png",
-      "obj": "data/task_construction.obj",
+      "img": "construction.png",
+      "obj": "construction.obj",
       "type": "building",
       "buildings":[],
       "terrain": ["grass", "sand", "hill"],
@@ -663,7 +663,7 @@
       "is equipment": true
     },
   ],
-  
+
   "proficiencies":[
     {
       "id":"melee attack",
@@ -691,7 +691,7 @@
       "tooltip": "Increases movement points for the party"
     }
   ],
-  
+
   "equipment":[
     {
       "id": "armour",
@@ -701,24 +701,27 @@
         {
           "id": "wooden armour",
           "display name": "Wooden Armour",
+          "img": "wooden armour.png",
           "speed": -0.25,
           "defence": 1,
         },
         {
           "id": "iron armour",
           "display name": "Iron Armour",
+          "img": "iron armour.png",
           "speed": -0.4,
           "defence": 2.5,
         },
         {
           "id": "reinforced armour",
           "display name": "Reinforced Armour",
+          "img": "reinforced armour.png",
           "speed": -0.5,
           "defence": 4,
         },
       ]
     },
-    
+
     {
       "id": "weapon",
       "display name": "Weapon",
@@ -783,7 +786,7 @@
         },
       ]
     },
-    
+
     {
       "id": "mount",
       "display name": "Mount/Vehicle",
@@ -808,7 +811,7 @@
         },
       ]
     },
-    
+
     {
       "id": "tool",
       "display name": "Tool",

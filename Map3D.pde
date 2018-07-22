@@ -419,11 +419,11 @@ class Map3D extends BaseMap implements Map {
 
             if (y1 == 0) {
               // Add replacement cell for quarry site
-              PShape quarrySite = loadShape("quarry_site.obj");
+              PShape quarrySite = loadShape("obj/building/quarry_site.obj");
               float quarryheight = groundMinHeightAt(x, y);
               quarrySite.rotateX(PI/2);
               quarrySite.translate((x+0.5)*blockSize, (y+0.5)*blockSize, quarryheight);
-              quarrySite.setTexture(loadImage("hill.png"));
+              quarrySite.setTexture(loadImage("img/terrain/"+"hill.png"));
               tempRow.addChild(quarrySite);
 
               // Create sides for quarry site
@@ -557,13 +557,13 @@ class Map3D extends BaseMap implements Map {
       resetMatrix();
 
       LOGGER_MAIN.fine("Generating player flags");
-      blueFlag = loadShape("blueflag.obj");
+      blueFlag = loadShape("obj/party/blueflag.obj");
       blueFlag.rotateX(PI/2);
       blueFlag.scale(2, 2.5, 2.5);
-      redFlag = loadShape("redflag.obj");
+      redFlag = loadShape("obj/party/redflag.obj");
       redFlag.rotateX(PI/2);
       redFlag.scale(2, 2.5, 2.5);
-      battle = loadShape("battle.obj");
+      battle = loadShape("obj/party/battle.obj");
       battle.rotateX(PI/2);
       battle.scale(0.8);
 
@@ -654,7 +654,7 @@ class Map3D extends BaseMap implements Map {
       for (int i=0; i<gameData.getJSONArray("tasks").size(); i++) {
         JSONObject task = gameData.getJSONArray("tasks").getJSONObject(i);
         if (!task.isNull("obj")) {
-          taskObjs.put(task.getString("id"), loadShape(task.getString("obj")));
+          taskObjs.put(task.getString("id"), loadShape("obj/task/"+task.getString("obj")));
           taskObjs.get(task.getString("id")).translate(blockSize*0.125, -blockSize*0.2);
           taskObjs.get(task.getString("id")).rotateX(PI/2);
         } else if (!task.isNull("img")) {
@@ -673,11 +673,11 @@ class Map3D extends BaseMap implements Map {
           buildingObjs.put(buildingType.getString("id"), new PShape[buildingType.getJSONArray("obj").size()]);
           for (int j=0; j<buildingType.getJSONArray("obj").size(); j++) {
             if (buildingType.getString("id").equals("Quarry")) {
-              buildingObjs.get(buildingType.getString("id"))[j] = loadShape("quarry.obj");
+              buildingObjs.get(buildingType.getString("id"))[j] = loadShape("obj/building/quarry.obj");
               buildingObjs.get(buildingType.getString("id"))[j].rotateX(PI/2);
               //buildingObjs.get(buildingType.getString("id"))[j].setFill(color(86, 47, 14));
             } else {
-              buildingObjs.get(buildingType.getString("id"))[j] = loadShape(buildingType.getJSONArray("obj").getString(j));
+              buildingObjs.get(buildingType.getString("id"))[j] = loadShape("obj/building/"+buildingType.getJSONArray("obj").getString(j));
               buildingObjs.get(buildingType.getString("id"))[j].rotateX(PI/2);
               buildingObjs.get(buildingType.getString("id"))[j].scale(0.625);
               buildingObjs.get(buildingType.getString("id"))[j].translate(0, 0, -6);
