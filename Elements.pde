@@ -1697,6 +1697,7 @@ class TaskManager extends Element {
         }
       }
       resetScroll();
+      LOGGER_MAIN.warning("Could not find option to make available but over budject:"+option);
     }
     catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error making task available", e);
@@ -1790,7 +1791,7 @@ class TaskManager extends Element {
     }
     
     //draw scroll
-    int d = availableOptions.size() + availableButOverBudgetOptions.size()-1 - numDisplayed;
+    int d = availableOptions.size() + availableButOverBudgetOptions.size() - numDisplayed;
     if (d > 0) {
       panelCanvas.strokeWeight(1);
       panelCanvas.fill(brighten(bgColour, 100));
@@ -1805,7 +1806,7 @@ class TaskManager extends Element {
 
   ArrayList<String> mouseEvent(String eventType, int button) {
     ArrayList<String> events = new ArrayList<String>();
-    int d = availableOptions.size() + availableButOverBudgetOptions.size()-1 - numDisplayed;
+    int d = availableOptions.size() + availableButOverBudgetOptions.size() - numDisplayed;
     if (eventType == "mouseMoved") {
       taskMActive = moveOver();
     }
@@ -1823,14 +1824,14 @@ class TaskManager extends Element {
       if (d > 0 && moveOver() && mouseX-xOffset>x+w-SCROLLWIDTH) {  
         // If hovering over scroll bar, set scroll to mouse pos
         scrolling = true;
-        scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/h, d));
+        scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/(h*min(availableButOverBudgetOptions.size()+availableOptions.size()-scroll, numDisplayed)), d));
       } else {
         scrolling = false;
       }
     } else if (eventType.equals("mouseDragged")) {
       if (scrolling && d > 0) {  
         // If scrolling, set scroll to mouse pos
-        scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/h, d));
+        scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/(h*min(availableButOverBudgetOptions.size()+availableOptions.size()-scroll, numDisplayed)), d));
       }
     } else if (eventType.equals("mouseReleased")) {
       scrolling = false;
@@ -1843,8 +1844,8 @@ class TaskManager extends Element {
     if (eventType == "mouseWheel") {
       float count = event.getCount();
       if (moveOver()) { // Check mouse over element
-        if (availableOptions.size() + availableButOverBudgetOptions.size()-1 > numDisplayed) {
-          scroll = round(between(0, scroll+count, availableOptions.size() + availableButOverBudgetOptions.size()-1-numDisplayed));
+        if (availableOptions.size() + availableButOverBudgetOptions.size() > numDisplayed) {
+          scroll = round(between(0, scroll+count, availableOptions.size() + availableButOverBudgetOptions.size()-numDisplayed));
           LOGGER_MAIN.finest("Changing scroll to: "+scroll);
         }
       }
