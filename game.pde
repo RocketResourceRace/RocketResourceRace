@@ -564,7 +564,7 @@ class Game extends State {
                 players[turn].resources[oldResID] += parties[selectedCellY][selectedCellX].getUnitNumber();
               }
               
-              parties[selectedCellY][selectedCellX].setEquipment(equipmentClass, newEqupmentType);  // Change party equipment
+              parties[selectedCellY][selectedCellX].setEquipment(equipmentClass, newEqupmentType, parties[selectedCellY][selectedCellX].getUnitNumber());  // Change party equipment
               
               ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX].equipment);  // Update equipment manager with new equipment
             }
@@ -964,6 +964,21 @@ class Game extends State {
     rs.updateWarnings(getResourceWarnings(resourceProductivities));
   }
 
+  void handlePartyExcessResources(int x, int y) {
+    Party p = parties[y][x];
+    int[][] excessResources = p.removeExcessEquipment();
+    for (int i = 0; i < excessResources.length; i++) {
+      if (excessResources[i] != null) {
+        int type = excessResources[i][0];
+        int quantity = excessResources[i][1];
+        if (type != -1) {
+          LOGGER_GAME.fine(String.format("Recovering %d %s from party decreasing in size", quantity, jsManager.getEquipmentTypeID(i, type)));
+          players[turn].resources[jsManager.getResIndex(jsManager.getEquipmentTypeID(i, type))] += quantity;
+        }
+      }
+    }
+  }
+
   void updateResources(float[] resourceProductivities) {
     for (int y = 0; y < mapHeight; y++) {
       for (int x = 0; x < mapWidth; x++) {
@@ -983,17 +998,18 @@ class Game extends State {
                     }
                   } else if (resourceProductivities[jsManager.getResIndex(("food"))] < 1) {
                     float lost = (1 - resourceProductivities[jsManager.getResIndex(("food"))]) * taskOutcomes[task][resource] * parties[y][x].getUnitNumber();
-                    parties[y][x].setUnitNumber(floor(parties[y][x].getUnitNumber() - lost));
+                    parties[y][x].changeUnitNumber(-floor(lost));
+                    handlePartyExcessResources(x, y);
                     if (parties[y][x].getUnitNumber() == 0) {
                       notificationManager.post("Party Starved", x, y, turnNumber, turn);
                       LOGGER_GAME.info(String.format("Party starved at cell:(%d, %d) player:%s", x, y, turn));
                     } else {
-                      notificationManager.post(String.format("Party Starving - %d lost", ceil(lost)), x, y, turnNumber, turn);
-                      LOGGER_GAME.fine(String.format("Party Starving - %d lost at  cell: (%d, %d) player:%s", ceil(lost), x, y, turn));
+                      notificationManager.post(String.format("Party Starving - %d lost", floor(lost)), x, y, turnNumber, turn);
+                      LOGGER_GAME.fine(String.format("Party Starving - %d lost at  cell: (%d, %d) player:%s", floor(lost), x, y, turn));
                     }
                   } else {
                     int prev = parties[y][x].getUnitNumber();
-                    parties[y][x].setUnitNumber(floor(prev + getResourceChangesAtCell(x, y, resourceProductivities)[resource]));
+                    parties[y][x].changeUnitNumber(floor(getResourceChangesAtCell(x, y, resourceProductivities)[resource]));
                     if (prev != jsManager.loadIntSetting("party size") && parties[y][x].getUnitNumber() == jsManager.loadIntSetting("party size") && parties[y][x].task == JSONIndex(gameData.getJSONArray("tasks"), "Super Rest")) {
                       notificationManager.post("Party Full", x, y, turnNumber, turn);
                       LOGGER_GAME.fine(String.format("Party full at  cell: (%d, %d) player:%s", x, y, turn));

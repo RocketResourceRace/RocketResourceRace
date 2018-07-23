@@ -152,8 +152,9 @@ class Party {
     equipmentQuantities[typeIndex] = quantity;
   }
 
-  void setEquipment(int typeIndex, int equipmentIndex) {
+  void setEquipment(int typeIndex, int equipmentIndex, int quantity) {
     equipment[typeIndex] = equipmentIndex;
+    equipmentQuantities[typeIndex] = quantity;
     LOGGER_GAME.finer(String.format("changing equipment for party with id:'%s' which now has equipment:%s", id, Arrays.toString(equipment)));
   }
 
@@ -358,6 +359,20 @@ class Party {
     int overflow = max(0, changeInUnitNumber+unitNumber-jsManager.loadIntSetting("party size"));
     this.setUnitNumber(unitNumber+changeInUnitNumber);
     return overflow;
+  }
+
+  int[][] removeExcessEquipment() {
+    int[][] excessEquipment = new int[equipment.length][];
+    int i = 0;
+    for (int quantity: equipmentQuantities) {
+      if (equipment[i] != -1) {
+        excessEquipment[i] = new int[] {equipment[i], max(0, quantity-unitNumber)};
+        LOGGER_GAME.fine(String.format("Removing %d excess %s from party %s", quantity-unitNumber, jsManager.getEquipmentTypeID(i, equipment[i]), id)); 
+        equipmentQuantities[i] = min(quantity, unitNumber);
+      }
+      i++;
+    }
+    return excessEquipment;
   }
 
   Party clone() {
