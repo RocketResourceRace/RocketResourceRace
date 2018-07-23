@@ -403,7 +403,7 @@ class Party {
           
           // Check each equipment equipped for proficiencies to calculate bonus
           if (!equipmentTypeJO.isNull(proficiencyID)){
-            bonusMultiplier += equipmentTypeJO.getFloat(proficiencyID);
+            bonusMultiplier += equipmentTypeJO.getFloat(proficiencyID) * (getUnitNumber() / getEquipmentQuantity(i));  // Weight each bonus by the proportion of units that have access to equipment
           }
         }
         catch (Exception e){
