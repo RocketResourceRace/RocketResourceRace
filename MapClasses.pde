@@ -173,6 +173,7 @@ class Party {
   Party splitParty(int numUnitsSplitted, String newID){
     if (numUnitsSplitted <= getUnitNumber()){
       int[] splittedEquipmentQuantities = new int[equipment.length];
+      
       for (int i=0; i < equipment.length; i ++){
         splittedEquipmentQuantities[i] = ceil(getEquipmentQuantity(i) * numUnitsSplitted / getUnitNumber());
         setEquipmentQuantity(i, floor(getEquipmentQuantity(i)) * (getUnitNumber() - numUnitsSplitted) / getUnitNumber());
