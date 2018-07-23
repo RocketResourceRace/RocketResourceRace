@@ -556,12 +556,12 @@ class Game extends State {
           try{
             
             // Recycle equipment if unequipping
-            if (oldResID != -1 && parties[selectedCellY][selectedCellX].getEquipment(equipmentClass) != -1){
+            if (oldResID != -1 && parties[selectedCellY][selectedCellX].getEquipment(equipmentClass) != -1 && isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, newEqupmentType)){
               players[turn].resources[oldResID] += parties[selectedCellY][selectedCellX].getEquipmentQuantity(equipmentClass);
             }
             
             int quantity;
-            if (newResID == -1){
+            if (newResID == -1 || !isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, newEqupmentType)){
               quantity = 0;
             }
             else {
@@ -609,6 +609,7 @@ class Game extends State {
             resID = jsManager.getResIndex(jsManager.getEquipmentTypeID(i, parties[y][x].getEquipment(i)));
             addedQuantity = min(parties[y][x].getUnitNumber()-parties[y][x].getEquipmentQuantity(i), floor(players[turn].resources[resID]));
             parties[y][x].addEquipmentQuantity(i, addedQuantity);
+            players[turn].resources[resID] -= addedQuantity;
             LOGGER_GAME.fine(String.format("Adding %d quantity to equipment class:%d", addedQuantity, i));
           }
         }
@@ -658,7 +659,7 @@ class Game extends State {
     ((NotificationManager)(getElement("notification manager", "default"))).transform(bezel, bezel, sidePanelW, round(sidePanelH*0.2)-bezel*2);
     ((Button)getElement("move button", "party management")).transform(bezel, round(13*jsManager.loadFloatSetting("text scale")+bezel), 60, 30);
     ((Slider)getElement("split units", "party management")).transform(round(10*jsManager.loadFloatSetting("gui scale")+bezel), round(bezel*3+2*jsManager.loadFloatSetting("text scale")*13), sidePanelW-2*bezel-round(20*jsManager.loadFloatSetting("gui scale")), round(jsManager.loadFloatSetting("text scale")*2*13));
-    ((Button)getElement("stock up button", "party management")).transform(bezel, round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13), 60, 30);
+    ((Button)getElement("stock up button", "party management")).transform(bezel, round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13), 100, 30);
     ((EquipmentManager)getElement("equipment manager", "party management")).transform(bezel, round(bezel*5+4*jsManager.loadFloatSetting("text scale")*13)+30, sidePanelW-bezel*2);
     int equipmentBoxHeight = int(((EquipmentManager)getElement("equipment manager", "party management")).getBoxHeight())+(30+bezel);
     ((TaskManager)getElement("tasks", "party management")).transform(bezel, round(bezel*5+5*jsManager.loadFloatSetting("text scale")*13+equipmentBoxHeight), sidePanelW/2-int(1.5*bezel), 0);
@@ -994,6 +995,29 @@ class Game extends State {
     rs.updateStockpile(players[turn].resources);
     rs.updateWarnings(getResourceWarnings(resourceProductivities));
   }
+  
+  boolean isEquipmentCollectionAllowed(int x, int y) {
+    int[] equipmentTypes = parties[y][x].equipment;
+    for (int c = 0; c < equipmentTypes.length; c++) {
+      if (isEquipmentCollectionAllowed(x, y, c, equipmentTypes[c])) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  boolean isEquipmentCollectionAllowed(int x, int y, int c, int t) {
+    if (buildings[y][x] != null && c != -1 && t != -1) {
+      JSONArray sites = gameData.getJSONArray("equipment").getJSONObject(c).getJSONArray("types").getJSONObject(t).getJSONArray("valid collection sites");
+      for (int j = 0; j < sites.size(); j++) {
+        if (buildingIndex(sites.getString(j)) == buildings[y][x].type) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+    
 
   void handlePartyExcessResources(int x, int y) {
     Party p = parties[y][x];
@@ -1003,18 +1027,9 @@ class Game extends State {
         int type = excessResources[i][0];
         int quantity = excessResources[i][1];
         if (type != -1) {
-          if (buildings[y][x] != null) {
-            JSONArray sites = gameData.getJSONArray("equipment").getJSONObject(i).getJSONArray("types").getJSONObject(type).getJSONArray("valid collection sites");
-            boolean siteValid = false;
-            for (int j = 0; j < sites.size(); j++) {
-              if (buildingIndex(sites.getString(j)) == buildings[y][x].type) {
-                siteValid = true;
-              }
-            }
-            if (siteValid) {
-              LOGGER_GAME.fine(String.format("Recovering %d %s from party decreasing in size", quantity, jsManager.getEquipmentTypeID(i, type)));
-              players[turn].resources[jsManager.getResIndex(jsManager.getEquipmentTypeID(i, type))] += quantity;
-            }
+          if (isEquipmentCollectionAllowed(x, y, i, type)) {
+            LOGGER_GAME.fine(String.format("Recovering %d %s from party decreasing in size", quantity, jsManager.getEquipmentTypeID(i, type)));
+            players[turn].resources[jsManager.getResIndex(jsManager.getEquipmentTypeID(i, type))] += quantity;
           }
         }
       }
@@ -1962,6 +1977,15 @@ class Game extends State {
         } else {
           partyManagementColour = color(0, 0, 150);
           getPanel("party management").setColour(color(70, 70, 220));
+        }
+        if (isEquipmentCollectionAllowed(selectedCellX, selectedCellY)) {
+          ((Button)getElement("stock up button", "party management")).bgColour = color(150);
+          ((Button)getElement("stock up button", "party management")).textColour = color(0);
+          ((Button)getElement("stock up button", "party management")).activate();
+        } else {
+          ((Button)getElement("stock up button", "party management")).bgColour = color(210);
+          ((Button)getElement("stock up button", "party management")).textColour = color(100);
+          ((Button)getElement("stock up button", "party management")).deactivate();
         }
         checkTasks();
         int selectedEquipmentType = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
