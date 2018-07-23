@@ -469,6 +469,28 @@
       ],
       "auto enabled": true
     },
+    {
+      "id": "Build Armoury",
+      "description": "Armoury is an equipment pickup building.",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand", "hill"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [
+        {"id":"wood", "quantity":300},
+        {"id": "stone", "quantity": 200}
+      ],
+      "action":{
+        "type": "Build Armoury",
+        "notification": "Armoury Built",
+        "turns": 4,
+        "building": "Armoury"
+      }
+    }
   ],
 
   "buildings":[
@@ -534,7 +556,12 @@
       "id": "Wooden Tower",
       "img": ["wooden_tower.png"],
       "obj": ["wooden_tower.obj"]
-    }
+    },
+    {
+      "id": "Armoury",
+      "img": ["armoury.png"],
+      "obj": ["armoury.obj"]
+    },
   ],
 
   "resources":[
@@ -704,6 +731,7 @@
           "img": "wooden armour.png",
           "speed": -0.25,
           "defence": 1,
+          "valid collection sites": ["Armoury"]
         },
         {
           "id": "iron armour",
@@ -711,6 +739,7 @@
           "img": "iron armour.png",
           "speed": -0.4,
           "defence": 2.5,
+          "valid collection sites": ["Armoury"]
         },
         {
           "id": "reinforced armour",
@@ -718,6 +747,7 @@
           "img": "reinforced armour.png",
           "speed": -0.5,
           "defence": 4,
+          "valid collection sites": ["Armoury"]
         },
       ]
     },
@@ -734,7 +764,8 @@
           "img": "sword and shield.png",
           "melee attack": 1,
           "speed": -0.1,
-          "defence": 0.5
+          "defence": 0.5,
+          "valid collection sites": ["Armoury"]
         },
         {
           "id": "bow",
@@ -742,6 +773,7 @@
           "img": "bow.png",
           "range": 2,
           "ranged attack": 0.25,
+          "valid collection sites": ["Armoury"]
         },
         {
           "id": "javelin",
@@ -749,6 +781,7 @@
           "img": "javelin.png",
           "range": 1,
           "ranged attack": 1,
+          "valid collection sites": ["Armoury"]
         },
         {
           "id": "pike",
@@ -756,6 +789,7 @@
           "img": "pike.png",
           "speed": -0.3,
           "melee attack": 1.5,
+          "valid collection sites": ["Armoury"]
         },
         {
           "id": "musket",
@@ -765,6 +799,7 @@
           "speed": -0.1,
           "ranged attack": 4,
           "melee attack": 1.5,
+          "valid collection sites": ["Armoury"]
         },
         {
           "id": "rifle",
@@ -773,6 +808,7 @@
           "speed": -0.1,
           "ranged attack": 6,
           "melee attack": 2,
+          "valid collection sites": ["Armoury"]
         },
         {
           "id": "machine gun",
@@ -781,6 +817,7 @@
           "speed": -0.5,
           "ranged attack": 8,
           "melee attack": 3,
+          "valid collection sites": ["Armoury"]
         },
         {
           "id": "tank",
@@ -788,6 +825,7 @@
           "range": 5,
           "speed": 0.2,
           "ranged attack": 10,
+          "valid collection sites": ["Armoury"]
         },
       ]
     },
@@ -801,18 +839,21 @@
           "id": "horse",
           "display name": "Horse",
           "speed": 1.5,
+          "valid collection sites": ["Armoury"]
         },
         {
           "id": "chariot",
           "display name": "Chariot",
           "speed": 2,
           "melee attack": 0.1,
+          "valid collection sites": ["Armoury"]
         },
         {
           "id": "apc",
           "display name": "APC",
           "speed": 2,
-          "defence": 5
+          "defence": 5,
+          "valid collection sites": ["Armoury"]
         },
       ]
     },
@@ -825,12 +866,14 @@
         {
           "id": "hand tools",
           "display name": "Hand tools",
-          "building speed": 1
+          "building speed": 1,
+          "valid collection sites": ["Armoury"]
         },
         {
           "id": "power tools",
           "display name": "Power Tools",
-          "building speed": 2
+          "building speed": 2,
+          "valid collection sites": ["Armoury"]
         },
       ]
     },

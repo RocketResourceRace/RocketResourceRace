@@ -972,8 +972,19 @@ class Game extends State {
         int type = excessResources[i][0];
         int quantity = excessResources[i][1];
         if (type != -1) {
-          LOGGER_GAME.fine(String.format("Recovering %d %s from party decreasing in size", quantity, jsManager.getEquipmentTypeID(i, type)));
-          players[turn].resources[jsManager.getResIndex(jsManager.getEquipmentTypeID(i, type))] += quantity;
+          if (buildings[y][x] != null) {
+            JSONArray sites = gameData.getJSONArray("equipment").getJSONObject(i).getJSONArray("types").getJSONObject(type).getJSONArray("valid collection sites");
+            boolean siteValid = false;
+            for (int j = 0; j < sites.size(); j++) {
+              if (buildingIndex(sites.getString(j)) == buildings[y][x].type) {
+                siteValid = true;
+              }
+            }
+            if (siteValid) {
+              LOGGER_GAME.fine(String.format("Recovering %d %s from party decreasing in size", quantity, jsManager.getEquipmentTypeID(i, type)));
+              players[turn].resources[jsManager.getResIndex(jsManager.getEquipmentTypeID(i, type))] += quantity;
+            }
+          }
         }
       }
     }
