@@ -539,6 +539,8 @@ class Game extends State {
           int equipmentClass = ((ChangeEquipment)event).equipmentClass;
           int newEqupmentType = ((ChangeEquipment)event).newEqupmentType;
           
+          LOGGER_GAME.fine(String.format("Changing equipment type for cell (%d, %d) id:%s class:'%d' new equipment index:'%d'", selectedCellX, selectedCellY, parties[selectedCellY][selectedCellX].getID(), equipmentClass, newEqupmentType));
+          
           if (equipmentClass == -1){
             LOGGER_GAME.warning("No equipment class selected for change equipment event");
           }
@@ -551,23 +553,22 @@ class Game extends State {
           }
           
           try{
-            if (newResID == -1 || players[turn].resources[newResID] >= parties[selectedCellY][selectedCellX].getUnitNumber()) {  // Check sufficient resources for equipment change
-              // Subtract equipment resource
-              if (newResID != -1){
-                players[turn].resources[newResID] -= parties[selectedCellY][selectedCellX].getUnitNumber();
-              }
-              
-              LOGGER_GAME.fine(String.format("Changing equipment type for cell (%d, %d) id:%s class:'%d' new equipment index:'%d'", selectedCellX, selectedCellY, parties[selectedCellY][selectedCellX].getID(), equipmentClass, newEqupmentType));
-              
-              if (parties[selectedCellY][selectedCellX].getEquipment(equipmentClass) != -1){
-                // Recycle equipment if not nothing
-                players[turn].resources[oldResID] += parties[selectedCellY][selectedCellX].getUnitNumber();
-              }
-              
-              parties[selectedCellY][selectedCellX].setEquipment(equipmentClass, newEqupmentType, parties[selectedCellY][selectedCellX].getUnitNumber());  // Change party equipment
-              
-              ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX]);  // Update equipment manager with new equipment
+            int quantity = floor(min(parties[selectedCellY][selectedCellX].getUnitNumber(), players[turn].resources[newResID]));
+            parties[selectedCellY][selectedCellX].setEquipment(equipmentClass, newEqupmentType, quantity);  // Change party equipment
+            
+            LOGGER_GAME.fine("Quantity of equipment = "+quantity);
+            
+            // Recycle equipment if unequipping
+            if (parties[selectedCellY][selectedCellX].getEquipment(equipmentClass) != -1){
+              players[turn].resources[oldResID] += parties[selectedCellY][selectedCellX].getEquipmentQuantity(equipmentClass);
             }
+            
+            // Subtract equipment resource
+            if (newResID != -1){
+              players[turn].resources[newResID] -= quantity;
+            }
+            
+            ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX]);  // Update equipment manager with new equipment
           }
           catch (ArrayIndexOutOfBoundsException e){
             LOGGER_MAIN.warning("Index problem with equipment change");

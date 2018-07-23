@@ -108,9 +108,7 @@ class EquipmentManager extends Element {
         else if (newSelectedType != currentEquipment[selectedClass]){
           events.add("valueChanged");
           events.add("stop events");
-          if (equipmentAvailable[newSelectedType]){
-            equipmentToChange.add(new int[] {selectedClass, newSelectedType});
-          }
+          equipmentToChange.add(new int[] {selectedClass, newSelectedType});
         }
         selectedClass = -1;
       }
