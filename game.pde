@@ -566,7 +566,7 @@ class Game extends State {
               
               parties[selectedCellY][selectedCellX].setEquipment(equipmentClass, newEqupmentType, parties[selectedCellY][selectedCellX].getUnitNumber());  // Change party equipment
               
-              ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX].equipment);  // Update equipment manager with new equipment
+              ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX]);  // Update equipment manager with new equipment
             }
           }
           catch (ArrayIndexOutOfBoundsException e){
@@ -1925,7 +1925,7 @@ class Game extends State {
           checkEquipment(selectedEquipmentType);
           updatePartyManagementProficiencies();
         }
-        ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX].equipment);
+        ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX]);
         updatePartyManagementProficiencies();
         updateCurrentPartyTrainingFocus();
       }

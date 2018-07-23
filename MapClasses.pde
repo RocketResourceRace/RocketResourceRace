@@ -151,6 +151,14 @@ class Party {
   void setEquipmentQuantity(int typeIndex, int quantity){
     equipmentQuantities[typeIndex] = quantity;
   }
+  
+  int[] getEquipmentQuantities(){
+    return equipmentQuantities;
+  }
+  
+  void setEquipmentQuantities(int[] v){
+    equipmentQuantities = v;
+  }
 
   void setEquipment(int typeIndex, int equipmentIndex, int quantity) {
     equipment[typeIndex] = equipmentIndex;
@@ -418,7 +426,7 @@ class Party {
           
           // Check each equipment equipped for proficiencies to calculate bonus
           if (!equipmentTypeJO.isNull(proficiencyID)){
-            bonusMultiplier += equipmentTypeJO.getFloat(proficiencyID);
+            bonusMultiplier += equipmentTypeJO.getFloat(proficiencyID) * (getUnitNumber() / getEquipmentQuantity(i));  // Weight each bonus by the proportion of units that have access to equipment
           }
         }
         catch (Exception e){
