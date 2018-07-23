@@ -348,7 +348,7 @@ class Map3D extends BaseMap implements Map {
         float x = random(0, blockSize), y = random(0, blockSize);
         float h = getHeight((x1+x)/blockSize, (y1+y)/blockSize);
         float randHeight = LEAVESH*random(1-TREERANDOMNESS, 1+TREERANDOMNESS);
-        if (h <= 0) continue; // Don't put trees underwater
+        if (h <= jsManager.loadFloatSetting("water level")*blockSize*GROUNDHEIGHT) continue; // Don't put trees underwater
         int leafColour = color(random(35, 40), random(90, 100), random(30, 60));
         int stumpColour = color(random(100, 125), random(100, 125), random(50, 30));
         PShape leaves = createShape();
@@ -530,11 +530,6 @@ class Map3D extends BaseMap implements Map {
         tempTileImages[i].resize(jsManager.loadIntSetting("terrain texture resolution"), jsManager.loadIntSetting("terrain texture resolution"));
       }
 
-      LOGGER_MAIN.fine("Generating Water");
-      water = createShape(RECT, 0, 0, getObjectWidth(), getObjectHeight());
-      water.translate(0, 0, 0.1);
-      generateHighlightingGrid(8, 8);
-
       tiles = createShape(GROUP);
       textureMode(IMAGE);
       trees = createShape(GROUP);
@@ -566,6 +561,12 @@ class Map3D extends BaseMap implements Map {
       battle = loadShape("obj/party/battle.obj");
       battle.rotateX(PI/2);
       battle.scale(0.8);
+
+      LOGGER_MAIN.fine("Generating Water");
+      fill(10, 50, 180);
+      water = createShape(RECT, 0, 0, getObjectWidth(), getObjectHeight());
+      water.translate(0, 0, jsManager.loadFloatSetting("water level")*blockSize*GROUNDHEIGHT+0.05);
+      generateHighlightingGrid(8, 8);
 
 
       int players = 2;
