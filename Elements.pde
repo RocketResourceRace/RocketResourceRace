@@ -4,7 +4,8 @@ class EquipmentManager extends Element {
   final int TEXTSIZE = 8;
   final float BOXWIDTHHEIGHTRATIO = 0.75;
   String[] equipmentClassDisplayNames;
-  int[] currentEquipment;
+  int[] currentEquipment, currentEquipmentQuantities;
+  int currentUnitNumber;
   float boxWidth, boxHeight, dropBoxHeight;
   int selectedClass;
   boolean[] equipmentAvailable;
@@ -22,8 +23,11 @@ class EquipmentManager extends Element {
     }
 
     currentEquipment = new int[jsManager.getNumEquipmentClasses()];
+    currentEquipmentQuantities = new int[jsManager.getNumEquipmentClasses()];
+    currentUnitNumber = 0;
     for (int i=0; i<currentEquipment.length;i ++){
       currentEquipment[i] = -1; // -1 represens no equipment
+      currentEquipmentQuantities[i] = 0;
     }
 
     updateSizes();
@@ -48,9 +52,11 @@ class EquipmentManager extends Element {
     updateSizes();
   }
 
-  void setEquipment(int[] equipment) {
-    this.currentEquipment = equipment;
-    LOGGER_GAME.finer(String.format("changing equipment for manager to :%s", Arrays.toString(equipment)));
+  void setEquipment(Party party) {
+    this.currentEquipment = party.getAllEquipment();
+    LOGGER_GAME.finer(String.format("changing equipment for manager to :%s", Arrays.toString(party.getAllEquipment())));
+    currentEquipmentQuantities = party.getEquipmentQuantities();
+    currentUnitNumber = party.getUnitNumber();
   }
   
   float getBoxHeight(){
@@ -143,6 +149,7 @@ class EquipmentManager extends Element {
         panelCanvas.textFont(getFont((TEXTSIZE-1)*jsManager.loadFloatSetting("text scale")));
         panelCanvas.textAlign(CENTER, BOTTOM);
         panelCanvas.text(jsManager.getEquipmentTypeDisplayName(i, currentEquipment[i]), x+boxWidth*(i+0.5), y+boxHeight);
+        panelCanvas.text(String.format("%d/%d", currentEquipmentQuantities[i], currentUnitNumber), x+boxWidth*(i+0.5), y+boxHeight-TEXTSIZE*jsManager.loadFloatSetting("text scale"));
       }
     }
     
