@@ -152,6 +152,10 @@ class Party {
     equipmentQuantities[typeIndex] = quantity;
   }
   
+  void addEquipmentQuantity(int classIndex, int addedQuantity){
+    setEquipmentQuantity(classIndex, getEquipmentQuantity(classIndex)+addedQuantity);
+  }
+  
   int[] getEquipmentQuantities(){
     return equipmentQuantities;
   }
