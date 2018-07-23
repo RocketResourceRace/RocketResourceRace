@@ -108,9 +108,7 @@ class EquipmentManager extends Element {
         else if (newSelectedType != currentEquipment[selectedClass]){
           events.add("valueChanged");
           events.add("stop events");
-          if (equipmentAvailable[newSelectedType]){
-            equipmentToChange.add(new int[] {selectedClass, newSelectedType});
-          }
+          equipmentToChange.add(new int[] {selectedClass, newSelectedType});
         }
         selectedClass = -1;
       }
@@ -149,6 +147,9 @@ class EquipmentManager extends Element {
         panelCanvas.textFont(getFont((TEXTSIZE-1)*jsManager.loadFloatSetting("text scale")));
         panelCanvas.textAlign(CENTER, BOTTOM);
         panelCanvas.text(jsManager.getEquipmentTypeDisplayName(i, currentEquipment[i]), x+boxWidth*(i+0.5), y+boxHeight);
+        if (currentEquipmentQuantities[i] < currentUnitNumber){
+          panelCanvas.fill(255, 0, 0);
+        }
         panelCanvas.text(String.format("%d/%d", currentEquipmentQuantities[i], currentUnitNumber), x+boxWidth*(i+0.5), y+boxHeight-TEXTSIZE*jsManager.loadFloatSetting("text scale"));
       }
     }

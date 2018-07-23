@@ -135,6 +135,7 @@ class Game extends State {
       addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, color(255), color(150), color(0), color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
       addElement("tasks", new TaskManager(bezel, bezel*4+30+30, 220, 8, color(150), color(50), tasks, 10), "party management");
       addElement("task text", new Text(0, 0, 10, "Tasks", color(0), LEFT), "party management");
+      addElement("stock up button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Stock Up"), "party management");
 
       addElement("proficiency summary", new ProficiencySummary(bezel, bezel*5+30+200, 220, 100), "party management");
       addElement("proficiencies", new Text(0, 0, 10, "Proficiencies", color(0), LEFT), "party management");
@@ -539,6 +540,8 @@ class Game extends State {
           int equipmentClass = ((ChangeEquipment)event).equipmentClass;
           int newEqupmentType = ((ChangeEquipment)event).newEqupmentType;
           
+          LOGGER_GAME.fine(String.format("Changing equipment type for cell (%d, %d) id:%s class:'%d' new equipment index:'%d'", selectedCellX, selectedCellY, parties[selectedCellY][selectedCellX].getID(), equipmentClass, newEqupmentType));
+          
           if (equipmentClass == -1){
             LOGGER_GAME.warning("No equipment class selected for change equipment event");
           }
@@ -551,23 +554,32 @@ class Game extends State {
           }
           
           try{
-            if (newResID == -1 || players[turn].resources[newResID] >= parties[selectedCellY][selectedCellX].getUnitNumber()) {  // Check sufficient resources for equipment change
-              // Subtract equipment resource
-              if (newResID != -1){
-                players[turn].resources[newResID] -= parties[selectedCellY][selectedCellX].getUnitNumber();
-              }
-              
-              LOGGER_GAME.fine(String.format("Changing equipment type for cell (%d, %d) id:%s class:'%d' new equipment index:'%d'", selectedCellX, selectedCellY, parties[selectedCellY][selectedCellX].getID(), equipmentClass, newEqupmentType));
-              
-              if (parties[selectedCellY][selectedCellX].getEquipment(equipmentClass) != -1){
-                // Recycle equipment if not nothing
-                players[turn].resources[oldResID] += parties[selectedCellY][selectedCellX].getUnitNumber();
-              }
-              
-              parties[selectedCellY][selectedCellX].setEquipment(equipmentClass, newEqupmentType, parties[selectedCellY][selectedCellX].getUnitNumber());  // Change party equipment
-              
-              ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX]);  // Update equipment manager with new equipment
+            
+            // Recycle equipment if unequipping
+            if (oldResID != -1 && parties[selectedCellY][selectedCellX].getEquipment(equipmentClass) != -1){
+              players[turn].resources[oldResID] += parties[selectedCellY][selectedCellX].getEquipmentQuantity(equipmentClass);
             }
+            
+            int quantity;
+            if (newResID == -1){
+              quantity = 0;
+            }
+            else {
+              quantity = floor(min(parties[selectedCellY][selectedCellX].getUnitNumber(), players[turn].resources[newResID]));
+            }
+            parties[selectedCellY][selectedCellX].setEquipment(equipmentClass, newEqupmentType, quantity);  // Change party equipment
+            
+            LOGGER_GAME.fine("Quantity of equipment = "+quantity);
+            
+            // Subtract equipment resource
+            if (newResID != -1){
+              players[turn].resources[newResID] -= quantity;
+            }
+            
+            ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX]);  // Update equipment manager with new equipment
+            
+            // Update max movement points
+            parties[selectedCellY][selectedCellX].resetMovementPoints();
           }
           catch (ArrayIndexOutOfBoundsException e){
             LOGGER_MAIN.warning("Index problem with equipment change");
@@ -586,6 +598,24 @@ class Game extends State {
         parties[y][x] = null;
         LOGGER_GAME.fine(String.format("Party at cell: (%d, %d) disbanded", x, y));
         selectCell(x, y, false);
+      }
+      else if (event instanceof StockUpEquipment){
+        LOGGER_GAME.fine("Stocking up equipment");
+        int x = ((StockUpEquipment)event).x;
+        int y = ((StockUpEquipment)event).y;
+        int resID, addedQuantity;
+        for (int i = 0; i < jsManager.getNumEquipmentClasses(); i ++){
+          if (parties[y][x].getEquipment(i) != -1){
+            resID = jsManager.getResIndex(jsManager.getEquipmentTypeID(i, parties[y][x].getEquipment(i)));
+            addedQuantity = min(parties[y][x].getUnitNumber()-parties[y][x].getEquipmentQuantity(i), floor(players[turn].resources[resID]));
+            parties[y][x].addEquipmentQuantity(i, addedQuantity);
+            LOGGER_GAME.fine(String.format("Adding %d quantity to equipment class:%d", addedQuantity, i));
+          }
+        }
+      }
+      else {
+        LOGGER_GAME.warning("Event type not found");
+        valid = false;
       }
 
       if (valid) {
@@ -628,8 +658,9 @@ class Game extends State {
     ((NotificationManager)(getElement("notification manager", "default"))).transform(bezel, bezel, sidePanelW, round(sidePanelH*0.2)-bezel*2);
     ((Button)getElement("move button", "party management")).transform(bezel, round(13*jsManager.loadFloatSetting("text scale")+bezel), 60, 30);
     ((Slider)getElement("split units", "party management")).transform(round(10*jsManager.loadFloatSetting("gui scale")+bezel), round(bezel*3+2*jsManager.loadFloatSetting("text scale")*13), sidePanelW-2*bezel-round(20*jsManager.loadFloatSetting("gui scale")), round(jsManager.loadFloatSetting("text scale")*2*13));
-    ((EquipmentManager)getElement("equipment manager", "party management")).transform(bezel, round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13), sidePanelW-bezel*2);
-    int equipmentBoxHeight = int(((EquipmentManager)getElement("equipment manager", "party management")).getBoxHeight());
+    ((Button)getElement("stock up button", "party management")).transform(bezel, round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13), 60, 30);
+    ((EquipmentManager)getElement("equipment manager", "party management")).transform(bezel, round(bezel*5+4*jsManager.loadFloatSetting("text scale")*13)+30, sidePanelW-bezel*2);
+    int equipmentBoxHeight = int(((EquipmentManager)getElement("equipment manager", "party management")).getBoxHeight())+(30+bezel);
     ((TaskManager)getElement("tasks", "party management")).transform(bezel, round(bezel*5+5*jsManager.loadFloatSetting("text scale")*13+equipmentBoxHeight), sidePanelW/2-int(1.5*bezel), 0);
     ((Text)getElement("task text", "party management")).translate(bezel, round(bezel*5+4*jsManager.loadFloatSetting("text scale")*13+equipmentBoxHeight));
     ((ProficiencySummary)getElement("proficiency summary", "party management")).transform(sidePanelW/2+int(bezel*0.5), round(bezel*5+5*jsManager.loadFloatSetting("text scale")*13)+equipmentBoxHeight, sidePanelW/2-int(1.5*bezel), int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13));
@@ -1485,6 +1516,8 @@ class Game extends State {
           ((BaseFileManager)getElement("saving manager", "save screen")).loadSaveNames();
         } else if (event.id.equals("disband button")){
           postEvent(new DisbandParty(selectedCellX, selectedCellY));
+        } else if (event.id.equals("stock up button")){
+          postEvent(new StockUpEquipment(selectedCellX, selectedCellY));
         }
       }
       if (event.type.equals("valueChanged")) {
