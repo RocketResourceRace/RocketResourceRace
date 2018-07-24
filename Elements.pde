@@ -1045,10 +1045,10 @@ class Tooltip extends Element {
       }
       float bonusMultiplier = party.getProficiencyBonusMultiplier(proficiencyIndex);
       if (bonusMultiplier != 0){
-        ArrayList<String[]> bonusBreakdown = party.getProficiencyBonusMultiplierBreakdown(proficiencyIndex);
+        ArrayList<String> bonusBreakdown = party.getProficiencyBonusMultiplierBreakdown(proficiencyIndex);
         t += "\nBonus breakdown:\n";
         for (int i = 0; i < bonusBreakdown.size(); i ++){
-          t += String.format("%s from %s\n", bonusBreakdown.get(i)[1], bonusBreakdown.get(i)[0]);
+          t += bonusBreakdown.get(i);
         }
       }
       

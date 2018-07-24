@@ -424,14 +424,14 @@ class Party {
     JSONObject equipmentTypeJO;
     String proficiencyID = jsManager.indexToProficiencyID(index);
     for (int i = 0 ; i < getAllEquipment().length; i++){
-      if (getAllEquipment()[i] != -1){
+      if (getEquipment(i) != -1){
         try{
           equipmentClassJO = gameData.getJSONArray("equipment").getJSONObject(i);
           equipmentTypeJO = equipmentClassJO.getJSONArray("types").getJSONObject(getEquipment(i));
           
           // Check each equipment equipped for proficiencies to calculate bonus
           if (!equipmentTypeJO.isNull(proficiencyID)){
-            bonusMultiplier += equipmentTypeJO.getFloat(proficiencyID) * (getUnitNumber() / getEquipmentQuantity(i));  // Weight each bonus by the proportion of units that have access to equipment
+            bonusMultiplier += equipmentTypeJO.getFloat(proficiencyID) * ((float)getEquipmentQuantity(i)/getUnitNumber());  // Weight each bonus by the proportion of units that have access to equipment
           }
         }
         catch (Exception e){
@@ -442,15 +442,15 @@ class Party {
     return bonusMultiplier;
   }
   
-  ArrayList<String[]> getProficiencyBonusMultiplierBreakdown(int index){
+  ArrayList<String> getProficiencyBonusMultiplierBreakdown(int index){
     // index is index of proficiency in data.json
     // This method is for the breakdown used by tooltip of bonus
     JSONObject equipmentClassJO;
     JSONObject equipmentTypeJO;
-    ArrayList<String[]> returnMe = new ArrayList<String[]>();
+    ArrayList<String> returnMe = new ArrayList<String>();
     String proficiencyID = jsManager.indexToProficiencyID(index);
     for (int i = 0 ; i < getAllEquipment().length; i++){
-      if (getAllEquipment()[i] != -1){
+      if (getEquipment(i) != -1){
         try{
           equipmentClassJO = gameData.getJSONArray("equipment").getJSONObject(i);
           equipmentTypeJO = equipmentClassJO.getJSONArray("types").getJSONObject(getEquipment(i));
@@ -458,10 +458,10 @@ class Party {
           // Check each equipment equipped for proficiencies to calculate bonus
           if (!equipmentTypeJO.isNull(proficiencyID)){
             if (equipmentTypeJO.getFloat(proficiencyID) > 0){
-              returnMe.add(new String[]{equipmentTypeJO.getString("display name"), String.format("<g>+%s</g>", roundDpTrailing("+"+equipmentTypeJO.getFloat(proficiencyID), 2))});
+              returnMe.add(String.format("<g>+%s</g> from %s (%d/%d)", roundDpTrailing("+"+equipmentTypeJO.getFloat(proficiencyID) * ((float)getEquipmentQuantity(i)/getUnitNumber()), 2), equipmentTypeJO.getString("display name"), getEquipmentQuantity(i), getUnitNumber()));
             }
             else if (equipmentTypeJO.getFloat(proficiencyID) < 0){
-              returnMe.add(new String[]{equipmentTypeJO.getString("display name"), String.format("<r>%s</r>", roundDpTrailing(""+equipmentTypeJO.getFloat(proficiencyID), 2))});
+              returnMe.add(String.format("<g>%s</g> from %s (%d/%d)", roundDpTrailing("+"+equipmentTypeJO.getFloat(proficiencyID) * ((float)getEquipmentQuantity(i)/getUnitNumber()), 2), equipmentTypeJO.getString("display name"), getEquipmentQuantity(i), getUnitNumber()));
             }
           }
         }
