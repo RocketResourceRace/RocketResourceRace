@@ -1014,6 +1014,20 @@ class Tooltip extends Element {
         t += String.format("Equipment Available: <r>%d</r>/%d", floor(availableResources[resourceIndex]), party.getUnitNumber());
       }
       
+      // Show where equipment can be stocked up
+      if (!equipmentTypeJO.isNull("valid collection sites")){
+        t += String.format("\n\n%s can be stocked up at: ", equipmentTypeJO.getString("display name"));
+        for (int i=0; i < equipmentTypeJO.getJSONArray("valid collection sites").size(); i ++){
+          t += equipmentTypeJO.getJSONArray("valid collection sites").getString(i);
+          if (i+1 < equipmentTypeJO.getJSONArray("valid collection sites").size()){
+            t += ", ";
+          }
+        }
+      }
+      else{
+        t += String.format("\n\n%s can be stocked up anywhere", equipmentTypeJO.getString("display name"));
+      }
+      
       if (party.getMovementPoints() != party.getMaxMovementPoints()){
         t += "\n<r>Equipment can only be changed\nif party has full movement points</r>";
       } else{
