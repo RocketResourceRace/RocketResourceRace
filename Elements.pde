@@ -65,8 +65,10 @@ class IncrementElement extends Element {
       
       if (mouseOverLeftBox()){
         setValue(getValue()-change);
+        events.add("valueChanged");
       } else if (mouseOverRightBox()){
         setValue(getValue()+change);
+        events.add("valueChanged");
       }
     }
     if (eventType.equals("mousePressed")){
@@ -81,8 +83,9 @@ class IncrementElement extends Element {
     }
     if (eventType.equals("mouseDragged")){
       if (grabbed){
-        int amount = floor((mouseX-startingX)*(upper-lower)/(width*FULLPANPROPORTION));
-        setValue(startingValue+amount);
+        int change = floor((mouseX-startingX)*(upper-lower)/(width*FULLPANPROPORTION));
+        setValue(startingValue+change);
+        events.add("valueChanged");
       }
     }
     return events;

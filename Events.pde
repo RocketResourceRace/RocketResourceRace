@@ -113,6 +113,15 @@ class StockUpEquipment extends GameEvent {
   }
 }
 
+class UnitCapChange extends GameEvent { 
+  int x, y, newCap;
+  UnitCapChange(int x, int y, int newCap) {
+    this.x = x;
+    this.y = y;
+    this.newCap = newCap;
+  }
+}
+
 class SetAutoStockUp extends GameEvent {
   int x, y;
   boolean enabled;

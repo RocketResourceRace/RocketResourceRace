@@ -599,7 +599,7 @@ class Game extends State {
         int y = ((DisbandParty)event).y;
         parties[y][x] = null;
         LOGGER_GAME.fine(String.format("Party at cell: (%d, %d) disbanded", x, y));
-        selectCell(x, y, false);
+        selectCell(x, y, false);  // Remove party management stuff
       }
       else if (event instanceof StockUpEquipment){
         LOGGER_GAME.fine("Stocking up equipment");
@@ -615,12 +615,26 @@ class Game extends State {
             LOGGER_GAME.fine(String.format("Adding %d quantity to equipment class:%d", addedQuantity, i));
           }
         }
-      } else if (event instanceof SetAutoStockUp){
+      } 
+      else if (event instanceof SetAutoStockUp){
         int x = ((SetAutoStockUp)event).x;
         int y = ((SetAutoStockUp)event).y;
         boolean newSetting = ((SetAutoStockUp)event).enabled;
         LOGGER_GAME.fine("Changing auto stock up to: "+ newSetting);
         parties[y][x].setAutoStockUp(newSetting);
+      } 
+      else if (event instanceof UnitCapChange){
+        int x = ((UnitCapChange)event).x;
+        int y = ((UnitCapChange)event).y;
+        int newCap = ((UnitCapChange)event).newCap;
+        if (newCap >= parties[y][x].getUnitNumber()){
+          parties[y][x].setUnitCap(newCap);
+          LOGGER_GAME.fine("Changing unit cap to: "+ newCap);
+        }
+        else{ // Unit cap set below number of units in party
+          valid = false;
+          LOGGER_GAME.warning(String.format("Unit cap:&d set below number of units in party:&d", newCap, parties[y][x].getUnitNumber()));
+        }
       }
       else {
         LOGGER_GAME.warning("Event type not found");
@@ -1584,12 +1598,13 @@ class Game extends State {
           postEvent(new ChangePartyTrainingFocus(selectedCellX, selectedCellY, ((DropDown)getElement("party training focus", "party management")).getOptionIndex()));
         } else if (event.id.equals("auto stock up toggle")){
           postEvent(new SetAutoStockUp(selectedCellX, selectedCellY, ((ToggleButton)getElement("auto stock up toggle", "party management")).getState()));
-        }
-        else if (event.id.equals("equipment manager")){
+        } else if (event.id.equals("equipment manager")){
           for (int [] equipmentChange : ((EquipmentManager)getElement("equipment manager", "party management")).getEquipmentToChange()){
             postEvent(new ChangeEquipment(equipmentChange[0], equipmentChange[1]));
           }
           updatePartyManagementProficiencies();
+        } else if (event.id.equals("unit cap incrementer")){
+          postEvent(new UnitCapChange(selectedCellX, selectedCellY, ((IncrementElement)getElement("unit cap incrementer", "party management")).getValue()));
         }
       }
       if (event.type.equals("dropped")){
@@ -2024,8 +2039,15 @@ class Game extends State {
         ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX]);
         updatePartyManagementProficiencies();
         updateCurrentPartyTrainingFocus();
+        updateUnitCapIncrementer();
       }
     }
+  }
+  
+  void updateUnitCapIncrementer(){
+    ((IncrementElement)getElement("unit cap incrementer", "party management")).setUpper(jsManager.loadIntSetting("party size"));
+    ((IncrementElement)getElement("unit cap incrementer", "party management")).setLower(parties[selectedCellY][selectedCellX].getUnitNumber());
+    ((IncrementElement)getElement("unit cap incrementer", "party management")).setValue(parties[selectedCellY][selectedCellX].getUnitCap());
   }
 
   void updatePartyManagementProficiencies() {
