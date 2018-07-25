@@ -1671,25 +1671,24 @@ class Game extends State {
               // merge parties
               notificationManager.post("Parties Merged", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
               int overflow = parties[path.get(node)[1]][path.get(node)[0]].mergeEntireFrom(p, cost);
-              LOGGER_GAME.fine(String.format("Parties merged at (%d, %d) from party with id: %s to party with id:%s. Units transfered:%d", 
-                (int)path.get(node)[0], (int)path.get(node)[1], p.getID(), parties[path.get(node)[1]][path.get(node)[0]].getID(), p.getUnitNumber()));
+              LOGGER_GAME.fine(String.format("Parties merged at (%d, %d) from party with id: %s to party with id:%s. Overflow:%d", 
+                (int)path.get(node)[0], (int)path.get(node)[1], p.getID(), parties[path.get(node)[1]][path.get(node)[0]].getID(), overflow));
 
               if (cellFollow) {
                 selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
                 stillThere = false;
               }
-              if (splitting) {
-                splittedParty = null;
-                splitting = false;
-              } else {
-                parties[py][px] = null;
-              }
-              if (overflow>0) {
-                if (parties[path.get(node-1)[1]][path.get(node-1)[0]]==null) {
-                  //p.setUnitNumber(overflow);
-                  parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
-                  LOGGER_GAME.finer(String.format("Setting units in party with id:%s to %d as there was overflow", p.getID(), p.getUnitNumber()));
+              if (overflow == 0){
+                if (splitting) {
+                  splittedParty = null;
+                  splitting = false;
+                } else {
+                  parties[py][px] = null;
                 }
+              }
+              else if (overflow>0) {
+                parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
+                LOGGER_GAME.finer(String.format("Setting units in party with id:%s to %d as there was overflow", p.getID(), p.getUnitNumber()));
               }
             } else if (parties[path.get(node)[1]][path.get(node)[0]].player == 2) {
               // merge cells battle
