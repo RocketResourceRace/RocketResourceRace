@@ -857,13 +857,30 @@ class Tooltip extends Element {
     return returnString;
   }
 
-  void setMoving(int turns, boolean splitting, int cost, boolean is3D) {
+  void setMoving(int turns, boolean splitting, Party party, int numUnitsSplitting, int cost, boolean is3D) {
     attacking = false;
     //Tooltip text if moving. Turns is the number of turns in move
     JSONObject jo = gameData.getJSONObject("tooltips");
     String t = "";
     if (splitting) {
-      t = jo.getString("moving splitting");
+      t = String.format("Split %d units from party and move them to cell.\n", numUnitsSplitting);
+      int[] splittedQuantities = party.splittedQuantities(numUnitsSplitting);
+      
+      boolean anyEquipment = false;
+      for (int i = 0; i < party.getAllEquipment().length; i ++){
+        if (party.getEquipment(i) != -1){
+          anyEquipment = true;
+        }
+      }
+      if (anyEquipment){
+        t += "\n\nThe equipment will be divided as follows:\n";
+      }
+      for (int i = 0; i < party.getAllEquipment().length; i ++){
+        if (party.getEquipment(i) != -1){
+          // If the party has something equipped for this class
+          t += String.format("%s: New party will get %d, existing party will keep %d", jsManager.getEquipmentTypeDisplayName(i, party.getEquipment(i)), splittedQuantities[i], party.getEquipmentQuantity(i) - splittedQuantities[i]);
+        }
+      }
     } else if (turns == 0) {
       t = jo.getString("moving");
       if (is3D) {
