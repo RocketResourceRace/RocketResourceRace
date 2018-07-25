@@ -146,12 +146,12 @@ class Party {
     return equipment;
   }
   
-  int getEquipmentQuantity(int typeIndex){
-    return equipmentQuantities[typeIndex];
+  int getEquipmentQuantity(int classIndex){
+    return equipmentQuantities[classIndex];
   }
   
-  void setEquipmentQuantity(int typeIndex, int quantity){
-    equipmentQuantities[typeIndex] = quantity;
+  void setEquipmentQuantity(int classIndex, int quantity){
+    equipmentQuantities[classIndex] = quantity;
   }
   
   void addEquipmentQuantity(int classIndex, int addedQuantity){
@@ -166,14 +166,14 @@ class Party {
     equipmentQuantities = v;
   }
 
-  void setEquipment(int typeIndex, int equipmentIndex, int quantity) {
-    equipment[typeIndex] = equipmentIndex;
-    equipmentQuantities[typeIndex] = quantity;
+  void setEquipment(int classIndex, int equipmentIndex, int quantity) {
+    equipment[classIndex] = equipmentIndex;
+    equipmentQuantities[classIndex] = quantity;
     LOGGER_GAME.finer(String.format("changing equipment for party with id:'%s' which now has equipment:%s", id, Arrays.toString(equipment)));
   }
 
-  int getEquipment(int typeIndex) {
-    return equipment[typeIndex];
+  int getEquipment(int classIndex) {
+    return equipment[classIndex];
   }
   
   int[] splittedQuantities(int numUnitsSplitted){
@@ -199,17 +199,13 @@ class Party {
     }
   }
 
-  void mergeEntireFrom(Party other) {
+  int mergeEntireFrom(Party other, int moveCost) {
     // Note: will need to remove other division
     LOGGER_GAME.fine(String.format("Merging entire party from id:%s into party with id:%s", other.id, this.id));
-    boolean fullyMerged = mergeFrom(other, other.getUnitNumber());
-
-    if (!fullyMerged) {
-      LOGGER_MAIN.warning(String.format("Party was not fully merged, id: %s, left=%d", id, other.getUnitNumber()));
-    }
+    return mergeFrom(other, other.getUnitNumber(), moveCost);
   }
 
-  boolean mergeFrom(Party other, int unitsTransfered) {
+  int mergeFrom(Party other, int unitsTransfered, int moveCost) {
     // Take units from other party into this party and merge attributes, weighted by unit number
     LOGGER_GAME.fine(String.format("Merging %d units from party with id:%s into party with id:%s", unitsTransfered, other.id, this.id));
 
@@ -217,14 +213,34 @@ class Party {
     for (int i = 0; i < jsManager.getNumProficiencies(); i++) {
       this.setRawProficiency(i, mergeAttribute(this.getUnitNumber(), this.getRawProficiency(i), unitsTransfered, other.getRawProficiency(i)));
     }
+    
+    // Merge equipment
+    for (int i = 0; i < getAllEquipment().length; i ++){
+      if (this.getEquipment(i) != -1 && this.getEquipment(i) == other.getEquipment(i)){
+        // If both parties have same equipment then add quantities togther
+        int amountTransfered = ceil((float)other.getEquipmentQuantity(i) * ((float)unitsTransfered / other.getUnitNumber()));
+        this.setEquipmentQuantity(i, this.getEquipmentQuantity(i) + amountTransfered);
+        other.setEquipmentQuantity(i, other.getEquipmentQuantity(i) - amountTransfered);
+      }
+      else if (this.getEquipment(i) == -1 && other.getEquipment(i) != -1){
+        // If this party has nothing equipped but the other party has something equipped, equip that.
+        int amountTransfered = ceil((float)other.getEquipmentQuantity(i) * ((float)unitsTransfered / other.getUnitNumber()));
+        this.setEquipment(i, other.getEquipment(i), other.getEquipmentQuantity(i));
+        other.setEquipmentQuantity(i, other.getEquipmentQuantity(i) - amountTransfered);
+      }
+      // Else: quantity stays same
+    }
 
     LOGGER_GAME.finer(String.format("New proficiency values: %s for party with id:%s", Arrays.toString(proficiencies), id));
     // Note: other division attributes unaffected by merge
+    
+    int movementPoints = min(this.getMovementPoints(), other.getMovementPoints()-moveCost);
+    this.setMovementPoints(movementPoints);
+    
+    int overflow = this.changeUnitNumber(unitsTransfered); // Units left over after merging
+    other.changeUnitNumber(-unitsTransfered);
 
-    this.changeUnitNumber(unitsTransfered);
-    other.changeUnitNumber(unitsTransfered);
-
-    return other.getUnitNumber() > 0; // Return true if any units left, else false
+    return overflow; // Return units left in othr party
   }
 
   void setID(String value) {
