@@ -3,10 +3,13 @@
 class IncrementElement extends Element {
   final int TEXTSIZE = 8;
   final int SIDEBOXESWIDTH = 15;
-  final int ARROWOFFSET = 3;
-  private int upper, lower, value, step;
+  final int ARROWOFFSET = 4;
+  final float FULLPANPROPORTION = 0.25;  // Adjusts how much mouse dragging movement is needed to change value as propotion of screen width
+  private int upper, lower, value, step, bigStep;
+  int startingX, startingValue;
+  boolean grabbed;
   
-  IncrementElement(int x, int y, int w, int h, int upper, int lower, int startingValue, int step){
+  IncrementElement(int x, int y, int w, int h, int upper, int lower, int startingValue, int step, int bigStep){
     this.x = x;
     this.y = y;
     this.w = w;
@@ -15,6 +18,10 @@ class IncrementElement extends Element {
     this.lower = lower;
     this.value = startingValue;
     this.step = step;
+    this.bigStep = bigStep;
+    grabbed = false;
+    startingX = 0;
+    startingValue = value;
   }
   
   void setUpper(int upper){
@@ -35,15 +42,49 @@ class IncrementElement extends Element {
   
   void setValue(int value){
     this.value = value;
+    setValueWithinBounds();
   }
   
   int getValue(){
     return this.value;
   }
   
+  void setValueWithinBounds(){
+    value = int(between(lower, value, upper));
+  }
+  
   ArrayList<String> mouseEvent(String eventType, int button) {
     ArrayList<String> events = new ArrayList<String>();
-    
+    if (eventType.equals("mouseClicked")){
+      int change = 0;
+      if (button == LEFT){
+        change = step;
+      } else if (button == RIGHT){  // Right clicking increments by more
+        change = bigStep;
+      }
+      
+      if (mouseOverLeftBox()){
+        setValue(getValue()-change);
+      } else if (mouseOverRightBox()){
+        setValue(getValue()+change);
+      }
+    }
+    if (eventType.equals("mousePressed")){
+      if (mouseOverMiddleBox()){
+        grabbed = true;
+        startingX = mouseX;
+        startingValue = getValue();
+      }
+    }
+    if (eventType.equals("mouseReleased")){
+      grabbed = false;
+    }
+    if (eventType.equals("mouseDragged")){
+      if (grabbed){
+        int amount = floor((mouseX-startingX)*(upper-lower)/(width*FULLPANPROPORTION));
+        setValue(startingValue+amount);
+      }
+    }
     return events;
   }
   
@@ -84,6 +125,12 @@ class IncrementElement extends Element {
     panelCanvas.strokeWeight(2);
     panelCanvas.line(x+w+ARROWOFFSET-SIDEBOXESWIDTH, y+ARROWOFFSET, x+w-ARROWOFFSET, y+h/2);
     panelCanvas.line(x+w-ARROWOFFSET, y+h/2, x+w+ARROWOFFSET-SIDEBOXESWIDTH, y-ARROWOFFSET+h);
+    
+    // Draw value
+    panelCanvas.fill(0);
+    panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
+    panelCanvas.textAlign(CENTER, CENTER);
+    panelCanvas.text(value, x+w/2, y+h/2);
     
     panelCanvas.popStyle();
   }

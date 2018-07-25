@@ -137,7 +137,7 @@ class Game extends State {
       addElement("task text", new Text(0, 0, 10, "Tasks", color(0), LEFT), "party management");
       addElement("stock up button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Stock Up"), "party management");
       addElement("auto stock up toggle", new ToggleButton(bezel, bezel*3, 100, 30, color(100), color(0), false, "Auto Stock Up"), "party management");
-      addElement("unit cap incrementer", new IncrementElement(bezel, bezel*3, 100, 30, jsManager.loadIntSetting("party size"), 0, jsManager.loadIntSetting("party size"), 1), "party management");
+      addElement("unit cap incrementer", new IncrementElement(bezel, bezel*3, 100, 30, jsManager.loadIntSetting("party size"), 0, jsManager.loadIntSetting("party size"), 1, 5), "party management");
 
       addElement("proficiency summary", new ProficiencySummary(bezel, bezel*5+30+200, 220, 100), "party management");
       addElement("proficiencies", new Text(0, 0, 10, "Proficiencies", color(0), LEFT), "party management");
