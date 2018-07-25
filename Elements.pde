@@ -926,7 +926,7 @@ class Tooltip extends Element {
       }
     }
     if (!hasEquipment){
-      t += " None/n";
+      t += " None\n";
     }
     
     // New equipment quantities + types for overflow party
@@ -936,10 +936,11 @@ class Tooltip extends Element {
       for (int i=0; i<jsManager.getNumEquipmentClasses(); i++){
         if (equipments[1][i] != -1){
           t += String.format("\n%d x %s", equipments[3][i], jsManager.getEquipmentTypeDisplayName(i, equipments[1][i]));
+          hasEquipment = true;
         }
       }
       if (!hasEquipment){
-        t += " None/n";
+        t += " Nonezn";
       }
     }
     
