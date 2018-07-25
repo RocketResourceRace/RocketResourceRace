@@ -1816,6 +1816,13 @@ class Game extends State {
       } else if (((Button)getElement("move button", "party management")).mouseOver()&& getPanel("party management").visible) {
         tooltip.setMoveButton();
         tooltip.show();
+      } else if (((Button)getElement("stock up button", "party management")).mouseOver() && getPanel("party management").visible) {
+        if (((Button)getElement("stock up button", "party management")).active) {
+          tooltip.setStockUpAvailable(parties[selectedCellY][selectedCellX], players[turn].resources);
+        } else {
+          tooltip.setStockUpUnavailable(parties[selectedCellY][selectedCellX]);
+        }
+        tooltip.show();
       } else if (map.mouseOver()) {
         map.doUpdateHoveringScale();
         if (moving && !UIHovering()) {

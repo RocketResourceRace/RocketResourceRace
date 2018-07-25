@@ -895,6 +895,48 @@ class Tooltip extends Element {
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(jo.getString("merging"));
   }
+
+  void setStockUpAvailable(Party p, float[] resources) {
+    int[] equipment = p.equipment;
+    String text = "";
+    for (int i = 0; i < equipment.length; i++) {
+      if (p.equipment[i] != -1) {
+        JSONObject equipmentObject = gameData.getJSONArray("equipment").getJSONObject(i).getJSONArray("types").getJSONObject(p.equipment[i]);
+        int stockUpTo = min(p.getUnitNumber(), p.equipmentQuantities[i]+floor(resources[jsManager.getResIndex(equipmentObject.getString("id"))]));
+        if (stockUpTo > p.equipmentQuantities[i]) {
+          String equipmentName = equipmentObject.getString("display name");
+          text += String.format("\n  Will stock %s up to %d.", equipmentName, stockUpTo);
+        }
+      }
+    }
+    setText("Stock up equipment."+text);
+  }
+  
+  void setStockUpUnavailable(Party p) {
+    String text = "Stock up unavailable.";
+    boolean hasEquipment = false;
+    String list = "";
+    for (int i = 0; i < p.equipment.length; i++) {
+      if (p.equipment[i] != -1) {
+        hasEquipment = true;
+        JSONObject equipmentObject = gameData.getJSONArray("equipment").getJSONObject(i).getJSONArray("types").getJSONObject(p.equipment[i]);
+        String name = equipmentObject.getString("display name");
+        JSONArray locations = equipmentObject.getJSONArray("valid collection sites");
+        list += "\n  "+name+": ";
+        for (int j = 0; j < locations.size(); j++) {
+          list += locations.getString(j)+", ";
+        }
+        list = list.substring(0, list.length()-2);
+      }
+    }
+    if (hasEquipment) {
+      text += "\nThe following is where each currently equiped item can be stocked up at:\n"+list;
+    } else {
+      text += "\nThis party has no equipment selected so it cannot be stocked up.";
+    }
+    setText(text);
+  }
+
   void setTask(String task, float[] availibleResources, int movementPoints) {
     try {
       attacking = false;
