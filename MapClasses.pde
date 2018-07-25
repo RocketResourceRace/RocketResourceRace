@@ -533,7 +533,7 @@ class Battle extends Party {
   Party attacker;
   Party defender;
   Battle(Party attacker, Party defender, String id) {
-    super(2, attacker.getUnitNumber()+defender.getUnitNumber(), JSONIndex(gameData.getJSONArray("tasks"), "Battle"), 0, id);
+    super(-1, attacker.getUnitNumber()+defender.getUnitNumber(), JSONIndex(gameData.getJSONArray("tasks"), "Battle"), 0, id);
     this.attacker = attacker;
     attacker.strength = 2;
     this.defender = defender;

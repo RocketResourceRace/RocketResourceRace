@@ -1255,7 +1255,7 @@ class Map3D extends BaseMap implements Map {
 
   void drawUnitBar(int x, int y, PGraphics canvas) {
     try {
-      if (parties[y][x].player==2) {
+      if (parties[y][x].player==-1) {
         Battle battle = (Battle) parties[y][x];
         unitNumberObjects[battle.attacker.player].setVertex(0, blockSize*battle.attacker.getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
         unitNumberObjects[battle.attacker.player].setVertex(1, blockSize*battle.attacker.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
