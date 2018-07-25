@@ -524,81 +524,81 @@ class Party {
 }
 
 class Battle extends Party {
-  Party party1;
-  Party party2;
+  Party attacker;
+  Party defender;
   Battle(Party attacker, Party defender, String id) {
     super(2, attacker.getUnitNumber()+defender.getUnitNumber(), JSONIndex(gameData.getJSONArray("tasks"), "Battle"), 0, id);
-    party1 = attacker;
-    party1.strength = 2;
-    party2 = defender;
+    this.attacker = attacker;
+    attacker.strength = 2;
+    this.defender = defender;
   }
   boolean isTurn(int turn) {
     return true;
   }
   int getMovementPoints(int turn) {
-    if (turn==party1.player) {
-      return party1.getMovementPoints();
+    if (turn==attacker.player) {
+      return attacker.getMovementPoints();
     } else {
-      return party2.getMovementPoints();
+      return defender.getMovementPoints();
     }
   }
   void setUnitNumber(int turn, int newUnitNumber) {
-    if (turn==party1.player) {
-      party1.setUnitNumber(newUnitNumber);
+    if (turn==attacker.player) {
+      attacker.setUnitNumber(newUnitNumber);
     } else {
-      party2.setUnitNumber(newUnitNumber);
+      defender.setUnitNumber(newUnitNumber);
     }
   }
   int getUnitNumber(int turn) {
-    if (turn==party1.player) {
-      return party1.getUnitNumber();
+    if (turn==attacker.player) {
+      return attacker.getUnitNumber();
     } else {
-      return party2.getUnitNumber();
+      return defender.getUnitNumber();
     }
   }
   int changeUnitNumber(int turn, int changeInUnitNumber) {
-    if (turn==this.party1.player) {
-      int overflow = max(0, changeInUnitNumber+party1.getUnitNumber()-jsManager.loadIntSetting("party size"));
-      this.party1.setUnitNumber(party1.getUnitNumber()+changeInUnitNumber);
+    if (turn==this.attacker.player) {
+      int overflow = max(0, changeInUnitNumber+attacker.getUnitNumber()-jsManager.loadIntSetting("party size"));
+      this.attacker.setUnitNumber(attacker.getUnitNumber()+changeInUnitNumber);
       return overflow;
     } else {
-      int overflow = max(0, changeInUnitNumber+party2.getUnitNumber()-jsManager.loadIntSetting("party size"));
-      this.party2.setUnitNumber(party2.getUnitNumber()+changeInUnitNumber);
+      int overflow = max(0, changeInUnitNumber+defender.getUnitNumber()-jsManager.loadIntSetting("party size"));
+      this.defender.setUnitNumber(defender.getUnitNumber()+changeInUnitNumber);
       return overflow;
     }
   }
   Party doBattle() {
     try {
-      int changeInParty1 = getBattleUnitChange(party1, party2);
-      int changeInParty2 = getBattleUnitChange(party2, party1);
-      party1.strength = 1;
-      party2.strength = 1;
-      int newParty1Size = party1.getUnitNumber()+changeInParty1;
-      int newParty2Size = party2.getUnitNumber()+changeInParty2;
+      int changeInParty1 = getBattleUnitChange(attacker, defender);
+      int changeInParty2 = getBattleUnitChange(defender, attacker);
+      attacker.strength = 1;
+      defender.strength = 1;
+      int newParty1Size = attacker.getUnitNumber()+changeInParty1;
+      int newParty2Size = defender.getUnitNumber()+changeInParty2;
       int endDifference = newParty1Size-newParty2Size;
-      party1.setUnitNumber(newParty1Size);
-      party2.setUnitNumber(newParty2Size);
-      if (party1.getUnitNumber()==0) {
-        if (party2.getUnitNumber()==0) {
+      attacker.setUnitNumber(newParty1Size);
+      defender.setUnitNumber(newParty2Size);
+      if (attacker.getUnitNumber()==0) {
+        if (defender.getUnitNumber()==0) {
           if (endDifference==0) {
             return null;
           } else if (endDifference>0) {
-            party1.setUnitNumber(endDifference);
-            party1.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
-            return party1;
+            attacker.setUnitNumber(endDifference);
+            attacker.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
+            return attacker;
           } else {
-            party2.setUnitNumber(-endDifference);
-            party2.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
-            return party2;
+            defender.setUnitNumber(-endDifference);
+            defender.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
+            return defender;
           }
         } else {
-          party2.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
-          return party2;
+          defender.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
+          return defender;
         }
       } 
-      if (party2.getUnitNumber()==0) {
-        party1.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
-        return party1;
+      if (defender.getUnitNumber()==0) {
+        attacker.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
+        return attacker;
       } else {
         return this;
       }
@@ -609,10 +609,30 @@ class Battle extends Party {
     }
   }
   Battle clone() {
-    Battle newParty = new Battle(this.party1.clone(), this.party2.clone(), id);
+    Battle newParty = new Battle(this.attacker.clone(), this.defender.clone(), id);
     return newParty;
   }
+  
+  int mergeEntireFrom(Party other, int moveCost) {
+    // Note: will need to remove other party
+    LOGGER_GAME.fine(String.format("Merging entire party from id:%s into battle with id:%s", other.id, this.id));
+    return mergeFrom(other, other.getUnitNumber(), moveCost);
+  }
+
+  int mergeFrom(Party other, int unitsTransfered, int moveCost) {
+    // Take units from other party into this party and merge attributes, weighted by unit number
+    LOGGER_GAME.fine(String.format("Merging %d units from party with id:%s into battle with id:%s", unitsTransfered, other.id, this.id));
+
+    if (attacker.player == other.player) {
+      return attacker.mergeFrom(other, unitsTransfered, moveCost);
+    } else if (defender.player == other.player) {
+      return defender.mergeFrom(other, unitsTransfered, moveCost);
+    } else {
+      return unitsTransfered;
+    }
+  }
 }
+
 class Siege extends Party {
   Siege (Party attacker, Building defence, Party garrison, String id) {
     super(3, attacker.getUnitNumber()+garrison.getUnitNumber(), JSONIndex(gameData.getJSONArray("tasks"), "Siege"), 0, id);
@@ -779,12 +799,12 @@ class BattleEstimateManager {
       if (defender.player==2) {
         battle = (Battle) defender.clone();
         battle.changeUnitNumber(attacker.player, attacker.getUnitNumber());
-        if (battle.party1.player==attacker.player) {
-          clone1 = battle.party1;
-          clone2 = battle.party2;
+        if (battle.attacker.player==attacker.player) {
+          clone1 = battle.attacker;
+          clone2 = battle.defender;
         } else {
-          clone1 = battle.party2;
-          clone2 = battle.party1;
+          clone1 = battle.defender;
+          clone2 = battle.attacker;
         }
       } else {
         clone1 = attacker.clone();
