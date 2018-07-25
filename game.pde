@@ -1009,10 +1009,16 @@ class Game extends State {
   boolean isEquipmentCollectionAllowed(int x, int y, int c, int t) {
     if (buildings[y][x] != null && c != -1 && t != -1) {
       JSONArray sites = gameData.getJSONArray("equipment").getJSONObject(c).getJSONArray("types").getJSONObject(t).getJSONArray("valid collection sites");
-      for (int j = 0; j < sites.size(); j++) {
-        if (buildingIndex(sites.getString(j)) == buildings[y][x].type) {
-          return true;
+      if (sites != null){
+        for (int j = 0; j < sites.size(); j++) {
+          if (buildingIndex(sites.getString(j)) == buildings[y][x].type) {
+            return true;
+          }
         }
+      }
+      else{
+        // If no valid collection sites specified, then stockup can occur anywhere
+        return true;
       }
     }
     return false;

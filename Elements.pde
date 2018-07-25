@@ -1056,6 +1056,20 @@ class Tooltip extends Element {
         t += String.format("Equipment Available: <r>%d</r>/%d", floor(availableResources[resourceIndex]), party.getUnitNumber());
       }
       
+      // Show where equipment can be stocked up
+      if (!equipmentTypeJO.isNull("valid collection sites")){
+        t += String.format("\n\n%s can be stocked up at: ", equipmentTypeJO.getString("display name"));
+        for (int i=0; i < equipmentTypeJO.getJSONArray("valid collection sites").size(); i ++){
+          t += equipmentTypeJO.getJSONArray("valid collection sites").getString(i);
+          if (i+1 < equipmentTypeJO.getJSONArray("valid collection sites").size()){
+            t += ", ";
+          }
+        }
+      }
+      else{
+        t += String.format("\n\n%s can be stocked up anywhere", equipmentTypeJO.getString("display name"));
+      }
+      
       if (party.getMovementPoints() != party.getMaxMovementPoints()){
         t += "\n<r>Equipment can only be changed\nif party has full movement points</r>";
       } else{
@@ -1087,10 +1101,10 @@ class Tooltip extends Element {
       }
       float bonusMultiplier = party.getProficiencyBonusMultiplier(proficiencyIndex);
       if (bonusMultiplier != 0){
-        ArrayList<String[]> bonusBreakdown = party.getProficiencyBonusMultiplierBreakdown(proficiencyIndex);
+        ArrayList<String> bonusBreakdown = party.getProficiencyBonusMultiplierBreakdown(proficiencyIndex);
         t += "\nBonus breakdown:\n";
         for (int i = 0; i < bonusBreakdown.size(); i ++){
-          t += String.format("%s from %s\n", bonusBreakdown.get(i)[1], bonusBreakdown.get(i)[0]);
+          t += bonusBreakdown.get(i);
         }
       }
       
