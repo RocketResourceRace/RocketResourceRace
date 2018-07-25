@@ -2451,7 +2451,7 @@ class Game extends State {
     return costs.size();
   }
   boolean startInvalid(PVector p1, PVector p2) {
-    if (p1.dist(p2)<mapWidth/8||((BaseMap)map).isWater(int(p1.x), int(p1.y))||((BaseMap)map).isWater(int(p2.x), int(p2.y))) {
+    if (p1.dist(p2)<mapWidth/4||((BaseMap)map).isWater(int(p1.x), int(p1.y))||((BaseMap)map).isWater(int(p2.x), int(p2.y))) {
       return true;
     }
     return false;
@@ -2469,6 +2469,9 @@ class Game extends State {
       counter++;
       player1 = generatePartyPosition();
       player2 = generatePartyPosition();
+    }
+    if (counter == 100) {
+      LOGGER_GAME.warning("Resorted to invalid party starts after 100 attempts");
     }
     LOGGER_GAME.fine(String.format("Player 1 party positition: (%f, %f)", player1.x, player1.y));
     LOGGER_GAME.fine(String.format("Player 2 party positition: (%f, %f)", player2.x, player2.y));
