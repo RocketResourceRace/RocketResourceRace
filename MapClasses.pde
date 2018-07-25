@@ -400,6 +400,12 @@ class Party {
     Party newParty = new Party(player, unitNumber, task, movementPoints, id);
     newParty.actions = new ArrayList<Action>(actions);
     newParty.strength = strength;
+    newParty.equipment = equipment.clone();
+    newParty.equipmentQuantities = equipmentQuantities.clone();
+    newParty.proficiencies = proficiencies.clone();
+    newParty.trainingFocus = trainingFocus;
+    newParty.unitCap = unitCap;
+    newParty.autoStockUp = autoStockUp;
     return newParty;
   }
 
