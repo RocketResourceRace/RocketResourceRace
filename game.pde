@@ -820,17 +820,12 @@ class Game extends State {
   float getResourceRequirementsAtCell(int x, int y, int resource) {
     float resourceRequirements = 0;
     for (int i = 0; i < tasks.length; i++) {
-      if (parties[y][x].getTask() == i) {
-      //  if (jsManager.resourceIsEquipment(resource)){
-      //    // If resource is a type of equipment then check if it is this party's equipment
-      //    int[] equipmentTypeClass = jsManager.getEquipmentTypeClassFromID(jsManager.getResString(resource));
-      //    if (parties[y][x].getEquipment(equipmentTypeClass[0]) == equipmentTypeClass[1]){
-      //      // Add cost for equipment equivilent to number of units that could be produced (usually zero, unless resting)
-      //      resourceRequirements += floor(taskOutcomes[i][jsManager.getResIndex("units")] * parties[y][x].getUnitNumber());
-      //    }
-      //  } else{
-        resourceRequirements += taskCosts[i][resource] * parties[y][x].getUnitNumber();
-        //}
+      if (parties[y][x].getTask() == i) { 
+        if (resource == jsManager.getResIndex("food") && gameData.getJSONArray("tasks").getJSONObject(i).getString("id").equals("Super Rest") && parties[y][x].capped()) {
+          resourceRequirements += taskCosts[jsManager.getTaskIndex("Rest")][resource] * parties[y][x].getUnitNumber();
+        } else {
+          resourceRequirements += taskCosts[i][resource] * parties[y][x].getUnitNumber();
+        }
       }
     }
     return resourceRequirements;
@@ -941,9 +936,7 @@ class Game extends State {
         for (int task = 0; task <tasks.length; task++) {
           if (parties[y][x].getTask() == task) {
             for (int resource = 0; resource < numResources; resource++) {
-              if (resource == jsManager.getResIndex("food")) {
-                consumption[resource] += max(getResourceRequirementsAtCell(x, y, resource) * productivity, taskCosts[task][resource]*parties[y][x].getUnitNumber());
-              } else if (resource == jsManager.getResIndex("units") && resourceProductivities[jsManager.getResIndex(("food"))] < 1) {
+             if (resource == jsManager.getResIndex("units") && resourceProductivities[jsManager.getResIndex(("food"))] < 1) {
                 consumption[resource] += (1-resourceProductivities[jsManager.getResIndex(("food"))]) * taskOutcomes[task][resource] * parties[y][x].getUnitNumber();
               } else {
                 consumption[resource] += getResourceRequirementsAtCell(x, y, resource) * productivity;
@@ -1081,12 +1074,12 @@ class Game extends State {
               if (parties[y][x].getTask()==task) {
                 for (int resource = 0; resource < numResources; resource++) {
                   if (resource != jsManager.getResIndex(("units"))) {
-                    if (tasks[task] == "Produce Rocket") {
+                    if (tasks[task].equals("Produce Rocket")) {
                       resource = jsManager.getResIndex(("rocket progress"));
                     }
                     
                     players[turn].resources[resource] += max(getResourceChangesAtCell(x, y, resourceProductivities)[resource], -players[turn].resources[resource]);
-                    if (tasks[task] == "Produce Rocket") {
+                    if (tasks[task].equals("Produce Rocket")) {
                       break;
                     }
                   } else if (resourceProductivities[jsManager.getResIndex(("food"))] < 1) {

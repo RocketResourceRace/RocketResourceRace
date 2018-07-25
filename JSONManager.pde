@@ -732,4 +732,13 @@ class JSONManager {
     }
     return false;
   }
+  
+  int getTaskIndex(String id) {
+    try {
+      return JSONIndex(gameData.getJSONArray("tasks"), id);
+    } catch (Exception e) {
+      LOGGER_MAIN.log(Level.SEVERE, "Error getting resource index for: " + id);
+      throw e;
+    }
+  }
 }
