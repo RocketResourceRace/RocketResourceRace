@@ -358,100 +358,121 @@ class Console extends Element {
       break;
     case "resource":
       if (command.hasKey("action")){
+        Player p;
         switch (command.getString("action")){
           case "reset":
-            if(arguments.length>position+2){
-              String playerId = arguments[position+1];
+            if(arguments.length > position+2){
+              String playerId = arguments[position + 1];
               if (playerExists(players, playerId)) {
-                Player p = getPlayer(players, playerId);
-                if (jsManager.resourceExists(arguments[position+2])) {
-                  int resourceId = jsManager.getResIndex(arguments[position+2]);
-                  p.resources[resourceId] = 0;
-                  game.updateResourcesSummary();
-                  sendLine(String.format("Set %s for %s to 0", arguments[position+2], arguments[position+1])); 
-                } else {
-                  invalidArg(command, arguments, position, position+2);
-                }
+                p = getPlayer(players, playerId);
               } else {
                 invalidArg(command, arguments, position, position+1);
+                break;
               }
+            } else if (position == 1 && arguments.length > position+1) {
+              p = game.players[game.turn];
+              position--;
             } else {
               invalidMissingArg(command, arguments, position);
+              break;
+            }
+            if (jsManager.resourceExists(arguments[position+2])) {
+              int resourceId = jsManager.getResIndex(arguments[position+2]);
+              p.resources[resourceId] = 0;
+              game.updateResourcesSummary();
+              sendLine(String.format("Set %s for %s to 0", arguments[position+2], p.name)); 
+            } else {
+              invalidArg(command, arguments, position, position+2);
             }
             break;
           case "set":
             if(arguments.length>position+3){
               String playerId = arguments[position+1];
               if (playerExists(players, playerId)) {
-                Player p = getPlayer(players, playerId);
-                if (jsManager.resourceExists(arguments[position+2])) {
-                  int resourceId = jsManager.getResIndex(arguments[position+2]);
-                  try{
-                    float amount = Float.parseFloat(arguments[position+3]);
-                    p.resources[resourceId] = amount;
-                    game.updateResourcesSummary();
-                    sendLine(String.format("Set %s for %s to %s", arguments[position+2], arguments[position+1], arguments[position+3]));
-                  } catch (NumberFormatException e){
-                    invalidArg(command, arguments, position, position+3);
-                  }
-                } else {
-                  invalidArg(command, arguments, position, position+2);
-                }
+                p = getPlayer(players, playerId);
               } else {
                 invalidArg(command, arguments, position, position+1);
+                break;
               }
+            } else if (position == 1 && arguments.length > position+2) {
+              p = game.players[game.turn];
+              position--;
             } else {
               invalidMissingArg(command, arguments, position);
+              break;
+            }
+            if (jsManager.resourceExists(arguments[position+2])) {
+              int resourceId = jsManager.getResIndex(arguments[position+2]);
+              try{
+                float amount = Float.parseFloat(arguments[position+3]);
+                p.resources[resourceId] = amount;
+                game.updateResourcesSummary();
+                sendLine(String.format("Set %s for %s to %s", arguments[position+2], arguments[position+1], p.name));
+              } catch (NumberFormatException e){
+                invalidArg(command, arguments, position, position+3);
+              }
+            } else {
+              invalidArg(command, arguments, position, position+2);
             }
             break;
           case "add":
             if(arguments.length>position+3){
               String playerId = arguments[position+1];
               if (playerExists(players, playerId)) {
-                Player p = getPlayer(players, playerId);
-                if (jsManager.resourceExists(arguments[position+2])) {
-                  int resourceId = jsManager.getResIndex(arguments[position+2]);
-                  try{
-                    float amount = Float.parseFloat(arguments[position+3]);
-                    p.resources[resourceId] += amount;
-                    game.updateResourcesSummary();
-                    sendLine(String.format("Added %s %s to %s", arguments[position+3], arguments[position+2], arguments[position+1]));
-                  } catch (NumberFormatException e){
-                    invalidArg(command, arguments, position, position+3);
-                  }
-                } else {
-                  invalidArg(command, arguments, position, position+2);
-                }
+                p = getPlayer(players, playerId);
               } else {
                 invalidArg(command, arguments, position, position+1);
+                break;
               }
+            } else if (position == 1 && arguments.length > position+2) {
+              p = game.players[game.turn];
+              position--;
             } else {
               invalidMissingArg(command, arguments, position);
+              break;
+            }
+            if (jsManager.resourceExists(arguments[position+2])) {
+              int resourceId = jsManager.getResIndex(arguments[position+2]);
+              try{
+                float amount = Float.parseFloat(arguments[position+3]);
+                p.resources[resourceId] += amount;
+                game.updateResourcesSummary();
+                sendLine(String.format("Added %s %s to %s", arguments[position+3], arguments[position+2], p.name));
+              } catch (NumberFormatException e){
+                invalidArg(command, arguments, position, position+3);
+              }
+            } else {
+              invalidArg(command, arguments, position, position+2);
             }
             break;
           case "subtract":
             if(arguments.length>position+3){
               String playerId = arguments[position+1];
               if (playerExists(players, playerId)) {
-                Player p = getPlayer(players, playerId);
-                if (jsManager.resourceExists(arguments[position+2])) {
-                  int resourceId = jsManager.getResIndex(arguments[position+2]);
-                  try{
-                    float amount = Float.parseFloat(arguments[position+3]);
-                    p.resources[resourceId] -= amount;
-                    game.updateResourcesSummary();
-                    sendLine(String.format("Subtracted %s %s to %s", arguments[position+3], arguments[position+2], arguments[position+1]));
-                  } catch (NumberFormatException e){
-                    invalidArg(command, arguments, position, position+3);
-                  }
-                } else {
-                  invalidArg(command, arguments, position, position+2);
-                }
+                p = getPlayer(players, playerId);
               } else {
                 invalidArg(command, arguments, position, position+1);
+                break;
               }
+            } else if (position == 1 && arguments.length > position+2) {
+              p = game.players[game.turn];
+              position--;
             } else {
               invalidMissingArg(command, arguments, position);
+              break;
+            }
+            if (jsManager.resourceExists(arguments[position+2])) {
+              int resourceId = jsManager.getResIndex(arguments[position+2]);
+              try{
+                float amount = Float.parseFloat(arguments[position+3]);
+                p.resources[resourceId] -= amount;
+                game.updateResourcesSummary();
+                sendLine(String.format("Subtracted %s %s from %s", arguments[position+3], arguments[position+2], p.name));
+              } catch (NumberFormatException e){
+                invalidArg(command, arguments, position, position+3);
+              }
+            } else {
+              invalidArg(command, arguments, position, position+2);
             }
             break;
           default:

@@ -83,6 +83,33 @@
     "basic description": "Change player details",
     "detailed description": "Change player details"
   },
+  "resource": {
+    "type": "container",
+    "sub commands": {
+      "reset": {
+        "type": "resource",
+        "action": "reset",
+        "args": [["resource", "string"]]
+      },
+      "add": {
+        "type": "resource",
+        "action": "add",
+        "args": [["resource", "string"], ["amount", "float"]]
+      },
+      "set": {
+        "type": "resource",
+        "action": "set",
+        "args": [["resource", "string"], ["amount", "float"]]
+      },
+      "subtract": {
+        "type": "resource",
+        "action": "subtract",
+        "args": [["resource", "string"], ["amount", "float"]]
+      }
+    },
+    "basic description": "Change resource quantities for current player",
+    "detailed description": "Change resource quantities for current player"
+  },
   "help": {
     "type": "help",
     "basic description": "find out about possible commands. For example, type 'help display' to find out more about the display command",
