@@ -99,6 +99,12 @@ class Party {
     updateMaxMovementPoints();
   }
   
+  float getEffectivenessMultiplier(String type, int proficiencyIndex){
+    // This is the funciton to get the effectiveness of the party as different tasks based on proficiencies
+    // 'type' is the ID used to determine which constant to use from data.json
+    return jsManager.getEffectivenessConstant(type) * log(getTotalProficiency(proficiencyIndex)) + 1;
+  }
+  
   boolean getAutoStockUp(){
     return autoStockUp;
   }
@@ -109,7 +115,7 @@ class Party {
   
   void updateMaxMovementPoints(){
     // Based on speed proficiency
-    this.maxMovementPoints = floor(gameData.getJSONObject("game options").getInt("movement points") * getTotalProficiency(jsManager.proficiencyIDToIndex("speed")));
+    this.maxMovementPoints = floor(gameData.getJSONObject("game options").getInt("movement points") * getEffectivenessMultiplier("movement", jsManager.proficiencyIDToIndex("speed")));
     setMovementPoints(min(maxMovementPoints, getMovementPoints()));
   }
   
