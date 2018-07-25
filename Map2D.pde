@@ -102,7 +102,7 @@ int getPartySize(Party p) {
       path.putInt(l[0]);
       path.putInt(l[1]);
     }
-    totalSize += Integer.BYTES*5+Float.BYTES;
+    totalSize += Integer.BYTES * (7 + p.equipment.length * 2) + Float.BYTES * (1 + p.proficiencies.length)+1;
 
 
     ByteBuffer partyBuffer = ByteBuffer.allocate(totalSize);
@@ -125,6 +125,18 @@ int getPartySize(Party p) {
     partyBuffer.putFloat(p.strength);
     partyBuffer.putInt(p.getTask());
     partyBuffer.putInt(p.pathTurns);
+    partyBuffer.putInt(p.trainingFocus);
+    for (int type: p.equipment) {
+      partyBuffer.putInt(type);
+    }
+    for (int quantity: p.equipmentQuantities) {
+      partyBuffer.putInt(quantity);
+    }
+    for (float prof: p.proficiencies) {
+      partyBuffer.putFloat(prof);
+    }
+    partyBuffer.putInt(p.unitCap);
+    partyBuffer.put(byte(p.autoStockUp));
     p.byteRep = partyBuffer.array();
     return totalSize;
   }
@@ -192,6 +204,21 @@ Party loadParty(ByteBuffer b, String id) {
     float strength = b.getFloat();
     int task = b.getInt();
     int pathTurns = b.getInt();
+    int trainingFocus = b.getInt();
+    int[] equipment = new int[jsManager.getNumEquipmentClasses()];
+    for (int i = 0; i < jsManager.getNumEquipmentClasses(); i++) {
+      equipment[i] = b.getInt();
+    }
+    int[] equipmentQuantities = new int[jsManager.getNumEquipmentClasses()];
+    for (int i = 0; i < jsManager.getNumEquipmentClasses(); i++) {
+      equipmentQuantities[i] = b.getInt();
+    }
+    float[] proficiencies = new float[jsManager.getNumProficiencies()];
+    for (int i = 0; i < jsManager.getNumProficiencies(); i++) {
+      proficiencies[i] = b.getFloat();
+    }
+    int unitCap = b.getInt();
+    boolean autoStockUp = b.get()==byte(1);
     Party p = new Party(player, unitNumber, task, movementPoints, id.trim());
     p.strength = strength;
     p.pathTurns = pathTurns;
@@ -200,6 +227,12 @@ Party loadParty(ByteBuffer b, String id) {
       p.target = path.get(path.size()-1);
       p.loadPath(path);
     }
+    p.trainingFocus = trainingFocus;
+    p.equipment = equipment;
+    p.equipmentQuantities = equipmentQuantities;
+    p.proficiencies = proficiencies;
+    p.unitCap = unitCap;
+    p.autoStockUp = autoStockUp;
     return p;
   }
   catch (Exception e) {

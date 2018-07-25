@@ -30,6 +30,7 @@ class Party {
   int[] target;
   int pathTurns;
   byte[]byteRep;
+  boolean autoStockUp;
 
   Party(int player, int startingUnits, int startingTask, int movementPoints, String id) {
     unitNumber = startingUnits;
@@ -42,6 +43,7 @@ class Party {
     target = null;
     pathTurns = 0;
     this.id = id;
+    autoStockUp = false;
     
     this.unitCap = jsManager.loadIntSetting("party size");  // Set unit cap to default
 
