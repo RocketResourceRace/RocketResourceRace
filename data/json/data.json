@@ -675,6 +675,11 @@
       "is equipment": true
     },
     {
+      "id": "offroader",
+      "resource manager": 0,
+      "is equipment": true
+    },
+    {
       "id": "apc",
       "resource manager": 0,
       "is equipment": true
@@ -718,6 +723,10 @@
       "tooltip": "Increases movement points for the party"
     }
   ],
+
+  "effectiveness constants":{
+    "movement": 0.25
+  },
 
   "equipment":[
     {
@@ -823,7 +832,7 @@
           "id": "tank",
           "display name": "Tank",
           "range": 5,
-          "speed": 0.2,
+          "speed": 1.5,
           "ranged attack": 10,
           "valid collection sites": ["Armoury"]
         },
@@ -838,7 +847,7 @@
         {
           "id": "horse",
           "display name": "Horse",
-          "speed": 1.5,
+          "speed": 1,
           "valid collection sites": ["Armoury"]
         },
         {
@@ -849,9 +858,15 @@
           "valid collection sites": ["Armoury"]
         },
         {
+          "id": "offroader",
+          "display name": "Offroader",
+          "speed": 5,
+          "valid collection sites": ["Armoury"]
+        },
+        {
           "id": "apc",
           "display name": "APC",
-          "speed": 2,
+          "speed": 3,
           "defence": 5,
           "valid collection sites": ["Armoury"]
         },

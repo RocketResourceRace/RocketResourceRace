@@ -252,6 +252,22 @@ class JSONManager {
       throw e;
     }
   }
+  
+  float getEffectivenessConstant(String type){
+    try{
+      if (!gameData.getJSONObject("effectiveness constants").isNull(type)){
+        return gameData.getJSONObject("effectiveness constants").getFloat(type);
+      }
+      else {
+        LOGGER_MAIN.warning("Error finding effectiveness type in data.json: "+type);
+        return 0;
+      }
+    }
+    catch (Exception e) {
+      LOGGER_MAIN.log(Level.SEVERE, "Error getting effectiveness constant: " + type, e);
+      throw e;
+    }
+  }
 
   void saveSetting(String id, int val) {
     // Save the setting to settings and write settings to file
