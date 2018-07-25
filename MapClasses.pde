@@ -198,6 +198,10 @@ class Party {
       return null;
     }
   }
+  
+  int getOverflow(int unitsTransfered){
+    return max((this.getUnitNumber()+unitsTransfered) - this.getUnitCap(), 0);
+  }
 
   int mergeEntireFrom(Party other, int moveCost) {
     // Note: will need to remove other division
@@ -209,11 +213,9 @@ class Party {
     // Take units from other party into this party and merge attributes, weighted by unit number
     LOGGER_GAME.fine(String.format("Merging %d units from party with id:%s into party with id:%s", unitsTransfered, other.id, this.id));
 
-    int overflow = max((this.getUnitNumber()+unitsTransfered) - this.getUnitCap(), 0);
+    int overflow = getOverflow(unitsTransfered);
     
-    println(unitsTransfered);
     unitsTransfered -= overflow;  // Dont do anything to the overflow units
-    println(unitsTransfered);
 
     // Merge all proficiencies with other party
     for (int i = 0; i < jsManager.getNumProficiencies(); i++) {
