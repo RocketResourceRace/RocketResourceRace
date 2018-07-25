@@ -1840,7 +1840,7 @@ class Game extends State {
               int turns = getMoveTurns(selectedCellX, selectedCellY, x, y, nodes);
               int cost = nodes[y][x].cost;
               boolean splitting = splitUnitsNum()!=parties[selectedCellY][selectedCellX].getUnitNumber();
-              tooltip.setMoving(turns, splitting, cost, jsManager.loadBooleanSetting("map is 3d"));
+              tooltip.setMoving(turns, splitting, parties[selectedCellY][selectedCellX], splitUnitsNum(), cost, jsManager.loadBooleanSetting("map is 3d"));
               tooltip.show();
             } else {
               if (parties[y][x].player == turn) {

@@ -174,13 +174,19 @@ class Party {
     return equipment[typeIndex];
   }
   
+  int[] splittedQuantities(int numUnitsSplitted){
+    int[] splittedEquipmentQuantities = new int[equipment.length];
+    for (int i=0; i < equipment.length; i ++){
+      splittedEquipmentQuantities[i] = ceil(getEquipmentQuantity(i) * numUnitsSplitted / getUnitNumber());
+    }
+    return splittedEquipmentQuantities;
+  }
+  
   Party splitParty(int numUnitsSplitted, String newID){
     if (numUnitsSplitted <= getUnitNumber()){
-      int[] splittedEquipmentQuantities = new int[equipment.length];
-      
+      int[] splittedEquipmentQuantities = splittedQuantities(numUnitsSplitted);
       for (int i=0; i < equipment.length; i ++){
-        splittedEquipmentQuantities[i] = ceil(getEquipmentQuantity(i) * numUnitsSplitted / getUnitNumber());
-        setEquipmentQuantity(i, floor(getEquipmentQuantity(i)) * (getUnitNumber() - numUnitsSplitted) / getUnitNumber());
+        setEquipmentQuantity(i, getEquipmentQuantity(i) - splittedEquipmentQuantities[i]);
       }
       changeUnitNumber(-numUnitsSplitted);
       return new Party(player, numUnitsSplitted, getTask(), getMovementPoints(), newID, Arrays.copyOf(getRawProficiencies(), getRawProficiencies().length), getTrainingFocus(), Arrays.copyOf(getAllEquipment(), getAllEquipment().length), splittedEquipmentQuantities, getUnitCap());
