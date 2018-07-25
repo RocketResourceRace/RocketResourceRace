@@ -582,6 +582,10 @@ class Party {
     }
     return r;
   }
+  
+  boolean capped() {
+    return unitNumber == unitCap;
+  }
 }
 
 class Battle extends Party {
