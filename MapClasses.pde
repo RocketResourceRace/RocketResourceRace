@@ -242,13 +242,13 @@ class Party {
     return equipments;
   }
 
-  int mergeEntireFrom(Party other, int moveCost) {
+  int mergeEntireFrom(Party other, int moveCost, Player player) {
     // Note: will need to remove other division
     LOGGER_GAME.fine(String.format("Merging entire party from id:%s into party with id:%s", other.id, this.id));
-    return mergeFrom(other, other.getUnitNumber(), moveCost);
+    return mergeFrom(other, other.getUnitNumber(), moveCost, player);
   }
 
-  int mergeFrom(Party other, int unitsTransfered, int moveCost) {
+  int mergeFrom(Party other, int unitsTransfered, int moveCost, Player player) {
     // Take units from other party into this party and merge attributes, weighted by unit number
     LOGGER_GAME.fine(String.format("Merging %d units from party with id:%s into party with id:%s", unitsTransfered, other.id, this.id));
 
@@ -261,6 +261,12 @@ class Party {
     
     // Merge equipment
     int[][] equipments = mergeEquipment(other, unitsTransfered);
+    for (int i = 0; i < getAllEquipment().length; i ++){
+      if (other.getEquipment(i) != equipments[1][i]){
+        // Recycle all equipment when it changes type during merge
+        player.resources[jsManager.getResIndex(jsManager.getEquipmentTypeID(i, other.getEquipment(i)))] += other.getEquipmentQuantity(i);
+      }
+    }
     this.setAllEquipment(equipments[0]);
     other.setAllEquipment(equipments[1]);
     this.setEquipmentQuantities(equipments[2]);
