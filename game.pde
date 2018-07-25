@@ -717,7 +717,11 @@ class Game extends State {
       resetAvailableTasks();
       boolean correctTerrain, correctBuilding, enoughResources, enoughMovementPoints;
       JSONObject js;
-
+      
+      if (parties[selectedCellY][selectedCellX].player == -1) {
+        makeTaskAvailable(parties[selectedCellY][selectedCellX].task);
+      }
+      
       if (parties[selectedCellY][selectedCellX].hasActions()) {
         makeTaskAvailable(parties[selectedCellY][selectedCellX].currentAction());
         LOGGER_GAME.finer("Keeping current task available:"+parties[selectedCellY][selectedCellX].currentAction());
@@ -1157,11 +1161,11 @@ class Game extends State {
             }
             moveParty(x, y);
           } else {
-            if (parties[y][x].player==2) {
+            if (parties[y][x].player==-1) {
               int player = ((Battle) parties[y][x]).attacker.player;
               int otherPlayer = ((Battle) parties[y][x]).defender.player;
               parties[y][x] = ((Battle)parties[y][x]).doBattle();
-              if (parties[y][x].player != 2) {
+              if (parties[y][x].player != -1) {
                 LOGGER_GAME.fine(String.format("Battle ended at:(%d, %d) winner=&s", x, y, str(parties[y][x].player+1)));
                 notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, player);
                 notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
@@ -1231,7 +1235,7 @@ class Game extends State {
       for (int y=0; y<mapHeight; y++) {
         for (int x=0; x<mapWidth; x++) {
           if (parties[y][x] != null) {
-            if (parties[y][x].player == 2) {
+            if (parties[y][x].player == -1) {
               player1alive = true;
               player2alive = true;
             } else if (parties[y][x].player == 1) {
@@ -1325,7 +1329,7 @@ class Game extends State {
     for (int y=0; y<mapHeight; y++) {
       for (int x=0; x<mapWidth; x++) {
         if (parties[y][x] != null) {
-          if (parties[y][x].player != 2) {
+          if (parties[y][x].player != -1) {
             parties[y][x].resetMovementPoints();
           }
         }
@@ -1690,7 +1694,7 @@ class Game extends State {
                 parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
                 LOGGER_GAME.finer(String.format("Setting units in party with id:%s to %d as there was overflow", p.getID(), p.getUnitNumber()));
               }
-            } else if (parties[path.get(node)[1]][path.get(node)[0]].player == 2) {
+            } else if (parties[path.get(node)[1]][path.get(node)[0]].player == -1) {
               // merge cells battle
               notificationManager.post("Battle Reinforced", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
               int overflow = ((Battle) parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, p.getUnitNumber());
@@ -1725,7 +1729,7 @@ class Game extends State {
               p.subMovementPoints(cost);
               parties[y][x] = new Battle(p, parties[y][x], ".battle");
               parties[y][x] = ((Battle)parties[y][x]).doBattle();
-              if (parties[y][x].player != 2) {
+              if (parties[y][x].player != -1) {
                 notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, turn);
                 notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
                 LOGGER_GAME.fine(String.format("Battle ended at cell: (%d, %d). Units remaining:", x, y, parties[y][x].getUnitNumber()));
@@ -2039,7 +2043,7 @@ class Game extends State {
     }
     panelCanvas.text("Movement Points Remaining: "+parties[selectedCellY][selectedCellX].getMovementPoints(turn) + "/"+parties[selectedCellY][selectedCellX].getMaxMovementPoints(), 120+sidePanelX, barY);
     barY += 13*jsManager.loadFloatSetting("text scale");
-    if (jsManager.loadBooleanSetting("show all party managements")&&parties[selectedCellY][selectedCellX].player==2) {
+    if (jsManager.loadBooleanSetting("show all party managements")&&parties[selectedCellY][selectedCellX].player==-1) {
       String t1 = ((Battle)parties[selectedCellY][selectedCellX]).attacker.id;
       String t2 = "Units: "+((Battle)parties[selectedCellY][selectedCellX]).attacker.getUnitNumber() + "/" + jsManager.loadIntSetting("party size");
       float offset = max(panelCanvas.textWidth(t1+" "), panelCanvas.textWidth(t2+" "));
