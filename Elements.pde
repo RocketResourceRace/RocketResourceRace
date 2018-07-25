@@ -911,7 +911,37 @@ class Tooltip extends Element {
     // p1 is being merged into
     attacking = false;
     JSONObject jo = gameData.getJSONObject("tooltips");
-    String t = String.format(jo.getString("merging"), p2.id, p1.id, unitsTransfered-p1.getOverflow(unitsTransfered), p1.getOverflow(unitsTransfered));
+    int overflow = p1.getOverflow(unitsTransfered);
+    String t = String.format(jo.getString("merging"), p2.id, p1.id, unitsTransfered-overflow, overflow);
+    
+    int[][] equipments = p1.mergeEquipment(p2, unitsTransfered-overflow);
+    
+    boolean hasEquipment = false;
+    // New equipment quantities + types for merged party
+    t += "\nMerged party equipment:";
+    for (int i=0; i<jsManager.getNumEquipmentClasses(); i++){
+      if (equipments[0][i] != -1){
+        t += String.format("\n%d x %s\n", equipments[2][i], jsManager.getEquipmentTypeDisplayName(i, equipments[0][i]));
+        hasEquipment = true;
+      }
+    }
+    if (!hasEquipment){
+      t += " None/n";
+    }
+    
+    // New equipment quantities + types for overflow party
+    if (overflow > 0){
+      hasEquipment = false;
+      t += "Overflow party equipment:";
+      for (int i=0; i<jsManager.getNumEquipmentClasses(); i++){
+        if (equipments[1][i] != -1){
+          t += String.format("\n%d x %s", equipments[3][i], jsManager.getEquipmentTypeDisplayName(i, equipments[1][i]));
+        }
+      }
+      if (!hasEquipment){
+        t += " None/n";
+      }
+    }
     
     setText(t);
   }

@@ -202,6 +202,45 @@ class Party {
   int getOverflow(int unitsTransfered){
     return max((this.getUnitNumber()+unitsTransfered) - this.getUnitCap(), 0);
   }
+  
+  float[] mergeProficiencies(Party other, int unitsTransfered){
+    // Other's proficiecies unaffected by merge
+    float[] rawProficiencies = new float[proficiencies.length];
+    for (int i = 0; i < jsManager.getNumProficiencies(); i++) {
+      rawProficiencies[i] = mergeAttribute(this.getUnitNumber(), this.getRawProficiency(i), unitsTransfered, other.getRawProficiency(i));
+    }
+    return rawProficiencies;
+  }
+  
+  int[][] mergeEquipment(Party other, int unitsTransfered){
+    //index 0 is equipment for this party, index 1 is equipment for other party, index 2 is for quantity of this party, index 3 is for quantity of other party
+    int[][] equipments = new int[4][equipment.length];
+    for (int i = 0; i < getAllEquipment().length; i ++){
+      int amountTransfered = ceil((float)other.getEquipmentQuantity(i) * ((float)unitsTransfered / other.getUnitNumber()));
+      if (this.getEquipment(i) != -1 && this.getEquipment(i) == other.getEquipment(i)){
+        // If both parties have same equipment then add quantities togther
+        equipments[0][i] = this.getEquipment(i);
+        equipments[1][i] = other.getEquipment(i);
+        equipments[2][i] = this.getEquipmentQuantity(i) + amountTransfered;
+        equipments[3][i] = other.getEquipmentQuantity(i) - amountTransfered;
+      }
+      else if (this.getEquipment(i) == -1 && other.getEquipment(i) != -1){
+        // If this party has nothing equipped but the other party has something equipped, equip that.
+        equipments[0][i] = other.getEquipment(i);
+        equipments[1][i] = other.getEquipment(i);
+        equipments[2][i] = amountTransfered;
+        equipments[3][i] = other.getEquipmentQuantity(i) - amountTransfered;
+      }
+      else {
+        // Else: quantity stays same
+        equipments[0][i] = this.getEquipment(i);
+        equipments[1][i] = other.getEquipment(i);
+        equipments[2][i] = this.getEquipmentQuantity(i);
+        equipments[3][i] = other.getEquipmentQuantity(i);
+      }
+    }
+    return equipments;
+  }
 
   int mergeEntireFrom(Party other, int moveCost) {
     // Note: will need to remove other division
@@ -218,26 +257,14 @@ class Party {
     unitsTransfered -= overflow;  // Dont do anything to the overflow units
 
     // Merge all proficiencies with other party
-    for (int i = 0; i < jsManager.getNumProficiencies(); i++) {
-      this.setRawProficiency(i, mergeAttribute(this.getUnitNumber(), this.getRawProficiency(i), unitsTransfered, other.getRawProficiency(i)));
-    }
+    this.setRawProficiencies(mergeProficiencies(other, unitsTransfered));
     
     // Merge equipment
-    for (int i = 0; i < getAllEquipment().length; i ++){
-      if (this.getEquipment(i) != -1 && this.getEquipment(i) == other.getEquipment(i)){
-        // If both parties have same equipment then add quantities togther
-        int amountTransfered = ceil((float)other.getEquipmentQuantity(i) * ((float)unitsTransfered / other.getUnitNumber()));
-        this.setEquipmentQuantity(i, this.getEquipmentQuantity(i) + amountTransfered);
-        other.setEquipmentQuantity(i, other.getEquipmentQuantity(i) - amountTransfered);
-      }
-      else if (this.getEquipment(i) == -1 && other.getEquipment(i) != -1){
-        // If this party has nothing equipped but the other party has something equipped, equip that.
-        int amountTransfered = ceil((float)other.getEquipmentQuantity(i) * ((float)unitsTransfered / other.getUnitNumber()));
-        this.setEquipment(i, other.getEquipment(i), other.getEquipmentQuantity(i));
-        other.setEquipmentQuantity(i, other.getEquipmentQuantity(i) - amountTransfered);
-      }
-      // Else: quantity stays same
-    }
+    int[][] equipments = mergeEquipment(other, unitsTransfered);
+    this.setAllEquipment(equipments[0]);
+    other.setAllEquipment(equipments[1]);
+    this.setEquipmentQuantities(equipments[2]);
+    other.setEquipmentQuantities(equipments[3]);
 
     LOGGER_GAME.finer(String.format("New proficiency values: %s for party with id:%s", Arrays.toString(proficiencies), id));
     // Note: other division attributes unaffected by merge
