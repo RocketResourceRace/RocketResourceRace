@@ -648,7 +648,9 @@ class Siege extends Party {
 }
 
 int getBattleUnitChange(Party p1, Party p2) {
-  return floor(-0.2*(p2.getUnitNumber()+pow(p2.getUnitNumber(), 2)/p1.getUnitNumber())*random(0.75, 1.5)*p2.strength/p1.strength);
+  float damageRating = p2.strength * p2.proficiencies[jsManager.proficiencyIDToIndex("melee attack")] /
+  (p1.strength * p1.proficiencies[jsManager.proficiencyIDToIndex("defence")]);
+  return floor(-0.2 * (p2.getUnitNumber() + pow(p2.getUnitNumber(), 2) / p1.getUnitNumber()) * random(0.75, 1.5) * damageRating);
 }
 
 boolean playerExists(Player[] players, String name) {
