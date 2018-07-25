@@ -11,6 +11,7 @@ class Console extends Element {
   private ArrayList<String> commandLog;
   private int commandLogPosition;
   private String LINESTART = " > ";
+  private PGraphics canvas;
 
   Console(int x, int y, int w, int h, int textSize) {
     this.x = x;
@@ -57,6 +58,7 @@ class Console extends Element {
   }
 
   void draw(PGraphics canvas) {
+    this.canvas = canvas;
     canvas.pushStyle();
     float ts = textSize*jsManager.loadFloatSetting("text scale");
     canvas.textFont(monoFont);
@@ -98,10 +100,13 @@ class Console extends Element {
   int getCurX(int cy) {
     int i=0;
     float ts = textSize*jsManager.loadFloatSetting("text scale");
-    textSize(ts);
+    canvas.textSize(ts);
+    int x2 = x;
     for (; i<text.get(cy).length(); i++) {
-      if (textWidth(text.get(cy).substring(0, i)) + x > mouseX)
+      float dx = canvas.textWidth(text.get(cy).substring(i, i+1));
+      if (x2+dx/2 > mouseX)
         break;
+      x2 += dx;
     }
     if (0 <= i && i <= text.get(cy).length()) {
       return i;
@@ -267,6 +272,11 @@ class Console extends Element {
         if (byte(commandComponent.charAt(commandComponent.length()-1))==34) {
           connected = false;
         }
+        if (byte(commandComponent.charAt(0)) == 34 && !connected) {
+          tempSplitCommand[i] = commandComponent.replace('"', ' ').trim();
+          i++;
+          continue;
+        }
         if (connected){
           if (tempSplitCommand[i] == null){
             tempSplitCommand[i] = commandComponent.replace('"', ' ').trim();
@@ -353,100 +363,121 @@ class Console extends Element {
       break;
     case "resource":
       if (command.hasKey("action")){
+        Player p;
         switch (command.getString("action")){
           case "reset":
-            if(arguments.length>position+2){
-              String playerId = arguments[position+1];
+            if(arguments.length > position+2){
+              String playerId = arguments[position + 1];
               if (playerExists(players, playerId)) {
-                Player p = getPlayer(players, playerId);
-                if (jsManager.resourceExists(arguments[position+2])) {
-                  int resourceId = jsManager.getResIndex(arguments[position+2]);
-                  p.resources[resourceId] = 0;
-                  game.updateResourcesSummary();
-                  sendLine(String.format("Set %s for %s to 0", arguments[position+2], arguments[position+1])); 
-                } else {
-                  invalidArg(command, arguments, position, position+2);
-                }
+                p = getPlayer(players, playerId);
               } else {
                 invalidArg(command, arguments, position, position+1);
+                break;
               }
+            } else if (position == 1 && arguments.length > position+1) {
+              p = game.players[game.turn];
+              position--;
             } else {
               invalidMissingArg(command, arguments, position);
+              break;
+            }
+            if (jsManager.resourceExists(arguments[position+2])) {
+              int resourceId = jsManager.getResIndex(arguments[position+2]);
+              p.resources[resourceId] = 0;
+              game.updateResourcesSummary();
+              sendLine(String.format("Set %s for %s to 0", arguments[position+2], p.name)); 
+            } else {
+              invalidArg(command, arguments, position, position+2);
             }
             break;
           case "set":
             if(arguments.length>position+3){
               String playerId = arguments[position+1];
               if (playerExists(players, playerId)) {
-                Player p = getPlayer(players, playerId);
-                if (jsManager.resourceExists(arguments[position+2])) {
-                  int resourceId = jsManager.getResIndex(arguments[position+2]);
-                  try{
-                    float amount = Float.parseFloat(arguments[position+3]);
-                    p.resources[resourceId] = amount;
-                    game.updateResourcesSummary();
-                    sendLine(String.format("Set %s for %s to %s", arguments[position+2], arguments[position+1], arguments[position+3]));
-                  } catch (NumberFormatException e){
-                    invalidArg(command, arguments, position, position+3);
-                  }
-                } else {
-                  invalidArg(command, arguments, position, position+2);
-                }
+                p = getPlayer(players, playerId);
               } else {
                 invalidArg(command, arguments, position, position+1);
+                break;
               }
+            } else if (position == 1 && arguments.length > position+2) {
+              p = game.players[game.turn];
+              position--;
             } else {
               invalidMissingArg(command, arguments, position);
+              break;
+            }
+            if (jsManager.resourceExists(arguments[position+2])) {
+              int resourceId = jsManager.getResIndex(arguments[position+2]);
+              try{
+                float amount = Float.parseFloat(arguments[position+3]);
+                p.resources[resourceId] = amount;
+                game.updateResourcesSummary();
+                sendLine(String.format("Set %s for %s to %s", arguments[position+2], arguments[position+1], p.name));
+              } catch (NumberFormatException e){
+                invalidArg(command, arguments, position, position+3);
+              }
+            } else {
+              invalidArg(command, arguments, position, position+2);
             }
             break;
           case "add":
             if(arguments.length>position+3){
               String playerId = arguments[position+1];
               if (playerExists(players, playerId)) {
-                Player p = getPlayer(players, playerId);
-                if (jsManager.resourceExists(arguments[position+2])) {
-                  int resourceId = jsManager.getResIndex(arguments[position+2]);
-                  try{
-                    float amount = Float.parseFloat(arguments[position+3]);
-                    p.resources[resourceId] += amount;
-                    game.updateResourcesSummary();
-                    sendLine(String.format("Added %s %s to %s", arguments[position+3], arguments[position+2], arguments[position+1]));
-                  } catch (NumberFormatException e){
-                    invalidArg(command, arguments, position, position+3);
-                  }
-                } else {
-                  invalidArg(command, arguments, position, position+2);
-                }
+                p = getPlayer(players, playerId);
               } else {
                 invalidArg(command, arguments, position, position+1);
+                break;
               }
+            } else if (position == 1 && arguments.length > position+2) {
+              p = game.players[game.turn];
+              position--;
             } else {
               invalidMissingArg(command, arguments, position);
+              break;
+            }
+            if (jsManager.resourceExists(arguments[position+2])) {
+              int resourceId = jsManager.getResIndex(arguments[position+2]);
+              try{
+                float amount = Float.parseFloat(arguments[position+3]);
+                p.resources[resourceId] += amount;
+                game.updateResourcesSummary();
+                sendLine(String.format("Added %s %s to %s", arguments[position+3], arguments[position+2], p.name));
+              } catch (NumberFormatException e){
+                invalidArg(command, arguments, position, position+3);
+              }
+            } else {
+              invalidArg(command, arguments, position, position+2);
             }
             break;
           case "subtract":
             if(arguments.length>position+3){
               String playerId = arguments[position+1];
               if (playerExists(players, playerId)) {
-                Player p = getPlayer(players, playerId);
-                if (jsManager.resourceExists(arguments[position+2])) {
-                  int resourceId = jsManager.getResIndex(arguments[position+2]);
-                  try{
-                    float amount = Float.parseFloat(arguments[position+3]);
-                    p.resources[resourceId] -= amount;
-                    game.updateResourcesSummary();
-                    sendLine(String.format("Subtracted %s %s to %s", arguments[position+3], arguments[position+2], arguments[position+1]));
-                  } catch (NumberFormatException e){
-                    invalidArg(command, arguments, position, position+3);
-                  }
-                } else {
-                  invalidArg(command, arguments, position, position+2);
-                }
+                p = getPlayer(players, playerId);
               } else {
                 invalidArg(command, arguments, position, position+1);
+                break;
               }
+            } else if (position == 1 && arguments.length > position+2) {
+              p = game.players[game.turn];
+              position--;
             } else {
               invalidMissingArg(command, arguments, position);
+              break;
+            }
+            if (jsManager.resourceExists(arguments[position+2])) {
+              int resourceId = jsManager.getResIndex(arguments[position+2]);
+              try{
+                float amount = Float.parseFloat(arguments[position+3]);
+                p.resources[resourceId] -= amount;
+                game.updateResourcesSummary();
+                sendLine(String.format("Subtracted %s %s from %s", arguments[position+3], arguments[position+2], p.name));
+              } catch (NumberFormatException e){
+                invalidArg(command, arguments, position, position+3);
+              }
+            } else {
+              invalidArg(command, arguments, position, position+2);
             }
             break;
           default:
