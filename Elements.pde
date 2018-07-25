@@ -888,7 +888,7 @@ class Tooltip extends Element {
       }
     }
     if (turns > 0) {
-      t += String.format(jo.getString("\nmoving turns"), turns);
+      t += String.format(jo.getString("moving turns"), turns);
     }
     setText(t);
   }
