@@ -900,6 +900,8 @@ class Game extends State {
             for (int resource = 0; resource < numResources; resource++) {
               if (resource == jsManager.getResIndex("units") && resourceProductivities[jsManager.getResIndex(("food"))] < 1) {
                 production[resource] = 0;
+              } else if (resource == jsManager.getResIndex("units")){
+                production[resource] = min(parties[y][x].getUnitCap() - parties[y][x].getUnitNumber(), taskOutcomes[task][resource] * productivity * (float) parties[y][x].getUnitNumber()); 
               } else {
                 production[resource] = taskOutcomes[task][resource] * productivity * (float) parties[y][x].getUnitNumber();
               }
