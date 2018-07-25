@@ -1670,10 +1670,9 @@ class Game extends State {
             if (parties[path.get(node)[1]][path.get(node)[0]].player == turn) {
               // merge parties
               notificationManager.post("Parties Merged", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
-              int movementPoints = min(parties[path.get(node)[1]][path.get(node)[0]].getMovementPoints(), p.getMovementPoints()-cost);
-              int overflow = parties[path.get(node)[1]][path.get(node)[0]].changeUnitNumber(p.getUnitNumber()); // Units left over after merging
-              LOGGER_GAME.fine(String.format("Parties merged at (%d, %d) from party with id: %s to party with id:%s. Movement points of combined parties:%d. Units transfered:%d", 
-                (int)path.get(node)[0], (int)path.get(node)[1], p.getID(), parties[path.get(node)[1]][path.get(node)[0]].getID(), movementPoints, p.getUnitNumber()));
+              int overflow = parties[path.get(node)[1]][path.get(node)[0]].mergeEntireFrom(p, cost);
+              LOGGER_GAME.fine(String.format("Parties merged at (%d, %d) from party with id: %s to party with id:%s. Units transfered:%d", 
+                (int)path.get(node)[0], (int)path.get(node)[1], p.getID(), parties[path.get(node)[1]][path.get(node)[0]].getID(), p.getUnitNumber()));
 
               if (cellFollow) {
                 selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
@@ -1687,14 +1686,11 @@ class Game extends State {
               }
               if (overflow>0) {
                 if (parties[path.get(node-1)[1]][path.get(node-1)[0]]==null) {
-                  p.setUnitNumber(overflow);
+                  //p.setUnitNumber(overflow);
                   parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
                   LOGGER_GAME.finer(String.format("Setting units in party with id:%s to %d as there was overflow", p.getID(), p.getUnitNumber()));
-                } else {
-                  parties[path.get(node-1)[1]][path.get(node-1)[0]].changeUnitNumber(overflow);
                 }
               }
-              parties[path.get(node)[1]][path.get(node)[0]].setMovementPoints(movementPoints);
             } else if (parties[path.get(node)[1]][path.get(node)[0]].player == 2) {
               // merge cells battle
               notificationManager.post("Battle Reinforced", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
