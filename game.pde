@@ -1123,6 +1123,9 @@ class Game extends State {
   void processParties() {
     for (int y=0; y<mapHeight; y++) {
       for (int x=0; x<mapWidth; x++) {
+        if (parties[y][x].getAutoStockUp()){
+           postEvent(new StockUpEquipment(x, y));
+        }
         if (parties[y][x] != null) {
           if (parties[y][x].player == turn) {
             Action action = parties[y][x].progressAction();
