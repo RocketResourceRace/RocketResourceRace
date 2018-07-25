@@ -42,7 +42,6 @@ class IncrementElement extends Element {
   
   void setValue(int value){
     this.value = value;
-    setValueWithinBounds();
   }
   
   int getValue(){
@@ -65,9 +64,11 @@ class IncrementElement extends Element {
       
       if (mouseOverLeftBox()){
         setValue(getValue()-change);
+        setValueWithinBounds();
         events.add("valueChanged");
       } else if (mouseOverRightBox()){
         setValue(getValue()+change);
+        setValueWithinBounds();
         events.add("valueChanged");
       }
     }
@@ -85,6 +86,7 @@ class IncrementElement extends Element {
       if (grabbed){
         int change = floor((mouseX-startingX)*(upper-lower)/(width*FULLPANPROPORTION));
         setValue(startingValue+change);
+        setValueWithinBounds();
         events.add("valueChanged");
       }
     }

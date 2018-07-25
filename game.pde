@@ -1139,11 +1139,11 @@ class Game extends State {
   void processParties() {
     for (int y=0; y<mapHeight; y++) {
       for (int x=0; x<mapWidth; x++) {
-        if (parties[y][x].getAutoStockUp()){
-           postEvent(new StockUpEquipment(x, y));
-        }
         if (parties[y][x] != null) {
           if (parties[y][x].player == turn) {
+            if (parties[y][x].getAutoStockUp()){
+               postEvent(new StockUpEquipment(x, y));
+            }
             Action action = parties[y][x].progressAction();
             if (action != null) {
               if (!(action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction Mid")) && !(action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction End")))
