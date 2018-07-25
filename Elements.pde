@@ -164,6 +164,7 @@ class IncrementElement extends Element {
 class EquipmentManager extends Element {
   final int TEXTSIZE = 8;
   final float BOXWIDTHHEIGHTRATIO = 0.75;
+  final int SHADOWSIZE = 20;
   String[] equipmentClassDisplayNames;
   int[] currentEquipment, currentEquipmentQuantities;
   int currentUnitNumber;
@@ -283,41 +284,32 @@ class EquipmentManager extends Element {
   int getSelectedClass(){
    return selectedClass; 
   }
+  
+  void drawShadow(PGraphics panelCanvas, float shadowX, float shadowY, float shadowW, float shadowH){
+    panelCanvas.noStroke();
+    for (int i = SHADOWSIZE; i > 0; i --){
+      panelCanvas.fill(0, 255-255*pow(((float)i/SHADOWSIZE), 0.1));
+      panelCanvas.rect(shadowX-i, shadowY-i, shadowW+i*2, shadowH+i*2, i);
+    }
+  }
 
   void draw(PGraphics panelCanvas) {
     panelCanvas.pushStyle();
-
-    panelCanvas.strokeWeight(2);
-    panelCanvas.fill(170);
-    panelCanvas.rect(x, y, w, boxHeight);
-    for (int i = 0; i < jsManager.getNumEquipmentClasses(); i ++) {
-      if (selectedClass == i){
-        panelCanvas.strokeWeight(3);
-        panelCanvas.fill(140);
-      }
-      else{
-        panelCanvas.strokeWeight(1);
-        panelCanvas.noFill();
-      }
-      panelCanvas.rect(x+boxWidth*i, y, boxWidth, boxHeight);
-      panelCanvas.fill(0);
-      panelCanvas.textAlign(CENTER, TOP);
-      panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
-      panelCanvas.text(equipmentClassDisplayNames[i], x+boxWidth*(i+0.5), y);
-      if (currentEquipment[i] != -1){
-        panelCanvas.textFont(getFont((TEXTSIZE-1)*jsManager.loadFloatSetting("text scale")));
-        panelCanvas.textAlign(CENTER, BOTTOM);
-        panelCanvas.text(jsManager.getEquipmentTypeDisplayName(i, currentEquipment[i]), x+boxWidth*(i+0.5), y+boxHeight);
-        if (currentEquipmentQuantities[i] < currentUnitNumber){
-          panelCanvas.fill(255, 0, 0);
-        }
-        panelCanvas.text(String.format("%d/%d", currentEquipmentQuantities[i], currentUnitNumber), x+boxWidth*(i+0.5), y+boxHeight-TEXTSIZE*jsManager.loadFloatSetting("text scale"));
+    
+    //Draw shadow behind dropdown
+    if (selectedClass != -1){
+      if (currentEquipment[selectedClass] == -1){  // If nothing equipped, there is not unequip option at the bottom
+        drawShadow(panelCanvas, x+boxWidth*selectedClass, y+boxHeight, boxWidth, dropBoxHeight*(jsManager.getNumEquipmentTypesFromClass(selectedClass)));
+      } else{
+        drawShadow(panelCanvas, x+boxWidth*selectedClass, y+boxHeight, boxWidth, dropBoxHeight*(jsManager.getNumEquipmentTypesFromClass(selectedClass)+1));
       }
     }
     
     // Draw dropdown if an equipment class is selected
+    panelCanvas.stroke(0);
     if (selectedClass != -1){
       panelCanvas.textAlign(LEFT, TOP);
+      panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
       String[] equipmentTypes = jsManager.getEquipmentFromClass(selectedClass);
       for (int i = 0; i < jsManager.getNumEquipmentTypesFromClass(selectedClass); i ++){
         try{
@@ -344,6 +336,34 @@ class EquipmentManager extends Element {
           panelCanvas.rect(x+selectedClass*boxWidth, y+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropBoxHeight+boxHeight, boxWidth, dropBoxHeight);
           panelCanvas.fill(0);
           panelCanvas.text("Unequip", x+selectedClass*boxWidth, y+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropBoxHeight+boxHeight);
+      }
+    }
+
+    panelCanvas.strokeWeight(2);
+    panelCanvas.fill(170);
+    panelCanvas.rect(x, y, w, boxHeight);
+    for (int i = 0; i < jsManager.getNumEquipmentClasses(); i ++) {
+      if (selectedClass == i){
+        panelCanvas.strokeWeight(3);
+        panelCanvas.fill(140);
+      }
+      else{
+        panelCanvas.strokeWeight(1);
+        panelCanvas.noFill();
+      }
+      panelCanvas.rect(x+boxWidth*i, y, boxWidth, boxHeight);
+      panelCanvas.fill(0);
+      panelCanvas.textAlign(CENTER, TOP);
+      panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
+      panelCanvas.text(equipmentClassDisplayNames[i], x+boxWidth*(i+0.5), y);
+      if (currentEquipment[i] != -1){
+        panelCanvas.textFont(getFont((TEXTSIZE-1)*jsManager.loadFloatSetting("text scale")));
+        panelCanvas.textAlign(CENTER, BOTTOM);
+        panelCanvas.text(jsManager.getEquipmentTypeDisplayName(i, currentEquipment[i]), x+boxWidth*(i+0.5), y+boxHeight);
+        if (currentEquipmentQuantities[i] < currentUnitNumber){
+          panelCanvas.fill(255, 0, 0);
+        }
+        panelCanvas.text(String.format("%d/%d", currentEquipmentQuantities[i], currentUnitNumber), x+boxWidth*(i+0.5), y+boxHeight-TEXTSIZE*jsManager.loadFloatSetting("text scale"));
       }
     }
 
