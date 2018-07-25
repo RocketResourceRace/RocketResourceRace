@@ -1851,7 +1851,7 @@ class Game extends State {
             } else {
               if (parties[y][x].player == turn) {
                 //merge parties
-                tooltip.setMerging();
+                tooltip.setMerging(parties[y][x], parties[selectedCellY][selectedCellX], splitUnitsNum());
                 tooltip.show();
               } else {
                 //Attack

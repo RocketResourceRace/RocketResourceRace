@@ -907,10 +907,13 @@ class Tooltip extends Element {
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(jo.getString("move button"));
   }
-  void setMerging() {
+  void setMerging(Party p1, Party p2, int unitsTransfered) {
+    // p1 is being merged into
     attacking = false;
     JSONObject jo = gameData.getJSONObject("tooltips");
-    setText(jo.getString("merging"));
+    String t = String.format(jo.getString("merging"), p2.id, p1.id, unitsTransfered-p1.getOverflow(unitsTransfered), p1.getOverflow(unitsTransfered));
+    
+    setText(t);
   }
 
   void setStockUpAvailable(Party p, float[] resources) {
