@@ -102,7 +102,12 @@ class Party {
   float getEffectivenessMultiplier(String type, int proficiencyIndex){
     // This is the funciton to get the effectiveness of the party as different tasks based on proficiencies
     // 'type' is the ID used to determine which constant to use from data.json
-    return jsManager.getEffectivenessConstant(type) * log(getTotalProficiency(proficiencyIndex)) + 1;
+    float proficiency = getTotalProficiency(proficiencyIndex);
+    if (proficiency <= 0){ // proficiencies should never be negative because log(0) is undefined and log(<0) is complex. 
+      return 0;
+    } else {
+      return jsManager.getEffectivenessConstant(type) * log(proficiency) + 1;
+    }
   }
   
   boolean getAutoStockUp(){
