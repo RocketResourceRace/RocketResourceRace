@@ -918,10 +918,10 @@ class Tooltip extends Element {
     
     boolean hasEquipment = false;
     // New equipment quantities + types for merged party
-    t += "\nMerged party equipment:";
+    t += "\n\nMerged party equipment:";
     for (int i=0; i<jsManager.getNumEquipmentClasses(); i++){
       if (equipments[0][i] != -1){
-        t += String.format("\n%d x %s\n", equipments[2][i], jsManager.getEquipmentTypeDisplayName(i, equipments[0][i]));
+        t += String.format("\n%d x %s", equipments[2][i], jsManager.getEquipmentTypeDisplayName(i, equipments[0][i]));
         hasEquipment = true;
       }
     }
@@ -932,7 +932,7 @@ class Tooltip extends Element {
     // New equipment quantities + types for overflow party
     if (overflow > 0){
       hasEquipment = false;
-      t += "Overflow party equipment:";
+      t += "\n\nOverflow party equipment:";
       for (int i=0; i<jsManager.getNumEquipmentClasses(); i++){
         if (equipments[1][i] != -1){
           t += String.format("\n%d x %s", equipments[3][i], jsManager.getEquipmentTypeDisplayName(i, equipments[1][i]));
@@ -942,6 +942,17 @@ class Tooltip extends Element {
       if (!hasEquipment){
         t += " Nonezn";
       }
+    }
+    
+    //Merged party proficiencies
+    float[] mergedProficiencies = p1.mergeProficiencies(p2, unitsTransfered-overflow);
+    t += "\n\nMerged party proficiencies:\n";
+    for (int i=0; i < jsManager.getNumProficiencies(); i ++){
+      t += String.format("%s = %s\n", jsManager.indexToProficiencyDisplayName(i), roundDpTrailing(""+mergedProficiencies[i], 2));
+    }
+    
+    if (overflow > 0){
+      t += "\n\n(Proficiencies for overflow party are the same as the original party)";
     }
     
     setText(t);
