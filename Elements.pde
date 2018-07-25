@@ -1,5 +1,114 @@
 
 
+class IncrementElement extends Element {
+  final int TEXTSIZE = 8;
+  final int SIDEBOXESWIDTH = 15;
+  final int ARROWOFFSET = 3;
+  private int upper, lower, value, step;
+  
+  IncrementElement(int x, int y, int w, int h, int upper, int lower, int startingValue, int step){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.upper = upper;
+    this.lower = lower;
+    this.value = startingValue;
+    this.step = step;
+  }
+  
+  void setUpper(int upper){
+    this.upper = upper;
+  }
+  
+  int getUpper(){
+    return this.upper;
+  }
+  
+  void setLower(int lower){
+    this.lower = lower;
+  }
+  
+  int getLower(){
+    return this.lower;
+  }
+  
+  void setValue(int value){
+    this.value = value;
+  }
+  
+  int getValue(){
+    return this.value;
+  }
+  
+  ArrayList<String> mouseEvent(String eventType, int button) {
+    ArrayList<String> events = new ArrayList<String>();
+    
+    return events;
+  }
+  
+  void draw(PGraphics panelCanvas){
+    panelCanvas.pushStyle();
+    
+    //Draw middle box
+    panelCanvas.strokeWeight(2);
+    panelCanvas.fill(150);
+    if (getElemOnTop() && mouseOverMiddleBox()){
+      panelCanvas.fill(180);
+    } else{
+      panelCanvas.fill(150);
+    }
+    panelCanvas.rect(x, y, w, h);
+    
+    //draw left side box
+    panelCanvas.strokeWeight(1);
+    if (getElemOnTop() && mouseOverLeftBox()){
+      panelCanvas.fill(120);
+    } else{
+      panelCanvas.fill(100);
+    }
+    panelCanvas.rect(x, y, SIDEBOXESWIDTH, h-1);
+    panelCanvas.fill(0);
+    panelCanvas.strokeWeight(2);
+    panelCanvas.line(x-ARROWOFFSET+SIDEBOXESWIDTH, y+ARROWOFFSET, x+ARROWOFFSET, y+h/2);
+    panelCanvas.line(x+ARROWOFFSET, y+h/2, x-ARROWOFFSET+SIDEBOXESWIDTH, y+h-ARROWOFFSET);
+    
+    //draw right side box
+    if (getElemOnTop() && mouseOverRightBox()){
+      panelCanvas.fill(120);
+    } else{
+      panelCanvas.fill(100);
+    }
+    panelCanvas.rect(x+w-SIDEBOXESWIDTH, y, SIDEBOXESWIDTH, h-1);
+    panelCanvas.fill(0);
+    panelCanvas.strokeWeight(2);
+    panelCanvas.line(x+w+ARROWOFFSET-SIDEBOXESWIDTH, y+ARROWOFFSET, x+w-ARROWOFFSET, y+h/2);
+    panelCanvas.line(x+w-ARROWOFFSET, y+h/2, x+w+ARROWOFFSET-SIDEBOXESWIDTH, y-ARROWOFFSET+h);
+    
+    panelCanvas.popStyle();
+  }
+  
+  boolean mouseOverMiddleBox(){
+    return mouseOver() && !mouseOverRightBox() && !mouseOverLeftBox();
+  }
+  
+  boolean mouseOverRightBox() {
+    return mouseX-xOffset >= x+w-SIDEBOXESWIDTH && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
+  }
+  
+  boolean mouseOverLeftBox() {
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+SIDEBOXESWIDTH && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
+  }
+  
+  boolean mouseOver() {
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
+  }
+  
+  boolean pointOver(){
+    return mouseOver();
+  }
+}
+
 class EquipmentManager extends Element {
   final int TEXTSIZE = 8;
   final float BOXWIDTHHEIGHTRATIO = 0.75;

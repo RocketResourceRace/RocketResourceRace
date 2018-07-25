@@ -137,6 +137,7 @@ class Game extends State {
       addElement("task text", new Text(0, 0, 10, "Tasks", color(0), LEFT), "party management");
       addElement("stock up button", new Button(bezel, bezel*3, 100, 30, color(150), color(50), color(0), 10, CENTER, "Stock Up"), "party management");
       addElement("auto stock up toggle", new ToggleButton(bezel, bezel*3, 100, 30, color(100), color(0), false, "Auto Stock Up"), "party management");
+      addElement("unit cap incrementer", new IncrementElement(bezel, bezel*3, 100, 30, jsManager.loadIntSetting("party size"), 0, jsManager.loadIntSetting("party size"), 1), "party management");
 
       addElement("proficiency summary", new ProficiencySummary(bezel, bezel*5+30+200, 220, 100), "party management");
       addElement("proficiencies", new Text(0, 0, 10, "Proficiencies", color(0), LEFT), "party management");
@@ -668,6 +669,7 @@ class Game extends State {
     ((Slider)getElement("split units", "party management")).transform(round(10*jsManager.loadFloatSetting("gui scale")+bezel), round(bezel*3+2*jsManager.loadFloatSetting("text scale")*13), sidePanelW-2*bezel-round(20*jsManager.loadFloatSetting("gui scale")), round(jsManager.loadFloatSetting("text scale")*2*13));
     ((Button)getElement("stock up button", "party management")).transform(bezel, round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13), 100, 30);
     ((ToggleButton)getElement("auto stock up toggle", "party management")).transform(bezel*2+100, round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13+8*jsManager.loadFloatSetting("text scale")), 100, int(30-jsManager.loadFloatSetting("text scale")*8));
+    ((IncrementElement)getElement("unit cap incrementer", "party management")).transform(bezel*3+200, round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13), 100, 30);
     ((EquipmentManager)getElement("equipment manager", "party management")).transform(bezel, round(bezel*5+4*jsManager.loadFloatSetting("text scale")*13)+30, sidePanelW-bezel*2);
     int equipmentBoxHeight = int(((EquipmentManager)getElement("equipment manager", "party management")).getBoxHeight())+(30+bezel);
     ((TaskManager)getElement("tasks", "party management")).transform(bezel, round(bezel*5+5*jsManager.loadFloatSetting("text scale")*13+equipmentBoxHeight), sidePanelW/2-int(1.5*bezel), 0);
