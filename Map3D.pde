@@ -1257,30 +1257,30 @@ class Map3D extends BaseMap implements Map {
     try {
       if (parties[y][x].player==2) {
         Battle battle = (Battle) parties[y][x];
-        unitNumberObjects[battle.party1.player].setVertex(0, blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
-        unitNumberObjects[battle.party1.player].setVertex(1, blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
-        unitNumberObjects[battle.party1.player].setVertex(2, blockSize, blockSize*0.0625, 0);
-        unitNumberObjects[battle.party1.player].setVertex(3, blockSize, 0, 0);
-        unitNumberObjects[battle.party1.player].setVertex(4, 0, 0, 0);
-        unitNumberObjects[battle.party1.player].setVertex(5, 0, blockSize*0.0625, 0);
-        unitNumberObjects[battle.party1.player].setVertex(6, blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
-        unitNumberObjects[battle.party1.player].setVertex(7, blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
-        unitNumberObjects[battle.party2.player].setVertex(0, blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
-        unitNumberObjects[battle.party2.player].setVertex(1, blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.125, 0);
-        unitNumberObjects[battle.party2.player].setVertex(2, blockSize, blockSize*0.125, 0);
-        unitNumberObjects[battle.party2.player].setVertex(3, blockSize, blockSize*0.0625, 0);
-        unitNumberObjects[battle.party2.player].setVertex(4, 0, blockSize*0.0625, 0);
-        unitNumberObjects[battle.party2.player].setVertex(5, 0, blockSize*0.125, 0);
-        unitNumberObjects[battle.party2.player].setVertex(6, blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.125, 0);
-        unitNumberObjects[battle.party2.player].setVertex(7, blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
+        unitNumberObjects[battle.attacker.player].setVertex(0, blockSize*battle.attacker.getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
+        unitNumberObjects[battle.attacker.player].setVertex(1, blockSize*battle.attacker.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
+        unitNumberObjects[battle.attacker.player].setVertex(2, blockSize, blockSize*0.0625, 0);
+        unitNumberObjects[battle.attacker.player].setVertex(3, blockSize, 0, 0);
+        unitNumberObjects[battle.attacker.player].setVertex(4, 0, 0, 0);
+        unitNumberObjects[battle.attacker.player].setVertex(5, 0, blockSize*0.0625, 0);
+        unitNumberObjects[battle.attacker.player].setVertex(6, blockSize*battle.attacker.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
+        unitNumberObjects[battle.attacker.player].setVertex(7, blockSize*battle.attacker.getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
+        unitNumberObjects[battle.defender.player].setVertex(0, blockSize*battle.defender.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
+        unitNumberObjects[battle.defender.player].setVertex(1, blockSize*battle.defender.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.125, 0);
+        unitNumberObjects[battle.defender.player].setVertex(2, blockSize, blockSize*0.125, 0);
+        unitNumberObjects[battle.defender.player].setVertex(3, blockSize, blockSize*0.0625, 0);
+        unitNumberObjects[battle.defender.player].setVertex(4, 0, blockSize*0.0625, 0);
+        unitNumberObjects[battle.defender.player].setVertex(5, 0, blockSize*0.125, 0);
+        unitNumberObjects[battle.defender.player].setVertex(6, blockSize*battle.defender.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.125, 0);
+        unitNumberObjects[battle.defender.player].setVertex(7, blockSize*battle.defender.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
         canvas.noLights();
         canvas.pushMatrix();
         canvas.translate((x+0.5+sin(rot)*0.5)*blockSize, (y+0.5+cos(rot)*0.5)*blockSize, blockSize*1.6+groundMinHeightAt(x, y));
         canvas.rotateZ(-this.rot);
         canvas.translate(-0.5*blockSize, -0.5*blockSize);
         canvas.rotateX(PI/2-this.tilt);
-        canvas.shape(unitNumberObjects[battle.party1.player]);
-        canvas.shape(unitNumberObjects[battle.party2.player]);
+        canvas.shape(unitNumberObjects[battle.attacker.player]);
+        canvas.shape(unitNumberObjects[battle.defender.player]);
         canvas.popMatrix();
       } else {
         canvas.noLights();

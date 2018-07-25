@@ -284,8 +284,8 @@ class BaseMap extends Element {
           if (parties[y][x] != null) {
             if (parties[y][x].player==2) {
               partiesByteCount+= Character.BYTES*16;
-              partiesByteCount+=getPartySize(((Battle)parties[y][x]).party1);
-              partiesByteCount+=getPartySize(((Battle)parties[y][x]).party2);
+              partiesByteCount+=getPartySize(((Battle)parties[y][x]).attacker);
+              partiesByteCount+=getPartySize(((Battle)parties[y][x]).defender);
             } else {
               partiesByteCount+=getPartySize(parties[y][x]);
             }
@@ -351,8 +351,8 @@ class BaseMap extends Element {
                 buffer.putChar(' ');
               }
             }
-            saveParty(buffer, ((Battle)parties[y][x]).party1);
-            saveParty(buffer, ((Battle)parties[y][x]).party2);
+            saveParty(buffer, ((Battle)parties[y][x]).attacker);
+            saveParty(buffer, ((Battle)parties[y][x]).defender);
           } else {
             buffer.put(byte(1));
             saveParty(buffer, parties[y][x]);
@@ -494,7 +494,7 @@ class BaseMap extends Element {
             Party p2 = loadParty(buffer, new String(p2id));
             float savedStrength = p1.strength;
             Battle b = new Battle(p1, p2, new String(rawid));
-            b.party1.strength = savedStrength;
+            b.attacker.strength = savedStrength;
             parties[y][x] = b;
           } else if (partyType == 1) {
             char[] rawid;
@@ -1307,16 +1307,16 @@ class Map2D extends BaseMap implements Map {
                 panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), max(0, min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y, blockSize/16+c.y-yPos)));
               }
               if (c.x+blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size")>xPos) {
-                panelCanvas.fill(playerColours[battle.party1.player]);
-                panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), max(0, min(blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size"), xPos+elementWidth-c.x, blockSize*battle.party1.getUnitNumber()/jsManager.loadIntSetting("party size")+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y, blockSize/16+c.y-yPos)));
+                panelCanvas.fill(playerColours[battle.attacker.player]);
+                panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), max(0, min(blockSize*battle.attacker.getUnitNumber()/jsManager.loadIntSetting("party size"), xPos+elementWidth-c.x, blockSize*battle.attacker.getUnitNumber()/jsManager.loadIntSetting("party size")+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y, blockSize/16+c.y-yPos)));
               }
               if (c.x+blockSize>xPos) {
                 panelCanvas.fill(120, 120, 120);
                 panelCanvas.rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/16+c.y-yPos)));
               }
               if (c.x+blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size")>xPos) {
-                panelCanvas.fill(playerColours[battle.party2.player]);
-                panelCanvas.rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size"), xPos+elementWidth-c.x, blockSize*battle.party2.getUnitNumber()/jsManager.loadIntSetting("party size")+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/8+c.y-yPos)));
+                panelCanvas.fill(playerColours[battle.defender.player]);
+                panelCanvas.rect(max(c.x, xPos), max(c.y+blockSize/16, yPos), max(0, min(blockSize*battle.defender.getUnitNumber()/jsManager.loadIntSetting("party size"), xPos+elementWidth-c.x, blockSize*battle.defender.getUnitNumber()/jsManager.loadIntSetting("party size")+c.x-xPos)), max(0, min(ceil(blockSize/16), yPos+elementHeight-c.y-blockSize/16, blockSize/8+c.y-yPos)));
               }
             } else {
               if (c.x+blockSize>xPos) {

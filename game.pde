@@ -1158,8 +1158,8 @@ class Game extends State {
             moveParty(x, y);
           } else {
             if (parties[y][x].player==2) {
-              int player = ((Battle) parties[y][x]).party1.player;
-              int otherPlayer = ((Battle) parties[y][x]).party2.player;
+              int player = ((Battle) parties[y][x]).attacker.player;
+              int otherPlayer = ((Battle) parties[y][x]).defender.player;
               parties[y][x] = ((Battle)parties[y][x]).doBattle();
               if (parties[y][x].player != 2) {
                 LOGGER_GAME.fine(String.format("Battle ended at:(%d, %d) winner=&s", x, y, str(parties[y][x].player+1)));
@@ -2040,14 +2040,14 @@ class Game extends State {
     panelCanvas.text("Movement Points Remaining: "+parties[selectedCellY][selectedCellX].getMovementPoints(turn) + "/"+parties[selectedCellY][selectedCellX].getMaxMovementPoints(), 120+sidePanelX, barY);
     barY += 13*jsManager.loadFloatSetting("text scale");
     if (jsManager.loadBooleanSetting("show all party managements")&&parties[selectedCellY][selectedCellX].player==2) {
-      String t1 = ((Battle)parties[selectedCellY][selectedCellX]).party1.id;
-      String t2 = "Units: "+((Battle)parties[selectedCellY][selectedCellX]).party1.getUnitNumber() + "/" + jsManager.loadIntSetting("party size");
+      String t1 = ((Battle)parties[selectedCellY][selectedCellX]).attacker.id;
+      String t2 = "Units: "+((Battle)parties[selectedCellY][selectedCellX]).attacker.getUnitNumber() + "/" + jsManager.loadIntSetting("party size");
       float offset = max(panelCanvas.textWidth(t1+" "), panelCanvas.textWidth(t2+" "));
       panelCanvas.text(t1, 120+sidePanelX, barY);
-      panelCanvas.text(((Battle)parties[selectedCellY][selectedCellX]).party2.id, 120+sidePanelX+offset, barY);
+      panelCanvas.text(((Battle)parties[selectedCellY][selectedCellX]).defender.id, 120+sidePanelX+offset, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
       panelCanvas.text(t2, 120+sidePanelX, barY);
-      panelCanvas.text("Units: "+((Battle)parties[selectedCellY][selectedCellX]).party2.getUnitNumber() + "/" + jsManager.loadIntSetting("party size"), 120+sidePanelX+offset, barY);
+      panelCanvas.text("Units: "+((Battle)parties[selectedCellY][selectedCellX]).defender.getUnitNumber() + "/" + jsManager.loadIntSetting("party size"), 120+sidePanelX+offset, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     } else {
       panelCanvas.text("Units: "+parties[selectedCellY][selectedCellX].getUnitNumber(turn) + "/" + jsManager.loadIntSetting("party size"), 120+sidePanelX, barY);
@@ -2548,7 +2548,7 @@ class Game extends State {
     for (int y=0; y<mapHeight; y++) {
       for (int x=0; x<mapWidth; x++) { 
         try {
-          if (parties[y][x] != null && parties[y][x].id.substring(0, 10).equals(playerName) && parties[y][x].id.charAt(11)=='#') {
+          if (parties[y][x] != null && parties[y][x].id.length() >= 11 && parties[y][x].id.substring(0, 10).equals(playerName) && parties[y][x].id.charAt(11)=='#') {
             int n = Integer.valueOf(parties[y][x].id.substring(12));
             maxN = max(maxN, n);
           }
