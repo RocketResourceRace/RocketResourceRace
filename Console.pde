@@ -272,6 +272,11 @@ class Console extends Element {
         if (byte(commandComponent.charAt(commandComponent.length()-1))==34) {
           connected = false;
         }
+        if (byte(commandComponent.charAt(0)) == 34 && !connected) {
+          tempSplitCommand[i] = commandComponent.replace('"', ' ').trim();
+          i++;
+          continue;
+        }
         if (connected){
           if (tempSplitCommand[i] == null){
             tempSplitCommand[i] = commandComponent.replace('"', ' ').trim();
