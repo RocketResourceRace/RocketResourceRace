@@ -113,5 +113,15 @@ class StockUpEquipment extends GameEvent {
   }
 }
 
+class SetAutoStockUp extends GameEvent {
+  int x, y;
+  boolean enabled;
+  SetAutoStockUp(int x, int y, boolean enabled){
+    this.x = x;
+    this.y = y;
+    this.enabled = enabled;
+  }
+}
+
 class EndTurn extends GameEvent {
 }

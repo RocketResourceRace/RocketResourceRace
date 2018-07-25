@@ -65,7 +65,7 @@ class Party {
     updateMaxMovementPoints();
   }
 
-  Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float[] proficiencies, int trainingFocus, int[] equipment, int[] equipmentQuantities, int unitCap) {
+  Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float[] proficiencies, int trainingFocus, int[] equipment, int[] equipmentQuantities, int unitCap, boolean autoStockUp) {
     // For parties that already exist and are being splitted or loaded from save
     unitNumber = startingUnits;
     task = startingTask;
@@ -78,6 +78,7 @@ class Party {
     this.pathTurns = 0;
     this.id = id;
     this.unitCap = unitCap;
+    this.autoStockUp = autoStockUp;
     
     this.equipment = equipment;
     this.equipmentQuantities = equipmentQuantities;
@@ -96,6 +97,14 @@ class Party {
     setTrainingFocus(trainingFocus);  // 'trainingFocus' is an id string
     
     updateMaxMovementPoints();
+  }
+  
+  boolean getAutoStockUp(){
+    return autoStockUp;
+  }
+  
+  void setAutoStockUp(boolean v){
+    autoStockUp = v;
   }
   
   void updateMaxMovementPoints(){
@@ -191,7 +200,7 @@ class Party {
         setEquipmentQuantity(i, getEquipmentQuantity(i) - splittedEquipmentQuantities[i]);
       }
       changeUnitNumber(-numUnitsSplitted);
-      return new Party(player, numUnitsSplitted, getTask(), getMovementPoints(), newID, Arrays.copyOf(getRawProficiencies(), getRawProficiencies().length), getTrainingFocus(), Arrays.copyOf(getAllEquipment(), getAllEquipment().length), splittedEquipmentQuantities, getUnitCap());
+      return new Party(player, numUnitsSplitted, getTask(), getMovementPoints(), newID, Arrays.copyOf(getRawProficiencies(), getRawProficiencies().length), getTrainingFocus(), Arrays.copyOf(getAllEquipment(), getAllEquipment().length), splittedEquipmentQuantities, getUnitCap(), getAutoStockUp());
     }
     else{
       LOGGER_GAME.warning(String.format("Num units splitted more than in party. ID:%s", numUnitsSplitted));
@@ -654,20 +663,20 @@ class Battle extends Party {
     return newParty;
   }
   
-  int mergeEntireFrom(Party other, int moveCost) {
+  int mergeEntireFrom(Party other, int moveCost, Player player) {
     // Note: will need to remove other party
     LOGGER_GAME.fine(String.format("Merging entire party from id:%s into battle with id:%s", other.id, this.id));
-    return mergeFrom(other, other.getUnitNumber(), moveCost);
+    return mergeFrom(other, other.getUnitNumber(), moveCost, player);
   }
 
-  int mergeFrom(Party other, int unitsTransfered, int moveCost) {
+  int mergeFrom(Party other, int unitsTransfered, int moveCost, Player player) {
     // Take units from other party into this party and merge attributes, weighted by unit number
     LOGGER_GAME.fine(String.format("Merging %d units from party with id:%s into battle with id:%s", unitsTransfered, other.id, this.id));
 
     if (attacker.player == other.player) {
-      return attacker.mergeFrom(other, unitsTransfered, moveCost);
+      return attacker.mergeFrom(other, unitsTransfered, moveCost, player);
     } else if (defender.player == other.player) {
-      return defender.mergeFrom(other, unitsTransfered, moveCost);
+      return defender.mergeFrom(other, unitsTransfered, moveCost, player);
     } else {
       return unitsTransfered;
     }
