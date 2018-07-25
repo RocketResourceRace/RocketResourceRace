@@ -11,6 +11,7 @@ class Console extends Element {
   private ArrayList<String> commandLog;
   private int commandLogPosition;
   private String LINESTART = " > ";
+  private PGraphics canvas;
 
   Console(int x, int y, int w, int h, int textSize) {
     this.x = x;
@@ -57,6 +58,7 @@ class Console extends Element {
   }
 
   void draw(PGraphics canvas) {
+    this.canvas = canvas;
     canvas.pushStyle();
     float ts = textSize*jsManager.loadFloatSetting("text scale");
     canvas.textFont(monoFont);
@@ -98,10 +100,13 @@ class Console extends Element {
   int getCurX(int cy) {
     int i=0;
     float ts = textSize*jsManager.loadFloatSetting("text scale");
-    textSize(ts);
+    canvas.textSize(ts);
+    int x2 = x;
     for (; i<text.get(cy).length(); i++) {
-      if (textWidth(text.get(cy).substring(0, i)) + x > mouseX)
+      float dx = canvas.textWidth(text.get(cy).substring(i, i+1));
+      if (x2+dx/2 > mouseX)
         break;
+      x2 += dx;
     }
     if (0 <= i && i <= text.get(cy).length()) {
       return i;
