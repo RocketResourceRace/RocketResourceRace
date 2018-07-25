@@ -209,6 +209,12 @@ class Party {
     // Take units from other party into this party and merge attributes, weighted by unit number
     LOGGER_GAME.fine(String.format("Merging %d units from party with id:%s into party with id:%s", unitsTransfered, other.id, this.id));
 
+    int overflow = max((this.getUnitNumber()+unitsTransfered) - this.getUnitCap(), 0);
+    
+    println(unitsTransfered);
+    unitsTransfered -= overflow;  // Dont do anything to the overflow units
+    println(unitsTransfered);
+
     // Merge all proficiencies with other party
     for (int i = 0; i < jsManager.getNumProficiencies(); i++) {
       this.setRawProficiency(i, mergeAttribute(this.getUnitNumber(), this.getRawProficiency(i), unitsTransfered, other.getRawProficiency(i)));
@@ -237,7 +243,7 @@ class Party {
     int movementPoints = min(this.getMovementPoints(), other.getMovementPoints()-moveCost);
     this.setMovementPoints(movementPoints);
     
-    int overflow = this.changeUnitNumber(unitsTransfered); // Units left over after merging
+    this.changeUnitNumber(unitsTransfered); // Units left over after merging
     other.changeUnitNumber(-unitsTransfered);
 
     return overflow; // Return units left in othr party
