@@ -185,11 +185,13 @@ class EquipmentManager extends Element {
   final int TEXTSIZE = 8;
   final float BOXWIDTHHEIGHTRATIO = 0.75;
   final int SHADOWSIZE = 20;
+  final float EXTRATYPEWIDTH = 1.5;
   String[] equipmentClassDisplayNames;
   int[] currentEquipment, currentEquipmentQuantities;
   int currentUnitNumber;
-  float boxWidth, boxHeight, dropBoxHeight;
+  float boxWidth, boxHeight;
   int selectedClass;
+  float dropX, dropY, dropW, dropH;
   ArrayList<int[]> equipmentToChange;
 
   EquipmentManager(int x, int y, int w) {
@@ -221,7 +223,14 @@ class EquipmentManager extends Element {
 
     boxWidth = w/jsManager.getNumEquipmentClasses();
     boxHeight = boxWidth*BOXWIDTHHEIGHTRATIO;
-    dropBoxHeight = jsManager.loadFloatSetting("gui scale") * 32;
+    updateDropDownPositionAndSize();
+  }
+  
+  void updateDropDownPositionAndSize(){
+    dropY = y+boxHeight;
+    dropW = boxWidth * EXTRATYPEWIDTH;
+    dropH = jsManager.loadFloatSetting("gui scale") * 32;
+    dropX = between(x, x+boxWidth*selectedClass-(dropW-boxWidth)/2, x+w-dropW);
   }
 
   void transform(int x, int y, int w) {
@@ -294,7 +303,7 @@ class EquipmentManager extends Element {
   }
   
   int getSelectedClass(){
-   return selectedClass; 
+    return selectedClass; 
   }
   
   void drawShadow(PGraphics panelCanvas, float shadowX, float shadowY, float shadowW, float shadowH){
@@ -306,46 +315,8 @@ class EquipmentManager extends Element {
   }
 
   void draw(PGraphics panelCanvas) {
+    updateDropDownPositionAndSize();
     panelCanvas.pushStyle();
-    
-    // Draw dropdown if an equipment class is selected
-    panelCanvas.stroke(0);
-    if (selectedClass != -1){
-      panelCanvas.textAlign(LEFT, TOP);
-      panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
-      String[] equipmentTypes = jsManager.getEquipmentFromClass(selectedClass);
-      for (int i = 0; i < jsManager.getNumEquipmentTypesFromClass(selectedClass); i ++){
-        panelCanvas.strokeWeight(1);
-        if (currentEquipment[selectedClass] != i){
-          panelCanvas.fill(170);
-          panelCanvas.rect(x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight, boxWidth, dropBoxHeight);
-          panelCanvas.fill(0);
-          panelCanvas.text(equipmentTypes[i], 3+x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight);
-        }
-        else{
-          panelCanvas.fill(220);
-          panelCanvas.rect(x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight, boxWidth, dropBoxHeight);
-          panelCanvas.fill(150);
-          panelCanvas.text(equipmentTypes[i], 3+x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight);
-        }
-      }
-      if (currentEquipment[selectedClass] != -1){
-        panelCanvas.fill(170);
-        panelCanvas.rect(x+selectedClass*boxWidth, y+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropBoxHeight+boxHeight, boxWidth, dropBoxHeight);
-        panelCanvas.fill(0);
-        panelCanvas.text("Unequip", 3+x+selectedClass*boxWidth, y+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropBoxHeight+boxHeight);
-      }
-    }
-    if (selectedClass != -1){
-      panelCanvas.strokeWeight(2);
-      panelCanvas.stroke(0);
-      panelCanvas.noFill();
-      if (currentEquipment[selectedClass] == -1){  // If nothing equipped, there is not unequip option at the bottom
-        panelCanvas.rect(x+boxWidth*selectedClass, y+boxHeight, boxWidth+1, dropBoxHeight*(jsManager.getNumEquipmentTypesFromClass(selectedClass))+1);
-      } else{
-        panelCanvas.rect(x+boxWidth*selectedClass, y+boxHeight, boxWidth+1, dropBoxHeight*(jsManager.getNumEquipmentTypesFromClass(selectedClass)+1)+1);
-      }
-    }
 
     panelCanvas.strokeWeight(2);
     panelCanvas.fill(170);
@@ -374,6 +345,45 @@ class EquipmentManager extends Element {
         panelCanvas.text(String.format("%d/%d", currentEquipmentQuantities[i], currentUnitNumber), x+boxWidth*(i+0.5), y+boxHeight-TEXTSIZE*jsManager.loadFloatSetting("text scale"));
       }
     }
+    
+    // Draw dropdown if an equipment class is selected
+    panelCanvas.stroke(0);
+    if (selectedClass != -1){
+      panelCanvas.textAlign(LEFT, TOP);
+      panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
+      String[] equipmentTypes = jsManager.getEquipmentFromClass(selectedClass);
+      for (int i = 0; i < jsManager.getNumEquipmentTypesFromClass(selectedClass); i ++){
+        panelCanvas.strokeWeight(1);
+        if (currentEquipment[selectedClass] != i){
+          panelCanvas.fill(170);
+          panelCanvas.rect(dropX, dropY+i*dropH, dropW, dropH);
+          panelCanvas.fill(0);
+          panelCanvas.text(equipmentTypes[i], 3+dropX, dropY+i*dropH);
+        }
+        else{
+          panelCanvas.fill(220);
+          panelCanvas.rect(dropX, dropY+i*dropH, dropW, dropH);
+          panelCanvas.fill(150);
+          panelCanvas.text(equipmentTypes[i], 3+dropX, dropY+i*dropH);
+        }
+      }
+      if (currentEquipment[selectedClass] != -1){
+        panelCanvas.fill(170);
+        panelCanvas.rect(x+selectedClass*boxWidth, y+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropH+boxHeight, boxWidth, dropH);
+        panelCanvas.fill(0);
+        panelCanvas.text("Unequip", 3+x+selectedClass*boxWidth, y+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropH+boxHeight);
+      }
+    }
+    if (selectedClass != -1){
+      panelCanvas.strokeWeight(2);
+      panelCanvas.stroke(0);
+      panelCanvas.noFill();
+      if (currentEquipment[selectedClass] == -1){  // If nothing equipped, there is not unequip option at the bottom
+        panelCanvas.rect(dropX, dropY, dropW, dropH*(jsManager.getNumEquipmentTypesFromClass(selectedClass))+1);
+      } else{
+        panelCanvas.rect(dropX, dropY, dropW, dropH*(jsManager.getNumEquipmentTypesFromClass(selectedClass)+1)+1);
+      }
+    }
 
     panelCanvas.popStyle();
   }
@@ -386,16 +396,16 @@ class EquipmentManager extends Element {
     if (selectedClass == -1){
       return false;
     } else if (currentEquipment[selectedClass] == -1){  // If nothing equipped, there is not unequip option at the bottom
-      return mouseX-xOffset >= x+boxWidth*selectedClass && mouseX-xOffset <= x+boxWidth*(selectedClass+1) && mouseY-yOffset >= y+boxHeight && mouseY-yOffset <= y+dropBoxHeight*(jsManager.getNumEquipmentTypesFromClass(selectedClass))+boxHeight;
+      return mouseX-xOffset >= dropX && mouseX-xOffset <= dropX+dropW && mouseY-yOffset >= dropY && mouseY-yOffset <= dropY+dropH*(jsManager.getNumEquipmentTypesFromClass(selectedClass));
     } else{
-      return mouseX-xOffset >= x+boxWidth*selectedClass && mouseX-xOffset <= x+boxWidth*(selectedClass+1) && mouseY-yOffset >= y+boxHeight && mouseY-yOffset <= y+dropBoxHeight*(jsManager.getNumEquipmentTypesFromClass(selectedClass)+1)+boxHeight;
+      return mouseX-xOffset >= dropX && mouseX-xOffset <= dropX+dropW && mouseY-yOffset >= dropY && mouseY-yOffset <= dropY+dropH*(jsManager.getNumEquipmentTypesFromClass(selectedClass)+1);
     }
   }
   
   int hoveringOverType() {
     int num = jsManager.getNumEquipmentTypesFromClass(selectedClass);
     for (int i = 0; i < num+1; i ++) {
-      if (mouseX-xOffset >= x+boxWidth*selectedClass && mouseX-xOffset <= x+boxWidth*(selectedClass+1) && mouseY-yOffset >= y+dropBoxHeight*i+boxHeight && mouseY-yOffset <= y+dropBoxHeight*(i+1)+boxHeight){
+      if (mouseX-xOffset >= dropX && mouseX-xOffset <= dropX+dropW && mouseY-yOffset >= dropY+dropH*i && mouseY-yOffset <= dropY+dropH*(i+1)){
         return i;
       }
     }
