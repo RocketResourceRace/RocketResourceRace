@@ -1143,6 +1143,15 @@ class Tooltip extends Element {
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(String.format(jo.getString("attacking"), chance.toString()));
   }
+
+  void setBombarding(int damage) {
+    setText(String.format("Perform a ranged attack on the party.\nThis will eliminate %d units of the other party", damage));
+  }
+
+  void setBombarding() {
+    setText(String.format("Perform a ranged attack on the party."));
+  }
+
   void setTurnsRemaining() {
     attacking = false;
     JSONObject jo = gameData.getJSONObject("tooltips");

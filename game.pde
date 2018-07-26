@@ -369,6 +369,12 @@ class Game extends State {
       throw e;
     }
   }
+
+  int getBombardmentDamage(Party attacker, Party defender) {
+    return floor(attacker.getUnitNumber() * attacker.getEffectivenessMultiplier("ranged", jsManager.proficiencyIDToIndex("ranged attack")) /
+                  (defender.getEffectivenessMultiplier("defence", jsManager.proficiencyIDToIndex("defence")) * 3));
+  }
+
   boolean postEvent(GameEvent event) {
     try {
       LOGGER_GAME.finer(String.format("Event triggered, player:%d. Cell in question:(%d, %d)", turn, selectedCellX, selectedCellY));
@@ -469,15 +475,14 @@ class Game extends State {
             if (attacker.player == turn && defender.player != turn && weapon.hasKey("range")) {
               int range = weapon.getInt("range");
               if (dist(x1, y1, x2, y2) <= range){
-                float damage = attacker.getUnitNumber() * attacker.getEffectivenessMultiplier("ranged", jsManager.proficiencyIDToIndex("ranged attack")) /
-                  (defender.getEffectivenessMultiplier("defence", jsManager.proficiencyIDToIndex("defence")) * 3);
-                defender.changeUnitNumber(-floor(damage));
+                int damage = getBombardmentDamage(attacker, defender);
+                defender.changeUnitNumber(-damage);
                 if (defender.getUnitNumber() == 0) {
                   parties[y2][x2] = null;
                 }
                 attacker.setMovementPoints(0);
                 updateBombardment();
-                LOGGER_GAME.fine(String.format("Party %s bombarding party %s, eliminating %d units", attacker.id, defender.id, floor(damage)));
+                LOGGER_GAME.fine(String.format("Party %s bombarding party %s, eliminating %d units", attacker.id, defender.id, damage));
               } else {
                 LOGGER_GAME.fine(String.format("Party %s attempted and failed to bombard party %s, as it was not in range", attacker.id, defender.id));
               }
@@ -1927,6 +1932,15 @@ class Game extends State {
         } else {
           map.cancelPath();
           tooltip.hide();
+        }
+
+        if (bombarding) {
+          int x = floor(map.scaleXInv());
+          int y = floor(map.scaleYInv());
+          if (0<=x&&x<mapWidth&&0<=y&&y<mapHeight && parties[y][x] != null && parties[y][x].player != turn) {
+            tooltip.setBombarding(getBombardmentDamage(parties[selectedCellY][selectedCellX], parties[y][x]));
+            tooltip.show();
+          }
         }
       } else {
         map.cancelPath();
