@@ -469,14 +469,15 @@ class Game extends State {
             if (attacker.player == turn && defender.player != turn && weapon.hasKey("range")) {
               int range = weapon.getInt("range");
               if (dist(x1, y1, x2, y2) <= range){
-                int damage = 10;
-                defender.changeUnitNumber(-10);
+                float damage = attacker.getUnitNumber() * attacker.getEffectivenessMultiplier("ranged", jsManager.proficiencyIDToIndex("ranged attack")) /
+                  (defender.getEffectivenessMultiplier("defence", jsManager.proficiencyIDToIndex("defence")) * 3);
+                defender.changeUnitNumber(-floor(damage));
                 if (defender.getUnitNumber() == 0) {
                   parties[y2][x2] = null;
                 }
                 attacker.setMovementPoints(0);
                 updateBombardment();
-                LOGGER_GAME.fine(String.format("Party %s bombarding party %s, eliminating %d units", attacker.id, defender.id, damage));
+                LOGGER_GAME.fine(String.format("Party %s bombarding party %s, eliminating %d units", attacker.id, defender.id, floor(damage)));
               } else {
                 LOGGER_GAME.fine(String.format("Party %s attempted and failed to bombard party %s, as it was not in range", attacker.id, defender.id));
               }

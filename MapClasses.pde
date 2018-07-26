@@ -126,6 +126,7 @@ class Party {
     if (proficiency <= 0){ // proficiencies should never be negative because log(0) is undefined and log(<0) is complex. 
       return 0;
     } else {
+      println(jsManager.getEffectivenessConstant(type), proficiency, log(proficiency));
       return jsManager.getEffectivenessConstant(type) * log(proficiency) + 1;
     }
   }
