@@ -186,6 +186,7 @@ class EquipmentManager extends Element {
   final float BOXWIDTHHEIGHTRATIO = 0.75;
   final int SHADOWSIZE = 20;
   final float EXTRATYPEWIDTH = 1.5;
+  final float BIGIMAGESIZE = 0.5;
   String[] equipmentClassDisplayNames;
   int[] currentEquipment, currentEquipmentQuantities;
   int currentUnitNumber;
@@ -194,6 +195,7 @@ class EquipmentManager extends Element {
   float dropX, dropY, dropW, dropH, oldDropH;
   ArrayList<int[]> equipmentToChange;
   HashMap<String, PImage> tempEquipmentImages;
+  HashMap<String, PImage> bigTempEquipmentImages;
 
   EquipmentManager(int x, int y, int w) {
     this.x = x;
@@ -219,6 +221,7 @@ class EquipmentManager extends Element {
     selectedClass = -1;  // -1 represents nothing being selected
     equipmentToChange = new ArrayList<int[]>();
     tempEquipmentImages = new HashMap<String, PImage>();
+    bigTempEquipmentImages = new HashMap<String, PImage>();
     oldDropH = 0;
   }
   
@@ -244,7 +247,9 @@ class EquipmentManager extends Element {
         try{
           String id = jsManager.getEquipmentTypeID(c, t);
           tempEquipmentImages.put(id, equipmentImages.get(id).copy());
-          tempEquipmentImages.get(id).resize(int(dropH), int(dropH));
+          tempEquipmentImages.get(id).resize(int(dropH/0.75), int(dropH));
+          bigTempEquipmentImages.put(id, equipmentImages.get(id).copy());
+          bigTempEquipmentImages.get(id).resize(int(boxWidth*BIGIMAGESIZE), int(boxHeight*BIGIMAGESIZE));
         }
         catch (NullPointerException e){
           LOGGER_MAIN.log(Level.SEVERE, String.format("Error resizing image for equipment icon class:%d, type:%d, id:%s", c, t, jsManager.getEquipmentTypeID(c, t)), e);
@@ -360,6 +365,9 @@ class EquipmentManager extends Element {
         panelCanvas.noFill();
       }
       panelCanvas.rect(x+boxWidth*i, y, boxWidth, boxHeight);
+      if (currentEquipment[i] != -1){
+        panelCanvas.image(bigTempEquipmentImages.get(jsManager.getEquipmentTypeID(i, currentEquipment[i])), int(x+boxWidth*i)+(1-BIGIMAGESIZE)*boxWidth/2, y+(1-BIGIMAGESIZE)*boxHeight/2);
+      }
       panelCanvas.fill(0);
       panelCanvas.textAlign(CENTER, TOP);
       panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
@@ -371,7 +379,7 @@ class EquipmentManager extends Element {
         if (currentEquipmentQuantities[i] < currentUnitNumber){
           panelCanvas.fill(255, 0, 0);
         }
-        panelCanvas.text(String.format("%d/%d", currentEquipmentQuantities[i], currentUnitNumber), x+boxWidth*(i+0.5), y+boxHeight-TEXTSIZE*jsManager.loadFloatSetting("text scale"));
+        panelCanvas.text(String.format("%d/%d", currentEquipmentQuantities[i], currentUnitNumber), x+boxWidth*(i+0.5), y+boxHeight-TEXTSIZE*jsManager.loadFloatSetting("text scale")+5);
       }
     }
     
