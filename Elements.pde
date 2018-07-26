@@ -221,7 +221,7 @@ class EquipmentManager extends Element {
 
     boxWidth = w/jsManager.getNumEquipmentClasses();
     boxHeight = boxWidth*BOXWIDTHHEIGHTRATIO;
-    dropBoxHeight = jsManager.loadFloatSetting("text scale") * TEXTSIZE * 1.2;
+    dropBoxHeight = jsManager.loadFloatSetting("gui scale") * 32;
   }
 
   void transform(int x, int y, int w) {
@@ -254,14 +254,21 @@ class EquipmentManager extends Element {
     ArrayList<String> events = new ArrayList<String>();
     if (eventType.equals("mouseClicked")) {
       if (mouseOverClasses()) {
-        int newSelectedClass = hoveringOverClass();
-        if (newSelectedClass == selectedClass){  // If selecting same option
-          selectedClass = -1;
+        if (button == LEFT){
+          int newSelectedClass = hoveringOverClass();
+          if (newSelectedClass == selectedClass){  // If selecting same option
+            selectedClass = -1;
+          }
+          else{
+            selectedClass = newSelectedClass;
+            events.add("dropped");
+            events.add("stop events");
+          }
         }
-        else{
-          selectedClass = newSelectedClass;
-          events.add("dropped");
+        else if (button == RIGHT){  // Unequip if right clicking on class
+          events.add("valueChanged");
           events.add("stop events");
+          equipmentToChange.add(new int[] {selectedClass, -1});
         }
       }
       else if (mouseOverTypes()){
