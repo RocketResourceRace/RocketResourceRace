@@ -702,6 +702,108 @@
       }
     },
     {
+      "id": "Build Stables",
+      "description": "The stables can be used to produce horses and chariots",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":500},{"id":"stone", "quantity":50}],
+      "action":{
+        "type": "Build Stables",
+        "notification": "Stables built",
+        "turns": 6,
+        "building": "Stables"
+      }
+    },
+    {
+      "id": "Build Blacksmith",
+      "description": "The blacksmith can be used to produce various weapons and tools",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand", "hill"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":600},
+                       {"id":"stone", "quantity":300},
+                       {"id":"metal", "quantity":50}],
+      "action":{
+        "type": "Build Blacksmith",
+        "notification": "Blacksmith built",
+        "turns": 6,
+        "building": "Blacksmith"
+      }
+    },
+    {
+      "id": "Build Vechicle Factory",
+      "description": "The vechicle factory can be used\n to produce various vechicles",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":300},
+                       {"id":"stone", "quantity":500},
+                       {"id":"metal", "quantity":1000}],
+      "action":{
+        "type": "Build Vechicle Factory",
+        "notification": "Vechicle Factory built",
+        "turns": 6,
+        "building": "Vechicle Factory"
+      }
+    },
+    {
+      "id": "Build Firearms Factory",
+      "description": "The firearms factory can be used\n to produce various firearms",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":600},
+                       {"id":"stone", "quantity":800},
+                       {"id":"metal", "quantity":300}],
+      "action":{
+        "type": "Build Firearms Factory",
+        "notification": "Firearms Factory built",
+        "turns": 6,
+        "building": "Firearms Factory"
+      }
+    },
+    {
+      "id": "Build Kiln",
+      "description": "The kiln can be used to produce charcoal",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":300},
+                       {"id":"stone", "quantity":300}],
+      "action":{
+        "type": "Build Kiln",
+        "notification": "Kiln built",
+        "turns": 6,
+        "building": "Kiln"
+      }
+    },
+    {
       "id": "Siege",
       "description": "This party is currently engaged in siege.",
       "consumption":[
