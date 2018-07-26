@@ -191,8 +191,9 @@ class EquipmentManager extends Element {
   int currentUnitNumber;
   float boxWidth, boxHeight;
   int selectedClass;
-  float dropX, dropY, dropW, dropH;
+  float dropX, dropY, dropW, dropH, oldDropH;
   ArrayList<int[]> equipmentToChange;
+  HashMap<String, PImage> tempEquipmentImages;
 
   EquipmentManager(int x, int y, int w) {
     this.x = x;
@@ -217,6 +218,8 @@ class EquipmentManager extends Element {
     
     selectedClass = -1;  // -1 represents nothing being selected
     equipmentToChange = new ArrayList<int[]>();
+    tempEquipmentImages = new HashMap<String, PImage>();
+    oldDropH = 0;
   }
   
   void updateSizes(){
@@ -232,11 +235,31 @@ class EquipmentManager extends Element {
     dropH = jsManager.loadFloatSetting("gui scale") * 32;
     dropX = between(x, x+boxWidth*selectedClass-(dropW-boxWidth)/2, x+w-dropW);
   }
+  
+  
+  void resizeImages(){
+    // Resize equipment icons
+    for (int c=0; c < jsManager.getNumEquipmentClasses(); c++){
+      for (int t=0; t < jsManager.getNumEquipmentTypesFromClass(c); t++){
+        try{
+          String id = jsManager.getEquipmentTypeID(c, t);
+          tempEquipmentImages.put(id, equipmentImages.get(id).copy());
+          tempEquipmentImages.get(id).resize(int(dropH), int(dropH));
+        }
+        catch (NullPointerException e){
+          LOGGER_MAIN.log(Level.SEVERE, String.format("Error resizing image for equipment icon class:%d, type:%d, id:%s", c, t, jsManager.getEquipmentTypeID(c, t)), e);
+          throw e;
+        }
+      }
+    }
+  }
 
   void transform(int x, int y, int w) {
     this.x = x;
     this.y = y;
     this.w = w;
+    
+    float oldDropH = dropH;
     
     updateSizes();
   }
@@ -315,6 +338,12 @@ class EquipmentManager extends Element {
   }
 
   void draw(PGraphics panelCanvas) {
+    
+    if (oldDropH != dropH){  // If height of boxes has changed
+      resizeImages();
+      oldDropH = dropH;
+    }
+    
     updateDropDownPositionAndSize();
     panelCanvas.pushStyle();
 
@@ -359,12 +388,24 @@ class EquipmentManager extends Element {
           panelCanvas.rect(dropX, dropY+i*dropH, dropW, dropH);
           panelCanvas.fill(0);
           panelCanvas.text(equipmentTypes[i], 3+dropX, dropY+i*dropH);
+          try{
+            panelCanvas.image(tempEquipmentImages.get(jsManager.getEquipmentTypeID(selectedClass, i)), dropX+dropW-dropH-3, dropY+dropH*i);
+          }
+          catch (NullPointerException e){
+            LOGGER_MAIN.log(Level.WARNING, String.format("Error drawing image for equipment icon class:%d, type:%d, id:%s", selectedClass, i, jsManager.getEquipmentTypeID(selectedClass, i)), e);
+          }
         }
         else{
           panelCanvas.fill(220);
           panelCanvas.rect(dropX, dropY+i*dropH, dropW, dropH);
           panelCanvas.fill(150);
           panelCanvas.text(equipmentTypes[i], 3+dropX, dropY+i*dropH);
+          try{
+            panelCanvas.image(tempEquipmentImages.get(jsManager.getEquipmentTypeID(selectedClass, i)), dropX+dropW-dropH-3, dropY+dropH*i);
+          }
+          catch (NullPointerException e){
+            LOGGER_MAIN.log(Level.WARNING, String.format("Error drawing image for equipment icon class:%d, type:%d, id:%s", selectedClass, i, jsManager.getEquipmentTypeID(selectedClass, i)), e);
+          }
         }
       }
       if (currentEquipment[selectedClass] != -1){
@@ -1349,7 +1390,7 @@ class Tooltip extends Element {
     String t="";
     JSONObject proficiencyJO;
     if (!(0 <= proficiencyIndex && proficiencyIndex < jsManager.getNumProficiencies())){
-      LOGGER_MAIN.warning("Invalid proficiency index given");
+      LOGGER_MAIN.warning("Invalid proficiency index given:"+proficiencyIndex);
       return;
     }
     try{

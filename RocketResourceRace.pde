@@ -181,6 +181,7 @@ PImage[] partyImages;
 PImage[] taskImages;
 HashMap<String, PImage> lowImages;
 HashMap<String, PImage> tile3DImages;
+HashMap<String, PImage> equipmentImages;
 
 void quitGame() {
   LOGGER_MAIN.info("Exitting game...");
@@ -207,11 +208,13 @@ void loadImages() {
     lowImages = new HashMap<String, PImage>();
     tile3DImages = new HashMap<String, PImage>();
     buildingImages = new HashMap<String, PImage[]>();
+    equipmentImages = new HashMap<String, PImage>();
     partyImages = new PImage[]{
       loadImage("img/party/blue_flag.png"), 
       loadImage("img/party/red_flag.png"), 
       loadImage("img/party/battle.png")
     };
+    LOGGER_MAIN.finer("Loading task images");
     taskImages = new PImage[gameData.getJSONArray("tasks").size()];
     for (int i=0; i<gameData.getJSONArray("terrain").size(); i++) {
       JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
@@ -223,6 +226,7 @@ void loadImages() {
         tile3DImages.put(tileType.getString("id"), loadImage("img/terrain/"+tileType.getString("img3d")));
       }
     }
+    LOGGER_MAIN.finer("Loading building images");
     for (int i=0; i<gameData.getJSONArray("buildings").size(); i++) {
       JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
       PImage[] p = new PImage[buildingType.getJSONArray("img").size()];
@@ -230,12 +234,24 @@ void loadImages() {
         p[i2] = loadImage("img/building/"+buildingType.getJSONArray("img").getString(i2));
       buildingImages.put(buildingType.getString("id"), p);
     }
+    LOGGER_MAIN.finer("Loading task images");
     for (int i=0; i<gameData.getJSONArray("tasks").size(); i++) {
       JSONObject task = gameData.getJSONArray("tasks").getJSONObject(i);
       if (!task.isNull("img")) {
         taskImages[i] = loadImage("img/task/"+task.getString("img"));
       }
     }
+    LOGGER_MAIN.finer("Loading equipment images");
+    
+    // Load equipment icons
+    for (int c=0; c < jsManager.getNumEquipmentClasses(); c++){
+      for (int t=0; t < jsManager.getNumEquipmentTypesFromClass(c); t++){
+        equipmentImages.put(jsManager.getEquipmentTypeID(c, t), loadImage(jsManager.getEquipmentImageFileName(c, t)));
+        LOGGER_MAIN.finest("Loading equipment image id:"+jsManager.getEquipmentTypeID(c, t));
+      }
+    }
+    
+    LOGGER_MAIN.finer("Finished loading images");
   }
 
   catch (Exception e) {

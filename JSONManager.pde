@@ -99,6 +99,22 @@ class JSONManager {
     }
   }
   
+  String getEquipmentImageFileName(int classIndex, int typeIndex){
+    try{
+      if (!gameData.getJSONArray("equipment").getJSONObject(classIndex).getJSONArray("types").getJSONObject(typeIndex).isNull("img")){
+        return "data/img/equipment/"+gameData.getJSONArray("equipment").getJSONObject(classIndex).getJSONArray("types").getJSONObject(typeIndex).getString("img");
+      }
+      else{
+        LOGGER_MAIN.warning(String.format("Could not find img file for equipment class:%d, type:%d, id:%s", classIndex, typeIndex, getEquipmentTypeID(classIndex, typeIndex)));
+        return "data/img/misc/invalid_img.png";
+      }
+    }
+    catch (NullPointerException e) {
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error loading equipment file name from data.json. Class:%d, type:%d id:%s", classIndex, typeIndex, getEquipmentTypeID(classIndex, typeIndex)), e);
+      throw e;
+    }
+  }
+  
   int getNumEquipmentTypesFromClass(int classType){
     // type is the index of the type in data.json
     if (classType<0){
