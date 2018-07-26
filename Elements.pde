@@ -1217,7 +1217,7 @@ class Tooltip extends Element {
         }
       }
     }
-    setText("Stock up equipment."+text);
+    setText("Stock up equipment. This will use all of the party's movement points."+text);
   }
   
   void setStockUpUnavailable(Party p) {

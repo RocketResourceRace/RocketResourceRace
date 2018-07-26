@@ -599,15 +599,19 @@ class Game extends State {
         LOGGER_GAME.fine("Stocking up equipment");
         int x = ((StockUpEquipment)event).x;
         int y = ((StockUpEquipment)event).y;
-        int resID, addedQuantity;
-        for (int i = 0; i < jsManager.getNumEquipmentClasses(); i ++){
-          if (parties[y][x].getEquipment(i) != -1){
-            resID = jsManager.getResIndex(jsManager.getEquipmentTypeID(i, parties[y][x].getEquipment(i)));
-            addedQuantity = min(parties[y][x].getUnitNumber()-parties[y][x].getEquipmentQuantity(i), floor(players[turn].resources[resID]));
-            parties[y][x].addEquipmentQuantity(i, addedQuantity);
-            players[turn].resources[resID] -= addedQuantity;
-            LOGGER_GAME.fine(String.format("Adding %d quantity to equipment class:%d", addedQuantity, i));
+        if (parties[y][x].getMovementPoints() > 0) {
+          int resID, addedQuantity;
+          for (int i = 0; i < jsManager.getNumEquipmentClasses(); i ++){
+            if (parties[y][x].getEquipment(i) != -1){
+              resID = jsManager.getResIndex(jsManager.getEquipmentTypeID(i, parties[y][x].getEquipment(i)));
+              addedQuantity = min(parties[y][x].getUnitNumber()-parties[y][x].getEquipmentQuantity(i), floor(players[turn].resources[resID]));
+              parties[y][x].addEquipmentQuantity(i, addedQuantity);
+              players[turn].resources[resID] -= addedQuantity;
+              LOGGER_GAME.fine(String.format("Adding %d quantity to equipment class:%d", addedQuantity, i));
+            }
           }
+          parties[y][x].setMovementPoints(0);
+          ((Button)getElement("stock up button", "party management")).deactivate();
         }
       } 
       else if (event instanceof SetAutoStockUp){
@@ -1109,7 +1113,7 @@ class Game extends State {
       for (int x=0; x<mapWidth; x++) {
         if (parties[y][x] != null) {
           if (parties[y][x].player == turn) {
-            if (parties[y][x].getAutoStockUp()){
+            if (parties[y][x].getAutoStockUp()) {
                postEvent(new StockUpEquipment(x, y));
             }
             Action action = parties[y][x].progressAction();
