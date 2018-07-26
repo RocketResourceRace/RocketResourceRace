@@ -50,6 +50,7 @@ class Map3D extends BaseMap implements Map {
   PVector rocketPosition;
   PVector rocketVelocity;
   boolean showingBombard;
+  int bombardRange;
 
   Map3D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
     LOGGER_MAIN.fine("Initialising map 3d");
@@ -276,7 +277,7 @@ class Map3D extends BaseMap implements Map {
   }
   void updateHoveringScale() {
     try {
-      PVector mo = MousePosOnObject();
+      PVector mo = getMousePosOnObject();
       hoveringX = (mo.x)/getObjectWidth()*mapWidth;
       hoveringY = (mo.y)/getObjectHeight()*mapHeight;
     }
@@ -829,12 +830,12 @@ class Map3D extends BaseMap implements Map {
     }
   }
 
-  PVector MousePosOnObject() {
+  PVector getMousePosOnObject() {
     try {
       applyCameraPerspective();
       PVector floorPos = new PVector(focusedX+width/2, focusedY+height/2, 0);
       PVector floorDir = new PVector(0, 0, -1);
-      PVector mousePos = getUnProjectedPointOnFloor( mouseX, mouseY, floorPos, floorDir);
+      PVector mousePos = getUnProjectedPointOnFloor(mouseX, mouseY, floorPos, floorDir);
       camera();
       return mousePos;
     }
@@ -1183,6 +1184,9 @@ class Map3D extends BaseMap implements Map {
       if (moveNodes != null) {
         canvas.shape(drawPossibleMoves);
       }
+      if (showingBombard) {
+        drawBombard(canvas);
+      }
 
       for (int x=0; x<mapWidth; x++) {
         for (int y=0; y<mapHeight; y++) {
@@ -1460,8 +1464,19 @@ class Map3D extends BaseMap implements Map {
     drawRocket = false;
   }
   
-  boolean toggleBombard() {
-    showingBombard = !showingBombard;
-    return showingBombard;
+  void drawBombard(PGraphics canvas) {
+    PVector pos = getMousePosOnObject();
+    int x = floor(pos.x/blockSize);
+    int y = floor(pos.y/blockSize);
+    canvas.line((x+0.5)*blockSize, (y+0.5)*blockSize, getHeight(x, y), (selectedCellX+0.5)*blockSize, (selectedCellY+0.5)*blockSize, getHeight(selectedCellX, selectedCellY));
+  }
+  
+  void enableBombard(int range) {
+    showingBombard = true;
+    bombardRange = range;
+  }
+  
+  void disableBombard() {
+    showingBombard = false;
   }
 }

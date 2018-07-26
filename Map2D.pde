@@ -37,7 +37,8 @@ interface Map {
   void enableRocket(PVector pos, PVector vel);
   void disableRocket();
   void generateFog(int player);
-  boolean toggleBombard();
+  void enableBombard(int range);
+  void disableBombard();
 }
 
 
@@ -954,6 +955,7 @@ class Map2D extends BaseMap implements Map {
   PVector rocketPosition;
   PVector rocketVelocity;
   boolean showingBombard;
+  int bombardRange;
 
   Map2D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
     LOGGER_MAIN.fine("Initialsing map");
@@ -1427,6 +1429,9 @@ class Map2D extends BaseMap implements Map {
         }
       }
     }
+    if (showingBombard) {
+      drawBombard(panelCanvas);
+    }
 
     panelCanvas.noFill();
     panelCanvas.stroke(0);
@@ -1490,8 +1495,23 @@ class Map2D extends BaseMap implements Map {
     canvas.popMatrix();
   }
   
-  boolean toggleBombard() {
-    showingBombard = !showingBombard;
-    return showingBombard;
+  void drawBombard(PGraphics canvas) {
+    int x = floor(scaleXInv());
+    int y = floor(scaleYInv());
+    if (parties[y][x] != null && parties[y][x].player != parties[selectedCellY][selectedCellX].player && dist(x, y, selectedCellX, selectedCellY) < bombardRange) {
+      canvas.pushMatrix();
+      canvas.translate(scaleX(x), scaleY(y));
+      canvas.scale(blockSize/64, blockSize/64);
+      canvas.image(bombardImage, 16, 16);
+      canvas.popMatrix();
+    }
+  }
+  
+  void enableBombard(int range) {
+    showingBombard = true;
+    bombardRange = range;
+  }
+  void disableBombard() {
+    showingBombard = false;
   }
 }

@@ -475,6 +475,7 @@ class Game extends State {
                   parties[y2][x2] = null;
                 }
                 attacker.setMovementPoints(0);
+                updateBombardment();
                 LOGGER_GAME.fine(String.format("Party %s bombarding party %s, eliminating %d units", attacker.id, defender.id, damage));
               } else {
                 LOGGER_GAME.fine(String.format("Party %s attempted and failed to bombard party %s, as it was not in range", attacker.id, defender.id));
@@ -1589,7 +1590,12 @@ class Game extends State {
         } else if (event.id.equals("stock up button")){
           postEvent(new StockUpEquipment(selectedCellX, selectedCellY));
         } else if (event.id.equals("bombardment button")) {
-          bombarding = map.toggleBombard();
+          bombarding = !bombarding;
+          if (bombarding) {
+            map.enableBombard(gameData.getJSONArray("equipment").getJSONObject(1).getJSONArray("types").getJSONObject(parties[selectedCellY][selectedCellX].equipment[1]).getInt("range"));
+          } else {
+            map.disableBombard();
+          }
         }
       }
       if (event.type.equals("valueChanged")) {
@@ -1973,7 +1979,7 @@ class Game extends State {
           if (0<=x&&x<mapWidth&&0<=y&&y<mapHeight) {
             postEvent(new Bombard(selectedCellX, selectedCellY, x, y));
           }
-          map.toggleBombard();
+          map.disableBombard();
           bombarding = false;
         }
       }
@@ -2084,7 +2090,7 @@ class Game extends State {
   void updateBombardment() {
     if (parties[selectedCellY][selectedCellX].equipment[1] != -1 && 
     gameData.getJSONArray("equipment").getJSONObject(1).getJSONArray("types").getJSONObject(parties[selectedCellY][selectedCellX].equipment[1]).hasKey("range") &&
-    parties[selectedCellY][selectedCellX].equipmentQuantities[1] > 0) {
+    parties[selectedCellY][selectedCellX].equipmentQuantities[1] > 0 && parties[selectedCellY][selectedCellX].getMovementPoints() > 0) {
       getElement("bombardment button", "party management").visible = true;
     } else {
       getElement("bombardment button", "party management").visible = false;
