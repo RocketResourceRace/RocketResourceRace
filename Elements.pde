@@ -190,7 +190,6 @@ class EquipmentManager extends Element {
   int currentUnitNumber;
   float boxWidth, boxHeight, dropBoxHeight;
   int selectedClass;
-  boolean[] equipmentAvailable;
   ArrayList<int[]> equipmentToChange;
 
   EquipmentManager(int x, int y, int w) {
@@ -215,7 +214,6 @@ class EquipmentManager extends Element {
     updateSizes();
     
     selectedClass = -1;  // -1 represents nothing being selected
-    resetAvailableEquipment();
     equipmentToChange = new ArrayList<int[]>();
   }
   
@@ -243,19 +241,6 @@ class EquipmentManager extends Element {
   
   float getBoxHeight(){
     return boxHeight;
-  }
-  
-  void resetAvailableEquipment(){
-    if (selectedClass == -1){
-      this.equipmentAvailable = new boolean[0];
-    }
-    else{
-      this.equipmentAvailable = new boolean[jsManager.getNumEquipmentTypesFromClass(selectedClass)];
-    }
-  }
-  
-  void makeEquipmentAvailable(int index){
-    equipmentAvailable[index] = true;
   }
   
   ArrayList<int[]> getEquipmentToChange(){
@@ -323,30 +308,25 @@ class EquipmentManager extends Element {
       panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
       String[] equipmentTypes = jsManager.getEquipmentFromClass(selectedClass);
       for (int i = 0; i < jsManager.getNumEquipmentTypesFromClass(selectedClass); i ++){
-        try{
-          panelCanvas.strokeWeight(1);
-          if (equipmentAvailable[i]){
-            panelCanvas.fill(170);
-            panelCanvas.rect(x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight, boxWidth, dropBoxHeight);
-            panelCanvas.fill(0);
-            panelCanvas.text(equipmentTypes[i], x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight);
-          }
-          else{
-            panelCanvas.fill(220);
-            panelCanvas.rect(x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight, boxWidth, dropBoxHeight);
-            panelCanvas.fill(150);
-            panelCanvas.text(equipmentTypes[i], x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight);
-          }
+        panelCanvas.strokeWeight(1);
+        if (currentEquipment[selectedClass] != i){
+          panelCanvas.fill(170);
+          panelCanvas.rect(x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight, boxWidth, dropBoxHeight);
+          panelCanvas.fill(0);
+          panelCanvas.text(equipmentTypes[i], 3+x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight);
         }
-        catch (ArrayIndexOutOfBoundsException e){
-          LOGGER_MAIN.log(Level.WARNING, String.format("Equipment available not updated properly. Array size:%d, size needed: %d", equipmentAvailable.length, equipmentTypes.length), e);
+        else{
+          panelCanvas.fill(220);
+          panelCanvas.rect(x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight, boxWidth, dropBoxHeight);
+          panelCanvas.fill(150);
+          panelCanvas.text(equipmentTypes[i], 3+x+selectedClass*boxWidth, y+i*dropBoxHeight+boxHeight);
         }
       }
       if (currentEquipment[selectedClass] != -1){
-          panelCanvas.fill(170);
-          panelCanvas.rect(x+selectedClass*boxWidth, y+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropBoxHeight+boxHeight, boxWidth, dropBoxHeight);
-          panelCanvas.fill(0);
-          panelCanvas.text("Unequip", x+selectedClass*boxWidth, y+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropBoxHeight+boxHeight);
+        panelCanvas.fill(170);
+        panelCanvas.rect(x+selectedClass*boxWidth, y+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropBoxHeight+boxHeight, boxWidth, dropBoxHeight);
+        panelCanvas.fill(0);
+        panelCanvas.text("Unequip", 3+x+selectedClass*boxWidth, y+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropBoxHeight+boxHeight);
       }
     }
     if (selectedClass != -1){

@@ -526,7 +526,6 @@ class Game extends State {
         checkTasks();
         int selectedEquipmentType = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
         if (selectedEquipmentType != -1){
-          checkEquipment(selectedEquipmentType);
           updatePartyManagementProficiencies();
         }
         
@@ -711,27 +710,6 @@ class Game extends State {
   }
   void makeAvailableButOverBudget(int task) {
     ((TaskManager)getElement("tasks", "party management")).makeAvailableButOverBudget(gameData.getJSONArray("tasks").getJSONObject(task).getString("id"));
-  }
-  
-  void checkEquipment(int equipmentClass){
-    // Check which equipment is available to buy
-    LOGGER_GAME.finer("Starting checking available equipment");
-    ((EquipmentManager)getElement("equipment manager", "party management")).resetAvailableEquipment();
-    float equipmentAvailable = 0;
-    if (parties[selectedCellY][selectedCellX].isTurn(turn)) {
-      JSONArray equipmentTypesJSON = gameData.getJSONArray("equipment").getJSONObject(equipmentClass).getJSONArray("types");
-      for (int i = 0; i<equipmentTypesJSON.size(); i++){
-        try{
-          equipmentAvailable = players[turn].resources[jsManager.getResIndex(equipmentTypesJSON.getJSONObject(i).getString("id"))];
-        }
-        catch (Exception e){
-          LOGGER_MAIN.log(Level.WARNING, String.format("Error finding amount of equipment available class:'%s', type index:'%d'", equipmentClass, i), e);
-        }
-        if (equipmentAvailable >= parties[selectedCellY][selectedCellX].getUnitNumber()){  // Check if player has sufficient resources for equipment 
-          ((EquipmentManager)getElement("equipment manager", "party management")).makeEquipmentAvailable(i);
-        }
-      }
-    }
   }
 
   void checkTasks() {
@@ -1606,7 +1584,6 @@ class Game extends State {
         if (event.id.equals("equipment manager")){
           int selectedEquipmentType = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
           if (selectedEquipmentType != -1){
-            checkEquipment(selectedEquipmentType);
             updatePartyManagementProficiencies();
           }
         }
@@ -2028,7 +2005,6 @@ class Game extends State {
         checkTasks();
         int selectedEquipmentType = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
         if (selectedEquipmentType != -1){
-          checkEquipment(selectedEquipmentType);
           updatePartyManagementProficiencies();
         }
         ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX]);
