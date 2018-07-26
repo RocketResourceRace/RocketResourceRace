@@ -28,6 +28,16 @@ class JSONManager {
       throw e;
     }
   }
+  
+  float getRawProficiencyGain(String id){
+   if (!gameData.getJSONObject("raw training gains").isNull(id)){
+     return gameData.getJSONObject("raw training gains").getFloat(id);
+   }
+   else{
+     LOGGER_MAIN.warning("No training gains found for id:"+id);
+     return 0;
+   }
+  }
 
   String[] getProficiencies() {
     String[] returnArray = new String[getNumProficiencies()];
