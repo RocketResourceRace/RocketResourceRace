@@ -1117,7 +1117,8 @@
   "effectiveness constants":{
     "movement": 0.25,
     "ranged": 0.5,
-    "defence": 0.5
+    "defence": 0.5,
+    "melee attack": 0.5
   },
 
   "raw training gains":{

@@ -126,7 +126,6 @@ class Party {
     if (proficiency <= 0){ // proficiencies should never be negative because log(0) is undefined and log(<0) is complex. 
       return 0;
     } else {
-      println(jsManager.getEffectivenessConstant(type), proficiency, log(proficiency));
       return jsManager.getEffectivenessConstant(type) * log(proficiency) + 1;
     }
   }
@@ -726,8 +725,8 @@ class Siege extends Party {
 }
 
 int getBattleUnitChange(Party p1, Party p2) {
-  float damageRating = p2.strength * p2.proficiencies[jsManager.proficiencyIDToIndex("melee attack")] /
-  (p1.strength * p1.proficiencies[jsManager.proficiencyIDToIndex("defence")]);
+  float damageRating = p2.strength * p2.getEffectivenessMultiplier("melee attack", jsManager.proficiencyIDToIndex("melee attack")) /
+  (p1.strength * p1.getEffectivenessMultiplier("defence", jsManager.proficiencyIDToIndex("defence")));
   return floor(-0.2 * (p2.getUnitNumber() + pow(p2.getUnitNumber(), 2) / p1.getUnitNumber()) * random(0.75, 1.5) * damageRating);
 }
 
