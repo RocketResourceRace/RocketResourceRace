@@ -99,6 +99,26 @@ class Party {
     updateMaxMovementPoints();
   }
   
+  float getTrainingRateMultiplier(float x){
+    // x is the current value of the proficiency
+    return 4*exp(x-1)/pow(exp(x-1)+1, 2);  // This function is based on the derivative of the logisitics function. The factor of 4 is to make it start at 1.
+  }
+  
+  void trainParty(int proficiencyIndex, String trainingConstantID){
+    // This method trains the party in one proficiency
+    // The rate of training depends on the current level, and gets progressive more difficault to train parties
+    // trainingConstantID is the ID for the raw gain, which is an arbitrary value that represents how significant an event is, and so how big the proficiency gain should be
+    
+    float currentProficiencyValue = getRawProficiency(proficiencyIndex);
+    float rawGain = jsManager.getRawProficiencyGain(trainingConstantID);
+    float addedProficiencyValue = getTrainingRateMultiplier(currentProficiencyValue) * rawGain;
+    if (trainingFocus == proficiencyIndex){ // If training focus, then 2x gains from training this proficiency
+      addedProficiencyValue *= 2;
+    }
+    LOGGER_GAME.fine(String.format("Training party id:%s. Raw gain:%f. Added proficiency value: %f. New proficiency value:%f", id, rawGain, addedProficiencyValue, currentProficiencyValue+addedProficiencyValue));
+    setRawProficiency(proficiencyIndex, currentProficiencyValue+addedProficiencyValue);
+  }
+  
   float getEffectivenessMultiplier(String type, int proficiencyIndex){
     // This is the funciton to get the effectiveness of the party as different tasks based on proficiencies
     // 'type' is the ID used to determine which constant to use from data.json

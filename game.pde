@@ -1168,6 +1168,8 @@ class Game extends State {
                 LOGGER_GAME.fine(String.format("Battle ended at:(%d, %d) winner=&s", x, y, str(parties[y][x].player+1)));
                 notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, player);
                 notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
+                parties[y][x].trainParty(jsManager.proficiencyIDToIndex("melee attack"), "winning battle melee");
+                parties[y][x].trainParty(jsManager.proficiencyIDToIndex("defence"), "winning battle defence");
               }
             }
           }
@@ -1734,6 +1736,8 @@ class Game extends State {
               if (parties[y][x].player != -1) {
                 notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, turn);
                 notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
+                parties[y][x].trainParty(jsManager.proficiencyIDToIndex("melee attack"), "winning battle melee");
+                parties[y][x].trainParty(jsManager.proficiencyIDToIndex("defence"), "winning battle defence");
                 LOGGER_GAME.fine(String.format("Battle ended at cell: (%d, %d). Units remaining:", x, y, parties[y][x].getUnitNumber()));
               }
               if (cellFollow) {

@@ -728,6 +728,16 @@
     "movement": 0.25
   },
 
+  "raw training gains":{
+    "winning battle melee": 0.5,
+    "winning battle defence": 0.3,
+    "ranged bombardment attack": 0.1,
+    "ranged bombardment defence": 0.1,
+    "constructing building": 0.1,
+    "moving": 0.01,
+    "training": 0.02,
+  },
+
   "equipment":[
     {
       "id": "armour",
