@@ -1134,7 +1134,7 @@ class Game extends State {
                   
                   if (parties[y][x] != null){
                     // Train party when completed building
-                    parties[y][x].trainParty(jsManager.proficiencyIDToIndex("building speed"), "constructing building");
+                    parties[y][x].trainParty("building speed", "constructing building");
                   }
                   
                   if (buildings[y][x].type == buildingIndex("Quarry")) {
@@ -1178,8 +1178,8 @@ class Game extends State {
                 LOGGER_GAME.fine(String.format("Battle ended at:(%d, %d) winner=&s", x, y, str(parties[y][x].player+1)));
                 notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, player);
                 notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
-                parties[y][x].trainParty(jsManager.proficiencyIDToIndex("melee attack"), "winning battle melee");
-                parties[y][x].trainParty(jsManager.proficiencyIDToIndex("defence"), "winning battle defence");
+                parties[y][x].trainParty("melee attack", "winning battle melee");
+                parties[y][x].trainParty("defence", "winning battle defence");
               }
             }
           }
@@ -1666,6 +1666,9 @@ class Game extends State {
       for (int node=1; node<path.size(); node++) {
         int cost = cost(path.get(node)[0], path.get(node)[1], px, py);
         if (p.getMovementPoints() >= cost) {
+          // Train party for movement
+          p.trainParty("speed", "moving");
+          
           hasMoved = true;
           if (parties[path.get(node)[1]][path.get(node)[0]] == null) {
             // empty cell
@@ -1748,8 +1751,8 @@ class Game extends State {
               if (parties[y][x].player != -1) {
                 notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, turn);
                 notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
-                parties[y][x].trainParty(jsManager.proficiencyIDToIndex("melee attack"), "winning battle melee");
-                parties[y][x].trainParty(jsManager.proficiencyIDToIndex("defence"), "winning battle defence");
+                parties[y][x].trainParty("melee attack", "winning battle melee");
+                parties[y][x].trainParty("defence", "winning battle defence");
                 LOGGER_GAME.fine(String.format("Battle ended at cell: (%d, %d). Units remaining:", x, y, parties[y][x].getUnitNumber()));
               }
               if (cellFollow) {

@@ -734,7 +734,7 @@
     "ranged bombardment attack": 0.1,
     "ranged bombardment defence": 0.1,
     "constructing building": 0.1,
-    "moving": 0.01,
+    "moving": 0.001,
     "training": 0.02,
   },
 
