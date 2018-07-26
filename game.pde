@@ -82,6 +82,7 @@ class Game extends State {
   PVector rocketPosition;
   PVector rocketVelocity;
   int rocketStartTime;
+  boolean bombarding = false;
 
   Game() {
     try {
@@ -453,6 +454,39 @@ class Game extends State {
         }
         if (parties[selectedCellY][selectedCellX].getUnitNumber() <= 0) {
           parties[selectedCellY][selectedCellX] = null;
+        }
+      } else if (event instanceof Bombard) {
+        Bombard bombardEvent = (Bombard)event;
+        int x1 = bombardEvent.fromX;
+        int y1 = bombardEvent.fromY;
+        int x2 = bombardEvent.toX;
+        int y2 = bombardEvent.toY;
+        if (parties[y1][x1] != null && parties[y2][x2] != null) {
+          Party attacker = parties[y1][x1];
+          Party defender = parties[y2][x2];
+          if (attacker.equipment[1] != -1) {
+            JSONObject weapon = gameData.getJSONArray("equipment").getJSONObject(1).getJSONArray("types").getJSONObject(attacker.equipment[1]);
+            if (attacker.player == turn && defender.player != turn && weapon.hasKey("range")) {
+              int range = weapon.getInt("range");
+              if (dist(x1, y1, x2, y2) <= range){
+                int damage = 10;
+                defender.changeUnitNumber(-10);
+                if (defender.getUnitNumber() == 0) {
+                  parties[y2][x2] = null;
+                }
+                attacker.setMovementPoints(0);
+                LOGGER_GAME.fine(String.format("Party %s bombarding party %s, eliminating %d units", attacker.id, defender.id, damage));
+              } else {
+                LOGGER_GAME.fine(String.format("Party %s attempted and failed to bombard party %s, as it was not in range", attacker.id, defender.id));
+              }
+            } else {
+              LOGGER_GAME.fine(String.format("Party %s attempted and failed to bombard party %s, as it did not have the correct weapon or attacked itself or was of the wrong player", attacker.id, defender.id));
+            }
+          } else {
+            LOGGER_GAME.fine(String.format("Party %s attempted and failed to bombard party %s, as it did not have a weapon", attacker.id, defender.id));
+          }
+        } else {
+          LOGGER_GAME.fine("A party attempted and failed to bombard a party, as at least one didn't exist");
         }
       } else if (event instanceof EndTurn) {
         LOGGER_GAME.info("End turn event for turn:"+turn);
@@ -1547,7 +1581,7 @@ class Game extends State {
         } else if (event.id.equals("stock up button")){
           postEvent(new StockUpEquipment(selectedCellX, selectedCellY));
         } else if (event.id.equals("bombardment button")) {
-          map.toggleBombard();
+          bombarding = map.toggleBombard();
         }
       }
       if (event.type.equals("valueChanged")) {
@@ -1610,6 +1644,7 @@ class Game extends State {
     getPanel("party management").setVisible(false);
     map.cancelMoveNodes();
     moving = false;
+    bombarding = false;
     //map.setWidth(round(width-bezel*2));
     ((Text)getElement("turns remaining", "party management")).setText("");
   }
@@ -1915,8 +1950,19 @@ class Game extends State {
       }
     }
     if (button == LEFT) {
-      if (eventType == "mousePressed") {
+      if (eventType == "mousePressed" && !bombarding) {
         mapClickPos = new int[]{mouseX, mouseY, millis()};
+      }
+      if (eventType == "mouseReleased") {
+        if (bombarding) {
+          int x = floor(map.scaleXInv());
+          int y = floor(map.scaleYInv());
+          if (0<=x&&x<mapWidth&&0<=y&&y<mapHeight) {
+            postEvent(new Bombard(selectedCellX, selectedCellY, x, y));
+          }
+          map.toggleBombard();
+          bombarding = false;
+        }
       }
       if (eventType == "mouseReleased" && mapClickPos != null && sqrt(pow(mapClickPos[0] - mouseX, 2) + pow(mapClickPos[1] - mouseY, 2))<MOUSEPRESSTOLERANCE && millis() - mapClickPos[2] < CLICKHOLD) { // Custom mouse click
         mapClickPos = null;

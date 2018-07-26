@@ -113,6 +113,19 @@ class StockUpEquipment extends GameEvent {
   }
 }
 
+class Bombard extends GameEvent {
+  int fromX;
+  int fromY;
+  int toX;
+  int toY;
+  Bombard(int x1, int y1, int x2, int y2) {
+    fromX = x1;
+    fromY = y1;
+    toX = x2;
+    toY = y2;
+  }
+}
+
 class UnitCapChange extends GameEvent { 
   int x, y, newCap;
   UnitCapChange(int x, int y, int newCap) {

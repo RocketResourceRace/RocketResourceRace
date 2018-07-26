@@ -37,7 +37,7 @@ interface Map {
   void enableRocket(PVector pos, PVector vel);
   void disableRocket();
   void generateFog(int player);
-  void toggleBombard();
+  boolean toggleBombard();
 }
 
 
@@ -1036,6 +1036,7 @@ class Map2D extends BaseMap implements Map {
   }
   void unselectCell() {
     cellSelected = false;
+    showingBombard = false;
   }
   void setPanningSpeed(float s) {
     panningSpeed = s;
@@ -1489,7 +1490,8 @@ class Map2D extends BaseMap implements Map {
     canvas.popMatrix();
   }
   
-  void toggleBombard() {
+  boolean toggleBombard() {
     showingBombard = !showingBombard;
+    return showingBombard;
   }
 }

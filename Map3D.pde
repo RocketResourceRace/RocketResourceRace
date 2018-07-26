@@ -265,6 +265,7 @@ class Map3D extends BaseMap implements Map {
   }
   void unselectCell() {
     cellSelected = false;
+    showingBombard = false;
   }
 
   float scaleXInv() {
@@ -1459,7 +1460,8 @@ class Map3D extends BaseMap implements Map {
     drawRocket = false;
   }
   
-  void toggleBombard() {
+  boolean toggleBombard() {
     showingBombard = !showingBombard;
+    return showingBombard;
   }
 }
