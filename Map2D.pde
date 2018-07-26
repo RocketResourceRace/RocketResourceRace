@@ -37,6 +37,7 @@ interface Map {
   void enableRocket(PVector pos, PVector vel);
   void disableRocket();
   void generateFog(int player);
+  void toggleBombard();
 }
 
 
@@ -952,6 +953,7 @@ class Map2D extends BaseMap implements Map {
   boolean drawRocket;
   PVector rocketPosition;
   PVector rocketVelocity;
+  boolean showingBombard;
 
   Map2D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
     LOGGER_MAIN.fine("Initialsing map");
@@ -1485,5 +1487,9 @@ class Map2D extends BaseMap implements Map {
     canvas.translate(-blockSize/2, -blockSize/2);
     canvas.image(buildingImages[buildingIndex("Rocket Factory")-1][2], 0, 0);
     canvas.popMatrix();
+  }
+  
+  void toggleBombard() {
+    showingBombard = !showingBombard;
   }
 }

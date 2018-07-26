@@ -182,6 +182,7 @@ PImage[] taskImages;
 HashMap<String, PImage> lowImages;
 HashMap<String, PImage> tile3DImages;
 HashMap<String, PImage> equipmentImages;
+PImage bombardImage;
 
 void quitGame() {
   LOGGER_MAIN.info("Exitting game...");
@@ -214,6 +215,7 @@ void loadImages() {
       loadImage("img/party/red_flag.png"), 
       loadImage("img/party/battle.png")
     };
+    bombardImage = loadImage("img/ui/bombard.png");
     LOGGER_MAIN.finer("Loading task images");
     taskImages = new PImage[gameData.getJSONArray("tasks").size()];
     for (int i=0; i<gameData.getJSONArray("terrain").size(); i++) {
