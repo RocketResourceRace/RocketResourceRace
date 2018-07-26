@@ -142,6 +142,7 @@ class Game extends State {
       addElement("proficiency summary", new ProficiencySummary(bezel, bezel*5+30+200, 220, 100), "party management");
       addElement("proficiencies", new Text(0, 0, 10, "Proficiencies", color(0), LEFT), "party management");
       addElement("equipment manager", new EquipmentManager(0, 0, 1), "party management");
+      addElement("bombardment button", new BombardButton(bezel+100, bezel*3, 32, color(150)), "party management");
 
       DropDown partyTrainingFocusDropdown = new DropDown(0, 0, 1, 1, color(150), "Training Focus", "strings", 8);
       partyTrainingFocusDropdown.setOptions(jsManager.getProficiencies());
@@ -580,6 +581,7 @@ class Game extends State {
           
           // Update max movement points
           parties[selectedCellY][selectedCellX].resetMovementPoints();
+          updateBombardment();
         }
         catch (ArrayIndexOutOfBoundsException e){
           LOGGER_MAIN.warning("Index problem with equipment change");
@@ -612,6 +614,7 @@ class Game extends State {
           }
           parties[y][x].setMovementPoints(0);
           ((Button)getElement("stock up button", "party management")).deactivate();
+          updateBombardment();
         }
       } 
       else if (event instanceof SetAutoStockUp){
@@ -677,7 +680,8 @@ class Game extends State {
     sidePanelW = width-sidePanelX-bezel;
     sidePanelH = round(mapElementHeight)-70;
     ((NotificationManager)(getElement("notification manager", "default"))).transform(bezel, bezel, sidePanelW, round(sidePanelH*0.2)-bezel*2);
-    ((Button)getElement("move button", "party management")).transform(bezel, round(13*jsManager.loadFloatSetting("text scale")+bezel), 60, 30);
+    ((Button)getElement("move button", "party management")).transform(bezel, round(13*jsManager.loadFloatSetting("text scale")+bezel), 60, 36);
+    ((Button)getElement("bombardment button", "party management")).transform(bezel*2+60, round(13*jsManager.loadFloatSetting("text scale")+bezel), 36, 36);
     ((Slider)getElement("split units", "party management")).transform(round(10*jsManager.loadFloatSetting("gui scale")+bezel), round(bezel*3+2*jsManager.loadFloatSetting("text scale")*13), sidePanelW-2*bezel-round(20*jsManager.loadFloatSetting("gui scale")), round(jsManager.loadFloatSetting("text scale")*2*13));
     ((Button)getElement("stock up button", "party management")).transform(bezel, round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13), 100, 30);
     ((ToggleButton)getElement("auto stock up toggle", "party management")).transform(bezel*2+100, round(bezel*4+4*jsManager.loadFloatSetting("text scale")*13+8*jsManager.loadFloatSetting("text scale")), 100, int(30-jsManager.loadFloatSetting("text scale")*8));
@@ -1542,7 +1546,9 @@ class Game extends State {
           postEvent(new DisbandParty(selectedCellX, selectedCellY));
         } else if (event.id.equals("stock up button")){
           postEvent(new StockUpEquipment(selectedCellX, selectedCellY));
-        } 
+        } else if (event.id.equals("bombardment button")) {
+          map.toggleBombard();
+        }
       }
       if (event.type.equals("valueChanged")) {
         if (event.id.equals("tasks")) {
@@ -2011,7 +2017,18 @@ class Game extends State {
         updatePartyManagementProficiencies();
         updateCurrentPartyTrainingFocus();
         updateUnitCapIncrementer();
+        updateBombardment();
       }
+    }
+  }
+  
+  void updateBombardment() {
+    if (parties[selectedCellY][selectedCellX].equipment[1] != -1 && 
+    gameData.getJSONArray("equipment").getJSONObject(1).getJSONArray("types").getJSONObject(parties[selectedCellY][selectedCellX].equipment[1]).hasKey("range") &&
+    parties[selectedCellY][selectedCellX].equipmentQuantities[1] > 0) {
+      getElement("bombardment button", "party management").visible = true;
+    } else {
+      getElement("bombardment button", "party management").visible = false;
     }
   }
   

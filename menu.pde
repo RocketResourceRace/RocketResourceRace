@@ -9,7 +9,7 @@ class Menu extends State {
 
   Menu() {
     LOGGER_MAIN.fine("Initialising menu");
-    BGimg = loadImage("img/menu/menu_background.jpeg");
+    BGimg = loadImage("img/ui/menu_background.jpeg");
     bg = createShape(RECT, 0, 0, width, height);
     bg.setTexture(BGimg);
 

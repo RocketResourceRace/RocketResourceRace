@@ -2903,3 +2903,16 @@ class ToggleButton extends Element {
     return mouseOver();
   }
 }
+
+class BombardButton extends Button {
+  PImage img;
+  BombardButton (int x, int y, int w, color bgColour) {
+    super(x, y, w, w, bgColour, color(0), color(0), 1, 0, "");
+    img = bombardImage;
+  }
+  
+  void draw(PGraphics panelCanvas) {
+    super.draw(panelCanvas);
+    panelCanvas.image(img, super.x+2, super.y+2);
+  }
+}

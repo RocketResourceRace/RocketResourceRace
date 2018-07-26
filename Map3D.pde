@@ -49,6 +49,7 @@ class Map3D extends BaseMap implements Map {
   boolean drawRocket;
   PVector rocketPosition;
   PVector rocketVelocity;
+  boolean showingBombard;
 
   Map3D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
     LOGGER_MAIN.fine("Initialising map 3d");
@@ -82,6 +83,7 @@ class Map3D extends BaseMap implements Map {
     targetYOffset = mapHeight/2*blockSize;
     updateHoveringScale = false;
     this.keyState = new HashMap<Character, Boolean>();
+    showingBombard = false;
   }
 
 
@@ -1455,5 +1457,9 @@ class Map3D extends BaseMap implements Map {
   void reset() {
     cinematicMode = false;
     drawRocket = false;
+  }
+  
+  void toggleBombard() {
+    showingBombard = !showingBombard;
   }
 }
