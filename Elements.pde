@@ -309,21 +309,12 @@ class EquipmentManager extends Element {
     panelCanvas.noStroke();
     for (int i = SHADOWSIZE; i > 0; i --){
       panelCanvas.fill(0, 255-255*pow(((float)i/SHADOWSIZE), 0.1));
-      panelCanvas.rect(shadowX-i, shadowY-i, shadowW+i*2, shadowH+i*2, i);
+      //panelCanvas.rect(shadowX-i, shadowY-i, shadowW+i*2, shadowH+i*2, i);
     }
   }
 
   void draw(PGraphics panelCanvas) {
     panelCanvas.pushStyle();
-    
-    //Draw shadow behind dropdown
-    if (selectedClass != -1){
-      if (currentEquipment[selectedClass] == -1){  // If nothing equipped, there is not unequip option at the bottom
-        drawShadow(panelCanvas, x+boxWidth*selectedClass, y+boxHeight, boxWidth, dropBoxHeight*(jsManager.getNumEquipmentTypesFromClass(selectedClass)));
-      } else{
-        drawShadow(panelCanvas, x+boxWidth*selectedClass, y+boxHeight, boxWidth, dropBoxHeight*(jsManager.getNumEquipmentTypesFromClass(selectedClass)+1));
-      }
-    }
     
     // Draw dropdown if an equipment class is selected
     panelCanvas.stroke(0);
@@ -356,6 +347,16 @@ class EquipmentManager extends Element {
           panelCanvas.rect(x+selectedClass*boxWidth, y+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropBoxHeight+boxHeight, boxWidth, dropBoxHeight);
           panelCanvas.fill(0);
           panelCanvas.text("Unequip", x+selectedClass*boxWidth, y+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropBoxHeight+boxHeight);
+      }
+    }
+    if (selectedClass != -1){
+      panelCanvas.strokeWeight(2);
+      panelCanvas.stroke(0);
+      panelCanvas.noFill();
+      if (currentEquipment[selectedClass] == -1){  // If nothing equipped, there is not unequip option at the bottom
+        panelCanvas.rect(x+boxWidth*selectedClass, y+boxHeight, boxWidth+1, dropBoxHeight*(jsManager.getNumEquipmentTypesFromClass(selectedClass))+1);
+      } else{
+        panelCanvas.rect(x+boxWidth*selectedClass, y+boxHeight, boxWidth+1, dropBoxHeight*(jsManager.getNumEquipmentTypesFromClass(selectedClass)+1)+1);
       }
     }
 
