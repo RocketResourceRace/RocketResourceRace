@@ -422,6 +422,246 @@
       "buildings":["Rocket Factory"]
     },
     {
+      "id": "Produce Wooden Armour",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "wooden armour","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":1},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Iron Armour",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "iron armour","quantity":0.02}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "metal","quantity":1},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Reinforced Armour",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "reinforced armour","quantity":0.02}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":2},
+        {"id": "metal","quantity":2},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Sword and Shield",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "sword and shield","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.5},
+        {"id": "metal","quantity":0.2},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Bow",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "bow","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.5},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Javelin",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "javelin","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.5},
+        {"id": "metal","quantity":0.02},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Pikes",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "pike","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":1},
+        {"id": "metal","quantity":0.05},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Musket",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "musket","quantity":0.03}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "stone","quantity":0.01},
+        {"id": "gunpowder","quantity":0.1},
+        {"id": "wood","quantity":1.5},
+        {"id": "metal","quantity":0.5},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Rifle",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "rifle","quantity":0.02}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "stone","quantity":0.02},
+        {"id": "gunpowder","quantity":0.2},
+        {"id": "wood","quantity":2},
+        {"id": "metal","quantity":1.5},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Machine Gun",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "machine gun","quantity":0.02}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "gunpowder","quantity":0.5},
+        {"id": "wood","quantity":1},
+        {"id": "metal","quantity":4},
+      ],
+      "buildings":["Factory"]
+    },
+    {
+      "id": "Produce Tank",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "tank","quantity":0.005}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "gunpowder","quantity":2},
+        {"id": "wood","quantity":1},
+        {"id": "metal","quantity":10},
+        {"id": "gears","quantity":2},
+      ],
+      "buildings":["Vehicle Factory"]
+    },
+    {
+      "id": "Produce Horse",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "horse","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":1},
+      ],
+      "buildings":["Stable"]
+    },
+    {
+      "id": "Produce Chariot",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "chariot","quantity":0.04}
+      ],
+      "consumption":[
+        {"id": "food","quantity":2},
+        {"id": "wood","quantity":0.2},
+      ],
+      "buildings":["Stable"]
+    },
+    {
+      "id": "Produce APC",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "apc","quantity":0.01}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "metal","quantity":3},
+        {"id": "gears","quantity":1},
+      ],
+      "buildings":["Vehicle Factory"]
+    },
+    {
+      "id": "Produce Offroader",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "offroader","quantity":0.02}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "metal","quantity":2},
+        {"id": "gears","quantity":0.5},
+      ],
+      "buildings":["Vehicle Factory"]
+    },
+    {
+      "id": "Produce Hand tools",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "hand tools","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "metal","quantity":0.1},
+        {"id": "wood","quantity":0.2},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Power tools",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "power tools","quantity":0.02}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "metal","quantity":0.5},
+        {"id": "wood","quantity":0.5},
+        {"id": "gears","quantity":0.2},
+      ],
+      "buildings":["Factory"]
+    },
+    {
       "id": "Launch Rocket",
       "description": "Attempt to win the game.",
       "img": "produce.png",
@@ -562,6 +802,26 @@
       "img": ["armoury.png"],
       "obj": ["armoury.obj"]
     },
+    {
+      "id": "Blacksmith",
+      "img": ["armoury.png"],
+      "obj": ["armoury.obj"]
+    },
+    {
+      "id": "Vehicle Factory",
+      "img": ["armoury.png"],
+      "obj": ["armoury.obj"]
+    },
+    {
+      "id": "Firearms Factory",
+      "img": ["armoury.png"],
+      "obj": ["armoury.obj"]
+    },
+    {
+      "id": "Kiln",
+      "img": ["armoury.png"],
+      "obj": ["armoury.obj"]
+    },
   ],
 
   "resources":[
@@ -608,6 +868,34 @@
     {
       "id": "units",
       "resource manager": 0
+    },
+    {
+      "id": "charcoal",
+      "resource manager": 1
+    },
+    {
+      "id": "gears",
+      "resource manager": 1
+    },
+    {
+      "id": "bricks",
+      "resource manager": 1
+    },
+    {
+      "id": "clay",
+      "resource manager": 1
+    },
+    {
+      "id": "gunpowder",
+      "resource manager": 1
+    },
+    {
+      "id": "sulfur",
+      "resource manager": 1
+    },
+    {
+      "id": "saltpeter",
+      "resource manager": 1
     },
     {
       "id": "wooden armour",
