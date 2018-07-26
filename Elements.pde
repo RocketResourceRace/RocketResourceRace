@@ -6,7 +6,7 @@ class IncrementElement extends Element {
   final int ARROWOFFSET = 4;
   final float FULLPANPROPORTION = 0.25;  // Adjusts how much mouse dragging movement is needed to change value as propotion of screen width
   private int upper, lower, value, step, bigStep;
-  int startingX, startingValue;
+  int startingX, startingValue, pressing;
   boolean grabbed;
   
   IncrementElement(int x, int y, int w, int h, int upper, int lower, int startingValue, int step, int bigStep){
@@ -22,6 +22,7 @@ class IncrementElement extends Element {
     grabbed = false;
     startingX = 0;
     startingValue = value;
+    pressing = -1;
   }
   
   void setUpper(int upper){
@@ -73,14 +74,22 @@ class IncrementElement extends Element {
       }
     }
     if (eventType.equals("mousePressed")){
-      if (mouseOverMiddleBox()){
+      if (mouseOverRightBox()){
+        pressing = 0;
+      } else if (mouseOverLeftBox()){
+        pressing = 1;
+      } else if (mouseOverMiddleBox()){
         grabbed = true;
         startingX = mouseX;
         startingValue = getValue();
+        pressing = 2;
+      } else{
+        pressing = -1;
       }
     }
     if (eventType.equals("mouseReleased")){
       grabbed = false;
+      pressing = -1;
     }
     if (eventType.equals("mouseDragged")){
       if (grabbed){
@@ -98,20 +107,25 @@ class IncrementElement extends Element {
     
     //Draw middle box
     panelCanvas.strokeWeight(2);
-    panelCanvas.fill(150);
-    if (getElemOnTop() && mouseOverMiddleBox()){
-      panelCanvas.fill(180);
-    } else{
+    if (grabbed){
       panelCanvas.fill(150);
+    } else if (getElemOnTop() && mouseOverMiddleBox()){
+      panelCanvas.fill(200);
+    } else{
+      panelCanvas.fill(170);
     }
     panelCanvas.rect(x, y, w, h);
     
     //draw left side box
     panelCanvas.strokeWeight(1);
     if (getElemOnTop() && mouseOverLeftBox()){
-      panelCanvas.fill(120);
+      if (pressing == 1){
+        panelCanvas.fill(100);
+      } else{
+        panelCanvas.fill(130);
+      }
     } else{
-      panelCanvas.fill(100);
+      panelCanvas.fill(120);
     }
     panelCanvas.rect(x, y, SIDEBOXESWIDTH, h-1);
     panelCanvas.fill(0);
@@ -121,9 +135,13 @@ class IncrementElement extends Element {
     
     //draw right side box
     if (getElemOnTop() && mouseOverRightBox()){
-      panelCanvas.fill(120);
+      if (pressing == 0){
+        panelCanvas.fill(100);
+      } else{
+        panelCanvas.fill(130);
+      }
     } else{
-      panelCanvas.fill(100);
+      panelCanvas.fill(120);
     }
     panelCanvas.rect(x+w-SIDEBOXESWIDTH, y, SIDEBOXESWIDTH, h-1);
     panelCanvas.fill(0);
