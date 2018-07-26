@@ -246,8 +246,14 @@ void loadImages() {
     // Load equipment icons
     for (int c=0; c < jsManager.getNumEquipmentClasses(); c++){
       for (int t=0; t < jsManager.getNumEquipmentTypesFromClass(c); t++){
-        equipmentImages.put(jsManager.getEquipmentTypeID(c, t), loadImage(jsManager.getEquipmentImageFileName(c, t)));
-        LOGGER_MAIN.finest("Loading equipment image id:"+jsManager.getEquipmentTypeID(c, t));
+        String fn = jsManager.getEquipmentImageFileName(c, t);
+        if (!fn.equals("")){
+          equipmentImages.put(jsManager.getEquipmentTypeID(c, t), loadImage(fn));
+          LOGGER_MAIN.finest("Loading equipment image id:"+jsManager.getEquipmentTypeID(c, t));
+        } else {
+          equipmentImages.put(jsManager.getEquipmentTypeID(c, t), createImage(1, 1, ALPHA));
+          LOGGER_MAIN.finest("Loading empty image for equipment id:"+jsManager.getEquipmentTypeID(c, t));
+        }
       }
     }
     

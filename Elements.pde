@@ -247,7 +247,7 @@ class EquipmentManager extends Element {
         try{
           String id = jsManager.getEquipmentTypeID(c, t);
           tempEquipmentImages.put(id, equipmentImages.get(id).copy());
-          tempEquipmentImages.get(id).resize(int(dropH/0.75), int(dropH));
+          tempEquipmentImages.get(id).resize(int(dropH/0.75), int(dropH-1));
           bigTempEquipmentImages.put(id, equipmentImages.get(id).copy());
           bigTempEquipmentImages.get(id).resize(int(boxWidth*BIGIMAGESIZE), int(boxHeight*BIGIMAGESIZE));
         }
@@ -263,8 +263,6 @@ class EquipmentManager extends Element {
     this.x = x;
     this.y = y;
     this.w = w;
-    
-    float oldDropH = dropH;
     
     updateSizes();
   }
@@ -397,7 +395,7 @@ class EquipmentManager extends Element {
           panelCanvas.fill(0);
           panelCanvas.text(equipmentTypes[i], 3+dropX, dropY+i*dropH);
           try{
-            panelCanvas.image(tempEquipmentImages.get(jsManager.getEquipmentTypeID(selectedClass, i)), dropX+dropW-dropH-3, dropY+dropH*i);
+            panelCanvas.image(tempEquipmentImages.get(jsManager.getEquipmentTypeID(selectedClass, i)), dropX+dropW-dropH/0.75-2, dropY+dropH*i+2);
           }
           catch (NullPointerException e){
             LOGGER_MAIN.log(Level.WARNING, String.format("Error drawing image for equipment icon class:%d, type:%d, id:%s", selectedClass, i, jsManager.getEquipmentTypeID(selectedClass, i)), e);
@@ -409,7 +407,7 @@ class EquipmentManager extends Element {
           panelCanvas.fill(150);
           panelCanvas.text(equipmentTypes[i], 3+dropX, dropY+i*dropH);
           try{
-            panelCanvas.image(tempEquipmentImages.get(jsManager.getEquipmentTypeID(selectedClass, i)), dropX+dropW-dropH-3, dropY+dropH*i);
+            panelCanvas.image(tempEquipmentImages.get(jsManager.getEquipmentTypeID(selectedClass, i)), dropX+dropW-dropH/0.75-2, dropY+dropH*i+2);
           }
           catch (NullPointerException e){
             LOGGER_MAIN.log(Level.WARNING, String.format("Error drawing image for equipment icon class:%d, type:%d, id:%s", selectedClass, i, jsManager.getEquipmentTypeID(selectedClass, i)), e);

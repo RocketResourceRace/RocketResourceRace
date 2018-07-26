@@ -106,7 +106,7 @@ class JSONManager {
       }
       else{
         LOGGER_MAIN.warning(String.format("Could not find img file for equipment class:%d, type:%d, id:%s", classIndex, typeIndex, getEquipmentTypeID(classIndex, typeIndex)));
-        return "data/img/misc/invalid_img.png";
+        return "";
       }
     }
     catch (NullPointerException e) {
