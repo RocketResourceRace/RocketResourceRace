@@ -1131,6 +1131,12 @@ class Game extends State {
                 } else {
                   LOGGER_GAME.info(String.format("Action completed building %s, at cell (%d, %d)", action.building, x, y));
                   buildings[y][x] = new Building(buildingIndex(action.building));
+                  
+                  if (parties[y][x] != null){
+                    // Train party when completed building
+                    parties[y][x].trainParty(jsManager.proficiencyIDToIndex("building speed"), "constructing building");
+                  }
+                  
                   if (buildings[y][x].type == buildingIndex("Quarry")) {
                     LOGGER_GAME.fine("Quarry type detected so changing terrain...");
                     //map.setHeightsForCell(x, y, jsManager.loadFloatSetting("water level"));
