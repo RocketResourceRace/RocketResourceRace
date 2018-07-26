@@ -94,9 +94,11 @@ class IncrementElement extends Element {
     if (eventType.equals("mouseDragged")){
       if (grabbed){
         int change = floor((mouseX-startingX)*(upper-lower)/(width*FULLPANPROPORTION));
-        setValue(startingValue+change);
-        setValueWithinBounds();
-        events.add("valueChanged");
+        if (change != 0){
+          setValue(startingValue+change);
+          setValueWithinBounds();
+          events.add("valueChanged");
+        }
       }
     }
     return events;
