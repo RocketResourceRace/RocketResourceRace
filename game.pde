@@ -482,6 +482,11 @@ class Game extends State {
                 }
                 attacker.setMovementPoints(0);
                 updateBombardment();
+                
+                // Train both parties as result of bombardment
+                attacker.trainParty("ranged attack", "ranged bombardment attack");
+                defender.trainParty("defence", "ranged bombardment defence");
+                
                 LOGGER_GAME.fine(String.format("Party %s bombarding party %s, eliminating %d units", attacker.id, defender.id, damage));
               } else {
                 LOGGER_GAME.fine(String.format("Party %s attempted and failed to bombard party %s, as it was not in range", attacker.id, defender.id));
