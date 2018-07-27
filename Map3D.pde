@@ -1535,7 +1535,7 @@ class Map3D extends BaseMap implements Map {
     } else {
       PVector startPos = new PVector((selectedCellX+0.5)*blockSize, (selectedCellY+0.5)*blockSize, getHeight(selectedCellX+0.5, selectedCellY+0.5));
       PVector endPos = new PVector((x+0.5)*blockSize, (y+0.5)*blockSize, getHeight(x+0.5, y+0.5));
-      float rotation = -atan2(startPos.x-endPos.x, startPos.y - endPos.y);
+      float rotation = -atan2(startPos.x-endPos.x, startPos.y - endPos.y)+0.0001;
       bombardArrow.setVertex(0, PVector.add(startPos, new PVector(-blockSize*0.1*cos(rotation), -blockSize*0.1*sin(rotation), 0)));
       bombardArrow.setVertex(1, PVector.add(startPos, endPos).mult(0.5).add(new PVector(-blockSize*0.1*cos(rotation), -blockSize*0.1*sin(rotation), 2*blockSize)));
       bombardArrow.setVertex(2, PVector.add(startPos, endPos).mult(0.5).add(new PVector(-blockSize*0.1*cos(rotation), -blockSize*0.1*sin(rotation), 2*blockSize)));
