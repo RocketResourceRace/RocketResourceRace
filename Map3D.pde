@@ -51,6 +51,8 @@ class Map3D extends BaseMap implements Map {
   PVector rocketVelocity;
   boolean showingBombard;
   int bombardRange;
+  PShape bombardArrowHead;
+  PShape bombardArrowTail;
 
   Map3D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
     LOGGER_MAIN.fine("Initialising map 3d");
@@ -691,6 +693,22 @@ class Map3D extends BaseMap implements Map {
         }
       }
 
+      LOGGER_MAIN.finer("Loading bombard arrow");
+      fill(255, 0, 0);
+      bombardArrowHead = createShape();
+      bombardArrowHead.beginShape(TRIANGLES);
+      bombardArrowHead.vertex(0, 0, 0);
+      bombardArrowHead.vertex(-1, 0, 2);
+      bombardArrowHead.vertex(1, 0, 2);
+      bombardArrowHead.endShape();
+      bombardArrowTail = createShape();
+      bombardArrowTail.beginShape();
+      bombardArrowTail.vertex(0, 0, 0);
+      bombardArrowTail.bezierVertex(0, 0, 0, 0, 0, 0, 0, 0, 0);
+      bombardArrowTail.vertex(0, 0, 0);
+      bombardArrowTail.bezierVertex(0, 0, 0, 0, 0, 0, 0, 0, 0);
+      bombardArrowTail.endShape();
+
       popStyle();
       cinematicMode = false;
       drawRocket = false;
@@ -1184,7 +1202,7 @@ class Map3D extends BaseMap implements Map {
       if (moveNodes != null) {
         canvas.shape(drawPossibleMoves);
       }
-      if (showingBombard) {
+      if (showingBombard && mouseOver()) {
         drawBombard(canvas);
       }
 
@@ -1469,7 +1487,24 @@ class Map3D extends BaseMap implements Map {
     PVector pos = getMousePosOnObject();
     int x = floor(pos.x/blockSize);
     int y = floor(pos.y/blockSize);
-    canvas.line((x+0.5)*blockSize, (y+0.5)*blockSize, getHeight(x, y), (selectedCellX+0.5)*blockSize, (selectedCellY+0.5)*blockSize, getHeight(selectedCellX, selectedCellY));
+    PVector startPos = new PVector((selectedCellX+0.5)*blockSize, (selectedCellY+0.5)*blockSize, getHeight(selectedCellX+0.5, selectedCellY+0.5));
+    PVector endPos = new PVector((x+0.5)*blockSize, (y+0.5)*blockSize, getHeight(x+0.5, y+0.5));
+    float rotation = -atan2(startPos.x-endPos.x, startPos.x - endPos.y);
+    bombardArrowTail.setVertex(0, PVector.add(startPos, new PVector(-blockSize*0.05*cos(rotation), -blockSize*0.05*sin(rotation), 0)));
+    bombardArrowTail.setVertex(1, PVector.add(startPos, endPos).mult(0.5).add(new PVector(-blockSize*0.05*cos(rotation), -blockSize*0.05*sin(rotation), 2*blockSize)));
+    bombardArrowTail.setVertex(2, PVector.add(startPos, endPos).mult(0.5).add(new PVector(-blockSize*0.05*cos(rotation), -blockSize*0.05*sin(rotation), 2*blockSize)));
+    bombardArrowTail.setVertex(3, PVector.add(endPos, new PVector(-blockSize*0.05*cos(rotation), -blockSize*0.05*sin(rotation), blockSize/4)));
+    bombardArrowTail.setVertex(4, PVector.add(endPos, new PVector(blockSize*0.05*cos(rotation), blockSize*0.05*sin(rotation), blockSize/4)));
+    bombardArrowTail.setVertex(5, PVector.add(startPos, endPos).mult(0.5).add(new PVector(blockSize*0.05*cos(rotation), blockSize*0.05*sin(rotation), 2*blockSize)));
+    bombardArrowTail.setVertex(6, PVector.add(startPos, endPos).mult(0.5).add(new PVector(blockSize*0.05*cos(rotation), blockSize*0.05*sin(rotation), 2*blockSize)));
+    bombardArrowTail.setVertex(7, PVector.add(startPos, new PVector(blockSize*0.05*cos(rotation), blockSize*0.05*sin(rotation), 0)));
+    canvas.shape(bombardArrowTail);
+    canvas.pushMatrix();
+    canvas.translate(endPos.x, endPos.y, endPos.z);
+    canvas.scale(blockSize/8);
+    canvas.rotateZ(-rotation);
+    canvas.shape(bombardArrowHead);
+    canvas.popMatrix();
   }
   
   void enableBombard(int range) {
