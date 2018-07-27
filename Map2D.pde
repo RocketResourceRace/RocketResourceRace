@@ -1057,6 +1057,7 @@ class Map2D extends BaseMap implements Map {
     resetTime = millis();
     frameStartTime = 0;
     cancelMoveNodes();
+    showingBombard = false;
   }
   void loadSettings(float x, float y, float bs) {
     targetCell(int(x), int(y), bs);

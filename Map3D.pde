@@ -1462,6 +1462,7 @@ class Map3D extends BaseMap implements Map {
   void reset() {
     cinematicMode = false;
     drawRocket = false;
+    showingBombard = false;
   }
   
   void drawBombard(PGraphics canvas) {

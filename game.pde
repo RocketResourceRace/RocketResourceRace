@@ -1639,6 +1639,8 @@ class Game extends State {
           // Save the game for toggle between 2d and 3d
           LOGGER_MAIN.info("Toggling between 2d and 3d, so saving now to 'Autosave.dat'");
           loadingName = "Autosave.dat";
+          bombarding = false;
+          moving = false;
           saveGame();
           jsManager.saveSetting("map is 3d", ((ToggleButton)(getElement("2d 3d toggle", "bottom bar"))).getState());
           LOGGER_MAIN.info("Reloading map in new dimension");
