@@ -964,7 +964,7 @@ class Game extends State {
           if (parties[y][x].getTask() == task) {
             for (int resource = 0; resource < numResources; resource++) {
              if (resource == jsManager.getResIndex("units") && resourceProductivities[jsManager.getResIndex(("food"))] < 1) {
-                consumption[resource] += (1-resourceProductivities[jsManager.getResIndex(("food"))]) * taskOutcomes[task][resource] * parties[y][x].getUnitNumber();
+                consumption[resource] += (1-resourceProductivities[jsManager.getResIndex(("food"))]) * (0.01+taskOutcomes[task][resource]) * parties[y][x].getUnitNumber();
               } else {
                 consumption[resource] += getResourceRequirementsAtCell(x, y, resource) * productivity;
               }
