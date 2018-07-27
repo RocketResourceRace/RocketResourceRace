@@ -2433,6 +2433,9 @@ class Game extends State {
         ((Map2D)map).mapYOffset = ((Map2D)map).targetYOffset;
         ((Map2D)map).blockSize = this.players[turn].blockSize;
       }
+      if (players[turn].cellSelected) {
+        selectCell(players[turn].cellX, players[turn].cellY, false);
+      }
     } else {
       LOGGER_MAIN.finer("Creating new map");
       ((BaseMap)map).generateMap(mapWidth, mapHeight);
