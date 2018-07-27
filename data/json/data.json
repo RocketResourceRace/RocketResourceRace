@@ -951,6 +951,28 @@
         "turns": 4,
         "building": "Armoury"
       }
+    },
+    {
+      "id": "Build Barracks",
+      "description": "Barracks can train parties in their training focus proficiency.",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand", "hill"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [
+        {"id":"wood", "quantity": 400},
+        {"id": "stone", "quantity": 150}
+      ],
+      "action":{
+        "type": "Build Barracks",
+        "notification": "Barracks Built",
+        "turns": 4,
+        "building": "Barracks"
+      }
     }
   ],
 
@@ -1020,6 +1042,11 @@
     },
     {
       "id": "Armoury",
+      "img": ["armoury.png"],
+      "obj": ["armoury.obj"]
+    },
+    {
+      "id": "Barracks",
       "img": ["armoury.png"],
       "obj": ["armoury.obj"]
     },
