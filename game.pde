@@ -2013,11 +2013,11 @@ class Game extends State {
         if (bombarding) {
           int x = floor(map.scaleXInv());
           int y = floor(map.scaleYInv());
-          if (0<=x&&x<mapWidth&&0<=y&&y<mapHeight) {
+          if (activePanel == "default" && !UIHovering() && 0<=x&&x<mapWidth&&0<=y&&y<mapHeight) {
             postEvent(new Bombard(selectedCellX, selectedCellY, x, y));
+            map.disableBombard();
+            bombarding = false;
           }
-          map.disableBombard();
-          bombarding = false;
         }
       }
       if (eventType == "mouseReleased" && mapClickPos != null && sqrt(pow(mapClickPos[0] - mouseX, 2) + pow(mapClickPos[1] - mouseY, 2))<MOUSEPRESSTOLERANCE && millis() - mapClickPos[2] < CLICKHOLD) { // Custom mouse click

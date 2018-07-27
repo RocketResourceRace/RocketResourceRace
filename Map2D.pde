@@ -1372,8 +1372,7 @@ class Map2D extends BaseMap implements Map {
             c = new PVector(scaleX(x), scaleY(y1));
             if (max(c.x, xPos)+min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos)>xPos && max(c.x, xPos) < elementWidth+xPos && max(c.y, yPos)+min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos)>yPos && max(c.y, yPos) < elementHeight+yPos) {
               if (blockSize > 10*jsManager.loadFloatSetting("text scale") && moveNodes[y1][x].cost <= parties[selectedCellY][selectedCellX].getMovementPoints()) {
-                panelCanvas.fill(50, 150);
-                panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
+                shadeCell(panelCanvas, c.x, c.y, color(50, 150));
                 panelCanvas.fill(255);
                 panelCanvas.textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
                 panelCanvas.textAlign(CENTER, CENTER);
@@ -1390,6 +1389,7 @@ class Map2D extends BaseMap implements Map {
         }
       }
     }
+
     if (jsManager.loadBooleanSetting("fog of war")) {
       for (int y1=0; y1<mapHeight; y1++) {
         for (int x=0; x<mapWidth; x++) {
@@ -1429,7 +1429,15 @@ class Map2D extends BaseMap implements Map {
         }
       }
     }
+
     if (showingBombard) {
+      for (int y = max(0, selectedCellY-bombardRange); y <= min(selectedCellY+bombardRange, mapHeight-1); y++) {
+        for (int x = max(0, selectedCellX-bombardRange); x <= min(selectedCellX+bombardRange, mapWidth-1); x++) {
+          if (dist(x, y, selectedCellX, selectedCellY) <= bombardRange) {
+            shadeCell(panelCanvas, scaleX(x), scaleY(y), color(255, 0, 0, 100));
+          }
+        }
+      }
       drawBombard(panelCanvas);
     }
 
@@ -1437,6 +1445,12 @@ class Map2D extends BaseMap implements Map {
     panelCanvas.stroke(0);
     panelCanvas.rect(xPos, yPos, elementWidth, elementHeight);
   }
+  
+  void shadeCell(PGraphics canvas, float x, float y, color c) {
+    canvas.fill(c);
+    canvas.rect(max(x, xPos), max(y, yPos), min(blockSize, xPos+elementWidth-x, blockSize+x-xPos), min(blockSize, yPos+elementHeight-y, blockSize+y-yPos));
+  }
+  
   int sign(float x) {
     if (x > 0) {
       return 1;
@@ -1498,12 +1512,14 @@ class Map2D extends BaseMap implements Map {
   void drawBombard(PGraphics canvas) {
     int x = floor(scaleXInv());
     int y = floor(scaleYInv());
-    if (parties[y][x] != null && parties[y][x].player != parties[selectedCellY][selectedCellX].player && dist(x, y, selectedCellX, selectedCellY) < bombardRange) {
-      canvas.pushMatrix();
-      canvas.translate(scaleX(x), scaleY(y));
-      canvas.scale(blockSize/64, blockSize/64);
-      canvas.image(bombardImage, 16, 16);
-      canvas.popMatrix();
+    if (0 <= x && x < mapWidth && 0 <= y && y < mapHeight) {
+      if (parties[y][x] != null && parties[y][x].player != parties[selectedCellY][selectedCellX].player && dist(x, y, selectedCellX, selectedCellY) < bombardRange) {
+        canvas.pushMatrix();
+        canvas.translate(scaleX(x), scaleY(y));
+        canvas.scale(blockSize/64, blockSize/64);
+        canvas.image(bombardImage, 16, 16);
+        canvas.popMatrix();
+      }
     }
   }
   
