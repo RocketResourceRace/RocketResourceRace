@@ -1393,7 +1393,8 @@
           "range": 5,
           "speed": 1.5,
           "ranged attack": 10,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Armoury"],
+          "other class blocking": ["mount", "armour"],
         },
       ]
     },

@@ -109,6 +109,36 @@ class JSONManager {
     }
   }
   
+  JSONObject getEquipmentObject(int classIndex, int typeIndex){
+    try{
+      return gameData.getJSONArray("equipment").getJSONObject(classIndex).getJSONArray("types").getJSONObject(typeIndex);
+    }
+    catch (NullPointerException e) {
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error loading equipment other class blocking. Class:%d, type:%d id:%s", classIndex, typeIndex, getEquipmentTypeID(classIndex, typeIndex)), e);
+      throw e;
+    }
+  }
+  
+  String[] getOtherClassBlocking(int classIndex, int typeIndex){
+    try{
+      JSONObject typeObject = gameData.getJSONArray("equipment").getJSONObject(classIndex).getJSONArray("types").getJSONObject(typeIndex);
+      if (typeObject.isNull("other class blocking")){
+        return null;
+      }
+      else {
+        String[] rs = new String[typeObject.getJSONArray("other class blocking").size()];
+        for (int i=0; i < typeObject.getJSONArray("other class blocking").size(); i ++){
+          rs[i] = typeObject.getJSONArray("other class blocking").getString(i);
+        }
+        return rs;
+      }
+    }
+    catch (NullPointerException e) {
+      LOGGER_MAIN.log(Level.SEVERE, String.format("Error loading equipment other class blocking. Class:%d, type:%d id:%s", classIndex, typeIndex, getEquipmentTypeID(classIndex, typeIndex)), e);
+      throw e;
+    }
+  }
+  
   String getEquipmentImageFileName(int classIndex, int typeIndex){
     try{
       if (!gameData.getJSONArray("equipment").getJSONObject(classIndex).getJSONArray("types").getJSONObject(typeIndex).isNull("img")){
@@ -217,6 +247,16 @@ class JSONManager {
     }
   }
   
+  int getEquipmentClassFromID(String classID){
+    for (int c=0; c < getNumEquipmentClasses(); c ++){
+      if (getEquipmentClass(c).equals(classID)){
+        return c;
+      }
+    }
+    LOGGER_MAIN.warning("Equipment class not found id:"+classID);
+    return -1;
+  }
+  
   int[] getEquipmentTypeClassFromID(String id){
     for (int c=0; c < getNumEquipmentClasses(); c ++){
       for (int t=0; t < getNumEquipmentTypesFromClass(c); t ++){
@@ -225,7 +265,7 @@ class JSONManager {
         }
       }
     }
-    LOGGER_MAIN.warning("Equipment not found id:"+id);
+    LOGGER_MAIN.warning("Equipment type not found id:"+id);
     return null;
   }
   

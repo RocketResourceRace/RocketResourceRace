@@ -387,7 +387,7 @@ class EquipmentManager extends Element {
       panelCanvas.textAlign(LEFT, TOP);
       panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
       String[] equipmentTypes = jsManager.getEquipmentFromClass(selectedClass);
-      for (int i = 0; i < jsManager.getNumEquipmentTypesFromClass(selectedClass); i ++){
+      for (int i = 0; i < jsManager.getNumEquipmentTypesFromClass(selectedClass);   i ++){
         panelCanvas.strokeWeight(1);
         if (currentEquipment[selectedClass] != i){
           panelCanvas.fill(170);

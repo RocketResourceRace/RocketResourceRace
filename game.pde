@@ -585,16 +585,16 @@ class Game extends State {
         int newResID=-1, oldResID=-1;
         
         int equipmentClass = ((ChangeEquipment)event).equipmentClass;
-        int newEqupmentType = ((ChangeEquipment)event).newEqupmentType;
+        int newEquipmentType = ((ChangeEquipment)event).newEquipmentType;
         
-        LOGGER_GAME.fine(String.format("Changing equipment type for cell (%d, %d) id:%s class:'%d' new equipment index:'%d'", selectedCellX, selectedCellY, parties[selectedCellY][selectedCellX].getID(), equipmentClass, newEqupmentType));
+        LOGGER_GAME.fine(String.format("Changing equipment type for cell (%d, %d) id:%s class:'%d' new equipment index:'%d'", selectedCellX, selectedCellY, parties[selectedCellY][selectedCellX].getID(), equipmentClass, newEquipmentType));
         
         if (equipmentClass == -1){
           LOGGER_GAME.warning("No equipment class selected for change equipment event");
         }
         
-        if (newEqupmentType != -1){
-          newResID = jsManager.getResIndex(jsManager.getEquipmentTypeID(equipmentClass, newEqupmentType));
+        if (newEquipmentType != -1){
+          newResID = jsManager.getResIndex(jsManager.getEquipmentTypeID(equipmentClass, newEquipmentType));
         }
         if (parties[selectedCellY][selectedCellX].getEquipment(equipmentClass) != -1){
           oldResID = jsManager.getResIndex(jsManager.getEquipmentTypeID(equipmentClass, parties[selectedCellY][selectedCellX].getEquipment(equipmentClass)));
@@ -602,19 +602,36 @@ class Game extends State {
         
         try{
           
-          // Recycle equipment if unequipping
-          if (oldResID != -1 && parties[selectedCellY][selectedCellX].getEquipment(equipmentClass) != -1 && isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, newEqupmentType)){
-            players[turn].resources[oldResID] += parties[selectedCellY][selectedCellX].getEquipmentQuantity(equipmentClass);
+          //If new type is 'other class blocking', recycle any equipment in blocked classes
+          String[] otherBlocking = jsManager.getOtherClassBlocking(equipmentClass, newEquipmentType);
+          if (otherBlocking != null){
+            for (int i=0; i < otherBlocking.length; i ++){
+              int classIndex = jsManager.getEquipmentClassFromID(otherBlocking[i]);
+              int otherResID=-1;
+              if (parties[selectedCellY][selectedCellX].getEquipment(classIndex) != -1){
+                otherResID = jsManager.getResIndex(jsManager.getEquipmentTypeID(classIndex, parties[selectedCellY][selectedCellX].getEquipment(classIndex)));
+              }
+              if (otherResID != -1 && parties[selectedCellY][selectedCellX].getEquipment(classIndex) != -1 && isEquipmentCollectionAllowed(selectedCellX, selectedCellY, classIndex, parties[selectedCellY][selectedCellX].getEquipment(classIndex))){
+                players[turn].resources[otherResID] += parties[selectedCellY][selectedCellX].getEquipmentQuantity(classIndex);
+              }
+              parties[selectedCellY][selectedCellX].setEquipment(classIndex, -1, 0);  // Set it to empty after
+            }
+          }
+          else {
+            // Recycle equipment if unequipping
+            if (oldResID != -1 && parties[selectedCellY][selectedCellX].getEquipment(equipmentClass) != -1 && isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, newEquipmentType)){
+              players[turn].resources[oldResID] += parties[selectedCellY][selectedCellX].getEquipmentQuantity(equipmentClass);
+            }
           }
           
           int quantity;
-          if (newResID == -1 || !isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, newEqupmentType)){
+          if (newResID == -1 || !isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, newEquipmentType)){
             quantity = 0;
           }
           else {
             quantity = floor(min(parties[selectedCellY][selectedCellX].getUnitNumber(), players[turn].resources[newResID]));
           }
-          parties[selectedCellY][selectedCellX].setEquipment(equipmentClass, newEqupmentType, quantity);  // Change party equipment
+          parties[selectedCellY][selectedCellX].setEquipment(equipmentClass, newEquipmentType, quantity);  // Change party equipment
           
           LOGGER_GAME.fine("Quantity of equipment = "+quantity);
           
