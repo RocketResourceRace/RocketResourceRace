@@ -15,8 +15,15 @@
       "movement cost": 16
     },
     {
-      "id": "quarry site",
-      "display name": "Quarry Site",
+      "id": "quarry site stone",
+      "display name": "Quarry Site Stone",
+      "img": "hill.png",
+      "weighting": 0,
+      "movement cost": 32
+    },
+    {
+      "id": "quarry site clay",
+      "display name": "Quarry Site Clay",
       "img": "hill.png",
       "weighting": 0,
       "movement cost": 32
@@ -196,13 +203,32 @@
       }
     },
     {
-      "id": "Build Quarry",
-      "description": "Quarries can mine stone.",
+      "id": "Build Stone Quarry",
+      "description": "Quarries can mine stone if on grass and clay on sand.",
       "img": "construction.png",
       "obj": "construction.obj",
       "type": "building",
       "buildings":[],
-      "terrain": ["grass", "sand", "hill"],
+      "terrain": ["grass"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":200}],
+      "action":{
+        "type": "Build Quarry",
+        "notification": "Quarry Built",
+        "turns": 4,
+        "building": "Quarry"
+      }
+    },
+    {
+      "id": "Build Clay Quarry",
+      "description": "Quarries can mine stone if on grass and clay on sand.",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["sand"],
       "consumption":[
         {"id": "food","quantity":0.2}
       ],
@@ -326,6 +352,7 @@
         {"id": "food","quantity":0.2},
         {"id": "wood","quantity":0.02}
       ],
+      "terrain": ["quarry site stone"],
       "buildings":["Quarry"]
     },
     {
@@ -660,6 +687,98 @@
         {"id": "gears","quantity":0.2},
       ],
       "buildings":["Factory"]
+    },
+    {
+      "id": "Produce Charcoal",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "charcoal","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.11},
+      ],
+      "buildings":["Kiln"]
+    },
+    {
+      "id": "Produce Gears",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "gears","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "metal","quantity":0.5},
+      ],
+      "buildings":["Factory"]
+    },
+    {
+      "id": "Produce Clay",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "clay","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.01},
+      ],
+      "terrain": ["quarry site clay"],
+      "buildings":["Quarry"]
+    },
+    {
+      "id": "Produce Bricks",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "bricks","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "clay","quantity":0.1},
+      ],
+      "buildings":["Kiln"]
+    },
+    {
+      "id": "Produce Gunpowder",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "gears","quantity":0.5}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "sulfur","quantity":0.5},
+        {"id": "saltpeter","quantity":0.5},
+      ],
+      "buildings":["Factory"]
+    },
+    {
+      "id": "Produce Sulfur",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "description" : "Produce sulfur from urine",
+      "production":[
+        {"id": "sulfur","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+      ],
+    },
+    {
+      "id": "Produce Saltpeter",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "saltpeter","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.01},
+      ],
+      "buildings":["Mine"]
     },
     {
       "id": "Launch Rocket",

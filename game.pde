@@ -1181,7 +1181,12 @@ class Game extends State {
                   if (buildings[y][x].type == buildingIndex("Quarry")) {
                     LOGGER_GAME.fine("Quarry type detected so changing terrain...");
                     //map.setHeightsForCell(x, y, jsManager.loadFloatSetting("water level"));
-                    terrain[y][x] = terrainIndex("quarry site");
+                    if (terrain[y][x] == terrainIndex("grass")){
+                      terrain[y][x] = terrainIndex("quarry site stone");
+                    } else if (terrain[y][x] == terrainIndex("sand")){
+                      terrain[y][x] = terrainIndex("quarry site clay");
+                    }
+                    
                     map.replaceMapStripWithReloadedStrip(y);
                   }
                 }

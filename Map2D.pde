@@ -455,7 +455,7 @@ class BaseMap extends Element {
           }
           if (!versionCheckInt) {
             if (type==9) {
-              terrain[y][x] = terrainIndex("quarry site");
+              terrain[y][x] = terrainIndex("quarry site stone");
               LOGGER_MAIN.finer("Changing old quarry tiles into quarry sites - only on old maps");
             }
           }
