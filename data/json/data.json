@@ -1261,7 +1261,7 @@
     {
       "id":"building speed",
       "display name": "Building Speed",
-      "tooltip": "Reduces building speed. Disabled until v0.5"
+      "tooltip": "Reduces time tasken to construct buildings. Disabled until v0.5"
     },
     {
       "id":"speed",
