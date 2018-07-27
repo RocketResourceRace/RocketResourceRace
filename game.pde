@@ -1110,19 +1110,28 @@ class Game extends State {
                       break;
                     }
                   } else if (resourceProductivities[jsManager.getResIndex(("food"))] < 1) {
-                    float lost = (1 - resourceProductivities[jsManager.getResIndex(("food"))]) * taskOutcomes[task][resource] * parties[y][x].getUnitNumber();
-                    parties[y][x].changeUnitNumber(-floor(lost));
+                    float lost = (1 - resourceProductivities[jsManager.getResIndex(("food"))]) * (0.01+taskOutcomes[task][resource]) * parties[y][x].getUnitNumber();
+                    int totalLost = floor(lost);
+                    if (random(1) < lost-floor(lost)) {
+                      totalLost++;
+                    }
+                    parties[y][x].changeUnitNumber(-totalLost);
                     handlePartyExcessResources(x, y);
                     if (parties[y][x].getUnitNumber() == 0) {
                       notificationManager.post("Party Starved", x, y, turnNumber, turn);
                       LOGGER_GAME.info(String.format("Party starved at cell:(%d, %d) player:%s", x, y, turn));
                     } else {
-                      notificationManager.post(String.format("Party Starving - %d lost", floor(lost)), x, y, turnNumber, turn);
-                      LOGGER_GAME.fine(String.format("Party Starving - %d lost at  cell: (%d, %d) player:%s", floor(lost), x, y, turn));
+                      notificationManager.post(String.format("Party Starving - %d lost", totalLost), x, y, turnNumber, turn);
+                      LOGGER_GAME.fine(String.format("Party Starving - %d lost at  cell: (%d, %d) player:%s", totalLost, x, y, turn));
                     }
                   } else {
                     int prev = parties[y][x].getUnitNumber();
-                    parties[y][x].changeUnitNumber(floor(getResourceChangesAtCell(x, y, resourceProductivities)[resource]));
+                    float gained = getResourceChangesAtCell(x, y, resourceProductivities)[resource];
+                    int totalGained = floor(gained);
+                    if (random(1) < gained-floor(gained)) {
+                      totalGained++;
+                    }
+                    parties[y][x].changeUnitNumber(totalGained);
                     if (prev != jsManager.loadIntSetting("party size") && parties[y][x].getUnitNumber() == jsManager.loadIntSetting("party size") && parties[y][x].task == JSONIndex(gameData.getJSONArray("tasks"), "Super Rest")) {
                       notificationManager.post("Party Full", x, y, turnNumber, turn);
                       LOGGER_GAME.fine(String.format("Party full at  cell: (%d, %d) player:%s", x, y, turn));
