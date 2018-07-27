@@ -1530,7 +1530,7 @@ class Map3D extends BaseMap implements Map {
     PVector pos = getMousePosOnObject();
     int x = floor(pos.x/blockSize);
     int y = floor(pos.y/blockSize);
-    if (pos.equals(new PVector(-1, -1, -1)) || dist(x, y, selectedCellX, selectedCellY) > bombardRange) {
+    if (pos.equals(new PVector(-1, -1, -1)) || dist(x, y, selectedCellX, selectedCellY) > bombardRange || (x == selectedCellX && y == selectedCellY)) {
       bombardArrow.setVisible(false);
     } else {
       PVector startPos = new PVector((selectedCellX+0.5)*blockSize, (selectedCellY+0.5)*blockSize, getHeight(selectedCellX+0.5, selectedCellY+0.5));
