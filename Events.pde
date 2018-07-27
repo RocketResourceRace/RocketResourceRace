@@ -90,10 +90,10 @@ class ChangePartyTrainingFocus extends GameEvent {
 
 class ChangeEquipment extends GameEvent{
   int equipmentClass;
-  int newEqupmentType;
+  int newEquipmentType;
   ChangeEquipment(int equipmentClass, int newEqupmentType){
     this.equipmentClass = equipmentClass;
-    this.newEqupmentType = newEqupmentType;
+    this.newEquipmentType = newEqupmentType;
   }
 }
 
