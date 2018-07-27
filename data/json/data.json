@@ -311,6 +311,16 @@
       "buildings": ["Homes"]
     },
     {
+      "id": "Train Party",
+      "description": "Increases training focus proficiency",
+      "img": "super_rest.png",
+      "obj": "super_rest.obj",
+      "consumption":[
+        {"id": "food","quantity":0.4}
+      ],
+      "buildings": ["Barracks"]
+    },
+    {
       "id": "Clear Forest",
       "description": "Clear a forrest tile and add 100 wood to stockpile.",
       "img": "clear_forest.png",

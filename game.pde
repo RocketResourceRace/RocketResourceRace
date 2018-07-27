@@ -1166,6 +1166,9 @@ class Game extends State {
             if (parties[y][x].getAutoStockUp()) {
                postEvent(new StockUpEquipment(x, y));
             }
+            if (parties[y][x].getTask() == jsManager.getTaskIndex("Train Party")){
+              parties[y][x].trainParty(jsManager.indexToProficiencyID(parties[y][x].getTrainingFocus()), "training");
+            }
             Action action = parties[y][x].progressAction();
             if (action != null) {
               if (!(action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction Mid")) && !(action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction End")))
