@@ -30,7 +30,7 @@ class Map3D extends BaseMap implements Map {
   float hoveringX, hoveringY, oldHoveringX, oldHoveringY;
   float targetXOffset, targetYOffset;
   int selectedCellX, selectedCellY;
-  PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid, drawPossibleMoves, fog;
+  PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid, drawPossibleMoves, drawPossibleBombards, bombardArrow, fog;
   HashMap<String, PShape> taskObjs;
   HashMap<String, PShape[]> buildingObjs;
   PShape[] unitNumberObjects;
@@ -232,6 +232,45 @@ class Map3D extends BaseMap implements Map {
       throw e;
     }
   }
+
+  void updatePossibleBombards() {
+    // For the shape that indicateds where a party can bombard
+    try {
+      LOGGER_MAIN.finer("Updating possible bombards");
+      float smallSize = blockSize / jsManager.loadFloatSetting("terrain detail");
+      drawPossibleBombards = createShape();
+      drawPossibleBombards.beginShape(TRIANGLES);
+      drawPossibleBombards.fill(255, 0, 0, 100);
+      for (int y = max(0, selectedCellY - bombardRange); y < min(selectedCellY + bombardRange + 1, mapHeight); y++) {
+        for (int x = max(0, selectedCellX - bombardRange); x < min(selectedCellX + bombardRange + 1, mapWidth); x++) {
+          if (dist(x, y, selectedCellX, selectedCellY) <= bombardRange) {
+            if (parties[y][x] != null && parties[y][x].player != parties[selectedCellY][selectedCellX].player){
+              drawPossibleBombards.fill(255, 0, 0, 150);
+            } else {
+              drawPossibleBombards.fill(128, 128, 128, 150);
+            }
+            for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
+              for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
+                drawPossibleBombards.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleBombards.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleBombards.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+
+                drawPossibleBombards.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleBombards.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleBombards.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+              }
+            }
+          }
+        }
+      }
+      drawPossibleBombards.endShape();
+    }
+    catch (Exception e) {
+      LOGGER_MAIN.log(Level.SEVERE, "Error updating possible bombards", e);
+      throw e;
+    }
+  }
+
   void cancelMoveNodes() {
     moveNodes = null;
   }
@@ -691,6 +730,19 @@ class Map3D extends BaseMap implements Map {
         }
       }
 
+      LOGGER_MAIN.finer("Loading bombard arrow");
+      fill(255, 0, 0);
+      bombardArrow = createShape();
+      bombardArrow.beginShape();
+      bombardArrow.vertex(0, 0, 0);
+      bombardArrow.bezierVertex(0, 0, 0, 0, 0, 0, 0, 0, 0);
+      bombardArrow.vertex(0, 0, 0);
+      bombardArrow.vertex(0, 0, 0);
+      bombardArrow.vertex(0, 0, 0);
+      bombardArrow.vertex(0, 0, 0);
+      bombardArrow.bezierVertex(0, 0, 0, 0, 0, 0, 0, 0, 0);
+      bombardArrow.endShape();
+
       popStyle();
       cinematicMode = false;
       drawRocket = false;
@@ -1062,6 +1114,9 @@ class Map3D extends BaseMap implements Map {
         updateHighlightingGrid(hoveringX, hoveringY, 8, 8);
         oldHoveringX = hoveringX;
         oldHoveringY = hoveringY;
+        if (showingBombard) {
+          updateBombard();
+        }
       }
 
 
@@ -1184,8 +1239,10 @@ class Map3D extends BaseMap implements Map {
       if (moveNodes != null) {
         canvas.shape(drawPossibleMoves);
       }
+      
       if (showingBombard) {
         drawBombard(canvas);
+        canvas.shape(drawPossibleBombards);
       }
 
       for (int x=0; x<mapWidth; x++) {
@@ -1466,15 +1523,39 @@ class Map3D extends BaseMap implements Map {
   }
   
   void drawBombard(PGraphics canvas) {
+    canvas.shape(bombardArrow);
+  }
+  
+  void updateBombard() {
     PVector pos = getMousePosOnObject();
     int x = floor(pos.x/blockSize);
     int y = floor(pos.y/blockSize);
-    canvas.line((x+0.5)*blockSize, (y+0.5)*blockSize, getHeight(x, y), (selectedCellX+0.5)*blockSize, (selectedCellY+0.5)*blockSize, getHeight(selectedCellX, selectedCellY));
+    if (pos.equals(new PVector(-1, -1, -1)) || dist(x, y, selectedCellX, selectedCellY) > bombardRange || (x == selectedCellX && y == selectedCellY)) {
+      bombardArrow.setVisible(false);
+    } else {
+      PVector startPos = new PVector((selectedCellX+0.5)*blockSize, (selectedCellY+0.5)*blockSize, getHeight(selectedCellX+0.5, selectedCellY+0.5));
+      PVector endPos = new PVector((x+0.5)*blockSize, (y+0.5)*blockSize, getHeight(x+0.5, y+0.5));
+      float rotation = -atan2(startPos.x-endPos.x, startPos.y - endPos.y);
+      bombardArrow.setVertex(0, PVector.add(startPos, new PVector(-blockSize*0.1*cos(rotation), -blockSize*0.1*sin(rotation), 0)));
+      bombardArrow.setVertex(1, PVector.add(startPos, endPos).mult(0.5).add(new PVector(-blockSize*0.1*cos(rotation), -blockSize*0.1*sin(rotation), 2*blockSize)));
+      bombardArrow.setVertex(2, PVector.add(startPos, endPos).mult(0.5).add(new PVector(-blockSize*0.1*cos(rotation), -blockSize*0.1*sin(rotation), 2*blockSize)));
+      bombardArrow.setVertex(3, PVector.add(endPos, new PVector(-blockSize*0.1*cos(rotation), -blockSize*0.1*sin(rotation), blockSize/4)));
+      bombardArrow.setVertex(4, PVector.add(endPos, new PVector(-blockSize*0.2*cos(rotation), -blockSize*0.2*sin(rotation), blockSize/4)));
+      bombardArrow.setVertex(5, endPos);
+      bombardArrow.setVertex(6, PVector.add(endPos, new PVector(blockSize*0.2*cos(rotation), blockSize*0.2*sin(rotation), blockSize/4)));
+      bombardArrow.setVertex(7, PVector.add(endPos, new PVector(blockSize*0.1*cos(rotation), blockSize*0.1*sin(rotation), blockSize/4)));
+      bombardArrow.setVertex(8, PVector.add(startPos, endPos).mult(0.5).add(new PVector(blockSize*0.1*cos(rotation), blockSize*0.1*sin(rotation), 2*blockSize)));
+      bombardArrow.setVertex(9, PVector.add(startPos, endPos).mult(0.5).add(new PVector(blockSize*0.1*cos(rotation), blockSize*0.1*sin(rotation), 2*blockSize)));
+      bombardArrow.setVertex(10, PVector.add(startPos, new PVector(blockSize*0.1*cos(rotation), blockSize*0.1*sin(rotation), 0)));
+      bombardArrow.setVisible(true);
+    }
   }
   
   void enableBombard(int range) {
     showingBombard = true;
     bombardRange = range;
+    updateBombard();
+    updatePossibleBombards();
   }
   
   void disableBombard() {
