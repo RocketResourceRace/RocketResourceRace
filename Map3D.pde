@@ -25,6 +25,7 @@ class Map3D extends BaseMap implements Map {
   final float STUMPR = 1, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3;
   final float HILLRAISE = 1.05;
   final float GROUNDHEIGHT = 5;
+  final float VERYSMALLSIZE = 0.01;
   float panningSpeed = 0.05;
   int x, y, w, h, prevT, frameTime;
   float hoveringX, hoveringY, oldHoveringX, oldHoveringY;
@@ -205,21 +206,22 @@ class Map3D extends BaseMap implements Map {
     try {
       LOGGER_MAIN.finer("Updating possible move nodes");
       float smallSize = blockSize / jsManager.loadFloatSetting("terrain detail");
+      float verySmallSize = 40*VERYSMALLSIZE;
       drawPossibleMoves = createShape();
       drawPossibleMoves.beginShape(TRIANGLES);
-      drawPossibleMoves.fill(0, 0, 0, 120);
+      drawPossibleMoves.fill(0, 0, 0, 100);
       for (int x=0; x<mapWidth; x++) {
         for (int y=0; y<mapHeight; y++) {
           if (moveNodes[y][x] != null && moveNodes[y][x].cost <= parties[selectedCellY][selectedCellX].getMovementPoints()) {
             for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
               for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
-                drawPossibleMoves.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
-                drawPossibleMoves.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
-                drawPossibleMoves.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleMoves.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, verySmallSize+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleMoves.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, verySmallSize+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleMoves.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, verySmallSize+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
 
-                drawPossibleMoves.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
-                drawPossibleMoves.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
-                drawPossibleMoves.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleMoves.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, verySmallSize+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleMoves.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, verySmallSize+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleMoves.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, verySmallSize+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
               }
             }
           }
@@ -238,6 +240,7 @@ class Map3D extends BaseMap implements Map {
     try {
       LOGGER_MAIN.finer("Updating possible bombards");
       float smallSize = blockSize / jsManager.loadFloatSetting("terrain detail");
+      float verySmallSize = 40*VERYSMALLSIZE;
       drawPossibleBombards = createShape();
       drawPossibleBombards.beginShape(TRIANGLES);
       drawPossibleBombards.fill(255, 0, 0, 100);
@@ -251,13 +254,13 @@ class Map3D extends BaseMap implements Map {
             }
             for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
               for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
-                drawPossibleBombards.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
-                drawPossibleBombards.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
-                drawPossibleBombards.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleBombards.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, verySmallSize+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleBombards.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, verySmallSize+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleBombards.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, verySmallSize+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
 
-                drawPossibleBombards.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
-                drawPossibleBombards.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
-                drawPossibleBombards.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 1+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleBombards.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, verySmallSize+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleBombards.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, verySmallSize+getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                drawPossibleBombards.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, verySmallSize+getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
               }
             }
           }
@@ -608,7 +611,7 @@ class Map3D extends BaseMap implements Map {
       LOGGER_MAIN.fine("Generating Water");
       fill(10, 50, 180);
       water = createShape(RECT, 0, 0, getObjectWidth(), getObjectHeight());
-      water.translate(0, 0, jsManager.loadFloatSetting("water level")*blockSize*GROUNDHEIGHT+0.05);
+      water.translate(0, 0, jsManager.loadFloatSetting("water level")*blockSize*GROUNDHEIGHT+VERYSMALLSIZE);
       generateHighlightingGrid(8, 8);
 
 
@@ -729,19 +732,8 @@ class Map3D extends BaseMap implements Map {
           }
         }
       }
-
-      LOGGER_MAIN.finer("Loading bombard arrow");
-      fill(255, 0, 0);
+      
       bombardArrow = createShape();
-      bombardArrow.beginShape();
-      bombardArrow.vertex(0, 0, 0);
-      bombardArrow.bezierVertex(0, 0, 0, 0, 0, 0, 0, 0, 0);
-      bombardArrow.vertex(0, 0, 0);
-      bombardArrow.vertex(0, 0, 0);
-      bombardArrow.vertex(0, 0, 0);
-      bombardArrow.vertex(0, 0, 0);
-      bombardArrow.bezierVertex(0, 0, 0, 0, 0, 0, 0, 0, 0);
-      bombardArrow.endShape();
 
       popStyle();
       cinematicMode = false;
@@ -815,7 +807,7 @@ class Map3D extends BaseMap implements Map {
               alpha = 0;
             }
             line.setStroke(x1, color(255, alpha));
-            line.setVertex(x1, x2*blockSize, y1*blockSize, 0.1+getHeight(x2, y1));
+            line.setVertex(x1, x2*blockSize, y1*blockSize, 2*VERYSMALLSIZE+getHeight(x2, y1));
           }
         }
         // verticle lines
@@ -833,7 +825,7 @@ class Map3D extends BaseMap implements Map {
               alpha = 0;
             }
             line.setStroke(y1, color(255, alpha));
-            line.setVertex(y1, x1*blockSize, y2*blockSize, 0.1+getHeight(x1, y2));
+            line.setVertex(y1, x1*blockSize, y2*blockSize, 2*VERYSMALLSIZE+getHeight(x1, y2));
           }
         }
       } else {
@@ -842,7 +834,7 @@ class Map3D extends BaseMap implements Map {
           for (int x1=0; x1<jsManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++) {
             float x2 = int(x)-horizontals/2+1+x1/jsManager.loadFloatSetting("terrain detail");
             float y1 = int(y)-verticles/2+1+i;
-            line.setVertex(x1, x2*blockSize, y1*blockSize, 0.1+getHeight(x2, y1));
+            line.setVertex(x1, x2*blockSize, y1*blockSize, 2*VERYSMALLSIZE+getHeight(x2, y1));
           }
         }
         // verticle lines
@@ -851,7 +843,7 @@ class Map3D extends BaseMap implements Map {
           for (int y1=0; y1<jsManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++) {
             float x1 = int(x)-horizontals/2+1+i;
             float y2 = int(y)-verticles/2+1+y1/jsManager.loadFloatSetting("terrain detail");
-            line.setVertex(y1, x1*blockSize, y2*blockSize, 0.1+getHeight(x1, y2));
+            line.setVertex(y1, x1*blockSize, y2*blockSize, 2*VERYSMALLSIZE+getHeight(x1, y2));
           }
         }
       }
@@ -1112,11 +1104,11 @@ class Map3D extends BaseMap implements Map {
       // update highlight grid if hovering over diffent pos
       if (!(hoveringX == oldHoveringX && hoveringY == oldHoveringY)) {
         updateHighlightingGrid(hoveringX, hoveringY, 8, 8);
-        oldHoveringX = hoveringX;
-        oldHoveringY = hoveringY;
-        if (showingBombard) {
+        if (showingBombard && !(int(hoveringX) == int(oldHoveringX) && int(hoveringY) == int(oldHoveringY))) {
           updateBombard();
         }
+        oldHoveringX = hoveringX;
+        oldHoveringY = hoveringY;
       }
 
 
@@ -1533,21 +1525,53 @@ class Map3D extends BaseMap implements Map {
     if (pos.equals(new PVector(-1, -1, -1)) || dist(x, y, selectedCellX, selectedCellY) > bombardRange || (x == selectedCellX && y == selectedCellY)) {
       bombardArrow.setVisible(false);
     } else {
+      LOGGER_MAIN.finer("Loading bombard arrow");
       PVector startPos = new PVector((selectedCellX+0.5)*blockSize, (selectedCellY+0.5)*blockSize, getHeight(selectedCellX+0.5, selectedCellY+0.5));
       PVector endPos = new PVector((x+0.5)*blockSize, (y+0.5)*blockSize, getHeight(x+0.5, y+0.5));
       float rotation = -atan2(startPos.x-endPos.x, startPos.y - endPos.y)+0.0001;
-      bombardArrow.setVertex(0, PVector.add(startPos, new PVector(-blockSize*0.1*cos(rotation), -blockSize*0.1*sin(rotation), 0)));
-      bombardArrow.setVertex(1, PVector.add(startPos, endPos).mult(0.5).add(new PVector(-blockSize*0.1*cos(rotation), -blockSize*0.1*sin(rotation), 2*blockSize)));
-      bombardArrow.setVertex(2, PVector.add(startPos, endPos).mult(0.5).add(new PVector(-blockSize*0.1*cos(rotation), -blockSize*0.1*sin(rotation), 2*blockSize)));
-      bombardArrow.setVertex(3, PVector.add(endPos, new PVector(-blockSize*0.1*cos(rotation), -blockSize*0.1*sin(rotation), blockSize/4)));
-      bombardArrow.setVertex(4, PVector.add(endPos, new PVector(-blockSize*0.2*cos(rotation), -blockSize*0.2*sin(rotation), blockSize/4)));
-      bombardArrow.setVertex(5, endPos);
-      bombardArrow.setVertex(6, PVector.add(endPos, new PVector(blockSize*0.2*cos(rotation), blockSize*0.2*sin(rotation), blockSize/4)));
-      bombardArrow.setVertex(7, PVector.add(endPos, new PVector(blockSize*0.1*cos(rotation), blockSize*0.1*sin(rotation), blockSize/4)));
-      bombardArrow.setVertex(8, PVector.add(startPos, endPos).mult(0.5).add(new PVector(blockSize*0.1*cos(rotation), blockSize*0.1*sin(rotation), 2*blockSize)));
-      bombardArrow.setVertex(9, PVector.add(startPos, endPos).mult(0.5).add(new PVector(blockSize*0.1*cos(rotation), blockSize*0.1*sin(rotation), 2*blockSize)));
-      bombardArrow.setVertex(10, PVector.add(startPos, new PVector(blockSize*0.1*cos(rotation), blockSize*0.1*sin(rotation), 0)));
+      PVector thicknessAdder = new PVector(blockSize*0.1*cos(rotation), blockSize*0.1*sin(rotation), 0);
+      PVector startPosA = PVector.add(startPos, thicknessAdder);
+      PVector startPosB = PVector.sub(startPos, thicknessAdder);
+      PVector endPosA = PVector.add(endPos, thicknessAdder);
+      PVector endPosB = PVector.sub(endPos, thicknessAdder);
+      fill(255, 0, 0);
+      bombardArrow = createShape();
+      bombardArrow.beginShape(TRIANGLES);
+      float INCREMENT = 0.01;
+      PVector currentPosA = startPosA.copy();
+      PVector currentPosB = startPosB.copy();
+      PVector nextPosA;
+      PVector nextPosB;
+      for (float i = 0; i <= 1 && currentPosA.dist(endPosA) > blockSize*0.2; i += INCREMENT) {
+        nextPosA = PVector.add(startPosA, PVector.mult(PVector.sub(endPosA, startPosA), i)).add(new PVector(0, 0, blockSize*4*i*(1-i)));
+        nextPosB = PVector.add(startPosB, PVector.mult(PVector.sub(endPosB, startPosB), i)).add(new PVector(0, 0, blockSize*4*i*(1-i)));
+        bombardArrow.vertex(currentPosA.x, currentPosA.y, currentPosA.z);
+        bombardArrow.vertex(currentPosB.x, currentPosB.y, currentPosB.z);
+        bombardArrow.vertex(nextPosA.x, nextPosA.y, nextPosA.z);
+        bombardArrow.vertex(currentPosB.x, currentPosB.y, currentPosB.z);
+        bombardArrow.vertex(nextPosA.x, nextPosA.y, nextPosA.z);
+        bombardArrow.vertex(nextPosB.x, nextPosB.y, nextPosB.z);
+        currentPosA = nextPosA;
+        currentPosB = nextPosB;
+      }
+      
+      PVector temp = PVector.add(currentPosA, thicknessAdder);
+      bombardArrow.vertex(currentPosA.x, currentPosA.y, currentPosA.z);
+      bombardArrow.vertex(temp.x, temp.y, temp.z);
+      bombardArrow.vertex(endPos.x, endPos.y, endPos.z);
+      
+      bombardArrow.vertex(currentPosA.x, currentPosA.y, currentPosA.z);
+      bombardArrow.vertex(currentPosB.x, currentPosB.y, currentPosB.z);
+      bombardArrow.vertex(endPos.x, endPos.y, endPos.z);
+      
+      temp = PVector.sub(currentPosB, thicknessAdder);
+      bombardArrow.vertex(currentPosB.x, currentPosB.y, currentPosB.z);
+      bombardArrow.vertex(temp.x, temp.y, temp.z);
+      bombardArrow.vertex(endPos.x, endPos.y, endPos.z);
+      
+      bombardArrow.endShape();
       bombardArrow.setVisible(true);
+      println("t");
     }
   }
   
