@@ -107,14 +107,13 @@ class Game extends State {
       addPanel("land management", 0, 0, width, height, false, true, color(50, 200, 50), color(0));
       addPanel("party management", 0, 0, width, height, false, true, color(110, 110, 255), color(0));
       addPanel("bottom bar", 0, height-70, width, 70, true, true, color(150), color(50));
-      addPanel("resource management", width/4, height/4, width/2, height/2, false, false, color(200), color(0));
+      addPanel("resource management", width/4, height/4, width/2, height/2, false, true, color(200), color(0));
       addPanel("end screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
       addPanel("pause screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
       addPanel("save screen", (int)(width/2+jsManager.loadFloatSetting("gui scale")*150+(int)(jsManager.loadFloatSetting("gui scale")*20)), (int)(height/2-5*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*500), (int)(jsManager.loadFloatSetting("gui scale")*500), false, false, color(50), color(0));
       addPanel("overlay", 0, 0, width, height, true, false, color(255, 255), color(255, 255));
       addPanel("console", 0, height/2, width, height/2, false, true, color(0, 220), color(255, 0));
 
-      getPanel("resource management").setOverrideBlocking(true);
       getPanel("save screen").setOverrideBlocking(true);
 
       addElement("0tooltip", new Tooltip(), "overlay");
@@ -163,6 +162,8 @@ class Game extends State {
       addElement("unit number bars toggle", new ToggleButton(bezel*6+buttonW*4, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Unit Bars"), "bottom bar");
       addElement("console", new Console(0, 0, width, height/2, 10), "console");
       addElement("resource management", new ResourceManagement(width/4, height/4, width/2, height/2), "resource management");
+      addElement("resources page button", new Button(bezel, bezel, 100, 30, color(150), color(50), color(0), 10, CENTER, "Resources"), "resource management");
+      addElement("equipment page button", new Button(bezel+100, bezel, 100, 30, color(150), color(50), color(0), 10, CENTER, "Equipment"), "resource management");
       //int x, int y, int w, int h, color bgColour, color strokeColour, boolean value, String name
 
       prevIdle = new ArrayList<Integer[]>();
@@ -1665,6 +1666,26 @@ class Game extends State {
           } else {
             map.disableBombard();
           }
+        } else if (event.id.equals("resources page button")) {
+          Button b1 = ((Button)getElement("resources page button", "resource management"));
+          Button b2 = ((Button)getElement("equipment page button", "resource management"));
+          b1.active = false;
+          b1.textColour = color(100);
+          b1.bgColour = color(200);
+          b2.active = true;
+          b2.textColour = color(0);
+          b2.bgColour = color(150);
+          ((ResourceManagement)getElement("resource management", "resource management")).page = 0;
+        } else if (event.id.equals("equipment page button")) {
+          Button b1 = ((Button)getElement("equipment page button", "resource management"));
+          Button b2 = ((Button)getElement("resources page button", "resource management"));
+          b1.active = false;
+          b1.textColour = color(100);
+          b1.bgColour = color(200);
+          b2.active = true;
+          b2.textColour = color(0);
+          b2.bgColour = color(150);
+          ((ResourceManagement)getElement("resource management", "resource management")).page = 1;
         }
       }
       if (event.type.equals("valueChanged")) {
