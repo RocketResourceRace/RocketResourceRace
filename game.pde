@@ -1586,6 +1586,8 @@ class Game extends State {
         } else if (event.id == "end turn") {
           postEvent(new EndTurn());
         } else if (event.id == "move button") {
+          bombarding = false;
+          map.disableBombard();
           if (parties[selectedCellY][selectedCellX].player == turn) {
             moving = !moving;
             if (moving) {
@@ -1636,6 +1638,8 @@ class Game extends State {
           postEvent(new StockUpEquipment(selectedCellX, selectedCellY));
         } else if (event.id.equals("bombardment button")) {
           bombarding = !bombarding;
+          moving = false;
+          map.cancelMoveNodes();
           if (bombarding) {
             map.enableBombard(gameData.getJSONArray("equipment").getJSONObject(1).getJSONArray("types").getJSONObject(parties[selectedCellY][selectedCellX].equipment[1]).getInt("range"));
           } else {
@@ -2003,6 +2007,8 @@ class Game extends State {
               map.cancelMoveNodes();
             } else {
               moving = true;
+              bombarding = false;
+              map.disableBombard();
               map.updateMoveNodes(djk(selectedCellX, selectedCellY));
               refreshTooltip();
             }
