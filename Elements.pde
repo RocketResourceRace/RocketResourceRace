@@ -356,6 +356,22 @@ class EquipmentManager extends Element {
     }
     return blockedClasses;
   }
+  
+  boolean[] getHoveringBlockedClasses(){
+    boolean[] blockedClasses = new boolean[jsManager.getNumEquipmentClasses()];
+    if (selectedClass != -1){
+      if (hoveringOverType() != -1 && hoveringOverType() < jsManager.getNumEquipmentTypesFromClass(selectedClass)){
+        String[] otherBlocking = jsManager.getOtherClassBlocking(selectedClass, hoveringOverType());
+        if (otherBlocking != null){
+          for (int j=0; j < otherBlocking.length; j ++){
+            int classIndex = jsManager.getEquipmentClassFromID(otherBlocking[j]);
+            blockedClasses[classIndex] = true;
+          }
+        }
+      }
+    }
+    return blockedClasses;
+  }
 
   void draw(PGraphics panelCanvas) {
     
@@ -372,6 +388,7 @@ class EquipmentManager extends Element {
     panelCanvas.rect(x, y, w, boxHeight);
     
     boolean[] blockedClasses = getBlockedClasses();
+    boolean[] potentialBlockedClasses = getHoveringBlockedClasses();
     
     for (int i = 0; i < jsManager.getNumEquipmentClasses(); i ++) {
       if (!blockedClasses[i]){
@@ -380,8 +397,15 @@ class EquipmentManager extends Element {
           panelCanvas.fill(140);
         }
         else{
-          panelCanvas.strokeWeight(1);
-          panelCanvas.noFill();
+          if (!potentialBlockedClasses[i]){
+            panelCanvas.strokeWeight(1);
+            panelCanvas.noFill();
+          }
+          else{
+            //Hovering over equipment type that blocks this class
+            panelCanvas.strokeWeight(1);
+            panelCanvas.fill(100);
+          }
         }
         panelCanvas.rect(x+boxWidth*i, y, boxWidth, boxHeight);
         if (currentEquipment[i] != -1){
@@ -402,7 +426,7 @@ class EquipmentManager extends Element {
         }
       }
       else{
-        panelCanvas.strokeWeight(3);
+        panelCanvas.strokeWeight(2);
         panelCanvas.fill(60);
         panelCanvas.rect(x+boxWidth*i, y, boxWidth, boxHeight);
       }
