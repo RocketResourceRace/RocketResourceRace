@@ -88,6 +88,9 @@ class IncrementElement extends Element {
       }
     }
     if (eventType.equals("mouseReleased")){
+      if (grabbed){
+        events.add("valueChanged");
+      }
       grabbed = false;
       pressing = -1;
     }
@@ -97,7 +100,6 @@ class IncrementElement extends Element {
         if (change != 0){
           setValue(startingValue+change);
           setValueWithinBounds();
-          events.add("valueChanged");
         }
       }
     }
