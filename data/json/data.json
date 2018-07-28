@@ -1456,6 +1456,7 @@
   ],
 
   "tooltips":{
+    "unequip": "Unequip current equipment\n",
     "move button": "A party can only move if it has enough\nmovement points",
     "moving": "Move party",
     "moving splitting": "Move the units selected",

@@ -1940,7 +1940,7 @@ class Game extends State {
       if (((EquipmentManager)getElement("equipment manager", "party management")).mouseOverTypes() && getPanel("party management").visible) {
         int hoveringType = ((EquipmentManager)getElement("equipment manager", "party management")).hoveringOverType();
         int equipmentClass = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
-        tooltip.setEquipment(equipmentClass, hoveringType, players[turn].resources, parties[selectedCellY][selectedCellX]);
+        tooltip.setEquipment(equipmentClass, hoveringType, players[turn].resources, parties[selectedCellY][selectedCellX], isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, parties[selectedCellY][selectedCellX].getEquipment(equipmentClass)));
         tooltip.show();
       } else if (((TaskManager)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible) {
         tooltip.setTask(((TaskManager)getElement("tasks", "party management")).findMouseOver(), players[turn].resources, parties[selectedCellY][selectedCellX].getMovementPoints());

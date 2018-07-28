@@ -404,7 +404,7 @@ class EquipmentManager extends Element {
           else{
             //Hovering over equipment type that blocks this class
             panelCanvas.strokeWeight(1);
-            panelCanvas.fill(100);
+            panelCanvas.fill(110);
           }
         }
         panelCanvas.rect(x+boxWidth*i, y, boxWidth, boxHeight);
@@ -427,8 +427,12 @@ class EquipmentManager extends Element {
       }
       else{
         panelCanvas.strokeWeight(2);
-        panelCanvas.fill(60);
+        panelCanvas.fill(80);
         panelCanvas.rect(x+boxWidth*i, y, boxWidth, boxHeight);
+        panelCanvas.fill(0);
+        panelCanvas.textAlign(CENTER, TOP);
+        panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
+        panelCanvas.text(equipmentClassDisplayNames[i], x+boxWidth*(i+0.5), y);
       }
     }
     
@@ -467,9 +471,9 @@ class EquipmentManager extends Element {
       }
       if (currentEquipment[selectedClass] != -1){
         panelCanvas.fill(170);
-        panelCanvas.rect(x+selectedClass*boxWidth, y+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropH+boxHeight, boxWidth, dropH);
+        panelCanvas.rect(dropX, dropY+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropH, dropW, dropH);
         panelCanvas.fill(0);
-        panelCanvas.text("Unequip", 3+x+selectedClass*boxWidth, y+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropH+boxHeight);
+        panelCanvas.text("Unequip", 3+dropX, dropY+jsManager.getNumEquipmentTypesFromClass(selectedClass)*dropH);
       }
     }
     if (selectedClass != -1){
@@ -1348,7 +1352,7 @@ class Tooltip extends Element {
     }
   }
   
-  void setEquipment(int equipmentClass, int equipmentType, float availableResources[], Party party){
+  void setEquipment(int equipmentClass, int equipmentType, float availableResources[], Party party, boolean collectionAllowed){
     // Tooltip is hovering over equipment manager, specifically over one of the equipmment types
     String t="";
     try{
@@ -1357,105 +1361,114 @@ class Tooltip extends Element {
         LOGGER_MAIN.warning("equipment class out of bounds");
         return;
       }
-      if (equipmentType >= jsManager.getNumEquipmentTypesFromClass(equipmentClass)){
-        LOGGER_MAIN.warning("equipment class out of bounds");
-        return;
-      }
-      JSONObject equipmentClassJO = gameData.getJSONArray("equipment").getJSONObject(equipmentClass);
-      if (equipmentClassJO == null){
-        setText("Problem");
-        LOGGER_MAIN.warning("Equipment class not found with tooltip:"+equipmentClass);
-        return;
-      }
-      JSONObject equipmentTypeJO = equipmentClassJO.getJSONArray("types").getJSONObject(equipmentType);
-      if (equipmentTypeJO == null){
-        setText("Problem");
-        LOGGER_MAIN.warning("Equipment type not found with tooltip:"+equipmentType);
-        return;
-      }
-      if (!equipmentTypeJO.isNull("display name")) {
-        t += equipmentTypeJO.getString("display name")+"\n\n";
-      }
-      
-      if (!equipmentTypeJO.isNull("description")) {
-        t += equipmentTypeJO.getString("description")+"\n\n";
-      }
-      
-      // Using 'display multipliers' array so ordering is consistant
-      if (!equipmentClassJO.isNull("display multipliers")){
-        t += "Proficiency Bonus Multipliers:\n";
-        for (int i=0; i < equipmentClassJO.getJSONArray("display multipliers").size(); i++){
-          String multiplierName = equipmentClassJO.getJSONArray("display multipliers").getString(i);
-          if (!equipmentTypeJO.isNull(multiplierName)){
-            if (equipmentTypeJO.getFloat(multiplierName) > 0){
-              t += String.format("%s: <g>+%s</g>\n", multiplierName, roundDp("+"+equipmentTypeJO.getFloat(multiplierName), 2));
-            } else {
-              t += String.format("%s: <r>%s</r>\n", multiplierName, roundDp(""+equipmentTypeJO.getFloat(multiplierName), 2));
+      if (equipmentType > jsManager.getNumEquipmentTypesFromClass(equipmentClass)){
+        LOGGER_MAIN.warning("equipment class out of bounds:"+equipmentType);
+      } else if (equipmentType == jsManager.getNumEquipmentTypesFromClass(equipmentClass)){
+        JSONObject jo = gameData.getJSONObject("tooltips");
+        t += jo.getString("unequip");
+        if (collectionAllowed){
+          t += "All equipment will be returned to stockpile";
+        }
+        else{
+          t += "Equipment will be destroyed";
+        }
+      } else{
+        JSONObject equipmentClassJO = gameData.getJSONArray("equipment").getJSONObject(equipmentClass);
+        if (equipmentClassJO == null){
+          setText("Problem");
+          LOGGER_MAIN.warning("Equipment class not found with tooltip:"+equipmentClass);
+          return;
+        }
+        JSONObject equipmentTypeJO = equipmentClassJO.getJSONArray("types").getJSONObject(equipmentType);
+        if (equipmentTypeJO == null){
+          setText("Problem");
+          LOGGER_MAIN.warning("Equipment type not found with tooltip:"+equipmentType);
+          return;
+        }
+        if (!equipmentTypeJO.isNull("display name")) {
+          t += equipmentTypeJO.getString("display name")+"\n\n";
+        }
+        
+        if (!equipmentTypeJO.isNull("description")) {
+          t += equipmentTypeJO.getString("description")+"\n\n";
+        }
+        
+        // Using 'display multipliers' array so ordering is consistant
+        if (!equipmentClassJO.isNull("display multipliers")){
+          t += "Proficiency Bonus Multipliers:\n";
+          for (int i=0; i < equipmentClassJO.getJSONArray("display multipliers").size(); i++){
+            String multiplierName = equipmentClassJO.getJSONArray("display multipliers").getString(i);
+            if (!equipmentTypeJO.isNull(multiplierName)){
+              if (equipmentTypeJO.getFloat(multiplierName) > 0){
+                t += String.format("%s: <g>+%s</g>\n", multiplierName, roundDp("+"+equipmentTypeJO.getFloat(multiplierName), 2));
+              } else {
+                t += String.format("%s: <r>%s</r>\n", multiplierName, roundDp(""+equipmentTypeJO.getFloat(multiplierName), 2));
+              }
+            }
+          }
+          t += "\n";
+        }
+        
+        // Other attributes e.g. range
+        if (!equipmentClassJO.isNull("other attributes")){
+          t += "Other Attributes:\n";
+          for (int i=0; i < equipmentClassJO.getJSONArray("other attributes").size(); i++){
+            String attribute = equipmentClassJO.getJSONArray("other attributes").getString(i);
+            if (!equipmentTypeJO.isNull(attribute)){
+              t += String.format("%s: %s\n", attribute, roundDp("+"+equipmentTypeJO.getFloat(attribute), 0));
+            }
+          }
+          t += "\n";
+        }
+        
+        // Display other classes that are blocked (if applicable)
+        if (!equipmentTypeJO.isNull("other class blocking")){
+          t += "Equipment blocks other classes: ";
+          for (int i=0; i < equipmentTypeJO.getJSONArray("other class blocking").size(); i++){
+            if (i < equipmentTypeJO.getJSONArray("other class blocking").size()-1){
+              t += String.format("%s, ", equipmentTypeJO.getJSONArray("other class blocking").getString(i));
+            }
+            else{
+              t += String.format("%s", equipmentTypeJO.getJSONArray("other class blocking").getString(equipmentTypeJO.getJSONArray("other class blocking").size()-1));
+            }
+          }
+          t += "\n\n";
+        }
+        
+        // Display amount of equipment available vs needed for party
+        int resourceIndex = 0;
+        try{
+          resourceIndex = jsManager.getResIndex(equipmentTypeJO.getString("id"));
+        } 
+        catch (Exception e){
+          LOGGER_MAIN.log(Level.WARNING, String.format("Error finding resource for equipment class:%d, type:%d", equipmentClass, equipmentType), e);
+          throw e;
+        }
+        if (floor(availableResources[resourceIndex]) >= party.getUnitNumber()){
+          t += String.format("Equipment Available: %d/%d", floor(availableResources[resourceIndex]), party.getUnitNumber());
+        } else{
+          t += String.format("Equipment Available: <r>%d</r>/%d", floor(availableResources[resourceIndex]), party.getUnitNumber());
+        }
+        
+        // Show where equipment can be stocked up
+        if (!equipmentTypeJO.isNull("valid collection sites")){
+          t += String.format("\n\n%s can be stocked up at: ", equipmentTypeJO.getString("display name"));
+          for (int i=0; i < equipmentTypeJO.getJSONArray("valid collection sites").size(); i ++){
+            t += equipmentTypeJO.getJSONArray("valid collection sites").getString(i);
+            if (i+1 < equipmentTypeJO.getJSONArray("valid collection sites").size()){
+              t += ", ";
             }
           }
         }
-        t += "\n";
-      }
-      
-      // Other attributes e.g. range
-      if (!equipmentClassJO.isNull("other attributes")){
-        t += "Other Attributes:\n";
-        for (int i=0; i < equipmentClassJO.getJSONArray("other attributes").size(); i++){
-          String attribute = equipmentClassJO.getJSONArray("other attributes").getString(i);
-          if (!equipmentTypeJO.isNull(attribute)){
-            t += String.format("%s: %s\n", attribute, roundDp("+"+equipmentTypeJO.getFloat(attribute), 0));
-          }
+        else{
+          t += String.format("\n\n%s can be stocked up anywhere", equipmentTypeJO.getString("display name"));
         }
-        t += "\n";
-      }
-      
-      // Display other classes that are blocked (if applicable)
-      if (!equipmentTypeJO.isNull("other class blocking")){
-        t += "Equipment blocks other classes: ";
-        for (int i=0; i < equipmentTypeJO.getJSONArray("other class blocking").size(); i++){
-          if (i < equipmentTypeJO.getJSONArray("other class blocking").size()-1){
-            t += String.format("%s, ", equipmentTypeJO.getJSONArray("other class blocking").getString(i));
-          }
-          else{
-            t += String.format("%s", equipmentTypeJO.getJSONArray("other class blocking").getString(equipmentTypeJO.getJSONArray("other class blocking").size()-1));
-          }
+        
+        if (party.getMovementPoints() != party.getMaxMovementPoints()){
+          t += "\n<r>Equipment can only be changed\nif party has full movement points</r>";
+        } else{
+          t += "\n(Equipment can only be changed\nif party has full movement points)";
         }
-        t += "\n\n";
-      }
-      
-      // Display amount of equipment available vs needed for party
-      int resourceIndex = 0;
-      try{
-        resourceIndex = jsManager.getResIndex(equipmentTypeJO.getString("id"));
-      } 
-      catch (Exception e){
-        LOGGER_MAIN.log(Level.WARNING, String.format("Error finding resource for equipment class:%d, type:%d", equipmentClass, equipmentType), e);
-        throw e;
-      }
-      if (floor(availableResources[resourceIndex]) >= party.getUnitNumber()){
-        t += String.format("Equipment Available: %d/%d", floor(availableResources[resourceIndex]), party.getUnitNumber());
-      } else{
-        t += String.format("Equipment Available: <r>%d</r>/%d", floor(availableResources[resourceIndex]), party.getUnitNumber());
-      }
-      
-      // Show where equipment can be stocked up
-      if (!equipmentTypeJO.isNull("valid collection sites")){
-        t += String.format("\n\n%s can be stocked up at: ", equipmentTypeJO.getString("display name"));
-        for (int i=0; i < equipmentTypeJO.getJSONArray("valid collection sites").size(); i ++){
-          t += equipmentTypeJO.getJSONArray("valid collection sites").getString(i);
-          if (i+1 < equipmentTypeJO.getJSONArray("valid collection sites").size()){
-            t += ", ";
-          }
-        }
-      }
-      else{
-        t += String.format("\n\n%s can be stocked up anywhere", equipmentTypeJO.getString("display name"));
-      }
-      
-      if (party.getMovementPoints() != party.getMaxMovementPoints()){
-        t += "\n<r>Equipment can only be changed\nif party has full movement points</r>";
-      } else{
-        t += "\n(Equipment can only be changed\nif party has full movement points)";
       }
       
       setText(t.replaceAll("\\s+$", ""));

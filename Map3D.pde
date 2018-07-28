@@ -1571,7 +1571,6 @@ class Map3D extends BaseMap implements Map {
       
       bombardArrow.endShape();
       bombardArrow.setVisible(true);
-      println("t");
     }
   }
   
