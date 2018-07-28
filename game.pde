@@ -1942,7 +1942,7 @@ class Game extends State {
         int equipmentClass = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
         tooltip.setEquipment(equipmentClass, hoveringType, players[turn].resources, parties[selectedCellY][selectedCellX], isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, parties[selectedCellY][selectedCellX].getEquipment(equipmentClass)));
         tooltip.show();
-      } else if (((TaskManager)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible) {
+      } else if (((TaskManager)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible && !((TaskManager)getElement("tasks", "party management")).scrolling && !((TaskManager)getElement("tasks", "party management")).hovingOverScroll()) {
         tooltip.setTask(((TaskManager)getElement("tasks", "party management")).findMouseOver(), players[turn].resources, parties[selectedCellY][selectedCellX].getMovementPoints());
         tooltip.show();
       } else if(((ProficiencySummary)getElement("proficiency summary", "party management")).mouseOver() && getPanel("party management").visible) {

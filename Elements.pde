@@ -2272,7 +2272,7 @@ class TaskManager extends Element {
         }
       }
     } else if (eventType.equals("mousePressed")) {
-      if (d > 0 && moveOver() && mouseX-xOffset>x+w-SCROLLWIDTH) {  
+      if (hovingOverScroll()) {  
         // If hovering over scroll bar, set scroll to mouse pos
         scrolling = true;
         scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/(h*min(availableButOverBudgetOptions.size()+availableOptions.size()-scroll, numDisplayed)), d));
@@ -2326,6 +2326,10 @@ class TaskManager extends Element {
       LOGGER_MAIN.log(Level.SEVERE, "Error finding mouse over option", e);
       throw e;
     }
+  }
+  boolean hovingOverScroll(){
+    int d = availableOptions.size() + availableButOverBudgetOptions.size() - numDisplayed;
+    return d > 0 && moveOver() && mouseX-xOffset>x+w-SCROLLWIDTH;
   }
 
   boolean moveOver() {
