@@ -1428,7 +1428,8 @@
           "display name": "APC",
           "speed": 3,
           "defence": 5,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Armoury"],
+          "other class blocking": ["armour"],
         },
       ]
     },
@@ -1455,6 +1456,7 @@
   ],
 
   "tooltips":{
+    "unequip": "Unequip current equipment\n",
     "move button": "A party can only move if it has enough\nmovement points",
     "moving": "Move party",
     "moving splitting": "Move the units selected",
