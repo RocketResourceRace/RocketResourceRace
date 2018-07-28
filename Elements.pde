@@ -1385,6 +1385,20 @@ class Tooltip extends Element {
         t += "\n";
       }
       
+      // Display other classes that are blocked (if applicable)
+      if (!equipmentTypeJO.isNull("other class blocking")){
+        t += "Equipment blocks other classes: ";
+        for (int i=0; i < equipmentTypeJO.getJSONArray("other class blocking").size(); i++){
+          if (i < equipmentTypeJO.getJSONArray("other class blocking").size()-1){
+            t += String.format("%s, ", equipmentTypeJO.getJSONArray("other class blocking").getString(i));
+          }
+          else{
+            t += String.format("%s", equipmentTypeJO.getJSONArray("other class blocking").getString(equipmentTypeJO.getJSONArray("other class blocking").size()-1));
+          }
+        }
+        t += "\n\n";
+      }
+      
       // Display amount of equipment available vs needed for party
       int resourceIndex = 0;
       try{
