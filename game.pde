@@ -107,12 +107,14 @@ class Game extends State {
       addPanel("land management", 0, 0, width, height, false, true, color(50, 200, 50), color(0));
       addPanel("party management", 0, 0, width, height, false, true, color(110, 110, 255), color(0));
       addPanel("bottom bar", 0, height-70, width, 70, true, true, color(150), color(50));
+      addPanel("resource management", width/4, height/4, width/2, height/2, false, false, color(200), color(0));
       addPanel("end screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
       addPanel("pause screen", 0, 0, width, height, false, true, color(50, 50, 50, 50), color(0));
       addPanel("save screen", (int)(width/2+jsManager.loadFloatSetting("gui scale")*150+(int)(jsManager.loadFloatSetting("gui scale")*20)), (int)(height/2-5*jsManager.loadFloatSetting("gui scale")*40), (int)(jsManager.loadFloatSetting("gui scale")*500), (int)(jsManager.loadFloatSetting("gui scale")*500), false, false, color(50), color(0));
       addPanel("overlay", 0, 0, width, height, true, false, color(255, 255), color(255, 255));
       addPanel("console", 0, height/2, width, height/2, false, true, color(0, 220), color(255, 0));
 
+      getPanel("resource management").setOverrideBlocking(true);
       getPanel("save screen").setOverrideBlocking(true);
 
       addElement("0tooltip", new Tooltip(), "overlay");
@@ -153,12 +155,14 @@ class Game extends State {
       addElement("idle party finder", new Button(bezel*2+buttonW, bezel, buttonW, buttonH, color(150), color(50), color(0), 10, CENTER, "Idle Party"), "bottom bar");
       addElement("resource summary", new ResourceSummary(0, 0, 70, resourceNames, startingResources, totals), "bottom bar");
       int resSummaryX = width-((ResourceSummary)(getElement("resource summary", "bottom bar"))).totalWidth();
-      addElement("resource expander", new Button(resSummaryX-50, bezel, 30, 30, color(150), color(50), color(0), 10, CENTER, "<"), "bottom bar");
+      addElement("resource detailed", new Button(resSummaryX-50, bezel, 30, 20, color(150), color(50), color(0), 13, CENTER, "^"), "bottom bar");
+      addElement("resource expander", new Button(resSummaryX-50, 2*bezel+20, 30, 20, color(150), color(50), color(0), 10, CENTER, "<"), "bottom bar");
       addElement("turn number", new TextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", color(0, 0, 255), 0), "bottom bar");
       addElement("2d 3d toggle", new ToggleButton(bezel*4+buttonW*3, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), jsManager.loadBooleanSetting("map is 3d"), "3D View"), "bottom bar");
       addElement("task icons toggle", new ToggleButton(round(bezel*5+buttonW*3.5), bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Task Icons"), "bottom bar");
       addElement("unit number bars toggle", new ToggleButton(bezel*6+buttonW*4, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Unit Bars"), "bottom bar");
       addElement("console", new Console(0, 0, width, height/2, 10), "console");
+      addElement("resource management", new ResourceManagement(width/4, height/4, width/2, height/2), "resource management");
       //int x, int y, int w, int h, color bgColour, color strokeColour, boolean value, String name
 
       prevIdle = new ArrayList<Integer[]>();
@@ -1598,13 +1602,24 @@ class Game extends State {
           }
         } else if (event.id == "resource expander") {
           ResourceSummary r = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
-          Button b = ((Button)(getElement("resource expander", "bottom bar")));
+          Button b1 = ((Button)(getElement("resource expander", "bottom bar")));
+          Button b2 = ((Button)(getElement("resource detailed", "bottom bar")));
           r.toggleExpand();
-          b.transform(width-r.totalWidth()-50, bezel, 30, 30);
-          if (b.getText() == ">")
-            b.setText("<");
+          b1.transform(width-r.totalWidth()-50, bezel*2+25, 30, 25);
+          b2.transform(width-r.totalWidth()-50, bezel, 30, 25);
+          if (b1.getText() == ">")
+            b1.setText("<");
           else
-            b.setText(">");
+            b1.setText(">");
+        } else if (event.id == "resource detailed") {
+          getPanel("resource management").setVisible(!getPanel("resource management").visible);
+          ResourceManagement r = ((ResourceManagement)(getElement("resource management", "resource management")));
+          Button b = ((Button)(getElement("resource detailed", "bottom bar")));
+          r.toggleExpand();
+          if (b.getText() == "^")
+            b.setText("v");
+          else
+            b.setText("^");
         } else if (event.id.equals("end game button")) {
           jsManager.writeSettings();
           newState = "menu";

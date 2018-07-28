@@ -2925,3 +2925,24 @@ class BombardButton extends Button {
     panelCanvas.image(img, super.x+2, super.y+2);
   }
 }
+
+class ResourceManagement extends Element {
+  int page;
+  ResourceManagement(int x, int y, int w, int h) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+  }
+  
+  void toggleExpand() {
+    this.visible = !this.visible;
+    this.active = this.visible;
+  }
+  
+  void draw(PGraphics canvas) {
+    
+  }
+  
+  
+}
