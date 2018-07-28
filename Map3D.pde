@@ -729,19 +729,8 @@ class Map3D extends BaseMap implements Map {
           }
         }
       }
-
-      LOGGER_MAIN.finer("Loading bombard arrow");
-      fill(255, 0, 0);
+      
       bombardArrow = createShape();
-      bombardArrow.beginShape();
-      bombardArrow.vertex(0, 0, 0);
-      bombardArrow.bezierVertex(0, 0, 0, 0, 0, 0, 0, 0, 0);
-      bombardArrow.vertex(0, 0, 0);
-      bombardArrow.vertex(0, 0, 0);
-      bombardArrow.vertex(0, 0, 0);
-      bombardArrow.vertex(0, 0, 0);
-      bombardArrow.bezierVertex(0, 0, 0, 0, 0, 0, 0, 0, 0);
-      bombardArrow.endShape();
 
       popStyle();
       cinematicMode = false;
@@ -1112,11 +1101,11 @@ class Map3D extends BaseMap implements Map {
       // update highlight grid if hovering over diffent pos
       if (!(hoveringX == oldHoveringX && hoveringY == oldHoveringY)) {
         updateHighlightingGrid(hoveringX, hoveringY, 8, 8);
-        oldHoveringX = hoveringX;
-        oldHoveringY = hoveringY;
-        if (showingBombard) {
+        if (showingBombard && !(int(hoveringX) == int(oldHoveringX) && int(hoveringY) == int(oldHoveringY))) {
           updateBombard();
         }
+        oldHoveringX = hoveringX;
+        oldHoveringY = hoveringY;
       }
 
 
@@ -1533,21 +1522,53 @@ class Map3D extends BaseMap implements Map {
     if (pos.equals(new PVector(-1, -1, -1)) || dist(x, y, selectedCellX, selectedCellY) > bombardRange || (x == selectedCellX && y == selectedCellY)) {
       bombardArrow.setVisible(false);
     } else {
+      LOGGER_MAIN.finer("Loading bombard arrow");
       PVector startPos = new PVector((selectedCellX+0.5)*blockSize, (selectedCellY+0.5)*blockSize, getHeight(selectedCellX+0.5, selectedCellY+0.5));
       PVector endPos = new PVector((x+0.5)*blockSize, (y+0.5)*blockSize, getHeight(x+0.5, y+0.5));
       float rotation = -atan2(startPos.x-endPos.x, startPos.y - endPos.y)+0.0001;
-      bombardArrow.setVertex(0, PVector.add(startPos, new PVector(-blockSize*0.1*cos(rotation), -blockSize*0.1*sin(rotation), 0)));
-      bombardArrow.setVertex(1, PVector.add(startPos, endPos).mult(0.5).add(new PVector(-blockSize*0.1*cos(rotation), -blockSize*0.1*sin(rotation), 2*blockSize)));
-      bombardArrow.setVertex(2, PVector.add(startPos, endPos).mult(0.5).add(new PVector(-blockSize*0.1*cos(rotation), -blockSize*0.1*sin(rotation), 2*blockSize)));
-      bombardArrow.setVertex(3, PVector.add(endPos, new PVector(-blockSize*0.1*cos(rotation), -blockSize*0.1*sin(rotation), blockSize/4)));
-      bombardArrow.setVertex(4, PVector.add(endPos, new PVector(-blockSize*0.2*cos(rotation), -blockSize*0.2*sin(rotation), blockSize/4)));
-      bombardArrow.setVertex(5, endPos);
-      bombardArrow.setVertex(6, PVector.add(endPos, new PVector(blockSize*0.2*cos(rotation), blockSize*0.2*sin(rotation), blockSize/4)));
-      bombardArrow.setVertex(7, PVector.add(endPos, new PVector(blockSize*0.1*cos(rotation), blockSize*0.1*sin(rotation), blockSize/4)));
-      bombardArrow.setVertex(8, PVector.add(startPos, endPos).mult(0.5).add(new PVector(blockSize*0.1*cos(rotation), blockSize*0.1*sin(rotation), 2*blockSize)));
-      bombardArrow.setVertex(9, PVector.add(startPos, endPos).mult(0.5).add(new PVector(blockSize*0.1*cos(rotation), blockSize*0.1*sin(rotation), 2*blockSize)));
-      bombardArrow.setVertex(10, PVector.add(startPos, new PVector(blockSize*0.1*cos(rotation), blockSize*0.1*sin(rotation), 0)));
+      PVector thicknessAdder = new PVector(blockSize*0.1*cos(rotation), blockSize*0.1*sin(rotation), 0);
+      PVector startPosA = PVector.add(startPos, thicknessAdder);
+      PVector startPosB = PVector.sub(startPos, thicknessAdder);
+      PVector endPosA = PVector.add(endPos, thicknessAdder);
+      PVector endPosB = PVector.sub(endPos, thicknessAdder);
+      fill(255, 0, 0);
+      bombardArrow = createShape();
+      bombardArrow.beginShape(TRIANGLES);
+      float INCREMENT = 0.01;
+      PVector currentPosA = startPosA.copy();
+      PVector currentPosB = startPosB.copy();
+      PVector nextPosA;
+      PVector nextPosB;
+      for (float i = 0; i <= 1 && currentPosA.dist(endPosA) > blockSize*0.2; i += INCREMENT) {
+        nextPosA = PVector.add(startPosA, PVector.mult(PVector.sub(endPosA, startPosA), i)).add(new PVector(0, 0, blockSize*4*i*(1-i)));
+        nextPosB = PVector.add(startPosB, PVector.mult(PVector.sub(endPosB, startPosB), i)).add(new PVector(0, 0, blockSize*4*i*(1-i)));
+        bombardArrow.vertex(currentPosA.x, currentPosA.y, currentPosA.z);
+        bombardArrow.vertex(currentPosB.x, currentPosB.y, currentPosB.z);
+        bombardArrow.vertex(nextPosA.x, nextPosA.y, nextPosA.z);
+        bombardArrow.vertex(currentPosB.x, currentPosB.y, currentPosB.z);
+        bombardArrow.vertex(nextPosA.x, nextPosA.y, nextPosA.z);
+        bombardArrow.vertex(nextPosB.x, nextPosB.y, nextPosB.z);
+        currentPosA = nextPosA;
+        currentPosB = nextPosB;
+      }
+      
+      PVector temp = PVector.add(currentPosA, thicknessAdder);
+      bombardArrow.vertex(currentPosA.x, currentPosA.y, currentPosA.z);
+      bombardArrow.vertex(temp.x, temp.y, temp.z);
+      bombardArrow.vertex(endPos.x, endPos.y, endPos.z);
+      
+      bombardArrow.vertex(currentPosA.x, currentPosA.y, currentPosA.z);
+      bombardArrow.vertex(currentPosB.x, currentPosB.y, currentPosB.z);
+      bombardArrow.vertex(endPos.x, endPos.y, endPos.z);
+      
+      temp = PVector.sub(currentPosB, thicknessAdder);
+      bombardArrow.vertex(currentPosB.x, currentPosB.y, currentPosB.z);
+      bombardArrow.vertex(temp.x, temp.y, temp.z);
+      bombardArrow.vertex(endPos.x, endPos.y, endPos.z);
+      
+      bombardArrow.endShape();
       bombardArrow.setVisible(true);
+      println("t");
     }
   }
   
