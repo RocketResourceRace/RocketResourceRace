@@ -1428,7 +1428,8 @@
           "display name": "APC",
           "speed": 3,
           "defence": 5,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Armoury"],
+          "other class blocking": ["armour"],
         },
       ]
     },
