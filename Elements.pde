@@ -2943,6 +2943,4 @@ class ResourceManagement extends Element {
   void draw(PGraphics canvas) {
     
   }
-  
-  
 }
