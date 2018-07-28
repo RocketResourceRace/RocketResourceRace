@@ -288,13 +288,14 @@ class EquipmentManager extends Element {
   ArrayList<String> mouseEvent(String eventType, int button) {
     ArrayList<String> events = new ArrayList<String>();
     if (eventType.equals("mouseClicked")) {
+      boolean[] blockedClasses = getBlockedClasses();
       if (mouseOverClasses()) {
         if (button == LEFT){
           int newSelectedClass = hoveringOverClass();
           if (newSelectedClass == selectedClass){  // If selecting same option
             selectedClass = -1;
           }
-          else{
+          else if (newSelectedClass == -1 || !blockedClasses[newSelectedClass]){
             selectedClass = newSelectedClass;
             events.add("dropped");
             events.add("stop events");
@@ -314,7 +315,7 @@ class EquipmentManager extends Element {
           events.add("stop events");
           equipmentToChange.add(new int[] {selectedClass, -1});
         }
-        else if (newSelectedType != currentEquipment[selectedClass]){
+        else if (newSelectedType != currentEquipment[selectedClass] && !blockedClasses[selectedClass]){
           events.add("valueChanged");
           events.add("stop events");
           equipmentToChange.add(new int[] {selectedClass, newSelectedType});
@@ -339,6 +340,22 @@ class EquipmentManager extends Element {
       //panelCanvas.rect(shadowX-i, shadowY-i, shadowW+i*2, shadowH+i*2, i);
     }
   }
+  
+  boolean[] getBlockedClasses(){
+    boolean[] blockedClasses = new boolean[jsManager.getNumEquipmentClasses()];
+    for (int i = 0; i < blockedClasses.length; i ++) {
+      if (currentEquipment[i] != -1){
+        String[] otherBlocking = jsManager.getOtherClassBlocking(i, currentEquipment[i]);
+        if (otherBlocking != null){
+          for (int j=0; j < otherBlocking.length; j ++){
+            int classIndex = jsManager.getEquipmentClassFromID(otherBlocking[j]);
+            blockedClasses[classIndex] = true;
+          }
+        }
+      }
+    }
+    return blockedClasses;
+  }
 
   void draw(PGraphics panelCanvas) {
     
@@ -353,31 +370,41 @@ class EquipmentManager extends Element {
     panelCanvas.strokeWeight(2);
     panelCanvas.fill(170);
     panelCanvas.rect(x, y, w, boxHeight);
+    
+    boolean[] blockedClasses = getBlockedClasses();
+    
     for (int i = 0; i < jsManager.getNumEquipmentClasses(); i ++) {
-      if (selectedClass == i){
-        panelCanvas.strokeWeight(3);
-        panelCanvas.fill(140);
+      if (!blockedClasses[i]){
+        if (selectedClass == i){
+          panelCanvas.strokeWeight(3);
+          panelCanvas.fill(140);
+        }
+        else{
+          panelCanvas.strokeWeight(1);
+          panelCanvas.noFill();
+        }
+        panelCanvas.rect(x+boxWidth*i, y, boxWidth, boxHeight);
+        if (currentEquipment[i] != -1){
+          panelCanvas.image(bigTempEquipmentImages.get(jsManager.getEquipmentTypeID(i, currentEquipment[i])), int(x+boxWidth*i)+(1-BIGIMAGESIZE)*boxWidth/2, y+(1-BIGIMAGESIZE)*boxHeight/2);
+        }
+        panelCanvas.fill(0);
+        panelCanvas.textAlign(CENTER, TOP);
+        panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
+        panelCanvas.text(equipmentClassDisplayNames[i], x+boxWidth*(i+0.5), y);
+        if (currentEquipment[i] != -1){
+          panelCanvas.textFont(getFont((TEXTSIZE-1)*jsManager.loadFloatSetting("text scale")));
+          panelCanvas.textAlign(CENTER, BOTTOM);
+          panelCanvas.text(jsManager.getEquipmentTypeDisplayName(i, currentEquipment[i]), x+boxWidth*(i+0.5), y+boxHeight);
+          if (currentEquipmentQuantities[i] < currentUnitNumber){
+            panelCanvas.fill(255, 0, 0);
+          }
+          panelCanvas.text(String.format("%d/%d", currentEquipmentQuantities[i], currentUnitNumber), x+boxWidth*(i+0.5), y+boxHeight-TEXTSIZE*jsManager.loadFloatSetting("text scale")+5);
+        }
       }
       else{
-        panelCanvas.strokeWeight(1);
-        panelCanvas.noFill();
-      }
-      panelCanvas.rect(x+boxWidth*i, y, boxWidth, boxHeight);
-      if (currentEquipment[i] != -1){
-        panelCanvas.image(bigTempEquipmentImages.get(jsManager.getEquipmentTypeID(i, currentEquipment[i])), int(x+boxWidth*i)+(1-BIGIMAGESIZE)*boxWidth/2, y+(1-BIGIMAGESIZE)*boxHeight/2);
-      }
-      panelCanvas.fill(0);
-      panelCanvas.textAlign(CENTER, TOP);
-      panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
-      panelCanvas.text(equipmentClassDisplayNames[i], x+boxWidth*(i+0.5), y);
-      if (currentEquipment[i] != -1){
-        panelCanvas.textFont(getFont((TEXTSIZE-1)*jsManager.loadFloatSetting("text scale")));
-        panelCanvas.textAlign(CENTER, BOTTOM);
-        panelCanvas.text(jsManager.getEquipmentTypeDisplayName(i, currentEquipment[i]), x+boxWidth*(i+0.5), y+boxHeight);
-        if (currentEquipmentQuantities[i] < currentUnitNumber){
-          panelCanvas.fill(255, 0, 0);
-        }
-        panelCanvas.text(String.format("%d/%d", currentEquipmentQuantities[i], currentUnitNumber), x+boxWidth*(i+0.5), y+boxHeight-TEXTSIZE*jsManager.loadFloatSetting("text scale")+5);
+        panelCanvas.strokeWeight(3);
+        panelCanvas.fill(60);
+        panelCanvas.rect(x+boxWidth*i, y, boxWidth, boxHeight);
       }
     }
     

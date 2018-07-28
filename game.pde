@@ -603,7 +603,12 @@ class Game extends State {
         try{
           
           //If new type is 'other class blocking', recycle any equipment in blocked classes
-          String[] otherBlocking = jsManager.getOtherClassBlocking(equipmentClass, newEquipmentType);
+          String[] otherBlocking;
+          if (equipmentClass != -1 && newEquipmentType != -1){
+            otherBlocking = jsManager.getOtherClassBlocking(equipmentClass, newEquipmentType);
+          } else{
+            otherBlocking = null;
+          }
           if (otherBlocking != null){
             for (int i=0; i < otherBlocking.length; i ++){
               int classIndex = jsManager.getEquipmentClassFromID(otherBlocking[i]);
