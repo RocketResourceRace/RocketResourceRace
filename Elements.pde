@@ -3010,9 +3010,9 @@ class BombardButton extends Button {
   }
 }
 
-class ResourceManagement extends Element {
+class ResourceManagementTable extends Element {
   int page;
-  ResourceManagement(int x, int y, int w, int h) {
+  ResourceManagementTable(int x, int y, int w, int h) {
     this.x = x;
     this.y = y;
     this.w = w;
@@ -3026,5 +3026,66 @@ class ResourceManagement extends Element {
   
   void draw(PGraphics canvas) {
     
+  }
+}
+
+class HorizontalOptionsButton extends DropDown {
+  HorizontalOptionsButton(int x, int y, int w, int h, int bgColour, int textSize, String[] options) {
+    super(x, y, w, h, bgColour, "", "", textSize);
+    setOptions(options);
+    expanded = true;
+  }
+  
+  void draw(PGraphics canvas) {
+    int hovering = hoveringOption();
+    canvas.pushStyle();
+
+    // draw selected option
+    canvas.stroke(color(0));
+    if (moveOver() && hovering == -1 && getElemOnTop()) {  // Hovering over top selected option
+      canvas.fill(brighten(bgColour, -20));
+    } else {
+      canvas.fill(brighten(bgColour, -40));
+    }
+    canvas.rect(x, y, w, h);
+    canvas.textAlign(LEFT, TOP);
+    canvas.textFont(getFont((min(h*0.8, textSize))*jsManager.loadFloatSetting("text scale")));
+    canvas.fill(color(0));
+
+    // Draw expand box
+    canvas.line(x+w-h, y+1, x+w-h/2, y+h-1);
+    canvas.line(x+w-h/2, y+h-1, x+w, y+1);
+    
+    int boxX = x;
+    for (int i=0; i < options.length; i++) {
+      if (i == selected) {
+        canvas.fill(brighten(bgColour, 50));
+      } else {
+        if (moveOver() && i == hovering && getElemOnTop()) {
+          canvas.fill(brighten(bgColour, 20));
+        } else {
+          canvas.fill(bgColour);
+        }
+      }
+      canvas.rect(boxX, y, w, h);
+      if (i == selected) {
+        canvas.fill(brighten(bgColour, 20));
+      } else {
+        canvas.fill(0);
+      }
+      canvas.text(options[i], boxX+3, y);
+      boxX += w;
+    }
+    canvas.popStyle();
+  }
+  boolean moveOver() {
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w*(options.length) && mouseY-yOffset >= y && mouseY-yOffset < y+h;
+  }
+  
+  int hoveringOption() {
+    if (!expanded) {
+      return -1;
+    }
+    return (mouseX-xOffset-x)/w;
   }
 }

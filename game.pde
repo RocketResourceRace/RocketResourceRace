@@ -161,9 +161,8 @@ class Game extends State {
       addElement("task icons toggle", new ToggleButton(round(bezel*5+buttonW*3.5), bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Task Icons"), "bottom bar");
       addElement("unit number bars toggle", new ToggleButton(bezel*6+buttonW*4, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Unit Bars"), "bottom bar");
       addElement("console", new Console(0, 0, width, height/2, 10), "console");
-      addElement("resource management", new ResourceManagement(width/4, height/4, width/2, height/2), "resource management");
-      addElement("resources page button", new Button(bezel, bezel, 100, 30, color(150), color(50), color(0), 10, CENTER, "Resources"), "resource management");
-      addElement("equipment page button", new Button(bezel+100, bezel, 100, 30, color(150), color(50), color(0), 10, CENTER, "Equipment"), "resource management");
+      addElement("resource management table", new ResourceManagementTable(width/4, height/4, width/2, height/2), "resource management");
+      addElement("resources pages button", new HorizontalOptionsButton(bezel, bezel, 100, 30, color(150), 10, new String[]{"Resources", "Equipment"}), "resource management");
       //int x, int y, int w, int h, color bgColour, color strokeColour, boolean value, String name
 
       prevIdle = new ArrayList<Integer[]>();
@@ -1619,7 +1618,7 @@ class Game extends State {
             b1.setText(">");
         } else if (event.id == "resource detailed") {
           getPanel("resource management").setVisible(!getPanel("resource management").visible);
-          ResourceManagement r = ((ResourceManagement)(getElement("resource management", "resource management")));
+          ResourceManagementTable r = ((ResourceManagementTable)(getElement("resource management table", "resource management")));
           Button b = ((Button)(getElement("resource detailed", "bottom bar")));
           r.toggleExpand();
           if (b.getText() == "^")
@@ -1666,26 +1665,9 @@ class Game extends State {
           } else {
             map.disableBombard();
           }
-        } else if (event.id.equals("resources page button")) {
-          Button b1 = ((Button)getElement("resources page button", "resource management"));
-          Button b2 = ((Button)getElement("equipment page button", "resource management"));
-          b1.active = false;
-          b1.textColour = color(100);
-          b1.bgColour = color(200);
-          b2.active = true;
-          b2.textColour = color(0);
-          b2.bgColour = color(150);
-          ((ResourceManagement)getElement("resource management", "resource management")).page = 0;
-        } else if (event.id.equals("equipment page button")) {
-          Button b1 = ((Button)getElement("equipment page button", "resource management"));
-          Button b2 = ((Button)getElement("resources page button", "resource management"));
-          b1.active = false;
-          b1.textColour = color(100);
-          b1.bgColour = color(200);
-          b2.active = true;
-          b2.textColour = color(0);
-          b2.bgColour = color(150);
-          ((ResourceManagement)getElement("resource management", "resource management")).page = 1;
+        } else if (event.id.equals("resources pages button")) {
+          HorizontalOptionsButton b = ((HorizontalOptionsButton)getElement("resources page button", "resource management"));
+          ((ResourceManagementTable)getElement("resource management table", "resource management")).page = b.selected;
         }
       }
       if (event.type.equals("valueChanged")) {
