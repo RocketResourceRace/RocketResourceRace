@@ -3142,10 +3142,23 @@ class HorizontalOptionsButton extends DropDown {
     return mouseX-xOffset >= x && mouseX-xOffset <= x+w*(options.length) && mouseY-yOffset >= y && mouseY-yOffset < y+h;
   }
 
-  int hoveringOption() {
-    if (!expanded) {
-      return -1;
+  ArrayList<String> mouseEvent(String eventType, int button) {
+    ArrayList<String> events = new ArrayList<String>();
+    if (eventType.equals("mouseClicked")) {
+      int hovering = hoveringOption();
+      if (moveOver()) {
+        if (hovering != -1) {
+          events.add("valueChanged");
+          selected = hovering;
+          contract();
+          events.add("stop events");
+        }
+      }
     }
+    return events;
+  }
+
+  int hoveringOption() {
     return (mouseX-xOffset-x)/w;
   }
 }
