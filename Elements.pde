@@ -8,7 +8,7 @@ class IncrementElement extends Element {
   private int upper, lower, value, step, bigStep;
   int startingX, startingValue, pressing;
   boolean grabbed;
-  
+
   IncrementElement(int x, int y, int w, int h, int upper, int lower, int startingValue, int step, int bigStep){
     this.x = x;
     this.y = y;
@@ -24,35 +24,35 @@ class IncrementElement extends Element {
     startingValue = value;
     pressing = -1;
   }
-  
+
   void setUpper(int upper){
     this.upper = upper;
   }
-  
+
   int getUpper(){
     return this.upper;
   }
-  
+
   void setLower(int lower){
     this.lower = lower;
   }
-  
+
   int getLower(){
     return this.lower;
   }
-  
+
   void setValue(int value){
     this.value = value;
   }
-  
+
   int getValue(){
     return this.value;
   }
-  
+
   void setValueWithinBounds(){
     value = int(between(lower, value, upper));
   }
-  
+
   ArrayList<String> mouseEvent(String eventType, int button) {
     ArrayList<String> events = new ArrayList<String>();
     if (eventType.equals("mouseClicked")){
@@ -62,7 +62,7 @@ class IncrementElement extends Element {
       } else if (button == RIGHT){  // Right clicking increments by more
         change = bigStep;
       }
-      
+
       if (mouseOverLeftBox()){
         setValue(getValue()-change);
         setValueWithinBounds();
@@ -105,10 +105,10 @@ class IncrementElement extends Element {
     }
     return events;
   }
-  
+
   void draw(PGraphics panelCanvas){
     panelCanvas.pushStyle();
-    
+
     //Draw middle box
     panelCanvas.strokeWeight(2);
     if (grabbed){
@@ -119,7 +119,7 @@ class IncrementElement extends Element {
       panelCanvas.fill(170);
     }
     panelCanvas.rect(x, y, w, h);
-    
+
     //draw left side box
     panelCanvas.strokeWeight(1);
     if (getElemOnTop() && mouseOverLeftBox()){
@@ -136,7 +136,7 @@ class IncrementElement extends Element {
     panelCanvas.strokeWeight(2);
     panelCanvas.line(x-ARROWOFFSET+SIDEBOXESWIDTH, y+ARROWOFFSET, x+ARROWOFFSET, y+h/2);
     panelCanvas.line(x+ARROWOFFSET, y+h/2, x-ARROWOFFSET+SIDEBOXESWIDTH, y+h-ARROWOFFSET);
-    
+
     //draw right side box
     if (getElemOnTop() && mouseOverRightBox()){
       if (pressing == 0){
@@ -152,32 +152,32 @@ class IncrementElement extends Element {
     panelCanvas.strokeWeight(2);
     panelCanvas.line(x+w+ARROWOFFSET-SIDEBOXESWIDTH, y+ARROWOFFSET, x+w-ARROWOFFSET, y+h/2);
     panelCanvas.line(x+w-ARROWOFFSET, y+h/2, x+w+ARROWOFFSET-SIDEBOXESWIDTH, y-ARROWOFFSET+h);
-    
+
     // Draw value
     panelCanvas.fill(0);
     panelCanvas.textFont(getFont(TEXTSIZE*jsManager.loadFloatSetting("text scale")));
     panelCanvas.textAlign(CENTER, CENTER);
     panelCanvas.text(value, x+w/2, y+h/2);
-    
+
     panelCanvas.popStyle();
   }
-  
+
   boolean mouseOverMiddleBox(){
     return mouseOver() && !mouseOverRightBox() && !mouseOverLeftBox();
   }
-  
+
   boolean mouseOverRightBox() {
     return mouseX-xOffset >= x+w-SIDEBOXESWIDTH && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
   }
-  
+
   boolean mouseOverLeftBox() {
     return mouseX-xOffset >= x && mouseX-xOffset <= x+SIDEBOXESWIDTH && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
   }
-  
+
   boolean mouseOver() {
     return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h;
   }
-  
+
   boolean pointOver(){
     return mouseOver();
   }
@@ -219,29 +219,29 @@ class EquipmentManager extends Element {
     }
 
     updateSizes();
-    
+
     selectedClass = -1;  // -1 represents nothing being selected
     equipmentToChange = new ArrayList<int[]>();
     tempEquipmentImages = new HashMap<String, PImage>();
     bigTempEquipmentImages = new HashMap<String, PImage>();
     oldDropH = 0;
   }
-  
+
   void updateSizes(){
 
     boxWidth = w/jsManager.getNumEquipmentClasses();
     boxHeight = boxWidth*BOXWIDTHHEIGHTRATIO;
     updateDropDownPositionAndSize();
   }
-  
+
   void updateDropDownPositionAndSize(){
     dropY = y+boxHeight;
     dropW = boxWidth * EXTRATYPEWIDTH;
     dropH = jsManager.loadFloatSetting("gui scale") * 32;
     dropX = between(x, x+boxWidth*selectedClass-(dropW-boxWidth)/2, x+w-dropW);
   }
-  
-  
+
+
   void resizeImages(){
     // Resize equipment icons
     for (int c=0; c < jsManager.getNumEquipmentClasses(); c++){
@@ -265,7 +265,7 @@ class EquipmentManager extends Element {
     this.x = x;
     this.y = y;
     this.w = w;
-    
+
     updateSizes();
   }
 
@@ -275,18 +275,18 @@ class EquipmentManager extends Element {
     currentEquipmentQuantities = party.getEquipmentQuantities();
     currentUnitNumber = party.getUnitNumber();
   }
-  
+
   float getBoxHeight(){
     return boxHeight;
   }
-  
+
   ArrayList<int[]> getEquipmentToChange(){
     // Also clears equipmentToChange
     ArrayList<int[]> temp = new ArrayList<int[]>(equipmentToChange);
     equipmentToChange.clear();
     return temp;
   }
-  
+
   ArrayList<String> mouseEvent(String eventType, int button) {
     ArrayList<String> events = new ArrayList<String>();
     if (eventType.equals("mouseClicked")) {
@@ -330,11 +330,11 @@ class EquipmentManager extends Element {
     }
     return events;
   }
-  
+
   int getSelectedClass(){
-    return selectedClass; 
+    return selectedClass;
   }
-  
+
   void drawShadow(PGraphics panelCanvas, float shadowX, float shadowY, float shadowW, float shadowH){
     panelCanvas.noStroke();
     for (int i = SHADOWSIZE; i > 0; i --){
@@ -342,7 +342,7 @@ class EquipmentManager extends Element {
       //panelCanvas.rect(shadowX-i, shadowY-i, shadowW+i*2, shadowH+i*2, i);
     }
   }
-  
+
   boolean[] getBlockedClasses(){
     boolean[] blockedClasses = new boolean[jsManager.getNumEquipmentClasses()];
     for (int i = 0; i < blockedClasses.length; i ++) {
@@ -358,7 +358,7 @@ class EquipmentManager extends Element {
     }
     return blockedClasses;
   }
-  
+
   boolean[] getHoveringBlockedClasses(){
     boolean[] blockedClasses = new boolean[jsManager.getNumEquipmentClasses()];
     if (selectedClass != -1){
@@ -376,22 +376,22 @@ class EquipmentManager extends Element {
   }
 
   void draw(PGraphics panelCanvas) {
-    
+
     if (oldDropH != dropH){  // If height of boxes has changed
       resizeImages();
       oldDropH = dropH;
     }
-    
+
     updateDropDownPositionAndSize();
     panelCanvas.pushStyle();
 
     panelCanvas.strokeWeight(2);
     panelCanvas.fill(170);
     panelCanvas.rect(x, y, w, boxHeight);
-    
+
     boolean[] blockedClasses = getBlockedClasses();
     boolean[] potentialBlockedClasses = getHoveringBlockedClasses();
-    
+
     for (int i = 0; i < jsManager.getNumEquipmentClasses(); i ++) {
       if (!blockedClasses[i]){
         if (selectedClass == i){
@@ -437,7 +437,7 @@ class EquipmentManager extends Element {
         panelCanvas.text(equipmentClassDisplayNames[i], x+boxWidth*(i+0.5), y);
       }
     }
-    
+
     // Draw dropdown if an equipment class is selected
     panelCanvas.stroke(0);
     if (selectedClass != -1){
@@ -491,11 +491,11 @@ class EquipmentManager extends Element {
 
     panelCanvas.popStyle();
   }
-  
+
   boolean mouseOverClasses() {
     return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+boxHeight;
   }
-  
+
   boolean mouseOverTypes() {
     if (selectedClass == -1){
       return false;
@@ -505,7 +505,7 @@ class EquipmentManager extends Element {
       return mouseX-xOffset >= dropX && mouseX-xOffset <= dropX+dropW && mouseY-yOffset >= dropY && mouseY-yOffset <= dropY+dropH*(jsManager.getNumEquipmentTypesFromClass(selectedClass)+1);
     }
   }
-  
+
   int hoveringOverType() {
     int num = jsManager.getNumEquipmentTypesFromClass(selectedClass);
     for (int i = 0; i < num+1; i ++) {
@@ -515,7 +515,7 @@ class EquipmentManager extends Element {
     }
     return -1;
   }
-  
+
   int hoveringOverClass() {
     for (int i = 0; i < jsManager.getNumEquipmentClasses(); i ++) {
       if (mouseX-xOffset >= x+boxWidth*i && mouseX-xOffset <= x+boxWidth*(i+1) && mouseY-yOffset >= y && mouseY-yOffset <= y+boxHeight){
@@ -524,7 +524,7 @@ class EquipmentManager extends Element {
     }
     return -1;
   }
-  
+
   boolean pointOver() {
     return mouseOverTypes() || mouseOverClasses();
   }
@@ -559,7 +559,7 @@ class ProficiencySummary extends Element {
   void setProficiencies(float[] proficiencies) {
     this.proficiencies = proficiencies;
   }
-  
+
   void setProficiencyBonuses(float[] bonuses){
     this.bonuses = bonuses;
   }
@@ -607,7 +607,7 @@ class ProficiencySummary extends Element {
 
     panelCanvas.popStyle();
   }
-  
+
   int hoveringOption(){
     for (int i = 0; i < proficiencyDisplayNames.length; i++){
       if (mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y+rowHeight*i && mouseY-yOffset <= y+rowHeight*(i+1)) {
@@ -701,7 +701,7 @@ class BaseFileManager extends Element {
         }
       }
     } else if (eventType.equals("mousePressed")) {
-      if (d > 0 && moveOver() && mouseX-xOffset>x+w-SCROLLWIDTH) {  
+      if (d > 0 && moveOver() && mouseX-xOffset>x+w-SCROLLWIDTH) {
         // If hovering over scroll bar, set scroll to mouse pos
         scrolling = true;
         scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/h, d));
@@ -709,7 +709,7 @@ class BaseFileManager extends Element {
         scrolling = false;
       }
     } else if (eventType.equals("mouseDragged")) {
-      if (scrolling && d > 0) {  
+      if (scrolling && d > 0) {
         // If scrolling, set scroll to mouse pos
         scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/h, d));
       }
@@ -978,7 +978,7 @@ class DropDown extends Element {
   int getOptionIndex() {
     return selected;
   }
-  
+
   boolean moveOver() {
     if (expanded) {
       return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset < y+h*(options.length+1);
@@ -1116,7 +1116,7 @@ class Tooltip extends Element {
   //  boolean notNothing = false;
   //  for (int i=0; i<numResources;i++){
   //    if (resources[i]>0){
-  //      returnString += roundDp(""+resources[i], 1)+ " " +resourceNames[i]+ ", "; 
+  //      returnString += roundDp(""+resources[i], 1)+ " " +resourceNames[i]+ ", ";
   //      notNothing = true;
   //    }
   //  }
@@ -1168,7 +1168,7 @@ class Tooltip extends Element {
     if (splitting) {
       t = String.format("Split %d units from party and move them to cell.\n", numUnitsSplitting);
       int[] splittedQuantities = party.splittedQuantities(numUnitsSplitting);
-      
+
       boolean anyEquipment = false;
       for (int i = 0; i < party.getAllEquipment().length; i ++){
         if (party.getEquipment(i) != -1){
@@ -1225,9 +1225,9 @@ class Tooltip extends Element {
     JSONObject jo = gameData.getJSONObject("tooltips");
     int overflow = p1.getOverflow(unitsTransfered);
     String t = String.format(jo.getString("merging"), p2.id, p1.id, unitsTransfered-overflow, overflow);
-    
+
     int[][] equipments = p1.mergeEquipment(p2, unitsTransfered-overflow);
-    
+
     boolean hasEquipment = false;
     // New equipment quantities + types for merged party
     t += "\n\nMerged party equipment:";
@@ -1240,7 +1240,7 @@ class Tooltip extends Element {
     if (!hasEquipment){
       t += " None\n";
     }
-    
+
     // New equipment quantities + types for overflow party
     if (overflow > 0){
       hasEquipment = false;
@@ -1255,18 +1255,18 @@ class Tooltip extends Element {
         t += " Nonezn";
       }
     }
-    
+
     //Merged party proficiencies
     float[] mergedProficiencies = p1.mergeProficiencies(p2, unitsTransfered-overflow);
     t += "\n\nMerged party proficiencies:\n";
     for (int i=0; i < jsManager.getNumProficiencies(); i ++){
       t += String.format("%s = %s\n", jsManager.indexToProficiencyDisplayName(i), roundDpTrailing(""+mergedProficiencies[i], 2));
     }
-    
+
     if (overflow > 0){
       t += "\n\n(Proficiencies for overflow party are the same as the original party)";
     }
-    
+
     setText(t);
   }
 
@@ -1285,7 +1285,7 @@ class Tooltip extends Element {
     }
     setText("Stock up equipment. This will use all of the party's movement points."+text);
   }
-  
+
   void setStockUpUnavailable(Party p) {
     String text = "Stock up unavailable.";
     boolean hasEquipment = false;
@@ -1353,7 +1353,7 @@ class Tooltip extends Element {
       throw e;
     }
   }
-  
+
   void setEquipment(int equipmentClass, int equipmentType, float availableResources[], Party party, boolean collectionAllowed){
     // Tooltip is hovering over equipment manager, specifically over one of the equipmment types
     String t="";
@@ -1390,11 +1390,11 @@ class Tooltip extends Element {
         if (!equipmentTypeJO.isNull("display name")) {
           t += equipmentTypeJO.getString("display name")+"\n\n";
         }
-        
+
         if (!equipmentTypeJO.isNull("description")) {
           t += equipmentTypeJO.getString("description")+"\n\n";
         }
-        
+
         // Using 'display multipliers' array so ordering is consistant
         if (!equipmentClassJO.isNull("display multipliers")){
           t += "Proficiency Bonus Multipliers:\n";
@@ -1410,7 +1410,7 @@ class Tooltip extends Element {
           }
           t += "\n";
         }
-        
+
         // Other attributes e.g. range
         if (!equipmentClassJO.isNull("other attributes")){
           t += "Other Attributes:\n";
@@ -1422,7 +1422,7 @@ class Tooltip extends Element {
           }
           t += "\n";
         }
-        
+
         // Display other classes that are blocked (if applicable)
         if (!equipmentTypeJO.isNull("other class blocking")){
           t += "Equipment blocks other classes: ";
@@ -1436,12 +1436,12 @@ class Tooltip extends Element {
           }
           t += "\n\n";
         }
-        
+
         // Display amount of equipment available vs needed for party
         int resourceIndex = 0;
         try{
           resourceIndex = jsManager.getResIndex(equipmentTypeJO.getString("id"));
-        } 
+        }
         catch (Exception e){
           LOGGER_MAIN.log(Level.WARNING, String.format("Error finding resource for equipment class:%d, type:%d", equipmentClass, equipmentType), e);
           throw e;
@@ -1451,7 +1451,7 @@ class Tooltip extends Element {
         } else{
           t += String.format("Equipment Available: <r>%d</r>/%d", floor(availableResources[resourceIndex]), party.getUnitNumber());
         }
-        
+
         // Show where equipment can be stocked up
         if (!equipmentTypeJO.isNull("valid collection sites")){
           t += String.format("\n\n%s can be stocked up at: ", equipmentTypeJO.getString("display name"));
@@ -1465,14 +1465,14 @@ class Tooltip extends Element {
         else{
           t += String.format("\n\n%s can be stocked up anywhere", equipmentTypeJO.getString("display name"));
         }
-        
+
         if (party.getMovementPoints() != party.getMaxMovementPoints()){
           t += "\n<r>Equipment can only be changed\nif party has full movement points</r>";
         } else{
           t += "\n(Equipment can only be changed\nif party has full movement points)";
         }
       }
-      
+
       setText(t.replaceAll("\\s+$", ""));
     }
     catch (Exception e) {
@@ -1480,7 +1480,7 @@ class Tooltip extends Element {
       throw e;
     }
   }
-  
+
   void setProficiencies(int proficiencyIndex, Party party){
     String t="";
     JSONObject proficiencyJO;
@@ -1504,7 +1504,7 @@ class Tooltip extends Element {
           t += bonusBreakdown.get(i);
         }
       }
-      
+
       setText(t.replaceAll("\\s+$", ""));
     }
     catch (Exception e) {
@@ -1524,7 +1524,7 @@ class Tooltip extends Element {
           t += String.format("%s: %f", building, buildings.get(resource));
         }
       }
-    } 
+    }
     catch (Exception e) {
       LOGGER_MAIN.log(Level.WARNING, "Error changing tooltip to resource: "+resource, e);
       throw e;
@@ -1913,7 +1913,7 @@ class ResourceSummary extends Element {
       throw e;
     }
   }
-  
+
   void updateWarnings(byte[] v) {
     try {
       LOGGER_MAIN.finest("Warnings update: " + Arrays.toString(v));
@@ -1924,7 +1924,7 @@ class ResourceSummary extends Element {
       throw e;
     }
   }
-  
+
   void toggleExpand() {
     expanded = !expanded;
     LOGGER_MAIN.finest("Expanded changed to: " + expanded);
@@ -2050,7 +2050,7 @@ class TaskManager extends Element {
   color bgColour, strokeColour;
   private final int HOVERINGOFFSET = 80, ONOFFSET = -50;
   final int SCROLLWIDTH = 20;
-  
+
   TaskManager(int x, int y, int w, int textSize, color bgColour, color strokeColour, String[] options, int numDisplayed) {
     this.x = x;
     this.y = y;
@@ -2071,12 +2071,12 @@ class TaskManager extends Element {
     resetScroll();
     this.numDisplayed = numDisplayed;
   }
-  
+
   void resetScroll(){
     scroll = 0;
     scrolling = false;
   }
-  
+
   void setOptions(ArrayList<String> options) {
     LOGGER_MAIN.finer("Options changed to:["+String.join(", ", options));
     this.options = options;
@@ -2214,7 +2214,7 @@ class TaskManager extends Element {
     panelCanvas.stroke(0);
     panelCanvas.fill(170);
     panelCanvas.rect(x, y, w+1, h*numDisplayed+1);
-    
+
     // Draw current task box
     panelCanvas.strokeWeight(1);
     panelCanvas.fill(brighten(bgColour, ONOFFSET));
@@ -2223,7 +2223,7 @@ class TaskManager extends Element {
     panelCanvas.fill(0);
     panelCanvas.textAlign(LEFT, TOP);
     panelCanvas.text("Current Task: "+options.get(availableOptions.get(0)), x+5, y);
-     
+
     // Draw other tasks
     int j;
     for (j=1; j < min(availableOptions.size()-scroll, numDisplayed); j++) {
@@ -2242,7 +2242,7 @@ class TaskManager extends Element {
       panelCanvas.fill(120);
       panelCanvas.text(options.get(availableButOverBudgetOptions.get(j-min(availableOptions.size()-scroll, numDisplayed))), x+5, y+h*j);
     }
-    
+
     //draw scroll
     int d = availableOptions.size() + availableButOverBudgetOptions.size() - numDisplayed;
     if (d > 0) {
@@ -2253,7 +2253,7 @@ class TaskManager extends Element {
       panelCanvas.fill(brighten(bgColour, -20));
       panelCanvas.rect(x-SCROLLWIDTH*jsManager.loadFloatSetting("gui scale")+w, y+(h*numDisplayed-(h*numDisplayed)/(d+1))*scroll/d, SCROLLWIDTH*jsManager.loadFloatSetting("gui scale"), (h*numDisplayed)/(d+1));
     }
-    
+
     panelCanvas.popStyle();
   }
 
@@ -2274,7 +2274,7 @@ class TaskManager extends Element {
         }
       }
     } else if (eventType.equals("mousePressed")) {
-      if (hovingOverScroll()) {  
+      if (hovingOverScroll()) {
         // If hovering over scroll bar, set scroll to mouse pos
         scrolling = true;
         scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/(h*min(availableButOverBudgetOptions.size()+availableOptions.size()-scroll, numDisplayed)), d));
@@ -2282,7 +2282,7 @@ class TaskManager extends Element {
         scrolling = false;
       }
     } else if (eventType.equals("mouseDragged")) {
-      if (scrolling && d > 0) {  
+      if (scrolling && d > 0) {
         // If scrolling, set scroll to mouse pos
         scroll = round(between(0, (mouseY-y-yOffset)*(d+1)/(h*min(availableButOverBudgetOptions.size()+availableOptions.size()-scroll, numDisplayed)), d));
       }
@@ -2537,7 +2537,7 @@ class Slider extends Element {
     this.lx = x;
     this.x = x;
     this.lw = w;
-    this.w = w; 
+    this.w = w;
     this.y = y;
     this.h = h;
   }
@@ -3003,7 +3003,7 @@ class BombardButton extends Button {
     super(x, y, w, w, bgColour, color(0), color(0), 1, 0, "");
     img = bombardImage;
   }
-  
+
   void draw(PGraphics panelCanvas) {
     super.draw(panelCanvas);
     panelCanvas.image(img, super.x+2, super.y+2);
@@ -3011,21 +3011,45 @@ class BombardButton extends Button {
 }
 
 class ResourceManagementTable extends Element {
-  int page;
-  ResourceManagementTable(int x, int y, int w, int h) {
+  private int page;
+  String[][] headings;
+  ArrayList<ArrayList<String>> names;
+  int pages;
+  int rows;
+  int textSize;
+
+  ResourceManagementTable(int x, int y, int w, int h, int textSize) {
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
+    pages = 2;
+    this.textSize = textSize;
+    names = new ArrayList<ArrayList<String>>();
+    headings = new String[pages][];
+  }
+
+  void update(String[][] headings, ArrayList<ArrayList<String>> names) {
+    this.names = names;
+    this.headings = headings;
+    this.rows = names.get(page).size();
   }
   
-  void toggleExpand() {
-    this.visible = !this.visible;
-    this.active = this.visible;
+  void setPage(int p) {
+    page = p;
+    this.rows = names.get(page).size();
   }
-  
+
   void draw(PGraphics canvas) {
-    
+    canvas.fill(0);
+    canvas.textAlign(LEFT, BOTTOM);
+    canvas.textSize(1.5*textSize);
+    canvas.text(headings[page][0], x, y+1.5*textSize);
+    canvas.line(x, y+1.5*textSize, x+canvas.textWidth(headings[page][0]), y+1.5*textSize);
+    for (int i = 0; i < rows; i++) {
+      canvas.textSize(textSize);
+      canvas.text(names.get(page).get(i), x, y+(i+3)*textSize);
+    }
   }
 }
 
@@ -3035,7 +3059,7 @@ class HorizontalOptionsButton extends DropDown {
     setOptions(options);
     expanded = true;
   }
-  
+
   void draw(PGraphics canvas) {
     int hovering = hoveringOption();
     canvas.pushStyle();
@@ -3055,7 +3079,7 @@ class HorizontalOptionsButton extends DropDown {
     // Draw expand box
     canvas.line(x+w-h, y+1, x+w-h/2, y+h-1);
     canvas.line(x+w-h/2, y+h-1, x+w, y+1);
-    
+
     int boxX = x;
     for (int i=0; i < options.length; i++) {
       if (i == selected) {
@@ -3081,7 +3105,7 @@ class HorizontalOptionsButton extends DropDown {
   boolean moveOver() {
     return mouseX-xOffset >= x && mouseX-xOffset <= x+w*(options.length) && mouseY-yOffset >= y && mouseY-yOffset < y+h;
   }
-  
+
   int hoveringOption() {
     if (!expanded) {
       return -1;

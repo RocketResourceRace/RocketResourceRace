@@ -161,7 +161,7 @@ class Game extends State {
       addElement("task icons toggle", new ToggleButton(round(bezel*5+buttonW*3.5), bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Task Icons"), "bottom bar");
       addElement("unit number bars toggle", new ToggleButton(bezel*6+buttonW*4, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Unit Bars"), "bottom bar");
       addElement("console", new Console(0, 0, width, height/2, 10), "console");
-      addElement("resource management table", new ResourceManagementTable(width/4, height/4, width/2, height/2), "resource management");
+      addElement("resource management table", new ResourceManagementTable(bezel, bezel*2+30, width/2, height/2, 15), "resource management");
       addElement("resources pages button", new HorizontalOptionsButton(bezel, bezel, 100, 30, color(150), 10, new String[]{"Resources", "Equipment"}), "resource management");
       //int x, int y, int w, int h, color bgColour, color strokeColour, boolean value, String name
 
@@ -1620,7 +1620,19 @@ class Game extends State {
           getPanel("resource management").setVisible(!getPanel("resource management").visible);
           ResourceManagementTable r = ((ResourceManagementTable)(getElement("resource management table", "resource management")));
           Button b = ((Button)(getElement("resource detailed", "bottom bar")));
-          r.toggleExpand();
+          ArrayList<ArrayList<String>> names= new ArrayList<ArrayList<String>>();
+          names.add(new ArrayList<String>());
+          names.add(new ArrayList<String>());
+          for (int i = 0; i < players[turn].resources.length; i++) {
+            if (players[turn].resources[i] > 0) {
+              if (jsManager.resourceIsEquipment(i)) {
+                names.get(1).add(jsManager.getResString(i));
+              } else {
+                names.get(0).add(jsManager.getResString(i));
+              }
+            }
+          }
+          r.update(new String[][]{{"Resource"}, {"Equipment type"}}, names);
           if (b.getText() == "^")
             b.setText("v");
           else
@@ -1665,9 +1677,6 @@ class Game extends State {
           } else {
             map.disableBombard();
           }
-        } else if (event.id.equals("resources pages button")) {
-          HorizontalOptionsButton b = ((HorizontalOptionsButton)getElement("resources page button", "resource management"));
-          ((ResourceManagementTable)getElement("resource management table", "resource management")).page = b.selected;
         }
       }
       if (event.type.equals("valueChanged")) {
@@ -1705,6 +1714,9 @@ class Game extends State {
           updatePartyManagementProficiencies();
         } else if (event.id.equals("unit cap incrementer")){
           postEvent(new UnitCapChange(selectedCellX, selectedCellY, ((IncrementElement)getElement("unit cap incrementer", "party management")).getValue()));
+        } else if (event.id.equals("resources pages button")) {
+          HorizontalOptionsButton b = ((HorizontalOptionsButton)getElement("resources pages button", "resource management"));
+          ((ResourceManagementTable)getElement("resource management table", "resource management")).setPage(b.selected);
         }
       }
       if (event.type.equals("dropped")){
