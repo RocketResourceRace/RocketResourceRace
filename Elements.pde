@@ -3047,8 +3047,11 @@ class ResourceManagementTable extends Element {
     canvas.text(headings[page][0], x, y+1.5*textSize);
     canvas.line(x, y+1.5*textSize, x+canvas.textWidth(headings[page][0]), y+1.5*textSize);
     for (int i = 0; i < rows; i++) {
+      canvas.fill(150);
+      canvas.rect(x, y+(i+1.1)*textSize*1.7, w, textSize*1.5);
+      canvas.fill(0);
       canvas.textSize(textSize);
-      canvas.text(names.get(page).get(i), x, y+(i+3)*textSize);
+      canvas.text(names.get(page).get(i), x+textSize, y+(i+2)*textSize*1.7);
     }
   }
 }
