@@ -3016,17 +3016,27 @@ class ResourceManagementTable extends Element {
   ArrayList<ArrayList<String>> names;
   int pages;
   int rows;
-  int textSize;
+  int TEXTSIZE = 24;
+  HashMap<String, PImage> tempEquipmentImages;
+  int rowThickness;
+  int rowGap;
+  int headerSize;
+  int imgHeight;
 
-  ResourceManagementTable(int x, int y, int w, int h, int textSize) {
+  ResourceManagementTable(int x, int y, int w, int h) {
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
     pages = 2;
-    this.textSize = textSize;
     names = new ArrayList<ArrayList<String>>();
     headings = new String[pages][];
+    tempEquipmentImages = new HashMap<String, PImage>();
+    rowThickness = int(TEXTSIZE*1.5);
+    rowGap = TEXTSIZE/4;
+    headerSize = int(1.4*TEXTSIZE);
+    imgHeight = headerSize;
+    resizeImages();
   }
 
   void update(String[][] headings, ArrayList<ArrayList<String>> names) {
@@ -3043,20 +3053,38 @@ class ResourceManagementTable extends Element {
   void draw(PGraphics canvas) {
     canvas.fill(0);
     canvas.textAlign(LEFT, BOTTOM);
-    canvas.textSize(1.5*textSize);
-    canvas.text(headings[page][0], x, y+1.5*textSize);
-    canvas.line(x, y+1.5*textSize, x+canvas.textWidth(headings[page][0]), y+1.5*textSize);
+    canvas.textSize(headerSize);
+    canvas.text(headings[page][0], x, y+headerSize);
+    canvas.line(x, y+headerSize, x+canvas.textWidth(headings[page][0]), y+headerSize);
+    int yPos = y+headerSize+2*rowGap;
     for (int i = 0; i < rows; i++) {
       canvas.fill(150);
-      canvas.rect(x, y+(i+1.1)*textSize*1.7, w, textSize*1.5);
+      canvas.rect(x, yPos+i*(rowThickness+rowGap), w, rowThickness);
       canvas.fill(0);
-      canvas.textSize(textSize);
+      canvas.textSize(TEXTSIZE);
       int offset = 0;
       if (page == 1) {
-        canvas.image(equipmentImages.get(names.get(page).get(i)), x+2, y+(i+1.2)*textSize*1.7);
-        offset = 200;
+        canvas.image(tempEquipmentImages.get(names.get(page).get(i)), x+2, yPos+i*(rowThickness+rowGap)+ceil(0.05*TEXTSIZE));
+        offset = int(imgHeight/0.75);
       }
-      canvas.text(names.get(page).get(i), x+offset+textSize, y+(i+2)*textSize*1.7);
+      canvas.text(names.get(page).get(i), x+offset+rowGap, yPos+(i+1)*(rowThickness+rowGap) - rowGap);
+    }
+  }
+  
+  void resizeImages(){
+    // Resize equipment icons
+    for (int c=0; c < jsManager.getNumEquipmentClasses(); c++){
+      for (int t=0; t < jsManager.getNumEquipmentTypesFromClass(c); t++){
+        try{
+          String id = jsManager.getEquipmentTypeID(c, t);
+          tempEquipmentImages.put(id, equipmentImages.get(id).copy());
+          tempEquipmentImages.get(id).resize(int(imgHeight/0.75), imgHeight);
+        }
+        catch (NullPointerException e){
+          LOGGER_MAIN.log(Level.SEVERE, String.format("Error resizing image for equipment icon class:%d, type:%d, id:%s", c, t, jsManager.getEquipmentTypeID(c, t)), e);
+          throw e;
+        }
+      }
     }
   }
 }
