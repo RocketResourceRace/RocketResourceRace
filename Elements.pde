@@ -3051,7 +3051,12 @@ class ResourceManagementTable extends Element {
       canvas.rect(x, y+(i+1.1)*textSize*1.7, w, textSize*1.5);
       canvas.fill(0);
       canvas.textSize(textSize);
-      canvas.text(names.get(page).get(i), x+textSize, y+(i+2)*textSize*1.7);
+      int offset = 0;
+      if (page == 1) {
+        canvas.image(equipmentImages.get(names.get(page).get(i)), x+2, y+(i+1.2)*textSize*1.7);
+        offset = 200;
+      }
+      canvas.text(names.get(page).get(i), x+offset+textSize, y+(i+2)*textSize*1.7);
     }
   }
 }
