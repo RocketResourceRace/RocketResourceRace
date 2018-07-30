@@ -2267,7 +2267,7 @@ class TaskManager extends Element {
       for (int j=1; j < availableOptions.size(); j++) {
         if (mouseOver(j)) {
           if (d <= 0 || mouseX-xOffset<x+w-SCROLLWIDTH) {
-            selectAt(j-scroll);
+            selectAt(j+scroll);
             events.add("valueChanged");
             scrolling = false;
           }
