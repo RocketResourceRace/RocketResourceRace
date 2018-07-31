@@ -467,7 +467,7 @@ class Map3D extends BaseMap implements Map {
               float quarryheight = groundMinHeightAt(x, y);
               quarrySite.rotateX(PI/2);
               quarrySite.translate((x+0.5)*blockSize, (y+0.5)*blockSize, quarryheight);
-              quarrySite.setTexture(loadImage("img/terrain/"+"hill.png"));
+              quarrySite.setTexture(loadImage("img/terrain/hill.png"));
               tempRow.addChild(quarrySite);
 
               // Create sides for quarry site
