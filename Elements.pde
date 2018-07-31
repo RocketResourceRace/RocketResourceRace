@@ -2310,7 +2310,6 @@ class TaskManager extends Element {
     try {
       int j;
       if (mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+h) {
-        println(options);
         return options.get(0);
       }
       for (j=0; j<min(availableOptions.size()-scroll, numDisplayed); j++) {
