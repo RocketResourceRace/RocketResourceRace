@@ -638,11 +638,11 @@ class BaseMap extends Element {
       LOGGER_MAIN.info("Generating terrain");
       noiseDetail(3, 0.25);
       HashMap<Integer, Float> groundWeightings = new HashMap();
-      for (Integer i=1; i<gameData.getJSONArray("terrain").size()+1; i++) {
-        if (gameData.getJSONArray("terrain").getJSONObject(i-1).isNull("weighting")) {
-          groundWeightings.put(i, jsManager.loadFloatSetting(gameData.getJSONArray("terrain").getJSONObject(i-1).getString("id")+" weighting"));
+      for (Integer i=0; i<gameData.getJSONArray("terrain").size(); i++) {
+        if (gameData.getJSONArray("terrain").getJSONObject(i).isNull("weighting")) {
+          groundWeightings.put(i, jsManager.loadFloatSetting(gameData.getJSONArray("terrain").getJSONObject(i).getString("id")+" weighting"));
         } else {
-          groundWeightings.put(i, gameData.getJSONArray("terrain").getJSONObject(i-1).getFloat("weighting"));
+          groundWeightings.put(i, gameData.getJSONArray("terrain").getJSONObject(i).getFloat("weighting"));
         }
       }
 
@@ -1292,14 +1292,14 @@ class Map2D extends BaseMap implements Map {
       for (int x=lx; x<hx; x++) {
         float x2 = round(scaleX(x));
         float y2 = round(scaleY(y));
-        panelCanvas.image(tempTileImages[terrain[y][x]-1], x2, y2);
+        panelCanvas.image(tempTileImages[terrain[y][x]], x2, y2);
 
         //Buildings
         if (buildings[y][x] != null) {
           c = new PVector(scaleX(x), scaleY(y));
           int border = round((64-48)*blockSize/(2*64));
           int imgSize = round(blockSize*48/60);
-          drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, tempBuildingImages[buildings[y][x].type-1][buildings[y][x].image_id], panelCanvas);
+          drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, tempBuildingImages[buildings[y][x].type][buildings[y][x].image_id], panelCanvas);
         }
         //Parties
         if (parties[y][x]!=null) {

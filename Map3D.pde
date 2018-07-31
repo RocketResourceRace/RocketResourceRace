@@ -436,7 +436,7 @@ class Map3D extends BaseMap implements Map {
       tempRow = createShape(GROUP);
       tempTerrain.beginDraw();
       for (int x=0; x<mapWidth; x++) {
-        tempTerrain.image(tempTileImages[terrain[y][x]-1], x*jsManager.loadIntSetting("terrain texture resolution"), 0);
+        tempTerrain.image(tempTileImages[terrain[y][x]], x*jsManager.loadIntSetting("terrain texture resolution"), 0);
       }
       tempTerrain.endDraw();
 
@@ -585,7 +585,7 @@ class Map3D extends BaseMap implements Map {
 
         // Load trees
         for (int x=0; x<mapWidth; x++) {
-          if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest")+1) {
+          if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest")) {
             PShape cellTree = generateTrees(jsManager.loadIntSetting("forest density"), 8, x*blockSize, y*blockSize);
             cellTree.translate((x)*blockSize, (y)*blockSize, 0);
             trees.addChild(cellTree);
@@ -1369,11 +1369,11 @@ class Map3D extends BaseMap implements Map {
   }
 
   String buildingString(int buildingI) {
-    if (gameData.getJSONArray("buildings").isNull(buildingI-1)) {
+    if (gameData.getJSONArray("buildings").isNull(buildingI)) {
       LOGGER_MAIN.warning("invalid building string: "+(buildingI-1));
       return null;
     }
-    return gameData.getJSONArray("buildings").getJSONObject(buildingI-1).getString("id");
+    return gameData.getJSONArray("buildings").getJSONObject(buildingI).getString("id");
   }
 
   boolean mouseOver() {

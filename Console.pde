@@ -501,7 +501,7 @@ class Console extends Element {
           sendLine("Filling map with building "+building);
           for (int y = 0; y < game.mapHeight; y++) {
             for (int x = 0; x < game.mapWidth; x++) {
-              game.buildings[y][x] = new Building(buildingIndex+1);
+              game.buildings[y][x] = new Building(buildingIndex);
             }
           }
         } else {

@@ -3,7 +3,7 @@ int terrainIndex(String terrain) {
   try {
     int k = JSONIndex(gameData.getJSONArray("terrain"), terrain);
     if (k>=0) {
-      return k+1;
+      return k;
     }
     LOGGER_MAIN.warning("Invalid terrain type, "+terrain);
     return 0;
@@ -21,7 +21,7 @@ int buildingIndex(String building) {
   try {
     int k = JSONIndex(gameData.getJSONArray("buildings"), building);
     if (k>=0) {
-      return k+1;
+      return k;
     }
     LOGGER_MAIN.warning("Invalid building type, "+building);
     return 0;
@@ -320,7 +320,7 @@ class Game extends State {
 
   String terrainString(int terrainI) {
     try {
-      return gameData.getJSONArray("terrain").getJSONObject(terrainI-1).getString("id");
+      return gameData.getJSONArray("terrain").getJSONObject(terrainI).getString("id");
     }
     catch (NullPointerException e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error due to JSON being incorrectly formatted for terrain string", e);
@@ -330,11 +330,11 @@ class Game extends State {
 
   String buildingString(int buildingI) {
     try {
-      if (gameData.getJSONArray("buildings").isNull(buildingI-1)) {
-        LOGGER_MAIN.warning("invalid building string "+(buildingI-1));
+      if (gameData.getJSONArray("buildings").isNull(buildingI)) {
+        LOGGER_MAIN.warning("invalid building string "+(buildingI));
         return null;
       }
-      return gameData.getJSONArray("buildings").getJSONObject(buildingI-1).getString("id");
+      return gameData.getJSONArray("buildings").getJSONObject(buildingI).getString("id");
     }
     catch (NullPointerException e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error due to JSON being incorrectly formatted for building string", e);
@@ -2284,11 +2284,11 @@ class Game extends State {
       panelCanvas.text(String.format("Cell reference: %s, %s", selectedCellX, selectedCellY), 5+sidePanelX, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     }
-    panelCanvas.text("Cell Type: "+gameData.getJSONArray("terrain").getJSONObject(terrain[selectedCellY][selectedCellX]-1).getString("display name"), 5+sidePanelX, barY);
+    panelCanvas.text("Cell Type: "+gameData.getJSONArray("terrain").getJSONObject(terrain[selectedCellY][selectedCellX]).getString("display name"), 5+sidePanelX, barY);
     barY += 13*jsManager.loadFloatSetting("text scale");
     if (buildings[selectedCellY][selectedCellX] != null) {
       if (buildings[selectedCellY][selectedCellX].type != 0)
-        panelCanvas.text("Building: "+buildingTypes[buildings[selectedCellY][selectedCellX].type-1], 5+sidePanelX, barY);
+        panelCanvas.text("Building: "+buildingTypes[buildings[selectedCellY][selectedCellX].type], 5+sidePanelX, barY);
       else
         panelCanvas.text("Building: Construction Site", 5+sidePanelX, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
@@ -2553,7 +2553,7 @@ class Game extends State {
       mult = 1.41;
     }
     if (0<=x && x<jsManager.loadIntSetting("map size") && 0<=y && y<jsManager.loadIntSetting("map size")) {
-      return round(gameData.getJSONArray("terrain").getJSONObject(terrain[y][x]-1).getInt("movement cost")*mult);
+      return round(gameData.getJSONArray("terrain").getJSONObject(terrain[y][x]).getInt("movement cost")*mult);
     }
     //Not a valid location
     return -1;
