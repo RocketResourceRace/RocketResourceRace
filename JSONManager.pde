@@ -557,6 +557,26 @@ class JSONManager {
       throw e;
     }
   }
+  
+  int findJSONObjectIndex(JSONArray j, String id) {
+    // search for a json object in a json array with correct id
+    try {
+      for (int i=0; i<j.size(); i++) {
+        if (j.getJSONObject(i).getString("id").equals(id)) {
+          return i;
+        }
+      }
+      return -1;
+    }
+    catch (NullPointerException e) {
+      LOGGER_MAIN.log(Level.WARNING, "Error finding JSON object with id likely cause by issue with code in data.json: "+ id, e);
+      return -1;
+    }
+    catch (Exception e) {
+      LOGGER_MAIN.log(Level.SEVERE, "Error finding JSON object with id: "+ id, e);
+      throw e;
+    }
+  }
 
   String getElementType(String panel, String element) {
     try {

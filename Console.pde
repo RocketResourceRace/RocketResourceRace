@@ -254,8 +254,8 @@ class Console extends Element {
       throw (e);
     }
   }
-
-  void doCommand(String rawCommand) {
+  
+  String[] getSplitCommand(String rawCommand) {
     String[] rawSplitCommand = rawCommand.split(" ");
     String[] tempSplitCommand = new String[rawSplitCommand.length];
     boolean connected = false;
@@ -297,6 +297,11 @@ class Console extends Element {
     for (int j = 0; j < i; j++) {
       splitCommand[j] = tempSplitCommand[j];
     }
+    return splitCommand;
+  }
+
+  void doCommand(String rawCommand) {
+    String[] splitCommand = getSplitCommand(rawCommand);
     if (splitCommand.length==0) {
       invalid();
       return;
@@ -486,6 +491,24 @@ class Console extends Element {
         }
       } else {
         commandFileError("Command doesn't define an action but is of type resource");
+      }
+      break;
+    case "building-fill":
+      if (arguments.length > position + 1) {
+        String building = arguments[position+1];
+        int buildingIndex = jsManager.findJSONObjectIndex(gameData.getJSONArray("buildings"), building);
+        if (buildingIndex != -1) {
+          sendLine("Filling map with building "+building);
+          for (int y = 0; y < game.mapHeight; y++) {
+            for (int x = 0; x < game.mapWidth; x++) {
+              game.buildings[y][x] = new Building(buildingIndex+1);
+            }
+          }
+        } else {
+          invalidValue(command, arguments, position);
+        }
+      } else {
+        invalidMissingValue(command, arguments, position);
       }
       break;
     default:

@@ -44,6 +44,12 @@
         "value type": "boolean",
         "basic description": "tiles outside of the view of any parties are dimmed",
         "detailed description": "tiles outside of the view of any parties are dimmed"
+      },
+      "fill": {
+        "type": "building-fill",
+        "value type": "string",
+        "basic description": "Fills map with a building",
+        "detailed description": "Place a building on every tile to test its performance"
       }
     },
     "basic description": "unfinished features",
