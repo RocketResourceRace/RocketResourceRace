@@ -1632,7 +1632,7 @@ class Game extends State {
               }
             }
           }
-          r.update(new String[][]{{"Resource"}, {"Equipment type", "Class"}}, names);
+          r.update(new String[][]{{"Resource", "Production", "Consumption", "Net", "Storage"}, {"Equipment type", "Class   ", "Production", "Consumption", "Net", "Storage"}}, names);
           if (b.getText() == "^")
             b.setText("v");
           else

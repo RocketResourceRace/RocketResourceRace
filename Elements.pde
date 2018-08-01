@@ -3058,9 +3058,19 @@ class ResourceManagementTable extends Element {
     canvas.textSize(headerSize);
     float[] cumulativeWidth = new float[headings[page].length+1];
     for (int i = 0; i < headings[page].length; i++) {
-      canvas.text(headings[page][i], x+cumulativeWidth[i], y+headerSize);
-      canvas.line(x+cumulativeWidth[i], y+headerSize, x+cumulativeWidth[i]+canvas.textWidth(headings[page][i]), y+headerSize);
       cumulativeWidth[i+1] = canvas.textWidth(headings[page][i]) + columnGap + cumulativeWidth[i];
+    }
+    float[] headingXs = new float[headings[page].length];
+    for (int i = 0; i < headings[page].length; i++) {
+      float headingX;
+      if (i == 0) {
+        headingX = x+cumulativeWidth[i];
+      } else {
+        headingX = w-x-cumulativeWidth[headings[page].length]+cumulativeWidth[i];
+      }
+      headingXs[i] = headingX;
+      canvas.text(headings[page][i], headingX, y+headerSize);
+      canvas.line(headingX, y+headerSize, headingX+canvas.textWidth(headings[page][i]), y+headerSize);
     }
     int yPos = y+headerSize+2*rowGap;
     for (int i = 0; i < rows; i++) {
@@ -3074,7 +3084,7 @@ class ResourceManagementTable extends Element {
         offset = int(imgHeight/0.75);
         canvas.text(
           jsManager.getEquipmentClass(jsManager.getEquipmentTypeClassFromID(names.get(page).get(i))[0]),
-          x+cumulativeWidth[1], yPos+(i+1)*(rowThickness+rowGap) - rowGap);
+          headingXs[1], yPos+(i+1)*(rowThickness+rowGap) - rowGap);
       }
       canvas.text(names.get(page).get(i), x+offset+columnGap, yPos+(i+1)*(rowThickness+rowGap) - rowGap);
     }
