@@ -1620,19 +1620,43 @@ class Game extends State {
           getPanel("resource management").setVisible(!getPanel("resource management").visible);
           ResourceManagementTable r = ((ResourceManagementTable)(getElement("resource management table", "resource management")));
           Button b = ((Button)(getElement("resource detailed", "bottom bar")));
-          ArrayList<ArrayList<String>> names= new ArrayList<ArrayList<String>>();
+          ArrayList<ArrayList<String>> names = new ArrayList<ArrayList<String>>();
           names.add(new ArrayList<String>());
           names.add(new ArrayList<String>());
+          ArrayList<ArrayList<Float>> production = new ArrayList<ArrayList<Float>>();
+          production.add(new ArrayList<Float>());
+          production.add(new ArrayList<Float>());
+          ArrayList<ArrayList<Float>> consumption = new ArrayList<ArrayList<Float>>();
+          consumption.add(new ArrayList<Float>());
+          consumption.add(new ArrayList<Float>());
+          ArrayList<ArrayList<Float>> net = new ArrayList<ArrayList<Float>>();
+          net.add(new ArrayList<Float>());
+          net.add(new ArrayList<Float>());
+          ArrayList<ArrayList<Float>> storage = new ArrayList<ArrayList<Float>>();
+          storage.add(new ArrayList<Float>());
+          storage.add(new ArrayList<Float>());
+          float[] totalResourceRequirements = getTotalResourceRequirements();
+          float[] resourceProductivities = getResourceProductivities(totalResourceRequirements);
+          
+          float[] gross = getTotalResourceProductions(resourceProductivities);
+          float[] costs = getTotalResourceConsumptions(resourceProductivities);
+          float[] totals = getTotalResourceChanges(gross, costs);
           for (int i = 0; i < players[turn].resources.length; i++) {
             if (players[turn].resources[i] > 0) {
+              int page;
               if (jsManager.resourceIsEquipment(i)) {
-                names.get(1).add(jsManager.getResString(i));
+                page = 1; 
               } else {
-                names.get(0).add(jsManager.getResString(i));
+                page = 0;
               }
+              names.get(page).add(jsManager.getResString(i));
+              production.get(page).add(gross[i]);
+              consumption.get(page).add(costs[i]);
+              net.get(page).add(totals[i]);
+              storage.get(page).add(players[turn].resources[i]);
             }
           }
-          r.update(new String[][]{{"Resource", "Production", "Consumption", "Net", "Storage"}, {"Equipment type", "Class   ", "Production", "Consumption", "Net", "Storage"}}, names);
+          r.update(new String[][]{{"Resource", "Making", "Use    ", "Net   ", "Storage"}, {"Equipment type", "Class   ", "Making", "Use    ", "Net   ", "Storage"}}, names, production, consumption, net, storage);
           if (b.getText() == "^")
             b.setText("v");
           else
