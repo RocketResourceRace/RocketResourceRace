@@ -3016,10 +3016,11 @@ class ResourceManagementTable extends Element {
   ArrayList<ArrayList<String>> names;
   int pages;
   int rows;
-  int TEXTSIZE = 24;
+  int TEXTSIZE = 22;
   HashMap<String, PImage> tempEquipmentImages;
   int rowThickness;
   int rowGap;
+  int columnGap;
   int headerSize;
   int imgHeight;
 
@@ -3032,9 +3033,10 @@ class ResourceManagementTable extends Element {
     names = new ArrayList<ArrayList<String>>();
     headings = new String[pages][];
     tempEquipmentImages = new HashMap<String, PImage>();
-    rowThickness = int(TEXTSIZE*1.5);
+    rowThickness = int(TEXTSIZE*1.6);
     rowGap = TEXTSIZE/4;
-    headerSize = int(1.4*TEXTSIZE);
+    columnGap = TEXTSIZE;
+    headerSize = int(1.3*TEXTSIZE);
     imgHeight = headerSize;
     resizeImages();
   }
@@ -3054,8 +3056,12 @@ class ResourceManagementTable extends Element {
     canvas.fill(0);
     canvas.textAlign(LEFT, BOTTOM);
     canvas.textSize(headerSize);
-    canvas.text(headings[page][0], x, y+headerSize);
-    canvas.line(x, y+headerSize, x+canvas.textWidth(headings[page][0]), y+headerSize);
+    float[] cumulativeWidth = new float[headings[page].length+1];
+    for (int i = 0; i < headings[page].length; i++) {
+      canvas.text(headings[page][i], x+cumulativeWidth[i], y+headerSize);
+      canvas.line(x+cumulativeWidth[i], y+headerSize, x+cumulativeWidth[i]+canvas.textWidth(headings[page][i]), y+headerSize);
+      cumulativeWidth[i+1] = canvas.textWidth(headings[page][i]) + columnGap + cumulativeWidth[i];
+    }
     int yPos = y+headerSize+2*rowGap;
     for (int i = 0; i < rows; i++) {
       canvas.fill(150);
@@ -3064,10 +3070,13 @@ class ResourceManagementTable extends Element {
       canvas.textSize(TEXTSIZE);
       int offset = 0;
       if (page == 1) {
-        canvas.image(tempEquipmentImages.get(names.get(page).get(i)), x+2, yPos+i*(rowThickness+rowGap)+ceil(0.05*TEXTSIZE));
+        canvas.image(tempEquipmentImages.get(names.get(page).get(i)), x+2, yPos+i*(rowThickness+rowGap)+rowGap);
         offset = int(imgHeight/0.75);
+        canvas.text(
+          jsManager.getEquipmentClass(jsManager.getEquipmentTypeClassFromID(names.get(page).get(i))[0]),
+          x+cumulativeWidth[1], yPos+(i+1)*(rowThickness+rowGap) - rowGap);
       }
-      canvas.text(names.get(page).get(i), x+offset+rowGap, yPos+(i+1)*(rowThickness+rowGap) - rowGap);
+      canvas.text(names.get(page).get(i), x+offset+columnGap, yPos+(i+1)*(rowThickness+rowGap) - rowGap);
     }
   }
   
