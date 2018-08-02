@@ -1372,6 +1372,7 @@
         {
           "id": "rifle",
           "display name": "Rifle",
+          "img": "rifle.png",
           "range": 4,
           "speed": -0.1,
           "ranged attack": 6,
