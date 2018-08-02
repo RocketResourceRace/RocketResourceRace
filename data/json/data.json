@@ -1390,6 +1390,7 @@
         {
           "id": "tank",
           "display name": "Tank",
+          "img": "tank.png",
           "range": 5,
           "speed": 1.5,
           "ranged attack": 10,

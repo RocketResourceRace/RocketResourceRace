@@ -3038,7 +3038,7 @@ class ResourceManagementTable extends Element {
     rowGap = TEXTSIZE/4;
     columnGap = TEXTSIZE;
     headerSize = int(1.3*TEXTSIZE);
-    imgHeight = headerSize;
+    imgHeight = rowThickness;
     resizeImages();
   }
 
@@ -3095,7 +3095,7 @@ class ResourceManagementTable extends Element {
       int offset = 0;
       int startColumn = 0;
       if (page == 1) {
-        canvas.image(tempEquipmentImages.get(names.get(page).get(i)), x+2, yPos+i*(rowThickness+rowGap)+rowGap);
+        canvas.image(tempEquipmentImages.get(names.get(page).get(i)), x+2, yPos+i*(rowThickness+rowGap));
         offset = int(imgHeight/0.75);
         canvas.text(
           jsManager.getEquipmentClass(jsManager.getEquipmentTypeClassFromID(names.get(page).get(i))[0]),
