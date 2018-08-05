@@ -1,6 +1,6 @@
 # Blender v2.79 (sub 0) OBJ File: 'task_super_rest.blend'
 # www.blender.org
-mtllib task_super_rest.mtl
+mtllib super_rest.mtl
 o Plane
 v -4.000000 -2.600000 0.000000
 v -0.800000 -2.600000 0.000000

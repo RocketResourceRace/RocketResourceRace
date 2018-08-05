@@ -330,11 +330,11 @@
           "h": 3,
           "text": "GUI Scale",
           "setting": "gui scale",
-          "lower": 0.5,
+          "lower": 0.7,
           "upper": 1.5,
           "step": 0.05,
-          "minor": 25,
-          "major": 5,
+          "minor": 16,
+          "major": 4
         },
         {
           "id": "text scale",
@@ -345,11 +345,11 @@
           "h": 3,
           "text": "Text Scale",
           "setting": "text scale",
-          "lower": 0.8,
+          "lower": 1.0,
           "upper": 2,
           "step": 0.05,
-          "minor": 24,
-          "major": 6,
+          "minor": 20,
+          "major": 5,
         },
         {
           "id": "forest density",
@@ -526,5 +526,6 @@
     {"id": "fog of war", "value": false, "type": "boolean"},
     {"id": "show cell coords", "value": false, "type": "boolean"},
     {"id": "show all party managements", "value": false, "type": "boolean"},
+    {"id": "show party id", "value": false, "type": "boolean"},
   ]
 }

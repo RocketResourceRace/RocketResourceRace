@@ -1,6 +1,6 @@
 # Blender v2.79 (sub 0) OBJ File: ''
 # www.blender.org
-mtllib task_construction.mtl
+mtllib construction.mtl
 o Plane
 v 1.800000 -2.000000 0.000000
 v 4.000000 0.600000 0.000000
