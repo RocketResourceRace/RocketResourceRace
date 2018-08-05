@@ -3017,7 +3017,7 @@ class ResourceManagementTable extends Element {
   ArrayList<ArrayList<Float>> production, consumption, net, storage;
   int pages;
   int rows;
-  int TEXTSIZE = 22;
+  int TEXTSIZE = 16;
   HashMap<String, PImage> tempEquipmentImages;
   int rowThickness;
   int rowGap;
@@ -3034,11 +3034,11 @@ class ResourceManagementTable extends Element {
     names = new ArrayList<ArrayList<String>>();
     headings = new String[pages][];
     tempEquipmentImages = new HashMap<String, PImage>();
-    rowThickness = int(TEXTSIZE*1.6);
-    rowGap = TEXTSIZE/4;
-    columnGap = TEXTSIZE;
-    headerSize = int(1.3*TEXTSIZE);
+    rowThickness = ceil(TEXTSIZE*1.6*jsManager.loadFloatSetting("text scale"));
     imgHeight = rowThickness;
+    rowGap = ceil(TEXTSIZE/4*jsManager.loadFloatSetting("text scale"));
+    columnGap = ceil(TEXTSIZE*jsManager.loadFloatSetting("text scale"));
+    headerSize = ceil(1.3*TEXTSIZE*jsManager.loadFloatSetting("text scale"));
     resizeImages();
   }
 
@@ -3055,6 +3055,11 @@ class ResourceManagementTable extends Element {
     this.storage = storage;
     this.headings = headings;
     this.rows = names.get(page).size();
+    rowThickness = ceil(TEXTSIZE*1.6*jsManager.loadFloatSetting("text scale"));
+    rowGap = ceil(TEXTSIZE/4*jsManager.loadFloatSetting("text scale"));
+    columnGap = ceil(TEXTSIZE*jsManager.loadFloatSetting("text scale"));
+    headerSize = ceil(1.3*TEXTSIZE*jsManager.loadFloatSetting("text scale"));
+    resizeImages();
   }
   
   void setPage(int p) {
@@ -3091,7 +3096,7 @@ class ResourceManagementTable extends Element {
       canvas.fill(150);
       canvas.rect(x, yPos+i*(rowThickness+rowGap), w, rowThickness);
       canvas.fill(0);
-      canvas.textSize(TEXTSIZE);
+      canvas.textSize(TEXTSIZE*jsManager.loadFloatSetting("text scale"));
       int offset = 0;
       int startColumn = 0;
       if (page == 1) {
@@ -3120,7 +3125,7 @@ class ResourceManagementTable extends Element {
         try{
           String id = jsManager.getEquipmentTypeID(c, t);
           tempEquipmentImages.put(id, equipmentImages.get(id).copy());
-          tempEquipmentImages.get(id).resize(int(imgHeight/0.75), imgHeight);
+          tempEquipmentImages.get(id).resize(ceil(float(imgHeight)/0.75), imgHeight);
         }
         catch (NullPointerException e){
           LOGGER_MAIN.log(Level.SEVERE, String.format("Error resizing image for equipment icon class:%d, type:%d, id:%s", c, t, jsManager.getEquipmentTypeID(c, t)), e);
