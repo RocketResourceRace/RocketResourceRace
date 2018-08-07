@@ -3017,7 +3017,7 @@ class ResourceManagementTable extends Element {
   ArrayList<ArrayList<Float>> production, consumption, net, storage;
   int pages;
   int rows;
-  int TEXTSIZE = 16;
+  int TEXTSIZE = 13;
   HashMap<String, PImage> tempEquipmentImages;
   int rowThickness;
   int rowGap;
