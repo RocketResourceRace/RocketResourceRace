@@ -614,7 +614,7 @@
         {"id": "metal","quantity":10},
         {"id": "gears","quantity":2},
       ],
-      "buildings":["Vehicle Factory"]
+      "buildings":["Factory"]
     },
     {
       "id": "Produce Horse",
@@ -653,7 +653,7 @@
         {"id": "metal","quantity":3},
         {"id": "gears","quantity":1},
       ],
-      "buildings":["Vehicle Factory"]
+      "buildings":["Factory"]
     },
     {
       "id": "Produce Offroader",
@@ -667,7 +667,7 @@
         {"id": "metal","quantity":2},
         {"id": "gears","quantity":0.5},
       ],
-      "buildings":["Vehicle Factory"]
+      "buildings":["Factory"]
     },
     {
       "id": "Produce Hand tools",
@@ -892,8 +892,8 @@
       }
     },
     {
-      "id": "Build Firearms Factory",
-      "description": "The firearms factory can be used\n to produce various firearms",
+      "id": "Build Factory",
+      "description": "The Factory can be used\n to produce various firearms",
       "img": "construction.png",
       "obj": "construction.obj",
       "type": "building",
@@ -906,10 +906,10 @@
                        {"id":"stone", "quantity":800},
                        {"id":"metal", "quantity":300}],
       "action":{
-        "type": "Build Firearms Factory",
-        "notification": "Firearms Factory built",
+        "type": "Build Factory",
+        "notification": "Factory built",
         "turns": 6,
-        "building": "Firearms Factory"
+        "building": "Factory"
       }
     },
     {
@@ -1062,16 +1062,6 @@
     },
     {
       "id": "Blacksmith",
-      "img": ["armoury.png"],
-      "obj": ["armoury.obj"]
-    },
-    {
-      "id": "Vehicle Factory",
-      "img": ["armoury.png"],
-      "obj": ["armoury.obj"]
-    },
-    {
-      "id": "Firearms Factory",
       "img": ["armoury.png"],
       "obj": ["armoury.obj"]
     },
