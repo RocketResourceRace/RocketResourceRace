@@ -1424,6 +1424,7 @@
         {
           "id": "apc",
           "display name": "APC",
+          "img": "apc.png",
           "speed": 3,
           "defence": 5,
           "valid collection sites": ["Armoury"],
