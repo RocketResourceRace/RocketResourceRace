@@ -614,7 +614,7 @@
         {"id": "metal","quantity":10},
         {"id": "gears","quantity":2},
       ],
-      "buildings":["Vehicle Factory"]
+      "buildings":["Factory"]
     },
     {
       "id": "Produce Horse",
@@ -653,7 +653,7 @@
         {"id": "metal","quantity":3},
         {"id": "gears","quantity":1},
       ],
-      "buildings":["Vehicle Factory"]
+      "buildings":["Factory"]
     },
     {
       "id": "Produce Offroader",
@@ -667,7 +667,7 @@
         {"id": "metal","quantity":2},
         {"id": "gears","quantity":0.5},
       ],
-      "buildings":["Vehicle Factory"]
+      "buildings":["Factory"]
     },
     {
       "id": "Produce Hand tools",
@@ -760,18 +760,18 @@
       ],
       "consumption":[
         {"id": "food","quantity":0.2},
-        {"id": "sulfur","quantity":0.5},
+        {"id": "sulphur","quantity":0.5},
         {"id": "saltpeter","quantity":0.5},
       ],
       "buildings":["Factory"]
     },
     {
-      "id": "Produce Sulfur",
+      "id": "Produce Sulphur",
       "img": "produce.png",
       "obj": "produce.obj",
-      "description" : "Produce sulfur from urine",
+      "description" : "Produce sulphur from urine",
       "production":[
-        {"id": "sulfur","quantity":0.05}
+        {"id": "sulphur","quantity":0.05}
       ],
       "consumption":[
         {"id": "food","quantity":0.2},
@@ -831,8 +831,8 @@
       }
     },
     {
-      "id": "Build Stables",
-      "description": "The stables can be used to produce horses and chariots",
+      "id": "Build Stable",
+      "description": "The stable can be used to produce horses and chariots",
       "img": "construction.png",
       "obj": "construction.obj",
       "type": "building",
@@ -843,10 +843,10 @@
       ],
       "initial cost": [{"id":"wood", "quantity":500},{"id":"stone", "quantity":50}],
       "action":{
-        "type": "Build Stables",
-        "notification": "Stables built",
+        "type": "Build Stable",
+        "notification": "Stable built",
         "turns": 6,
-        "building": "Stables"
+        "building": "Stable"
       }
     },
     {
@@ -871,29 +871,8 @@
       }
     },
     {
-      "id": "Build Vechicle Factory",
-      "description": "The vechicle factory can be used\n to produce various vechicles",
-      "img": "construction.png",
-      "obj": "construction.obj",
-      "type": "building",
-      "buildings":[],
-      "terrain": ["grass", "sand"],
-      "consumption":[
-        {"id": "food","quantity":0.2}
-      ],
-      "initial cost": [{"id":"wood", "quantity":300},
-                       {"id":"stone", "quantity":500},
-                       {"id":"metal", "quantity":1000}],
-      "action":{
-        "type": "Build Vechicle Factory",
-        "notification": "Vechicle Factory built",
-        "turns": 6,
-        "building": "Vechicle Factory"
-      }
-    },
-    {
-      "id": "Build Firearms Factory",
-      "description": "The firearms factory can be used\n to produce various firearms",
+      "id": "Build Factory",
+      "description": "The Factory can be used\n to produce various firearms",
       "img": "construction.png",
       "obj": "construction.obj",
       "type": "building",
@@ -906,10 +885,10 @@
                        {"id":"stone", "quantity":800},
                        {"id":"metal", "quantity":300}],
       "action":{
-        "type": "Build Firearms Factory",
-        "notification": "Firearms Factory built",
+        "type": "Build Factory",
+        "notification": "Factory built",
         "turns": 6,
-        "building": "Firearms Factory"
+        "building": "Factory"
       }
     },
     {
@@ -1057,28 +1036,23 @@
     },
     {
       "id": "Barracks",
-      "img": ["armoury.png"],
-      "obj": ["armoury.obj"]
+      "img": ["barracks.png"],
+      "obj": ["barracks.obj"]
     },
     {
       "id": "Blacksmith",
-      "img": ["armoury.png"],
-      "obj": ["armoury.obj"]
-    },
-    {
-      "id": "Vehicle Factory",
-      "img": ["armoury.png"],
-      "obj": ["armoury.obj"]
-    },
-    {
-      "id": "Firearms Factory",
-      "img": ["armoury.png"],
-      "obj": ["armoury.obj"]
+      "img": ["blacksmith.png"],
+      "obj": ["blacksmith.obj"]
     },
     {
       "id": "Kiln",
-      "img": ["armoury.png"],
-      "obj": ["armoury.obj"]
+      "img": ["kiln.png"],
+      "obj": ["kiln.obj"]
+    },
+    {
+      "id": "Stable",
+      "img": ["stable.png"],
+      "obj": ["stables.obj"]
     },
   ],
 
@@ -1148,7 +1122,7 @@
       "resource manager": 1
     },
     {
-      "id": "sulfur",
+      "id": "sulphur",
       "resource manager": 1
     },
     {
@@ -1382,6 +1356,7 @@
         {
           "id": "machine gun",
           "display name": "Machine Gun",
+          "img": "machine gun.png",
           "range": 3,
           "speed": -0.5,
           "ranged attack": 8,
@@ -1411,24 +1386,27 @@
           "display name": "Horse",
           "img": "horse.png",
           "speed": 1,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Stable"]
         },
         {
           "id": "chariot",
           "display name": "Chariot",
+          "img": "chariot.png",
           "speed": 2,
           "melee attack": 0.1,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Stable"]
         },
         {
           "id": "offroader",
           "display name": "Offroader",
+          "img": "offroader.png",
           "speed": 5,
           "valid collection sites": ["Armoury"]
         },
         {
           "id": "apc",
           "display name": "APC",
+          "img": "apc.png",
           "speed": 3,
           "defence": 5,
           "valid collection sites": ["Armoury"],
@@ -1445,12 +1423,14 @@
         {
           "id": "hand tools",
           "display name": "Hand tools",
+          "img": "hand tools.png",
           "building speed": 1,
           "valid collection sites": ["Armoury"]
         },
         {
           "id": "power tools",
           "display name": "Power Tools",
+          "img": "power tools.png",
           "building speed": 2,
           "valid collection sites": ["Armoury"]
         },

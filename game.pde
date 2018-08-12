@@ -773,6 +773,7 @@ class Game extends State {
     getPanel("land management").transform(sidePanelX, sidePanelY, sidePanelW, round(sidePanelH*0.15));
     getPanel("party management").transform(sidePanelX, sidePanelY+round(sidePanelH*0.15)+bezel, sidePanelW, round(partyManagementHeight)-bezel*3);
     ((Button)getElement("disband button", "party management")).transform(sidePanelW-bezel-80, int(partyManagementHeight-bezel*4-30), 80, 30);
+    ((HorizontalOptionsButton)getElement("resources pages button", "resource management")).transform(bezel, bezel, int(100*jsManager.loadFloatSetting("gui scale")), int(30*jsManager.loadFloatSetting("gui scale")));
   }
 
 
