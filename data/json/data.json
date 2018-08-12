@@ -1444,12 +1444,14 @@
         {
           "id": "hand tools",
           "display name": "Hand tools",
+          "img": "hand tools.png",
           "building speed": 1,
           "valid collection sites": ["Armoury"]
         },
         {
           "id": "power tools",
           "display name": "Power Tools",
+          "img": "power tools.png",
           "building speed": 2,
           "valid collection sites": ["Armoury"]
         },
