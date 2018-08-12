@@ -871,27 +871,6 @@
       }
     },
     {
-      "id": "Build Vechicle Factory",
-      "description": "The vechicle factory can be used\n to produce various vechicles",
-      "img": "construction.png",
-      "obj": "construction.obj",
-      "type": "building",
-      "buildings":[],
-      "terrain": ["grass", "sand"],
-      "consumption":[
-        {"id": "food","quantity":0.2}
-      ],
-      "initial cost": [{"id":"wood", "quantity":300},
-                       {"id":"stone", "quantity":500},
-                       {"id":"metal", "quantity":1000}],
-      "action":{
-        "type": "Build Vechicle Factory",
-        "notification": "Vechicle Factory built",
-        "turns": 6,
-        "building": "Vechicle Factory"
-      }
-    },
-    {
       "id": "Build Factory",
       "description": "The Factory can be used\n to produce various firearms",
       "img": "construction.png",
