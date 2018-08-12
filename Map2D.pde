@@ -1265,6 +1265,7 @@ class Map2D extends BaseMap implements Map {
     for (int i=0; i<gameData.getJSONArray("buildings").size(); i++) {
       JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
       tempBuildingImages[i] = new PImage[buildingImages.get(buildingType.getString("id")).length];
+      println(i);
       for (int j=0; j<buildingImages.get(buildingType.getString("id")).length; j++) {
         tempBuildingImages[i][j] = buildingImages.get(buildingType.getString("id"))[j].copy();
         tempBuildingImages[i][j].resize(ceil(blockSize*48/64), 0);
