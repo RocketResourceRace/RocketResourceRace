@@ -1407,7 +1407,7 @@
           "display name": "Horse",
           "img": "horse.png",
           "speed": 1,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Stable"]
         },
         {
           "id": "chariot",
@@ -1415,7 +1415,7 @@
           "img": "chariot.png",
           "speed": 2,
           "melee attack": 0.1,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Stable"]
         },
         {
           "id": "offroader",
