@@ -82,6 +82,7 @@ class Game extends State{
   PVector rocketPosition;
   PVector rocketVelocity;
   int rocketStartTime;
+  color[] playerColours;
 
   Game(){
     try{
@@ -2005,6 +2006,7 @@ class Game extends State{
       turn = 0;
       turnNumber = 0;
     }
+    playerColours = new color[]{color(0, 0, 255), color(255, 0, 0)};
     ((Console)getElement("console", "console")).giveMap(map);
     
     map.generateFog(turn);

@@ -152,8 +152,6 @@ float MAPHEIGHTNOISESCALE = 0.08;
 float MAPTERRAINNOISESCALE = 0.08;
 float HILLSTEEPNESS = 0.1;
 
-color[] playerColours = new color[]{color(0, 0, 255), color(255, 0, 0)};
-
 HashMap<String, PImage> tileImages;
 HashMap<String, PImage[]> buildingImages;
 PImage[] partyImages;
@@ -186,11 +184,15 @@ void loadImages(){
     lowImages = new HashMap<String, PImage>();
     tile3DImages = new HashMap<String, PImage>();
     buildingImages = new HashMap<String, PImage[]>();
+    
+    
+    // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
     partyImages = new PImage[]{
       loadImage("data/blue_flag.png"),
       loadImage("data/red_flag.png"),
       loadImage("data/battle.png")
     };
+    //
     taskImages = new PImage[gameData.getJSONArray("tasks").size()];
     for (int i=0; i<gameData.getJSONArray("terrain").size(); i++){
       JSONObject tileType = gameData.getJSONArray("terrain").getJSONObject(i);
