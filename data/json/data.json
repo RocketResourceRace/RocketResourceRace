@@ -1,0 +1,1451 @@
+
+{
+  "game options":{
+    "starting resources":[
+      {"id": "tank","quantity":100}],
+    "movement points": 64
+  },
+  "terrain":[
+    {
+      "id": "water",
+      "display name": "Water",
+      "img": "water.png",
+      "low img": "water_low.png",
+      "weighting": 0,
+      "movement cost": 16
+    },
+    {
+      "id": "quarry site stone",
+      "display name": "Quarry Site Stone",
+      "img": "hill.png",
+      "weighting": 0,
+      "movement cost": 32
+    },
+    {
+      "id": "quarry site clay",
+      "display name": "Quarry Site Clay",
+      "img": "hill.png",
+      "weighting": 0,
+      "movement cost": 32
+    },
+    {
+      "id": "sand",
+      "display name": "Desert",
+      "img": "sand.png",
+      "movement cost": 12
+    },
+    {
+      "id": "grass",
+      "display name": "Grassland",
+      "img": "grass.png",
+      "movement cost": 8
+    },
+    {
+      "id": "forest",
+      "display name": "Forest",
+      "img": "forest.png",
+      "img3d": "grass.png",
+      "low img": "forest_low.png",
+      "movement cost": 12
+    },
+    {
+      "id": "hills",
+      "display name": "Hills",
+      "img": "hill.png",
+      "weighting": 0,
+      "movement cost": 28
+    },
+  ],
+
+  "tasks":[
+    {
+      "id": "Rest",
+      "description": "This is the default state for parties\nParties can only move when they are resting.",
+      "consumption":[
+        {"id": "food","quantity":0.1}
+      ],
+      "production":[
+        {"id": "units","quantity":0.02}
+      ]
+    },
+    {
+      "id": "Demolish",
+      "description": "Demolish the building on this tile.",
+      "img": "demolish.png",
+      "obj": "demolish.obj",
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "action":{
+        "type": "Demolish",
+        "notification": "Building Demolished",
+        "turns": 3,
+        "building": ""
+      }
+    },
+    {
+      "id": "Build Farm",
+      "description": "Farms can produce food, which units need to survive.",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":100}],
+      "action":{
+        "type": "Build Farm",
+        "notification": "Farm Built",
+        "turns": 3,
+        "building": "Farm"
+      }
+    },
+    {
+      "id": "Build Sawmill",
+      "description": "Farms can produce wood, which can be\nused to create buildings and work farms.",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["forest"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":200}],
+      "action":{
+        "type": "Build Sawmill",
+        "notification": "Sawmill Built",
+        "turns": 5,
+        "building": "Sawmill",
+        "terrain": "grass"
+      },
+    },
+    {
+      "id": "Build Homes",
+      "description": "Homes can produce units, which are the basic unit.",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":200}],
+      "action":{
+        "type": "Build Homes",
+        "notification": "Homes Built",
+        "turns": 3,
+        "building": "Homes"
+      }
+    },
+    {
+      "id": "Build Factory",
+      "description": "Factories can produce concrete and cable.",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":2000},
+                       {"id":"metal", "quantity":1000}],
+      "action":{
+        "type": "Build Factory",
+        "notification": "Factory Built",
+        "turns": 8,
+        "building": "Factory"
+      }
+    },
+    {
+      "id": "Build Mine",
+      "description": "Mines can produce ore, which can be smelted into metal.",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["hills"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":500}],
+      "action":{
+        "type": "Build Mine",
+        "notification": "Mine Built",
+        "turns": 6,
+        "building": "Mine"
+      }
+    },
+    {
+      "id": "Build Smelter",
+      "description": "Smelters can produce metal from ore.",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [
+        {"id":"wood", "quantity":200},
+        {"id":"stone", "quantity":300}
+      ],
+      "action":{
+        "type": "Build Smelter",
+        "notification": "Smelter Built",
+        "turns": 8,
+        "building": "Smelter"
+      }
+    },
+    {
+      "id": "Build Stone Quarry",
+      "description": "Quarries can mine stone if on grass and clay on sand.",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":200}],
+      "action":{
+        "type": "Build Quarry",
+        "notification": "Quarry Built",
+        "turns": 4,
+        "building": "Quarry"
+      }
+    },
+    {
+      "id": "Build Clay Quarry",
+      "description": "Quarries can mine stone if on grass and clay on sand.",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["sand"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":200}],
+      "action":{
+        "type": "Build Quarry",
+        "notification": "Quarry Built",
+        "turns": 4,
+        "building": "Quarry"
+      }
+    },
+    {
+      "id": "Build Big Factory",
+      "description": "Big Factories can produce rocket parts,\nwhich allow you to build a rocket.",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":1000},
+                       {"id":"metal", "quantity":5000}],
+      "action":{
+        "type": "Build Big Factory",
+        "notification": "Big Factory Built",
+        "turns": 12,
+        "building": "Big Factory"
+      }
+    },
+    {
+      "id": "Build Rocket Factory",
+      "description": "Rocket Factories can produce Rockets, which allows you to win.",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":3000},
+                       {"id":"metal", "quantity":10000}],
+      "action":{
+        "type": "Build Rocket Factory",
+        "notification": "Rocket Factory Built",
+        "turns": 18,
+        "building": "Rocket Factory"
+      }
+    },
+    {
+      "id": "Defend",
+      "description": "Defending increases the strength of the party in battle.",
+      "img": "defend.png",
+      "obj": "defend.obj",
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "movement points": 32,
+      "strength": 3
+    },
+    {
+      "id": "Battle",
+      "description": "This party is currently engaged in battle.",
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "auto enabled": true
+    },
+    {
+      "id": "Super Rest",
+      "description": "Super Rest produces units faster than rest.",
+      "img": "super_rest.png",
+      "obj": "super_rest.obj",
+      "consumption":[
+        {"id": "food","quantity":0.6}
+      ],
+      "production": [{"id": "units", "quantity":0.1}],
+      "buildings": ["Homes"]
+    },
+    {
+      "id": "Train Party",
+      "description": "Increases training focus proficiency",
+      "img": "super_rest.png",
+      "obj": "super_rest.obj",
+      "consumption":[
+        {"id": "food","quantity":0.4}
+      ],
+      "buildings": ["Barracks"]
+    },
+    {
+      "id": "Clear Forest",
+      "description": "Clear a forrest tile and add 100 wood to stockpile.",
+      "img": "clear_forest.png",
+      "obj": "clear_forest.obj",
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "terrain":["forest"],
+      "action":{
+        "type": "Clear Forest",
+        "notification": "Forest Cleared",
+        "turns": 2,
+        "terrain": "grass"
+      },
+      "buildings": []
+    },
+    {
+      "id": "Work Farm",
+      "description": "Produce food from farm.",
+      "img": "farm.png",
+      "obj": "farm.obj",
+      "production":[
+        {"id": "food","quantity":0.5}
+      ],
+      "consumption":[
+        {"id": "wood","quantity":0.01},
+        {"id": "food","quantity":0.2}
+      ],
+      "buildings":["Farm"]
+    },
+    {
+      "id": "Produce Stone",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "stone","quantity":0.5}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.02}
+      ],
+      "terrain": ["quarry site stone"],
+      "buildings":["Quarry"]
+    },
+    {
+      "id": "Produce Ore",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "ore","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.02}
+      ],
+      "buildings":["Mine"]
+    },
+    {
+      "id": "Produce Metal",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "metal","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.02},
+        {"id": "ore","quantity":0.1}
+      ],
+      "buildings":["Smelter"]
+    },
+    {
+      "id": "Produce Concrete",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "concrete","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "stone","quantity":0.1}
+      ],
+      "buildings":["Factory"]
+    },
+    {
+      "id": "Produce Cable",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "cable","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "metal","quantity":0.02}
+      ],
+      "buildings":["Factory"]
+    },
+    {
+      "id": "Produce Wood",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "wood","quantity":0.2}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+      ],
+      "buildings":["Sawmill"]
+    },
+    {
+      "id": "Produce Rocket Parts",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "rocket parts","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "metal","quantity":1}
+      ],
+      "buildings":["Big Factory"]
+    },
+    {
+      "id": "Produce Rocket",
+      "description": "Needed to launch rocket.",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "rocket progress","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "rocket parts","quantity":1},
+        {"id": "cable","quantity":0.1}
+      ],
+      "buildings":["Rocket Factory"]
+    },
+    {
+      "id": "Produce Wooden Armour",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "wooden armour","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":1},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Iron Armour",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "iron armour","quantity":0.02}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "metal","quantity":1},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Reinforced Armour",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "reinforced armour","quantity":0.02}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":2},
+        {"id": "metal","quantity":2},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Sword and Shield",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "sword and shield","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.5},
+        {"id": "metal","quantity":0.2},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Bow",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "bow","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.5},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Javelin",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "javelin","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.5},
+        {"id": "metal","quantity":0.02},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Pikes",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "pike","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":1},
+        {"id": "metal","quantity":0.05},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Musket",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "musket","quantity":0.03}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "stone","quantity":0.01},
+        {"id": "gunpowder","quantity":0.1},
+        {"id": "wood","quantity":1.5},
+        {"id": "metal","quantity":0.5},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Rifle",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "rifle","quantity":0.02}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "stone","quantity":0.02},
+        {"id": "gunpowder","quantity":0.2},
+        {"id": "wood","quantity":2},
+        {"id": "metal","quantity":1.5},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Machine Gun",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "machine gun","quantity":0.02}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "gunpowder","quantity":0.5},
+        {"id": "wood","quantity":1},
+        {"id": "metal","quantity":4},
+      ],
+      "buildings":["Factory"]
+    },
+    {
+      "id": "Produce Tank",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "tank","quantity":0.005}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "gunpowder","quantity":2},
+        {"id": "wood","quantity":1},
+        {"id": "metal","quantity":10},
+        {"id": "gears","quantity":2},
+      ],
+      "buildings":["Factory"]
+    },
+    {
+      "id": "Produce Horse",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "horse","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":1},
+      ],
+      "buildings":["Stable"]
+    },
+    {
+      "id": "Produce Chariot",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "chariot","quantity":0.04}
+      ],
+      "consumption":[
+        {"id": "food","quantity":2},
+        {"id": "wood","quantity":0.2},
+      ],
+      "buildings":["Stable"]
+    },
+    {
+      "id": "Produce APC",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "apc","quantity":0.01}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "metal","quantity":3},
+        {"id": "gears","quantity":1},
+      ],
+      "buildings":["Factory"]
+    },
+    {
+      "id": "Produce Offroader",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "offroader","quantity":0.02}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "metal","quantity":2},
+        {"id": "gears","quantity":0.5},
+      ],
+      "buildings":["Factory"]
+    },
+    {
+      "id": "Produce Hand tools",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "hand tools","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "metal","quantity":0.1},
+        {"id": "wood","quantity":0.2},
+      ],
+      "buildings":["Blacksmith"]
+    },
+    {
+      "id": "Produce Power tools",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "power tools","quantity":0.02}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "metal","quantity":0.5},
+        {"id": "wood","quantity":0.5},
+        {"id": "gears","quantity":0.2},
+      ],
+      "buildings":["Factory"]
+    },
+    {
+      "id": "Produce Charcoal",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "charcoal","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.11},
+      ],
+      "buildings":["Kiln"]
+    },
+    {
+      "id": "Produce Gears",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "gears","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "metal","quantity":0.5},
+      ],
+      "buildings":["Factory"]
+    },
+    {
+      "id": "Produce Clay",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "clay","quantity":0.1}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.01},
+      ],
+      "terrain": ["quarry site clay"],
+      "buildings":["Quarry"]
+    },
+    {
+      "id": "Produce Bricks",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "bricks","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "clay","quantity":0.1},
+      ],
+      "buildings":["Kiln"]
+    },
+    {
+      "id": "Produce Gunpowder",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "gears","quantity":0.5}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "sulphur","quantity":0.5},
+        {"id": "saltpeter","quantity":0.5},
+      ],
+      "buildings":["Factory"]
+    },
+    {
+      "id": "Produce Sulphur",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "description" : "Produce sulphur from urine",
+      "production":[
+        {"id": "sulphur","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+      ],
+    },
+    {
+      "id": "Produce Saltpeter",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "production":[
+        {"id": "saltpeter","quantity":0.05}
+      ],
+      "consumption":[
+        {"id": "food","quantity":0.2},
+        {"id": "wood","quantity":0.01},
+      ],
+      "buildings":["Mine"]
+    },
+    {
+      "id": "Launch Rocket",
+      "description": "Attempt to win the game.",
+      "img": "produce.png",
+      "obj": "produce.obj",
+      "initial cost":[{"id":"rocket progress", "quantity":1000}],
+      "buildings":["Rocket Factory"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+    },
+    {
+      "id": "Construction Mid",
+      "img": "construction.png",
+      "terrain": [],
+    },
+    {
+      "id": "Construction End",
+      "img": "construction.png",
+      "terrain": [],
+    },
+    {
+      "id": "Build Wooden Tower",
+      "description": "Wooden tower is a defence building.",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand", "hill"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":300}],
+      "action":{
+        "type": "Build Wooden Tower",
+        "notification": "Wooden Tower Built",
+        "turns": 4,
+        "building": "Wooden Tower"
+      }
+    },
+    {
+      "id": "Build Stable",
+      "description": "The stable can be used to produce horses and chariots",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":500},{"id":"stone", "quantity":50}],
+      "action":{
+        "type": "Build Stable",
+        "notification": "Stable built",
+        "turns": 6,
+        "building": "Stable"
+      }
+    },
+    {
+      "id": "Build Blacksmith",
+      "description": "The blacksmith can be used to produce various weapons and tools",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand", "hill"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":600},
+                       {"id":"stone", "quantity":300},
+                       {"id":"metal", "quantity":50}],
+      "action":{
+        "type": "Build Blacksmith",
+        "notification": "Blacksmith built",
+        "turns": 6,
+        "building": "Blacksmith"
+      }
+    },
+    {
+      "id": "Build Factory",
+      "description": "The Factory can be used\n to produce various firearms",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":600},
+                       {"id":"stone", "quantity":800},
+                       {"id":"metal", "quantity":300}],
+      "action":{
+        "type": "Build Factory",
+        "notification": "Factory built",
+        "turns": 6,
+        "building": "Factory"
+      }
+    },
+    {
+      "id": "Build Kiln",
+      "description": "The kiln can be used to produce charcoal",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [{"id":"wood", "quantity":300},
+                       {"id":"stone", "quantity":300}],
+      "action":{
+        "type": "Build Kiln",
+        "notification": "Kiln built",
+        "turns": 6,
+        "building": "Kiln"
+      }
+    },
+    {
+      "id": "Siege",
+      "description": "This party is currently engaged in siege.",
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "auto enabled": true
+    },
+    {
+      "id": "Build Armoury",
+      "description": "Armoury is an equipment pickup building.",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand", "hill"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [
+        {"id":"wood", "quantity":300},
+        {"id": "stone", "quantity": 200}
+      ],
+      "action":{
+        "type": "Build Armoury",
+        "notification": "Armoury Built",
+        "turns": 4,
+        "building": "Armoury"
+      }
+    },
+    {
+      "id": "Build Barracks",
+      "description": "Barracks can train parties in their training focus proficiency.",
+      "img": "construction.png",
+      "obj": "construction.obj",
+      "type": "building",
+      "buildings":[],
+      "terrain": ["grass", "sand", "hill"],
+      "consumption":[
+        {"id": "food","quantity":0.2}
+      ],
+      "initial cost": [
+        {"id":"wood", "quantity": 400},
+        {"id": "stone", "quantity": 150}
+      ],
+      "action":{
+        "type": "Build Barracks",
+        "notification": "Barracks Built",
+        "turns": 4,
+        "building": "Barracks"
+      }
+    }
+  ],
+
+  "buildings":[
+    {
+      "id": "Homes",
+      "img": ["house.png"],
+      "obj": ["houses.obj"]
+    },
+    {
+      "id": "Farm",
+      "img": ["farm.png"],
+      "obj": ["farm.obj"]
+    },
+    {
+      "id": "Mine",
+      "img": ["mine.png"],
+      "obj": ["mine.obj"],
+    },
+    {
+      "id": "Smelter",
+      "img": ["smelter.png"],
+      "obj": ["smelter.obj"]
+    },
+    {
+      "id": "Factory",
+      "img": ["factory.png"],
+      "obj": ["factory.obj"]
+    },
+    {
+      "id": "Big Factory",
+      "img": ["big_factory.png"],
+      "obj": ["big_factory.obj"]
+    },
+    {
+      "id": "Rocket Factory",
+      "img": ["rocket_factory_empty.png",
+              "rocket_factory_full.png",
+              "rocket.png"],
+      "obj": ["rocket_factory.obj",
+              "rocket_full.obj",
+              "rocket.obj"]
+    },
+    {
+      "id": "Sawmill",
+      "img": ["sawmill.png"],
+      "obj": ["sawmill.obj"]
+    },
+    {
+      "id": "Quarry",
+      "img": ["quarry.png"],
+      "obj": ["quarry.obj"]
+    },
+    {
+      "id": "Construction",
+      "img": ["construction_start.png",
+              "construction_mid.png",
+              "construction_end.png"],
+      "obj": ["construction-start.obj",
+              "construction-mid.obj",
+              "construction-end.obj"]
+    },
+    {
+      "id": "Wooden Tower",
+      "img": ["wooden_tower.png"],
+      "obj": ["wooden_tower.obj"]
+    },
+    {
+      "id": "Armoury",
+      "img": ["armoury.png"],
+      "obj": ["armoury.obj"]
+    },
+    {
+      "id": "Barracks",
+      "img": ["barracks.png"],
+      "obj": ["barracks.obj"]
+    },
+    {
+      "id": "Blacksmith",
+      "img": ["blacksmith.png"],
+      "obj": ["blacksmith.obj"]
+    },
+    {
+      "id": "Kiln",
+      "img": ["kiln.png"],
+      "obj": ["kiln.obj"]
+    },
+    {
+      "id": "Stable",
+      "img": ["stable.png"],
+      "obj": ["stables.obj"]
+    },
+  ],
+
+  "resources":[
+    {
+      "id": "food",
+      "resource manager": 2
+    },
+    {
+      "id": "wood",
+      "resource manager": 2
+    },
+    {
+      "id": "stone",
+      "resource manager": 2
+    },
+    {
+      "id": "metal",
+      "resource manager": 2
+    },
+    {
+      "id": "energy",
+      "resource manager": 0
+    },
+    {
+      "id": "concrete",
+      "resource manager": 1
+    },
+    {
+      "id": "cable",
+      "resource manager": 1
+    },
+    {
+      "id": "rocket parts",
+      "resource manager": 1
+    },
+    {
+      "id": "ore",
+      "resource manager": 1
+    },
+    {
+      "id": "rocket progress",
+      "resource manager": 0
+    },
+    {
+      "id": "units",
+      "resource manager": 0
+    },
+    {
+      "id": "charcoal",
+      "resource manager": 1
+    },
+    {
+      "id": "gears",
+      "resource manager": 1
+    },
+    {
+      "id": "bricks",
+      "resource manager": 1
+    },
+    {
+      "id": "clay",
+      "resource manager": 1
+    },
+    {
+      "id": "gunpowder",
+      "resource manager": 1
+    },
+    {
+      "id": "sulphur",
+      "resource manager": 1
+    },
+    {
+      "id": "saltpeter",
+      "resource manager": 1
+    },
+    {
+      "id": "wooden armour",
+      "resource manager": 0,
+      "is equipment": true
+    },
+    {
+      "id": "iron armour",
+      "resource manager": 0,
+      "is equipment": true
+    },
+    {
+      "id": "reinforced armour",
+      "resource manager": 0,
+      "is equipment": true
+    },
+    {
+      "id": "sword and shield",
+      "resource manager": 0,
+      "is equipment": true
+    },
+    {
+      "id": "bow",
+      "resource manager": 0,
+      "is equipment": true
+    },
+    {
+      "id": "javelin",
+      "resource manager": 0,
+      "is equipment": true
+    },
+    {
+      "id": "pike",
+      "resource manager": 0,
+      "is equipment": true
+    },
+    {
+      "id": "musket",
+      "resource manager": 0,
+      "is equipment": true
+    },
+    {
+      "id": "rifle",
+      "resource manager": 0,
+      "is equipment": true
+    },
+    {
+      "id": "machine gun",
+      "resource manager": 0,
+      "is equipment": true
+    },
+    {
+      "id": "tank",
+      "resource manager": 2,
+      "is equipment": true
+    },
+    {
+      "id": "horse",
+      "resource manager": 0,
+      "is equipment": true
+    },
+    {
+      "id": "chariot",
+      "resource manager": 0,
+      "is equipment": true
+    },
+    {
+      "id": "offroader",
+      "resource manager": 0,
+      "is equipment": true
+    },
+    {
+      "id": "apc",
+      "resource manager": 0,
+      "is equipment": true
+    },
+    {
+      "id": "hand tools",
+      "resource manager": 0,
+      "is equipment": true
+    },
+    {
+      "id": "power tools",
+      "resource manager": 0,
+      "is equipment": true
+    },
+  ],
+
+  "proficiencies":[
+    {
+      "id":"melee attack",
+      "display name": "Melee Attack",
+      "tooltip": "Increases damage done in battles"
+    },
+    {
+      "id":"ranged attack",
+      "display name": "Ranged Attack",
+      "tooltip": "Increases damage done in ranged bombardments"
+    },
+    {
+      "id":"defence",
+      "display name": "Defence",
+      "tooltip": "Reduces damage taken in battles\nand from ranged bombardments"
+    },
+    {
+      "id":"building speed",
+      "display name": "Building Speed",
+      "tooltip": "Reduces time tasken to construct buildings. Disabled until v0.5"
+    },
+    {
+      "id":"speed",
+      "display name": "Movement Speed",
+      "tooltip": "Increases movement points for the party"
+    }
+  ],
+
+  "effectiveness constants":{
+    "movement": 0.25,
+    "ranged": 0.5,
+    "defence": 0.5,
+    "melee attack": 0.5
+  },
+
+  "raw training gains":{
+    "winning battle melee": 0.5,
+    "winning battle defence": 0.3,
+    "ranged bombardment attack": 0.1,
+    "ranged bombardment defence": 0.1,
+    "constructing building": 0.1,
+    "moving": 0.001,
+    "training": 0.02,
+  },
+
+  "equipment":[
+    {
+      "id": "armour",
+      "display name": "Armour",
+      "display multipliers": ["speed", "defence"],
+      "types":[
+        {
+          "id": "wooden armour",
+          "display name": "Wooden Armour",
+          "img": "wooden armour.png",
+          "speed": -0.25,
+          "defence": 1,
+          "valid collection sites": ["Armoury"]
+        },
+        {
+          "id": "iron armour",
+          "display name": "Iron Armour",
+          "img": "iron armour.png",
+          "speed": -0.4,
+          "defence": 2.5,
+          "valid collection sites": ["Armoury"]
+        },
+        {
+          "id": "reinforced armour",
+          "display name": "Reinforced Armour",
+          "img": "reinforced armour.png",
+          "speed": -0.5,
+          "defence": 4,
+          "valid collection sites": ["Armoury"]
+        },
+      ]
+    },
+
+    {
+      "id": "weapon",
+      "display name": "Weapon",
+      "display multipliers": ["speed", "defence", "ranged attack", "melee attack"],
+      "other attributes": ["range"],
+      "types":[
+        {
+          "id": "sword and shield",
+          "display name": "Sword and Shield",
+          "img": "sword and shield.png",
+          "melee attack": 1,
+          "speed": -0.1,
+          "defence": 0.5,
+          "valid collection sites": ["Armoury"]
+        },
+        {
+          "id": "bow",
+          "display name": "Bow",
+          "img": "bow.png",
+          "range": 2,
+          "ranged attack": 0.25,
+          "valid collection sites": ["Armoury"]
+        },
+        {
+          "id": "javelin",
+          "display name": "Javlin",
+          "img": "javelin.png",
+          "range": 1,
+          "ranged attack": 1,
+          "valid collection sites": ["Armoury"]
+        },
+        {
+          "id": "pike",
+          "display name": "Pike",
+          "img": "pike.png",
+          "speed": -0.3,
+          "melee attack": 1.5,
+          "valid collection sites": ["Armoury"]
+        },
+        {
+          "id": "musket",
+          "display name": "Musket",
+          "img": "musket.png",
+          "range": 3,
+          "speed": -0.1,
+          "ranged attack": 4,
+          "melee attack": 1.5,
+          "valid collection sites": ["Armoury"]
+        },
+        {
+          "id": "rifle",
+          "display name": "Rifle",
+          "img": "rifle.png",
+          "range": 4,
+          "speed": -0.1,
+          "ranged attack": 6,
+          "melee attack": 2,
+          "valid collection sites": ["Armoury"]
+        },
+        {
+          "id": "machine gun",
+          "display name": "Machine Gun",
+          "img": "machine gun.png",
+          "range": 3,
+          "speed": -0.5,
+          "ranged attack": 8,
+          "melee attack": 3,
+          "valid collection sites": ["Armoury"]
+        },
+        {
+          "id": "tank",
+          "display name": "Tank",
+          "img": "tank.png",
+          "range": 5,
+          "speed": 1.5,
+          "ranged attack": 10,
+          "valid collection sites": ["Armoury"],
+          "other class blocking": ["mount", "armour"],
+        },
+      ]
+    },
+
+    {
+      "id": "mount",
+      "display name": "Mount/Vehicle",
+      "display multipliers": ["speed", "defence", "melee attack"],
+      "types":[
+        {
+          "id": "horse",
+          "display name": "Horse",
+          "img": "horse.png",
+          "speed": 1,
+          "valid collection sites": ["Stable"]
+        },
+        {
+          "id": "chariot",
+          "display name": "Chariot",
+          "img": "chariot.png",
+          "speed": 2,
+          "melee attack": 0.1,
+          "valid collection sites": ["Stable"]
+        },
+        {
+          "id": "offroader",
+          "display name": "Offroader",
+          "img": "offroader.png",
+          "speed": 5,
+          "valid collection sites": ["Armoury"]
+        },
+        {
+          "id": "apc",
+          "display name": "APC",
+          "img": "apc.png",
+          "speed": 3,
+          "defence": 5,
+          "valid collection sites": ["Armoury"],
+          "other class blocking": ["armour"],
+        },
+      ]
+    },
+
+    {
+      "id": "tool",
+      "display name": "Tool",
+      "display multipliers": ["building speed"],
+      "types":[
+        {
+          "id": "hand tools",
+          "display name": "Hand tools",
+          "img": "hand tools.png",
+          "building speed": 1,
+          "valid collection sites": ["Armoury"]
+        },
+        {
+          "id": "power tools",
+          "display name": "Power Tools",
+          "img": "power tools.png",
+          "building speed": 2,
+          "valid collection sites": ["Armoury"]
+        },
+      ]
+    },
+  ],
+
+  "tooltips":{
+    "unequip": "Unequip current equipment\n",
+    "move button": "A party can only move if it has enough\nmovement points",
+    "moving": "Move party",
+    "moving splitting": "Move the units selected",
+    "moving turns": "Move party: %d turns",
+    "merging": "Merge party '%s' into '%s'.\nUnits transfered: %d, Overflow: %d",
+    "attacking": "Attack enemy party.\nThis action will cause a battle to occur.\nBoth parties are trapped in combat until one is eliminated. You have a %s%% chance of winning this battle.",
+    "turns remaining": "The rate that an action is completed is affected\nby the number of units in a party\n(a square root relationship)."
+  }
+}
