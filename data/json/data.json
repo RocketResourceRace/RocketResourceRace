@@ -1072,7 +1072,7 @@
     },
     {
       "id": "Stable",
-      "img": ["armoury.png"],
+      "img": ["stable.png"],
       "obj": ["stables.obj"]
     },
   ],
