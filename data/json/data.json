@@ -1377,6 +1377,7 @@
         {
           "id": "machine gun",
           "display name": "Machine Gun",
+          "img": "machine gun.png",
           "range": 3,
           "speed": -0.5,
           "ranged attack": 8,
@@ -1411,6 +1412,7 @@
         {
           "id": "chariot",
           "display name": "Chariot",
+          "img": "chariot.png",
           "speed": 2,
           "melee attack": 0.1,
           "valid collection sites": ["Armoury"]
@@ -1418,6 +1420,7 @@
         {
           "id": "offroader",
           "display name": "Offroader",
+          "img": "offroader.png",
           "speed": 5,
           "valid collection sites": ["Armoury"]
         },
