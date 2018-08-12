@@ -1057,8 +1057,8 @@
     },
     {
       "id": "Barracks",
-      "img": ["armoury.png"],
-      "obj": ["armoury.obj"]
+      "img": ["barracks.png"],
+      "obj": ["barracks.obj"]
     },
     {
       "id": "Blacksmith",
