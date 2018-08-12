@@ -1062,7 +1062,7 @@
     },
     {
       "id": "Blacksmith",
-      "img": ["armoury.png"],
+      "img": ["blacksmith.png"],
       "obj": ["armoury.obj"]
     },
     {
