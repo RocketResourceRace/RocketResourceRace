@@ -1068,7 +1068,7 @@
     {
       "id": "Kiln",
       "img": ["armoury.png"],
-      "obj": ["armoury.obj"]
+      "obj": ["kiln.obj"]
     },
     {
       "id": "Stable",
