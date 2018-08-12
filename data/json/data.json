@@ -1063,7 +1063,7 @@
     {
       "id": "Blacksmith",
       "img": ["blacksmith.png"],
-      "obj": ["armoury.obj"]
+      "obj": ["blacksmith.obj"]
     },
     {
       "id": "Kiln",
