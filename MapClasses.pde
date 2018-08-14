@@ -707,7 +707,7 @@ class Battle extends Party {
   int mergeFrom(Party other, int unitsTransfered, int moveCost, Player player) {
     // Take units from other party into this party and merge attributes, weighted by unit number
     LOGGER_GAME.fine(String.format("Merging %d units from party with id:%s into battle with id:%s", unitsTransfered, other.id, this.id));
-
+    // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
     if (attacker.player == other.player) {
       return attacker.mergeFrom(other, unitsTransfered, moveCost, player);
     } else if (defender.player == other.player) {
@@ -715,6 +715,7 @@ class Battle extends Party {
     } else {
       return unitsTransfered;
     }
+    //
   }
 }
 
@@ -724,11 +725,13 @@ class Siege extends Party {
   }
 }
 
+// THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
 int getBattleUnitChange(Party p1, Party p2) {
   float damageRating = p2.strength * p2.getEffectivenessMultiplier("melee attack", jsManager.proficiencyIDToIndex("melee attack")) /
   (p1.strength * p1.getEffectivenessMultiplier("defence", jsManager.proficiencyIDToIndex("defence")));
   return floor(-0.2 * (p2.getUnitNumber() + pow(p2.getUnitNumber(), 2) / p1.getUnitNumber()) * random(0.75, 1.5) * damageRating);
 }
+//
 
 boolean playerExists(Player[] players, String name) {
   for (Player p: players) {
@@ -877,7 +880,8 @@ class BattleEstimateManager {
       throw e;
     }
   }
-
+  
+  // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
   int runTrial(Party attacker, Party defender) {
     try {
       Battle battle;
@@ -912,6 +916,7 @@ class BattleEstimateManager {
       throw e;
     }
   }
+  //
   void refresh() {
     cached = false;
   }
