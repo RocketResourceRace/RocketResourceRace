@@ -1588,7 +1588,7 @@ class Tooltip extends Element {
 
 class NotificationManager extends Element {
   ArrayList<ArrayList<Notification>> notifications;
-  int bgColour, textColour, displayNots, notHeight, topOffset, scroll, turn;
+  int bgColour, textColour, displayNots, notHeight, topOffset, scroll, turn, numPlayers;
   Notification lastSelected;
   boolean scrolling;
 
@@ -1603,6 +1603,7 @@ class NotificationManager extends Element {
     this.displayNots = displayNots;
     this.notHeight = h/displayNots;
     this.notifications = new ArrayList<ArrayList<Notification>>();
+    this.numPlayers = numPlayers;
     for (int i = 0; i < numPlayers; i ++){
       notifications.add(new ArrayList<Notification>());
     }
@@ -1664,8 +1665,9 @@ class NotificationManager extends Element {
     // Clears all notificaitions for all players
     LOGGER_MAIN.fine("Dismissing notifications for all players");
     notifications.clear();
-    notifications.add(new ArrayList<Notification>());
-    notifications.add(new ArrayList<Notification>());
+    for (int i = 0; i < numPlayers; i ++){
+      notifications.add(new ArrayList<Notification>());
+    }
   }
 
   void post(Notification n, int turn) {

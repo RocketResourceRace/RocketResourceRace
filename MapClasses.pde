@@ -883,7 +883,7 @@ class BattleEstimateManager {
       Battle battle;
       Party clone1;
       Party clone2;
-      if (defender.player==2) {
+      if (defender instanceof Battle) {
         battle = (Battle) defender.clone();
         battle.changeUnitNumber(attacker.player, attacker.getUnitNumber());
         if (battle.attacker.player==attacker.player) {

@@ -1273,7 +1273,12 @@ class Map3D extends BaseMap implements Map {
               canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
               canvas.shape(redFlag);
               canvas.popMatrix();
-            } else if (parties[y][x].player == 2) {
+            }else if (parties[y][x].player == 2) {
+              canvas.pushMatrix();
+              canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
+              canvas.shape(redFlag);
+              canvas.popMatrix();
+            } else if (parties[y][x] instanceof Battle) {
               canvas.pushMatrix();
               canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 12+groundMaxHeightAt(x, y));
               canvas.shape(battle);

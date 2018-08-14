@@ -285,7 +285,7 @@ class BaseMap extends Element {
       for (int y=0; y<mapHeight; y++) {
         for (int x=0; x<mapWidth; x++) {
           if (parties[y][x] != null) {
-            if (parties[y][x].player==2) {
+            if (parties[y][x] instanceof Battle) {
               partiesByteCount+= Character.BYTES*16;
               partiesByteCount+=getPartySize(((Battle)parties[y][x]).attacker);
               partiesByteCount+=getPartySize(((Battle)parties[y][x]).defender);
@@ -345,7 +345,7 @@ class BaseMap extends Element {
         for (int x=0; x<mapWidth; x++) {
           if (parties[y][x]==null) {
             buffer.put(byte(0));
-          } else if (parties[y][x].player == 2) {
+          } else if (parties[y][x] instanceof Battle) {
             buffer.put(byte(2));
             for (int i=0; i<16; i++) {
               if (i<parties[y][x].id.length()) {
@@ -468,7 +468,7 @@ class BaseMap extends Element {
       for (int y=0; y<mapHeight; y++) {
         for (int x=0; x<mapWidth; x++) {
           Byte partyType = buffer.get();
-          if (partyType == 2) {
+          if (partyType == -1) {
             char[] rawid;
             char[] p1id;
             char[] p2id;
@@ -1309,7 +1309,7 @@ class Map2D extends BaseMap implements Map {
           c = new PVector(scaleX(x), scaleY(y));
           if (c.x<xPos+elementWidth&&c.y+blockSize/8+blockSize>yPos&&c.y<yPos+elementHeight) {
             panelCanvas.noStroke();
-            if (parties[y][x].player == 2) {
+            if (parties[y][x] instanceof Battle) {
               Battle battle = (Battle) parties[y][x];
               if (c.x+blockSize>xPos) {
                 panelCanvas.fill(120, 120, 120);
