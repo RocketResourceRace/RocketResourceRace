@@ -720,7 +720,7 @@ class Battle extends Party {
 
 class Siege extends Party {
   Siege (Party attacker, Building defence, Party garrison, String id) {
-    super(3, attacker.getUnitNumber()+garrison.getUnitNumber(), JSONIndex(gameData.getJSONArray("tasks"), "Siege"), 0, id);
+    super(-2, attacker.getUnitNumber()+garrison.getUnitNumber(), JSONIndex(gameData.getJSONArray("tasks"), "Siege"), 0, id);
   }
 }
 
