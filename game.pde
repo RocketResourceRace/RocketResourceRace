@@ -90,12 +90,12 @@ class Game extends State {
       LOGGER_MAIN.fine("initializing game");
       gameUICanvas = createGraphics(width, height, P2D); 
       
-      players = new Player[2];
-      totals = new float[resourceNames.length];
+      players = new Player[3];
       
       initialiseResources();
       initialiseTasks();
       initialiseBuildings();
+      totals = new float[resourceNames.length];
 
       addElement("2dmap", new Map2D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
       addElement("3dmap", new Map3D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
@@ -1304,7 +1304,7 @@ class Game extends State {
         tempY = (height/2-map.getTargetOffsetY()-((Map2D)map).yPos)/((Map2D)map).targetBlockSize;
       }
       players[turn].saveSettings(tempX, tempY, blockSize, selectedCellX, selectedCellY, cellSelected);
-      turn = (turn + 1)%2;
+      turn = (turn + 1)%players.length;
       map.generateFog(turn);
       players[turn].loadSettings(this, map);
       changeTurn = false;
@@ -2529,6 +2529,7 @@ class Game extends State {
       buildings = ((BaseMap)map).buildings;
       parties = ((BaseMap)map).parties;
       PVector[] playerStarts = generateStartingParties();
+      players[2] = new Player((int)playerStarts[2].x, (int)playerStarts[2].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0, 255, 0), "Player 3  ");
       float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, jsManager.loadIntSetting("starting block size"));
       players[1] = new Player((int)playerStarts[1].x, (int)playerStarts[1].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255, 0, 0), "Player 2  ");
       float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"));
@@ -2676,9 +2677,18 @@ class Game extends State {
     }
     return costs.size();
   }
-  boolean startInvalid(PVector p1, PVector p2) {
-    if (p1.dist(p2)<mapWidth/4||((BaseMap)map).isWater(int(p1.x), int(p1.y))||((BaseMap)map).isWater(int(p2.x), int(p2.y))) {
-      return true;
+  boolean startInvalid(PVector[] ps) {
+    for (int i=0; i < players.length; i++){
+      if (((BaseMap)map).isWater(int(ps[i].x), int(ps[i].y))){
+        //Check starting position if on water
+        return true;
+      }
+      for (int j=i+1; j < players.length; j++){
+        if (ps[i].dist(ps[j])<mapWidth/8){
+          // Check distances between all players
+          return true;
+        }
+      }
     }
     return false;
   }
@@ -2688,24 +2698,29 @@ class Game extends State {
 
   PVector[] generateStartingParties() {
     LOGGER_GAME.fine("Generating starting positions");
-    PVector player1 = generatePartyPosition();
-    PVector player2 = generatePartyPosition();
+    PVector[] playersStartingPositions = new PVector[players.length];
     int counter = 0;
-    while (startInvalid(player1, player2)&&counter<100) {
-      counter++;
-      player1 = generatePartyPosition();
-      player2 = generatePartyPosition();
+    for (int i=0; i < players.length; i++){
+      playersStartingPositions[i] = new PVector();
     }
-    if (counter == 100) {
+    while (startInvalid(playersStartingPositions)&&counter<1000) {
+      counter++;
+      for (int i=0; i < players.length; i++){
+        playersStartingPositions[i] = generatePartyPosition();
+      }
+    }
+    if (counter == 1000) {
       LOGGER_GAME.warning("Resorted to invalid party starts after 100 attempts");
     }
-    LOGGER_GAME.fine(String.format("Player 1 party positition: (%f, %f)", player1.x, player1.y));
-    LOGGER_GAME.fine(String.format("Player 2 party positition: (%f, %f)", player2.x, player2.y));
-    if (loadingName == null) {
-      parties[(int)player1.y][(int)player1.x] = new Party(0, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"), "Player 1   #0");
-      parties[(int)player2.y][(int)player2.x] = new Party(1, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"), "Player 2   #0");
+    for (int i=0; i < players.length; i++){
+      LOGGER_GAME.fine(String.format("Player %d party positition: (%f, %f)", i+1, playersStartingPositions[i].x, playersStartingPositions[i].y));
     }
-    return  new PVector[]{player1, player2};
+    if (loadingName == null) {
+      for (int i=0; i < players.length; i++){
+        parties[(int)playersStartingPositions[i].y][(int)playersStartingPositions[i].x] = new Party(i, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"), String.format("Player %d   #0", i));
+      }
+    }
+    return playersStartingPositions;
   }
 
   void enterCinematicMode() {
