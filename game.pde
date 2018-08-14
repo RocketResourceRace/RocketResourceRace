@@ -89,18 +89,20 @@ class Game extends State {
     try {
       LOGGER_MAIN.fine("initializing game");
       gameUICanvas = createGraphics(width, height, P2D); 
+      
+      players = new Player[2];
+      totals = new float[resourceNames.length];
+      
       initialiseResources();
       initialiseTasks();
       initialiseBuildings();
 
       addElement("2dmap", new Map2D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
       addElement("3dmap", new Map3D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
-      addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 8, turn));
+      addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 8, turn, players.length));
 
       //map = (Map3D)getElement("2map", "default");
       notificationManager = (NotificationManager)getElement("notification manager", "default");
-      players = new Player[2];
-      totals = new float[resourceNames.length];
 
       // Initial positions will be focused on starting party
       //players[0] = new Player(map.focusedX, map.focusedY, map.zoom, startingResources, color(0,0,255));

@@ -1592,7 +1592,7 @@ class NotificationManager extends Element {
   Notification lastSelected;
   boolean scrolling;
 
-  NotificationManager(int x, int y, int w, int h, int bgColour, int textColour, int displayNots, int turn) {
+  NotificationManager(int x, int y, int w, int h, int bgColour, int textColour, int displayNots, int turn, int numPlayers) {
     this.x = x;
     this.y = y;
     this.w = w;
@@ -1603,8 +1603,9 @@ class NotificationManager extends Element {
     this.displayNots = displayNots;
     this.notHeight = h/displayNots;
     this.notifications = new ArrayList<ArrayList<Notification>>();
-    notifications.add(new ArrayList<Notification>());
-    notifications.add(new ArrayList<Notification>());
+    for (int i = 0; i < numPlayers; i ++){
+      notifications.add(new ArrayList<Notification>());
+    }
     this.scroll = 0;
     lastSelected = null;
     scrolling = false;
