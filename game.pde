@@ -796,7 +796,6 @@ class Game extends State {
       resetAvailableTasks();
       boolean correctTerrain, correctBuilding, enoughResources, enoughMovementPoints;
       JSONObject js;
-      //println(parties[selectedCellY][selectedCellX] instanceof Battle);
       
       if (parties[selectedCellY][selectedCellX].player == -1) {
         makeTaskAvailable(parties[selectedCellY][selectedCellX].task);
