@@ -1263,6 +1263,7 @@ class Map3D extends BaseMap implements Map {
           }
           if (parties[y][x] != null) {
             canvas.noLights();
+            // NEEDS CHANGING FOR >2 PLAYERS
             if (parties[y][x].player == 0) {
               canvas.pushMatrix();
               canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
@@ -1322,7 +1323,7 @@ class Map3D extends BaseMap implements Map {
 
   void drawUnitBar(int x, int y, PGraphics canvas) {
     try {
-      if (parties[y][x].player==-1) {
+      if (parties[y][x] instanceof Battle) {
         Battle battle = (Battle) parties[y][x];
         unitNumberObjects[battle.attacker.player].setVertex(0, blockSize*battle.attacker.getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
         unitNumberObjects[battle.attacker.player].setVertex(1, blockSize*battle.attacker.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);

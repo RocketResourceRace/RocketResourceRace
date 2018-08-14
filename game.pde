@@ -97,7 +97,7 @@ class Game extends State {
       initialiseBuildings();
       totals = new float[resourceNames.length];
 
-      addElement("2dmap", new Map2D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
+      addElement("2dmap", new Map2D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight, players));
       addElement("3dmap", new Map3D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
       addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 8, turn, players.length));
 
@@ -2350,6 +2350,7 @@ class Game extends State {
   }
 
   void drawRocketProgressBar(PGraphics panelCanvas) {
+    // NEEDS CHANGING FOR >2 PLAYERS
     int x, y, w, h;
     String progressMessage;
     boolean both = players[0].resources[jsManager.getResIndex(("rocket progress"))] != 0 && players[1].resources[jsManager.getResIndex(("rocket progress"))] != 0;
@@ -2359,7 +2360,7 @@ class Game extends State {
     if (progress == 0) {
       progress = int(players[(turn+1)%2].resources[jsManager.getResIndex(("rocket progress"))]);
       progressMessage = "";
-      fillColour = playerColours[(turn+1)%2];
+      fillColour = playerColours[(turn+1)%players.length];
     } else {
       fillColour = playerColours[turn];
       if (progress>=1000) {
@@ -2538,7 +2539,10 @@ class Game extends State {
       turnNumber = 0;
       deselectCell();
     }
-    playerColours = new color[]{color(0, 0, 255), color(255, 0, 0)};
+    playerColours = new color[players.length];
+    for (int i=0; i < players.length; i++){
+      playerColours[i] = players[i].colour;
+    }
     map.setPlayerColours(playerColours);
     
     ((Console)getElement("console", "console")).giveObjects(map, players, this);

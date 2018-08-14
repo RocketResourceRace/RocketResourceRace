@@ -211,9 +211,10 @@ void loadImages() {
     
     // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
     partyImages = new PImage[]{
+      loadImage("img/party/battle.png"),
       loadImage("img/party/blue_flag.png"), 
       loadImage("img/party/red_flag.png"), 
-      loadImage("img/party/battle.png")
+      loadImage("img/party/red_flag.png"), 
     };
     //
     
