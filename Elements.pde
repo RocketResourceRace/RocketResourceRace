@@ -2045,11 +2045,13 @@ class TaskManager extends Element {
   int textSize;
   int scroll;
   int numDisplayed;
+  int oldH;
   boolean taskMActive;
   boolean scrolling;
   color bgColour, strokeColour;
   private final int HOVERINGOFFSET = 80, ONOFFSET = -50;
   final int SCROLLWIDTH = 20;
+  PImage[] resizedImages;
 
   TaskManager(int x, int y, int w, int textSize, color bgColour, color strokeColour, String[] options, int numDisplayed) {
     this.x = x;
@@ -2070,6 +2072,18 @@ class TaskManager extends Element {
     taskMActive = true;
     resetScroll();
     this.numDisplayed = numDisplayed;
+    oldH = -1;
+  }
+  
+  void updateImages(){
+    LOGGER_MAIN.finer("Resizing task images, h="+h);
+    resizedImages = new PImage[taskImages.length];
+    for (int i=0; i < taskImages.length; i ++){
+      if (taskImages[i] != null){
+        resizedImages[i] = taskImages[i].copy();
+        resizedImages[i].resize(h, h);
+      }
+    }
   }
 
   void resetScroll(){
@@ -2208,7 +2222,13 @@ class TaskManager extends Element {
   }
   void draw(PGraphics panelCanvas) {
     panelCanvas.pushStyle();
+    
     h = getH(panelCanvas); //Also sets the font
+    if (h != oldH){
+      updateImages();
+      oldH = h;
+    }
+    
     //Draw background
     panelCanvas.strokeWeight(2);
     panelCanvas.stroke(0);
@@ -2222,7 +2242,10 @@ class TaskManager extends Element {
     panelCanvas.rect(x, y, w, h);
     panelCanvas.fill(0);
     panelCanvas.textAlign(LEFT, TOP);
-    panelCanvas.text("Current Task: "+options.get(availableOptions.get(0)), x+5, y);
+    panelCanvas.text("Current Task: "+options.get(availableOptions.get(0)), x+5+h, y);
+    if (resizedImages[availableOptions.get(0)] != null){
+      panelCanvas.image(resizedImages[availableOptions.get(0)], x+3, y);
+    }
 
     // Draw other tasks
     int j;
@@ -2234,13 +2257,19 @@ class TaskManager extends Element {
       }
       panelCanvas.rect(x, y+h*j, w, h);
       panelCanvas.fill(0);
-      panelCanvas.text(options.get(availableOptions.get(j+scroll)), x+5, y+h*j);
+      panelCanvas.text(options.get(availableOptions.get(j+scroll)), x+5+h, y+h*j);
+      if (resizedImages[availableOptions.get(j+scroll)] != null){
+        panelCanvas.image(resizedImages[availableOptions.get(j+scroll)], x+3, y+h*j);
+      }
     }
     for (; j < min(availableButOverBudgetOptions.size()+availableOptions.size()-scroll, numDisplayed); j++) {
       panelCanvas.fill(brighten(bgColour, HOVERINGOFFSET/2));
       panelCanvas.rect(x, y+h*j, w, h);
       panelCanvas.fill(120);
-      panelCanvas.text(options.get(availableButOverBudgetOptions.get(j-min(availableOptions.size()-scroll, numDisplayed))), x+5, y+h*j);
+      panelCanvas.text(options.get(availableButOverBudgetOptions.get(j-min(availableOptions.size()-scroll, numDisplayed))), x+5+h, y+h*j);
+      if (resizedImages[availableButOverBudgetOptions.get(j-min(availableOptions.size()-scroll, numDisplayed))] != null){
+        panelCanvas.image(resizedImages[availableButOverBudgetOptions.get(j-min(availableOptions.size()-scroll, numDisplayed))], x+3, y+h*j);
+      }
     }
 
     //draw scroll
