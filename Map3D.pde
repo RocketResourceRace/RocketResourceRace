@@ -52,6 +52,7 @@ class Map3D extends BaseMap implements Map {
   PVector rocketVelocity;
   boolean showingBombard;
   int bombardRange;
+  color[] playerColours;
 
   Map3D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
     LOGGER_MAIN.fine("Initialising map 3d");
@@ -1588,5 +1589,9 @@ class Map3D extends BaseMap implements Map {
   
   void disableBombard() {
     showingBombard = false;
+  }
+  
+  void setPlayerColours(color[] playerColours) {
+    this.playerColours = playerColours;
   }
 }

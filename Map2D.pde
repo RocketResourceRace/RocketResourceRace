@@ -39,6 +39,7 @@ interface Map {
   void generateFog(int player);
   void enableBombard(int range);
   void disableBombard();
+  void setPlayerColours(color[] playerColours);
 }
 
 
@@ -956,6 +957,7 @@ class Map2D extends BaseMap implements Map {
   PVector rocketVelocity;
   boolean showingBombard;
   int bombardRange;
+  color[] playerColours;
 
   Map2D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
     LOGGER_MAIN.fine("Initialsing map");
@@ -1531,5 +1533,9 @@ class Map2D extends BaseMap implements Map {
   }
   void disableBombard() {
     showingBombard = false;
+  }
+  
+  void setPlayerColours(color[] playerColours) {
+    this.playerColours = playerColours;
   }
 }
