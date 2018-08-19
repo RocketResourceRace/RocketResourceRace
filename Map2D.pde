@@ -778,7 +778,7 @@ class BaseMap extends Element {
       throw e;
     }
   }
-  void generateMap(int mapWidth, int mapHeight) {
+  void generateMap(int mapWidth, int mapHeight, int players) {
     try {
       LOGGER_MAIN.fine("Generating map");
       terrain = new int[mapHeight][mapWidth];

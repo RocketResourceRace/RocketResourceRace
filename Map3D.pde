@@ -614,7 +614,7 @@ class Map3D extends BaseMap implements Map {
       generateHighlightingGrid(8, 8);
 
 
-      int players = 2;
+      int players = playerColours.length;
       fill(255);
 
       LOGGER_MAIN.fine("Generating units number objects");

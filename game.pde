@@ -2525,7 +2525,7 @@ class Game extends State {
       }
     } else {
       LOGGER_MAIN.finer("Creating new map");
-      ((BaseMap)map).generateMap(mapWidth, mapHeight);
+      ((BaseMap)map).generateMap(mapWidth, mapHeight, players.length);
       terrain = ((BaseMap)map).terrain;
       buildings = ((BaseMap)map).buildings;
       parties = ((BaseMap)map).parties;
