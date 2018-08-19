@@ -1325,6 +1325,7 @@ class Map3D extends BaseMap implements Map {
     try {
       if (parties[y][x] instanceof Battle) {
         Battle battle = (Battle) parties[y][x];
+        // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
         unitNumberObjects[battle.attacker.player].setVertex(0, blockSize*battle.attacker.getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
         unitNumberObjects[battle.attacker.player].setVertex(1, blockSize*battle.attacker.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
         unitNumberObjects[battle.attacker.player].setVertex(2, blockSize, blockSize*0.0625, 0);
@@ -1349,6 +1350,7 @@ class Map3D extends BaseMap implements Map {
         canvas.rotateX(PI/2-this.tilt);
         canvas.shape(unitNumberObjects[battle.attacker.player]);
         canvas.shape(unitNumberObjects[battle.defender.player]);
+        //
         canvas.popMatrix();
       } else {
         canvas.noLights();
