@@ -90,7 +90,9 @@ class Game extends State {
       LOGGER_MAIN.fine("initializing game");
       gameUICanvas = createGraphics(width, height, P2D); 
       
+      // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
       players = new Player[3];
+      //
       
       initialiseResources();
       initialiseTasks();
@@ -101,12 +103,8 @@ class Game extends State {
       addElement("3dmap", new Map3D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
       addElement("notification manager", new NotificationManager(0, 0, 0, 0, color(100), color(255), 8, turn, players.length));
 
-      //map = (Map3D)getElement("2map", "default");
       notificationManager = (NotificationManager)getElement("notification manager", "default");
 
-      // Initial positions will be focused on starting party
-      //players[0] = new Player(map.focusedX, map.focusedY, map.zoom, startingResources, color(0,0,255));
-      //players[1] = new Player(map.focusedX, map.focusedY, map.zoom, startingResources, color(255,0,0));
       addPanel("land management", 0, 0, width, height, false, true, color(50, 200, 50), color(0));
       addPanel("party management", 0, 0, width, height, false, true, color(110, 110, 255), color(0));
       addPanel("bottom bar", 0, height-70, width, 70, true, true, color(150), color(50));
@@ -159,14 +157,17 @@ class Game extends State {
       int resSummaryX = width-((ResourceSummary)(getElement("resource summary", "bottom bar"))).totalWidth();
       addElement("resource detailed", new Button(resSummaryX-50, bezel, 30, 20, color(150), color(50), color(0), 13, CENTER, "^"), "bottom bar");
       addElement("resource expander", new Button(resSummaryX-50, 2*bezel+20, 30, 20, color(150), color(50), color(0), 10, CENTER, "<"), "bottom bar");
+      
+      // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS (first player colour should be found)
       addElement("turn number", new TextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", color(0, 0, 255), 0), "bottom bar");
+      //
       addElement("2d 3d toggle", new ToggleButton(bezel*4+buttonW*3, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), jsManager.loadBooleanSetting("map is 3d"), "3D View"), "bottom bar");
       addElement("task icons toggle", new ToggleButton(round(bezel*5+buttonW*3.5), bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Task Icons"), "bottom bar");
       addElement("unit number bars toggle", new ToggleButton(bezel*6+buttonW*4, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Unit Bars"), "bottom bar");
       addElement("console", new Console(0, 0, width, height/2, 10), "console");
       addElement("resource management table", new ResourceManagementTable(bezel, bezel*2+30, width/2-bezel*2, height/2), "resource management");
       addElement("resources pages button", new HorizontalOptionsButton(bezel, bezel, 100, 30, color(150), 10, new String[]{"Resources", "Equipment"}), "resource management");
-      //int x, int y, int w, int h, color bgColour, color strokeColour, boolean value, String name
+      
 
       prevIdle = new ArrayList<Integer[]>();
     }
@@ -1241,6 +1242,8 @@ class Game extends State {
               if (action.terrain != null) {
                 if (terrain[y][x] == terrainIndex("forest")) { // Cut down forest
                   LOGGER_GAME.info("Cutting down forest");
+                  
+                  // This should be changed so that it can be changed in data
                   players[turn].resources[jsManager.getResIndex(("wood"))]+=100;
                   map.removeTreeTile(x, y);
                 }
@@ -1332,6 +1335,7 @@ class Game extends State {
   }
 
   boolean checkForPlayerWin() {
+    // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
     if (winner == -1) {
       boolean player1alive = false;
       boolean player2alive = false;
@@ -1377,7 +1381,7 @@ class Game extends State {
         panels.get(i).draw();
       }
     }
-    //background(100);
+    
     if (changeTurn) {
       turnChange();
     }
@@ -1412,6 +1416,8 @@ class Game extends State {
     gameUICanvas.endDraw();
     gameUICanvas.popStyle();
     image(gameUICanvas, 0, 0);
+    
+    //Tooltips are going to be added here so don't delete this. From here
     ResourceSummary resSum = ((ResourceSummary)getElement("resource summary", "bottom bar"));
     if (resSum.pointOver()) {
       String resource = resSum.getResourceAt(mouseX, mouseY);
@@ -1424,6 +1430,7 @@ class Game extends State {
         }
       }
     }
+    // to here
 
     if (checkForPlayerWin()) {
       this.getPanel("end screen").visible = true;
@@ -1661,6 +1668,8 @@ class Game extends State {
             }
           }
           r.update(new String[][]{{"Resource", "Making", "Use    ", "Net   ", "Storage"}, {"Equipment type", "Class   ", "Making", "Use    ", "Net   ", "Storage"}}, names, production, consumption, net, storage);
+          
+          // This should be changed to use a graphic instead of a character
           if (b.getText() == "^")
             b.setText("v");
           else
@@ -2181,6 +2190,8 @@ class Game extends State {
         } else {
           ((Slider)getElement("split units", "party management")).setScale(1, parties[selectedCellY][selectedCellX].getUnitNumber(), parties[selectedCellY][selectedCellX].getUnitNumber(), 1, parties[selectedCellY][selectedCellX].getUnitNumber()/2);
         }
+        
+        // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
         if (parties[selectedCellY][selectedCellX].player == 1) {
           partyManagementColour = color(170, 30, 30);
           getPanel("party management").setColour(color(220, 70, 70));
@@ -2188,6 +2199,8 @@ class Game extends State {
           partyManagementColour = color(0, 0, 150);
           getPanel("party management").setColour(color(70, 70, 220));
         }
+        //
+        
         if (isEquipmentCollectionAllowed(selectedCellX, selectedCellY)) {
           ((Button)getElement("stock up button", "party management")).bgColour = color(150);
           ((Button)getElement("stock up button", "party management")).textColour = color(0);
@@ -2349,8 +2362,9 @@ class Game extends State {
     return tempString;
   }
 
+
+  // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
   void drawRocketProgressBar(PGraphics panelCanvas) {
-    // NEEDS CHANGING FOR >2 PLAYERS
     int x, y, w, h;
     String progressMessage;
     boolean both = players[0].resources[jsManager.getResIndex(("rocket progress"))] != 0 && players[1].resources[jsManager.getResIndex(("rocket progress"))] != 0;
@@ -2530,6 +2544,7 @@ class Game extends State {
       buildings = ((BaseMap)map).buildings;
       parties = ((BaseMap)map).parties;
       PVector[] playerStarts = generateStartingParties();
+      // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
       players[2] = new Player((int)playerStarts[2].x, (int)playerStarts[2].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0, 255, 0), "Player 3  ");
       float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, jsManager.loadIntSetting("starting block size"));
       players[1] = new Player((int)playerStarts[1].x, (int)playerStarts[1].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255, 0, 0), "Player 2  ");
@@ -2714,7 +2729,7 @@ class Game extends State {
       }
     }
     if (counter == 1000) {
-      LOGGER_GAME.warning("Resorted to invalid party starts after 100 attempts");
+      LOGGER_GAME.warning("Resorted to invalid party starts after "+counter+" attempts");
     }
     for (int i=0; i < players.length; i++){
       LOGGER_GAME.fine(String.format("Player %d party positition: (%f, %f)", i+1, playersStartingPositions[i].x, playersStartingPositions[i].y));
