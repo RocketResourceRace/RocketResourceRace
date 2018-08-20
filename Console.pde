@@ -1,3 +1,6 @@
+/*
+In-game console for debugging
+*/
 class Console extends Element {
   private int textSize, cursorX, maxLength=-1;
   private ArrayList<StringBuilder> text;
@@ -28,11 +31,18 @@ class Console extends Element {
     monoFont = createFont("Monospaced", textSize*jsManager.loadFloatSetting("text scale"));
   }
 
+  /*
+  Takes Map, Players, and Game so that they can be accessed when acting on commands
+  */
   void giveObjects(Map map, Player[] players, Game game) {
     this.map = map;
     this.players = players;
     this.game = game;
   }
+  
+  /*
+  Converts lines of console into a single StringBuilding object
+  */
   StringBuilder toStr() {
     StringBuilder s = new StringBuilder();
     for (StringBuilder s1 : text) {
@@ -42,6 +52,9 @@ class Console extends Element {
     return s;
   }
 
+  /*
+  Converts a String into an ArrayList of StringBuilders to be used when storing console text
+  */
   ArrayList<StringBuilder> strToText(String s) {
     ArrayList<StringBuilder> t = new ArrayList<StringBuilder>();
     t.add(new StringBuilder());
@@ -57,6 +70,9 @@ class Console extends Element {
     return t;
   }
 
+  /*
+  Draws console
+  */
   void draw(PGraphics canvas) {
     this.canvas = canvas;
     canvas.pushStyle();
@@ -75,20 +91,38 @@ class Console extends Element {
     }
     canvas.popStyle();
   }
+  
+  /*
+  Get the input text line of the console
+  */
   StringBuilder getInputString() {
     return getInputString(text);
   }
+  
+  /*
+  Gets the input text line of some console text t
+  */
   StringBuilder getInputString(ArrayList<StringBuilder> t) {
     return t.get(t.size()-1);
   }
   
+  /*
+  Sets the input text line to some String t
+  */
   void setInputString(String t) {
     setInputString(text, t);
   }
+  
+  /*
+  Sets the input text line of some console text t1 to some String t2
+  */
   StringBuilder setInputString(ArrayList<StringBuilder> t1, String t2) {
     return t1.set(t1.size()-1, new StringBuilder(t2));
   }
   
+  /*
+  Finds position on a raw single String of the console text of some x and y
+  */
   int cxyToC(int cx, int cy) {
     int a=0;
     for (int i=0; i<cy; i++) {
@@ -96,7 +130,10 @@ class Console extends Element {
     }
     return a + cx;
   }
-
+  
+  /*
+  Gets the position of the mouse on the line cy
+  */
   int getCurX(int cy) {
     int i=0;
     float ts = textSize*jsManager.loadFloatSetting("text scale");
@@ -122,24 +159,39 @@ class Console extends Element {
     return events;
   }
 
+  /*
+  Backspace is applied at the current cursor position
+  */
   void clearTextAt() {
     StringBuilder s = toStr();
     String s2 = s.substring(0, cxyToC(cursorX-1, text.size()-1)) + (s.substring(cxyToC(cursorX, text.size()-1), s.length()));
     text = strToText(s2);
   }
 
+  /*
+  Add a line to the console just above the input line
+  */
   void sendLine(String line) {
     text.add(text.size()-1, new StringBuilder(line));
   }
 
+  /*
+  Sends a line with "Invalid command. " at the start
+  */
   void invalid(String message) {
     sendLine("Invalid command. "+message);
   }
-
+  
+  /*
+  Generic invalid message
+  */
   void invalid() {
     invalid("");
   }
-
+  
+  /*
+  Returns an array of all possible sub commands for a command
+  */
   String[] getPossibleSubCommands(JSONObject command) {
     Iterable keys = command.getJSONObject("sub commands").keys();
     String[] commandsList = new String[command.getJSONObject("sub commands").size()];

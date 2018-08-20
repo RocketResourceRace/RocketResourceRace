@@ -75,6 +75,9 @@ String roundDpTrailing(String val, int dps){
   return (new BigDecimal(""+val).divide(new BigDecimal("1"), dps, BigDecimal.ROUND_HALF_EVEN)).toPlainString();
 } 
 
+/*
+Gets the index of the JSONObject with 'id' set to id in the JSONArray j
+*/
 int JSONIndex(JSONArray j, String id) {
   for (int i=0; i<j.size(); i++) {
     if (j.getJSONObject(i).getString("id").equals(id)) {
@@ -85,6 +88,9 @@ int JSONIndex(JSONArray j, String id) {
   return -1;
 }
 
+/*
+Gets the JSONObject with 'id' set to id in the JSONArray j
+*/
 JSONObject findJSONObject(JSONArray j, String id) {
   try {
     for (int i=0; i<j.size(); i++) {
@@ -116,7 +122,9 @@ boolean JSONContainsStr(JSONArray j, String id) {
     throw e;
   }
 }
-
+/*
+Handles double clicks
+*/
 void doubleClick() {
   if (millis() - lastClickTime < DOUBLECLICKWAIT) {
     mouseEvent("mouseDoubleClicked", mouseButton);
