@@ -597,6 +597,7 @@ class Map3D extends BaseMap implements Map {
       resetMatrix();
 
       LOGGER_MAIN.fine("Generating player flags");
+      // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
       blueFlag = loadShape("obj/party/blueflag.obj");
       blueFlag.rotateX(PI/2);
       blueFlag.scale(2, 2.5, 2.5);
@@ -618,6 +619,7 @@ class Map3D extends BaseMap implements Map {
       fill(255);
 
       LOGGER_MAIN.fine("Generating units number objects");
+      // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
       unitNumberObjects = new PShape[players+1];
       for (int i=0; i < players; i++) {
         unitNumberObjects[i] = createShape();
@@ -681,6 +683,8 @@ class Map3D extends BaseMap implements Map {
       unitNumberObjects[2].endShape();
       unitNumberObjects[2].rotateX(PI/2);
       //unitNumberObjects[2].setStroke(false);
+      
+      
       tileRect = createShape();
       tileRect.beginShape();
       tileRect.noFill();
@@ -1263,7 +1267,7 @@ class Map3D extends BaseMap implements Map {
           }
           if (parties[y][x] != null) {
             canvas.noLights();
-            // NEEDS CHANGING FOR >2 PLAYERS
+            // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
             if (parties[y][x].player == 0) {
               canvas.pushMatrix();
               canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
