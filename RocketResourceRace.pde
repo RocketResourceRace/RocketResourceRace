@@ -183,6 +183,7 @@ float HILLSTEEPNESS = 0.1;
 
 HashMap<String, PImage> tileImages;
 HashMap<String, PImage[]> buildingImages;
+PImage[] partyBaseImages;
 PImage[] partyImages;
 PImage[] taskImages;
 HashMap<String, PImage> lowImages;
@@ -217,14 +218,10 @@ void loadImages() {
     buildingImages = new HashMap<String, PImage[]>();
     equipmentImages = new HashMap<String, PImage>();
     
-    // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
-    partyImages = new PImage[]{
+    partyBaseImages = new PImage[]{
       loadImage("img/party/battle.png"),
-      loadImage("img/party/blue_flag.png"), 
-      loadImage("img/party/red_flag.png"), 
-      loadImage("img/party/red_flag.png"), 
+      loadImage("img/party/flag.png")
     };
-    //
     
     bombardImage = loadImage("img/ui/bombard.png");
     LOGGER_MAIN.finer("Loading task images");
