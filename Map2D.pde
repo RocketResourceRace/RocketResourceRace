@@ -1199,7 +1199,7 @@ class Map2D extends BaseMap implements Map {
     // Terrain
     PImage[] tempTileImages = new PImage[gameData.getJSONArray("terrain").size()];
     PImage[][] tempBuildingImages = new PImage[gameData.getJSONArray("buildings").size()][];
-    PImage[] tempPartyImages = new PImage[players.length]; // Index 0 is battle // NOT CURRENTLY
+    PImage[] tempPartyImages = new PImage[players.length+1]; // Index 0 is battle
     PImage[] tempTaskImages = new PImage[taskImages.length];
     if (frameStartTime == 0) {
       frameStartTime = millis();
@@ -1274,8 +1274,11 @@ class Map2D extends BaseMap implements Map {
         tempBuildingImages[i][j].resize(ceil(blockSize*48/64), 0);
       }
     }
-    for (int i=0; i<partyImages.length; i++) {
-      tempPartyImages[i] = partyImages[i].copy();
+    
+    tempPartyImages[0] = partyBaseImages[0].copy(); // Battle
+    tempPartyImages[0].resize(ceil(blockSize), 0);
+    for (int i=1; i<partyImages.length+1; i++) {
+      tempPartyImages[i] = partyImages[i-1].copy();
       tempPartyImages[i].resize(ceil(blockSize), 0);
     }
     for (int i=0; i<taskImages.length; i++) {
@@ -1339,8 +1342,10 @@ class Map2D extends BaseMap implements Map {
               }
             }
             int imgSize = round(blockSize);
-            if (parties[y][x].player != -1) {
-              drawCroppedImage(floor(c.x), floor(c.y), imgSize, imgSize, tempPartyImages[parties[y][x].player], panelCanvas);
+            if (parties[y][x].player == -1) {
+              drawCroppedImage(floor(c.x), floor(c.y), imgSize, imgSize, tempPartyImages[0], panelCanvas);
+            } else {
+              drawCroppedImage(floor(c.x), floor(c.y), imgSize, imgSize, tempPartyImages[parties[y][x].player+1], panelCanvas);
             }
             
             JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].getTask());
