@@ -2015,32 +2015,32 @@ class Game extends State {
         tooltip.show();
       } else if (map.mouseOver()) {
         map.doUpdateHoveringScale();
+        int mapInterceptX = floor(map.scaleXInv()); 
+        int mapInterceptY = floor(map.scaleYInv());
         if (moving && !UIHovering()) {
           Node [][] nodes = map.getMoveNodes();
-          int x = floor(map.scaleXInv()); 
-          int y = floor(map.scaleYInv());
-          if (selectedCellX == x && selectedCellY == y) {
+          if (selectedCellX == mapInterceptX && selectedCellY == mapInterceptY) {
             tooltip.hide();
             map.cancelPath();
-          } else if (x < mapWidth && y<mapHeight && x>=0 && y>=0 && nodes[y][x] != null) {
+          } else if (mapInterceptX < mapWidth && mapInterceptY<mapHeight && mapInterceptX>=0 && mapInterceptY>=0 && nodes[mapInterceptY][mapInterceptX] != null) {
             if (parties[selectedCellY][selectedCellX] != null) {
-              map.updatePath(getPath(selectedCellX, selectedCellY, x, y, map.getMoveNodes()));
+              map.updatePath(getPath(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, map.getMoveNodes()));
             }
-            if (parties[y][x]==null) {
+            if (parties[mapInterceptY][mapInterceptX]==null) {
               //Moving into empty tile
-              int turns = getMoveTurns(selectedCellX, selectedCellY, x, y, nodes);
-              int cost = nodes[y][x].cost;
+              int turns = getMoveTurns(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, nodes);
+              int cost = nodes[mapInterceptY][mapInterceptX].cost;
               boolean splitting = splitUnitsNum()!=parties[selectedCellY][selectedCellX].getUnitNumber();
               tooltip.setMoving(turns, splitting, parties[selectedCellY][selectedCellX], splitUnitsNum(), cost, jsManager.loadBooleanSetting("map is 3d"));
               tooltip.show();
             } else {
-              if (parties[y][x].player == turn) {
+              if (parties[mapInterceptY][mapInterceptX].player == turn) {
                 //merge parties
-                tooltip.setMerging(parties[y][x], parties[selectedCellY][selectedCellX], splitUnitsNum());
+                tooltip.setMerging(parties[mapInterceptY][mapInterceptX], parties[selectedCellY][selectedCellX], splitUnitsNum());
                 tooltip.show();
               } else {
                 //Attack
-                BigDecimal chance = battleEstimateManager.getEstimate(selectedCellX, selectedCellY, x, y, splitUnitsNum());
+                BigDecimal chance = battleEstimateManager.getEstimate(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, splitUnitsNum());
                 tooltip.setAttacking(chance);
                 tooltip.show();
               }
@@ -2052,14 +2052,16 @@ class Game extends State {
         }
 
         if (bombarding) {
-          int x = floor(map.scaleXInv());
-          int y = floor(map.scaleYInv());
-          if (0<=x&&x<mapWidth&&0<=y&&y<mapHeight && parties[y][x] != null && parties[y][x].player != turn) {
-            tooltip.setBombarding(getBombardmentDamage(parties[selectedCellY][selectedCellX], parties[y][x]));
+          if (0<=mapInterceptX&&mapInterceptX<mapWidth&&0<=mapInterceptY&&mapInterceptY<mapHeight && parties[mapInterceptY][mapInterceptX] != null && parties[mapInterceptY][mapInterceptX].player != turn) {
+            tooltip.setBombarding(getBombardmentDamage(parties[selectedCellY][selectedCellX], parties[mapInterceptY][mapInterceptX]));
             tooltip.show();
           }
+        } else if (0 < mapInterceptY && mapInterceptY < mapHeight && 0 < mapInterceptX && mapInterceptX < mapWidth && parties[mapInterceptY][mapInterceptX] != null){
+          // Hovering over party
+          tooltip.setHoveringParty(parties[mapInterceptY][mapInterceptX]);
+          tooltip.show();
         }
-      } else {
+      }  else {
         map.cancelPath();
         tooltip.hide();
       }
