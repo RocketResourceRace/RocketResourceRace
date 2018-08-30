@@ -1342,8 +1342,17 @@ class Map2D extends BaseMap implements Map {
               }
             }
             int imgSize = round(blockSize);
-            if (parties[y][x].player == -1) {
-              drawCroppedImage(floor(c.x), floor(c.y), imgSize, imgSize, tempPartyImages[0], panelCanvas);
+            println(blockSize);
+            if (parties[y][x].player == -1) { // Is a battle
+              Party attacker = ((Battle)parties[y][x]).attacker;
+              Party defender = ((Battle)parties[y][x]).defender;
+              drawCroppedImage(floor(c.x), floor(c.y), imgSize, imgSize, tempPartyImages[0], panelCanvas); // Swords
+              drawCroppedImage(floor(c.x-blockSize*9.0/32.0), floor(c.y+blockSize/4.0), imgSize, imgSize, tempPartyImages[attacker.player+1], panelCanvas); // Attacker
+              panelCanvas.pushMatrix();
+              panelCanvas.translate(floor(c.x+blockSize*41.0/32.0), floor(c.y+blockSize/4.0));
+              panelCanvas.scale(-1, 1);
+              panelCanvas.image(tempPartyImages[defender.player+1], 0, 0); // Defender
+              panelCanvas.popMatrix();
             } else {
               drawCroppedImage(floor(c.x), floor(c.y), imgSize, imgSize, tempPartyImages[parties[y][x].player+1], panelCanvas);
             }
