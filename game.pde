@@ -2557,9 +2557,18 @@ class Game extends State {
       deselectCell();
     }
     playerColours = new color[players.length];
+    partyImages = new PImage[players.length];
     for (int i=0; i < players.length; i++){
       playerColours[i] = players[i].colour;
+      partyImages[i] = partyBaseImages[1].copy();
+      partyImages[i].loadPixels();
+      for (int j = 0; j < partyImages[i].pixels.length; j++) {
+        if (partyImages[i].pixels[j] == color(255, 0, 0)) {
+          partyImages[i].pixels[j] = playerColours[i];
+        }
+      }
     }
+    
     map.setPlayerColours(playerColours);
     
     ((Console)getElement("console", "console")).giveObjects(map, players, this);
