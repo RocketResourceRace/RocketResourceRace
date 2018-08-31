@@ -1337,30 +1337,39 @@ class Game extends State {
   boolean checkForPlayerWin() {
     // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
     if (winner == -1) {
-      boolean player1alive = false;
-      boolean player2alive = false;
+      boolean[] playersAlive = new boolean[players.length];
 
       for (int y=0; y<mapHeight; y++) {
         for (int x=0; x<mapWidth; x++) {
           if (parties[y][x] != null) {
-            if (parties[y][x].player == -1) {
-              player1alive = true;
-              player2alive = true;
-            } else if (parties[y][x].player == 1) {
-              player2alive = true;
-            } else if (parties[y][x].player == 0) {
-              player1alive = true;
+            if (parties[y][x].player != -1){
+              playersAlive[parties[y][x].player] = true;
+            }
+            else if (parties[y][x] instanceof Battle){
+              playersAlive[((Battle)parties[y][x]).defender.player] = true;
+              playersAlive[((Battle)parties[y][x]).attacker.player] = true;
             }
           }
         }
       }
-      if (!player1alive) {
-        winner = 1;
-        LOGGER_GAME.info("Player 2 wins");
-      } else if (!player2alive) {
-        winner = 0;
-        LOGGER_GAME.info("Player 1 wins");
-      } else {
+      int numAlive = 0;
+      for (int p=0; p < players.length; p++){
+        if (playersAlive[p]){
+          numAlive ++;
+        }
+      }
+      if (numAlive == 1){
+        for (int p=0; p < players.length; p++){
+          if (playersAlive[p]){
+            winner = p;
+            LOGGER_GAME.info(players[p].name+" wins!");
+          }
+        }
+      }
+      else if (numAlive == 0){
+        LOGGER_GAME.info("No players alive");
+      }
+      else{
         return false;
       }
     }

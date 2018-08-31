@@ -1525,7 +1525,7 @@ class Tooltip extends Element {
   void setHoveringParty(Party p){
     String t = String.format("Party '%s'\n", p.id);
     for (int i=0; i < p.proficiencies.length; i++){
-      t += String.format("%s=%s\n", jsManager.indexToProficiencyDisplayName(i), roundDpTrailing(""+p.proficiencies[i], 2));
+      t += String.format("\n%s=%s", jsManager.indexToProficiencyDisplayName(i), roundDpTrailing(""+p.proficiencies[i], 2));
     }
     setText(t);
   }
