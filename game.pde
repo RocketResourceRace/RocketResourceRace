@@ -2056,7 +2056,7 @@ class Game extends State {
             tooltip.setBombarding(getBombardmentDamage(parties[selectedCellY][selectedCellX], parties[mapInterceptY][mapInterceptX]));
             tooltip.show();
           }
-        } else if (0 < mapInterceptY && mapInterceptY < mapHeight && 0 < mapInterceptX && mapInterceptX < mapWidth && parties[mapInterceptY][mapInterceptX] != null){
+        } else if (!moving && 0 < mapInterceptY && mapInterceptY < mapHeight && 0 < mapInterceptX && mapInterceptX < mapWidth && parties[mapInterceptY][mapInterceptX] != null){
           // Hovering over party
           tooltip.setHoveringParty(parties[mapInterceptY][mapInterceptX]);
           tooltip.show();
