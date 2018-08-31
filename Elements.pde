@@ -1,5 +1,14 @@
 
 
+class PlayerSelector extends Element {
+  PlayerSelector(int x, int y, int w, int h) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+  }
+}
+
 class IncrementElement extends Element {
   final int TEXTSIZE = 8;
   final int SIDEBOXESWIDTH = 15;
