@@ -31,7 +31,8 @@ class Map3D extends BaseMap implements Map {
   float hoveringX, hoveringY, oldHoveringX, oldHoveringY;
   float targetXOffset, targetYOffset;
   int selectedCellX, selectedCellY;
-  PShape tiles, blueFlag, redFlag, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid, drawPossibleMoves, drawPossibleBombards, bombardArrow, fog;
+  PShape tiles, flagPole, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid, drawPossibleMoves, drawPossibleBombards, bombardArrow, fog;
+  PShape[] flags;
   HashMap<String, PShape> taskObjs;
   HashMap<String, PShape[]> buildingObjs;
   PShape[] unitNumberObjects;
@@ -597,13 +598,22 @@ class Map3D extends BaseMap implements Map {
       resetMatrix();
 
       LOGGER_MAIN.fine("Generating player flags");
-      // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
-      blueFlag = loadShape("obj/party/blueflag.obj");
-      blueFlag.rotateX(PI/2);
-      blueFlag.scale(2, 2.5, 2.5);
-      redFlag = loadShape("obj/party/redflag.obj");
-      redFlag.rotateX(PI/2);
-      redFlag.scale(2, 2.5, 2.5);
+      
+      flagPole = loadShape("obj/party/flagpole.obj");
+      flagPole.rotateX(PI/2);
+      flagPole.scale(2, 2.5, 2.5);
+      flags = new PShape[playerColours.length];
+      for (int i = 0; i < playerColours.length; i++) {
+        flags[i] = createShape(GROUP);
+        PShape edge = loadShape("obj/party/flagedges.obj");
+        edge.setFill(brighten(playerColours[i], 20));
+        PShape side = loadShape("obj/party/flagsides.obj");
+        side.setFill(brighten(playerColours[i], -40));
+        flags[i].addChild(edge);
+        flags[i].addChild(side);
+        flags[i].rotateX(PI/2);
+        flags[i].scale(2, 2.5, 2.5);
+      }
       battle = loadShape("obj/party/battle.obj");
       battle.rotateX(PI/2);
       battle.scale(0.8);
@@ -1267,26 +1277,19 @@ class Map3D extends BaseMap implements Map {
           }
           if (parties[y][x] != null) {
             canvas.noLights();
-            // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
-            if (parties[y][x].player == 0) {
-              canvas.pushMatrix();
-              canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
-              canvas.shape(blueFlag);
-              canvas.popMatrix();
-            } else if (parties[y][x].player == 1) {
-              canvas.pushMatrix();
-              canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
-              canvas.shape(redFlag);
-              canvas.popMatrix();
-            }else if (parties[y][x].player == 2) {
-              canvas.pushMatrix();
-              canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
-              canvas.shape(redFlag);
-              canvas.popMatrix();
-            } else if (parties[y][x] instanceof Battle) {
+            canvas.pushMatrix();
+            canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
+            canvas.shape(flagPole);
+            canvas.popMatrix();
+            if (parties[y][x] instanceof Battle) {
               canvas.pushMatrix();
               canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 12+groundMaxHeightAt(x, y));
               canvas.shape(battle);
+              canvas.popMatrix();
+            } else {
+              canvas.pushMatrix();
+              canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
+              canvas.shape(flags[parties[y][x].player]);
               canvas.popMatrix();
             }
 
