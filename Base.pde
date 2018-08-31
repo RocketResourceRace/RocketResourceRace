@@ -316,7 +316,6 @@ class State {
 
 
 class Panel {
-  private final Logger LOGGER = Logger.getLogger("Base.Panel");
   ArrayList<Element> elements;
   String id;
   PImage img;
