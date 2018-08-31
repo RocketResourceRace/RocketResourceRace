@@ -116,15 +116,6 @@
           "text": "Local Network",
         },
         {
-          "id": "online button",
-          "type": "button",
-          "x": -6,
-          "y": 8,
-          "w": 12,
-          "h": 3,
-          "text": "Online",
-        },
-        {
           "id": "back",
           "type": "button",
           "x": -6,
