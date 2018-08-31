@@ -1277,18 +1277,34 @@ class Map3D extends BaseMap implements Map {
           }
           if (parties[y][x] != null) {
             canvas.noLights();
-            canvas.pushMatrix();
-            canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
-            canvas.shape(flagPole);
-            canvas.popMatrix();
             if (parties[y][x] instanceof Battle) {
+              // Swords
               canvas.pushMatrix();
               canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 12+groundMaxHeightAt(x, y));
               canvas.shape(battle);
               canvas.popMatrix();
+              
+              // Defender
+              canvas.pushMatrix();
+              canvas.translate((x+0.5+0.1)*blockSize, (y+0.5)*blockSize, 30.5+groundMinHeightAt(x, y));
+              canvas.scale(0.95, 0.8, 0.8);
+              canvas.shape(flags[((Battle)parties[y][x]).defender.player]);
+              canvas.scale(5.0/9.5, 5.0/8.0, 1);
+              canvas.shape(flagPole);
+              canvas.popMatrix();
+              
+              // Attacker
+              canvas.pushMatrix();
+              canvas.translate((x+0.5-0.1)*blockSize, (y+0.5)*blockSize, 30.5+groundMinHeightAt(x, y));
+              canvas.scale(-0.95, 0.8, 0.8);
+              canvas.shape(flags[((Battle)parties[y][x]).attacker.player]);
+              canvas.scale(5.0/9.5, 5.0/8.0, 1);
+              canvas.shape(flagPole);
+              canvas.popMatrix();
             } else {
               canvas.pushMatrix();
               canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
+              canvas.shape(flagPole);
               canvas.shape(flags[parties[y][x].player]);
               canvas.popMatrix();
             }
