@@ -12,7 +12,7 @@
           "w": 12,
           "h": 3,
           "text": "New Game",
-          "new state": "new game",
+          "new state": "game types",
         },
         {
           "id": "load game",
@@ -93,8 +93,53 @@
     },
 
     {
-      "id": "new game",
-      "title": "New Game",
+      "id": "game types",
+      "title": "Game Types",
+      "elements":[
+        {
+          "id": "local machine button",
+          "type": "button",
+          "x": -6,
+          "y": 0,
+          "w": 12,
+          "h": 3,
+          "text": "Local Machine",
+          "new state": "local machine new game"
+        },
+        {
+          "id": "local network button",
+          "type": "button",
+          "x": -6,
+          "y": 4,
+          "w": 12,
+          "h": 3,
+          "text": "Local Network",
+        },
+        {
+          "id": "online button",
+          "type": "button",
+          "x": -6,
+          "y": 8,
+          "w": 12,
+          "h": 3,
+          "text": "Online",
+        },
+        {
+          "id": "back",
+          "type": "button",
+          "x": -6,
+          "y": 12,
+          "w": 12,
+          "h": 3,
+          "text": "Back",
+          "new state": "startup"
+        },
+      ]
+    },
+
+    {
+      "id": "local machine new game",
+      "title": "Local Machine New Game",
       "elements":[
         {
           "id": "start",
@@ -286,7 +331,7 @@
           "w": 12,
           "h": 3,
           "text": "Back",
-          "new state": "startup"
+          "new state": "game types"
         },
       ]
     },
