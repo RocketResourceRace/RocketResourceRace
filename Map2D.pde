@@ -158,7 +158,7 @@ void saveParty(ByteBuffer b, Party p) {
   }
 }
 Party loadParty(ByteBuffer b, String id) {
-  LOGGER_MAIN.finer("Loading party from save");
+  LOGGER_MAIN.finer("Loading party from save: "+id);
   try {
     int actionCount = b.getInt();
     ArrayList<Action> actions = new ArrayList<Action>();
@@ -236,6 +236,9 @@ Party loadParty(ByteBuffer b, String id) {
     p.proficiencies = proficiencies;
     p.unitCap = unitCap;
     p.autoStockUp = autoStockUp;
+    
+    LOGGER_MAIN.finer(String.format("Loaded party with id: %s, player: %d, unitNumber: %d pathSize: %d, actionCount: %d", id, player, unitNumber, pathSize, actionCount));
+    
     return p;
   }
   catch (Exception e) {
@@ -468,7 +471,7 @@ class BaseMap extends Element {
       for (int y=0; y<mapHeight; y++) {
         for (int x=0; x<mapWidth; x++) {
           Byte partyType = buffer.get();
-          if (partyType == -1) {
+          if (partyType == 2) {
             char[] rawid;
             char[] p1id;
             char[] p2id;
@@ -482,9 +485,6 @@ class BaseMap extends Element {
                 p1id[i] = buffer.getChar();
               }
               p2id = new char[16];
-              for (int i=0; i<16; i++) {
-                p2id[i] = buffer.getChar();
-              }
             } else {
               rawid = String.format("Old Battle #%d", battleCount).toCharArray();
               battleCount++;
@@ -494,6 +494,12 @@ class BaseMap extends Element {
               partyCount++;
             }
             Party p1 = loadParty(buffer, new String(p1id));
+            
+            if (versionCheck>1) {
+              for (int i=0; i<16; i++) {
+                p2id[i] = buffer.getChar();
+              }
+            }
             Party p2 = loadParty(buffer, new String(p2id));
             float savedStrength = p1.strength;
             Battle b = new Battle(p1, p2, new String(rawid));
