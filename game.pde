@@ -1406,9 +1406,11 @@ class Game extends State {
     if (tooltip.visible&&tooltip.attacking) {
       int x = floor(map.scaleXInv());
       int y = floor(map.scaleYInv());
-      if (0<=x&&x<mapWidth&&0<=y&&y<mapHeight && parties[y][x] != null) {
+      if (0<=x&&x<mapWidth&&0<=y&&y<mapHeight && parties[y][x] != null && parties[y][x].player != parties[selectedCellY][selectedCellX].player && map.mouseOver() && !UIHovering()) {
         BigDecimal chance = battleEstimateManager.getEstimate(selectedCellX, selectedCellY, x, y, splitUnitsNum());
         tooltip.setAttacking(chance);
+      } else {
+        tooltip.attacking=false;
       }
     }
 

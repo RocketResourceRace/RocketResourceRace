@@ -1170,7 +1170,6 @@ class Tooltip extends Element {
   }
 
   void setMoving(int turns, boolean splitting, Party party, int numUnitsSplitting, int cost, boolean is3D) {
-    attacking = false;
     //Tooltip text if moving. Turns is the number of turns in move
     JSONObject jo = gameData.getJSONObject("tooltips");
     String t = "";
@@ -1219,18 +1218,15 @@ class Tooltip extends Element {
   }
 
   void setTurnsRemaining() {
-    attacking = false;
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(jo.getString("turns remaining"));
   }
   void setMoveButton() {
-    attacking = false;
     JSONObject jo = gameData.getJSONObject("tooltips");
     setText(jo.getString("move button"));
   }
   void setMerging(Party p1, Party p2, int unitsTransfered) {
     // p1 is being merged into
-    attacking = false;
     JSONObject jo = gameData.getJSONObject("tooltips");
     int overflow = p1.getOverflow(unitsTransfered);
     String t = String.format(jo.getString("merging"), p2.id, p1.id, unitsTransfered-overflow, overflow);
@@ -1322,7 +1318,6 @@ class Tooltip extends Element {
 
   void setTask(String task, float[] availibleResources, int movementPoints) {
     try {
-      attacking = false;
       JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task);
       String t="";
       if (jo == null){
@@ -1367,7 +1362,6 @@ class Tooltip extends Element {
     // Tooltip is hovering over equipment manager, specifically over one of the equipmment types
     String t="";
     try{
-      attacking = false;
       if (equipmentClass >= jsManager.getNumEquipmentClasses()){
         LOGGER_MAIN.warning("equipment class out of bounds");
         return;
@@ -1523,7 +1517,6 @@ class Tooltip extends Element {
   }
   
   void setHoveringParty(Party p){
-    attacking = false;
     String t = String.format("Party '%s'\n", p.id);
     for (int i=0; i < p.proficiencies.length; i++){
       t += String.format("\n%s=%s", jsManager.indexToProficiencyDisplayName(i), roundDpTrailing(""+p.proficiencies[i], 2));
@@ -1532,7 +1525,6 @@ class Tooltip extends Element {
   }
 
   void setResource(HashMap<String, Float> buildings, String resource) {
-    attacking = false;
     try {
       String t = "";
       for (String building : buildings.keySet()) {
