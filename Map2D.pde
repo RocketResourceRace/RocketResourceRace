@@ -1348,7 +1348,6 @@ class Map2D extends BaseMap implements Map {
               }
             }
             int imgSize = round(blockSize);
-            println(blockSize);
             if (parties[y][x].player == -1) { // Is a battle
               Party attacker = ((Battle)parties[y][x]).attacker;
               Party defender = ((Battle)parties[y][x]).defender;
@@ -1533,7 +1532,7 @@ class Map2D extends BaseMap implements Map {
     canvas.translate(round(c.x+border), round(c.y+border*2));
     canvas.rotate(atan2(rocketVelocity.x, rocketVelocity.z));
     canvas.translate(-blockSize/2, -blockSize/2);
-    canvas.image(buildingImages[buildingIndex("Rocket Factory")-1][2], 0, 0);
+    canvas.image(buildingImages[buildingIndex("Rocket Factory")][2], 0, 0);
     canvas.popMatrix();
   }
   

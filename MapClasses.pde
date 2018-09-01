@@ -707,7 +707,7 @@ class Battle extends Party {
   int mergeFrom(Party other, int unitsTransfered, int moveCost, Player player) {
     // Take units from other party into this party and merge attributes, weighted by unit number
     LOGGER_GAME.fine(String.format("Merging %d units from party with id:%s into battle with id:%s", unitsTransfered, other.id, this.id));
-    // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
+    // THIS NEEDS TO BE CHANGED FOR DIPLOMACY
     if (attacker.player == other.player) {
       return attacker.mergeFrom(other, unitsTransfered, moveCost, player);
     } else if (defender.player == other.player) {

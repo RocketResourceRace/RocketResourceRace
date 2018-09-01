@@ -2366,70 +2366,56 @@ class Game extends State {
   }
 
 
-  // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
   void drawRocketProgressBar(PGraphics panelCanvas) {
-    int x, y, w, h;
+    int x, y=0, w, h;
     String progressMessage;
-    boolean both = players[0].resources[jsManager.getResIndex(("rocket progress"))] != 0 && players[1].resources[jsManager.getResIndex(("rocket progress"))] != 0;
-    if (players[0].resources[jsManager.getResIndex(("rocket progress"))] ==0 && players[1].resources[jsManager.getResIndex(("rocket progress"))] == 0)return;
-    int progress = int(players[turn].resources[jsManager.getResIndex(("rocket progress"))]);
-    color fillColour;
-    if (progress == 0) {
-      progress = int(players[(turn+1)%2].resources[jsManager.getResIndex(("rocket progress"))]);
-      progressMessage = "";
-      fillColour = playerColours[(turn+1)%players.length];
-    } else {
-      fillColour = playerColours[turn];
-      if (progress>=1000) {
-        progressMessage = "Rocket Progress: Completed";
-      } else {
-        progressMessage = "Rocket Progress: "+str(progress)+"/1000";
+    int PROGRESSBARWIDTH = round(width*0.25);
+    int PROGRESSBARHEIGHT = round(height*0.03);
+    int[] progresses = new int[players.length];
+    int count = 0;
+    for (int i = 0; i < players.length; i++) {
+      progresses[i] = int(players[i].resources[jsManager.getResIndex(("rocket progress"))]);
+      if (progresses[i] > 0) {
+        count++;
       }
     }
-    if (both) {
-      x = round(width*0.25);
-      y = round(height*0.05);
-      w = round(width/2);
-      h = round(height*0.015);
-      panelCanvas.fill(200);
-      panelCanvas.stroke(100);
-      panelCanvas.rect(x, y, w, h);
-      panelCanvas.noStroke();
-      progress = int(players[0].resources[jsManager.getResIndex(("rocket progress"))]);
-      w = round(min(w, w*progress/1000));
-      panelCanvas.fill(playerColours[0]);
-      panelCanvas.rect(x, y, w, h);
-      y = round(height*0.065);
-      w = round(width/2);
-      panelCanvas.fill(200);
-      panelCanvas.stroke(100);
-      panelCanvas.rect(x, y, w, h);
-      panelCanvas.noStroke();
-      progress = int(players[1].resources[jsManager.getResIndex(("rocket progress"))]);
-      w = round(min(w, w*progress/1000));
-      panelCanvas.fill(playerColours[1]);
-      panelCanvas.rect(x, y, w, h);
-      y = round(height*0.05);
+    
+    if (max(progresses) <= 0) return;
+    
+    if (progresses[turn] == 0) {
+      progressMessage = "";
     } else {
-      x = round(width*0.25);
-      y = round(height*0.05);
-      w = round(width/2);
-      h = round(height*0.03);
-      panelCanvas.fill(200);
-      panelCanvas.stroke(100);
-      panelCanvas.rect(x, y, w, h);
-      panelCanvas.noStroke();
-      w = round(min(w, w*progress/1000));
-      panelCanvas.fill(fillColour);
-      panelCanvas.rect(x, y, w, h);
+      if (progresses[turn] >= 1000) {
+        progressMessage = "Rocket Progress: Completed";
+      } else {
+        progressMessage = "Rocket Progress: "+str(progresses[turn])+"/1000";
+      }
+    }
+    x = round((width-PROGRESSBARWIDTH)/2);
+    y = round(height*0.05);
+    w = PROGRESSBARWIDTH;
+    h = round(PROGRESSBARHEIGHT/count);
+    for (int i = 0; i < players.length; i++) {
+      if (progresses[i] > 0) {
+        panelCanvas.fill(200);
+        panelCanvas.stroke(100);
+        panelCanvas.rect(x, y, w, h);
+        panelCanvas.noStroke();
+        w = round(min(w, w*progresses[i]/1000));
+        panelCanvas.fill(playerColours[i]);
+        panelCanvas.rect(x, y, w, h);
+        y += h;
+        w = PROGRESSBARWIDTH;
+      }
     }
     panelCanvas.textFont(getFont(10*jsManager.loadFloatSetting("text scale")));
     panelCanvas.textAlign(CENTER, BOTTOM);
     panelCanvas.fill(200);
     int tw = ceil((panelCanvas.textWidth(progressMessage)));
-    panelCanvas.rect(width/2 -tw/2, y-10*jsManager.loadFloatSetting("text scale"), tw, 10*jsManager.loadFloatSetting("text scale"));
+    y = round(height*0.05);
+    panelCanvas.rect(round(width/2) -tw/2, y-10*jsManager.loadFloatSetting("text scale"), tw, 10*jsManager.loadFloatSetting("text scale"));
     panelCanvas.fill(0);
-    panelCanvas.text(progressMessage, width/2, y);
+    panelCanvas.text(progressMessage, round(width/2), y);
   }
 
   ArrayList<String> keyboardEvent(String eventType, char _key) {
@@ -2537,9 +2523,6 @@ class Game extends State {
         ((Map2D)map).mapYOffset = ((Map2D)map).targetYOffset;
         ((Map2D)map).blockSize = this.players[turn].blockSize;
       }
-      if (players[turn].cellSelected) {
-        selectCell(players[turn].cellX, players[turn].cellY, false);
-      }
     } else {
       LOGGER_MAIN.finer("Creating new map");
       ((BaseMap)map).generateMap(mapWidth, mapHeight, players.length);
@@ -2570,6 +2553,9 @@ class Game extends State {
       }
     }
     
+    if (players[turn].cellSelected) {
+      selectCell(players[turn].cellX, players[turn].cellY, false);
+    }
     map.setPlayerColours(playerColours);
     
     ((Console)getElement("console", "console")).giveObjects(map, players, this);
