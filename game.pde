@@ -2547,7 +2547,7 @@ class Game extends State {
       buildings = ((BaseMap)map).buildings;
       parties = ((BaseMap)map).parties;
       PVector[] playerStarts = generateStartingParties();
-      // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
+      // THIS NEEDS TO BE CHANGED WHEN ADDING PLAYER INPUT SELECTOR
       players[2] = new Player((int)playerStarts[2].x, (int)playerStarts[2].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0, 255, 0), "Player 3  ");
       float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, jsManager.loadIntSetting("starting block size"));
       players[1] = new Player((int)playerStarts[1].x, (int)playerStarts[1].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255, 0, 0), "Player 2  ");
