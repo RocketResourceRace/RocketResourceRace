@@ -725,7 +725,7 @@ class Siege extends Party {
   }
 }
 
-// THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
+// THIS NEEDS TO BE CHANGED FOR DIPLOMACY
 int getBattleUnitChange(Party p1, Party p2) {
   float damageRating = p2.strength * p2.getEffectivenessMultiplier("melee attack", jsManager.proficiencyIDToIndex("melee attack")) /
   (p1.strength * p1.getEffectivenessMultiplier("defence", jsManager.proficiencyIDToIndex("defence")));
@@ -881,7 +881,7 @@ class BattleEstimateManager {
     }
   }
   
-  // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
+  // THIS NEEDS TO BE CHANGED FOR DIPLOMACY
   int runTrial(Party attacker, Party defender) {
     try {
       Battle battle;

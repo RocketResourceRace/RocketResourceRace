@@ -90,7 +90,7 @@ class Game extends State {
       LOGGER_MAIN.fine("initializing game");
       gameUICanvas = createGraphics(width, height, P2D); 
       
-      // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
+      // THIS NEEDS TO BE CHANGED WHEN ADDING PLAYER INPUT SELECTOR
       players = new Player[3];
       //
       
@@ -158,9 +158,7 @@ class Game extends State {
       addElement("resource detailed", new Button(resSummaryX-50, bezel, 30, 20, color(150), color(50), color(0), 13, CENTER, "^"), "bottom bar");
       addElement("resource expander", new Button(resSummaryX-50, 2*bezel+20, 30, 20, color(150), color(50), color(0), 10, CENTER, "<"), "bottom bar");
       
-      // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS (first player colour should be found)
-      addElement("turn number", new TextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", color(0, 0, 255), 0), "bottom bar");
-      //
+      addElement("turn number", new TextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", 0, 0), "bottom bar");
       addElement("2d 3d toggle", new ToggleButton(bezel*4+buttonW*3, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), jsManager.loadBooleanSetting("map is 3d"), "3D View"), "bottom bar");
       addElement("task icons toggle", new ToggleButton(round(bezel*5+buttonW*3.5), bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Task Icons"), "bottom bar");
       addElement("unit number bars toggle", new ToggleButton(bezel*6+buttonW*4, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Unit Bars"), "bottom bar");
@@ -1335,7 +1333,6 @@ class Game extends State {
   }
 
   boolean checkForPlayerWin() {
-    // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
     if (winner == -1) {
       boolean[] playersAlive = new boolean[players.length];
 
@@ -2204,15 +2201,8 @@ class Game extends State {
           ((Slider)getElement("split units", "party management")).setScale(1, parties[selectedCellY][selectedCellX].getUnitNumber(), parties[selectedCellY][selectedCellX].getUnitNumber(), 1, parties[selectedCellY][selectedCellX].getUnitNumber()/2);
         }
         
-        // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
-        if (parties[selectedCellY][selectedCellX].player == 1) {
-          partyManagementColour = color(170, 30, 30);
-          getPanel("party management").setColour(color(220, 70, 70));
-        } else {
-          partyManagementColour = color(0, 0, 150);
-          getPanel("party management").setColour(color(70, 70, 220));
-        }
-        //
+        partyManagementColour = brighten(playerColours[turn], -80); // Top
+        getPanel("party management").setColour(brighten(playerColours[turn], 70)); // Background
         
         if (isEquipmentCollectionAllowed(selectedCellX, selectedCellY)) {
           ((Button)getElement("stock up button", "party management")).bgColour = color(150);
