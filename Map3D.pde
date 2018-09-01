@@ -629,8 +629,7 @@ class Map3D extends BaseMap implements Map {
       fill(255);
 
       LOGGER_MAIN.fine("Generating units number objects");
-      // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
-      unitNumberObjects = new PShape[players+1];
+      unitNumberObjects = new PShape[players];
       for (int i=0; i < players; i++) {
         unitNumberObjects[i] = createShape();
         unitNumberObjects[i].beginShape(QUADS);
@@ -653,46 +652,7 @@ class Map3D extends BaseMap implements Map {
         unitNumberObjects[i].vertex(blockSize, 0, 0);
         unitNumberObjects[i].endShape();
         unitNumberObjects[i].rotateX(PI/2);
-        //unitNumberObjects[i].setStroke(false);
       }
-      unitNumberObjects[players] = createShape();
-      unitNumberObjects[players].beginShape(QUADS);
-      unitNumberObjects[players].stroke(0);
-      unitNumberObjects[players].fill(120, 120, 120);
-      unitNumberObjects[players].vertex(blockSize, 0, 0);
-      unitNumberObjects[players].fill(120, 120, 120);
-      unitNumberObjects[players].vertex(blockSize, blockSize*0.0625, 0);
-      unitNumberObjects[players].fill(120, 120, 120);
-      unitNumberObjects[players].vertex(blockSize, blockSize*0.0625, 0);
-      unitNumberObjects[players].fill(120, 120, 120);
-      unitNumberObjects[players].vertex(blockSize, 0, 0);
-      unitNumberObjects[players].fill(playerColours[0]);
-      unitNumberObjects[players].vertex(0, 0, 0);
-      unitNumberObjects[players].fill(playerColours[0]);
-      unitNumberObjects[players].vertex(0, blockSize*0.0625, 0);
-      unitNumberObjects[players].fill(playerColours[0]);
-      unitNumberObjects[players].vertex(blockSize, blockSize*0.0625, 0);
-      unitNumberObjects[players].fill(playerColours[0]);
-      unitNumberObjects[players].vertex(blockSize, 0, 0);
-      unitNumberObjects[players].fill(120, 120, 120);
-      unitNumberObjects[players].vertex(blockSize, blockSize*0.0625, 0);
-      unitNumberObjects[players].fill(120, 120, 120);
-      unitNumberObjects[players].vertex(blockSize, blockSize*0.125, 0);
-      unitNumberObjects[players].fill(120, 120, 120);
-      unitNumberObjects[players].vertex(blockSize, blockSize*0.125, 0);
-      unitNumberObjects[players].fill(120, 120, 120);
-      unitNumberObjects[players].vertex(blockSize, blockSize*0.0625, 0);
-      unitNumberObjects[players].fill(playerColours[1]);
-      unitNumberObjects[players].vertex(0, blockSize*0.0625, 0);
-      unitNumberObjects[players].fill(playerColours[1]);
-      unitNumberObjects[players].vertex(0, blockSize*0.125, 0);
-      unitNumberObjects[players].fill(playerColours[1]);
-      unitNumberObjects[players].vertex(blockSize, blockSize*0.125, 0);
-      unitNumberObjects[players].fill(playerColours[1]);
-      unitNumberObjects[players].vertex(blockSize, blockSize*0.0625, 0);
-      unitNumberObjects[players].endShape();
-      unitNumberObjects[players].rotateX(PI/2);
-      //unitNumberObjects[2].setStroke(false);
       
       
       tileRect = createShape();
@@ -1348,7 +1308,6 @@ class Map3D extends BaseMap implements Map {
     try {
       if (parties[y][x] instanceof Battle) {
         Battle battle = (Battle) parties[y][x];
-        // THIS NEEDS TO BE CHANGED TO COPE WITH MORE PLAYERS
         unitNumberObjects[battle.attacker.player].setVertex(0, blockSize*battle.attacker.getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
         unitNumberObjects[battle.attacker.player].setVertex(1, blockSize*battle.attacker.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
         unitNumberObjects[battle.attacker.player].setVertex(2, blockSize, blockSize*0.0625, 0);
@@ -1373,7 +1332,6 @@ class Map3D extends BaseMap implements Map {
         canvas.rotateX(PI/2-this.tilt);
         canvas.shape(unitNumberObjects[battle.attacker.player]);
         canvas.shape(unitNumberObjects[battle.defender.player]);
-        //
         canvas.popMatrix();
       } else {
         canvas.noLights();
