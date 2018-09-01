@@ -1261,7 +1261,7 @@ class Tooltip extends Element {
         }
       }
       if (!hasEquipment){
-        t += " Nonezn";
+        t += " None\n";
       }
     }
 
