@@ -438,7 +438,7 @@ class Game extends State {
           ((Text)getElement("turns remaining", "party management")).setText("");
           if (selectedCellX==x&&selectedCellY==y) { // Party moving to same tile
             LOGGER_GAME.finer(String.format("Splitted party put into back tile: (%s, %s)", x, y));
-            parties[y][x].changeUnitNumber(splittedParty.getUnitNumber());
+            parties[y][x].mergeEntireFrom(splittedParty, 0, players[parties[y][x].player]);
             splittedParty = null;
             parties[y][x].clearPath();
           } else {
@@ -464,7 +464,7 @@ class Game extends State {
           ((Text)getElement("turns remaining", "party management")).setText("");
           moveParty(selectedCellX, selectedCellY);
         }
-        if (parties[selectedCellY][selectedCellX].getUnitNumber() <= 0) {
+        if (parties[selectedCellY][selectedCellX] != null && parties[selectedCellY][selectedCellX].getUnitNumber() <= 0) {
           parties[selectedCellY][selectedCellX] = null;
         }
       } else if (event instanceof Bombard) {
