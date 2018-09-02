@@ -721,6 +721,7 @@ class Game extends State {
         LOGGER_GAME.finest("Event is valid, so updating things...");
         if (!changeTurn) {
           updateResourcesSummary();
+          updatePartyManagementInterface();
 
           if (anyIdle(turn)) {
             LOGGER_GAME.finest("There are idle units so highlighting button red");
@@ -2190,49 +2191,54 @@ class Game extends State {
       map.selectCell(selectedCellX, selectedCellY);
       //map.setWidth(round(width-bezel*2-400));
       getPanel("land management").setVisible(true);
-      if (parties[selectedCellY][selectedCellX] != null && (parties[selectedCellY][selectedCellX].isTurn(turn) || jsManager.loadBooleanSetting("show all party managements"))) {
-        if (parties[selectedCellY][selectedCellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle") && parties[selectedCellY][selectedCellX].isTurn(turn)) {
-          ((Slider)getElement("split units", "party management")).show();
-          ((TaskManager)getElement("tasks", "party management")).active = true;
-          ((TaskManager)getElement("tasks", "party management")).show();
-          ((Text)getElement("task text", "party management")).show();
-        } else {
-          ((Slider)getElement("split units", "party management")).hide();
-          ((TaskManager)getElement("tasks", "party management")).active = false;
-          ((TaskManager)getElement("tasks", "party management")).hide();
-          ((Text)getElement("task text", "party management")).hide();
-        }
-        getPanel("party management").setVisible(true);
-        if (parties[selectedCellY][selectedCellX].getUnitNumber() <= 1) {
-          ((Slider)getElement("split units", "party management")).hide();
-        } else {
-          ((Slider)getElement("split units", "party management")).setScale(1, parties[selectedCellY][selectedCellX].getUnitNumber(), parties[selectedCellY][selectedCellX].getUnitNumber(), 1, parties[selectedCellY][selectedCellX].getUnitNumber()/2);
-        }
-        
-        partyManagementColour = brighten(playerColours[turn], -80); // Top
-        getPanel("party management").setColour(brighten(playerColours[turn], 70)); // Background
-        
-        if (isEquipmentCollectionAllowed(selectedCellX, selectedCellY)) {
-          ((Button)getElement("stock up button", "party management")).bgColour = color(150);
-          ((Button)getElement("stock up button", "party management")).textColour = color(0);
-          ((Button)getElement("stock up button", "party management")).activate();
-        } else {
-          ((Button)getElement("stock up button", "party management")).bgColour = color(210);
-          ((Button)getElement("stock up button", "party management")).textColour = color(100);
-          ((Button)getElement("stock up button", "party management")).deactivate();
-        }
-        ((ToggleButton)getElement("auto stock up toggle", "party management")).setState(parties[selectedCellY][selectedCellX].getAutoStockUp());
-        checkTasks();
-        int selectedEquipmentType = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
-        if (selectedEquipmentType != -1){
-          updatePartyManagementProficiencies();
-        }
-        ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX]);
-        updatePartyManagementProficiencies();
-        updateCurrentPartyTrainingFocus();
-        updateUnitCapIncrementer();
-        updateBombardment();
+      
+      updatePartyManagementInterface();
+    }
+  }
+  
+  void updatePartyManagementInterface(){
+    if (parties[selectedCellY][selectedCellX] != null && (parties[selectedCellY][selectedCellX].isTurn(turn) || jsManager.loadBooleanSetting("show all party managements"))) {
+      if (parties[selectedCellY][selectedCellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle") && parties[selectedCellY][selectedCellX].isTurn(turn)) {
+        ((Slider)getElement("split units", "party management")).show();
+        ((TaskManager)getElement("tasks", "party management")).active = true;
+        ((TaskManager)getElement("tasks", "party management")).show();
+        ((Text)getElement("task text", "party management")).show();
+      } else {
+        ((Slider)getElement("split units", "party management")).hide();
+        ((TaskManager)getElement("tasks", "party management")).active = false;
+        ((TaskManager)getElement("tasks", "party management")).hide();
+        ((Text)getElement("task text", "party management")).hide();
       }
+      getPanel("party management").setVisible(true);
+      if (parties[selectedCellY][selectedCellX].getUnitNumber() <= 1) {
+        ((Slider)getElement("split units", "party management")).hide();
+      } else {
+        ((Slider)getElement("split units", "party management")).setScale(1, parties[selectedCellY][selectedCellX].getUnitNumber(), parties[selectedCellY][selectedCellX].getUnitNumber(), 1, parties[selectedCellY][selectedCellX].getUnitNumber()/2);
+      }
+      
+      partyManagementColour = brighten(playerColours[turn], -80); // Top
+      getPanel("party management").setColour(brighten(playerColours[turn], 70)); // Background
+      
+      if (isEquipmentCollectionAllowed(selectedCellX, selectedCellY)) {
+        ((Button)getElement("stock up button", "party management")).bgColour = color(150);
+        ((Button)getElement("stock up button", "party management")).textColour = color(0);
+        ((Button)getElement("stock up button", "party management")).activate();
+      } else {
+        ((Button)getElement("stock up button", "party management")).bgColour = color(210);
+        ((Button)getElement("stock up button", "party management")).textColour = color(100);
+        ((Button)getElement("stock up button", "party management")).deactivate();
+      }
+      ((ToggleButton)getElement("auto stock up toggle", "party management")).setState(parties[selectedCellY][selectedCellX].getAutoStockUp());
+      checkTasks();
+      int selectedEquipmentType = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
+      if (selectedEquipmentType != -1){
+        updatePartyManagementProficiencies();
+      }
+      ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX]);
+      updatePartyManagementProficiencies();
+      updateCurrentPartyTrainingFocus();
+      updateUnitCapIncrementer();
+      updateBombardment();
     }
   }
   
