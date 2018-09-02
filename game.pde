@@ -2283,6 +2283,7 @@ class Game extends State {
     }
     panelCanvas.text("Movement Points Remaining: "+parties[selectedCellY][selectedCellX].getMovementPoints(turn) + "/"+parties[selectedCellY][selectedCellX].getMaxMovementPoints(), 120+sidePanelX, barY);
     barY += 13*jsManager.loadFloatSetting("text scale");
+    
     if (jsManager.loadBooleanSetting("show all party managements")&&parties[selectedCellY][selectedCellX].player==-1) {
       String t1 = ((Battle)parties[selectedCellY][selectedCellX]).attacker.id;
       String t2 = "Units: "+((Battle)parties[selectedCellY][selectedCellX]).attacker.getUnitNumber() + "/" + jsManager.loadIntSetting("party size");
@@ -2297,11 +2298,38 @@ class Game extends State {
       panelCanvas.text("Units: "+parties[selectedCellY][selectedCellX].getUnitNumber(turn) + "/" + jsManager.loadIntSetting("party size"), 120+sidePanelX, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     }
+    
     if (parties[selectedCellY][selectedCellX].pathTurns > 0) {
       ((Text)getElement("turns remaining", "party management")).setText("Turns Remaining: "+ parties[selectedCellY][selectedCellX].pathTurns);
     } else if (parties[selectedCellY][selectedCellX].actions.size() > 0 && parties[selectedCellY][selectedCellX].actions.get(0).initialTurns > 0) {
       ((Text)getElement("turns remaining", "party management")).setText("Turns Remaining: "+parties[selectedCellY][selectedCellX].turnsLeft() + "/"+round(parties[selectedCellY][selectedCellX].calcTurns(parties[selectedCellY][selectedCellX].actions.get(0).initialTurns)));
     }
+    
+    if (!((Text)getElement("turns remaining", "party management")).text.equals("")) {
+      ((Text)getElement("turns remaining", "party management")).y = int(barY) - getPanel("party management").y;
+      barY += 13*jsManager.loadFloatSetting("text scale");
+    }
+    
+    ((Slider)getElement("split units", "party management")).y = int(barY) - getPanel("party management").y;
+    barY += ((Slider)getElement("split units", "party management")).h;
+    barY += ((Button)getElement("stock up button", "party management")).h;
+    
+    ((Button)getElement("stock up button", "party management")).y = int(barY) - getPanel("party management").y;
+    ((ToggleButton)getElement("auto stock up toggle", "party management")).y = int(barY) - getPanel("party management").y;
+    ((IncrementElement)getElement("unit cap incrementer", "party management")).y = int(barY) - getPanel("party management").y;
+    barY += ((Button)getElement("stock up button", "party management")).h + bezel;
+    
+    ((EquipmentManager)getElement("equipment manager", "party management")).y = int(barY) - getPanel("party management").y;
+    barY += ((EquipmentManager)getElement("equipment manager", "party management")).getBoxHeight();
+    
+    ((Text)getElement("task text", "party management")).y = int(barY) - getPanel("party management").y;
+    ((Text)getElement("proficiencies", "party management")).y = int(barY) - getPanel("party management").y;
+    barY += ((Text)getElement("proficiencies", "party management")).h;
+    
+    ((TaskManager)getElement("tasks", "party management")).y = int(barY) - getPanel("party management").y;
+    ((ProficiencySummary)getElement("proficiency summary", "party management")).y = int(barY) - getPanel("party management").y;
+    barY += ((ProficiencySummary)getElement("proficiency summary", "party management")).h;
+    ((DropDown)getElement("party training focus", "party management")).y = int(barY) - getPanel("party management").y;
   }
 
   String resourcesList(float[] resources) {
