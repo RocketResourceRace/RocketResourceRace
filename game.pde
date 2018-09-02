@@ -674,6 +674,7 @@ class Game extends State {
       }
       else if (event instanceof StockUpEquipment){
         LOGGER_GAME.fine("Stocking up equipment");
+        boolean anyAdded = false;
         int x = ((StockUpEquipment)event).x;
         int y = ((StockUpEquipment)event).y;
         if (parties[y][x].getMovementPoints() > 0) {
@@ -682,14 +683,21 @@ class Game extends State {
             if (parties[y][x].getEquipment(i) != -1){
               resID = jsManager.getResIndex(jsManager.getEquipmentTypeID(i, parties[y][x].getEquipment(i)));
               addedQuantity = min(parties[y][x].getUnitNumber()-parties[y][x].getEquipmentQuantity(i), floor(players[turn].resources[resID]));
+              if (addedQuantity > 0){
+                anyAdded = true;
+              }
               parties[y][x].addEquipmentQuantity(i, addedQuantity);
               players[turn].resources[resID] -= addedQuantity;
               LOGGER_GAME.fine(String.format("Adding %d quantity to equipment class:%d", addedQuantity, i));
             }
           }
-          parties[y][x].setMovementPoints(0);
+          // Only set movement points to 0 if some equipment was topped up
+          if (anyAdded){
+            LOGGER_GAME.finer("Party movement points set to 0 because some equipment was topped up");
+            parties[y][x].setMovementPoints(0);
+          }
           ((Button)getElement("stock up button", "party management")).deactivate();
-          updateBombardment();
+          updatePartyManagementInterface();
         }
       } 
       else if (event instanceof SetAutoStockUp){
