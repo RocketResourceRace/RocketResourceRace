@@ -1273,7 +1273,7 @@
           "img": "wooden armour.png",
           "speed": -0.25,
           "defence": 1,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Armoury", "Blacksmith"]
         },
         {
           "id": "iron armour",
@@ -1281,7 +1281,7 @@
           "img": "iron armour.png",
           "speed": -0.4,
           "defence": 2.5,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Armoury", "Blacksmith"]
         },
         {
           "id": "reinforced armour",
@@ -1289,7 +1289,7 @@
           "img": "reinforced armour.png",
           "speed": -0.5,
           "defence": 4,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Armoury", "Blacksmith"]
         },
       ]
     },
@@ -1307,7 +1307,7 @@
           "melee attack": 1,
           "speed": -0.1,
           "defence": 0.5,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Armoury", "Blacksmith"]
         },
         {
           "id": "bow",
@@ -1315,7 +1315,7 @@
           "img": "bow.png",
           "range": 2,
           "ranged attack": 0.25,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Armoury", "Blacksmith"]
         },
         {
           "id": "javelin",
@@ -1323,7 +1323,7 @@
           "img": "javelin.png",
           "range": 1,
           "ranged attack": 1,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Armoury", "Blacksmith"]
         },
         {
           "id": "pike",
@@ -1331,7 +1331,7 @@
           "img": "pike.png",
           "speed": -0.3,
           "melee attack": 1.5,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Armoury", "Blacksmith"]
         },
         {
           "id": "musket",
@@ -1341,7 +1341,7 @@
           "speed": -0.1,
           "ranged attack": 4,
           "melee attack": 1.5,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Armoury", "Blacksmith"]
         },
         {
           "id": "rifle",
@@ -1351,7 +1351,7 @@
           "speed": -0.1,
           "ranged attack": 6,
           "melee attack": 2,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Armoury", "Blacksmith"]
         },
         {
           "id": "machine gun",
@@ -1361,7 +1361,7 @@
           "speed": -0.5,
           "ranged attack": 8,
           "melee attack": 3,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Armoury", "Factory"]
         },
         {
           "id": "tank",
@@ -1370,7 +1370,7 @@
           "range": 5,
           "speed": 1.5,
           "ranged attack": 10,
-          "valid collection sites": ["Armoury"],
+          "valid collection sites": ["Armoury", "Factory"],
           "other class blocking": ["mount", "armour"],
         },
       ]
@@ -1401,7 +1401,7 @@
           "display name": "Offroader",
           "img": "offroader.png",
           "speed": 5,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Armoury", "Factory"]
         },
         {
           "id": "apc",
@@ -1409,7 +1409,7 @@
           "img": "apc.png",
           "speed": 3,
           "defence": 5,
-          "valid collection sites": ["Armoury"],
+          "valid collection sites": ["Armoury", "Factory"],
           "other class blocking": ["armour"],
         },
       ]
@@ -1425,14 +1425,14 @@
           "display name": "Hand tools",
           "img": "hand tools.png",
           "building speed": 1,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Armoury", "Blacksmith"]
         },
         {
           "id": "power tools",
           "display name": "Power Tools",
           "img": "power tools.png",
           "building speed": 2,
-          "valid collection sites": ["Armoury"]
+          "valid collection sites": ["Armoury", "Factory"]
         },
       ]
     },
