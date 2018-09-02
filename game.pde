@@ -405,7 +405,7 @@ class Game extends State {
 
         if (canMove(selectedCellX, selectedCellY)) {
           int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
-          if (sliderVal > 0 && parties[selectedCellY][selectedCellX].getUnitNumber() >= 2 && parties[selectedCellY][selectedCellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle")) {
+          if (sliderVal > 0 && parties[selectedCellY][selectedCellX].getUnitNumber() >= 1 && parties[selectedCellY][selectedCellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle")) {
             map.updateMoveNodes(nodes);
             moving = true;
             String newPartyName;
