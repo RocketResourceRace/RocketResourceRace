@@ -483,6 +483,7 @@ class Game extends State {
               if (dist(x1, y1, x2, y2) <= range){
                 int damage = getBombardmentDamage(attacker, defender);
                 defender.changeUnitNumber(-damage);
+                handlePartyExcessResources(x2, y2);
                 if (defender.getUnitNumber() == 0) {
                   parties[y2][x2] = null;
                 }
@@ -1114,7 +1115,7 @@ class Game extends State {
         if (type != -1) {
           if (isEquipmentCollectionAllowed(x, y, i, type)) {
             LOGGER_GAME.fine(String.format("Recovering %d %s from party decreasing in size", quantity, jsManager.getEquipmentTypeID(i, type)));
-            players[turn].resources[jsManager.getResIndex(jsManager.getEquipmentTypeID(i, type))] += quantity;
+            players[parties[y][x].player].resources[jsManager.getResIndex(jsManager.getEquipmentTypeID(i, type))] += quantity;
           }
         }
       }
