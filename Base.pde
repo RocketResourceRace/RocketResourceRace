@@ -439,6 +439,14 @@ class Element {
     // For checking if hover highlighting is needed
     return elemOnTop;
   }
+  
+  void show() {
+    visible = true;
+  }
+  
+  void hide() {
+    visible = false;
+  }
 
   void draw(PGraphics panelCanvas) {
   }

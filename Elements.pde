@@ -2565,12 +2565,7 @@ class Slider extends Element {
     this.value = new BigDecimal(""+value);
     this.name = name;
   }
-  void show() {
-    visible = true;
-  }
-  void hide() {
-    visible = false;
-  }
+  
   void scaleKnob(PGraphics panelCanvas, BigDecimal value) {
     panelCanvas.textFont(getFont(8*jsManager.loadFloatSetting("text scale")));
     this.knobSize = max(this.knobSize, panelCanvas.textWidth(""+getInc(value)));

@@ -1997,13 +1997,14 @@ class Game extends State {
     return round(((Slider)getElement("split units", "party management")).getValue());
   }
   void refreshTooltip() {
-    if (!getPanel("pause screen").visible) { 
+    if (!getPanel("pause screen").visible) {
+      TaskManager tasks = ((TaskManager)getElement("tasks", "party management"));
       if (((EquipmentManager)getElement("equipment manager", "party management")).mouseOverTypes() && getPanel("party management").visible) {
         int hoveringType = ((EquipmentManager)getElement("equipment manager", "party management")).hoveringOverType();
         int equipmentClass = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
         tooltip.setEquipment(equipmentClass, hoveringType, players[turn].resources, parties[selectedCellY][selectedCellX], isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, parties[selectedCellY][selectedCellX].getEquipment(equipmentClass)));
         tooltip.show();
-      } else if (((TaskManager)getElement("tasks", "party management")).moveOver() && getPanel("party management").visible && !((TaskManager)getElement("tasks", "party management")).scrolling && !((TaskManager)getElement("tasks", "party management")).hovingOverScroll()) {
+      } else if (tasks.moveOver() && getPanel("party management").visible && !tasks.scrolling && !tasks.hovingOverScroll() && tasks.active) {
         tooltip.setTask(((TaskManager)getElement("tasks", "party management")).findMouseOver(), players[turn].resources, parties[selectedCellY][selectedCellX].getMovementPoints());
         tooltip.show();
       } else if(((ProficiencySummary)getElement("proficiency summary", "party management")).mouseOver() && getPanel("party management").visible) {
@@ -2192,8 +2193,14 @@ class Game extends State {
       if (parties[selectedCellY][selectedCellX] != null && (parties[selectedCellY][selectedCellX].isTurn(turn) || jsManager.loadBooleanSetting("show all party managements"))) {
         if (parties[selectedCellY][selectedCellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle") && parties[selectedCellY][selectedCellX].isTurn(turn)) {
           ((Slider)getElement("split units", "party management")).show();
+          ((TaskManager)getElement("tasks", "party management")).active = true;
+          ((TaskManager)getElement("tasks", "party management")).show();
+          ((Text)getElement("task text", "party management")).show();
         } else {
           ((Slider)getElement("split units", "party management")).hide();
+          ((TaskManager)getElement("tasks", "party management")).active = false;
+          ((TaskManager)getElement("tasks", "party management")).hide();
+          ((Text)getElement("task text", "party management")).hide();
         }
         getPanel("party management").setVisible(true);
         if (parties[selectedCellY][selectedCellX].getUnitNumber() <= 1) {
