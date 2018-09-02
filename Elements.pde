@@ -1623,7 +1623,7 @@ class NotificationManager extends Element {
   }
 
   boolean moveOver() {
-    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+notHeight*notifications.get(turn).size();
+    return mouseX-xOffset >= x && mouseX-xOffset <= x+w && mouseY-yOffset >= y && mouseY-yOffset <= y+notHeight*(notifications.get(turn).size()+1);
   }
   boolean pointOver() {
     return moveOver();
