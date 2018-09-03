@@ -1270,7 +1270,11 @@ class Game extends State {
               int player = ((Battle) parties[y][x]).attacker.player;
               int otherPlayer = ((Battle) parties[y][x]).defender.player;
               parties[y][x] = ((Battle)parties[y][x]).doBattle();
-              if (parties[y][x].player != -1) {
+              if (parties[y][x] == null) {
+                LOGGER_GAME.fine(String.format("Battle ended at:(%d, %d) both parties died", x, y));
+                notificationManager.post("Battle Ended. Both parties died", x, y, turnNumber, player);
+                notificationManager.post("Battle Ended. Both parties died", x, y, turnNumber, otherPlayer);
+              } else if (parties[y][x].player != -1) {
                 LOGGER_GAME.fine(String.format("Battle ended at:(%d, %d) winner=&s", x, y, str(parties[y][x].player+1)));
                 notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, player);
                 notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
@@ -1327,6 +1331,9 @@ class Game extends State {
         LOGGER_GAME.finest("Idle party set to grey becuase no idle parties found");
         ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
       }
+      if (!players[turn].isAlive) {
+        turnChange();
+      }
     }
     catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error changing turn", e);
@@ -1353,6 +1360,7 @@ class Game extends State {
       }
       int numAlive = 0;
       for (int p=0; p < players.length; p++){
+        players[p].isAlive = playersAlive[p];
         if (playersAlive[p]){
           numAlive ++;
         }
@@ -1405,7 +1413,7 @@ class Game extends State {
     if (tooltip.visible&&tooltip.attacking) {
       int x = floor(map.scaleXInv());
       int y = floor(map.scaleYInv());
-      if (0<=x&&x<mapWidth&&0<=y&&y<mapHeight && parties[y][x] != null && parties[y][x].player != parties[selectedCellY][selectedCellX].player && map.mouseOver() && !UIHovering()) {
+      if (0<=x&&x<mapWidth&&0<=y&&y<mapHeight && parties[y][x] != null && parties[selectedCellY][selectedCellX] != null && parties[y][x].player != parties[selectedCellY][selectedCellX].player && map.mouseOver() && !UIHovering()) {
         BigDecimal chance = battleEstimateManager.getEstimate(selectedCellX, selectedCellY, x, y, splitUnitsNum());
         tooltip.setAttacking(chance);
       } else {

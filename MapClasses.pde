@@ -758,6 +758,8 @@ class Player {
   int cellX, cellY, colour;
   boolean cellSelected = false;
   String name;
+  boolean isAlive = true;
+  
   // Resources: food wood metal energy concrete cable spaceship_parts ore people
   Player(float x, float y, float blockSize, float[] resources, int colour, String name) {
     this.cameraCellX = x;
