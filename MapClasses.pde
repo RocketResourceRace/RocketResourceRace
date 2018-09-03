@@ -569,10 +569,10 @@ class Party {
           // Check each equipment equipped for proficiencies to calculate bonus
           if (!equipmentTypeJO.isNull(proficiencyID)){
             if (equipmentTypeJO.getFloat(proficiencyID) > 0){
-              returnMe.add(String.format("<g>+%s</g> from %s (%d/%d)", roundDpTrailing("+"+equipmentTypeJO.getFloat(proficiencyID) * ((float)getEquipmentQuantity(i)/getUnitNumber()), 2), equipmentTypeJO.getString("display name"), getEquipmentQuantity(i), getUnitNumber()));
+              returnMe.add(String.format("<g>+%s</g> from %s (%d/%d)", roundDpTrailing("+"+getRawProficiency(index)*equipmentTypeJO.getFloat(proficiencyID) * ((float)getEquipmentQuantity(i)/getUnitNumber()), 2), equipmentTypeJO.getString("display name"), getEquipmentQuantity(i), getUnitNumber()));
             }
             else if (equipmentTypeJO.getFloat(proficiencyID) < 0){
-              returnMe.add(String.format("<g>%s</g> from %s (%d/%d)", roundDpTrailing("+"+equipmentTypeJO.getFloat(proficiencyID) * ((float)getEquipmentQuantity(i)/getUnitNumber()), 2), equipmentTypeJO.getString("display name"), getEquipmentQuantity(i), getUnitNumber()));
+              returnMe.add(String.format("<g>%s</g> from %s (%d/%d)", roundDpTrailing("+"+getRawProficiency(index)*equipmentTypeJO.getFloat(proficiencyID) * ((float)getEquipmentQuantity(i)/getUnitNumber()), 2), equipmentTypeJO.getString("display name"), getEquipmentQuantity(i), getUnitNumber()));
             }
           }
         }
