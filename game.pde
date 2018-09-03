@@ -389,6 +389,7 @@ class Game extends State {
 
       battleEstimateManager.refresh();
       if (event instanceof Move) {
+        
         LOGGER_GAME.fine("Move event");
         Move m = (Move)event;
         int x = m.endX;

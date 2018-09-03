@@ -759,6 +759,7 @@ class Player {
   boolean cellSelected = false;
   String name;
   boolean isAlive = true;
+  PlayerController playerController;
   
   // Resources: food wood metal energy concrete cable spaceship_parts ore people
   Player(float x, float y, float blockSize, float[] resources, int colour, String name) {
@@ -785,6 +786,23 @@ class Player {
     } else {
       g.deselectCell();
     }
+  }
+  
+  GameEvent generateNextEvent(){
+    // This method will be run continuously until it returns an end turn event
+    return playerController.generateNextEvent();
+  }
+}
+
+
+class PlayerController {
+  PlayerController () {
+    
+  }
+  
+  GameEvent generateNextEvent(){
+    // This method will be run continuously until it returns an end turn event
+    return new EndTurn();
   }
 }
 
