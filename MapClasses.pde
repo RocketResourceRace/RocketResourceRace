@@ -795,15 +795,8 @@ class Player {
 }
 
 
-class PlayerController {
-  PlayerController () {
-    
-  }
-  
-  GameEvent generateNextEvent(){
-    // This method will be run continuously until it returns an end turn event
-    return new EndTurn();
-  }
+interface PlayerController {
+  GameEvent generateNextEvent();
 }
 
 
