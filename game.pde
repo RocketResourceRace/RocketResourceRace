@@ -2685,12 +2685,10 @@ class Game extends State {
     int w = mapWidth;
     int h = mapHeight;
     Node[][] nodes = new Node[h][w];
-    int cx = x;
-    int cy = y;
-    nodes[cy][cx] = new Node(0, false, cx, cy);
+    nodes[y][x] = new Node(0, false, x, y);
     ArrayList<Integer> curMinCosts = new ArrayList<Integer>();
     ArrayList<int[]> curMinNodes = new ArrayList<int[]>();
-    curMinNodes.add(new int[]{cx, cy});
+    curMinNodes.add(new int[]{x, y});
     curMinCosts.add(0);
     while (curMinNodes.size() > 0) {
       nodes[curMinNodes.get(0)[1]][curMinNodes.get(0)[0]].fixed = true;
