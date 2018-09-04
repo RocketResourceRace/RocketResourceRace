@@ -31,7 +31,7 @@ class Map3D extends BaseMap implements Map {
   float hoveringX, hoveringY, oldHoveringX, oldHoveringY;
   float targetXOffset, targetYOffset;
   int selectedCellX, selectedCellY;
-  PShape tiles, flagPole, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid, drawPossibleMoves, drawPossibleBombards, obscuredCellsOverlay, bombardArrow, fog;
+  PShape tiles, flagPole, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid, drawPossibleMoves, drawPossibleBombards, obscuredCellsOverlay, unseenCellsOverlay, bombardArrow, fog;
   PShape[] flags;
   HashMap<String, PShape> taskObjs;
   HashMap<String, PShape[]> buildingObjs;
@@ -204,6 +204,38 @@ class Map3D extends BaseMap implements Map {
     drawPath = path;
   }
   
+  void updateUnseenCellsOverlay(Cell[][] visibleCells) {
+    // For the shape that indicates cells that have not been seen. This is a temporary implementation
+    try {
+      LOGGER_MAIN.finer("Updating unseen cells overlay");
+      float smallSize = blockSize / jsManager.loadFloatSetting("terrain detail");
+      unseenCellsOverlay = createShape();
+      unseenCellsOverlay.beginShape(TRIANGLES);
+      unseenCellsOverlay.fill(250, 250, 250);
+      for (int x=0; x<mapWidth; x++) {
+        for (int y=0; y<mapHeight; y++) {
+          if (visibleCells[y][x] == null) {
+            for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
+              for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
+                unseenCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                unseenCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                unseenCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+
+                unseenCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                unseenCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                unseenCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+              }
+            }
+          }
+        }
+      }
+      unseenCellsOverlay.endShape();
+    }
+    catch (Exception e) {
+      LOGGER_MAIN.log(Level.SEVERE, "Error updating unseen cells overlay", e);
+      throw e;
+    }
+  }
   
   void updateObscuredCellsOverlay(Cell[][] visibleCells) {
     // For the shape that indicates cells that are not currently under party sight. This is a temporary implementation
@@ -216,7 +248,6 @@ class Map3D extends BaseMap implements Map {
       for (int x=0; x<mapWidth; x++) {
         for (int y=0; y<mapHeight; y++) {
           if (visibleCells[y][x] != null && !visibleCells[y][x].activeSight) {
-            println("test");
             for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
               for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
                 obscuredCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
@@ -237,6 +268,11 @@ class Map3D extends BaseMap implements Map {
       LOGGER_MAIN.log(Level.SEVERE, "Error updating obscured cells overlay", e);
       throw e;
     }
+  }
+  
+  void updateOverlays(Cell[][] visibleCells) {
+    updateObscuredCellsOverlay(visibleCells);
+    updateUnseenCellsOverlay(visibleCells);
   }
   
   void updatePossibleMoves() {
@@ -1248,6 +1284,7 @@ class Map3D extends BaseMap implements Map {
         canvas.pushMatrix();
         canvas.translate(0, 0, verySmallSize);
         canvas.shape(obscuredCellsOverlay);
+        canvas.shape(unseenCellsOverlay);
         canvas.popMatrix();
       }
       

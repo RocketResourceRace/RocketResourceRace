@@ -730,7 +730,7 @@ class Game extends State {
         LOGGER_GAME.finest("Event is valid, so updating things...");
         players[turn].updateVisibleCells(terrain, buildings, parties);
         if (map instanceof Map3D) {
-          ((Map3D)map).updateObscuredCellsOverlay(players[turn].visibleCells);
+          ((Map3D)map).updateOverlays(players[turn].visibleCells);
         }
         if (!changeTurn) {
           updateResourcesSummary();
@@ -1350,7 +1350,7 @@ class Game extends State {
       }
       players[turn].updateVisibleCells(terrain, buildings, parties);
       if (map instanceof Map3D) {
-        ((Map3D)map).updateObscuredCellsOverlay(players[turn].visibleCells);
+        ((Map3D)map).updateOverlays(players[turn].visibleCells);
       }
     }
     catch (Exception e) {
@@ -2670,7 +2670,7 @@ class Game extends State {
     map.generateShape();
     players[turn].updateVisibleCells(terrain, buildings, parties);
     if (map instanceof Map3D) {
-      ((Map3D)map).updateObscuredCellsOverlay(players[turn].visibleCells);
+      ((Map3D)map).updateOverlays(players[turn].visibleCells);
     }
 
     map.setDrawingTaskIcons(true);
