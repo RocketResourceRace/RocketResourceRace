@@ -752,6 +752,7 @@ Player getPlayer(Player[] players, String name){
   return players[0];
 }
 
+
 class Player {
   float cameraCellX, cameraCellY, blockSize;
   float[] resources;
@@ -761,6 +762,7 @@ class Player {
   boolean isAlive = true;
   PlayerController playerController;
   int controllerType;  // 0 for local, 1 for bandits
+  Cell[][] visibleCells;
   
   // Resources: food wood metal energy concrete cable spaceship_parts ore people
   Player(float x, float y, float blockSize, float[] resources, int colour, String name, int controllerType) {
@@ -771,6 +773,8 @@ class Player {
     this.colour = colour;
     this.name = name;
     
+    this.visibleCells = new Cell[jsManager.loadIntSetting("map size")][jsManager.loadIntSetting("map size")];
+    
     switch(controllerType){
       case 1:
         playerController = new BanditController();
@@ -780,6 +784,14 @@ class Player {
         break;
     }
   }
+  
+  void updateVisibleCells(){
+    /* 
+    Run after every event for this player, and it updates the visibleCells taking into account fog of war.
+    Cells that have not been discovered yet will be null, and cells that are in active sight will be updated with the lastest infomation.
+    */
+  }
+  
   void saveSettings(float x, float y, float blockSize, int cellX, int cellY, boolean cellSelected) {
     this.cameraCellX = x;
     this.cameraCellY = y;
@@ -800,16 +812,54 @@ class Player {
   
   GameEvent generateNextEvent(){
     // This method will be run continuously until it returns an end turn event
-    return playerController.generateNextEvent();
+    return playerController.generateNextEvent(visibleCells, resources);
   }
 }
 
 
 interface PlayerController {
-  GameEvent generateNextEvent();
+  GameEvent generateNextEvent(Cell[][] visibleCells, float resources[]);
 }
 
 
+class Cell {
+  private int terrain;
+  private Building building;
+  private Party party;
+  private boolean activeSight;
+  
+  Cell(int terrain, Building building, Party party){
+    this.terrain = terrain;
+    this.building = building;
+    this.party = party;
+    this.activeSight = false; // Needs to be updated later
+  }
+  
+  int getTerrain(){
+    return terrain;
+  }
+  Building getBuilding(){
+    return building;
+  }
+  Party getParty(){
+    return party;
+  }
+  boolean getActiveSight(){
+    return activeSight;
+  }
+  void setTerrain(int terrain){
+    this.terrain = terrain;
+  }
+  void setBuilding(Building building){
+    this.building = building;
+  }
+  void setParty(Party party){
+    this.party = party;
+  }
+  void setActiveSight(boolean activeSight){
+    this.activeSight = activeSight;
+  }
+}
 
 
 

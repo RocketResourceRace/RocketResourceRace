@@ -5,7 +5,8 @@ class BanditController implements PlayerController{
   BanditController(){
     
   }
-  GameEvent generateNextEvent(){
-    return new EndTurn();
+  GameEvent generateNextEvent(Cell[][] visibleCells, float resources[]){
+    
+    return new EndTurn();  // Placeholder
   }
 }

@@ -543,7 +543,7 @@ class BaseMap extends Element {
         } else {
           playerName = String.format("Player %d", i).toCharArray();
         }
-        players[i] = new Player(cameraCellX, cameraCellY, blockSize, resources, colour, new String(playerName));
+        players[i] = new Player(cameraCellX, cameraCellY, blockSize, resources, colour, new String(playerName), 0);
         players[i].cellSelected = cellSelected;
         players[i].cellX = selectedCellX;
         players[i].cellY = selectedCellY;
