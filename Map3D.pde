@@ -31,7 +31,7 @@ class Map3D extends BaseMap implements Map {
   float hoveringX, hoveringY, oldHoveringX, oldHoveringY;
   float targetXOffset, targetYOffset;
   int selectedCellX, selectedCellY;
-  PShape tiles, flagPole, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid, drawPossibleMoves, drawPossibleBombards, bombardArrow, fog;
+  PShape tiles, flagPole, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid, drawPossibleMoves, drawPossibleBombards, obscuredCellsOverlay, bombardArrow, fog;
   PShape[] flags;
   HashMap<String, PShape> taskObjs;
   HashMap<String, PShape[]> buildingObjs;
@@ -203,6 +203,42 @@ class Map3D extends BaseMap implements Map {
     pathLine.endShape();
     drawPath = path;
   }
+  
+  
+  void updateObscuredCellsOverlay(Cell[][] visibleCells) {
+    // For the shape that indicates cells that are not currently under party sight. This is a temporary implementation
+    try {
+      LOGGER_MAIN.finer("Updating obscured cells overlay");
+      float smallSize = blockSize / jsManager.loadFloatSetting("terrain detail");
+      obscuredCellsOverlay = createShape();
+      obscuredCellsOverlay.beginShape(TRIANGLES);
+      obscuredCellsOverlay.fill(0, 0, 0, 200);
+      for (int x=0; x<mapWidth; x++) {
+        for (int y=0; y<mapHeight; y++) {
+          if (visibleCells[y][x] != null && !visibleCells[y][x].activeSight) {
+            println("test");
+            for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
+              for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
+                obscuredCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                obscuredCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                obscuredCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+
+                obscuredCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                obscuredCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                obscuredCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+              }
+            }
+          }
+        }
+      }
+      obscuredCellsOverlay.endShape();
+    }
+    catch (Exception e) {
+      LOGGER_MAIN.log(Level.SEVERE, "Error updating obscured cells overlay", e);
+      throw e;
+    }
+  }
+  
   void updatePossibleMoves() {
     // For the shape that indicateds where a party can move
     try {
@@ -623,7 +659,6 @@ class Map3D extends BaseMap implements Map {
       water = createShape(RECT, 0, 0, getObjectWidth(), getObjectHeight());
       water.translate(0, 0, jsManager.loadFloatSetting("water level")*blockSize*GROUNDHEIGHT+4*VERYSMALLSIZE);
       generateHighlightingGrid(8, 8);
-
 
       int players = playerColours.length;
       fill(255);
@@ -1206,6 +1241,13 @@ class Map3D extends BaseMap implements Map {
         canvas.pushMatrix();
         canvas.translate(0, 0, verySmallSize);
         canvas.shape(drawPossibleMoves);
+        canvas.popMatrix();
+      }
+      
+      if (jsManager.loadBooleanSetting("fog of war")) {
+        canvas.pushMatrix();
+        canvas.translate(0, 0, verySmallSize);
+        canvas.shape(obscuredCellsOverlay);
         canvas.popMatrix();
       }
       

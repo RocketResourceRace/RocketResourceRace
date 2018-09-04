@@ -31,6 +31,7 @@ class Party {
   int pathTurns;
   byte[]byteRep;
   boolean autoStockUp;
+  int sightRadius = 3;
 
   Party(int player, int startingUnits, int startingTask, int movementPoints, String id) {
     unitNumber = startingUnits;
@@ -754,6 +755,7 @@ Player getPlayer(Player[] players, String name){
 
 
 class Player {
+  private int id;
   float cameraCellX, cameraCellY, blockSize;
   float[] resources;
   int cellX, cellY, colour;
@@ -765,13 +767,14 @@ class Player {
   Cell[][] visibleCells;
   
   // Resources: food wood metal energy concrete cable spaceship_parts ore people
-  Player(float x, float y, float blockSize, float[] resources, int colour, String name, int controllerType) {
+  Player(float x, float y, float blockSize, float[] resources, int colour, String name, int controllerType, int id) {
     this.cameraCellX = x;
     this.cameraCellY = y;
     this.blockSize = blockSize;
     this.resources = resources;
     this.colour = colour;
     this.name = name;
+    this.id = id;
     
     this.visibleCells = new Cell[jsManager.loadIntSetting("map size")][jsManager.loadIntSetting("map size")];
     
@@ -785,11 +788,41 @@ class Player {
     }
   }
   
-  void updateVisibleCells(){
+  void updateVisibleCells(int[][] terrain, Building[][] buildings, Party[][] parties){
     /* 
     Run after every event for this player, and it updates the visibleCells taking into account fog of war.
-    Cells that have not been discovered yet will be null, and cells that are in active sight will be updated with the lastest infomation.
+    Cells that have not been discovered yet will be null, and cells that are in active sight will be updated with the latest infomation.
     */
+    boolean[][] fogMap = new boolean[visibleCells.length][visibleCells[0].length];
+    for (int y = 0; y < visibleCells.length; y++) {
+      for (int x = 0; x < visibleCells[0].length; x++) {
+        if (parties[y][x] != null && parties[y][x].player == id && parties[y][x].getUnitNumber() > 0) {
+          for (int y1= y - parties[y][x].sightRadius; y1 <= y + parties[y][x].sightRadius; y1++) {
+            for (int x1 = x - parties[y][x].sightRadius; x1 <= x + parties[y][x].sightRadius; x1++) {
+              if (dist(x1, y1, x, y) <= parties[y][x].sightRadius && 0 <= x1 && x1 < visibleCells[0].length && 0 <= y1 && y1 < visibleCells.length) {
+                fogMap[y1][x1] = true;
+              }
+            }
+          }
+        }
+      }
+    }
+    for (int y = 0; y < visibleCells.length; y++) {
+      for (int x = 0; x < visibleCells[0].length; x++) {
+        if (visibleCells[y][x] == null) {
+          if (fogMap[y][x]) {
+            visibleCells[y][x] = new Cell(terrain[y][x], buildings[y][x], parties[y][x]);
+            visibleCells[y][x].setActiveSight(true);
+          }
+        } else {
+          visibleCells[y][x].setActiveSight(fogMap[y][x]);
+          visibleCells[y][x].setBuilding(buildings[y][x]);
+          if (visibleCells[y][x].getActiveSight()) {
+            visibleCells[y][x].setParty(parties[y][x]);
+          }
+        }
+      }
+    }
   }
   
   void saveSettings(float x, float y, float blockSize, int cellX, int cellY, boolean cellSelected) {

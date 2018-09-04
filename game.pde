@@ -728,6 +728,10 @@ class Game extends State {
 
       if (valid) {
         LOGGER_GAME.finest("Event is valid, so updating things...");
+        players[turn].updateVisibleCells(terrain, buildings, parties);
+        if (map instanceof Map3D) {
+          ((Map3D)map).updateObscuredCellsOverlay(players[turn].visibleCells);
+        }
         if (!changeTurn) {
           updateResourcesSummary();
           updatePartyManagementInterface();
@@ -1342,6 +1346,11 @@ class Game extends State {
       }
       if (!players[turn].isAlive) {
         turnChange();
+        return;
+      }
+      players[turn].updateVisibleCells(terrain, buildings, parties);
+      if (map instanceof Map3D) {
+        ((Map3D)map).updateObscuredCellsOverlay(players[turn].visibleCells);
       }
     }
     catch (Exception e) {
@@ -1866,6 +1875,8 @@ class Game extends State {
         if (p.getMovementPoints() >= cost) {
           // Train party for movement
           p.trainParty("speed", "moving");
+          
+          players[turn].updateVisibleCells(terrain, buildings, parties);
           
           hasMoved = true;
           if (parties[path.get(node)[1]][path.get(node)[0]] == null) {
@@ -2597,11 +2608,11 @@ class Game extends State {
       parties = ((BaseMap)map).parties;
       PVector[] playerStarts = generateStartingParties();
       // THIS NEEDS TO BE CHANGED WHEN ADDING PLAYER INPUT SELECTOR
-      players[2] = new Player((int)playerStarts[2].x, (int)playerStarts[2].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0, 255, 0), "Player 3  ", 0);
+      players[2] = new Player((int)playerStarts[2].x, (int)playerStarts[2].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0, 255, 0), "Player 3  ", 0, 2);
       float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, jsManager.loadIntSetting("starting block size"));
-      players[1] = new Player((int)playerStarts[1].x, (int)playerStarts[1].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255, 0, 0), "Player 2  ", 0);
+      players[1] = new Player((int)playerStarts[1].x, (int)playerStarts[1].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255, 0, 0), "Player 2  ", 0, 1);
       float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"));
-      players[0] = new Player((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0, 0, 255), "Player 1  ", 0);
+      players[0] = new Player((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0, 0, 255), "Player 1  ", 0, 0);
       turn = 0;
       turnNumber = 0;
       deselectCell();
@@ -2657,6 +2668,10 @@ class Game extends State {
       ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
     }
     map.generateShape();
+    players[turn].updateVisibleCells(terrain, buildings, parties);
+    if (map instanceof Map3D) {
+      ((Map3D)map).updateObscuredCellsOverlay(players[turn].visibleCells);
+    }
 
     map.setDrawingTaskIcons(true);
     map.setDrawingUnitBars(true);
