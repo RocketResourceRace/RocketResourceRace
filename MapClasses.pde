@@ -760,15 +760,25 @@ class Player {
   String name;
   boolean isAlive = true;
   PlayerController playerController;
+  int controllerType;  // 0 for local, 1 for bandits
   
   // Resources: food wood metal energy concrete cable spaceship_parts ore people
-  Player(float x, float y, float blockSize, float[] resources, int colour, String name) {
+  Player(float x, float y, float blockSize, float[] resources, int colour, String name, int controllerType) {
     this.cameraCellX = x;
     this.cameraCellY = y;
     this.blockSize = blockSize;
     this.resources = resources;
     this.colour = colour;
     this.name = name;
+    
+    switch(controllerType){
+      case 1:
+        playerController = new BanditController();
+        break;
+      default:
+        playerController = null;
+        break;
+    }
   }
   void saveSettings(float x, float y, float blockSize, int cellX, int cellY, boolean cellSelected) {
     this.cameraCellX = x;

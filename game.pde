@@ -1462,6 +1462,12 @@ class Game extends State {
     if (checkForPlayerWin()) {
       this.getPanel("end screen").visible = true;
     }
+    
+    // Process AI and bandits turns
+    if (players[turn].playerController != null){  // Local players have null for playerController
+      postEvent(players[turn].generateNextEvent());
+    }
+    
   }
   void partyMovementPointsReset() {
     for (int y=0; y<mapHeight; y++) {
