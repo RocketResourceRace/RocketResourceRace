@@ -211,7 +211,7 @@ class Map3D extends BaseMap implements Map {
       float smallSize = blockSize / jsManager.loadFloatSetting("terrain detail");
       unseenCellsOverlay = createShape();
       unseenCellsOverlay.beginShape(TRIANGLES);
-      unseenCellsOverlay.fill(250, 250, 250);
+      unseenCellsOverlay.fill(0);
       for (int x=0; x<mapWidth; x++) {
         for (int y=0; y<mapHeight; y++) {
           if (visibleCells[y][x] == null) {
@@ -268,6 +268,11 @@ class Map3D extends BaseMap implements Map {
       LOGGER_MAIN.log(Level.SEVERE, "Error updating obscured cells overlay", e);
       throw e;
     }
+  }
+  
+  void updateVisibleCells(Cell[][] visibleCells) {
+    super.updateVisibleCells(visibleCells);
+    updateOverlays(visibleCells);
   }
   
   void updateOverlays(Cell[][] visibleCells) {
@@ -351,11 +356,6 @@ class Map3D extends BaseMap implements Map {
   }
   void cancelPath() {
     drawPath = null;
-  }
-
-
-  void generateFog(int player) {
-    generateFogMap(player);
   }
 
   void loadSettings(float x, float y, float blockSize) {
@@ -1182,7 +1182,7 @@ class Map3D extends BaseMap implements Map {
 
       // Render 3D stuff from normal camera view
       canvas.beginDraw();
-      canvas.background(#7ED7FF);
+      canvas.background(0);
       applyCameraPerspective(canvas);
       renderWater(canvas);
       renderScene(canvas);

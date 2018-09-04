@@ -36,10 +36,10 @@ interface Map {
   boolean isMoving();
   void enableRocket(PVector pos, PVector vel);
   void disableRocket();
-  void generateFog(int player);
   void enableBombard(int range);
   void disableBombard();
   void setPlayerColours(color[] playerColours);
+  void updateVisibleCells(Cell[][] visibleCells);
 }
 
 
@@ -261,24 +261,10 @@ class BaseMap extends Element {
   boolean cinematicMode;
   HashMap<Character, Boolean> keyState;
   boolean[][] fogMap;
+  Cell[][] visibleCells;
 
-  void generateFogMap(int player) {
-    fogMap = null;
-    fogMap = new boolean[mapHeight][mapWidth];
-    int SIGHTRADIUS = 3; // Should be an attribute for parties
-    for (int y=0; y<mapHeight; y++) {
-      for (int x=0; x<mapWidth; x++) {
-        if (parties[y][x]!=null&&parties[y][x].player == player&&parties[y][x].getUnitNumber()>0) {
-          for (int y1=y-SIGHTRADIUS; y1<=y+SIGHTRADIUS; y1++) {
-            for (int x1=x-SIGHTRADIUS; x1<=x+SIGHTRADIUS; x1++) {
-              if (dist(x1, y1, x, y)<=SIGHTRADIUS&&0<=x1&&x1<mapWidth&&0<=y1&&y1<mapHeight) {
-                fogMap[y1][x1] = true;
-              }
-            }
-          }
-        }
-      }
-    }
+  void updateVisibleCells(Cell[][] visibleCells){
+    this.visibleCells = visibleCells;
   }
 
   void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players) {
@@ -993,10 +979,6 @@ class Map2D extends BaseMap implements Map {
     this.players = players;
   }
 
-
-  void generateFog(int player) {
-    generateFogMap(player);
-  }
 
   void generateShape() {
     cinematicMode = false;

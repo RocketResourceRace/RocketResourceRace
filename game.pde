@@ -729,9 +729,7 @@ class Game extends State {
       if (valid) {
         LOGGER_GAME.finest("Event is valid, so updating things...");
         players[turn].updateVisibleCells(terrain, buildings, parties);
-        if (map instanceof Map3D) {
-          ((Map3D)map).updateOverlays(players[turn].visibleCells);
-        }
+        map.updateVisibleCells(players[turn].visibleCells);
         if (!changeTurn) {
           updateResourcesSummary();
           updatePartyManagementInterface();
@@ -1325,7 +1323,6 @@ class Game extends State {
       }
       players[turn].saveSettings(tempX, tempY, blockSize, selectedCellX, selectedCellY, cellSelected);
       turn = (turn + 1)%players.length;
-      map.generateFog(turn);
       players[turn].loadSettings(this, map);
       changeTurn = false;
       TextBox t = ((TextBox)(getElement("turn number", "bottom bar")));
@@ -1349,9 +1346,7 @@ class Game extends State {
         return;
       }
       players[turn].updateVisibleCells(terrain, buildings, parties);
-      if (map instanceof Map3D) {
-        ((Map3D)map).updateOverlays(players[turn].visibleCells);
-      }
+      map.updateVisibleCells(players[turn].visibleCells);
     }
     catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error changing turn", e);
@@ -2004,8 +1999,6 @@ class Game extends State {
     catch (IndexOutOfBoundsException e) {
       LOGGER_MAIN.log(Level.SEVERE, String.format("Error with indices out of bounds when moving party at cell:%s, %s", px, py), e);
     }
-
-    map.generateFog(turn);
   }
   int getMoveTurns(int startX, int startY, int targetX, int targetY, Node[][] nodes) {
     int movementPoints;
@@ -2637,7 +2630,6 @@ class Game extends State {
     
     ((Console)getElement("console", "console")).giveObjects(map, players, this);
 
-    map.generateFog(turn);
     battleEstimateManager = new BattleEstimateManager(parties);
     //for(int i=0;i<NUMOFBUILDINGTYPES;i++){
     //  buildings[(int)playerStarts[0].y][(int)playerStarts[0].x+i] = new Building(1+i);
@@ -2669,9 +2661,7 @@ class Game extends State {
     }
     map.generateShape();
     players[turn].updateVisibleCells(terrain, buildings, parties);
-    if (map instanceof Map3D) {
-      ((Map3D)map).updateOverlays(players[turn].visibleCells);
-    }
+    map.updateVisibleCells(players[turn].visibleCells);
 
     map.setDrawingTaskIcons(true);
     map.setDrawingUnitBars(true);
