@@ -2616,7 +2616,7 @@ class Game extends State {
       float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"));
       players[0] = new Player((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0, 0, 255), "Player 1  ", 0, 0);
       
-      players[players.length-1] = new Player(0, 0, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0, 0, 255), "Player 1  ", 1, 0);
+      players[players.length-1] = new Player(0, 0, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255, 0, 255), "Player 1  ", 1, 0);
       
       turn = 0;
       turnNumber = 0;
