@@ -91,7 +91,7 @@ class Game extends State {
       gameUICanvas = createGraphics(width, height, P2D); 
       
       // THIS NEEDS TO BE CHANGED WHEN ADDING PLAYER INPUT SELECTOR
-      players = new Player[3];
+      players = new Player[4];
       //
       
       initialiseResources();
@@ -1322,7 +1322,9 @@ class Game extends State {
         tempY = (height/2-map.getTargetOffsetY()-((Map2D)map).yPos)/((Map2D)map).targetBlockSize;
       }
       players[turn].saveSettings(tempX, tempY, blockSize, selectedCellX, selectedCellY, cellSelected);
-      turn = (turn + 1)%players.length;
+      
+      turn = (turn + 1)%players.length; // TURN CHANGE
+      
       players[turn].loadSettings(this, map);
       changeTurn = false;
       TextBox t = ((TextBox)(getElement("turn number", "bottom bar")));
@@ -1330,10 +1332,18 @@ class Game extends State {
       t.setText("Turn "+turnNumber);
       updateResourcesSummary();
       notificationManager.turnChange(turn);
-
-      if (turn==0)
+      
+      if (turn==0) {
         turnNumber++;
-
+      }
+      
+      // If local player turn disable cinematic mode otherwise enable (e.g. bandits/AI turn)
+      if (players[turn].controllerType == 0){
+        leaveCinematicMode(); // Leave cinematic mode as player turn
+      } else{
+        enterCinematicMode(); // Leave cinematic mode as player turn
+      }
+      
       if (anyIdle(turn)) {
         LOGGER_GAME.finest("Idle party set to red becuase idle parties found");
         ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
@@ -1469,7 +1479,6 @@ class Game extends State {
     
     // Process AI and bandits turns
     if (players[turn].playerController != null){  // Local players have null for playerController
-      
       postEvent(players[turn].generateNextEvent());
     }
     
@@ -2606,6 +2615,9 @@ class Game extends State {
       players[1] = new Player((int)playerStarts[1].x, (int)playerStarts[1].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255, 0, 0), "Player 2  ", 0, 1);
       float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"));
       players[0] = new Player((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0, 0, 255), "Player 1  ", 0, 0);
+      
+      players[players.length-1] = new Player(0, 0, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0, 0, 255), "Player 1  ", 1, 0);
+      
       turn = 0;
       turnNumber = 0;
       deselectCell();
