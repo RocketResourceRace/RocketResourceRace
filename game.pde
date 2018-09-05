@@ -2571,6 +2571,7 @@ class Game extends State {
       this.turnNumber = mapSave.startTurn;
       this.turn = mapSave.startPlayer;
       this.players = mapSave.players;
+      checkForPlayerWin();
       if (jsManager.loadBooleanSetting("map is 3d")) {
         map.targetCell(int(this.players[turn].cameraCellX), int(this.players[turn].cameraCellY), this.players[turn].blockSize);
         ((Map3D)map).focusedX = ((Map3D)map).targetXOffset;
