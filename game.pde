@@ -1358,12 +1358,12 @@ class Game extends State {
     int banditCount = 0;
     for (int y = 0; y < mapHeight; y++) {
       for (int x = 0; x < mapWidth; x++) {
-        if (players[parties[y][x].player].controllerType == 1) {
+        if (parties[y][x] != null && players[parties[y][x].player].controllerType == 1) {
           banditCount++;
         }
       }
     }
-    if (random(1) > banditCount/(gameData.getJSONObject("game options").getInt("bandits per tile")*mapWidth*mapHeight)) {
+    if (random(0, (gameData.getJSONObject("game options").getFloat("bandits per tile")*mapWidth*mapHeight)) > banditCount) {
       ArrayList<int[]> possibleTiles = new ArrayList<int[]>();
       for (int y = 0; y < mapHeight; y++) {
         for (int x = 0; x < mapWidth; x++) {
@@ -2639,7 +2639,7 @@ class Game extends State {
       float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"));
       players[0] = new Player((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0, 0, 255), "Player 1  ", 0, 0);
 
-      players[players.length-1] = new Player(0, 0, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255, 0, 255), "Player 1  ", 1, 0);
+      players[players.length-1] = new Player(0, 0, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255, 0, 255), "Player 4  ", 1, 0);
 
       turn = 0;
       turnNumber = 0;

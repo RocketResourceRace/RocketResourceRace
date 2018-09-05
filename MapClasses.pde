@@ -777,7 +777,7 @@ class Player {
     this.id = id;
     
     this.visibleCells = new Cell[jsManager.loadIntSetting("map size")][jsManager.loadIntSetting("map size")];
-    
+    this.controllerType = controllerType;
     switch(controllerType){
       case 1:
         playerController = new BanditController();
