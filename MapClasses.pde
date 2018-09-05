@@ -788,7 +788,7 @@ class Player {
     }
   }
   
-  void updateVisibleCells(int[][] terrain, Building[][] buildings, Party[][] parties){
+  void updateVisibleCells(int[][] terrain, Building[][] buildings, Party[][] parties, boolean[][] seenCells){
     /* 
     Run after every event for this player, and it updates the visibleCells taking into account fog of war.
     Cells that have not been discovered yet will be null, and cells that are in active sight will be updated with the latest infomation.
@@ -809,20 +809,28 @@ class Player {
     }
     for (int y = 0; y < visibleCells.length; y++) {
       for (int x = 0; x < visibleCells[0].length; x++) {
-        if (visibleCells[y][x] == null) {
+        if (visibleCells[y][x] == null && (seenCells == null || !seenCells[y][x])) {
           if (fogMap[y][x]) {
             visibleCells[y][x] = new Cell(terrain[y][x], buildings[y][x], parties[y][x]);
             visibleCells[y][x].setActiveSight(true);
           }
         } else {
+          if (visibleCells[y][x] == null) {
+            visibleCells[y][x] = new Cell(terrain[y][x], buildings[y][x], null);
+          } else {
+            visibleCells[y][x].setBuilding(buildings[y][x]);
+          }
           visibleCells[y][x].setActiveSight(fogMap[y][x]);
-          visibleCells[y][x].setBuilding(buildings[y][x]);
           if (visibleCells[y][x].getActiveSight()) {
             visibleCells[y][x].setParty(parties[y][x]);
           }
         }
       }
     }
+  }
+  
+  void updateVisibleCells(int[][] terrain, Building[][] buildings, Party[][] parties){
+    updateVisibleCells(terrain, buildings, parties, null);
   }
   
   void saveSettings(float x, float y, float blockSize, int cellX, int cellY, boolean cellSelected) {
