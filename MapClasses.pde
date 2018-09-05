@@ -908,12 +908,22 @@ class Node {
   int cost;
   boolean fixed;
   int prevX = -1, prevY = -1;
+  int x, y;
 
   Node(int cost, boolean fixed, int prevX, int prevY) {
     this.fixed = fixed;
     this.cost = cost;
     this.prevX = prevX;
     this.prevY = prevY;
+  }
+
+  Node(int cost, boolean fixed, int prevX, int prevY, int x, int y) {
+    this.fixed = fixed;
+    this.cost = cost;
+    this.prevX = prevX;
+    this.prevY = prevY;
+    this.x = x;
+    this.y = y;
   }
   void setPrev(int prevX, int prevY) {
     this.prevX = prevX;

@@ -38,6 +38,15 @@ class JSONManager {
      return 0;
    }
   }
+  
+  int getMaxTerrainCost(){
+    // Find the maximum possible terrain cost
+    int mx = 0;
+    for(int i=0; i < gameData.getJSONArray("terrain").size(); i++){
+      mx = max(gameData.getJSONArray("terrain").getJSONObject(i).getInt("movement cost"), mx);
+    }
+    return mx;
+  }
 
   String[] getProficiencies() {
     String[] returnArray = new String[getNumProficiencies()];
