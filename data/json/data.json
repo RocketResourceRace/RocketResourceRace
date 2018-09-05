@@ -3,7 +3,8 @@
   "game options":{
     "starting resources":[
       {"id": "tank","quantity":100}],
-    "movement points": 64
+    "movement points": 64,
+    "bandits per tile": 0.01
   },
   "terrain":[
     {
