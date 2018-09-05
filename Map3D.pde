@@ -26,6 +26,7 @@ class Map3D extends BaseMap implements Map {
   final float HILLRAISE = 1.05;
   final float GROUNDHEIGHT = 5;
   final float VERYSMALLSIZE = 0.01;
+  private int numTreeTiles;
   float panningSpeed = 0.05;
   int x, y, w, h, prevT, frameTime;
   float hoveringX, hoveringY, oldHoveringX, oldHoveringY;
@@ -215,6 +216,9 @@ class Map3D extends BaseMap implements Map {
       for (int x=0; x<mapWidth; x++) {
         for (int y=0; y<mapHeight; y++) {
           if (visibleCells[y][x] == null) {
+            if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest") && forestTiles.containsKey(x+y*mapWidth)) {
+              removeTreeTile(x, y);
+            }
             for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
               for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
                 unseenCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
@@ -225,6 +229,13 @@ class Map3D extends BaseMap implements Map {
                 unseenCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
                 unseenCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
               }
+            }
+          } else {
+            if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest") && !forestTiles.containsKey(x+y*mapWidth)) {
+              PShape cellTree = generateTrees(jsManager.loadIntSetting("forest density"), 8, x*blockSize, y*blockSize);
+              cellTree.translate((x)*blockSize, (y)*blockSize, 0);
+              trees.addChild(cellTree);
+              addTreeTile(x, y, numTreeTiles++);
             }
           }
         }
@@ -416,6 +427,7 @@ class Map3D extends BaseMap implements Map {
           forestTiles.put(i, forestTiles.get(i)-1);
         }
       }
+      numTreeTiles--;
       forestTiles.remove(cellX+cellY*mapWidth);
     }
     catch(Exception e) {
@@ -651,7 +663,6 @@ class Map3D extends BaseMap implements Map {
       tiles = createShape(GROUP);
       textureMode(IMAGE);
       trees = createShape(GROUP);
-      int numTreeTiles=0;
 
       LOGGER_MAIN.fine("Generating trees and terrain model");
       for (int y=0; y<mapHeight; y++) {
