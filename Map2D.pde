@@ -285,7 +285,7 @@ class BaseMap extends Element {
           partiesByteCount++;
         }
       }
-      int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+3*Integer.BYTES+Character.BYTES*10+1)*players.length;
+      int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+4*Integer.BYTES+Character.BYTES*10+1+mapWidth*mapHeight)*players.length;
       ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*10+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount+playersByteCount+Float.BYTES);
       buffer.putInt(-SAVEVERSION);
       LOGGER_MAIN.finer("Saving version: "+(-SAVEVERSION));
@@ -366,6 +366,16 @@ class BaseMap extends Element {
         buffer.putInt(p.cellX);
         buffer.putInt(p.cellY);
         buffer.putInt(p.colour);
+        buffer.putInt(p.controllerType);
+        for (int y = 0; y < mapHeight; y++) {
+          for (int x = 0; x < mapWidth; x++) {
+            if (p.visibleCells[y][x] == null) {
+              buffer.put(byte(0));
+            } else {
+              buffer.put(byte(1));
+            }
+          }
+        }
         buffer.put(byte(p.cellSelected));
         for (int i=0; i<10; i++) {
           if (i<p.name.length()) {
@@ -520,6 +530,14 @@ class BaseMap extends Element {
         int selectedCellX = buffer.getInt();
         int selectedCellY = buffer.getInt();
         int colour = buffer.getInt();
+        int controllerType = buffer.getInt();
+        boolean[][] seenCells = new boolean[mapHeight][];
+        for (int y = 0; y < mapHeight; y++) {
+          seenCells[y] = new boolean[mapWidth];
+          for (int x = 0; x < mapWidth; x++) {
+            seenCells[y][x] = boolean(buffer.get());
+          }
+        }
         boolean cellSelected = boolean(buffer.get());
         char[] playerName = new char[10];
         if (versionCheck>1) {
@@ -529,7 +547,8 @@ class BaseMap extends Element {
         } else {
           playerName = String.format("Player %d", i).toCharArray();
         }
-        players[i] = new Player(cameraCellX, cameraCellY, blockSize, resources, colour, new String(playerName), 0, i);
+        players[i] = new Player(cameraCellX, cameraCellY, blockSize, resources, colour, new String(playerName), controllerType, i);
+        players[i].updateVisibleCells(terrain, buildings, parties, seenCells);
         players[i].cellSelected = cellSelected;
         players[i].cellX = selectedCellX;
         players[i].cellY = selectedCellY;
@@ -1399,18 +1418,18 @@ class Map2D extends BaseMap implements Map {
       }
     }
 
-    if (jsManager.loadBooleanSetting("fog of war")) {
-      for (int y1=0; y1<mapHeight; y1++) {
-        for (int x=0; x<mapWidth; x++) {
-          if (!fogMap[y1][x]) {
-            c = new PVector(scaleX(x), scaleY(y1));
-            panelCanvas.fill(0, 50);
-            panelCanvas.noStroke();
-            panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
-          }
-        }
-      }
-    }
+    //if (jsManager.loadBooleanSetting("fog of war")) {
+    //  for (int y1=0; y1<mapHeight; y1++) {
+    //    for (int x=0; x<mapWidth; x++) {
+    //      if (!fogMap[y1][x]) {
+    //        c = new PVector(scaleX(x), scaleY(y1));
+    //        panelCanvas.fill(0, 50);
+    //        panelCanvas.noStroke();
+    //        panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
+    //      }
+    //    }
+    //  }
+    //}
 
     if (drawRocket) {
       drawRocket(panelCanvas, tempBuildingImages);
