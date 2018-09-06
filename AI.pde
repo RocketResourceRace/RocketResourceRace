@@ -80,13 +80,24 @@ Node[][] LimitedKnowledgeDijkstra(int x, int y, int w, int h, Cell[][] visibleCe
   return nodes;
 }
 
+float getBattleEstimate(Party attacker, Party defender) {
+  int TRIALS = 100000;
+  
+  int currentWins = 0;
+  for (int i = 0; i<TRIALS; i++) {
+    currentWins+=runTrial(attacker,defender);
+  }
+  
+  return float(currentWins)/float(TRIALS);
+}
+
 
 class BanditController implements PlayerController{
   BanditController(){
     
   }
   GameEvent generateNextEvent(Cell[][] visibleCells, float resources[]){
-    
+    //println(getBattleEstimate(new Party(0, 100, 0, 64, "test 1"), new Party(1, 100, 0, 64, "test 2"))); // Battle estimate test
     return new EndTurn();  // Placeholder
   }
 }

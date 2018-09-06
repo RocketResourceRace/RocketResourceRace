@@ -777,7 +777,7 @@ class Player {
     this.id = id;
     
     this.visibleCells = new Cell[jsManager.loadIntSetting("map size")][jsManager.loadIntSetting("map size")];
-    
+    this.controllerType = controllerType;
     switch(controllerType){
       case 1:
         playerController = new BanditController();
@@ -1006,42 +1006,43 @@ class BattleEstimateManager {
   }
   
   // THIS NEEDS TO BE CHANGED FOR DIPLOMACY
-  int runTrial(Party attacker, Party defender) {
-    try {
-      Battle battle;
-      Party clone1;
-      Party clone2;
-      if (defender instanceof Battle) {
-        battle = (Battle) defender.clone();
-        battle.changeUnitNumber(attacker.player, attacker.getUnitNumber());
-        if (battle.attacker.player==attacker.player) {
-          clone1 = battle.attacker;
-          clone2 = battle.defender;
-        } else {
-          clone1 = battle.defender;
-          clone2 = battle.attacker;
-        }
-      } else {
-        clone1 = attacker.clone();
-        clone2 = defender.clone();
-        battle = new Battle(clone1, clone2, ".battle");
-      }
-      while (clone1.getUnitNumber()>0&&clone2.getUnitNumber()>0) {
-        battle.doBattle();
-      }
-      if (clone1.getUnitNumber()>0) {
-        return 1;
-      } else {
-        return 0;
-      }
-    }
-    catch (Exception e) {
-      LOGGER_MAIN.log(Level.SEVERE, "Error running battle trial", e);
-      throw e;
-    }
-  }
   //
   void refresh() {
     cached = false;
+  }
+}
+
+int runTrial(Party attacker, Party defender) {
+  try {
+    Battle battle;
+    Party clone1;
+    Party clone2;
+    if (defender instanceof Battle) {
+      battle = (Battle) defender.clone();
+      battle.changeUnitNumber(attacker.player, attacker.getUnitNumber());
+      if (battle.attacker.player==attacker.player) {
+        clone1 = battle.attacker;
+        clone2 = battle.defender;
+      } else {
+        clone1 = battle.defender;
+        clone2 = battle.attacker;
+      }
+    } else {
+      clone1 = attacker.clone();
+      clone2 = defender.clone();
+      battle = new Battle(clone1, clone2, ".battle");
+    }
+    while (clone1.getUnitNumber()>0&&clone2.getUnitNumber()>0) {
+      battle.doBattle();
+    }
+    if (clone1.getUnitNumber()>0) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+  catch (Exception e) {
+    LOGGER_MAIN.log(Level.SEVERE, "Error running battle trial", e);
+    throw e;
   }
 }
