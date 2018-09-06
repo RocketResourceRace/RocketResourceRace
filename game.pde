@@ -401,8 +401,13 @@ class Game extends State {
           LOGGER_MAIN.warning(String.format("invalid movement outside map boundries: (%d, %d)", x, y));
           valid = false;
         }
+        if (players[turn].visibleCells[selectedCellY][selectedCellX].getParty() == null){
+          LOGGER_MAIN.warning(String.format("invalid movement no party on cell: (%d, %d)", x, y));
+          valid = false;
+        }
 
-        Node[][] nodes = djk(selectedCellX, selectedCellY);
+        //Node[][] nodes = djk(selectedCellX, selectedCellY);
+        Node[][] nodes = LimitedKnowledgeDijkstra(selectedCellX, selectedCellY, mapWidth, mapHeight, players[turn].visibleCells, 20);
 
         if (canMove(selectedCellX, selectedCellY)) {
           int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
@@ -1683,7 +1688,7 @@ class Game extends State {
           if (parties[selectedCellY][selectedCellX].player == turn) {
             moving = !moving;
             if (moving) {
-              map.updateMoveNodes(djk(selectedCellX, selectedCellY));
+              map.updateMoveNodes(LimitedKnowledgeDijkstra(selectedCellX, selectedCellY, mapWidth, mapHeight, players[turn].visibleCells, 20));
             } else {
               map.cancelMoveNodes();
             }
@@ -2154,7 +2159,7 @@ class Game extends State {
               moving = true;
               bombarding = false;
               map.disableBombard();
-              map.updateMoveNodes(djk(selectedCellX, selectedCellY));
+              map.updateMoveNodes(LimitedKnowledgeDijkstra(selectedCellX, selectedCellY, mapWidth, mapHeight, players[turn].visibleCells, 20));
               refreshTooltip();
             }
           }
