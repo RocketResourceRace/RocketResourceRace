@@ -84,6 +84,7 @@ class Game extends State {
   int rocketStartTime;
   color[] playerColours;
   boolean bombarding = false;
+  int playerCount;
 
   Game() {
     try {
@@ -1392,7 +1393,7 @@ class Game extends State {
       int chosenTile = floor(random(0, possibleTiles.size()));
       int x = possibleTiles.get(chosenTile)[0];
       int y = possibleTiles.get(chosenTile)[1];
-      parties[y][x] = new Party(players.length-1, int(jsManager.loadIntSetting("party size")/2), 0, gameData.getJSONObject("game options").getInt("movement points"), nextRollingId(players[players.length-1].name));
+      parties[y][x] = new Party(playerCount, int(jsManager.loadIntSetting("party size")/2), 0, gameData.getJSONObject("game options").getInt("movement points"), nextRollingId(players[playerCount].name));
     }
   }
 
@@ -2572,6 +2573,7 @@ class Game extends State {
     LOGGER_MAIN.fine("Reloading game...");
     mapWidth = jsManager.loadIntSetting("map size");
     mapHeight = jsManager.loadIntSetting("map size");
+    playerCount = players.length - 1; // THIS NEEDS TO BE CHANGED WHEN ADDING BANDIT TOGGLE
     updateSidePanelElementsSizes();
 
     // Default on for showing task icons and unit bars
@@ -2644,7 +2646,7 @@ class Game extends State {
       float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"));
       players[0] = new Player((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0, 0, 255), "Player 1  ", 0, 0);
 
-      players[players.length-1] = new Player(0, 0, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255, 0, 255), "Player 4  ", 1, 0);
+      players[playerCount] = new Player(0, 0, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255, 0, 255), "Player 4  ", 1, 0);
 
       turn = 0;
       turnNumber = 0;
@@ -2687,7 +2689,7 @@ class Game extends State {
 
     // If first turn start players looking at right places
     if (turnNumber == 0) {
-      for (int i = players.length-1; i >= 0; i--) {
+      for (int i = playerCount; i >= 0; i--) {
         int[] t1 = findIdle(i);
         float[] targetOffsets = map.targetCell(t1[0], t1[1], 64);
         players[i].saveSettings(t1[0], t1[1], 64, selectedCellX, selectedCellY, false);
@@ -2804,12 +2806,12 @@ class Game extends State {
     return costs.size();
   }
   boolean startInvalid(PVector[] ps) {
-    for (int i=0; i < players.length; i++) {
+    for (int i=0; i < playerCount; i++) {
       if (((BaseMap)map).isWater(int(ps[i].x), int(ps[i].y))) {
         //Check starting position if on water
         return true;
       }
-      for (int j=i+1; j < players.length; j++) {
+      for (int j=i+1; j < playerCount; j++) {
         if (ps[i].dist(ps[j])<mapWidth/8) {
           // Check distances between all players
           return true;
@@ -2824,25 +2826,25 @@ class Game extends State {
 
   PVector[] generateStartingParties() {
     LOGGER_GAME.fine("Generating starting positions");
-    PVector[] playersStartingPositions = new PVector[players.length];
+    PVector[] playersStartingPositions = new PVector[playerCount];
     int counter = 0;
-    for (int i=0; i < players.length; i++) {
+    for (int i=0; i < playerCount; i++) {
       playersStartingPositions[i] = new PVector();
     }
     while (startInvalid(playersStartingPositions)&&counter<1000) {
       counter++;
-      for (int i=0; i < players.length; i++) {
+      for (int i=0; i < playerCount; i++) {
         playersStartingPositions[i] = generatePartyPosition();
       }
     }
     if (counter == 1000) {
       LOGGER_GAME.warning("Resorted to invalid party starts after "+counter+" attempts");
     }
-    for (int i=0; i < players.length; i++) {
+    for (int i=0; i < playerCount; i++) {
       LOGGER_GAME.fine(String.format("Player %d party positition: (%f, %f)", i+1, playersStartingPositions[i].x, playersStartingPositions[i].y));
     }
     if (loadingName == null) {
-      for (int i=0; i < players.length; i++) {
+      for (int i=0; i < playerCount; i++) {
         parties[(int)playersStartingPositions[i].y][(int)playersStartingPositions[i].x] = new Party(i, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"), String.format("Player %d   #0", i));
       }
     }

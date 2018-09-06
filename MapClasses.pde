@@ -780,7 +780,7 @@ class Player {
     this.controllerType = controllerType;
     switch(controllerType){
       case 1:
-        playerController = new BanditController();
+        playerController = new BanditController(id, jsManager.loadIntSetting("map size"), jsManager.loadIntSetting("map size"));
         break;
       default:
         playerController = null;

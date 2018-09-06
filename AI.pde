@@ -94,7 +94,10 @@ float getBattleEstimate(Party attacker, Party defender) {
 
 class BanditController implements PlayerController {
   int[][] cellsTargetedWeightings;
-  BanditController(int mapWidth, int mapHeight){
+  Node[][] moveNodes;
+  int player;
+  BanditController(int player, int mapWidth, int mapHeight){
+    this.player = player;
      cellsTargetedWeightings = new int[mapHeight][];
      for (int y = 0; y < mapHeight; y++) {
        cellsTargetedWeightings[y] = new int[mapWidth];
@@ -105,10 +108,20 @@ class BanditController implements PlayerController {
   }
   GameEvent generateNextEvent(Cell[][] visibleCells, float resources[]){
     //println(getBattleEstimate(new Party(0, 100, 0, 64, "test 1"), new Party(1, 100, 0, 64, "test 2"))); // Battle estimate test
+    for (int y = 0; y < visibleCells.length; y++) {
+      for (int x = 0; x < visibleCells[0].length; x++) {
+        if (visibleCells[y][x] != null && visibleCells[y][x].party != null) {
+          if (visibleCells[y][x].party.player == player) {
+            getEventForParty(visibleCells, resources, x, y);
+          }
+        }
+      }
+    }
     return new EndTurn();  // Placeholder
   }
   
-  Event getEventForParty(Cell[][] visibleCells, float resources[], int px, int py) {
+  GameEvent getEventForParty(Cell[][] visibleCells, float resources[], int px, int py) {
+    moveNodes = LimitedKnowledgeDijkstra(px, py, visibleCells[0].length, visibleCells.length, visibleCells, 5);
     Party p = visibleCells[py][px].party;
     if (p.getMovementPoints() > 0) {
       ArrayList<int[]> cellsToAttack = new ArrayList<int[]>();
@@ -118,7 +131,7 @@ class BanditController implements PlayerController {
             int weighting = 0;
             if (visibleCells[y][x].party != null && visibleCells[y][x].party.player != p.player) {
               weighting += 5;
-              weighting -= int(dist(px, py, x, y)); // Switch weightings to be based on turns using dijkstras
+              weighting -= floor(moveNodes[y][x].cost/p.getMaxMovementPoints());  
               if (visibleCells[y][x].building != null) {
                 weighting += 5;
                 // Add negative weighting if building is a defence building once defence buildings are added
@@ -135,9 +148,11 @@ class BanditController implements PlayerController {
         }
       }
       if (cellsToAttack.size() > 0) {
-        // Find a party to attack
-      } else {
+        println("bandit is attacking");
         // Run away from other bandits in order to spread out
+      } else {
+        println("bandit is searching");
+        // Find a party to attack
       }
     }
     return null;
