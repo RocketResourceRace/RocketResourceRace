@@ -1911,6 +1911,7 @@ class Game extends State {
           p.trainParty("speed", "moving");
 
           players[turn].updateVisibleCells(terrain, buildings, parties);
+          map.updateVisibleCells(players[turn].visibleCells);
 
           hasMoved = true;
           if (parties[path.get(node)[1]][path.get(node)[0]] == null) {
