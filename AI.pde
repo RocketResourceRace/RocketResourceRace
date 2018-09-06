@@ -19,14 +19,14 @@ class NodeComparator implements Comparator {
 int cost(int x, int y, int prevX, int prevY, Cell[][] visibleCells, int maxCost) {
   float mult = 1;
   if (x!=prevX && y!=prevY) {
-    mult = 1.41;
+    mult = 1.42;
   }
   if (0<=x && x<jsManager.loadIntSetting("map size") && 0<=y && y<jsManager.loadIntSetting("map size")) {
     if (visibleCells[y][x] != null){
       return round(gameData.getJSONArray("terrain").getJSONObject(visibleCells[y][x].terrain).getInt("movement cost")*mult);
     }
     else {
-      return maxCost;
+      return round(maxCost*mult);  // Assumes max cost if terrain is unexplored
     }
   }
   
@@ -35,27 +35,28 @@ int cost(int x, int y, int prevX, int prevY, Cell[][] visibleCells, int maxCost)
 }
 
 
-Node[][] AiDijkstra(int x, int y, int w, int h, Cell[][] visibleCells) {
+Node[][] LimitedKnowledgeDijkstra(int x, int y, int w, int h, Cell[][] visibleCells, int turnsRadius) {
   int[][] mvs = {{1, 0}, {0, 1}, {1, 1}, {-1, 0}, {0, -1}, {-1, -1}, {1, -1}, {-1, 1}};
   int maxCost = jsManager.getMaxTerrainCost();
   Node currentHeadNode;
   Node[][] nodes = new Node[h][w];
-  nodes[y][x] = new Node(0, false, x, y);
+  nodes[y][x] = new Node(0, false, x, y, x, y);
   PriorityQueue<Node> curMinNodes = new PriorityQueue<Node>(new NodeComparator());
   curMinNodes.add(nodes[y][x]);
   while (curMinNodes.size() > 0) {
     currentHeadNode = curMinNodes.poll();
     currentHeadNode.fixed = true;
+
     for (int[] mv : mvs) {
       int nx = currentHeadNode.x+mv[0];
       int ny = currentHeadNode.y+mv[1];
       if (0 <= nx && nx < w && 0 <= ny && ny < h) {
-        boolean sticky = visibleCells[ny][nx].party != null;
+        boolean sticky = visibleCells[ny][nx] != null && visibleCells[ny][nx].getParty() != null;
         int newCost = cost(nx, ny, currentHeadNode.x, currentHeadNode.y, visibleCells, maxCost);
         int prevCost = currentHeadNode.cost;
         if (newCost != -1){ // Check that the cost is valid
           int totalNewCost = prevCost+newCost;
-          if (totalNewCost < visibleCells[y][x].party.getMaxMovementPoints()) {
+          if (totalNewCost < visibleCells[y][x].getParty().getMaxMovementPoints()*turnsRadius) {
             if (nodes[ny][nx] == null) {
               nodes[ny][nx] = new Node(totalNewCost, false, currentHeadNode.x, currentHeadNode.y, nx, ny);
               if (!sticky) {
