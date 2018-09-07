@@ -407,7 +407,7 @@ class Game extends State {
         }
 
         //Node[][] nodes = djk(selectedCellX, selectedCellY);
-        Node[][] nodes = LimitedKnowledgeDijkstra(selectedCellX, selectedCellY, mapWidth, mapHeight, players[turn].visibleCells, 20);
+        Node[][] nodes = LimitedKnowledgeDijkstra(selectedCellX, selectedCellY, mapWidth, mapHeight, players[turn].visibleCells, 1000);
 
         if (canMove(selectedCellX, selectedCellY)) {
           int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
