@@ -287,8 +287,10 @@ class Map3D extends BaseMap implements Map {
   }
   
   void updateOverlays(Cell[][] visibleCells) {
-    updateObscuredCellsOverlay(visibleCells);
-    updateUnseenCellsOverlay(visibleCells);
+    if (jsManager.loadBooleanSetting("fog of war")) {
+      updateObscuredCellsOverlay(visibleCells);
+      updateUnseenCellsOverlay(visibleCells);
+    }
   }
   
   void updatePossibleMoves() {
@@ -1309,71 +1311,73 @@ class Map3D extends BaseMap implements Map {
 
       for (int x=0; x<mapWidth; x++) {
         for (int y=0; y<mapHeight; y++) {
-          if (buildings[y][x] != null) {
-            if (buildingObjs.get(buildingString(buildings[y][x].type)) != null) {
-              canvas.lights();
-              canvas.pushMatrix();
-              if (buildings[y][x].type==buildingIndex("Mine")) {
-                canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMinHeightAt(x, y));
-                canvas.rotateZ(getDownwardAngle(x, y));
-              } else if (buildings[y][x].type==buildingIndex("Quarry")) {
-                canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, groundMinHeightAt(x, y));
-              } else {
-                canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMaxHeightAt(x, y));
+          if (visibleCells[y][x] != null) {
+            if (visibleCells[y][x].building != null) {
+              if (buildingObjs.get(buildingString(buildings[y][x].type)) != null) {
+                canvas.lights();
+                canvas.pushMatrix();
+                if (buildings[y][x].type==buildingIndex("Mine")) {
+                  canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMinHeightAt(x, y));
+                  canvas.rotateZ(getDownwardAngle(x, y));
+                } else if (buildings[y][x].type==buildingIndex("Quarry")) {
+                  canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, groundMinHeightAt(x, y));
+                } else {
+                  canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMaxHeightAt(x, y));
+                }
+                canvas.shape(buildingObjs.get(buildingString(buildings[y][x].type))[buildings[y][x].image_id]);
+                canvas.popMatrix();
               }
-              canvas.shape(buildingObjs.get(buildingString(buildings[y][x].type))[buildings[y][x].image_id]);
-              canvas.popMatrix();
             }
-          }
-          if (parties[y][x] != null) {
-            canvas.noLights();
-            if (parties[y][x] instanceof Battle) {
-              // Swords
-              canvas.pushMatrix();
-              canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 12+groundMaxHeightAt(x, y));
-              canvas.shape(battle);
-              canvas.popMatrix();
-              
-              // Defender
-              canvas.pushMatrix();
-              canvas.translate((x+0.5+0.1)*blockSize, (y+0.5)*blockSize, 30.5+groundMinHeightAt(x, y));
-              canvas.scale(0.95, 0.8, 0.8);
-              canvas.shape(flags[((Battle)parties[y][x]).defender.player]);
-              canvas.scale(5.0/9.5, 5.0/8.0, 1);
-              canvas.shape(flagPole);
-              canvas.popMatrix();
-              
-              // Attacker
-              canvas.pushMatrix();
-              canvas.translate((x+0.5-0.1)*blockSize, (y+0.5)*blockSize, 30.5+groundMinHeightAt(x, y));
-              canvas.scale(-0.95, 0.8, 0.8);
-              canvas.shape(flags[((Battle)parties[y][x]).attacker.player]);
-              canvas.scale(5.0/9.5, 5.0/8.0, 1);
-              canvas.shape(flagPole);
-              canvas.popMatrix();
-            } else {
-              canvas.pushMatrix();
-              canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
-              canvas.shape(flagPole);
-              canvas.shape(flags[parties[y][x].player]);
-              canvas.popMatrix();
-            }
-
-            if (drawingUnitBars&&!cinematicMode) {
-              drawUnitBar(x, y, canvas);
-            }
-
-            JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(parties[y][x].task);
-            if (drawingTaskIcons && jo != null && !jo.isNull("img") && !cinematicMode) {
+            if (visibleCells[y][x].party != null) {
               canvas.noLights();
-              canvas.pushMatrix();
-              canvas.translate((x+0.5+sin(rot)*0.125)*blockSize, (y+0.5+cos(rot)*0.125)*blockSize, blockSize*1.7+groundMinHeightAt(x, y));
-              canvas.rotateZ(-this.rot);
-              canvas.translate(-0.125*blockSize, -0.25*blockSize);
-              canvas.rotateX(PI/2-this.tilt);
-              canvas.translate(0, 0, blockSize*0.35);
-              canvas.shape(taskObjs.get(jo.getString("id")));
-              canvas.popMatrix();
+              if (visibleCells[y][x].party instanceof Battle) {
+                // Swords
+                canvas.pushMatrix();
+                canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 12+groundMaxHeightAt(x, y));
+                canvas.shape(battle);
+                canvas.popMatrix();
+                
+                // Defender
+                canvas.pushMatrix();
+                canvas.translate((x+0.5+0.1)*blockSize, (y+0.5)*blockSize, 30.5+groundMinHeightAt(x, y));
+                canvas.scale(0.95, 0.8, 0.8);
+                canvas.shape(flags[((Battle)visibleCells[y][x].party).defender.player]);
+                canvas.scale(5.0/9.5, 5.0/8.0, 1);
+                canvas.shape(flagPole);
+                canvas.popMatrix();
+                
+                // Attacker
+                canvas.pushMatrix();
+                canvas.translate((x+0.5-0.1)*blockSize, (y+0.5)*blockSize, 30.5+groundMinHeightAt(x, y));
+                canvas.scale(-0.95, 0.8, 0.8);
+                canvas.shape(flags[((Battle)visibleCells[y][x].party).attacker.player]);
+                canvas.scale(5.0/9.5, 5.0/8.0, 1);
+                canvas.shape(flagPole);
+                canvas.popMatrix();
+              } else {
+                canvas.pushMatrix();
+                canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
+                canvas.shape(flagPole);
+                canvas.shape(flags[visibleCells[y][x].party.player]);
+                canvas.popMatrix();
+              }
+  
+              if (drawingUnitBars&&!cinematicMode) {
+                drawUnitBar(x, y, canvas);
+              }
+  
+              JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(visibleCells[y][x].party.task);
+              if (drawingTaskIcons && jo != null && !jo.isNull("img") && !cinematicMode) {
+                canvas.noLights();
+                canvas.pushMatrix();
+                canvas.translate((x+0.5+sin(rot)*0.125)*blockSize, (y+0.5+cos(rot)*0.125)*blockSize, blockSize*1.7+groundMinHeightAt(x, y));
+                canvas.rotateZ(-this.rot);
+                canvas.translate(-0.125*blockSize, -0.25*blockSize);
+                canvas.rotateX(PI/2-this.tilt);
+                canvas.translate(0, 0, blockSize*0.35);
+                canvas.shape(taskObjs.get(jo.getString("id")));
+                canvas.popMatrix();
+              }
             }
           }
         }
@@ -1396,8 +1400,8 @@ class Map3D extends BaseMap implements Map {
 
   void drawUnitBar(int x, int y, PGraphics canvas) {
     try {
-      if (parties[y][x] instanceof Battle) {
-        Battle battle = (Battle) parties[y][x];
+      if (visibleCells[y][x].party instanceof Battle) {
+        Battle battle = (Battle) visibleCells[y][x].party;
         unitNumberObjects[battle.attacker.player].setVertex(0, blockSize*battle.attacker.getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
         unitNumberObjects[battle.attacker.player].setVertex(1, blockSize*battle.attacker.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.0625, 0);
         unitNumberObjects[battle.attacker.player].setVertex(2, blockSize, blockSize*0.0625, 0);
@@ -1430,15 +1434,15 @@ class Map3D extends BaseMap implements Map {
         canvas.rotateZ(-this.rot);
         canvas.translate(-0.5*blockSize, -0.5*blockSize);
         canvas.rotateX(PI/2-this.tilt);
-        unitNumberObjects[parties[y][x].player].setVertex(0, blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
-        unitNumberObjects[parties[y][x].player].setVertex(1, blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.125, 0);
-        unitNumberObjects[parties[y][x].player].setVertex(2, blockSize, blockSize*0.125, 0);
-        unitNumberObjects[parties[y][x].player].setVertex(3, blockSize, 0, 0);
-        unitNumberObjects[parties[y][x].player].setVertex(4, 0, 0, 0);
-        unitNumberObjects[parties[y][x].player].setVertex(5, 0, blockSize*0.125, 0);
-        unitNumberObjects[parties[y][x].player].setVertex(6, blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.125, 0);
-        unitNumberObjects[parties[y][x].player].setVertex(7, blockSize*parties[y][x].getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
-        canvas.shape(unitNumberObjects[parties[y][x].player]);
+        unitNumberObjects[visibleCells[y][x].party.player].setVertex(0, blockSize*visibleCells[y][x].party.getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
+        unitNumberObjects[visibleCells[y][x].party.player].setVertex(1, blockSize*visibleCells[y][x].party.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.125, 0);
+        unitNumberObjects[visibleCells[y][x].party.player].setVertex(2, blockSize, blockSize*0.125, 0);
+        unitNumberObjects[visibleCells[y][x].party.player].setVertex(3, blockSize, 0, 0);
+        unitNumberObjects[visibleCells[y][x].party.player].setVertex(4, 0, 0, 0);
+        unitNumberObjects[visibleCells[y][x].party.player].setVertex(5, 0, blockSize*0.125, 0);
+        unitNumberObjects[visibleCells[y][x].party.player].setVertex(6, blockSize*visibleCells[y][x].party.getUnitNumber()/jsManager.loadIntSetting("party size"), blockSize*0.125, 0);
+        unitNumberObjects[visibleCells[y][x].party.player].setVertex(7, blockSize*visibleCells[y][x].party.getUnitNumber()/jsManager.loadIntSetting("party size"), 0, 0);
+        canvas.shape(unitNumberObjects[visibleCells[y][x].party.player]);
         canvas.popMatrix();
       }
     }

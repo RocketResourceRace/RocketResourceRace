@@ -780,7 +780,7 @@ class Player {
     this.controllerType = controllerType;
     switch(controllerType){
       case 1:
-        playerController = new BanditController();
+        playerController = new BanditController(id, jsManager.loadIntSetting("map size"), jsManager.loadIntSetting("map size"));
         break;
       default:
         playerController = null;
@@ -818,11 +818,14 @@ class Player {
           if (visibleCells[y][x] == null) {
             visibleCells[y][x] = new Cell(terrain[y][x], buildings[y][x], null);
           } else {
+            visibleCells[y][x].setTerrain(terrain[y][x]);
             visibleCells[y][x].setBuilding(buildings[y][x]);
           }
           visibleCells[y][x].setActiveSight(fogMap[y][x]);
           if (visibleCells[y][x].getActiveSight()) {
             visibleCells[y][x].setParty(parties[y][x]);
+          } else {
+            visibleCells[y][x].setParty(null);
           }
         }
       }
