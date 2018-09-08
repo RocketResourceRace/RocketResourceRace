@@ -126,6 +126,7 @@ class BanditController implements PlayerController {
   GameEvent getEventForParty(Cell[][] visibleCells, float resources[], int px, int py) {
     moveNodes = LimitedKnowledgeDijkstra(px, py, visibleCells[0].length, visibleCells.length, visibleCells, 5);
     Party p = visibleCells[py][px].party;
+    cellsTargetedWeightings[py][px] = 0;
     int maximumWeighting = 0;
     if (p.getMovementPoints() > 0) {
       ArrayList<int[]> cellsToAttack = new ArrayList<int[]>();
