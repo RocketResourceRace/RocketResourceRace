@@ -113,9 +113,7 @@ class BanditController implements PlayerController {
         if (visibleCells[y][x] != null && visibleCells[y][x].party != null) {
           if (visibleCells[y][x].party.player == player) {
             GameEvent event = getEventForParty(visibleCells, resources, x, y);
-            if (event == null) {
-              return new EndTurn();
-            } else {
+            if (event != null) {
               return event;
             }
           }
