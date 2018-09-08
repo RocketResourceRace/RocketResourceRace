@@ -131,7 +131,9 @@ class BanditController implements PlayerController {
             int weighting = 0;
             if (visibleCells[y][x].party != null && visibleCells[y][x].party.player != p.player) {
               weighting += 5;
-              weighting -= floor(moveNodes[y][x].cost/p.getMaxMovementPoints());  
+              if (moveNodes[y][x] != null) {
+                weighting -= floor(moveNodes[y][x].cost/p.getMaxMovementPoints());
+              }
               if (visibleCells[y][x].building != null) {
                 weighting += 5;
                 // Add negative weighting if building is a defence building once defence buildings are added

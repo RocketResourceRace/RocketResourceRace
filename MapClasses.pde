@@ -100,6 +100,10 @@ class Party {
     updateMaxMovementPoints();
   }
   
+  int containsPartyFromPlayer(int p) {
+    return int(player == p);
+  }
+  
   float getTrainingRateMultiplier(float x){
     // x is the current value of the proficiency
     return 4*exp(x-1)/pow(exp(x-1)+1, 2);  // This function is based on the derivative of the logisitics function. The factor of 4 is to make it start at 1.
@@ -618,6 +622,16 @@ class Battle extends Party {
     attacker.strength = 2;
     this.defender = defender;
   }
+  
+  int containsPartyFromPlayer(int p) {
+    if (attacker.player == p) {
+      return 1;
+    } else if (defender.player == p) {
+      return 2;
+    }
+    return 0;
+  }
+  
   boolean isTurn(int turn) {
     return true;
   }
@@ -796,7 +810,7 @@ class Player {
     boolean[][] fogMap = new boolean[visibleCells.length][visibleCells[0].length];
     for (int y = 0; y < visibleCells.length; y++) {
       for (int x = 0; x < visibleCells[0].length; x++) {
-        if (parties[y][x] != null && parties[y][x].player == id && parties[y][x].getUnitNumber() > 0) {
+        if (parties[y][x] != null && (parties[y][x].player == id || parties[y][x].containsPartyFromPlayer(id) > 0) && parties[y][x].getUnitNumber() > 0) {
           for (int y1= y - parties[y][x].sightRadius; y1 <= y + parties[y][x].sightRadius; y1++) {
             for (int x1 = x - parties[y][x].sightRadius; x1 <= x + parties[y][x].sightRadius; x1++) {
               if (dist(x1, y1, x, y) <= parties[y][x].sightRadius && 0 <= x1 && x1 < visibleCells[0].length && 0 <= y1 && y1 < visibleCells.length) {
