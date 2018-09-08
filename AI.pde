@@ -112,7 +112,12 @@ class BanditController implements PlayerController {
       for (int x = 0; x < visibleCells[0].length; x++) {
         if (visibleCells[y][x] != null && visibleCells[y][x].party != null) {
           if (visibleCells[y][x].party.player == player) {
-            getEventForParty(visibleCells, resources, x, y);
+            GameEvent event = getEventForParty(visibleCells, resources, x, y);
+            if (event == null) {
+              return new EndTurn();
+            } else {
+              return event;
+            }
           }
         }
       }
@@ -123,17 +128,16 @@ class BanditController implements PlayerController {
   GameEvent getEventForParty(Cell[][] visibleCells, float resources[], int px, int py) {
     moveNodes = LimitedKnowledgeDijkstra(px, py, visibleCells[0].length, visibleCells.length, visibleCells, 5);
     Party p = visibleCells[py][px].party;
+    int maximumWeighting = 0;
     if (p.getMovementPoints() > 0) {
       ArrayList<int[]> cellsToAttack = new ArrayList<int[]>();
       for (int y = 0; y < visibleCells.length; y++) {
         for (int x = 0; x < visibleCells[0].length; x++) {
-          if (visibleCells[y][x] != null) {
+          if (visibleCells[y][x] != null && moveNodes[y][x] != null) {
             int weighting = 0;
             if (visibleCells[y][x].party != null && visibleCells[y][x].party.player != p.player) {
               weighting += 5;
-              if (moveNodes[y][x] != null) {
-                weighting -= floor(moveNodes[y][x].cost/p.getMaxMovementPoints());
-              }
+              weighting -= floor(moveNodes[y][x].cost/p.getMaxMovementPoints());
               if (visibleCells[y][x].building != null) {
                 weighting += 5;
                 // Add negative weighting if building is a defence building once defence buildings are added
@@ -144,6 +148,7 @@ class BanditController implements PlayerController {
             }
             weighting += cellsTargetedWeightings[y][x];
             if (weighting > 0) {
+              maximumWeighting = max(maximumWeighting, weighting);
               cellsToAttack.add(new int[]{x, y, weighting});
             }
           }
@@ -151,10 +156,31 @@ class BanditController implements PlayerController {
       }
       if (cellsToAttack.size() > 0) {
         println("bandit is attacking");
-        // Run away from other bandits in order to spread out
+        for (int[] cell: cellsToAttack){
+          if (cell[2] == maximumWeighting) {
+            if (moveNodes[cell[1]][cell[0]].cost < p.getMaxMovementPoints()) {
+              return new Move(px, py, cell[0], cell[1]);
+            } else {
+              int minimumCost = p.getMaxMovementPoints() * 5;
+              for (int y = cell[1] - 1; y < cell[1] + 2; y++) {
+                for (int x = cell[0] - 1; x < cell[0] + 2; x++) {
+                  if (moveNodes[y][x] != null) {
+                    minimumCost = min(minimumCost, moveNodes[y][x].cost);
+                  }
+                }
+              }
+              for (int y = cell[1] - 1; y < cell[1] + 2; y++) {
+                for (int x = cell[0] - 1; x < cell[0] + 2; x++) {
+                  if (moveNodes[y][x] != null && moveNodes[y][x].cost == minimumCost) {
+                    return new Move(px, py, x, y);
+                  }
+                }
+              }
+            }
+          }
+        }
       } else {
         println("bandit is searching");
-        // Find a party to attack
       }
     }
     return null;
