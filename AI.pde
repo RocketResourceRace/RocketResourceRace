@@ -96,7 +96,7 @@ class BanditController implements PlayerController {
   int[][] cellsTargetedWeightings;
   Node[][] moveNodes;
   int player;
-  BanditController(int player, int mapWidth, int mapHeight){
+  BanditController(int player, int mapWidth, int mapHeight) {
     this.player = player;
      cellsTargetedWeightings = new int[mapHeight][];
      for (int y = 0; y < mapHeight; y++) {
@@ -106,8 +106,8 @@ class BanditController implements PlayerController {
        }
      }
   }
-  GameEvent generateNextEvent(Cell[][] visibleCells, float resources[]){
-    //println(getBattleEstimate(new Party(0, 100, 0, 64, "test 1"), new Party(1, 100, 0, 64, "test 2"))); // Battle estimate test
+  
+  GameEvent generateNextEvent(Cell[][] visibleCells, float resources[]) {
     for (int y = 0; y < visibleCells.length; y++) {
       for (int x = 0; x < visibleCells[0].length; x++) {
         if (visibleCells[y][x] != null && visibleCells[y][x].party != null) {
@@ -120,7 +120,7 @@ class BanditController implements PlayerController {
         }
       }
     }
-    return new EndTurn();  // Placeholder
+    return new EndTurn();  // If no parties have events to do, end the turn
   }
   
   boolean canMove(Party p) {
