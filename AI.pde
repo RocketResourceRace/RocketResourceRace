@@ -123,11 +123,13 @@ class BanditController implements PlayerController {
     return new EndTurn();  // If no parties have events to do, end the turn
   }
   
-  boolean canMove(Party p) {
-    for (int y = 0; y < moveNodes.length; y++) {
-      for (int x = 0; x < moveNodes[0].length; x++) {
-        if (moveNodes[y][x] != null && p.getMovementPoints() >= moveNodes[y][x].cost) {
-          return true;
+  boolean willMove(Party p) {
+    if (p.path==null||(p.path!=null&&p.path.size()==0)) {
+      for (int y = 0; y < moveNodes.length; y++) {
+        for (int x = 0; x < moveNodes[0].length; x++) {
+          if (moveNodes[y][x] != null && p.getMovementPoints() >= moveNodes[y][x].cost) {
+            return true;
+          }
         }
       }
     }
@@ -139,7 +141,7 @@ class BanditController implements PlayerController {
     Party p = visibleCells[py][px].party;
     cellsTargetedWeightings[py][px] = 0;
     int maximumWeighting = 0;
-    if (p.getMovementPoints() > 0 && canMove(p)) {
+    if (p.getMovementPoints() > 0 && willMove(p)) {
       ArrayList<int[]> cellsToAttack = new ArrayList<int[]>();
       for (int y = 0; y < visibleCells.length; y++) {
         for (int x = 0; x < visibleCells[0].length; x++) {

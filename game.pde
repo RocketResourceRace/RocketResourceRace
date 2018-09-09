@@ -1368,7 +1368,7 @@ class Game extends State {
     int banditCount = 0;
     for (int y = 0; y < mapHeight; y++) {
       for (int x = 0; x < mapWidth; x++) {
-        if (parties[y][x] != null && players[parties[y][x].player].controllerType == 1) {
+        if (parties[y][x] != null && parties[y][x].containsPartyFromPlayer(playerCount) > 0) {
           banditCount++;
         }
       }
