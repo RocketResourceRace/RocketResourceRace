@@ -807,6 +807,7 @@ class Player {
     Run after every event for this player, and it updates the visibleCells taking into account fog of war.
     Cells that have not been discovered yet will be null, and cells that are in active sight will be updated with the latest infomation.
     */
+    LOGGER_MAIN.fine("Updating visible cells for player " + name);
     boolean[][] fogMap = new boolean[visibleCells.length][visibleCells[0].length];
     for (int y = 0; y < visibleCells.length; y++) {
       for (int x = 0; x < visibleCells[0].length; x++) {

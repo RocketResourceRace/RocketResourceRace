@@ -725,7 +725,9 @@ class Game extends State {
       if (valid) {
         LOGGER_GAME.finest("Event is valid, so updating things...");
         players[turn].updateVisibleCells(terrain, buildings, parties);
-        map.updateVisibleCells(players[turn].visibleCells);
+        if (players[turn].controllerType == 0){
+          map.updateVisibleCells(players[turn].visibleCells);
+        }
         if (!changeTurn) {
           updateResourcesSummary();
           updatePartyManagementInterface();
@@ -1352,7 +1354,9 @@ class Game extends State {
         return;
       }
       players[turn].updateVisibleCells(terrain, buildings, parties);
-      map.updateVisibleCells(players[turn].visibleCells);
+      if (players[turn].controllerType == 0){
+          map.updateVisibleCells(players[turn].visibleCells);
+        }
     }
     catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error changing turn", e);
@@ -1442,6 +1446,7 @@ class Game extends State {
 
 
   void drawPanels() {
+    LOGGER_MAIN.fine("started drawing game panels");
     checkElementOnTop();
     if (rocketLaunching) {
       handleRocket();
@@ -1911,7 +1916,9 @@ class Game extends State {
           p.trainParty("speed", "moving");
 
           players[turn].updateVisibleCells(terrain, buildings, parties);
-          map.updateVisibleCells(players[turn].visibleCells);
+          if (players[turn].controllerType == 0){
+            map.updateVisibleCells(players[turn].visibleCells);
+          }
 
           hasMoved = true;
           if (parties[path.get(node)[1]][path.get(node)[0]] == null) {
@@ -2040,6 +2047,7 @@ class Game extends State {
     }
   }
   int getMoveTurns(int startX, int startY, int targetX, int targetY, Node[][] nodes) {
+    LOGGER_MAIN.fine(String.format("Getting move turns from (%s, %s) to (%s, %s)", startX, startY, targetX, targetY));
     int movementPoints;
     if (parties[startY][startX] != null)
       movementPoints = round(parties[startY][startX].getMovementPoints()); 
@@ -2065,85 +2073,88 @@ class Game extends State {
     return round(((Slider)getElement("split units", "party management")).getValue());
   }
   void refreshTooltip() {
-    if (!getPanel("pause screen").visible) {
-      TaskManager tasks = ((TaskManager)getElement("tasks", "party management"));
-      if (((EquipmentManager)getElement("equipment manager", "party management")).mouseOverTypes() && getPanel("party management").visible) {
-        int hoveringType = ((EquipmentManager)getElement("equipment manager", "party management")).hoveringOverType();
-        int equipmentClass = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
-        tooltip.setEquipment(equipmentClass, hoveringType, players[turn].resources, parties[selectedCellY][selectedCellX], isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, parties[selectedCellY][selectedCellX].getEquipment(equipmentClass)));
-        tooltip.show();
-      } else if (tasks.moveOver() && getPanel("party management").visible && !tasks.scrolling && !tasks.hovingOverScroll() && tasks.active) {
-        tooltip.setTask(((TaskManager)getElement("tasks", "party management")).findMouseOver(), players[turn].resources, parties[selectedCellY][selectedCellX].getMovementPoints());
-        tooltip.show();
-      } else if (((ProficiencySummary)getElement("proficiency summary", "party management")).mouseOver() && getPanel("party management").visible) {
-        tooltip.setProficiencies(((ProficiencySummary)getElement("proficiency summary", "party management")).hoveringOption(), parties[selectedCellY][selectedCellX]);
-        tooltip.show();
-      } else if (((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").visible) {
-        tooltip.setTurnsRemaining();
-        tooltip.show();
-      } else if (((Button)getElement("move button", "party management")).mouseOver()&& getPanel("party management").visible) {
-        tooltip.setMoveButton();
-        tooltip.show();
-      } else if (((Button)getElement("stock up button", "party management")).mouseOver() && getPanel("party management").visible) {
-        if (((Button)getElement("stock up button", "party management")).active) {
-          tooltip.setStockUpAvailable(parties[selectedCellY][selectedCellX], players[turn].resources);
-        } else {
-          tooltip.setStockUpUnavailable(parties[selectedCellY][selectedCellX]);
-        }
-        tooltip.show();
-      } else if (map.mouseOver()) {
-        map.doUpdateHoveringScale();
-        int mapInterceptX = floor(map.scaleXInv()); 
-        int mapInterceptY = floor(map.scaleYInv());
-        if (moving && !UIHovering()) {
-          Node [][] nodes = map.getMoveNodes();
-          if (selectedCellX == mapInterceptX && selectedCellY == mapInterceptY) {
-            tooltip.hide();
-            map.cancelPath();
-          } else if (mapInterceptX < mapWidth && mapInterceptY<mapHeight && mapInterceptX>=0 && mapInterceptY>=0 && nodes[mapInterceptY][mapInterceptX] != null) {
-            if (parties[selectedCellY][selectedCellX] != null) {
-              map.updatePath(getPath(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, map.getMoveNodes()));
-            }
-            if (parties[mapInterceptY][mapInterceptX]==null) {
-              //Moving into empty tile
-              int turns = getMoveTurns(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, nodes);
-              int cost = nodes[mapInterceptY][mapInterceptX].cost;
-              boolean splitting = splitUnitsNum()!=parties[selectedCellY][selectedCellX].getUnitNumber();
-              tooltip.setMoving(turns, splitting, parties[selectedCellY][selectedCellX], splitUnitsNum(), cost, jsManager.loadBooleanSetting("map is 3d"));
-              tooltip.show();
-            } else {
-              if (parties[mapInterceptY][mapInterceptX].player == turn) {
-                //merge parties
-                tooltip.setMerging(parties[mapInterceptY][mapInterceptX], parties[selectedCellY][selectedCellX], splitUnitsNum());
+    if (players[turn].controllerType != 1) {
+      LOGGER_MAIN.fine("refreshing tooltip");
+      if (!getPanel("pause screen").visible) {
+        TaskManager tasks = ((TaskManager)getElement("tasks", "party management"));
+        if (((EquipmentManager)getElement("equipment manager", "party management")).mouseOverTypes() && getPanel("party management").visible) {
+          int hoveringType = ((EquipmentManager)getElement("equipment manager", "party management")).hoveringOverType();
+          int equipmentClass = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
+          tooltip.setEquipment(equipmentClass, hoveringType, players[turn].resources, parties[selectedCellY][selectedCellX], isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, parties[selectedCellY][selectedCellX].getEquipment(equipmentClass)));
+          tooltip.show();
+        } else if (tasks.moveOver() && getPanel("party management").visible && !tasks.scrolling && !tasks.hovingOverScroll() && tasks.active) {
+          tooltip.setTask(((TaskManager)getElement("tasks", "party management")).findMouseOver(), players[turn].resources, parties[selectedCellY][selectedCellX].getMovementPoints());
+          tooltip.show();
+        } else if (((ProficiencySummary)getElement("proficiency summary", "party management")).mouseOver() && getPanel("party management").visible) {
+          tooltip.setProficiencies(((ProficiencySummary)getElement("proficiency summary", "party management")).hoveringOption(), parties[selectedCellY][selectedCellX]);
+          tooltip.show();
+        } else if (((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").visible) {
+          tooltip.setTurnsRemaining();
+          tooltip.show();
+        } else if (((Button)getElement("move button", "party management")).mouseOver()&& getPanel("party management").visible) {
+          tooltip.setMoveButton();
+          tooltip.show();
+        } else if (((Button)getElement("stock up button", "party management")).mouseOver() && getPanel("party management").visible) {
+          if (((Button)getElement("stock up button", "party management")).active) {
+            tooltip.setStockUpAvailable(parties[selectedCellY][selectedCellX], players[turn].resources);
+          } else {
+            tooltip.setStockUpUnavailable(parties[selectedCellY][selectedCellX]);
+          }
+          tooltip.show();
+        } else if (map.mouseOver()) {
+          map.doUpdateHoveringScale();
+          int mapInterceptX = floor(map.scaleXInv()); 
+          int mapInterceptY = floor(map.scaleYInv());
+          if (moving && !UIHovering()) {
+            Node [][] nodes = map.getMoveNodes();
+            if (selectedCellX == mapInterceptX && selectedCellY == mapInterceptY) {
+              tooltip.hide();
+              map.cancelPath();
+            } else if (mapInterceptX < mapWidth && mapInterceptY<mapHeight && mapInterceptX>=0 && mapInterceptY>=0 && nodes[mapInterceptY][mapInterceptX] != null) {
+              if (parties[selectedCellY][selectedCellX] != null) {
+                map.updatePath(getPath(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, map.getMoveNodes()));
+              }
+              if (parties[mapInterceptY][mapInterceptX]==null) {
+                //Moving into empty tile
+                int turns = getMoveTurns(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, nodes);
+                int cost = nodes[mapInterceptY][mapInterceptX].cost;
+                boolean splitting = splitUnitsNum()!=parties[selectedCellY][selectedCellX].getUnitNumber();
+                tooltip.setMoving(turns, splitting, parties[selectedCellY][selectedCellX], splitUnitsNum(), cost, jsManager.loadBooleanSetting("map is 3d"));
                 tooltip.show();
               } else {
-                //Attack
-                BigDecimal chance = battleEstimateManager.getEstimate(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, splitUnitsNum());
-                tooltip.setAttacking(chance);
-                tooltip.show();
+                if (parties[mapInterceptY][mapInterceptX].player == turn) {
+                  //merge parties
+                  tooltip.setMerging(parties[mapInterceptY][mapInterceptX], parties[selectedCellY][selectedCellX], splitUnitsNum());
+                  tooltip.show();
+                } else {
+                  //Attack
+                  BigDecimal chance = battleEstimateManager.getEstimate(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, splitUnitsNum());
+                  tooltip.setAttacking(chance);
+                  tooltip.show();
+                }
               }
             }
+          } else {
+            map.cancelPath();
+            tooltip.hide();
+          }
+  
+          if (bombarding) {
+            if (0<=mapInterceptX&&mapInterceptX<mapWidth&&0<=mapInterceptY&&mapInterceptY<mapHeight && parties[mapInterceptY][mapInterceptX] != null && parties[mapInterceptY][mapInterceptX].player != turn) {
+              tooltip.setBombarding(getBombardmentDamage(parties[selectedCellY][selectedCellX], parties[mapInterceptY][mapInterceptX]));
+              tooltip.show();
+            }
+          } else if (!moving && 0 < mapInterceptY && mapInterceptY < mapHeight && 0 < mapInterceptX && mapInterceptX < mapWidth && !(parties[mapInterceptY][mapInterceptX] instanceof Battle) && parties[mapInterceptY][mapInterceptX] != null) {
+            // Hovering over party
+            tooltip.setHoveringParty(parties[mapInterceptY][mapInterceptX]);
+            tooltip.show();
           }
         } else {
           map.cancelPath();
           tooltip.hide();
         }
-
-        if (bombarding) {
-          if (0<=mapInterceptX&&mapInterceptX<mapWidth&&0<=mapInterceptY&&mapInterceptY<mapHeight && parties[mapInterceptY][mapInterceptX] != null && parties[mapInterceptY][mapInterceptX].player != turn) {
-            tooltip.setBombarding(getBombardmentDamage(parties[selectedCellY][selectedCellX], parties[mapInterceptY][mapInterceptX]));
-            tooltip.show();
-          }
-        } else if (!moving && 0 < mapInterceptY && mapInterceptY < mapHeight && 0 < mapInterceptX && mapInterceptX < mapWidth && !(parties[mapInterceptY][mapInterceptX] instanceof Battle) && parties[mapInterceptY][mapInterceptX] != null) {
-          // Hovering over party
-          tooltip.setHoveringParty(parties[mapInterceptY][mapInterceptX]);
-          tooltip.show();
-        }
-      } else {
-        map.cancelPath();
-        tooltip.hide();
+        map.setActive(!UIHovering());
       }
-      map.setActive(!UIHovering());
     }
   }
 
@@ -2704,7 +2715,9 @@ class Game extends State {
     }
     map.generateShape();
     players[turn].updateVisibleCells(terrain, buildings, parties);
-    map.updateVisibleCells(players[turn].visibleCells);
+    if (players[turn].controllerType == 0){
+      map.updateVisibleCells(players[turn].visibleCells);
+    }
 
     map.setDrawingTaskIcons(true);
     map.setDrawingUnitBars(true);
