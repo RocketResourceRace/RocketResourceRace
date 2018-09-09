@@ -137,7 +137,7 @@ class BanditController implements PlayerController {
   }
   
   GameEvent getEventForParty(Cell[][] visibleCells, float resources[], int px, int py) {
-    moveNodes = LimitedKnowledgeDijkstra(px, py, visibleCells[0].length, visibleCells.length, visibleCells, 50);
+    moveNodes = LimitedKnowledgeDijkstra(px, py, visibleCells[0].length, visibleCells.length, visibleCells, 5);
     Party p = visibleCells[py][px].party;
     cellsTargetedWeightings[py][px] = 0;
     int maximumWeighting = 0;
@@ -149,7 +149,7 @@ class BanditController implements PlayerController {
             int weighting = 0;
             if (visibleCells[y][x].party != null && visibleCells[y][x].party.player != p.player) {
               weighting += 5;
-              //weighting -= floor(moveNodes[y][x].cost/p.getMaxMovementPoints());
+              weighting -= floor(moveNodes[y][x].cost/p.getMaxMovementPoints());
               if (visibleCells[y][x].building != null) {
                 weighting += 5;
                 // Add negative weighting if building is a defence building once defence buildings are added
@@ -167,7 +167,6 @@ class BanditController implements PlayerController {
         }
       }
       if (cellsToAttack.size() > 0) {
-        println("bandit is attacking");
         for (int[] cell: cellsToAttack){
           if (cell[2] == maximumWeighting) {
             if (moveNodes[cell[1]][cell[0]].cost < p.getMaxMovementPoints()) {
@@ -192,7 +191,6 @@ class BanditController implements PlayerController {
           }
         }
       } else {
-        println("bandit is searching");
       }
     }
     return null;
