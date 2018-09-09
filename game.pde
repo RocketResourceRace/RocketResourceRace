@@ -411,12 +411,12 @@ class Game extends State {
         Node[][] nodes = LimitedKnowledgeDijkstra(selectedCellX, selectedCellY, mapWidth, mapHeight, players[turn].visibleCells, 1000);
 
         if (canMove(selectedCellX, selectedCellY)) {
-          int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
+          int sliderVal = m.num;
           if (sliderVal > 0 && parties[selectedCellY][selectedCellX].getUnitNumber() >= 1 && parties[selectedCellY][selectedCellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle")) {
             map.updateMoveNodes(nodes);
             moving = true;
             String newPartyName;
-            if (parties[selectedCellY][selectedCellX].unitNumber==0) {
+            if (sliderVal >= parties[selectedCellY][selectedCellX].getUnitNumber()) {
               newPartyName = parties[selectedCellY][selectedCellX].id;
             } else {
               newPartyName = nextRollingId(players[turn].name);
@@ -2173,7 +2173,7 @@ class Game extends State {
             int x = floor(map.scaleXInv());
             int y = floor(map.scaleYInv());
             if (0<=x&&x<mapWidth&&0<=y&&y<mapHeight) {
-              postEvent(new Move(selectedCellX, selectedCellY, x, y));
+              postEvent(new Move(selectedCellX, selectedCellY, x, y, round(((Slider)getElement("split units", "party management")).getValue())));
             }
             map.cancelPath();
             moving = false;
@@ -2214,7 +2214,7 @@ class Game extends State {
                 int x = floor(map.scaleXInv());
                 int y = floor(map.scaleYInv());
                 if (0<=x&&x<mapWidth&&0<=y&&y<mapHeight) {
-                  postEvent(new Move(selectedCellX, selectedCellY, x, y));
+                  postEvent(new Move(selectedCellX, selectedCellY, x, y, round(((Slider)getElement("split units", "party management")).getValue())));
                 }
                 map.cancelPath();
                 moving = false;

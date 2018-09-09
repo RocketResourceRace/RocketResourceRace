@@ -123,12 +123,23 @@ class BanditController implements PlayerController {
     return new EndTurn();  // Placeholder
   }
   
+  boolean canMove(Party p) {
+    for (int y = 0; y < moveNodes.length; y++) {
+      for (int x = 0; x < moveNodes[0].length; x++) {
+        if (moveNodes[y][x] != null && p.getMovementPoints() >= moveNodes[y][x].cost) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  
   GameEvent getEventForParty(Cell[][] visibleCells, float resources[], int px, int py) {
-    moveNodes = LimitedKnowledgeDijkstra(px, py, visibleCells[0].length, visibleCells.length, visibleCells, 5);
+    moveNodes = LimitedKnowledgeDijkstra(px, py, visibleCells[0].length, visibleCells.length, visibleCells, 50);
     Party p = visibleCells[py][px].party;
     cellsTargetedWeightings[py][px] = 0;
     int maximumWeighting = 0;
-    if (p.getMovementPoints() > 0) {
+    if (p.getMovementPoints() > 0 && canMove(p)) {
       ArrayList<int[]> cellsToAttack = new ArrayList<int[]>();
       for (int y = 0; y < visibleCells.length; y++) {
         for (int x = 0; x < visibleCells[0].length; x++) {
@@ -136,7 +147,7 @@ class BanditController implements PlayerController {
             int weighting = 0;
             if (visibleCells[y][x].party != null && visibleCells[y][x].party.player != p.player) {
               weighting += 5;
-              weighting -= floor(moveNodes[y][x].cost/p.getMaxMovementPoints());
+              //weighting -= floor(moveNodes[y][x].cost/p.getMaxMovementPoints());
               if (visibleCells[y][x].building != null) {
                 weighting += 5;
                 // Add negative weighting if building is a defence building once defence buildings are added
@@ -158,7 +169,7 @@ class BanditController implements PlayerController {
         for (int[] cell: cellsToAttack){
           if (cell[2] == maximumWeighting) {
             if (moveNodes[cell[1]][cell[0]].cost < p.getMaxMovementPoints()) {
-              return new Move(px, py, cell[0], cell[1]);
+              return new Move(px, py, cell[0], cell[1], p.getUnitNumber());
             } else {
               int minimumCost = p.getMaxMovementPoints() * 5;
               for (int y = cell[1] - 1; y < cell[1] + 2; y++) {
@@ -171,7 +182,7 @@ class BanditController implements PlayerController {
               for (int y = cell[1] - 1; y < cell[1] + 2; y++) {
                 for (int x = cell[0] - 1; x < cell[0] + 2; x++) {
                   if (moveNodes[y][x] != null && moveNodes[y][x].cost == minimumCost) {
-                    return new Move(px, py, x, y);
+                    return new Move(px, py, x, y, p.getUnitNumber());
                   }
                 }
               }
