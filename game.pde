@@ -2859,7 +2859,7 @@ class Game extends State {
     }
     if (loadingName == null) {
       for (int i=0; i < playerCount; i++) {
-        parties[(int)playersStartingPositions[i].y][(int)playersStartingPositions[i].x] = new Party(i, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"), String.format("Player %d   #0", i));
+        parties[(int)playersStartingPositions[i].y][(int)playersStartingPositions[i].x] = new Party(i, jsManager.loadIntSetting("party size")/2, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"), String.format("Player %d   #0", i));
       }
     }
     return playersStartingPositions;
