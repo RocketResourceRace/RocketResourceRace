@@ -123,10 +123,10 @@ class BanditController implements PlayerController {
     return new EndTurn();  // If no parties have events to do, end the turn
   }
   
-  boolean willMove(Party p) {
+  boolean willMove(Party p, int px, int py) {
     if (p.path==null||(p.path!=null&&p.path.size()==0)) {
-      for (int y = 0; y < moveNodes.length; y++) {
-        for (int x = 0; x < moveNodes[0].length; x++) {
+      for (int y = max(0, py - 1); y < min(py + 2, moveNodes.length); y++) {
+        for (int x = max(0, px - 1); x < min(px + 2, moveNodes[0].length); x++) {
           if (moveNodes[y][x] != null && p.getMovementPoints() >= moveNodes[y][x].cost) {
             return true;
           }
@@ -141,7 +141,7 @@ class BanditController implements PlayerController {
     Party p = visibleCells[py][px].party;
     cellsTargetedWeightings[py][px] = 0;
     int maximumWeighting = 0;
-    if (p.getMovementPoints() > 0 && willMove(p)) {
+    if (p.getMovementPoints() > 0 && willMove(p, px, py)) {
       ArrayList<int[]> cellsToAttack = new ArrayList<int[]>();
       for (int y = 0; y < visibleCells.length; y++) {
         for (int x = 0; x < visibleCells[0].length; x++) {
@@ -173,15 +173,15 @@ class BanditController implements PlayerController {
               return new Move(px, py, cell[0], cell[1], p.getUnitNumber());
             } else {
               int minimumCost = p.getMaxMovementPoints() * 5;
-              for (int y = cell[1] - 1; y < cell[1] + 2; y++) {
-                for (int x = cell[0] - 1; x < cell[0] + 2; x++) {
+              for (int y = max(0, cell[1] - 1); y < min(moveNodes.length, cell[1] + 2); y++) {
+                for (int x = max(0, cell[0] - 1); x < min(moveNodes[0].length, cell[0] + 2); x++) {
                   if (moveNodes[y][x] != null) {
                     minimumCost = min(minimumCost, moveNodes[y][x].cost);
                   }
                 }
               }
-              for (int y = cell[1] - 1; y < cell[1] + 2; y++) {
-                for (int x = cell[0] - 1; x < cell[0] + 2; x++) {
+              for (int y = max(0, cell[1] - 1); y < min(moveNodes.length, cell[1] + 2); y++) {
+                for (int x = max(0, cell[0] - 1); x < min(moveNodes[0].length, cell[0] + 2); x++) {
                   if (moveNodes[y][x] != null && moveNodes[y][x].cost == minimumCost) {
                     return new Move(px, py, x, y, p.getUnitNumber());
                   }
