@@ -108,6 +108,17 @@ class BanditController implements PlayerController {
   }
   
   GameEvent generateNextEvent(Cell[][] visibleCells, float resources[]) {
+    
+    // Remove targeted cells that are no longer valid
+    for (int y = 0; y < visibleCells.length; y++) {
+      for (int x = 0; x < visibleCells[0].length; x++) {
+        if (cellsTargetedWeightings[y][x] != 0 && visibleCells[y][x] != null && visibleCells[y][x].party == null && visibleCells[y][x].activeSight) {
+          cellsTargetedWeightings[y][x] = 0;
+        }
+      }
+    }
+    
+    // Get an event from a party
     for (int y = 0; y < visibleCells.length; y++) {
       for (int x = 0; x < visibleCells[0].length; x++) {
         if (visibleCells[y][x] != null && visibleCells[y][x].party != null) {
