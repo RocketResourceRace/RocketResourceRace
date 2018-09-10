@@ -91,6 +91,19 @@ float getBattleEstimate(Party attacker, Party defender) {
   return float(currentWins)/float(TRIALS);
 }
 
+boolean willMove(Party p, int px, int py, Node[][] moveNodes) {
+  if (p.path==null||(p.path!=null&&p.path.size()==0)) {
+    for (int y = max(0, py - 1); y < min(py + 2, moveNodes.length); y++) {
+      for (int x = max(0, px - 1); x < min(px + 2, moveNodes[0].length); x++) {
+        if (moveNodes[y][x] != null && p.getMovementPoints() >= moveNodes[y][x].cost) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 
 class BanditController implements PlayerController {
   int[][] cellsTargetedWeightings;
@@ -134,25 +147,12 @@ class BanditController implements PlayerController {
     return new EndTurn();  // If no parties have events to do, end the turn
   }
   
-  boolean willMove(Party p, int px, int py) {
-    if (p.path==null||(p.path!=null&&p.path.size()==0)) {
-      for (int y = max(0, py - 1); y < min(py + 2, moveNodes.length); y++) {
-        for (int x = max(0, px - 1); x < min(px + 2, moveNodes[0].length); x++) {
-          if (moveNodes[y][x] != null && p.getMovementPoints() >= moveNodes[y][x].cost) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
-  
   GameEvent getEventForParty(Cell[][] visibleCells, float resources[], int px, int py) {
     moveNodes = LimitedKnowledgeDijkstra(px, py, visibleCells[0].length, visibleCells.length, visibleCells, 5);
     Party p = visibleCells[py][px].party;
     cellsTargetedWeightings[py][px] = 0;
     int maximumWeighting = 0;
-    if (p.getMovementPoints() > 0 && willMove(p, px, py)) {
+    if (p.getMovementPoints() > 0 && willMove(p, px, py, moveNodes)) {
       ArrayList<int[]> cellsToAttack = new ArrayList<int[]>();
       for (int y = 0; y < visibleCells.length; y++) {
         for (int x = 0; x < visibleCells[0].length; x++) {
