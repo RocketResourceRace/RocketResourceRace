@@ -104,7 +104,7 @@
           "w": 12,
           "h": 3,
           "text": "Local Machine",
-          "new state": "local machine new game"
+          "new state": "new game settings"
         },
         {
           "id": "local network button",
@@ -129,14 +129,40 @@
     },
 
     {
-      "id": "local machine new game",
-      "title": "Local Machine New Game",
+      "id": "new game local machine player selection",
+      "title": "New Game Local Machine Player Selection",
       "elements":[
         {
           "id": "start",
           "type": "button",
           "x": -6,
           "y": 0,
+          "w": 12,
+          "h": 3,
+          "text": "Start Game",
+        },
+        {
+          "id": "game options",
+          "type": "button",
+          "x": -6,
+          "y": 4,
+          "w": 12,
+          "h": 3,
+          "text": "Game Options",
+          "new state": "new game settings"
+        },
+      ]
+    },
+
+    {
+      "id": "new game settings",
+      "title": "New Game Settings",
+      "elements":[
+        {
+          "id": "start",
+          "type": "button",
+          "x": -6,
+          "y": -4,
           "w": 12,
           "h": 3,
           "text": "Start Game",
@@ -315,7 +341,7 @@
           "major": 5,
         },
         {
-          "id": "back",
+          "id": "new game back",
           "type": "button",
           "x": -6,
           "y": 12,
