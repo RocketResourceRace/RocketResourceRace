@@ -16,7 +16,7 @@ class NodeComparator implements Comparator {
   }
 }
 
-int cost(int x, int y, int prevX, int prevY, Cell[][] visibleCells, int maxCost) {
+int movementCost(int x, int y, int prevX, int prevY, Cell[][] visibleCells, int maxCost) {
   float mult = 1;
   if (x!=prevX && y!=prevY) {
     mult = 1.42;
@@ -34,10 +34,23 @@ int cost(int x, int y, int prevX, int prevY, Cell[][] visibleCells, int maxCost)
   return -1;
 }
 
+int sightCost(int x, int y, int prevX, int prevY, int[][] terrain) {
+  float mult = 1;
+  if (x!=prevX && y!=prevY) {
+    mult = 1.42;
+  }
+  if (0<=x && x<jsManager.loadIntSetting("map size") && 0<=y && y<jsManager.loadIntSetting("map size")) {
+    return round(gameData.getJSONArray("terrain").getJSONObject(terrain[y][x]).getInt("sight cost")*mult);
+  }
+  
+  //Not a valid location
+  return -1;
+}
+
 
 Node[][] LimitedKnowledgeDijkstra(int x, int y, int w, int h, Cell[][] visibleCells, int turnsRadius) {
   int[][] mvs = {{1, 0}, {0, 1}, {1, 1}, {-1, 0}, {0, -1}, {-1, -1}, {1, -1}, {-1, 1}};
-  int maxCost = jsManager.getMaxTerrainCost();
+  int maxCost = jsManager.getMaxTerrainMovementCost();
   Node currentHeadNode;
   Node[][] nodes = new Node[h][w];
   nodes[y][x] = new Node(0, false, x, y, x, y);
@@ -52,7 +65,7 @@ Node[][] LimitedKnowledgeDijkstra(int x, int y, int w, int h, Cell[][] visibleCe
       int ny = currentHeadNode.y+mv[1];
       if (0 <= nx && nx < w && 0 <= ny && ny < h) {
         boolean sticky = visibleCells[ny][nx] != null && visibleCells[ny][nx].getParty() != null;
-        int newCost = cost(nx, ny, currentHeadNode.x, currentHeadNode.y, visibleCells, maxCost);
+        int newCost = movementCost(nx, ny, currentHeadNode.x, currentHeadNode.y, visibleCells, maxCost);
         int prevCost = currentHeadNode.cost;
         if (newCost != -1){ // Check that the cost is valid
           int totalNewCost = prevCost+newCost;

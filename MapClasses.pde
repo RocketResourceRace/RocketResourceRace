@@ -29,9 +29,9 @@ class Party {
   ArrayList<int[]> path;
   int[] target;
   int pathTurns;
-  byte[]byteRep;
+  byte[] byteRep;
   boolean autoStockUp;
-  int sightRadius = 3;
+  int sightRadiusPerUnit;
 
   Party(int player, int startingUnits, int startingTask, int movementPoints, String id) {
     unitNumber = startingUnits;
@@ -124,10 +124,10 @@ class Party {
     setRawProficiency(jsManager.proficiencyIDToIndex(proficiencyID), currentProficiencyValue+addedProficiencyValue);
   }
   
-  float getEffectivenessMultiplier(String type, int proficiencyIndex){
+  float getEffectivenessMultiplier(String type){
     // This is the funciton to get the effectiveness of the party as different tasks based on proficiencies
     // 'type' is the ID used to determine which constant to use from data.json
-    float proficiency = getTotalProficiency(proficiencyIndex);
+    float proficiency = getTotalProficiency(jsManager.proficiencyIDToIndex(type));
     if (proficiency <= 0){ // proficiencies should never be negative because log(0) is undefined and log(<0) is complex. 
       return 0;
     } else {
@@ -145,7 +145,7 @@ class Party {
   
   void updateMaxMovementPoints(){
     // Based on speed proficiency
-    this.maxMovementPoints = floor(gameData.getJSONObject("game options").getInt("movement points") * getEffectivenessMultiplier("movement", jsManager.proficiencyIDToIndex("speed")));
+    this.maxMovementPoints = floor(gameData.getJSONObject("game options").getInt("movement points") * getEffectivenessMultiplier("speed"));
     setMovementPoints(min(maxMovementPoints, getMovementPoints()));
   }
   
@@ -611,6 +611,10 @@ class Party {
   boolean capped() {
     return unitNumber == unitCap;
   }
+  
+  int getSightUnitsRadius() {
+    return ceil(gameData.getJSONObject("game options").getInt("sight points") * getEffectivenessMultiplier("sight"));
+  }
 }
 
 class Battle extends Party {
@@ -742,8 +746,8 @@ class Siege extends Party {
 
 // THIS NEEDS TO BE CHANGED FOR DIPLOMACY
 int getBattleUnitChange(Party p1, Party p2) {
-  float damageRating = p2.strength * p2.getEffectivenessMultiplier("melee attack", jsManager.proficiencyIDToIndex("melee attack")) /
-  (p1.strength * p1.getEffectivenessMultiplier("defence", jsManager.proficiencyIDToIndex("defence")));
+  float damageRating = p2.strength * p2.getEffectivenessMultiplier("melee attack") /
+  (p1.strength * p1.getEffectivenessMultiplier("defence"));
   return floor(-0.2 * (p2.getUnitNumber() + pow(p2.getUnitNumber(), 2) / p1.getUnitNumber()) * random(0.75, 1.5) * damageRating);
 }
 //
@@ -802,19 +806,58 @@ class Player {
     }
   }
   
-  void updateVisibleCells(int[][] terrain, Building[][] buildings, Party[][] parties, boolean[][] seenCells){
-    /* 
-    Run after every event for this player, and it updates the visibleCells taking into account fog of war.
-    Cells that have not been discovered yet will be null, and cells that are in active sight will be updated with the latest infomation.
-    */
-    LOGGER_MAIN.fine("Updating visible cells for player " + name);
-    boolean[][] fogMap = new boolean[visibleCells.length][visibleCells[0].length];
-    for (int y = 0; y < visibleCells.length; y++) {
-      for (int x = 0; x < visibleCells[0].length; x++) {
+  Node[][] sightDijkstra(int x, int y, Party[][] parties, int[][] terrain) {
+    int w = visibleCells[0].length;
+    int h = visibleCells.length;
+    int[][] mvs = {{1, 0}, {0, 1}, {1, 1}, {-1, 0}, {0, -1}, {-1, -1}, {1, -1}, {-1, 1}};
+    Node currentHeadNode;
+    Node[][] nodes = new Node[h][w];
+    nodes[y][x] = new Node(0, false, x, y, x, y);
+    PriorityQueue<Node> curMinNodes = new PriorityQueue<Node>(new NodeComparator());
+    curMinNodes.add(nodes[y][x]);
+    while (curMinNodes.size() > 0) {
+      currentHeadNode = curMinNodes.poll();
+      currentHeadNode.fixed = true;
+  
+      for (int[] mv : mvs) {
+        int nx = currentHeadNode.x+mv[0];
+        int ny = currentHeadNode.y+mv[1];
+        if (0 <= nx && nx < w && 0 <= ny && ny < h) {
+          int newCost = sightCost(nx, ny, currentHeadNode.x, currentHeadNode.y, terrain);
+          int prevCost = currentHeadNode.cost;
+          if (newCost != -1){ // Check that the cost is valid
+            int totalNewCost = prevCost+newCost;
+            if (totalNewCost < parties[y][x].getSightUnitsRadius()) {
+              if (nodes[ny][nx] == null) {
+                nodes[ny][nx] = new Node(totalNewCost, false, currentHeadNode.x, currentHeadNode.y, nx, ny);
+                curMinNodes.add(nodes[ny][nx]);
+              } else if (!nodes[ny][nx].fixed) {
+                if (totalNewCost < nodes[ny][nx].cost) { // Updating existing node
+                  nodes[ny][nx].cost = min(nodes[ny][nx].cost, totalNewCost);
+                  nodes[ny][nx].setPrev(currentHeadNode.x, currentHeadNode.y);
+                  curMinNodes.remove(nodes[ny][nx]);
+                  curMinNodes.add(nodes[ny][nx]);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return nodes;
+  }
+  
+  boolean[][] generateFogMap(Party[][] parties, int[][] terrain) {
+    int w = parties[0].length;
+    int h = parties.length;
+    boolean[][] fogMap = new boolean[h][w];
+    for (int y = 0; y < h; y++) {
+      for (int x = 0; x < w; x++) {
         if (parties[y][x] != null && (parties[y][x].player == id || parties[y][x].containsPartyFromPlayer(id) > 0) && parties[y][x].getUnitNumber() > 0) {
-          for (int y1= y - parties[y][x].sightRadius; y1 <= y + parties[y][x].sightRadius; y1++) {
-            for (int x1 = x - parties[y][x].sightRadius; x1 <= x + parties[y][x].sightRadius; x1++) {
-              if (dist(x1, y1, x, y) <= parties[y][x].sightRadius && 0 <= x1 && x1 < visibleCells[0].length && 0 <= y1 && y1 < visibleCells.length) {
+          Node[][] nodes = sightDijkstra(x, y, parties, terrain);
+          for (int y1 = max(0, y - parties[y][x].getSightUnitsRadius()); y1 < min(h, y + parties[y][x].getSightUnitsRadius()+1); y1++) {
+            for (int x1 = max(0, x - parties[y][x].getSightUnitsRadius()); x1 < min(w, x + parties[y][x].getSightUnitsRadius()+1); x1++) {
+              if (nodes[y1][x1] != null && nodes[y1][x1].cost <= parties[y][x].getSightUnitsRadius()) {
                 fogMap[y1][x1] = true;
               }
             }
@@ -822,6 +865,18 @@ class Player {
         }
       }
     }
+    
+    return fogMap;
+  }
+  
+  void updateVisibleCells(int[][] terrain, Building[][] buildings, Party[][] parties, boolean[][] seenCells){
+    /* 
+    Run after every event for this player, and it updates the visibleCells taking into account fog of war.
+    Cells that have not been discovered yet will be null, and cells that are in active sight will be updated with the latest infomation.
+    */
+    LOGGER_MAIN.fine("Updating visible cells for player " + name);
+    boolean[][] fogMap = generateFogMap(parties, terrain);
+    
     for (int y = 0; y < visibleCells.length; y++) {
       for (int x = 0; x < visibleCells[0].length; x++) {
         if (visibleCells[y][x] == null && (seenCells == null || !seenCells[y][x])) {

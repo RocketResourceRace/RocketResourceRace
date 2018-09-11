@@ -378,8 +378,8 @@ class Game extends State {
   }
 
   int getBombardmentDamage(Party attacker, Party defender) {
-    return floor(attacker.getUnitNumber() * attacker.getEffectivenessMultiplier("ranged", jsManager.proficiencyIDToIndex("ranged attack")) /
-      (defender.getEffectivenessMultiplier("defence", jsManager.proficiencyIDToIndex("defence")) * 3));
+    return floor(attacker.getUnitNumber() * attacker.getEffectivenessMultiplier("ranged attack") /
+      (defender.getEffectivenessMultiplier("defence") * 3));
   }
 
   boolean postEvent(GameEvent event) {
