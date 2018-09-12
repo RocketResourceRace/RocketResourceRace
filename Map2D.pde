@@ -1393,7 +1393,7 @@ class Map2D extends BaseMap implements Map {
       }
     }
 
-    if (moveNodes != null) {
+    if (moveNodes != null && parties[selectedCellY][selectedCellX] != null) {
       for (int y1=0; y1<mapHeight; y1++) {
         for (int x=0; x<mapWidth; x++) {
           if (moveNodes[y1][x] != null) {

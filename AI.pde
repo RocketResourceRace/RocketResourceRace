@@ -235,9 +235,7 @@ class BanditController implements PlayerController {
         }
         for(int[] cell : cellsToMoveTo){
           if (cell[2] == maximumWeighting){
-            if (visibleCells[cell[1]][cell[0]] != null){
-              return new Move(px, py, cell[0], cell[1], p.getUnitNumber());
-            }
+            return new Move(px, py, cell[0], cell[1], p.getUnitNumber());
           }
         }
       }
