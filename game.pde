@@ -2263,7 +2263,7 @@ class Game extends State {
     deselectCell();
     if (raw) {
       selectCell();
-    } else if (cellInBounds(x, y)) {
+    } else if (cellInBounds(x, y) && !cinematicMode) {
       LOGGER_GAME.finer(String.format("Cell selected at (%d, %d) which is in bounds", x, y));
       tooltip.hide();
       selectedCellX = x;

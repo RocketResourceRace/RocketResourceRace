@@ -190,10 +190,12 @@ class BanditController implements PlayerController {
           }
         }
       }
+      Collections.shuffle(cellsToAttack);
       if (cellsToAttack.size() > 0) {
         for (int[] cell: cellsToAttack){
           if (cell[2] == maximumWeighting) {
             if (moveNodes[cell[1]][cell[0]].cost < p.getMaxMovementPoints()) {
+              cellsTargetedWeightings[cell[1]][cell[0]] += maximumWeighting;
               return new Move(px, py, cell[0], cell[1], p.getUnitNumber());
             } else {
               int minimumCost = p.getMaxMovementPoints() * 5;
@@ -207,6 +209,7 @@ class BanditController implements PlayerController {
               for (int y = max(0, cell[1] - 1); y < min(moveNodes.length, cell[1] + 2); y++) {
                 for (int x = max(0, cell[0] - 1); x < min(moveNodes[0].length, cell[0] + 2); x++) {
                   if (moveNodes[y][x] != null && moveNodes[y][x].cost == minimumCost) {
+                    cellsTargetedWeightings[cell[1]][cell[0]] += maximumWeighting;
                     return new Move(px, py, x, y, p.getUnitNumber());
                   }
                 }
