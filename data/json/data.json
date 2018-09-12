@@ -15,7 +15,8 @@
       "low img": "water_low.png",
       "weighting": 0,
       "movement cost": 16,
-      "sight cost": 1
+      "sight cost": 1,
+      "sight bonus": 6
     },
     {
       "id": "quarry site stone",
@@ -23,7 +24,8 @@
       "img": "hill.png",
       "weighting": 0,
       "movement cost": 32,
-      "sight cost": 1
+      "sight cost": 1,
+      "sight bonus": 3
     },
     {
       "id": "quarry site clay",
@@ -31,21 +33,24 @@
       "img": "hill.png",
       "weighting": 0,
       "movement cost": 32,
-      "sight cost": 1
+      "sight cost": 1,
+      "sight bonus": 3
     },
     {
       "id": "sand",
       "display name": "Desert",
       "img": "sand.png",
       "movement cost": 12,
-      "sight cost": 2
+      "sight cost": 2,
+      "sight bonus": 3
     },
     {
       "id": "grass",
       "display name": "Grassland",
       "img": "grass.png",
       "movement cost": 8,
-      "sight cost": 3
+      "sight cost": 3,
+      "sight bonus": 0
     },
     {
       "id": "forest",
@@ -54,7 +59,8 @@
       "img3d": "grass.png",
       "low img": "forest_low.png",
       "movement cost": 12,
-      "sight cost": 5
+      "sight cost": 5,
+      "sight bonus": 6
     },
     {
       "id": "hills",
@@ -62,7 +68,8 @@
       "img": "hill.png",
       "weighting": 0,
       "movement cost": 28,
-      "sight cost": 6
+      "sight cost": 6,
+      "sight bonus": -10
     },
   ],
 

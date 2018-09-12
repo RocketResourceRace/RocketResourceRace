@@ -812,7 +812,7 @@ class Player {
     int[][] mvs = {{1, 0}, {0, 1}, {1, 1}, {-1, 0}, {0, -1}, {-1, -1}, {1, -1}, {-1, 1}};
     Node currentHeadNode;
     Node[][] nodes = new Node[h][w];
-    nodes[y][x] = new Node(0, false, x, y, x, y);
+    nodes[y][x] = new Node(gameData.getJSONArray("terrain").getJSONObject(terrain[y][x]).getInt("sight bonus"), false, x, y, x, y);
     PriorityQueue<Node> curMinNodes = new PriorityQueue<Node>(new NodeComparator());
     curMinNodes.add(nodes[y][x]);
     while (curMinNodes.size() > 0) {
