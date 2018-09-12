@@ -233,6 +233,7 @@ class BanditController implements PlayerController {
             }
           }
         }
+        Collections.shuffle(cellsToMoveTo);
         for(int[] cell : cellsToMoveTo){
           if (cell[2] == maximumWeighting){
             return new Move(px, py, cell[0], cell[1], p.getUnitNumber());
