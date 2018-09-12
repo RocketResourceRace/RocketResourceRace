@@ -1316,15 +1316,15 @@ class Map3D extends BaseMap implements Map {
               if (buildingObjs.get(buildingString(visibleCells[y][x].getBuilding().type)) != null) {
                 canvas.lights();
                 canvas.pushMatrix();
-                if (buildings[y][x].type==buildingIndex("Mine")) {
+                if (visibleCells[y][x].building.type==buildingIndex("Mine")) {
                   canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMinHeightAt(x, y));
                   canvas.rotateZ(getDownwardAngle(x, y));
-                } else if (buildings[y][x].type==buildingIndex("Quarry")) {
+                } else if (visibleCells[y][x].building.type==buildingIndex("Quarry")) {
                   canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, groundMinHeightAt(x, y));
                 } else {
                   canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 16+groundMaxHeightAt(x, y));
                 }
-                canvas.shape(buildingObjs.get(buildingString(buildings[y][x].type))[buildings[y][x].image_id]);
+                canvas.shape(buildingObjs.get(buildingString(visibleCells[y][x].building.type))[visibleCells[y][x].building.image_id]);
                 canvas.popMatrix();
               }
             }
