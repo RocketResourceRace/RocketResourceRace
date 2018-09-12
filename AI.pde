@@ -219,11 +219,15 @@ class BanditController implements PlayerController {
         ArrayList<int[]> cellsToMoveTo = new ArrayList<int[]>();
         for (int y = 0; y < visibleCells.length; y++) {
           for (int x = 0; x < visibleCells[0].length; x++) {
-            if (visibleCells[y][x] != null && moveNodes[y][x] != null && moveNodes[y][x].cost <= p.getMovementPoints()) {  // Check in sight and within 1 turn movement
+            if (moveNodes[y][x] != null) {  // Check in sight and within 1 turn movement
               int weighting = 0;
-              if (visibleCells[y][x].activeSight){
+              if (visibleCells[y][x] == null){
+                weighting += 10;
+              }
+              else if (!visibleCells[y][x].getActiveSight()){
                 weighting += 5;
               }
+              weighting -= moveNodes[y][x].cost/p.getMaxMovementPoints();
               maximumWeighting = max(maximumWeighting, weighting);
               cellsToMoveTo.add(new int[]{x, y, weighting});
             }
