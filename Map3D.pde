@@ -1313,7 +1313,7 @@ class Map3D extends BaseMap implements Map {
         for (int y=0; y<mapHeight; y++) {
           if (visibleCells[y][x] != null) {
             if (visibleCells[y][x].building != null) {
-              if (buildingObjs.get(buildingString(buildings[y][x].type)) != null) {
+              if (buildingObjs.get(buildingString(visibleCells[y][x].getBuilding().type)) != null) {
                 canvas.lights();
                 canvas.pushMatrix();
                 if (buildings[y][x].type==buildingIndex("Mine")) {

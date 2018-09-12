@@ -1349,7 +1349,9 @@ class Game extends State {
         LOGGER_GAME.finest("Idle party set to grey becuase no idle parties found");
         ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
       }
-      if (!players[turn].isAlive) {
+      if (checkForPlayerWin()) {
+        this.getPanel("end screen").visible = true;
+      } else if (!players[turn].isAlive) {
         turnChange();
         return;
       }
@@ -1422,7 +1424,7 @@ class Game extends State {
       int numAlive = 0;
       for (int p=0; p < players.length; p++) {
         players[p].isAlive = playersAlive[p];
-        if (playersAlive[p]) {
+        if (playersAlive[p] && p < players.length-1) {
           numAlive ++;
         }
       }
@@ -1431,6 +1433,7 @@ class Game extends State {
           if (playersAlive[p]) {
             winner = p;
             LOGGER_GAME.info(players[p].name+" wins!");
+            break;
           }
         }
       } else if (numAlive == 0) {
