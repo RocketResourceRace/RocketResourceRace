@@ -1322,6 +1322,13 @@ class Game extends State {
 
       turn = (turn + 1)%players.length; // TURN CHANGE
 
+      // If local player turn disable cinematic mode otherwise enable (e.g. bandits/AI turn)
+      if (players[turn].controllerType == 0) {
+        leaveCinematicMode(); // Leave cinematic mode as player turn
+      } else {
+        enterCinematicMode(); // Leave cinematic mode as player turn
+      }
+      
       players[turn].loadSettings(this, map);
       changeTurn = false;
       TextBox t = ((TextBox)(getElement("turn number", "bottom bar")));
@@ -1333,13 +1340,6 @@ class Game extends State {
       if (turn==0) {
         turnNumber++;
         spawnBandits();
-      }
-
-      // If local player turn disable cinematic mode otherwise enable (e.g. bandits/AI turn)
-      if (players[turn].controllerType == 0) {
-        leaveCinematicMode(); // Leave cinematic mode as player turn
-      } else {
-        enterCinematicMode(); // Leave cinematic mode as player turn
       }
 
       if (anyIdle(turn)) {
