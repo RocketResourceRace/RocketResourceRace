@@ -215,6 +215,27 @@ class BanditController implements PlayerController {
           }
         }
       } else {
+        // Bandit searching for becuase no parties to attack in area
+        ArrayList<int[]> cellsToMoveTo = new ArrayList<int[]>();
+        for (int y = 0; y < visibleCells.length; y++) {
+          for (int x = 0; x < visibleCells[0].length; x++) {
+            if (visibleCells[y][x] != null && moveNodes[y][x] != null && moveNodes[y][x].cost <= p.getMovementPoints()) {  // Check in sight and within 1 turn movement
+              int weighting = 0;
+              if (visibleCells[y][x].activeSight){
+                weighting += 5;
+              }
+              maximumWeighting = max(maximumWeighting, weighting);
+              cellsToMoveTo.add(new int[]{x, y, weighting});
+            }
+          }
+        }
+        for(int[] cell : cellsToMoveTo){
+          if (cell[2] == maximumWeighting){
+            if (visibleCells[cell[1]][cell[0]] != null){
+              return new Move(px, py, cell[0], cell[1], p.getUnitNumber());
+            }
+          }
+        }
       }
     }
     return null;
