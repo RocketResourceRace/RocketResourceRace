@@ -59,8 +59,8 @@
       "img3d": "grass.png",
       "low img": "forest_low.png",
       "movement cost": 12,
-      "sight cost": 5,
-      "sight bonus": 6
+      "sight cost": 4,
+      "sight bonus": 4
     },
     {
       "id": "hills",
@@ -69,7 +69,7 @@
       "weighting": 0,
       "movement cost": 28,
       "sight cost": 6,
-      "sight bonus": -10
+      "sight bonus": -8
     },
   ],
 
