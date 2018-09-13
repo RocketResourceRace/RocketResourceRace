@@ -303,7 +303,7 @@ class Map3D extends BaseMap implements Map {
       drawPossibleMoves.fill(0, 0, 0, 100);
       for (int x=0; x<mapWidth; x++) {
         for (int y=0; y<mapHeight; y++) {
-          if (moveNodes[y][x] != null && moveNodes[y][x].cost <= parties[selectedCellY][selectedCellX].getMovementPoints()) {
+          if (moveNodes[y][x] != null && parties[selectedCellY][selectedCellX] != null && moveNodes[y][x].cost <= parties[selectedCellY][selectedCellX].getMovementPoints()) {
             for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
               for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
                 drawPossibleMoves.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));

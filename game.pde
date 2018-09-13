@@ -1148,7 +1148,7 @@ class Game extends State {
                     if (tasks[task].equals("Produce Rocket")) {
                       break;
                     }
-                  } else if (resourceProductivities[jsManager.getResIndex(("food"))] < 1) {
+                  } else if (resourceProductivities[jsManager.getResIndex(("food"))] < 1 && players[parties[y][x].player].controllerType != 1) {
                     float lost = (1 - resourceProductivities[jsManager.getResIndex(("food"))]) * (0.01+taskOutcomes[task][resource]) * parties[y][x].getUnitNumber();
                     int totalLost = floor(lost);
                     if (random(1) < lost-floor(lost)) {
