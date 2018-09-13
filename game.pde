@@ -2273,7 +2273,11 @@ class Game extends State {
       cellSelected = true;
       map.selectCell(selectedCellX, selectedCellY);
       //map.setWidth(round(width-bezel*2-400));
-      getPanel("land management").setVisible(true);
+      if (players[turn].visibleCells[y][x] != null){
+        getPanel("land management").setVisible(true);
+      } else {
+        getPanel("land management").setVisible(false);
+      }
 
       updatePartyManagementInterface();
     }
