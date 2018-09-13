@@ -49,6 +49,7 @@ int sightCost(int x, int y, int prevX, int prevY, int[][] terrain) {
 
 
 Node[][] LimitedKnowledgeDijkstra(int x, int y, int w, int h, Cell[][] visibleCells, int turnsRadius) {
+  LOGGER_MAIN.finer(String.format("Starting dijkstra on cell: (%d, %d)", x, y));
   int[][] mvs = {{1, 0}, {0, 1}, {1, 1}, {-1, 0}, {0, -1}, {-1, -1}, {1, -1}, {-1, 1}};
   int maxCost = jsManager.getMaxTerrainMovementCost();
   Node currentHeadNode;
@@ -134,7 +135,7 @@ class BanditController implements PlayerController {
   }
   
   GameEvent generateNextEvent(Cell[][] visibleCells, float resources[]) {
-    
+    LOGGER_GAME.finer("Generating next event for bandits");
     // Remove targeted cells that are no longer valid
     for (int y = 0; y < visibleCells.length; y++) {
       for (int x = 0; x < visibleCells[0].length; x++) {
@@ -149,6 +150,7 @@ class BanditController implements PlayerController {
       for (int x = 0; x < visibleCells[0].length; x++) {
         if (visibleCells[y][x] != null && visibleCells[y][x].party != null) {
           if (visibleCells[y][x].party.player == player) {
+            LOGGER_GAME.finer(String.format("Getting event for party on cell: (%d, %d) with id:%s", x, y, visibleCells[y][x].party.getID()));
             GameEvent event = getEventForParty(visibleCells, resources, x, y);
             if (event != null) {
               return event;
@@ -184,6 +186,7 @@ class BanditController implements PlayerController {
             }
             weighting += cellsTargetedWeightings[y][x];
             if (weighting > 0) {
+              LOGGER_GAME.fine(String.format("At least one cell has a positive weight for attacking, so will attack"));
               maximumWeighting = max(maximumWeighting, weighting);
               cellsToAttack.add(new int[]{x, y, weighting});
             }
