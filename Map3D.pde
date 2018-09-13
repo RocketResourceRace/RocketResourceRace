@@ -32,7 +32,7 @@ class Map3D extends BaseMap implements Map {
   float hoveringX, hoveringY, oldHoveringX, oldHoveringY;
   float targetXOffset, targetYOffset;
   int selectedCellX, selectedCellY;
-  PShape tiles, flagPole, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid, drawPossibleMoves, drawPossibleBombards, obscuredCellsOverlay, unseenCellsOverlay, bombardArrow, fog;
+  PShape tiles, flagPole, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid, drawPossibleMoves, drawPossibleBombards, obscuredCellsOverlay, unseenCellsOverlay, dangerousCellsOverlay, bombardArrow, fog;
   PShape[] flags;
   HashMap<String, PShape> taskObjs;
   HashMap<String, PShape[]> buildingObjs;
@@ -167,10 +167,11 @@ class Map3D extends BaseMap implements Map {
   void setActive(boolean a) {
     this.mapActive = a;
   }
-  void updateMoveNodes(Node[][] nodes) {
+  void updateMoveNodes(Node[][] nodes, Player[] players) {
     LOGGER_MAIN.finer("Updating move nodes");
     moveNodes = nodes;
     updatePossibleMoves();
+    updateDangerousCellsOverlay(visibleCells, players);
   }
 
   void updatePath (ArrayList<int[]> path, int[] target) {
@@ -322,6 +323,58 @@ class Map3D extends BaseMap implements Map {
     }
     catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error updating possible moves", e);
+      throw e;
+    }
+  }
+  
+  void updateDangerousCellsOverlay(Cell[][] visibleCells, Player[] players) {
+    // For the shape that indicates cells that are dangerous
+    try {
+      if (visibleCells[selectedCellY][selectedCellX] != null && visibleCells[selectedCellY][selectedCellX].party != null) {
+        LOGGER_MAIN.finer("Updating dangerous cells overlay");
+        float smallSize = blockSize / jsManager.loadFloatSetting("terrain detail");
+        dangerousCellsOverlay = createShape();
+        dangerousCellsOverlay.beginShape(TRIANGLES);
+        dangerousCellsOverlay.fill(255, 0, 0, 150);
+        boolean[][] dangerousCells = new boolean[mapHeight][mapWidth];
+        
+        for (int x=0; x<mapWidth; x++) {
+          for (int y=0; y<mapHeight; y++) {
+            if (visibleCells[y][x] != null && visibleCells[y][x].party != null && visibleCells[y][x].party.player != visibleCells[selectedCellY][selectedCellX].party.player) {
+              players[visibleCells[y][x].party.player].updateVisibleCells(terrain, buildings, parties);
+              Node[][] tempMoveNodes = LimitedKnowledgeDijkstra(x, y, mapWidth, mapHeight, players[visibleCells[y][x].party.player].visibleCells, 1);
+              for (int x1=0; x1<mapWidth; x1++) {
+                for (int y1=0; y1<mapHeight; y1++) {
+                  if (tempMoveNodes[y1][x1] != null && tempMoveNodes[y1][x1].cost <= visibleCells[y][x].party.getMaxMovementPoints()) {
+                    dangerousCells[y1][x1] = true;
+                  }
+                }
+              }
+            }
+          }
+        }
+        for (int x=0; x<mapWidth; x++) {
+          for (int y=0; y<mapHeight; y++) {
+            if (dangerousCells[y][x]) {
+              for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
+                for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
+                  dangerousCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                  dangerousCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                  dangerousCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+  
+                  dangerousCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                  dangerousCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                  dangerousCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                }
+              }
+            }
+          }
+        }
+        dangerousCellsOverlay.endShape();
+      }
+    }
+    catch (Exception e) {
+      LOGGER_MAIN.log(Level.SEVERE, "Error updating dangerous cells overlay", e);
       throw e;
     }
   }
@@ -1290,6 +1343,8 @@ class Map3D extends BaseMap implements Map {
         canvas.pushMatrix();
         canvas.translate(0, 0, verySmallSize);
         canvas.shape(drawPossibleMoves);
+        canvas.translate(0, 0, verySmallSize);
+        canvas.shape(dangerousCellsOverlay);
         canvas.popMatrix();
       }
       

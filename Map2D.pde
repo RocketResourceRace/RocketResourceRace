@@ -2,7 +2,7 @@ import java.util.Collections;
 import java.nio.ByteBuffer;
 
 interface Map {
-  void updateMoveNodes(Node[][] nodes);
+  void updateMoveNodes(Node[][] nodes, Player[] players);
   void cancelMoveNodes();
   void removeTreeTile(int cellX, int cellY);
   void setDrawingTaskIcons(boolean v);
@@ -1121,7 +1121,7 @@ class Map2D extends BaseMap implements Map {
     setPanningSpeed(0.05);
   }
 
-  void updateMoveNodes(Node[][] nodes) {
+  void updateMoveNodes(Node[][] nodes, Player[] players) {
     moveNodes = nodes;
   }
   void updatePath(ArrayList<int[]> nodes) {

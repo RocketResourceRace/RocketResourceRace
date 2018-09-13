@@ -413,7 +413,7 @@ class Game extends State {
         if (canMove(selectedCellX, selectedCellY)) {
           int sliderVal = m.num;
           if (sliderVal > 0 && parties[selectedCellY][selectedCellX].getUnitNumber() >= 1 && parties[selectedCellY][selectedCellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle")) {
-            map.updateMoveNodes(nodes);
+            map.updateMoveNodes(nodes, players);
             moving = true;
             String newPartyName;
             if (sliderVal >= parties[selectedCellY][selectedCellX].getUnitNumber()) {
@@ -1697,7 +1697,7 @@ class Game extends State {
           if (parties[selectedCellY][selectedCellX].player == turn) {
             moving = !moving;
             if (moving) {
-              map.updateMoveNodes(LimitedKnowledgeDijkstra(selectedCellX, selectedCellY, mapWidth, mapHeight, players[turn].visibleCells, 20));
+              map.updateMoveNodes(LimitedKnowledgeDijkstra(selectedCellX, selectedCellY, mapWidth, mapHeight, players[turn].visibleCells, 20), players);
             } else {
               map.cancelMoveNodes();
             }
@@ -2175,7 +2175,7 @@ class Game extends State {
               moving = true;
               bombarding = false;
               map.disableBombard();
-              map.updateMoveNodes(LimitedKnowledgeDijkstra(selectedCellX, selectedCellY, mapWidth, mapHeight, players[turn].visibleCells, 20));
+              map.updateMoveNodes(LimitedKnowledgeDijkstra(selectedCellX, selectedCellY, mapWidth, mapHeight, players[turn].visibleCells, 20), players);
               refreshTooltip();
             }
           }
