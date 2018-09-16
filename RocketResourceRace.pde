@@ -370,7 +370,7 @@ boolean smoothed = false;
 
 void draw() {
   try {
-    background(255);
+    background(0);
     prevT = millis();
     String newState = getActiveState().update();
     if (!newState.equals("")) {
