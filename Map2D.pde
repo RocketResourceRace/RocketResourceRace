@@ -286,7 +286,7 @@ class BaseMap extends Element {
         }
       }
       int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+4*Integer.BYTES+Character.BYTES*10+1+mapWidth*mapHeight)*players.length;
-      ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*10+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount+playersByteCount+Float.BYTES);
+      ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*10+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*4+partiesByteCount+playersByteCount+Float.BYTES);
       buffer.putInt(-SAVEVERSION);
       LOGGER_MAIN.finer("Saving version: "+(-SAVEVERSION));
       buffer.putInt(mapWidth);
@@ -385,6 +385,17 @@ class BaseMap extends Element {
           }
         }
       }
+      LOGGER_MAIN.finer("Saving bandit memory");
+      if (players[players.length-1].playerController instanceof BanditController) {
+        BanditController bc = (BanditController)players[players.length-1].playerController;
+        for (int y = 0; y < mapHeight; y++) {
+          for (int x = 0; x < mapWidth; x++) {
+            buffer.putInt(bc.cellsTargetedWeightings[y][x]);
+          }
+        }
+      } else {
+        LOGGER_MAIN.warning("Final player isn't a bandit");
+      }
       LOGGER_MAIN.fine("Saving map to file");
       saveBytes(filename, buffer.array());
     }
@@ -416,7 +427,7 @@ class BaseMap extends Element {
       mapHeight = headerBuffer.getInt();
       int partiesByteCount = headerBuffer.getInt();
       int playersByteCount = headerBuffer.getInt();
-      int dataSize = Long.BYTES+partiesByteCount+playersByteCount+(4+mapWidth*mapHeight*3)*Integer.BYTES+Float.BYTES+versionSpecificData;
+      int dataSize = Long.BYTES+partiesByteCount+playersByteCount+(4+mapWidth*mapHeight*4)*Integer.BYTES+Float.BYTES+versionSpecificData;
       ByteBuffer buffer = ByteBuffer.allocate(dataSize);
       if (versionCheckInt) {
         buffer.put(Arrays.copyOfRange(tempBuffer, headerSize, headerSize+dataSize));
@@ -552,6 +563,18 @@ class BaseMap extends Element {
         players[i].cellSelected = cellSelected;
         players[i].cellX = selectedCellX;
         players[i].cellY = selectedCellY;
+      }
+      
+      LOGGER_MAIN.finer("Loading bandit memory");
+      if (players[players.length-1].playerController instanceof BanditController) {
+        BanditController bc = (BanditController)players[players.length-1].playerController;
+        for (int y = 0; y < mapHeight; y++) {
+          for (int x = 0; x < mapWidth; x++) {
+            bc.cellsTargetedWeightings[y][x] = buffer.getInt();
+          }
+        }
+      } else {
+        LOGGER_MAIN.warning("Final player isn't a bandit");
       }
       LOGGER_MAIN.fine("Seeding height map noise with: "+heightMapSeed);
       noiseSeed(heightMapSeed);
