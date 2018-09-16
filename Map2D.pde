@@ -1205,7 +1205,9 @@ class Map2D extends BaseMap implements Map {
 
     // Terrain
     PImage[] tempTileImages = new PImage[gameData.getJSONArray("terrain").size()];
+    PImage[] tempTileImagesDark = new PImage[gameData.getJSONArray("terrain").size()];
     PImage[][] tempBuildingImages = new PImage[gameData.getJSONArray("buildings").size()][];
+    PImage[][] tempBuildingImagesDark = new PImage[gameData.getJSONArray("buildings").size()][];
     PImage[] tempPartyImages = new PImage[players.length+1]; // Index 0 is battle
     PImage[] tempTaskImages = new PImage[taskImages.length];
     if (frameStartTime == 0) {
@@ -1268,9 +1270,21 @@ class Map2D extends BaseMap implements Map {
       if (blockSize<24&&!tileType.isNull("low img")) {
         tempTileImages[i] = lowImages.get(tileType.getString("id")).copy();
         tempTileImages[i].resize(ceil(blockSize), 0);
+        tempTileImagesDark[i] = lowImages.get(tileType.getString("id")).copy();
+        tempTileImagesDark[i].resize(ceil(blockSize), 0);
+        tempTileImagesDark[i].loadPixels();
+        for (int j = 0; j < partyImages[i].pixels.length; j++) {
+          tempTileImagesDark[i].pixels[j] = brighten(tempTileImagesDark[i].pixels[j], -20);
+        }
       } else {
         tempTileImages[i] = tileImages.get(tileType.getString("id")).copy();
         tempTileImages[i].resize(ceil(blockSize), 0);
+        tempTileImagesDark[i] = tileImages.get(tileType.getString("id")).copy();
+        tempTileImagesDark[i].resize(ceil(blockSize), 0);
+        tempTileImagesDark[i].loadPixels();
+        for (int j = 0; j < tempTileImagesDark[i].pixels.length; j++) {
+          tempTileImagesDark[i].pixels[j] = brighten(tempTileImagesDark[i].pixels[j], -100);
+        }
       }
     }
     for (int i=0; i<gameData.getJSONArray("buildings").size(); i++) {
@@ -1306,17 +1320,27 @@ class Map2D extends BaseMap implements Map {
       for (int x=lx; x<hx; x++) {
         float x2 = round(scaleX(x));
         float y2 = round(scaleY(y));
-        panelCanvas.image(tempTileImages[terrain[y][x]], x2, y2);
+        if (jsManager.loadBooleanSetting("fog of war") && visibleCells[y][x] != null && !visibleCells[y][x].getActiveSight()) {
+          panelCanvas.image(tempTileImagesDark[terrain[y][x]], x2, y2);
+        } else if (!jsManager.loadBooleanSetting("fog of war") || visibleCells[y][x] != null) {
+          panelCanvas.image(tempTileImages[terrain[y][x]], x2, y2);
+        }
 
         //Buildings
         if (buildings[y][x] != null) {
           c = new PVector(scaleX(x), scaleY(y));
           int border = round((64-48)*blockSize/(2*64));
           int imgSize = round(blockSize*48/60);
-          drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, tempBuildingImages[buildings[y][x].type][buildings[y][x].image_id], panelCanvas);
+          PImage p;
+          if (jsManager.loadBooleanSetting("fog of war") && visibleCells[y][x] != null && !visibleCells[y][x].getActiveSight()) {
+            p = tempBuildingImagesDark[buildings[y][x].type][buildings[y][x].image_id];
+          } else {
+            p = tempBuildingImages[buildings[y][x].type][buildings[y][x].image_id];
+          }
+          drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, p, panelCanvas);
         }
         //Parties
-        if (parties[y][x]!=null) {
+        if (!jsManager.loadBooleanSetting("fog of war") || (visibleCells[y][x] != null && visibleCells[y][x].party != null)) {
           c = new PVector(scaleX(x), scaleY(y));
           if (c.x<xPos+elementWidth&&c.y+blockSize/8+blockSize>yPos&&c.y<yPos+elementHeight) {
             panelCanvas.noStroke();
@@ -1368,24 +1392,24 @@ class Map2D extends BaseMap implements Map {
               drawCroppedImage(floor(c.x+13*blockSize/32), floor(c.y+blockSize/2), ceil(3*blockSize/16), ceil(3*blockSize/16), tempTaskImages[parties[y][x].getTask()], panelCanvas);
             }
           }
-        }
-        if (cellSelected&&y==selectedCellY&&x==selectedCellX&&!cinematicMode) {
-          drawSelectedCell(selectedCell, panelCanvas);
-        }
-        if (parties[y][x]!=null) {
-          c = new PVector(scaleX(x), scaleY(y));
-          if (c.x<xPos+elementWidth&&c.y+blockSize/8+blockSize>yPos&&c.y<yPos+elementHeight) {
-            panelCanvas.textFont(getFont(blockSize/7));
-            panelCanvas.fill(255);
-            panelCanvas.textAlign(CENTER, CENTER);
-            if (parties[y][x].actions.size() > 0 && parties[y][x].actions.get(0).initialTurns>0) {
-              int totalTurns = parties[y][x].calcTurns(parties[y][x].actions.get(0).initialTurns);
-              String turnsLeftString = str(totalTurns-parties[y][x].turnsLeft())+"/"+str(totalTurns);
-              if (c.x+textWidth(turnsLeftString) < elementWidth+xPos && c.y+2*(textAscent()+textDescent()) < elementHeight+yPos) {
-                panelCanvas.text(turnsLeftString, c.x+blockSize/2, c.y+3*blockSize/4);
+          if (parties[y][x]!=null) {
+            c = new PVector(scaleX(x), scaleY(y));
+            if (c.x<xPos+elementWidth&&c.y+blockSize/8+blockSize>yPos&&c.y<yPos+elementHeight) {
+              panelCanvas.textFont(getFont(blockSize/7));
+              panelCanvas.fill(255);
+              panelCanvas.textAlign(CENTER, CENTER);
+              if (parties[y][x].actions.size() > 0 && parties[y][x].actions.get(0).initialTurns>0) {
+                int totalTurns = parties[y][x].calcTurns(parties[y][x].actions.get(0).initialTurns);
+                String turnsLeftString = str(totalTurns-parties[y][x].turnsLeft())+"/"+str(totalTurns);
+                if (c.x+textWidth(turnsLeftString) < elementWidth+xPos && c.y+2*(textAscent()+textDescent()) < elementHeight+yPos) {
+                  panelCanvas.text(turnsLeftString, c.x+blockSize/2, c.y+3*blockSize/4);
+                }
               }
             }
           }
+        }
+        if (cellSelected&&y==selectedCellY&&x==selectedCellX&&!cinematicMode) {
+          drawSelectedCell(selectedCell, panelCanvas);
         }
         //if (millis()-pt > 10){
         //  println(millis()-pt);
