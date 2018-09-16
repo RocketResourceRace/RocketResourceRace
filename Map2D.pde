@@ -1302,6 +1302,7 @@ class Map2D extends BaseMap implements Map {
       tempPartyImages[i] = partyImages[i-1].copy();
       tempPartyImages[i].resize(ceil(blockSize), 0);
     }
+    
     for (int i=0; i<taskImages.length; i++) {
       if (taskImages[i] != null) {
         tempTaskImages[i] = taskImages[i].copy();

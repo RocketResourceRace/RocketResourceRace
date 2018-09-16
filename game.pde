@@ -2677,7 +2677,7 @@ class Game extends State {
     }
     playerColours = new color[players.length];
     partyImages = new PImage[players.length];
-    for (int i=0; i < players.length; i++) {
+    for (int i=0; i < players.length-1; i++) {
       playerColours[i] = players[i].colour;
       partyImages[i] = partyBaseImages[1].copy();
       partyImages[i].loadPixels();
@@ -2687,6 +2687,8 @@ class Game extends State {
         }
       }
     }
+    playerColours[players.length-1] = players[players.length-1].colour;
+    partyImages[players.length-1] = partyBaseImages[2].copy();
 
     if (players[turn].cellSelected) {
       selectCell(players[turn].cellX, players[turn].cellY, false);

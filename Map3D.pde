@@ -32,7 +32,7 @@ class Map3D extends BaseMap implements Map {
   float hoveringX, hoveringY, oldHoveringX, oldHoveringY;
   float targetXOffset, targetYOffset;
   int selectedCellX, selectedCellY;
-  PShape tiles, flagPole, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid, drawPossibleMoves, drawPossibleBombards, obscuredCellsOverlay, unseenCellsOverlay, dangerousCellsOverlay, bombardArrow, fog;
+  PShape tiles, flagPole, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid, drawPossibleMoves, drawPossibleBombards, obscuredCellsOverlay, unseenCellsOverlay, dangerousCellsOverlay, bombardArrow, fog, bandit;
   PShape[] flags;
   HashMap<String, PShape> taskObjs;
   HashMap<String, PShape[]> buildingObjs;
@@ -900,8 +900,8 @@ class Map3D extends BaseMap implements Map {
       flagPole = loadShape("obj/party/flagpole.obj");
       flagPole.rotateX(PI/2);
       flagPole.scale(2, 2.5, 2.5);
-      flags = new PShape[playerColours.length];
-      for (int i = 0; i < playerColours.length; i++) {
+      flags = new PShape[playerColours.length-1];
+      for (int i = 0; i < playerColours.length-1; i++) {
         flags[i] = createShape(GROUP);
         PShape edge = loadShape("obj/party/flagedges.obj");
         edge.setFill(brighten(playerColours[i], 20));
@@ -912,6 +912,9 @@ class Map3D extends BaseMap implements Map {
         flags[i].rotateX(PI/2);
         flags[i].scale(2, 2.5, 2.5);
       }
+      bandit = loadShape("obj/party/bandit.obj");
+      bandit.rotateX(PI/2);
+      bandit.scale(0.8);
       battle = loadShape("obj/party/battle.obj");
       battle.rotateX(PI/2);
       battle.scale(0.8);
@@ -1570,11 +1573,18 @@ class Map3D extends BaseMap implements Map {
                 canvas.shape(flagPole);
                 canvas.popMatrix();
               } else {
-                canvas.pushMatrix();
-                canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
-                canvas.shape(flagPole);
-                canvas.shape(flags[visibleCells[y][x].party.player]);
-                canvas.popMatrix();
+                if (visibleCells[y][x].party.player == playerColours.length-1) {
+                  canvas.pushMatrix();
+                  canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
+                  canvas.shape(bandit);
+                  canvas.popMatrix();
+                } else {
+                  canvas.pushMatrix();
+                  canvas.translate((x+0.5-0.4)*blockSize, (y+0.5)*blockSize, 23+groundMinHeightAt(x, y));
+                  canvas.shape(flagPole);
+                  canvas.shape(flags[visibleCells[y][x].party.player]);
+                  canvas.popMatrix();
+                }
               }
   
               if (drawingUnitBars&&!cinematicMode) {

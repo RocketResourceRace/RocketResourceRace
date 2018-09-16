@@ -222,7 +222,8 @@ void loadImages() {
     
     partyBaseImages = new PImage[]{
       loadImage("img/party/battle.png"),
-      loadImage("img/party/flag.png")
+      loadImage("img/party/flag.png"),
+      loadImage("img/party/bandit.png")
     };
     
     bombardImage = loadImage("img/ui/bombard.png");
