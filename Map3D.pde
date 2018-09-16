@@ -206,22 +206,22 @@ class Map3D extends BaseMap implements Map {
     drawPath = path;
   }
   
-  void updateUnseenCellsOverlay(Cell[][] visibleCells) {
-    // For the shape that indicates cells that have not been seen. This is a temporary implementation
+  void loadUnseenCellsOverlay(Cell[][] visibleCells) {
+    // For the shape that indicates cells that have not been seen
     try {
-      LOGGER_MAIN.finer("Updating unseen cells overlay");
+      LOGGER_MAIN.finer("Loading unseen cells overlay");
       float smallSize = blockSize / jsManager.loadFloatSetting("terrain detail");
       unseenCellsOverlay = createShape();
       unseenCellsOverlay.beginShape(TRIANGLES);
       unseenCellsOverlay.fill(0);
-      for (int x=0; x<mapWidth; x++) {
-        for (int y=0; y<mapHeight; y++) {
+      for (int y=0; y<mapHeight; y++) {
+        for (int x=0; x<mapWidth; x++) {
           if (visibleCells[y][x] == null) {
             if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest") && forestTiles.containsKey(x+y*mapWidth)) {
               removeTreeTile(x, y);
             }
-            for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
-              for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
+            for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
+              for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
                 unseenCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
                 unseenCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
                 unseenCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
@@ -238,10 +238,94 @@ class Map3D extends BaseMap implements Map {
               trees.addChild(cellTree);
               addTreeTile(x, y, numTreeTiles++);
             }
+            for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
+              for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
+                unseenCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, 0);
+                unseenCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 0);
+                unseenCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 0);
+
+                unseenCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 0);
+                unseenCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, 0);
+                unseenCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 0);
+              }
+            }
           }
         }
       }
       unseenCellsOverlay.endShape();
+    }
+    catch (Exception e) {
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading unseen cells overlay", e);
+      throw e;
+    }
+  }
+  
+  void updateUnseenCellsOverlay(Cell[][] visibleCells) {
+    // For the shape that indicates cells that have not been seen
+    try {
+      LOGGER_MAIN.finer("Updating unseen cells overlay");
+      float smallSize = blockSize / jsManager.loadFloatSetting("terrain detail");
+      if (unseenCellsOverlay == null) {
+        loadUnseenCellsOverlay(visibleCells);
+      } else {
+        for (int y=0; y<mapHeight; y++) {
+          for (int x=0; x<mapWidth; x++) {
+            int c = int(pow(jsManager.loadFloatSetting("terrain detail"), 2) * (y*mapWidth+x) * 6);
+            if (visibleCells[y][x] == null) {
+              if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest") && forestTiles.containsKey(x+y*mapWidth)) {
+                removeTreeTile(x, y);
+              }
+              if (unseenCellsOverlay.getVertex(c).z == 0) {
+                for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
+                  for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
+                    unseenCellsOverlay.setVertex(c, x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                    c++;
+                    unseenCellsOverlay.setVertex(c, x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                    c++;
+                    unseenCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                    c++;
+    
+                    unseenCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                    c++;
+                    unseenCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                    c++;
+                    unseenCellsOverlay.setVertex(c, x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                    c++;
+                  }
+                }
+              }
+            } else {
+              if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest") && !forestTiles.containsKey(x+y*mapWidth)) {
+                PShape cellTree = generateTrees(jsManager.loadIntSetting("forest density"), 8, x*blockSize, y*blockSize);
+                cellTree.translate((x)*blockSize, (y)*blockSize, 0);
+                trees.addChild(cellTree);
+                addTreeTile(x, y, numTreeTiles++);
+              }
+              
+              if (unseenCellsOverlay.getVertex(c).z != 0) {
+                for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
+                  for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
+                    unseenCellsOverlay.setVertex(c, x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, 0);
+                    c++;
+                    unseenCellsOverlay.setVertex(c, x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 0);
+                    c++;
+                    unseenCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 0);
+                    c++;
+    
+                    unseenCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 0);
+                    c++;
+                    unseenCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, 0);
+                    c++;
+                    unseenCellsOverlay.setVertex(c, x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 0);
+                    c++;
+                  }
+                }
+              }
+            }
+          }
+        }
+        unseenCellsOverlay.endShape();
+      }
     }
     catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error updating unseen cells overlay", e);
@@ -249,19 +333,19 @@ class Map3D extends BaseMap implements Map {
     }
   }
   
-  void updateObscuredCellsOverlay(Cell[][] visibleCells) {
-    // For the shape that indicates cells that are not currently under party sight. This is a temporary implementation
+  void loadObscuredCellsOverlay(Cell[][] visibleCells) {
+    // For the shape that indicates cells that are not currently under party sight
     try {
-      LOGGER_MAIN.finer("Updating obscured cells overlay");
+      LOGGER_MAIN.finer("Loading obscured cells overlay");
       float smallSize = blockSize / jsManager.loadFloatSetting("terrain detail");
       obscuredCellsOverlay = createShape();
       obscuredCellsOverlay.beginShape(TRIANGLES);
       obscuredCellsOverlay.fill(0, 0, 0, 200);
-      for (int x=0; x<mapWidth; x++) {
-        for (int y=0; y<mapHeight; y++) {
-          if (visibleCells[y][x] != null && !visibleCells[y][x].activeSight) {
-            for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
-              for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
+      for (int y=0; y<mapHeight; y++) {
+        for (int x=0; x<mapWidth; x++) {
+          if (visibleCells[y][x] != null && !visibleCells[y][x].getActiveSight()) {
+            for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
+              for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
                 obscuredCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
                 obscuredCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
                 obscuredCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
@@ -271,16 +355,92 @@ class Map3D extends BaseMap implements Map {
                 obscuredCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
               }
             }
+          } else {
+            for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
+              for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
+                obscuredCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, 0);
+                obscuredCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 0);
+                obscuredCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 0);
+
+                obscuredCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 0);
+                obscuredCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, 0);
+                obscuredCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 0);
+              }
+            }
           }
         }
       }
       obscuredCellsOverlay.endShape();
     }
     catch (Exception e) {
+      LOGGER_MAIN.log(Level.SEVERE, "Error loading obscured cells overlay", e);
+      throw e;
+    }
+  }
+  
+  void updateObscuredCellsOverlay(Cell[][] visibleCells) {
+    // For the shape that indicates cells that are not currently under party sight
+    try {
+      LOGGER_MAIN.finer("Updating obscured cells overlay");
+      float smallSize = blockSize / jsManager.loadFloatSetting("terrain detail");
+      if (obscuredCellsOverlay == null) {
+        loadObscuredCellsOverlay(visibleCells);
+      } else {
+        for (int y=0; y<mapHeight; y++) {
+          for (int x=0; x<mapWidth; x++) {
+            int c = int(pow(jsManager.loadFloatSetting("terrain detail"), 2) * (y*mapWidth+x) * 6);
+            if (visibleCells[y][x] != null && !visibleCells[y][x].getActiveSight()) {
+              if (obscuredCellsOverlay.getVertex(c).z == 0) {
+                for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
+                  for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
+                    obscuredCellsOverlay.setVertex(c, x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                    c++;
+                    obscuredCellsOverlay.setVertex(c, x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                    c++;
+                    obscuredCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                    c++;
+    
+                    obscuredCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
+                    c++;
+                    obscuredCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                    c++;
+                    obscuredCellsOverlay.setVertex(c, x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
+                    c++;
+                  }
+                }
+              }
+            } else {
+              if (obscuredCellsOverlay.getVertex(c).z != 0) {
+                for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
+                  for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
+                    obscuredCellsOverlay.setVertex(c, x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, 0);
+                    c++;
+                    obscuredCellsOverlay.setVertex(c, x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 0);
+                    c++;
+                    obscuredCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 0);
+                    c++;
+    
+                    obscuredCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 0);
+                    c++;
+                    obscuredCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, 0);
+                    c++;
+                    obscuredCellsOverlay.setVertex(c, x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, 0);
+                    c++;
+                  }
+                }
+              }
+            }
+          }
+        }
+        obscuredCellsOverlay.endShape();
+      }
+    }
+    catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error updating obscured cells overlay", e);
       throw e;
     }
   }
+  
   
   void updateVisibleCells(Cell[][] visibleCells) {
     super.updateVisibleCells(visibleCells);
@@ -302,8 +462,8 @@ class Map3D extends BaseMap implements Map {
       drawPossibleMoves = createShape();
       drawPossibleMoves.beginShape(TRIANGLES);
       drawPossibleMoves.fill(0, 0, 0, 100);
-      for (int x=0; x<mapWidth; x++) {
-        for (int y=0; y<mapHeight; y++) {
+      for (int y=0; y<mapHeight; y++) {
+        for (int x=0; x<mapWidth; x++) {
           if (moveNodes[y][x] != null && parties[selectedCellY][selectedCellX] != null && moveNodes[y][x].cost <= parties[selectedCellY][selectedCellX].getMovementPoints()) {
             for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
               for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
@@ -338,8 +498,8 @@ class Map3D extends BaseMap implements Map {
         dangerousCellsOverlay.fill(255, 0, 0, 150);
         boolean[][] dangerousCells = new boolean[mapHeight][mapWidth];
         
-        for (int x=0; x<mapWidth; x++) {
-          for (int y=0; y<mapHeight; y++) {
+        for (int y=0; y<mapHeight; y++) {
+          for (int x=0; x<mapWidth; x++) {
             if (visibleCells[y][x] != null && visibleCells[y][x].party != null && visibleCells[y][x].party.player != visibleCells[selectedCellY][selectedCellX].party.player) {
               players[visibleCells[y][x].party.player].updateVisibleCells(terrain, buildings, parties);
               Node[][] tempMoveNodes = LimitedKnowledgeDijkstra(x, y, mapWidth, mapHeight, players[visibleCells[y][x].party.player].visibleCells, 1);
@@ -353,8 +513,8 @@ class Map3D extends BaseMap implements Map {
             }
           }
         }
-        for (int x=0; x<mapWidth; x++) {
-          for (int y=0; y<mapHeight; y++) {
+        for (int y=0; y<mapHeight; y++) {
+          for (int x=0; x<mapWidth; x++) {
             if (dangerousCells[y][x]) {
               for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
                 for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
@@ -724,14 +884,14 @@ class Map3D extends BaseMap implements Map {
         loadMapStrip(y, tiles, true);
 
         // Load trees
-        for (int x=0; x<mapWidth; x++) {
-          if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest")) {
-            PShape cellTree = generateTrees(jsManager.loadIntSetting("forest density"), 8, x*blockSize, y*blockSize);
-            cellTree.translate((x)*blockSize, (y)*blockSize, 0);
-            trees.addChild(cellTree);
-            addTreeTile(x, y, numTreeTiles++);
-          }
-        }
+        //for (int x=0; x<mapWidth; x++) {
+        //  if (terrain[y][x] == JSONIndex(gameData.getJSONArray("terrain"), "forest")) {
+        //    PShape cellTree = generateTrees(jsManager.loadIntSetting("forest density"), 8, x*blockSize, y*blockSize);
+        //    cellTree.translate((x)*blockSize, (y)*blockSize, 0);
+        //    trees.addChild(cellTree);
+        //    addTreeTile(x, y, numTreeTiles++);
+        //  }
+        //}
       }
       resetMatrix();
 
