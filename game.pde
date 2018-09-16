@@ -2150,9 +2150,11 @@ class Game extends State {
               tooltip.show();
             }
           } else if (!moving && 0 < mapInterceptY && mapInterceptY < mapHeight && 0 < mapInterceptX && mapInterceptX < mapWidth && !(parties[mapInterceptY][mapInterceptX] instanceof Battle) && parties[mapInterceptY][mapInterceptX] != null) {
-            // Hovering over party
-            tooltip.setHoveringParty(parties[mapInterceptY][mapInterceptX]);
-            tooltip.show();
+            if (!jsManager.loadBooleanSetting("fog of war") || (players[turn].visibleCells[mapInterceptY][mapInterceptX] != null && players[turn].visibleCells[mapInterceptY][mapInterceptX].party != null)) { 
+              // Hovering over party
+              tooltip.setHoveringParty(parties[mapInterceptY][mapInterceptX]);
+              tooltip.show();
+            }
           }
         } else {
           map.cancelPath();
