@@ -1309,22 +1309,31 @@ class Game extends State {
               parties[y][x].clearCurrentAction();
               parties[y][x].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
             }
-          } else {
-            if (parties[y][x].player==-1) {
-              int player = ((Battle) parties[y][x]).attacker.player;
-              int otherPlayer = ((Battle) parties[y][x]).defender.player;
-              parties[y][x] = ((Battle)parties[y][x]).doBattle();
-              if (parties[y][x] == null) {
-                LOGGER_GAME.fine(String.format("Battle ended at:(%d, %d) both parties died", x, y));
-                notificationManager.post("Battle Ended. Both parties died", x, y, turnNumber, player);
-                notificationManager.post("Battle Ended. Both parties died", x, y, turnNumber, otherPlayer);
-              } else if (parties[y][x].player != -1) {
-                LOGGER_GAME.fine(String.format("Battle ended at:(%d, %d) winner=&s", x, y, str(parties[y][x].player+1)));
-                notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, player);
-                notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
-                parties[y][x].trainParty("melee attack", "winning battle melee");
-                parties[y][x].trainParty("defence", "winning battle defence");
-              }
+          }
+        }
+      }
+    }
+  }
+  
+  void processBattles() {
+    for (int y=0; y<mapHeight; y++) {
+      for (int x=0; x<mapWidth; x++) {
+        if (parties[y][x] != null && parties[y][x].player != turn && parties[y][x].player==-1) {
+          Battle b = (Battle) parties[y][x];
+          if (b.attacker.player == turn) {
+            int player = ((Battle) parties[y][x]).attacker.player;
+            int otherPlayer = ((Battle) parties[y][x]).defender.player;
+            parties[y][x] = ((Battle)parties[y][x]).doBattle();
+            if (parties[y][x] == null) {
+              LOGGER_GAME.fine(String.format("Battle ended at:(%d, %d) both parties died", x, y));
+              notificationManager.post("Battle Ended. Both parties died", x, y, turnNumber, player);
+              notificationManager.post("Battle Ended. Both parties died", x, y, turnNumber, otherPlayer);
+            } else if (parties[y][x].player != -1) {
+              LOGGER_GAME.fine(String.format("Battle ended at:(%d, %d) winner=&s", x, y, str(parties[y][x].player+1)));
+              notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, player);
+              notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
+              parties[y][x].trainParty("melee attack", "winning battle melee");
+              parties[y][x].trainParty("defence", "winning battle defence");
             }
           }
         }
@@ -1378,6 +1387,8 @@ class Game extends State {
         turnNumber++;
         spawnBandits();
       }
+      
+      processBattles();
 
       if (anyIdle(turn)) {
         LOGGER_GAME.finest("Idle party set to red becuase idle parties found");
