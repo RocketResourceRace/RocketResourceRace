@@ -726,22 +726,7 @@ class Game extends State {
 
       if (valid) {
         LOGGER_GAME.finest("Event is valid, so updating things...");
-        players[turn].updateVisibleCells(terrain, buildings, parties);
-        if (players[turn].controllerType == 0){
-          map.updateVisibleCells(players[turn].visibleCells);
-        }
-        if (!changeTurn) {
-          updateResourcesSummary();
-          updatePartyManagementInterface();
-
-          if (anyIdle(turn)) {
-            LOGGER_GAME.finest("There are idle units so highlighting button red");
-            ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
-          } else {
-            LOGGER_GAME.finest("There are no idle units so not highlighting button red");
-            ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
-          }
-        }
+        updateThingsAfterGameStateChange();
       }
       return valid;
     }
@@ -750,6 +735,43 @@ class Game extends State {
       throw e;
     }
   }
+  
+  void updateThingsAfterGameStateChange() {
+    players[turn].updateVisibleCells(terrain, buildings, parties);
+    if (players[turn].controllerType == 0){
+      map.updateVisibleCells(players[turn].visibleCells);
+    }
+    if (!changeTurn) {
+      updateResourcesSummary();
+      updatePartyManagementInterface();
+
+      if (anyIdle(turn)) {
+        LOGGER_GAME.finest("There are idle units so highlighting button red");
+        ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
+      } else {
+        LOGGER_GAME.finest("There are no idle units so not highlighting button red");
+        ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
+      }
+      
+      // Any about to finish moving
+      boolean partyReadyToFinish = false;
+      for (int y=0; y<mapWidth; y++) {
+        for (int x=0; x<mapWidth; x++) {
+          if (parties[y][x] != null && parties[y][x].player == turn && parties[y][x].pathTurns == 1 && parties[y][x].getMovementPoints() == parties[y][x].getMaxMovementPoints()) {
+            partyReadyToFinish = true;
+          }
+        }
+      }
+      
+      Button b = (Button)getElement("end turn", "bottom bar");
+      if (partyReadyToFinish) {
+        b.setText("Advance Units");
+      } else {
+        b.setText("Next Turn");
+      }
+    }
+  }
+  
   boolean anyIdle(int turn) {
     for (int x=0; x<mapWidth; x++) {
       for (int y=0; y<mapWidth; y++) {
@@ -1207,6 +1229,19 @@ class Game extends State {
       }
     }
   }
+  
+  void autoMoveParties() {
+    for (int y=0; y<mapHeight; y++) {
+      for (int x=0; x<mapWidth; x++) {
+        if (parties[y][x] != null) {
+          if (parties[y][x].player == turn) {
+            moveParty(x, y);
+          }
+        }
+      }
+    }
+    updateThingsAfterGameStateChange();
+  }
 
   void processParties() {
     for (int y=0; y<mapHeight; y++) {
@@ -1274,7 +1309,6 @@ class Game extends State {
               parties[y][x].clearCurrentAction();
               parties[y][x].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
             }
-            moveParty(x, y);
           } else {
             if (parties[y][x].player==-1) {
               int player = ((Battle) parties[y][x]).attacker.player;
@@ -1302,6 +1336,7 @@ class Game extends State {
     try {
       LOGGER_GAME.finer(String.format("Turn changing - current player = %s, next player = %s", turn, (turn+1)%players.length));
       notificationManager.dismissAll();
+      autoMoveParties();
       processParties();
       updateResources(getResourceProductivities(getTotalResourceRequirements()));
       partyMovementPointsReset();
@@ -1357,10 +1392,7 @@ class Game extends State {
         turnChange();
         return;
       }
-      players[turn].updateVisibleCells(terrain, buildings, parties);
-      if (players[turn].controllerType == 0){
-          map.updateVisibleCells(players[turn].visibleCells);
-        }
+      updateThingsAfterGameStateChange();
     }
     catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error changing turn", e);
@@ -1692,7 +1724,12 @@ class Game extends State {
             map.targetCell(t[0], t[1], 64);
           }
         } else if (event.id == "end turn") {
-          postEvent(new EndTurn());
+          if (((Button)getElement("end turn", "bottom bar")).getText().equals("Advance Units")) {
+            autoMoveParties();
+            ((Button)getElement("end turn", "bottom bar")).setText("Next Turn");
+          } else {
+            postEvent(new EndTurn());
+          }
         } else if (event.id == "move button") {
           bombarding = false;
           map.disableBombard();
@@ -2574,7 +2611,12 @@ class Game extends State {
       refreshTooltip();
       if (eventType == "keyTyped") {
         if (_key == ' '&&!cinematicMode) {
-          postEvent(new EndTurn());
+          if (((Button)getElement("end turn", "bottom bar")).getText().equals("Advance Units")) {
+            autoMoveParties();
+            ((Button)getElement("end turn", "bottom bar")).setText("Next Turn");
+          } else {
+            postEvent(new EndTurn());
+          }
         } else if (_key == 'i'&&!cinematicMode) {
           LOGGER_GAME.fine("Finding idle party as 'i' key pressed");
           int[] t = findIdle(turn);
