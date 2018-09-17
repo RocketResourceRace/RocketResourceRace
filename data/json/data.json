@@ -3,7 +3,9 @@
   "game options":{
     "starting resources":[
       {"id": "tank","quantity":100}],
-    "movement points": 64
+    "movement points": 64,
+    "sight points": 12,
+    "bandits per tile": 0.01
   },
   "terrain":[
     {
@@ -12,33 +14,43 @@
       "img": "water.png",
       "low img": "water_low.png",
       "weighting": 0,
-      "movement cost": 16
+      "movement cost": 16,
+      "sight cost": 1,
+      "sight bonus": 6
     },
     {
       "id": "quarry site stone",
       "display name": "Quarry Site Stone",
       "img": "hill.png",
       "weighting": 0,
-      "movement cost": 32
+      "movement cost": 32,
+      "sight cost": 1,
+      "sight bonus": 3
     },
     {
       "id": "quarry site clay",
       "display name": "Quarry Site Clay",
       "img": "hill.png",
       "weighting": 0,
-      "movement cost": 32
+      "movement cost": 32,
+      "sight cost": 1,
+      "sight bonus": 3
     },
     {
       "id": "sand",
       "display name": "Desert",
       "img": "sand.png",
-      "movement cost": 12
+      "movement cost": 12,
+      "sight cost": 2,
+      "sight bonus": 3
     },
     {
       "id": "grass",
       "display name": "Grassland",
       "img": "grass.png",
-      "movement cost": 8
+      "movement cost": 8,
+      "sight cost": 3,
+      "sight bonus": 0
     },
     {
       "id": "forest",
@@ -46,14 +58,18 @@
       "img": "forest.png",
       "img3d": "grass.png",
       "low img": "forest_low.png",
-      "movement cost": 12
+      "movement cost": 12,
+      "sight cost": 4,
+      "sight bonus": 4
     },
     {
       "id": "hills",
       "display name": "Hills",
       "img": "hill.png",
       "weighting": 0,
-      "movement cost": 28
+      "movement cost": 28,
+      "sight cost": 6,
+      "sight bonus": -8
     },
   ],
 
@@ -1241,14 +1257,20 @@
       "id":"speed",
       "display name": "Movement Speed",
       "tooltip": "Increases movement points for the party"
+    },
+    {
+      "id":"sight",
+      "display name": "Sight",
+      "tooltip": "Increases distance that can be seen from a party"
     }
   ],
 
   "effectiveness constants":{
-    "movement": 0.25,
-    "ranged": 0.5,
+    "speed": 0.25,
+    "ranged attack": 0.5,
     "defence": 0.5,
-    "melee attack": 0.5
+    "melee attack": 0.5,
+    "sight": 0.25
   },
 
   "raw training gains":{

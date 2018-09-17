@@ -42,6 +42,7 @@
         "type": "setting",
         "setting id": "fog of war",
         "value type": "boolean",
+        "update cells" : true,
         "basic description": "tiles outside of the view of any parties are dimmed",
         "detailed description": "tiles outside of the view of any parties are dimmed"
       },

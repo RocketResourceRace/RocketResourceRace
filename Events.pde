@@ -48,12 +48,13 @@ class GameEvent {
 }
 
 class Move extends GameEvent {
-  int startX, startY, endX, endY;
-  Move(int startX, int startY, int endX, int endY) {
+  int startX, startY, endX, endY, num;
+  Move(int startX, int startY, int endX, int endY, int num) {
     this.startX = startX;
     this.startY = startY;
     this.endX = endX;
     this.endY = endY;
+    this.num = num;
   }
 }
 

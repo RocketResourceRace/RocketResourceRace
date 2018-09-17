@@ -2,7 +2,7 @@ import java.util.Collections;
 import java.nio.ByteBuffer;
 
 interface Map {
-  void updateMoveNodes(Node[][] nodes);
+  void updateMoveNodes(Node[][] nodes, Player[] players);
   void cancelMoveNodes();
   void removeTreeTile(int cellX, int cellY);
   void setDrawingTaskIcons(boolean v);
@@ -36,10 +36,10 @@ interface Map {
   boolean isMoving();
   void enableRocket(PVector pos, PVector vel);
   void disableRocket();
-  void generateFog(int player);
   void enableBombard(int range);
   void disableBombard();
   void setPlayerColours(color[] playerColours);
+  void updateVisibleCells(Cell[][] visibleCells);
 }
 
 
@@ -261,24 +261,10 @@ class BaseMap extends Element {
   boolean cinematicMode;
   HashMap<Character, Boolean> keyState;
   boolean[][] fogMap;
+  Cell[][] visibleCells;
 
-  void generateFogMap(int player) {
-    fogMap = null;
-    fogMap = new boolean[mapHeight][mapWidth];
-    int SIGHTRADIUS = 3; // Should be an attribute for parties
-    for (int y=0; y<mapHeight; y++) {
-      for (int x=0; x<mapWidth; x++) {
-        if (parties[y][x]!=null&&parties[y][x].player == player&&parties[y][x].getUnitNumber()>0) {
-          for (int y1=y-SIGHTRADIUS; y1<=y+SIGHTRADIUS; y1++) {
-            for (int x1=x-SIGHTRADIUS; x1<=x+SIGHTRADIUS; x1++) {
-              if (dist(x1, y1, x, y)<=SIGHTRADIUS&&0<=x1&&x1<mapWidth&&0<=y1&&y1<mapHeight) {
-                fogMap[y1][x1] = true;
-              }
-            }
-          }
-        }
-      }
-    }
+  void updateVisibleCells(Cell[][] visibleCells){
+    this.visibleCells = visibleCells;
   }
 
   void saveMap(String filename, int turnNumber, int turnPlayer, Player[] players) {
@@ -299,8 +285,8 @@ class BaseMap extends Element {
           partiesByteCount++;
         }
       }
-      int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+3*Integer.BYTES+Character.BYTES*10+1)*players.length;
-      ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*10+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*3+partiesByteCount+playersByteCount+Float.BYTES);
+      int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+4*Integer.BYTES+Character.BYTES*10+1+mapWidth*mapHeight)*players.length;
+      ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*10+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*4+partiesByteCount+playersByteCount+Float.BYTES);
       buffer.putInt(-SAVEVERSION);
       LOGGER_MAIN.finer("Saving version: "+(-SAVEVERSION));
       buffer.putInt(mapWidth);
@@ -380,6 +366,16 @@ class BaseMap extends Element {
         buffer.putInt(p.cellX);
         buffer.putInt(p.cellY);
         buffer.putInt(p.colour);
+        buffer.putInt(p.controllerType);
+        for (int y = 0; y < mapHeight; y++) {
+          for (int x = 0; x < mapWidth; x++) {
+            if (p.visibleCells[y][x] == null) {
+              buffer.put(byte(0));
+            } else {
+              buffer.put(byte(1));
+            }
+          }
+        }
         buffer.put(byte(p.cellSelected));
         for (int i=0; i<10; i++) {
           if (i<p.name.length()) {
@@ -388,6 +384,17 @@ class BaseMap extends Element {
             buffer.putChar(' ');
           }
         }
+      }
+      LOGGER_MAIN.finer("Saving bandit memory");
+      if (players[players.length-1].playerController instanceof BanditController) {
+        BanditController bc = (BanditController)players[players.length-1].playerController;
+        for (int y = 0; y < mapHeight; y++) {
+          for (int x = 0; x < mapWidth; x++) {
+            buffer.putInt(bc.cellsTargetedWeightings[y][x]);
+          }
+        }
+      } else {
+        LOGGER_MAIN.warning("Final player isn't a bandit");
       }
       LOGGER_MAIN.fine("Saving map to file");
       saveBytes(filename, buffer.array());
@@ -420,7 +427,7 @@ class BaseMap extends Element {
       mapHeight = headerBuffer.getInt();
       int partiesByteCount = headerBuffer.getInt();
       int playersByteCount = headerBuffer.getInt();
-      int dataSize = Long.BYTES+partiesByteCount+playersByteCount+(4+mapWidth*mapHeight*3)*Integer.BYTES+Float.BYTES+versionSpecificData;
+      int dataSize = Long.BYTES+partiesByteCount+playersByteCount+(4+mapWidth*mapHeight*4)*Integer.BYTES+Float.BYTES+versionSpecificData;
       ByteBuffer buffer = ByteBuffer.allocate(dataSize);
       if (versionCheckInt) {
         buffer.put(Arrays.copyOfRange(tempBuffer, headerSize, headerSize+dataSize));
@@ -534,6 +541,14 @@ class BaseMap extends Element {
         int selectedCellX = buffer.getInt();
         int selectedCellY = buffer.getInt();
         int colour = buffer.getInt();
+        int controllerType = buffer.getInt();
+        boolean[][] seenCells = new boolean[mapHeight][];
+        for (int y = 0; y < mapHeight; y++) {
+          seenCells[y] = new boolean[mapWidth];
+          for (int x = 0; x < mapWidth; x++) {
+            seenCells[y][x] = boolean(buffer.get());
+          }
+        }
         boolean cellSelected = boolean(buffer.get());
         char[] playerName = new char[10];
         if (versionCheck>1) {
@@ -543,10 +558,23 @@ class BaseMap extends Element {
         } else {
           playerName = String.format("Player %d", i).toCharArray();
         }
-        players[i] = new Player(cameraCellX, cameraCellY, blockSize, resources, colour, new String(playerName));
+        players[i] = new Player(cameraCellX, cameraCellY, blockSize, resources, colour, new String(playerName), controllerType, i);
+        players[i].updateVisibleCells(terrain, buildings, parties, seenCells);
         players[i].cellSelected = cellSelected;
         players[i].cellX = selectedCellX;
         players[i].cellY = selectedCellY;
+      }
+      
+      LOGGER_MAIN.finer("Loading bandit memory");
+      if (players[players.length-1].playerController instanceof BanditController) {
+        BanditController bc = (BanditController)players[players.length-1].playerController;
+        for (int y = 0; y < mapHeight; y++) {
+          for (int x = 0; x < mapWidth; x++) {
+            bc.cellsTargetedWeightings[y][x] = buffer.getInt();
+          }
+        }
+      } else {
+        LOGGER_MAIN.warning("Final player isn't a bandit");
       }
       LOGGER_MAIN.fine("Seeding height map noise with: "+heightMapSeed);
       noiseSeed(heightMapSeed);
@@ -994,10 +1022,6 @@ class Map2D extends BaseMap implements Map {
   }
 
 
-  void generateFog(int player) {
-    generateFogMap(player);
-  }
-
   void generateShape() {
     cinematicMode = false;
     drawRocket = false;
@@ -1120,7 +1144,7 @@ class Map2D extends BaseMap implements Map {
     setPanningSpeed(0.05);
   }
 
-  void updateMoveNodes(Node[][] nodes) {
+  void updateMoveNodes(Node[][] nodes, Player[] players) {
     moveNodes = nodes;
   }
   void updatePath(ArrayList<int[]> nodes) {
@@ -1204,7 +1228,9 @@ class Map2D extends BaseMap implements Map {
 
     // Terrain
     PImage[] tempTileImages = new PImage[gameData.getJSONArray("terrain").size()];
+    PImage[] tempTileImagesDark = new PImage[gameData.getJSONArray("terrain").size()];
     PImage[][] tempBuildingImages = new PImage[gameData.getJSONArray("buildings").size()][];
+    PImage[][] tempBuildingImagesDark = new PImage[gameData.getJSONArray("buildings").size()][];
     PImage[] tempPartyImages = new PImage[players.length+1]; // Index 0 is battle
     PImage[] tempTaskImages = new PImage[taskImages.length];
     if (frameStartTime == 0) {
@@ -1267,9 +1293,21 @@ class Map2D extends BaseMap implements Map {
       if (blockSize<24&&!tileType.isNull("low img")) {
         tempTileImages[i] = lowImages.get(tileType.getString("id")).copy();
         tempTileImages[i].resize(ceil(blockSize), 0);
+        tempTileImagesDark[i] = lowImages.get(tileType.getString("id")).copy();
+        tempTileImagesDark[i].resize(ceil(blockSize), 0);
+        tempTileImagesDark[i].loadPixels();
+        for (int j = 0; j < partyImages[i].pixels.length; j++) {
+          tempTileImagesDark[i].pixels[j] = brighten(tempTileImagesDark[i].pixels[j], -20);
+        }
       } else {
         tempTileImages[i] = tileImages.get(tileType.getString("id")).copy();
         tempTileImages[i].resize(ceil(blockSize), 0);
+        tempTileImagesDark[i] = tileImages.get(tileType.getString("id")).copy();
+        tempTileImagesDark[i].resize(ceil(blockSize), 0);
+        tempTileImagesDark[i].loadPixels();
+        for (int j = 0; j < tempTileImagesDark[i].pixels.length; j++) {
+          tempTileImagesDark[i].pixels[j] = brighten(tempTileImagesDark[i].pixels[j], -100);
+        }
       }
     }
     for (int i=0; i<gameData.getJSONArray("buildings").size(); i++) {
@@ -1287,6 +1325,7 @@ class Map2D extends BaseMap implements Map {
       tempPartyImages[i] = partyImages[i-1].copy();
       tempPartyImages[i].resize(ceil(blockSize), 0);
     }
+    
     for (int i=0; i<taskImages.length; i++) {
       if (taskImages[i] != null) {
         tempTaskImages[i] = taskImages[i].copy();
@@ -1305,17 +1344,27 @@ class Map2D extends BaseMap implements Map {
       for (int x=lx; x<hx; x++) {
         float x2 = round(scaleX(x));
         float y2 = round(scaleY(y));
-        panelCanvas.image(tempTileImages[terrain[y][x]], x2, y2);
+        if (jsManager.loadBooleanSetting("fog of war") && visibleCells[y][x] != null && !visibleCells[y][x].getActiveSight()) {
+          panelCanvas.image(tempTileImagesDark[terrain[y][x]], x2, y2);
+        } else if (!jsManager.loadBooleanSetting("fog of war") || visibleCells[y][x] != null) {
+          panelCanvas.image(tempTileImages[terrain[y][x]], x2, y2);
+        }
 
         //Buildings
         if (buildings[y][x] != null) {
           c = new PVector(scaleX(x), scaleY(y));
           int border = round((64-48)*blockSize/(2*64));
           int imgSize = round(blockSize*48/60);
-          drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, tempBuildingImages[buildings[y][x].type][buildings[y][x].image_id], panelCanvas);
+          PImage p;
+          if (jsManager.loadBooleanSetting("fog of war") && visibleCells[y][x] != null && !visibleCells[y][x].getActiveSight()) {
+            p = tempBuildingImagesDark[buildings[y][x].type][buildings[y][x].image_id];
+          } else {
+            p = tempBuildingImages[buildings[y][x].type][buildings[y][x].image_id];
+          }
+          drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, p, panelCanvas);
         }
         //Parties
-        if (parties[y][x]!=null) {
+        if (!jsManager.loadBooleanSetting("fog of war") || (visibleCells[y][x] != null && visibleCells[y][x].party != null)) {
           c = new PVector(scaleX(x), scaleY(y));
           if (c.x<xPos+elementWidth&&c.y+blockSize/8+blockSize>yPos&&c.y<yPos+elementHeight) {
             panelCanvas.noStroke();
@@ -1367,24 +1416,24 @@ class Map2D extends BaseMap implements Map {
               drawCroppedImage(floor(c.x+13*blockSize/32), floor(c.y+blockSize/2), ceil(3*blockSize/16), ceil(3*blockSize/16), tempTaskImages[parties[y][x].getTask()], panelCanvas);
             }
           }
-        }
-        if (cellSelected&&y==selectedCellY&&x==selectedCellX&&!cinematicMode) {
-          drawSelectedCell(selectedCell, panelCanvas);
-        }
-        if (parties[y][x]!=null) {
-          c = new PVector(scaleX(x), scaleY(y));
-          if (c.x<xPos+elementWidth&&c.y+blockSize/8+blockSize>yPos&&c.y<yPos+elementHeight) {
-            panelCanvas.textFont(getFont(blockSize/7));
-            panelCanvas.fill(255);
-            panelCanvas.textAlign(CENTER, CENTER);
-            if (parties[y][x].actions.size() > 0 && parties[y][x].actions.get(0).initialTurns>0) {
-              int totalTurns = parties[y][x].calcTurns(parties[y][x].actions.get(0).initialTurns);
-              String turnsLeftString = str(totalTurns-parties[y][x].turnsLeft())+"/"+str(totalTurns);
-              if (c.x+textWidth(turnsLeftString) < elementWidth+xPos && c.y+2*(textAscent()+textDescent()) < elementHeight+yPos) {
-                panelCanvas.text(turnsLeftString, c.x+blockSize/2, c.y+3*blockSize/4);
+          if (parties[y][x]!=null) {
+            c = new PVector(scaleX(x), scaleY(y));
+            if (c.x<xPos+elementWidth&&c.y+blockSize/8+blockSize>yPos&&c.y<yPos+elementHeight) {
+              panelCanvas.textFont(getFont(blockSize/7));
+              panelCanvas.fill(255);
+              panelCanvas.textAlign(CENTER, CENTER);
+              if (parties[y][x].actions.size() > 0 && parties[y][x].actions.get(0).initialTurns>0) {
+                int totalTurns = parties[y][x].calcTurns(parties[y][x].actions.get(0).initialTurns);
+                String turnsLeftString = str(totalTurns-parties[y][x].turnsLeft())+"/"+str(totalTurns);
+                if (c.x+textWidth(turnsLeftString) < elementWidth+xPos && c.y+2*(textAscent()+textDescent()) < elementHeight+yPos) {
+                  panelCanvas.text(turnsLeftString, c.x+blockSize/2, c.y+3*blockSize/4);
+                }
               }
             }
           }
+        }
+        if (cellSelected&&y==selectedCellY&&x==selectedCellX&&!cinematicMode) {
+          drawSelectedCell(selectedCell, panelCanvas);
         }
         //if (millis()-pt > 10){
         //  println(millis()-pt);
@@ -1392,7 +1441,7 @@ class Map2D extends BaseMap implements Map {
       }
     }
 
-    if (moveNodes != null) {
+    if (moveNodes != null && parties[selectedCellY][selectedCellX] != null) {
       for (int y1=0; y1<mapHeight; y1++) {
         for (int x=0; x<mapWidth; x++) {
           if (moveNodes[y1][x] != null) {
@@ -1417,18 +1466,18 @@ class Map2D extends BaseMap implements Map {
       }
     }
 
-    if (jsManager.loadBooleanSetting("fog of war")) {
-      for (int y1=0; y1<mapHeight; y1++) {
-        for (int x=0; x<mapWidth; x++) {
-          if (!fogMap[y1][x]) {
-            c = new PVector(scaleX(x), scaleY(y1));
-            panelCanvas.fill(0, 50);
-            panelCanvas.noStroke();
-            panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
-          }
-        }
-      }
-    }
+    //if (jsManager.loadBooleanSetting("fog of war")) {
+    //  for (int y1=0; y1<mapHeight; y1++) {
+    //    for (int x=0; x<mapWidth; x++) {
+    //      if (!fogMap[y1][x]) {
+    //        c = new PVector(scaleX(x), scaleY(y1));
+    //        panelCanvas.fill(0, 50);
+    //        panelCanvas.noStroke();
+    //        panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
+    //      }
+    //    }
+    //  }
+    //}
 
     if (drawRocket) {
       drawRocket(panelCanvas, tempBuildingImages);

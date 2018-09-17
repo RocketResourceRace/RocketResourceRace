@@ -405,6 +405,10 @@ class Console extends Element {
               sendLine("This requires regenerating the map. This might take a moment and will mean some randomised features will change");
               map.generateShape();
             }
+            if (command.hasKey("update cells")&&command.getBoolean("update cells")&&map != null) {
+              players[game.turn].updateVisibleCells(game.terrain, game.buildings, game.parties);
+              map.updateVisibleCells(players[game.turn].visibleCells);
+            }
             sendLine(String.format("%s setting changed!", arguments[position]));
             break;
           default:

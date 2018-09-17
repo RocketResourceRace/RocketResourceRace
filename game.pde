@@ -84,16 +84,17 @@ class Game extends State {
   int rocketStartTime;
   color[] playerColours;
   boolean bombarding = false;
+  int playerCount;
 
   Game() {
     try {
       LOGGER_MAIN.fine("initializing game");
       gameUICanvas = createGraphics(width, height, P2D); 
-      
+
       // THIS NEEDS TO BE CHANGED WHEN ADDING PLAYER INPUT SELECTOR
-      players = new Player[3];
+      players = new Player[4];
       //
-      
+
       initialiseResources();
       initialiseTasks();
       initialiseBuildings();
@@ -157,7 +158,7 @@ class Game extends State {
       int resSummaryX = width-((ResourceSummary)(getElement("resource summary", "bottom bar"))).totalWidth();
       addElement("resource detailed", new Button(resSummaryX-50, bezel, 30, 20, color(150), color(50), color(0), 13, CENTER, "^"), "bottom bar");
       addElement("resource expander", new Button(resSummaryX-50, 2*bezel+20, 30, 20, color(150), color(50), color(0), 10, CENTER, "<"), "bottom bar");
-      
+
       addElement("turn number", new TextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", 0, 0), "bottom bar");
       addElement("2d 3d toggle", new ToggleButton(bezel*4+buttonW*3, bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), jsManager.loadBooleanSetting("map is 3d"), "3D View"), "bottom bar");
       addElement("task icons toggle", new ToggleButton(round(bezel*5+buttonW*3.5), bezel*2, buttonW/2, buttonH-bezel, color(100), color(0), true, "Task Icons"), "bottom bar");
@@ -165,7 +166,7 @@ class Game extends State {
       addElement("console", new Console(0, 0, width, height/2, 10), "console");
       addElement("resource management table", new ResourceManagementTable(bezel, bezel*2+30, width/2-bezel*2, height/2), "resource management");
       addElement("resources pages button", new HorizontalOptionsButton(bezel, bezel, 100, 30, color(150), 10, new String[]{"Resources", "Equipment"}), "resource management");
-      
+
 
       prevIdle = new ArrayList<Integer[]>();
     }
@@ -377,8 +378,8 @@ class Game extends State {
   }
 
   int getBombardmentDamage(Party attacker, Party defender) {
-    return floor(attacker.getUnitNumber() * attacker.getEffectivenessMultiplier("ranged", jsManager.proficiencyIDToIndex("ranged attack")) /
-                  (defender.getEffectivenessMultiplier("defence", jsManager.proficiencyIDToIndex("defence")) * 3));
+    return floor(attacker.getUnitNumber() * attacker.getEffectivenessMultiplier("ranged attack") /
+      (defender.getEffectivenessMultiplier("defence") * 3));
   }
 
   boolean postEvent(GameEvent event) {
@@ -389,7 +390,7 @@ class Game extends State {
 
       battleEstimateManager.refresh();
       if (event instanceof Move) {
-        
+
         LOGGER_GAME.fine("Move event");
         Move m = (Move)event;
         int x = m.endX;
@@ -401,16 +402,23 @@ class Game extends State {
           LOGGER_MAIN.warning(String.format("invalid movement outside map boundries: (%d, %d)", x, y));
           valid = false;
         }
+        if (players[turn].visibleCells[selectedCellY][selectedCellX].getParty() == null){
+          LOGGER_MAIN.warning(String.format("invalid movement no party on cell: (%d, %d)", x, y));
+          valid = false;
+        }
 
-        Node[][] nodes = djk(selectedCellX, selectedCellY);
+        //Node[][] nodes = djk(selectedCellX, selectedCellY);
+        Node[][] nodes = LimitedKnowledgeDijkstra(selectedCellX, selectedCellY, mapWidth, mapHeight, players[turn].visibleCells, 1000);
 
         if (canMove(selectedCellX, selectedCellY)) {
-          int sliderVal = round(((Slider)getElement("split units", "party management")).getValue());
+          int sliderVal = m.num;
           if (sliderVal > 0 && parties[selectedCellY][selectedCellX].getUnitNumber() >= 1 && parties[selectedCellY][selectedCellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle")) {
-            map.updateMoveNodes(nodes);
+            if (players[turn].controllerType != 1) {
+              map.updateMoveNodes(nodes, players);
+            }
             moving = true;
             String newPartyName;
-            if (parties[selectedCellY][selectedCellX].unitNumber==0) {
+            if (sliderVal >= parties[selectedCellY][selectedCellX].getUnitNumber()) {
               newPartyName = parties[selectedCellY][selectedCellX].id;
             } else {
               newPartyName = nextRollingId(players[turn].name);
@@ -481,7 +489,7 @@ class Game extends State {
             JSONObject weapon = gameData.getJSONArray("equipment").getJSONObject(1).getJSONArray("types").getJSONObject(attacker.equipment[1]);
             if (attacker.player == turn && defender.player != turn && weapon.hasKey("range")) {
               int range = weapon.getInt("range");
-              if (dist(x1, y1, x2, y2) <= range){
+              if (dist(x1, y1, x2, y2) <= range) {
                 int damage = getBombardmentDamage(attacker, defender);
                 defender.changeUnitNumber(-damage);
                 handlePartyExcessResources(x2, y2);
@@ -490,11 +498,11 @@ class Game extends State {
                 }
                 attacker.setMovementPoints(0);
                 updateBombardment();
-                
+
                 // Train both parties as result of bombardment
                 attacker.trainParty("ranged attack", "ranged bombardment attack");
                 defender.trainParty("defence", "ranged bombardment defence");
-                
+
                 LOGGER_GAME.fine(String.format("Party %s bombarding party %s, eliminating %d units", attacker.id, defender.id, damage));
               } else {
                 LOGGER_GAME.fine(String.format("Party %s attempted and failed to bombard party %s, as it was not in range", attacker.id, defender.id));
@@ -580,111 +588,105 @@ class Game extends State {
 
         checkTasks();
         int selectedEquipmentType = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
-        if (selectedEquipmentType != -1){
+        if (selectedEquipmentType != -1) {
           updatePartyManagementProficiencies();
         }
-        
       } else if (event instanceof ChangePartyTrainingFocus) {
         int newFocus = ((ChangePartyTrainingFocus)event).newFocus;
         LOGGER_GAME.fine(String.format("Changing party focus for cell (%d, %d) id:%s to '%s'", selectedCellX, selectedCellY, parties[selectedCellY][selectedCellX].getID(), newFocus));
         parties[selectedCellY][selectedCellX].setTrainingFocus(newFocus);
-      }
-      else if (event instanceof ChangeEquipment){
+      } else if (event instanceof ChangeEquipment) {
         int newResID=-1, oldResID=-1;
-        
+
         int equipmentClass = ((ChangeEquipment)event).equipmentClass;
         int newEquipmentType = ((ChangeEquipment)event).newEquipmentType;
-        
+
         LOGGER_GAME.fine(String.format("Changing equipment type for cell (%d, %d) id:%s class:'%d' new equipment index:'%d'", selectedCellX, selectedCellY, parties[selectedCellY][selectedCellX].getID(), equipmentClass, newEquipmentType));
-        
-        if (equipmentClass == -1){
+
+        if (equipmentClass == -1) {
           LOGGER_GAME.warning("No equipment class selected for change equipment event");
         }
-        
-        if (newEquipmentType != -1){
+
+        if (newEquipmentType != -1) {
           newResID = jsManager.getResIndex(jsManager.getEquipmentTypeID(equipmentClass, newEquipmentType));
         }
-        if (parties[selectedCellY][selectedCellX].getEquipment(equipmentClass) != -1){
+        if (parties[selectedCellY][selectedCellX].getEquipment(equipmentClass) != -1) {
           oldResID = jsManager.getResIndex(jsManager.getEquipmentTypeID(equipmentClass, parties[selectedCellY][selectedCellX].getEquipment(equipmentClass)));
         }
-        
-        try{
-          
+
+        try {
+
           //If new type is 'other class blocking', recycle any equipment in blocked classes
           String[] otherBlocking;
-          if (equipmentClass != -1 && newEquipmentType != -1){
+          if (equipmentClass != -1 && newEquipmentType != -1) {
             otherBlocking = jsManager.getOtherClassBlocking(equipmentClass, newEquipmentType);
-          } else{
+          } else {
             otherBlocking = null;
           }
-          if (otherBlocking != null){
-            for (int i=0; i < otherBlocking.length; i ++){
+          if (otherBlocking != null) {
+            for (int i=0; i < otherBlocking.length; i ++) {
               int classIndex = jsManager.getEquipmentClassFromID(otherBlocking[i]);
               int otherResID=-1;
-              if (parties[selectedCellY][selectedCellX].getEquipment(classIndex) != -1){
+              if (parties[selectedCellY][selectedCellX].getEquipment(classIndex) != -1) {
                 otherResID = jsManager.getResIndex(jsManager.getEquipmentTypeID(classIndex, parties[selectedCellY][selectedCellX].getEquipment(classIndex)));
               }
-              if (otherResID != -1 && parties[selectedCellY][selectedCellX].getEquipment(classIndex) != -1 && isEquipmentCollectionAllowed(selectedCellX, selectedCellY, classIndex, parties[selectedCellY][selectedCellX].getEquipment(classIndex))){
+              if (otherResID != -1 && parties[selectedCellY][selectedCellX].getEquipment(classIndex) != -1 && isEquipmentCollectionAllowed(selectedCellX, selectedCellY, classIndex, parties[selectedCellY][selectedCellX].getEquipment(classIndex))) {
                 players[turn].resources[otherResID] += parties[selectedCellY][selectedCellX].getEquipmentQuantity(classIndex);
               }
               parties[selectedCellY][selectedCellX].setEquipment(classIndex, -1, 0);  // Set it to empty after
             }
-          }
-          else {
+          } else {
             // Recycle equipment if unequipping
-            if (oldResID != -1 && parties[selectedCellY][selectedCellX].getEquipment(equipmentClass) != -1 && isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, newEquipmentType)){
+            if (oldResID != -1 && parties[selectedCellY][selectedCellX].getEquipment(equipmentClass) != -1 && isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, newEquipmentType)) {
               players[turn].resources[oldResID] += parties[selectedCellY][selectedCellX].getEquipmentQuantity(equipmentClass);
             }
           }
-          
+
           int quantity;
-          if (newResID == -1 || !isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, newEquipmentType)){
+          if (newResID == -1 || !isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, newEquipmentType)) {
             quantity = 0;
-          }
-          else {
+          } else {
             quantity = floor(min(parties[selectedCellY][selectedCellX].getUnitNumber(), players[turn].resources[newResID]));
           }
           parties[selectedCellY][selectedCellX].setEquipment(equipmentClass, newEquipmentType, quantity);  // Change party equipment
-          
+
           LOGGER_GAME.fine("Quantity of equipment = "+quantity);
-          
+
           // Subtract equipment resource
-          if (newResID != -1){
+          if (newResID != -1) {
             players[turn].resources[newResID] -= quantity;
           }
-          
+
           ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX]);  // Update equipment manager with new equipment
-          
+
           // Update max movement points
           parties[selectedCellY][selectedCellX].resetMovementPoints();
           updateBombardment();
         }
-        catch (ArrayIndexOutOfBoundsException e){
+        catch (ArrayIndexOutOfBoundsException e) {
           LOGGER_MAIN.warning("Index problem with equipment change");
           throw e;
         }
         parties[selectedCellY][selectedCellX].updateMaxMovementPoints();
         updatePartyManagementProficiencies();
-      }
-      else if (event instanceof DisbandParty){
+      } else if (event instanceof DisbandParty) {
         int x = ((DisbandParty)event).x;
         int y = ((DisbandParty)event).y;
         parties[y][x] = null;
         LOGGER_GAME.fine(String.format("Party at cell: (%d, %d) disbanded", x, y));
         selectCell(x, y, false);  // Remove party management stuff
-      }
-      else if (event instanceof StockUpEquipment){
+      } else if (event instanceof StockUpEquipment) {
         LOGGER_GAME.fine("Stocking up equipment");
         boolean anyAdded = false;
         int x = ((StockUpEquipment)event).x;
         int y = ((StockUpEquipment)event).y;
         if (parties[y][x].getMovementPoints() > 0) {
           int resID, addedQuantity;
-          for (int i = 0; i < jsManager.getNumEquipmentClasses(); i ++){
-            if (parties[y][x].getEquipment(i) != -1){
+          for (int i = 0; i < jsManager.getNumEquipmentClasses(); i ++) {
+            if (parties[y][x].getEquipment(i) != -1) {
               resID = jsManager.getResIndex(jsManager.getEquipmentTypeID(i, parties[y][x].getEquipment(i)));
               addedQuantity = min(parties[y][x].getUnitNumber()-parties[y][x].getEquipmentQuantity(i), floor(players[turn].resources[resID]));
-              if (addedQuantity > 0){
+              if (addedQuantity > 0) {
                 anyAdded = true;
               }
               parties[y][x].addEquipmentQuantity(i, addedQuantity);
@@ -693,53 +695,38 @@ class Game extends State {
             }
           }
           // Only set movement points to 0 if some equipment was topped up
-          if (anyAdded){
+          if (anyAdded) {
             LOGGER_GAME.finer("Party movement points set to 0 because some equipment was topped up");
             parties[y][x].setMovementPoints(0);
           }
           ((Button)getElement("stock up button", "party management")).deactivate();
           updatePartyManagementInterface();
         }
-      } 
-      else if (event instanceof SetAutoStockUp){
+      } else if (event instanceof SetAutoStockUp) {
         int x = ((SetAutoStockUp)event).x;
         int y = ((SetAutoStockUp)event).y;
         boolean newSetting = ((SetAutoStockUp)event).enabled;
         LOGGER_GAME.fine("Changing auto stock up to: "+ newSetting);
         parties[y][x].setAutoStockUp(newSetting);
-      } 
-      else if (event instanceof UnitCapChange){
+      } else if (event instanceof UnitCapChange) {
         int x = ((UnitCapChange)event).x;
         int y = ((UnitCapChange)event).y;
         int newCap = ((UnitCapChange)event).newCap;
-        if (newCap >= parties[y][x].getUnitNumber()){
+        if (newCap >= parties[y][x].getUnitNumber()) {
           parties[y][x].setUnitCap(newCap);
           LOGGER_GAME.fine("Changing unit cap to: "+ newCap);
-        }
-        else{ // Unit cap set below number of units in party
+        } else { // Unit cap set below number of units in party
           valid = false;
           LOGGER_GAME.warning(String.format("Unit cap:&d set below number of units in party:&d", newCap, parties[y][x].getUnitNumber()));
         }
-      }
-      else {
+      } else {
         LOGGER_GAME.warning("Event type not found");
         valid = false;
       }
 
       if (valid) {
         LOGGER_GAME.finest("Event is valid, so updating things...");
-        if (!changeTurn) {
-          updateResourcesSummary();
-          updatePartyManagementInterface();
-
-          if (anyIdle(turn)) {
-            LOGGER_GAME.finest("There are idle units so highlighting button red");
-            ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
-          } else {
-            LOGGER_GAME.finest("There are no idle units so not highlighting button red");
-            ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
-          }
-        }
+        updateThingsAfterGameStateChange();
       }
       return valid;
     }
@@ -748,6 +735,43 @@ class Game extends State {
       throw e;
     }
   }
+  
+  void updateThingsAfterGameStateChange() {
+    players[turn].updateVisibleCells(terrain, buildings, parties);
+    if (players[turn].controllerType == 0){
+      map.updateVisibleCells(players[turn].visibleCells);
+    }
+    if (!changeTurn) {
+      updateResourcesSummary();
+      updatePartyManagementInterface();
+
+      if (anyIdle(turn)) {
+        LOGGER_GAME.finest("There are idle units so highlighting button red");
+        ((Button)getElement("idle party finder", "bottom bar")).setColour(color(255, 50, 50));
+      } else {
+        LOGGER_GAME.finest("There are no idle units so not highlighting button red");
+        ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
+      }
+      
+      // Any about to finish moving
+      boolean partyReadyToFinish = false;
+      for (int y=0; y<mapWidth; y++) {
+        for (int x=0; x<mapWidth; x++) {
+          if (parties[y][x] != null && parties[y][x].player == turn && parties[y][x].pathTurns == 1 && parties[y][x].getMovementPoints() == parties[y][x].getMaxMovementPoints()) {
+            partyReadyToFinish = true;
+          }
+        }
+      }
+      
+      Button b = (Button)getElement("end turn", "bottom bar");
+      if (partyReadyToFinish) {
+        b.setText("Advance Units");
+      } else {
+        b.setText("Next Turn");
+      }
+    }
+  }
+  
   boolean anyIdle(int turn) {
     for (int x=0; x<mapWidth; x++) {
       for (int y=0; y<mapWidth; y++) {
@@ -779,9 +803,9 @@ class Game extends State {
     ((Text)getElement("proficiencies", "party management")).translate(sidePanelW/2+int(bezel*0.5), round(bezel*5+4*jsManager.loadFloatSetting("text scale")*13)+equipmentBoxHeight);
     ((Text)getElement("turns remaining", "party management")).translate(100+bezel*2, round(13*jsManager.loadFloatSetting("text scale")*2 + bezel*3));
     ((DropDown)getElement("party training focus", "party management")).transform(sidePanelW/2+int(bezel*0.5), round(bezel*6+5*jsManager.loadFloatSetting("text scale")*13)+equipmentBoxHeight+int(jsManager.getNumProficiencies()*jsManager.loadFloatSetting("text scale")*13), sidePanelW/2-int(bezel*(1.5)), int(jsManager.loadFloatSetting("text scale")*13));
-    
+
     float taskRowHeight = ((TaskManager)getElement("tasks", "party management")).getH(new PGraphics());
-    
+
     float partyManagementHeight = round(bezel*7+6*jsManager.loadFloatSetting("text scale")*13+equipmentBoxHeight) + taskRowHeight*10 + jsManager.loadFloatSetting("gui scale")*bezel*10;
     getPanel("land management").transform(sidePanelX, sidePanelY, sidePanelW, round(sidePanelH*0.15));
     getPanel("party management").transform(sidePanelX, sidePanelY+round(sidePanelH*0.15)+bezel, sidePanelW, round(partyManagementHeight)-bezel*3);
@@ -808,11 +832,11 @@ class Game extends State {
       resetAvailableTasks();
       boolean correctTerrain, correctBuilding, enoughResources, enoughMovementPoints;
       JSONObject js;
-      
+
       if (parties[selectedCellY][selectedCellX].player == -1) {
         makeTaskAvailable(parties[selectedCellY][selectedCellX].task);
       }
-      
+
       if (parties[selectedCellY][selectedCellX].hasActions()) {
         makeTaskAvailable(parties[selectedCellY][selectedCellX].currentAction());
         LOGGER_GAME.finer("Keeping current task available:"+parties[selectedCellY][selectedCellX].currentAction());
@@ -883,7 +907,7 @@ class Game extends State {
     return !((!getPanel("party management").mouseOver() || !getPanel("party management").visible) && (!getPanel("land management").mouseOver() || !getPanel("land management").visible) &&
       (!nm.moveOver()||nm.empty()));
   }
-  
+
   float getResourceRequirementsAtCell(int x, int y, int resource) {
     float resourceRequirements = 0;
     for (int i = 0; i < tasks.length; i++) {
@@ -913,7 +937,7 @@ class Game extends State {
     }
     return totalResourceRequirements;
   }
-  
+
   float[] getResourceProductivities(float[] totalResourceRequirements) {
     float [] resourceProductivities = new float[numResources];
     for (int i=0; i<numResources; i++) {
@@ -925,11 +949,11 @@ class Game extends State {
     }
     return resourceProductivities;
   }
-  
+
   float[] getResourceProductivities() {
     return getResourceProductivities(getTotalResourceRequirements());
   }
-  
+
   float getProductivityAtCell(int x, int y, float[] resourceProductivities) {
     float productivity = 1;
     for (int task = 0; task<tasks.length; task++) {
@@ -947,11 +971,11 @@ class Game extends State {
     }
     return productivity;
   }
-  
+
   float getProductivityAtCell(int x, int y) {
     return getProductivityAtCell(x, y, getResourceProductivities(getTotalResourceRequirements()));
   }
-  
+
   float[] resourceProductionAtCell(int x, int y, float[] resourceProductivities) {
     float [] production = new float[numResources];
     if (parties[y][x] != null) {
@@ -962,8 +986,8 @@ class Game extends State {
             for (int resource = 0; resource < numResources; resource++) {
               if (resource == jsManager.getResIndex("units") && resourceProductivities[jsManager.getResIndex(("food"))] < 1) {
                 production[resource] = 0;
-              } else if (resource == jsManager.getResIndex("units")){
-                production[resource] = min(parties[y][x].getUnitCap() - parties[y][x].getUnitNumber(), taskOutcomes[task][resource] * productivity * (float) parties[y][x].getUnitNumber()); 
+              } else if (resource == jsManager.getResIndex("units")) {
+                production[resource] = min(parties[y][x].getUnitCap() - parties[y][x].getUnitNumber(), taskOutcomes[task][resource] * productivity * (float) parties[y][x].getUnitNumber());
               } else {
                 production[resource] = taskOutcomes[task][resource] * productivity * (float) parties[y][x].getUnitNumber();
               }
@@ -972,13 +996,13 @@ class Game extends State {
         }
       }
     }
-    return production; 
+    return production;
   }
-  
+
   float[] resourceProductionAtCell(int x, int y) {
     return resourceProductionAtCell(x, y, getResourceProductivities(getTotalResourceRequirements()));
   }
-  
+
   float[] getTotalResourceProductions(float[] resourceProductivities) {
     float[] amount = new float[resourceNames.length];
     for (int x = 0; x < mapWidth; x++) {
@@ -990,11 +1014,11 @@ class Game extends State {
     }
     return amount;
   }
-  
+
   float[] getTotalResourceProductions() {
     return getTotalResourceProductions(getResourceProductivities(getTotalResourceRequirements()));
   }
-  
+
   float[] getResourceConsumptionAtCell(int x, int y, float[] resourceProductivities) {
     float [] consumption = new float[numResources];
     if (parties[y][x] != null) {
@@ -1003,7 +1027,7 @@ class Game extends State {
         for (int task = 0; task <tasks.length; task++) {
           if (parties[y][x].getTask() == task) {
             for (int resource = 0; resource < numResources; resource++) {
-             if (resource == jsManager.getResIndex("units") && resourceProductivities[jsManager.getResIndex(("food"))] < 1) {
+              if (resource == jsManager.getResIndex("units") && resourceProductivities[jsManager.getResIndex(("food"))] < 1) {
                 consumption[resource] += (1-resourceProductivities[jsManager.getResIndex(("food"))]) * (0.01+taskOutcomes[task][resource]) * parties[y][x].getUnitNumber();
               } else {
                 consumption[resource] += getResourceRequirementsAtCell(x, y, resource) * productivity;
@@ -1015,11 +1039,11 @@ class Game extends State {
     }
     return consumption;
   }
-  
+
   float[] getResourceConsumptionAtCell(int x, int y) {
     return getResourceConsumptionAtCell(x, y, getResourceProductivities(getTotalResourceRequirements()));
   }
-  
+
   float[] getTotalResourceConsumptions(float[] resourceProductivities) {
     float[] amount = new float[resourceNames.length];
     for (int x = 0; x < mapWidth; x++) {
@@ -1031,11 +1055,11 @@ class Game extends State {
     }
     return amount;
   }
-  
-  float[] getTotalResourceConsumptions(){
+
+  float[] getTotalResourceConsumptions() {
     return getTotalResourceConsumptions(getResourceProductivities(getTotalResourceRequirements()));
   }
-  
+
   float[] getTotalResourceChanges(float[] grossResources, float[] costsResources) {
     float[] amount = new float[resourceNames.length];
     for (int res = 0; res < numResources; res++) {
@@ -1043,27 +1067,27 @@ class Game extends State {
     }
     return amount;
   }
-  
-  float[] getResourceChangesAtCell(int x, int y, float[] resourceProductivities){
+
+  float[] getResourceChangesAtCell(int x, int y, float[] resourceProductivities) {
     float[] amount = new float[resourceNames.length];
     for (int res = 0; res < numResources; res++) {
       amount[res] = resourceProductionAtCell(x, y, resourceProductivities)[res] - getResourceConsumptionAtCell(x, y, resourceProductivities)[res];
     }
     return amount;
   }
-  
-  float[] getResourceChangesAtCell(int x, int y){
+
+  float[] getResourceChangesAtCell(int x, int y) {
     return getResourceChangesAtCell(x, y, getResourceProductivities(getTotalResourceRequirements()));
   }
-  
-  byte[] getResourceWarnings(){
+
+  byte[] getResourceWarnings() {
     return getResourceWarnings(getResourceProductivities(getTotalResourceRequirements()));
   }
-  
-  byte[] getResourceWarnings(float[] productivities){
+
+  byte[] getResourceWarnings(float[] productivities) {
     byte[] warnings = new byte[productivities.length];
     for (int i = 0; i < productivities.length; i++) {
-      if (productivities[i] == 0){
+      if (productivities[i] == 0) {
         warnings[i] = 2;
       } else if (productivities[i] < 1) {
         warnings[i] = 1;
@@ -1071,21 +1095,21 @@ class Game extends State {
     }
     return warnings;
   }
-  
-  void updateResourcesSummary(){
+
+  void updateResourcesSummary() {
     float[] totalResourceRequirements = getTotalResourceRequirements();
     float[] resourceProductivities = getResourceProductivities(totalResourceRequirements);
-    
+
     float[] gross = getTotalResourceProductions(resourceProductivities);
     float[] costs = getTotalResourceConsumptions(resourceProductivities);
     this.totals = getTotalResourceChanges(gross, costs);
-    
+
     ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
     rs.updateNet(totals);
     rs.updateStockpile(players[turn].resources);
     rs.updateWarnings(getResourceWarnings(resourceProductivities));
   }
-  
+
   boolean isEquipmentCollectionAllowed(int x, int y) {
     int[] equipmentTypes = parties[y][x].equipment;
     for (int c = 0; c < equipmentTypes.length; c++) {
@@ -1095,25 +1119,24 @@ class Game extends State {
     }
     return false;
   }
-  
+
   boolean isEquipmentCollectionAllowed(int x, int y, int c, int t) {
     if (buildings[y][x] != null && c != -1 && t != -1) {
       JSONArray sites = gameData.getJSONArray("equipment").getJSONObject(c).getJSONArray("types").getJSONObject(t).getJSONArray("valid collection sites");
-      if (sites != null){
+      if (sites != null) {
         for (int j = 0; j < sites.size(); j++) {
           if (buildingIndex(sites.getString(j)) == buildings[y][x].type) {
             return true;
           }
         }
-      }
-      else{
+      } else {
         // If no valid collection sites specified, then stockup can occur anywhere
         return true;
       }
     }
     return false;
   }
-    
+
 
   void handlePartyExcessResources(int x, int y) {
     Party p = parties[y][x];
@@ -1144,12 +1167,12 @@ class Game extends State {
                     if (tasks[task].equals("Produce Rocket")) {
                       resource = jsManager.getResIndex(("rocket progress"));
                     }
-                    
+
                     players[turn].resources[resource] += max(getResourceChangesAtCell(x, y, resourceProductivities)[resource], -players[turn].resources[resource]);
                     if (tasks[task].equals("Produce Rocket")) {
                       break;
                     }
-                  } else if (resourceProductivities[jsManager.getResIndex(("food"))] < 1) {
+                  } else if (resourceProductivities[jsManager.getResIndex(("food"))] < 1 && players[parties[y][x].player].controllerType != 1) {
                     float lost = (1 - resourceProductivities[jsManager.getResIndex(("food"))]) * (0.01+taskOutcomes[task][resource]) * parties[y][x].getUnitNumber();
                     int totalLost = floor(lost);
                     if (random(1) < lost-floor(lost)) {
@@ -1206,6 +1229,19 @@ class Game extends State {
       }
     }
   }
+  
+  void autoMoveParties() {
+    for (int y=0; y<mapHeight; y++) {
+      for (int x=0; x<mapWidth; x++) {
+        if (parties[y][x] != null) {
+          if (parties[y][x].player == turn) {
+            moveParty(x, y);
+          }
+        }
+      }
+    }
+    updateThingsAfterGameStateChange();
+  }
 
   void processParties() {
     for (int y=0; y<mapHeight; y++) {
@@ -1213,9 +1249,9 @@ class Game extends State {
         if (parties[y][x] != null) {
           if (parties[y][x].player == turn) {
             if (parties[y][x].getAutoStockUp()) {
-               postEvent(new StockUpEquipment(x, y));
+              postEvent(new StockUpEquipment(x, y));
             }
-            if (parties[y][x].getTask() == jsManager.getTaskIndex("Train Party")){
+            if (parties[y][x].getTask() == jsManager.getTaskIndex("Train Party")) {
               parties[y][x].trainParty(jsManager.indexToProficiencyID(parties[y][x].getTrainingFocus()), "training");
             }
             Action action = parties[y][x].progressAction();
@@ -1229,21 +1265,21 @@ class Game extends State {
                 } else {
                   LOGGER_GAME.info(String.format("Action completed building %s, at cell (%d, %d)", action.building, x, y));
                   buildings[y][x] = new Building(buildingIndex(action.building));
-                  
-                  if (parties[y][x] != null){
+
+                  if (parties[y][x] != null) {
                     // Train party when completed building
                     parties[y][x].trainParty("building speed", "constructing building");
                   }
-                  
+
                   if (buildings[y][x].type == buildingIndex("Quarry")) {
                     LOGGER_GAME.fine("Quarry type detected so changing terrain...");
                     //map.setHeightsForCell(x, y, jsManager.loadFloatSetting("water level"));
-                    if (terrain[y][x] == terrainIndex("grass")){
+                    if (terrain[y][x] == terrainIndex("grass")) {
                       terrain[y][x] = terrainIndex("quarry site stone");
-                    } else if (terrain[y][x] == terrainIndex("sand")){
+                    } else if (terrain[y][x] == terrainIndex("sand")) {
                       terrain[y][x] = terrainIndex("quarry site clay");
                     }
-                    
+
                     map.replaceMapStripWithReloadedStrip(y);
                   }
                 }
@@ -1251,7 +1287,7 @@ class Game extends State {
               if (action.terrain != null) {
                 if (terrain[y][x] == terrainIndex("forest")) { // Cut down forest
                   LOGGER_GAME.info("Cutting down forest");
-                  
+
                   // This should be changed so that it can be changed in data
                   players[turn].resources[jsManager.getResIndex(("wood"))]+=100;
                   map.removeTreeTile(x, y);
@@ -1273,7 +1309,6 @@ class Game extends State {
               parties[y][x].clearCurrentAction();
               parties[y][x].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
             }
-            moveParty(x, y);
           } else {
             if (parties[y][x].player==-1) {
               int player = ((Battle) parties[y][x]).attacker.player;
@@ -1301,6 +1336,7 @@ class Game extends State {
     try {
       LOGGER_GAME.finer(String.format("Turn changing - current player = %s, next player = %s", turn, (turn+1)%players.length));
       notificationManager.dismissAll();
+      autoMoveParties();
       processParties();
       updateResources(getResourceProductivities(getTotalResourceRequirements()));
       partyMovementPointsReset();
@@ -1320,8 +1356,16 @@ class Game extends State {
         tempY = (height/2-map.getTargetOffsetY()-((Map2D)map).yPos)/((Map2D)map).targetBlockSize;
       }
       players[turn].saveSettings(tempX, tempY, blockSize, selectedCellX, selectedCellY, cellSelected);
-      turn = (turn + 1)%players.length;
-      map.generateFog(turn);
+
+      turn = (turn + 1)%players.length; // TURN CHANGE
+
+      // If local player turn disable cinematic mode otherwise enable (e.g. bandits/AI turn)
+      if (players[turn].controllerType == 0) {
+        leaveCinematicMode(); // Leave cinematic mode as player turn
+      } else {
+        enterCinematicMode(); // Leave cinematic mode as player turn
+      }
+      
       players[turn].loadSettings(this, map);
       changeTurn = false;
       TextBox t = ((TextBox)(getElement("turn number", "bottom bar")));
@@ -1330,8 +1374,10 @@ class Game extends State {
       updateResourcesSummary();
       notificationManager.turnChange(turn);
 
-      if (turn==0)
+      if (turn==0) {
         turnNumber++;
+        spawnBandits();
+      }
 
       if (anyIdle(turn)) {
         LOGGER_GAME.finest("Idle party set to red becuase idle parties found");
@@ -1340,9 +1386,13 @@ class Game extends State {
         LOGGER_GAME.finest("Idle party set to grey becuase no idle parties found");
         ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
       }
-      if (!players[turn].isAlive) {
+      if (checkForPlayerWin()) {
+        this.getPanel("end screen").visible = true;
+      } else if (!players[turn].isAlive) {
         turnChange();
+        return;
       }
+      updateThingsAfterGameStateChange();
     }
     catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error changing turn", e);
@@ -1350,17 +1400,55 @@ class Game extends State {
     }
   }
 
+  void spawnBandits() {
+    int banditCount = 0;
+    for (int y = 0; y < mapHeight; y++) {
+      for (int x = 0; x < mapWidth; x++) {
+        if (parties[y][x] != null && parties[y][x].containsPartyFromPlayer(playerCount) > 0) {
+          banditCount++;
+        }
+      }
+    }
+    if (random(0, (gameData.getJSONObject("game options").getFloat("bandits per tile")*mapWidth*mapHeight)) > banditCount) {
+      ArrayList<int[]> possibleTiles = new ArrayList<int[]>();
+      for (int y = 0; y < mapHeight; y++) {
+        for (int x = 0; x < mapWidth; x++) {
+           if (terrain[y][x] == terrainIndex("water")) {
+             continue;
+           }
+           if (parties[y][x] != null) {
+             continue;
+           }
+           if (buildings[y][x] != null) {
+             continue;
+           }
+           for (Player p: players) {
+             if (p.controllerType != 1 && p.visibleCells[y][x] != null && p.visibleCells[y][x].activeSight) {
+               continue;
+             }
+           }
+           possibleTiles.add(new int[]{x, y});
+        }
+      }
+      int chosenTile = floor(random(0, possibleTiles.size()));
+      int x = possibleTiles.get(chosenTile)[0];
+      int y = possibleTiles.get(chosenTile)[1];
+      parties[y][x] = new Party(playerCount, int(jsManager.loadIntSetting("party size")/2), 0, gameData.getJSONObject("game options").getInt("movement points"), nextRollingId(players[playerCount].name));
+    }
+  }
+
+
   boolean checkForPlayerWin() {
     if (winner == -1) {
       boolean[] playersAlive = new boolean[players.length];
 
+
       for (int y=0; y<mapHeight; y++) {
         for (int x=0; x<mapWidth; x++) {
           if (parties[y][x] != null) {
-            if (parties[y][x].player != -1){
+            if (parties[y][x].player != -1) {
               playersAlive[parties[y][x].player] = true;
-            }
-            else if (parties[y][x] instanceof Battle){
+            } else if (parties[y][x] instanceof Battle) {
               playersAlive[((Battle)parties[y][x]).defender.player] = true;
               playersAlive[((Battle)parties[y][x]).attacker.player] = true;
             }
@@ -1368,24 +1456,23 @@ class Game extends State {
         }
       }
       int numAlive = 0;
-      for (int p=0; p < players.length; p++){
+      for (int p=0; p < players.length; p++) {
         players[p].isAlive = playersAlive[p];
-        if (playersAlive[p]){
+        if (playersAlive[p] && p < players.length-1) {
           numAlive ++;
         }
       }
-      if (numAlive == 1){
-        for (int p=0; p < players.length; p++){
-          if (playersAlive[p]){
+      if (numAlive == 1) {
+        for (int p=0; p < players.length; p++) {
+          if (playersAlive[p]) {
             winner = p;
             LOGGER_GAME.info(players[p].name+" wins!");
+            break;
           }
         }
-      }
-      else if (numAlive == 0){
+      } else if (numAlive == 0) {
         LOGGER_GAME.info("No players alive");
-      }
-      else{
+      } else {
         return false;
       }
     }
@@ -1396,6 +1483,7 @@ class Game extends State {
 
 
   void drawPanels() {
+    LOGGER_MAIN.fine("started drawing game panels");
     checkElementOnTop();
     if (rocketLaunching) {
       handleRocket();
@@ -1406,7 +1494,7 @@ class Game extends State {
         panels.get(i).draw();
       }
     }
-    
+
     if (changeTurn) {
       turnChange();
     }
@@ -1443,7 +1531,7 @@ class Game extends State {
     gameUICanvas.endDraw();
     gameUICanvas.popStyle();
     image(gameUICanvas, 0, 0);
-    
+
     //Tooltips are going to be added here so don't delete this. From here
     ResourceSummary resSum = ((ResourceSummary)getElement("resource summary", "bottom bar"));
     if (resSum.pointOver()) {
@@ -1461,6 +1549,11 @@ class Game extends State {
 
     if (checkForPlayerWin()) {
       this.getPanel("end screen").visible = true;
+    }
+
+    // Process AI and bandits turns
+    if (players[turn].playerController != null) {  // Local players have null for playerController
+      postEvent(players[turn].generateNextEvent());
     }
   }
   void partyMovementPointsReset() {
@@ -1631,14 +1724,19 @@ class Game extends State {
             map.targetCell(t[0], t[1], 64);
           }
         } else if (event.id == "end turn") {
-          postEvent(new EndTurn());
+          if (((Button)getElement("end turn", "bottom bar")).getText().equals("Advance Units")) {
+            autoMoveParties();
+            ((Button)getElement("end turn", "bottom bar")).setText("Next Turn");
+          } else {
+            postEvent(new EndTurn());
+          }
         } else if (event.id == "move button") {
           bombarding = false;
           map.disableBombard();
           if (parties[selectedCellY][selectedCellX].player == turn) {
             moving = !moving;
             if (moving) {
-              map.updateMoveNodes(djk(selectedCellX, selectedCellY));
+              map.updateMoveNodes(LimitedKnowledgeDijkstra(selectedCellX, selectedCellY, mapWidth, mapHeight, players[turn].visibleCells, 20), players);
             } else {
               map.cancelMoveNodes();
             }
@@ -1675,7 +1773,7 @@ class Game extends State {
           storage.add(new ArrayList<Float>());
           float[] totalResourceRequirements = getTotalResourceRequirements();
           float[] resourceProductivities = getResourceProductivities(totalResourceRequirements);
-          
+
           float[] gross = getTotalResourceProductions(resourceProductivities);
           float[] costs = getTotalResourceConsumptions(resourceProductivities);
           float[] totals = getTotalResourceChanges(gross, costs);
@@ -1683,7 +1781,7 @@ class Game extends State {
             if (players[turn].resources[i] > 0) {
               int page;
               if (jsManager.resourceIsEquipment(i)) {
-                page = 1; 
+                page = 1;
               } else {
                 page = 0;
               }
@@ -1695,7 +1793,7 @@ class Game extends State {
             }
           }
           r.update(new String[][]{{"Resource", "Making", "Use    ", "Net   ", "Storage"}, {"Equipment type", "Class   ", "Making", "Use    ", "Net   ", "Storage"}}, names, production, consumption, net, storage);
-          
+
           // This should be changed to use a graphic instead of a character
           if (b.getText() == "^")
             b.setText("v");
@@ -1728,9 +1826,9 @@ class Game extends State {
           loadingName = ((TextEntry)getElement("save namer", "save screen")).getText();
           saveGame();
           ((BaseFileManager)getElement("saving manager", "save screen")).loadSaveNames();
-        } else if (event.id.equals("disband button")){
+        } else if (event.id.equals("disband button")) {
           postEvent(new DisbandParty(selectedCellX, selectedCellY));
-        } else if (event.id.equals("stock up button")){
+        } else if (event.id.equals("stock up button")) {
           postEvent(new StockUpEquipment(selectedCellX, selectedCellY));
         } else if (event.id.equals("bombardment button")) {
           bombarding = !bombarding;
@@ -1769,30 +1867,29 @@ class Game extends State {
           ((TextEntry)getElement("save namer", "save screen")).setText(loadingName);
         } else if (event.id.equals("party training focus")) {
           postEvent(new ChangePartyTrainingFocus(selectedCellX, selectedCellY, ((DropDown)getElement("party training focus", "party management")).getOptionIndex()));
-        } else if (event.id.equals("auto stock up toggle")){
+        } else if (event.id.equals("auto stock up toggle")) {
           postEvent(new SetAutoStockUp(selectedCellX, selectedCellY, ((ToggleButton)getElement("auto stock up toggle", "party management")).getState()));
-        } else if (event.id.equals("equipment manager")){
-          for (int [] equipmentChange : ((EquipmentManager)getElement("equipment manager", "party management")).getEquipmentToChange()){
+        } else if (event.id.equals("equipment manager")) {
+          for (int [] equipmentChange : ((EquipmentManager)getElement("equipment manager", "party management")).getEquipmentToChange()) {
             postEvent(new ChangeEquipment(equipmentChange[0], equipmentChange[1]));
           }
           updatePartyManagementProficiencies();
-        } else if (event.id.equals("unit cap incrementer")){
+        } else if (event.id.equals("unit cap incrementer")) {
           postEvent(new UnitCapChange(selectedCellX, selectedCellY, ((IncrementElement)getElement("unit cap incrementer", "party management")).getValue()));
         } else if (event.id.equals("resources pages button")) {
           HorizontalOptionsButton b = ((HorizontalOptionsButton)getElement("resources pages button", "resource management"));
           ((ResourceManagementTable)getElement("resource management table", "resource management")).setPage(b.selected);
         }
       }
-      if (event.type.equals("dropped")){
-        if (event.id.equals("equipment manager")){
+      if (event.type.equals("dropped")) {
+        if (event.id.equals("equipment manager")) {
           elementToTop("equipment manager", "party management");
           int selectedEquipmentType = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
-          if (selectedEquipmentType != -1){
+          if (selectedEquipmentType != -1) {
             updatePartyManagementProficiencies();
           }
         }
-      }
-      else if (event.type.equals("notification selected")) {
+      } else if (event.type.equals("notification selected")) {
         int x = notificationManager.lastSelected.x, y = notificationManager.lastSelected.y;
         LOGGER_GAME.fine(String.format("Notification '%s', cell selected: (%d, %d)", notificationManager.lastSelected.name, x, y));
         map.targetCell(x, y, 100);
@@ -1859,7 +1956,12 @@ class Game extends State {
         if (p.getMovementPoints() >= cost) {
           // Train party for movement
           p.trainParty("speed", "moving");
-          
+
+          players[turn].updateVisibleCells(terrain, buildings, parties);
+          if (players[turn].controllerType == 0){
+            map.updateVisibleCells(players[turn].visibleCells);
+          }
+
           hasMoved = true;
           if (parties[path.get(node)[1]][path.get(node)[0]] == null) {
             // empty cell
@@ -1892,15 +1994,14 @@ class Game extends State {
                 selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
                 stillThere = false;
               }
-              if (overflow == 0){
+              if (overflow == 0) {
                 if (splitting) {
                   splittedParty = null;
                   splitting = false;
                 } else {
                   parties[py][px] = null;
                 }
-              }
-              else if (overflow>0) {
+              } else if (overflow>0) {
                 parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
                 LOGGER_GAME.finer(String.format("Setting units in party with id:%s to %d as there was overflow", p.getID(), p.getUnitNumber()));
               }
@@ -1986,10 +2087,9 @@ class Game extends State {
     catch (IndexOutOfBoundsException e) {
       LOGGER_MAIN.log(Level.SEVERE, String.format("Error with indices out of bounds when moving party at cell:%s, %s", px, py), e);
     }
-
-    map.generateFog(turn);
   }
   int getMoveTurns(int startX, int startY, int targetX, int targetY, Node[][] nodes) {
+    LOGGER_MAIN.fine(String.format("Getting move turns from (%s, %s) to (%s, %s)", startX, startY, targetX, targetY));
     int movementPoints;
     if (parties[startY][startX] != null)
       movementPoints = round(parties[startY][startX].getMovementPoints()); 
@@ -2015,85 +2115,90 @@ class Game extends State {
     return round(((Slider)getElement("split units", "party management")).getValue());
   }
   void refreshTooltip() {
-    if (!getPanel("pause screen").visible) {
-      TaskManager tasks = ((TaskManager)getElement("tasks", "party management"));
-      if (((EquipmentManager)getElement("equipment manager", "party management")).mouseOverTypes() && getPanel("party management").visible) {
-        int hoveringType = ((EquipmentManager)getElement("equipment manager", "party management")).hoveringOverType();
-        int equipmentClass = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
-        tooltip.setEquipment(equipmentClass, hoveringType, players[turn].resources, parties[selectedCellY][selectedCellX], isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, parties[selectedCellY][selectedCellX].getEquipment(equipmentClass)));
-        tooltip.show();
-      } else if (tasks.moveOver() && getPanel("party management").visible && !tasks.scrolling && !tasks.hovingOverScroll() && tasks.active) {
-        tooltip.setTask(((TaskManager)getElement("tasks", "party management")).findMouseOver(), players[turn].resources, parties[selectedCellY][selectedCellX].getMovementPoints());
-        tooltip.show();
-      } else if(((ProficiencySummary)getElement("proficiency summary", "party management")).mouseOver() && getPanel("party management").visible) {
-        tooltip.setProficiencies(((ProficiencySummary)getElement("proficiency summary", "party management")).hoveringOption(), parties[selectedCellY][selectedCellX]);
-        tooltip.show();
-      }else if (((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").visible) {
-        tooltip.setTurnsRemaining();
-        tooltip.show();
-      } else if (((Button)getElement("move button", "party management")).mouseOver()&& getPanel("party management").visible) {
-        tooltip.setMoveButton();
-        tooltip.show();
-      } else if (((Button)getElement("stock up button", "party management")).mouseOver() && getPanel("party management").visible) {
-        if (((Button)getElement("stock up button", "party management")).active) {
-          tooltip.setStockUpAvailable(parties[selectedCellY][selectedCellX], players[turn].resources);
-        } else {
-          tooltip.setStockUpUnavailable(parties[selectedCellY][selectedCellX]);
-        }
-        tooltip.show();
-      } else if (map.mouseOver()) {
-        map.doUpdateHoveringScale();
-        int mapInterceptX = floor(map.scaleXInv()); 
-        int mapInterceptY = floor(map.scaleYInv());
-        if (moving && !UIHovering()) {
-          Node [][] nodes = map.getMoveNodes();
-          if (selectedCellX == mapInterceptX && selectedCellY == mapInterceptY) {
-            tooltip.hide();
-            map.cancelPath();
-          } else if (mapInterceptX < mapWidth && mapInterceptY<mapHeight && mapInterceptX>=0 && mapInterceptY>=0 && nodes[mapInterceptY][mapInterceptX] != null) {
-            if (parties[selectedCellY][selectedCellX] != null) {
-              map.updatePath(getPath(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, map.getMoveNodes()));
-            }
-            if (parties[mapInterceptY][mapInterceptX]==null) {
-              //Moving into empty tile
-              int turns = getMoveTurns(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, nodes);
-              int cost = nodes[mapInterceptY][mapInterceptX].cost;
-              boolean splitting = splitUnitsNum()!=parties[selectedCellY][selectedCellX].getUnitNumber();
-              tooltip.setMoving(turns, splitting, parties[selectedCellY][selectedCellX], splitUnitsNum(), cost, jsManager.loadBooleanSetting("map is 3d"));
-              tooltip.show();
-            } else {
-              if (parties[mapInterceptY][mapInterceptX].player == turn) {
-                //merge parties
-                tooltip.setMerging(parties[mapInterceptY][mapInterceptX], parties[selectedCellY][selectedCellX], splitUnitsNum());
+    if (players[turn].controllerType != 1) {
+      LOGGER_MAIN.fine("refreshing tooltip");
+      if (!getPanel("pause screen").visible) {
+        TaskManager tasks = ((TaskManager)getElement("tasks", "party management"));
+        if (((EquipmentManager)getElement("equipment manager", "party management")).mouseOverTypes() && getPanel("party management").visible) {
+          int hoveringType = ((EquipmentManager)getElement("equipment manager", "party management")).hoveringOverType();
+          int equipmentClass = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
+          tooltip.setEquipment(equipmentClass, hoveringType, players[turn].resources, parties[selectedCellY][selectedCellX], isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, parties[selectedCellY][selectedCellX].getEquipment(equipmentClass)));
+          tooltip.show();
+        } else if (tasks.moveOver() && getPanel("party management").visible && !tasks.scrolling && !tasks.hovingOverScroll() && tasks.active) {
+          tooltip.setTask(((TaskManager)getElement("tasks", "party management")).findMouseOver(), players[turn].resources, parties[selectedCellY][selectedCellX].getMovementPoints());
+          tooltip.show();
+        } else if (((ProficiencySummary)getElement("proficiency summary", "party management")).mouseOver() && getPanel("party management").visible) {
+          tooltip.setProficiencies(((ProficiencySummary)getElement("proficiency summary", "party management")).hoveringOption(), parties[selectedCellY][selectedCellX]);
+          tooltip.show();
+        } else if (((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").visible) {
+          tooltip.setTurnsRemaining();
+          tooltip.show();
+        } else if (((Button)getElement("move button", "party management")).mouseOver()&& getPanel("party management").visible) {
+          tooltip.setMoveButton();
+          tooltip.show();
+        } else if (((Button)getElement("stock up button", "party management")).mouseOver() && getPanel("party management").visible) {
+          if (((Button)getElement("stock up button", "party management")).active) {
+            tooltip.setStockUpAvailable(parties[selectedCellY][selectedCellX], players[turn].resources);
+          } else {
+            tooltip.setStockUpUnavailable(parties[selectedCellY][selectedCellX]);
+          }
+          tooltip.show();
+        } else if (map.mouseOver()) {
+          map.doUpdateHoveringScale();
+          int mapInterceptX = floor(map.scaleXInv()); 
+          int mapInterceptY = floor(map.scaleYInv());
+          if (moving && !UIHovering()) {
+            Node [][] nodes = map.getMoveNodes();
+            if (selectedCellX == mapInterceptX && selectedCellY == mapInterceptY) {
+              tooltip.hide();
+              map.cancelPath();
+            } else if (mapInterceptX < mapWidth && mapInterceptY<mapHeight && mapInterceptX>=0 && mapInterceptY>=0 && nodes[mapInterceptY][mapInterceptX] != null) {
+              if (parties[selectedCellY][selectedCellX] != null) {
+                map.updatePath(getPath(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, map.getMoveNodes()));
+              }
+              if (parties[mapInterceptY][mapInterceptX]==null) {
+                //Moving into empty tile
+                int turns = getMoveTurns(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, nodes);
+                int cost = nodes[mapInterceptY][mapInterceptX].cost;
+                boolean splitting = splitUnitsNum()!=parties[selectedCellY][selectedCellX].getUnitNumber();
+                tooltip.setMoving(turns, splitting, parties[selectedCellY][selectedCellX], splitUnitsNum(), cost, jsManager.loadBooleanSetting("map is 3d"));
                 tooltip.show();
               } else {
-                //Attack
-                BigDecimal chance = battleEstimateManager.getEstimate(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, splitUnitsNum());
-                tooltip.setAttacking(chance);
-                tooltip.show();
+                if (parties[mapInterceptY][mapInterceptX].player == turn) {
+                  //merge parties
+                  tooltip.setMerging(parties[mapInterceptY][mapInterceptX], parties[selectedCellY][selectedCellX], splitUnitsNum());
+                  tooltip.show();
+                } else {
+                  //Attack
+                  BigDecimal chance = battleEstimateManager.getEstimate(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, splitUnitsNum());
+                  tooltip.setAttacking(chance);
+                  tooltip.show();
+                }
               }
+            }
+          } else {
+            map.cancelPath();
+            tooltip.hide();
+          }
+  
+          if (bombarding) {
+            if (0<=mapInterceptX&&mapInterceptX<mapWidth&&0<=mapInterceptY&&mapInterceptY<mapHeight && parties[mapInterceptY][mapInterceptX] != null && parties[mapInterceptY][mapInterceptX].player != turn) {
+              tooltip.setBombarding(getBombardmentDamage(parties[selectedCellY][selectedCellX], parties[mapInterceptY][mapInterceptX]));
+              tooltip.show();
+            }
+          } else if (!moving && 0 < mapInterceptY && mapInterceptY < mapHeight && 0 < mapInterceptX && mapInterceptX < mapWidth && !(parties[mapInterceptY][mapInterceptX] instanceof Battle) && parties[mapInterceptY][mapInterceptX] != null) {
+            if (!jsManager.loadBooleanSetting("fog of war") || (players[turn].visibleCells[mapInterceptY][mapInterceptX] != null && players[turn].visibleCells[mapInterceptY][mapInterceptX].party != null)) { 
+              // Hovering over party
+              tooltip.setHoveringParty(parties[mapInterceptY][mapInterceptX]);
+              tooltip.show();
             }
           }
         } else {
           map.cancelPath();
           tooltip.hide();
         }
-
-        if (bombarding) {
-          if (0<=mapInterceptX&&mapInterceptX<mapWidth&&0<=mapInterceptY&&mapInterceptY<mapHeight && parties[mapInterceptY][mapInterceptX] != null && parties[mapInterceptY][mapInterceptX].player != turn) {
-            tooltip.setBombarding(getBombardmentDamage(parties[selectedCellY][selectedCellX], parties[mapInterceptY][mapInterceptX]));
-            tooltip.show();
-          }
-        } else if (!moving && 0 < mapInterceptY && mapInterceptY < mapHeight && 0 < mapInterceptX && mapInterceptX < mapWidth && !(parties[mapInterceptY][mapInterceptX] instanceof Battle) && parties[mapInterceptY][mapInterceptX] != null){
-          // Hovering over party
-          tooltip.setHoveringParty(parties[mapInterceptY][mapInterceptX]);
-          tooltip.show();
-        }
-      }  else {
-        map.cancelPath();
-        tooltip.hide();
+        map.setActive(!UIHovering());
       }
-      map.setActive(!UIHovering());
     }
   }
 
@@ -2111,7 +2216,7 @@ class Game extends State {
               moving = true;
               bombarding = false;
               map.disableBombard();
-              map.updateMoveNodes(djk(selectedCellX, selectedCellY));
+              map.updateMoveNodes(LimitedKnowledgeDijkstra(selectedCellX, selectedCellY, mapWidth, mapHeight, players[turn].visibleCells, 20), players);
               refreshTooltip();
             }
           }
@@ -2123,7 +2228,7 @@ class Game extends State {
             int x = floor(map.scaleXInv());
             int y = floor(map.scaleYInv());
             if (0<=x&&x<mapWidth&&0<=y&&y<mapHeight) {
-              postEvent(new Move(selectedCellX, selectedCellY, x, y));
+              postEvent(new Move(selectedCellX, selectedCellY, x, y, round(((Slider)getElement("split units", "party management")).getValue())));
             }
             map.cancelPath();
             moving = false;
@@ -2164,7 +2269,7 @@ class Game extends State {
                 int x = floor(map.scaleXInv());
                 int y = floor(map.scaleYInv());
                 if (0<=x&&x<mapWidth&&0<=y&&y<mapHeight) {
-                  postEvent(new Move(selectedCellX, selectedCellY, x, y));
+                  postEvent(new Move(selectedCellX, selectedCellY, x, y, round(((Slider)getElement("split units", "party management")).getValue())));
                 }
                 map.cancelPath();
                 moving = false;
@@ -2199,7 +2304,7 @@ class Game extends State {
     deselectCell();
     if (raw) {
       selectCell();
-    } else if (cellInBounds(x, y)) {
+    } else if (cellInBounds(x, y) && !cinematicMode) {
       LOGGER_GAME.finer(String.format("Cell selected at (%d, %d) which is in bounds", x, y));
       tooltip.hide();
       selectedCellX = x;
@@ -2207,13 +2312,17 @@ class Game extends State {
       cellSelected = true;
       map.selectCell(selectedCellX, selectedCellY);
       //map.setWidth(round(width-bezel*2-400));
-      getPanel("land management").setVisible(true);
-      
+      if (players[turn].visibleCells[y][x] != null){
+        getPanel("land management").setVisible(true);
+      } else {
+        getPanel("land management").setVisible(false);
+      }
+
       updatePartyManagementInterface();
     }
   }
-  
-  void updatePartyManagementInterface(){
+
+  void updatePartyManagementInterface() {
     if (parties[selectedCellY][selectedCellX] != null && (parties[selectedCellY][selectedCellX].isTurn(turn) || jsManager.loadBooleanSetting("show all party managements"))) {
       if (parties[selectedCellY][selectedCellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle") && parties[selectedCellY][selectedCellX].isTurn(turn)) {
         ((Slider)getElement("split units", "party management")).show();
@@ -2232,10 +2341,10 @@ class Game extends State {
       } else {
         ((Slider)getElement("split units", "party management")).setScale(1, parties[selectedCellY][selectedCellX].getUnitNumber(), parties[selectedCellY][selectedCellX].getUnitNumber(), 1, parties[selectedCellY][selectedCellX].getUnitNumber()/2);
       }
-      
+
       partyManagementColour = brighten(playerColours[turn], -80); // Top
       getPanel("party management").setColour(brighten(playerColours[turn], 70)); // Background
-      
+
       if (isEquipmentCollectionAllowed(selectedCellX, selectedCellY)) {
         ((Button)getElement("stock up button", "party management")).bgColour = color(150);
         ((Button)getElement("stock up button", "party management")).textColour = color(0);
@@ -2248,7 +2357,7 @@ class Game extends State {
       ((ToggleButton)getElement("auto stock up toggle", "party management")).setState(parties[selectedCellY][selectedCellX].getAutoStockUp());
       checkTasks();
       int selectedEquipmentType = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
-      if (selectedEquipmentType != -1){
+      if (selectedEquipmentType != -1) {
         updatePartyManagementProficiencies();
       }
       ((EquipmentManager)getElement("equipment manager", "party management")).setEquipment(parties[selectedCellY][selectedCellX]);
@@ -2258,18 +2367,18 @@ class Game extends State {
       updateBombardment();
     }
   }
-  
+
   void updateBombardment() {
     if (parties[selectedCellY][selectedCellX].equipment[1] != -1 && 
-    gameData.getJSONArray("equipment").getJSONObject(1).getJSONArray("types").getJSONObject(parties[selectedCellY][selectedCellX].equipment[1]).hasKey("range") &&
-    parties[selectedCellY][selectedCellX].equipmentQuantities[1] > 0 && parties[selectedCellY][selectedCellX].getMovementPoints() > 0) {
+      gameData.getJSONArray("equipment").getJSONObject(1).getJSONArray("types").getJSONObject(parties[selectedCellY][selectedCellX].equipment[1]).hasKey("range") &&
+      parties[selectedCellY][selectedCellX].equipmentQuantities[1] > 0 && parties[selectedCellY][selectedCellX].getMovementPoints() > 0) {
       getElement("bombardment button", "party management").visible = true;
     } else {
       getElement("bombardment button", "party management").visible = false;
     }
   }
-  
-  void updateUnitCapIncrementer(){
+
+  void updateUnitCapIncrementer() {
     ((IncrementElement)getElement("unit cap incrementer", "party management")).setUpper(jsManager.loadIntSetting("party size"));
     ((IncrementElement)getElement("unit cap incrementer", "party management")).setLower(parties[selectedCellY][selectedCellX].getUnitNumber());
     ((IncrementElement)getElement("unit cap incrementer", "party management")).setValue(parties[selectedCellY][selectedCellX].getUnitCap());
@@ -2306,7 +2415,7 @@ class Game extends State {
     }
     panelCanvas.text("Movement Points Remaining: "+parties[selectedCellY][selectedCellX].getMovementPoints(turn) + "/"+parties[selectedCellY][selectedCellX].getMaxMovementPoints(), 120+sidePanelX, barY);
     barY += 13*jsManager.loadFloatSetting("text scale");
-    
+
     if (jsManager.loadBooleanSetting("show all party managements")&&parties[selectedCellY][selectedCellX].player==-1) {
       String t1 = ((Battle)parties[selectedCellY][selectedCellX]).attacker.id;
       String t2 = "Units: "+((Battle)parties[selectedCellY][selectedCellX]).attacker.getUnitNumber() + "/" + jsManager.loadIntSetting("party size");
@@ -2321,34 +2430,34 @@ class Game extends State {
       panelCanvas.text("Units: "+parties[selectedCellY][selectedCellX].getUnitNumber(turn) + "/" + jsManager.loadIntSetting("party size"), 120+sidePanelX, barY);
       barY += 13*jsManager.loadFloatSetting("text scale");
     }
-    
+
     if (parties[selectedCellY][selectedCellX].pathTurns > 0) {
       ((Text)getElement("turns remaining", "party management")).setText("Turns Remaining: "+ parties[selectedCellY][selectedCellX].pathTurns);
     } else if (parties[selectedCellY][selectedCellX].actions.size() > 0 && parties[selectedCellY][selectedCellX].actions.get(0).initialTurns > 0) {
       ((Text)getElement("turns remaining", "party management")).setText("Turns Remaining: "+parties[selectedCellY][selectedCellX].turnsLeft() + "/"+round(parties[selectedCellY][selectedCellX].calcTurns(parties[selectedCellY][selectedCellX].actions.get(0).initialTurns)));
     }
-    
+
     if (!((Text)getElement("turns remaining", "party management")).text.equals("")) {
       ((Text)getElement("turns remaining", "party management")).y = int(barY) - getPanel("party management").y;
       barY += 13*jsManager.loadFloatSetting("text scale");
     }
-    
+
     ((Slider)getElement("split units", "party management")).y = int(barY) - getPanel("party management").y;
     barY += ((Slider)getElement("split units", "party management")).h;
     barY += ((Button)getElement("stock up button", "party management")).h;
-    
+
     ((Button)getElement("stock up button", "party management")).y = int(barY) - getPanel("party management").y;
     ((ToggleButton)getElement("auto stock up toggle", "party management")).y = int(barY) - getPanel("party management").y;
     ((IncrementElement)getElement("unit cap incrementer", "party management")).y = int(barY) - getPanel("party management").y;
     barY += ((Button)getElement("stock up button", "party management")).h + bezel;
-    
+
     ((EquipmentManager)getElement("equipment manager", "party management")).y = int(barY) - getPanel("party management").y;
     barY += ((EquipmentManager)getElement("equipment manager", "party management")).getBoxHeight();
-    
+
     ((Text)getElement("task text", "party management")).y = int(barY) - getPanel("party management").y;
     ((Text)getElement("proficiencies", "party management")).y = int(barY) - getPanel("party management").y;
     barY += ((Text)getElement("proficiencies", "party management")).h;
-    
+
     ((TaskManager)getElement("tasks", "party management")).y = int(barY) - getPanel("party management").y;
     ((ProficiencySummary)getElement("proficiency summary", "party management")).y = int(barY) - getPanel("party management").y;
     barY += ((ProficiencySummary)getElement("proficiency summary", "party management")).h;
@@ -2438,9 +2547,9 @@ class Game extends State {
         count++;
       }
     }
-    
+
     if (max(progresses) <= 0) return;
-    
+
     if (progresses[turn] == 0) {
       progressMessage = "";
     } else {
@@ -2502,7 +2611,12 @@ class Game extends State {
       refreshTooltip();
       if (eventType == "keyTyped") {
         if (_key == ' '&&!cinematicMode) {
-          postEvent(new EndTurn());
+          if (((Button)getElement("end turn", "bottom bar")).getText().equals("Advance Units")) {
+            autoMoveParties();
+            ((Button)getElement("end turn", "bottom bar")).setText("Next Turn");
+          } else {
+            postEvent(new EndTurn());
+          }
         } else if (_key == 'i'&&!cinematicMode) {
           LOGGER_GAME.fine("Finding idle party as 'i' key pressed");
           int[] t = findIdle(turn);
@@ -2524,6 +2638,7 @@ class Game extends State {
     LOGGER_MAIN.fine("Reloading game...");
     mapWidth = jsManager.loadIntSetting("map size");
     mapHeight = jsManager.loadIntSetting("map size");
+    playerCount = players.length - 1; // THIS NEEDS TO BE CHANGED WHEN ADDING BANDIT TOGGLE
     updateSidePanelElementsSizes();
 
     // Default on for showing task icons and unit bars
@@ -2591,18 +2706,21 @@ class Game extends State {
       parties = ((BaseMap)map).parties;
       PVector[] playerStarts = generateStartingParties();
       // THIS NEEDS TO BE CHANGED WHEN ADDING PLAYER INPUT SELECTOR
-      players[2] = new Player((int)playerStarts[2].x, (int)playerStarts[2].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0, 255, 0), "Player 3  ");
+      players[2] = new Player((int)playerStarts[2].x, (int)playerStarts[2].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0, 255, 0), "Player 3  ", 0, 2);
       float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, jsManager.loadIntSetting("starting block size"));
-      players[1] = new Player((int)playerStarts[1].x, (int)playerStarts[1].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255, 0, 0), "Player 2  ");
+      players[1] = new Player((int)playerStarts[1].x, (int)playerStarts[1].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255, 0, 0), "Player 2  ", 0, 1);
       float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"));
-      players[0] = new Player((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0, 0, 255), "Player 1  ");
+      players[0] = new Player((int)playerStarts[0].x, (int)playerStarts[0].y, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(0, 0, 255), "Player 1  ", 0, 0);
+
+      players[playerCount] = new Player(0, 0, jsManager.loadIntSetting("starting block size"), startingResources.clone(), color(255, 0, 255), "Player 4  ", 1, 3);
+
       turn = 0;
       turnNumber = 0;
       deselectCell();
     }
     playerColours = new color[players.length];
     partyImages = new PImage[players.length];
-    for (int i=0; i < players.length; i++){
+    for (int i=0; i < players.length-1; i++) {
       playerColours[i] = players[i].colour;
       partyImages[i] = partyBaseImages[1].copy();
       partyImages[i].loadPixels();
@@ -2612,15 +2730,16 @@ class Game extends State {
         }
       }
     }
-    
+    playerColours[players.length-1] = players[players.length-1].colour;
+    partyImages[players.length-1] = partyBaseImages[2].copy();
+
     if (players[turn].cellSelected) {
       selectCell(players[turn].cellX, players[turn].cellY, false);
     }
     map.setPlayerColours(playerColours);
-    
+
     ((Console)getElement("console", "console")).giveObjects(map, players, this);
 
-    map.generateFog(turn);
     battleEstimateManager = new BattleEstimateManager(parties);
     //for(int i=0;i<NUMOFBUILDINGTYPES;i++){
     //  buildings[(int)playerStarts[0].y][(int)playerStarts[0].x+i] = new Building(1+i);
@@ -2638,7 +2757,7 @@ class Game extends State {
 
     // If first turn start players looking at right places
     if (turnNumber == 0) {
-      for (int i = players.length-1; i >= 0; i--) {
+      for (int i = playerCount; i >= 0; i--) {
         int[] t1 = findIdle(i);
         float[] targetOffsets = map.targetCell(t1[0], t1[1], 64);
         players[i].saveSettings(t1[0], t1[1], 64, selectedCellX, selectedCellY, false);
@@ -2651,6 +2770,10 @@ class Game extends State {
       ((Button)getElement("idle party finder", "bottom bar")).setColour(color(150));
     }
     map.generateShape();
+    players[turn].updateVisibleCells(terrain, buildings, parties);
+    if (players[turn].controllerType == 0){
+      map.updateVisibleCells(players[turn].visibleCells);
+    }
 
     map.setDrawingTaskIcons(true);
     map.setDrawingUnitBars(true);
@@ -2753,13 +2876,13 @@ class Game extends State {
     return costs.size();
   }
   boolean startInvalid(PVector[] ps) {
-    for (int i=0; i < players.length; i++){
-      if (((BaseMap)map).isWater(int(ps[i].x), int(ps[i].y))){
+    for (int i=0; i < playerCount; i++) {
+      if (((BaseMap)map).isWater(int(ps[i].x), int(ps[i].y))) {
         //Check starting position if on water
         return true;
       }
-      for (int j=i+1; j < players.length; j++){
-        if (ps[i].dist(ps[j])<mapWidth/8){
+      for (int j=i+1; j < playerCount; j++) {
+        if (ps[i].dist(ps[j])<mapWidth/8) {
           // Check distances between all players
           return true;
         }
@@ -2773,26 +2896,26 @@ class Game extends State {
 
   PVector[] generateStartingParties() {
     LOGGER_GAME.fine("Generating starting positions");
-    PVector[] playersStartingPositions = new PVector[players.length];
+    PVector[] playersStartingPositions = new PVector[playerCount];
     int counter = 0;
-    for (int i=0; i < players.length; i++){
+    for (int i=0; i < playerCount; i++) {
       playersStartingPositions[i] = new PVector();
     }
     while (startInvalid(playersStartingPositions)&&counter<1000) {
       counter++;
-      for (int i=0; i < players.length; i++){
+      for (int i=0; i < playerCount; i++) {
         playersStartingPositions[i] = generatePartyPosition();
       }
     }
     if (counter == 1000) {
       LOGGER_GAME.warning("Resorted to invalid party starts after "+counter+" attempts");
     }
-    for (int i=0; i < players.length; i++){
+    for (int i=0; i < playerCount; i++) {
       LOGGER_GAME.fine(String.format("Player %d party positition: (%f, %f)", i+1, playersStartingPositions[i].x, playersStartingPositions[i].y));
     }
     if (loadingName == null) {
-      for (int i=0; i < players.length; i++){
-        parties[(int)playersStartingPositions[i].y][(int)playersStartingPositions[i].x] = new Party(i, 100, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"), String.format("Player %d   #0", i));
+      for (int i=0; i < playerCount; i++) {
+        parties[(int)playersStartingPositions[i].y][(int)playersStartingPositions[i].x] = new Party(i, jsManager.loadIntSetting("party size")/2, JSONIndex(gameData.getJSONArray("tasks"), "Rest"), gameData.getJSONObject("game options").getInt("movement points"), String.format("Player %d   #0", i));
       }
     }
     return playersStartingPositions;

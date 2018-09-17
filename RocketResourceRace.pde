@@ -8,6 +8,8 @@ import java.util.logging.*;
 import static com.jogamp.newt.event.KeyEvent.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 
 // Create loggers
 final Logger LOGGER_MAIN = Logger.getLogger("RocketResourceRaceMain"); // Most logs belong here INCLUDING EXCEPTION LOGS. Also I have put saving logs here rather than game
@@ -220,7 +222,8 @@ void loadImages() {
     
     partyBaseImages = new PImage[]{
       loadImage("img/party/battle.png"),
-      loadImage("img/party/flag.png")
+      loadImage("img/party/flag.png"),
+      loadImage("img/party/bandit.png")
     };
     
     bombardImage = loadImage("img/ui/bombard.png");
@@ -368,7 +371,7 @@ boolean smoothed = false;
 
 void draw() {
   try {
-    background(255);
+    background(0);
     prevT = millis();
     String newState = getActiveState().update();
     if (!newState.equals("")) {

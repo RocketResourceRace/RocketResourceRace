@@ -29,8 +29,9 @@ class Party {
   ArrayList<int[]> path;
   int[] target;
   int pathTurns;
-  byte[]byteRep;
+  byte[] byteRep;
   boolean autoStockUp;
+  int sightRadiusPerUnit;
 
   Party(int player, int startingUnits, int startingTask, int movementPoints, String id) {
     unitNumber = startingUnits;
@@ -99,6 +100,10 @@ class Party {
     updateMaxMovementPoints();
   }
   
+  int containsPartyFromPlayer(int p) {
+    return int(player == p);
+  }
+  
   float getTrainingRateMultiplier(float x){
     // x is the current value of the proficiency
     return 4*exp(x-1)/pow(exp(x-1)+1, 2);  // This function is based on the derivative of the logisitics function. The factor of 4 is to make it start at 1.
@@ -119,10 +124,10 @@ class Party {
     setRawProficiency(jsManager.proficiencyIDToIndex(proficiencyID), currentProficiencyValue+addedProficiencyValue);
   }
   
-  float getEffectivenessMultiplier(String type, int proficiencyIndex){
+  float getEffectivenessMultiplier(String type){
     // This is the funciton to get the effectiveness of the party as different tasks based on proficiencies
     // 'type' is the ID used to determine which constant to use from data.json
-    float proficiency = getTotalProficiency(proficiencyIndex);
+    float proficiency = getTotalProficiency(jsManager.proficiencyIDToIndex(type));
     if (proficiency <= 0){ // proficiencies should never be negative because log(0) is undefined and log(<0) is complex. 
       return 0;
     } else {
@@ -140,7 +145,7 @@ class Party {
   
   void updateMaxMovementPoints(){
     // Based on speed proficiency
-    this.maxMovementPoints = floor(gameData.getJSONObject("game options").getInt("movement points") * getEffectivenessMultiplier("movement", jsManager.proficiencyIDToIndex("speed")));
+    this.maxMovementPoints = floor(gameData.getJSONObject("game options").getInt("movement points") * getEffectivenessMultiplier("speed"));
     setMovementPoints(min(maxMovementPoints, getMovementPoints()));
   }
   
@@ -606,6 +611,10 @@ class Party {
   boolean capped() {
     return unitNumber == unitCap;
   }
+  
+  int getSightUnitsRadius() {
+    return ceil(gameData.getJSONObject("game options").getInt("sight points") * getEffectivenessMultiplier("sight"));
+  }
 }
 
 class Battle extends Party {
@@ -617,6 +626,16 @@ class Battle extends Party {
     attacker.strength = 2;
     this.defender = defender;
   }
+  
+  int containsPartyFromPlayer(int p) {
+    if (attacker.player == p) {
+      return 1;
+    } else if (defender.player == p) {
+      return 2;
+    }
+    return 0;
+  }
+  
   boolean isTurn(int turn) {
     return true;
   }
@@ -727,8 +746,8 @@ class Siege extends Party {
 
 // THIS NEEDS TO BE CHANGED FOR DIPLOMACY
 int getBattleUnitChange(Party p1, Party p2) {
-  float damageRating = p2.strength * p2.getEffectivenessMultiplier("melee attack", jsManager.proficiencyIDToIndex("melee attack")) /
-  (p1.strength * p1.getEffectivenessMultiplier("defence", jsManager.proficiencyIDToIndex("defence")));
+  float damageRating = p2.strength * p2.getEffectivenessMultiplier("melee attack") /
+  (p1.strength * p1.getEffectivenessMultiplier("defence"));
   return floor(-0.2 * (p2.getUnitNumber() + pow(p2.getUnitNumber(), 2) / p1.getUnitNumber()) * random(0.75, 1.5) * damageRating);
 }
 //
@@ -752,7 +771,9 @@ Player getPlayer(Player[] players, String name){
   return players[0];
 }
 
+
 class Player {
+  private int id;
   float cameraCellX, cameraCellY, blockSize;
   float[] resources;
   int cellX, cellY, colour;
@@ -760,16 +781,131 @@ class Player {
   String name;
   boolean isAlive = true;
   PlayerController playerController;
+  int controllerType;  // 0 for local, 1 for bandits
+  Cell[][] visibleCells;
   
   // Resources: food wood metal energy concrete cable spaceship_parts ore people
-  Player(float x, float y, float blockSize, float[] resources, int colour, String name) {
+  Player(float x, float y, float blockSize, float[] resources, int colour, String name, int controllerType, int id) {
     this.cameraCellX = x;
     this.cameraCellY = y;
     this.blockSize = blockSize;
     this.resources = resources;
     this.colour = colour;
     this.name = name;
+    this.id = id;
+    
+    this.visibleCells = new Cell[jsManager.loadIntSetting("map size")][jsManager.loadIntSetting("map size")];
+    this.controllerType = controllerType;
+    switch(controllerType){
+      case 1:
+        playerController = new BanditController(id, jsManager.loadIntSetting("map size"), jsManager.loadIntSetting("map size"));
+        break;
+      default:
+        playerController = null;
+        break;
+    }
   }
+  
+  Node[][] sightDijkstra(int x, int y, Party[][] parties, int[][] terrain) {
+    int w = visibleCells[0].length;
+    int h = visibleCells.length;
+    int[][] mvs = {{1, 0}, {0, 1}, {1, 1}, {-1, 0}, {0, -1}, {-1, -1}, {1, -1}, {-1, 1}};
+    Node currentHeadNode;
+    Node[][] nodes = new Node[h][w];
+    nodes[y][x] = new Node(gameData.getJSONArray("terrain").getJSONObject(terrain[y][x]).getInt("sight bonus"), false, x, y, x, y);
+    PriorityQueue<Node> curMinNodes = new PriorityQueue<Node>(new NodeComparator());
+    curMinNodes.add(nodes[y][x]);
+    while (curMinNodes.size() > 0) {
+      currentHeadNode = curMinNodes.poll();
+      currentHeadNode.fixed = true;
+  
+      for (int[] mv : mvs) {
+        int nx = currentHeadNode.x+mv[0];
+        int ny = currentHeadNode.y+mv[1];
+        if (0 <= nx && nx < w && 0 <= ny && ny < h) {
+          int newCost = sightCost(nx, ny, currentHeadNode.x, currentHeadNode.y, terrain);
+          int prevCost = currentHeadNode.cost;
+          if (newCost != -1){ // Check that the cost is valid
+            int totalNewCost = prevCost+newCost;
+            if (totalNewCost < parties[y][x].getSightUnitsRadius()) {
+              if (nodes[ny][nx] == null) {
+                nodes[ny][nx] = new Node(totalNewCost, false, currentHeadNode.x, currentHeadNode.y, nx, ny);
+                curMinNodes.add(nodes[ny][nx]);
+              } else if (!nodes[ny][nx].fixed) {
+                if (totalNewCost < nodes[ny][nx].cost) { // Updating existing node
+                  nodes[ny][nx].cost = min(nodes[ny][nx].cost, totalNewCost);
+                  nodes[ny][nx].setPrev(currentHeadNode.x, currentHeadNode.y);
+                  curMinNodes.remove(nodes[ny][nx]);
+                  curMinNodes.add(nodes[ny][nx]);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return nodes;
+  }
+  
+  boolean[][] generateFogMap(Party[][] parties, int[][] terrain) {
+    int w = parties[0].length;
+    int h = parties.length;
+    boolean[][] fogMap = new boolean[h][w];
+    for (int y = 0; y < h; y++) {
+      for (int x = 0; x < w; x++) {
+        if (parties[y][x] != null && (parties[y][x].player == id || parties[y][x].containsPartyFromPlayer(id) > 0) && parties[y][x].getUnitNumber() > 0) {
+          Node[][] nodes = sightDijkstra(x, y, parties, terrain);
+          for (int y1 = max(0, y - parties[y][x].getSightUnitsRadius()); y1 < min(h, y + parties[y][x].getSightUnitsRadius()+1); y1++) {
+            for (int x1 = max(0, x - parties[y][x].getSightUnitsRadius()); x1 < min(w, x + parties[y][x].getSightUnitsRadius()+1); x1++) {
+              if (nodes[y1][x1] != null && nodes[y1][x1].cost <= parties[y][x].getSightUnitsRadius()) {
+                fogMap[y1][x1] = true;
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    return fogMap;
+  }
+  
+  void updateVisibleCells(int[][] terrain, Building[][] buildings, Party[][] parties, boolean[][] seenCells){
+    /* 
+    Run after every event for this player, and it updates the visibleCells taking into account fog of war.
+    Cells that have not been discovered yet will be null, and cells that are in active sight will be updated with the latest infomation.
+    */
+    LOGGER_MAIN.fine("Updating visible cells for player " + name);
+    boolean[][] fogMap = generateFogMap(parties, terrain);
+    
+    for (int y = 0; y < visibleCells.length; y++) {
+      for (int x = 0; x < visibleCells[0].length; x++) {
+        if (visibleCells[y][x] == null && (seenCells == null || !seenCells[y][x])) {
+          if (fogMap[y][x]) {
+            visibleCells[y][x] = new Cell(terrain[y][x], buildings[y][x], parties[y][x]);
+            visibleCells[y][x].setActiveSight(true);
+          }
+        } else {
+          if (visibleCells[y][x] == null) {
+            visibleCells[y][x] = new Cell(terrain[y][x], buildings[y][x], null);
+          } else {
+            visibleCells[y][x].setTerrain(terrain[y][x]);
+            visibleCells[y][x].setBuilding(buildings[y][x]);
+          }
+          visibleCells[y][x].setActiveSight(fogMap[y][x]);
+          if (visibleCells[y][x].getActiveSight()) {
+            visibleCells[y][x].setParty(parties[y][x]);
+          } else {
+            visibleCells[y][x].setParty(null);
+          }
+        }
+      }
+    }
+  }
+  
+  void updateVisibleCells(int[][] terrain, Building[][] buildings, Party[][] parties){
+    updateVisibleCells(terrain, buildings, parties, null);
+  }
+  
   void saveSettings(float x, float y, float blockSize, int cellX, int cellY, boolean cellSelected) {
     this.cameraCellX = x;
     this.cameraCellY = y;
@@ -790,16 +926,54 @@ class Player {
   
   GameEvent generateNextEvent(){
     // This method will be run continuously until it returns an end turn event
-    return playerController.generateNextEvent();
+    return playerController.generateNextEvent(visibleCells, resources);
   }
 }
 
 
 interface PlayerController {
-  GameEvent generateNextEvent();
+  GameEvent generateNextEvent(Cell[][] visibleCells, float resources[]);
 }
 
 
+class Cell {
+  private int terrain;
+  private Building building;
+  private Party party;
+  private boolean activeSight;
+  
+  Cell(int terrain, Building building, Party party){
+    this.terrain = terrain;
+    this.building = building;
+    this.party = party;
+    this.activeSight = false; // Needs to be updated later
+  }
+  
+  int getTerrain(){
+    return terrain;
+  }
+  Building getBuilding(){
+    return building;
+  }
+  Party getParty(){
+    return party;
+  }
+  boolean getActiveSight(){
+    return activeSight;
+  }
+  void setTerrain(int terrain){
+    this.terrain = terrain;
+  }
+  void setBuilding(Building building){
+    this.building = building;
+  }
+  void setParty(Party party){
+    this.party = party;
+  }
+  void setActiveSight(boolean activeSight){
+    this.activeSight = activeSight;
+  }
+}
 
 
 
@@ -807,12 +981,22 @@ class Node {
   int cost;
   boolean fixed;
   int prevX = -1, prevY = -1;
+  int x, y;
 
   Node(int cost, boolean fixed, int prevX, int prevY) {
     this.fixed = fixed;
     this.cost = cost;
     this.prevX = prevX;
     this.prevY = prevY;
+  }
+
+  Node(int cost, boolean fixed, int prevX, int prevY, int x, int y) {
+    this.fixed = fixed;
+    this.cost = cost;
+    this.prevX = prevX;
+    this.prevY = prevY;
+    this.x = x;
+    this.y = y;
   }
   void setPrev(int prevX, int prevY) {
     this.prevX = prevX;
@@ -895,42 +1079,43 @@ class BattleEstimateManager {
   }
   
   // THIS NEEDS TO BE CHANGED FOR DIPLOMACY
-  int runTrial(Party attacker, Party defender) {
-    try {
-      Battle battle;
-      Party clone1;
-      Party clone2;
-      if (defender instanceof Battle) {
-        battle = (Battle) defender.clone();
-        battle.changeUnitNumber(attacker.player, attacker.getUnitNumber());
-        if (battle.attacker.player==attacker.player) {
-          clone1 = battle.attacker;
-          clone2 = battle.defender;
-        } else {
-          clone1 = battle.defender;
-          clone2 = battle.attacker;
-        }
-      } else {
-        clone1 = attacker.clone();
-        clone2 = defender.clone();
-        battle = new Battle(clone1, clone2, ".battle");
-      }
-      while (clone1.getUnitNumber()>0&&clone2.getUnitNumber()>0) {
-        battle.doBattle();
-      }
-      if (clone1.getUnitNumber()>0) {
-        return 1;
-      } else {
-        return 0;
-      }
-    }
-    catch (Exception e) {
-      LOGGER_MAIN.log(Level.SEVERE, "Error running battle trial", e);
-      throw e;
-    }
-  }
   //
   void refresh() {
     cached = false;
+  }
+}
+
+int runTrial(Party attacker, Party defender) {
+  try {
+    Battle battle;
+    Party clone1;
+    Party clone2;
+    if (defender instanceof Battle) {
+      battle = (Battle) defender.clone();
+      battle.changeUnitNumber(attacker.player, attacker.getUnitNumber());
+      if (battle.attacker.player==attacker.player) {
+        clone1 = battle.attacker;
+        clone2 = battle.defender;
+      } else {
+        clone1 = battle.defender;
+        clone2 = battle.attacker;
+      }
+    } else {
+      clone1 = attacker.clone();
+      clone2 = defender.clone();
+      battle = new Battle(clone1, clone2, ".battle");
+    }
+    while (clone1.getUnitNumber()>0&&clone2.getUnitNumber()>0) {
+      battle.doBattle();
+    }
+    if (clone1.getUnitNumber()>0) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+  catch (Exception e) {
+    LOGGER_MAIN.log(Level.SEVERE, "Error running battle trial", e);
+    throw e;
   }
 }
