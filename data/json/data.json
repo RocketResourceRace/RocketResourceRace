@@ -1043,7 +1043,8 @@
     {
       "id": "Wooden Tower",
       "img": ["wooden_tower.png"],
-      "obj": ["wooden_tower.obj"]
+      "obj": ["wooden_tower.obj"],
+      "defence": 1
     },
     {
       "id": "Armoury",

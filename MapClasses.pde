@@ -5,11 +5,33 @@ class Building {
   int type;
   int image_id;
   Building(int type) {
-    this(type, 0);
+    this(type, 0, -1);
   }
-  Building(int type, int image_id) {
+  
+  Building(int type, int image_id, int player_id) {
     this.type = type;
-    this.image_id = image_id;
+    this.image_id = image_id + (player_id+1)*10000;
+  }
+  
+  void setHealth(float health) {
+    this.image_id = int(this.image_id / 10000) * 10000 + int(health * 1000);
+  }
+  
+  float getHealth() {
+    return this.image_id % 1000;
+  }
+  
+  int getDefence() {
+    JSONObject o = gameData.getJSONArray("buildings").getJSONObject(type);
+    if (o.hasKey("defence")) {
+      return o.getInt("defence");
+    } else {
+      return 0;
+    }
+  }
+  
+  int getPlayerID() {
+    return (this.image_id / 10000) - 1;
   }
 }
 
@@ -739,8 +761,10 @@ class Battle extends Party {
 }
 
 class Siege extends Party {
+  Building defence;
   Siege (Party attacker, Building defence, Party garrison, String id) {
     super(-2, attacker.getUnitNumber()+garrison.getUnitNumber(), JSONIndex(gameData.getJSONArray("tasks"), "Siege"), 0, id);
+    this.defence = defence;
   }
 }
 
