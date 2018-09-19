@@ -8,6 +8,10 @@ class Building {
     this(type, 0, -1);
   }
   
+  Building(int type, int image_id) {
+    this(type, image_id, -1);
+  }
+  
   Building(int type, int image_id, int player_id) {
     this.type = type;
     this.image_id = image_id + (player_id+1)*10000;

@@ -2179,6 +2179,10 @@ class Game extends State {
                   //merge parties
                   tooltip.setMerging(parties[mapInterceptY][mapInterceptX], parties[selectedCellY][selectedCellX], splitUnitsNum());
                   tooltip.show();
+                } else if (buildings[mapInterceptY][mapInterceptX] != null && buildings[mapInterceptY][mapInterceptX].getDefence() > 0) {
+                  //Siege
+                  tooltip.setSieging();
+                  tooltip.show();
                 } else {
                   //Attack
                   BigDecimal chance = battleEstimateManager.getEstimate(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, splitUnitsNum());

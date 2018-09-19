@@ -1203,6 +1203,12 @@ class Tooltip extends Element {
     }
     setText(t);
   }
+  
+  void setSieging() {
+    JSONObject jo = gameData.getJSONObject("tooltips");
+    setText(jo.getString("siege"));
+  }
+  
   void setAttacking(BigDecimal chance) {
     attacking = true;
     JSONObject jo = gameData.getJSONObject("tooltips");
