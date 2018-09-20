@@ -1559,18 +1559,30 @@ class Map3D extends BaseMap implements Map {
                 canvas.pushMatrix();
                 canvas.translate((x+0.5+0.1)*blockSize, (y+0.5)*blockSize, 30.5+groundMinHeightAt(x, y));
                 canvas.scale(0.95, 0.8, 0.8);
-                canvas.shape(flags[((Battle)visibleCells[y][x].party).defender.player]);
-                canvas.scale(5.0/9.5, 5.0/8.0, 1);
-                canvas.shape(flagPole);
+                if (((Battle)visibleCells[y][x].party).defender.player == flags.length) {
+                  //Bandit
+                  canvas.translate(blockSize*0.25, 0, 0);
+                  canvas.shape(bandit);
+                } else {
+                  canvas.shape(flags[((Battle)visibleCells[y][x].party).defender.player]);
+                  canvas.scale(5.0/9.5, 5.0/8.0, 1);
+                  canvas.shape(flagPole);
+                }
                 canvas.popMatrix();
                 
                 // Attacker
                 canvas.pushMatrix();
                 canvas.translate((x+0.5-0.1)*blockSize, (y+0.5)*blockSize, 30.5+groundMinHeightAt(x, y));
                 canvas.scale(-0.95, 0.8, 0.8);
-                canvas.shape(flags[((Battle)visibleCells[y][x].party).attacker.player]);
-                canvas.scale(5.0/9.5, 5.0/8.0, 1);
-                canvas.shape(flagPole);
+                if (((Battle)visibleCells[y][x].party).attacker.player == flags.length) {
+                  //Bandit
+                  canvas.translate(-blockSize*0.25, 0, 0);
+                  canvas.shape(bandit);
+                } else {
+                  canvas.shape(flags[((Battle)visibleCells[y][x].party).attacker.player]);
+                  canvas.scale(5.0/9.5, 5.0/8.0, 1);
+                  canvas.shape(flagPole);
+                }
                 canvas.popMatrix();
               } else {
                 if (visibleCells[y][x].party.player == playerColours.length-1) {
