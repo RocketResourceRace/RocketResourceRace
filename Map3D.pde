@@ -1012,6 +1012,8 @@ class Map3D extends BaseMap implements Map {
       cinematicMode = false;
       drawRocket = false;
       this.keyState = new HashMap<Character, Boolean>();
+      obscuredCellsOverlay = null;
+      unseenCellsOverlay = null;
     }
     catch (Exception e) {
       LOGGER_MAIN.log(Level.SEVERE, "Error loading models", e);
