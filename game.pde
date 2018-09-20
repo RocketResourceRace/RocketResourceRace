@@ -1941,10 +1941,14 @@ class Game extends State {
 
       boolean cellFollow = (px==selectedCellX && py==selectedCellY);
       boolean stillThere = true;
-      if (p.target == null || p.path == null)
+      
+      if (p.target == null || p.path == null) {
         return;
+      }
+      
       int tx = p.target[0];
       int ty = p.target[1];
+      
       if (px == tx && py == ty) {
         if (splitting) {
           if (parties[py][px] == null) {
@@ -1955,6 +1959,7 @@ class Game extends State {
             parties[py][px].changeUnitNumber(p.getUnitNumber());
           }
         }
+        
         p.clearPath();
         return;
       }
@@ -1962,42 +1967,51 @@ class Game extends State {
       ArrayList <int[]> path = p.path;
       int i=0;
       boolean moved = false;
+      
       for (int node=1; node<path.size(); node++) {
         int cost = cost(path.get(node)[0], path.get(node)[1], px, py);
+        
         if (p.getMovementPoints() >= cost) {
           // Train party for movement
           p.trainParty("speed", "moving");
 
           players[turn].updateVisibleCells(terrain, buildings, parties);
+          
           if (players[turn].controllerType == 0){
             map.updateVisibleCells(players[turn].visibleCells);
           }
 
           hasMoved = true;
+          
           if (parties[path.get(node)[1]][path.get(node)[0]] == null) {
             // empty cell
             p.subMovementPoints(cost);
             parties[path.get(node)[1]][path.get(node)[0]] = p;
             LOGGER_GAME.finer(String.format("Moving party with id:%s to (%d, %d) which is an empty cell, costing %d movement points. Movement points remaining:%d", p.getID(), path.get(node)[0], path.get(node)[1], cost, p.getMovementPoints()));
+            
             if (splitting) {
               splittedParty = null;
               splitting = false;
             } else {
               parties[py][px] = null;
             }
+            
             px = path.get(node)[0];
             py = path.get(node)[1];
             p = parties[py][px];
+            
             if (!moved) {
               p.moved();
               moved = true;
             }
           } else if (path.get(node)[0] != px || path.get(node)[1] != py) {
             p.clearPath();
+            
             if (parties[path.get(node)[1]][path.get(node)[0]].player == turn) {
               // merge parties
               notificationManager.post("Parties Merged", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
               int overflow = parties[path.get(node)[1]][path.get(node)[0]].mergeEntireFrom(p, cost, players[turn]);
+              
               LOGGER_GAME.fine(String.format("Parties merged at (%d, %d) from party with id: %s to party with id:%s. Overflow:%d", 
                 (int)path.get(node)[0], (int)path.get(node)[1], p.getID(), parties[path.get(node)[1]][path.get(node)[0]].getID(), overflow));
 
@@ -2005,6 +2019,7 @@ class Game extends State {
                 selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
                 stillThere = false;
               }
+              
               if (overflow == 0) {
                 if (splitting) {
                   splittedParty = null;
@@ -2017,20 +2032,23 @@ class Game extends State {
                 LOGGER_GAME.finer(String.format("Setting units in party with id:%s to %d as there was overflow", p.getID(), p.getUnitNumber()));
               }
             } else if (parties[path.get(node)[1]][path.get(node)[0]].player == -1) {
-              // merge cells battle
+              // reinforce battle
               notificationManager.post("Battle Reinforced", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
               int overflow = ((Battle) parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, p.getUnitNumber());
               LOGGER_GAME.fine(String.format("Battle reinforced at cell:(%d, %d). Merging party id:%s. Overflow:%d", (int)path.get(node)[0], (int)path.get(node)[1], p.getID(), overflow));
+              
               if (cellFollow) {
                 selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
                 stillThere = false;
               }
+              
               if (splitting) {
                 splittedParty = null;
                 splitting = false;
               } else {
                 parties[py][px] = null;
               }
+              
               if (overflow>0) {
                 if (parties[path.get(node-1)[1]][path.get(node-1)[0]]==null) {
                   p.setUnitNumber(overflow);
@@ -2051,6 +2069,7 @@ class Game extends State {
               p.subMovementPoints(cost);
               parties[y][x] = new Battle(p, parties[y][x], ".battle");
               parties[y][x] = ((Battle)parties[y][x]).doBattle();
+              
               if (parties[y][x].player != -1) {
                 notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, turn);
                 notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
@@ -2099,6 +2118,7 @@ class Game extends State {
       LOGGER_MAIN.log(Level.SEVERE, String.format("Error with indices out of bounds when moving party at cell:%s, %s", px, py), e);
     }
   }
+  
   int getMoveTurns(int startX, int startY, int targetX, int targetY, Node[][] nodes) {
     LOGGER_MAIN.fine(String.format("Getting move turns from (%s, %s) to (%s, %s)", startX, startY, targetX, targetY));
     int movementPoints;
@@ -2122,9 +2142,11 @@ class Game extends State {
     }
     return turns;
   }
+  
   int splitUnitsNum() {
     return round(((Slider)getElement("split units", "party management")).getValue());
   }
+  
   void refreshTooltip() {
     if (players[turn].controllerType != 1) {
       LOGGER_MAIN.fine("refreshing tooltip");
