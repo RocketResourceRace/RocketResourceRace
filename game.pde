@@ -1644,22 +1644,15 @@ class Game extends State {
   boolean canMove(int x, int y) {
     float points;
     int[][] mvs = {{1, 0}, {0, 1}, {1, 1}, {-1, 0}, {0, -1}, {-1, -1}, {1, -1}, {-1, 1}};
-
-    if (splittedParty!=null) {
-      points = splittedParty.getMovementPoints();
-      for (int[] n : mvs) {
-        if (points >= cost(x+n[0], y+n[1], x, y)) {
-          return true;
-        }
-      }
-    } else {
-      points = parties[y][x].getMovementPoints();
-      for (int[] n : mvs) {
-        if (points >= cost(x+n[0], y+n[1], x, y)) {
-          return true;
-        }
+    Party p = splittedParty == null ? parties[y][x] : splittedParty;
+    
+    points = p.getMovementPoints();
+    for (int[] n : mvs) {
+      if (points >= cost(x+n[0], y+n[1], x, y)) {
+        return true;
       }
     }
+    
     return false;
   }
 
