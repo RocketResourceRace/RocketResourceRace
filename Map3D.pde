@@ -500,7 +500,7 @@ class Map3D extends BaseMap implements Map {
         
         for (int y=0; y<mapHeight; y++) {
           for (int x=0; x<mapWidth; x++) {
-            if (visibleCells[y][x] != null && visibleCells[y][x].party != null && visibleCells[y][x].party.player != visibleCells[selectedCellY][selectedCellX].party.player) {
+            if (visibleCells[y][x] != null && visibleCells[y][x].party != null && visibleCells[y][x].party.player != visibleCells[selectedCellY][selectedCellX].party.player && visibleCells[y][x].party.player >= 0) {
               players[visibleCells[y][x].party.player].updateVisibleCells(terrain, buildings, parties);
               Node[][] tempMoveNodes = LimitedKnowledgeDijkstra(x, y, mapWidth, mapHeight, players[visibleCells[y][x].party.player].visibleCells, 1);
               for (int x1=0; x1<mapWidth; x1++) {

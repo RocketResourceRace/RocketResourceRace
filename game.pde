@@ -2032,31 +2032,40 @@ class Game extends State {
                 LOGGER_GAME.finer(String.format("Setting units in party with id:%s to %d as there was overflow", p.getID(), p.getUnitNumber()));
               }
             } else if (parties[path.get(node)[1]][path.get(node)[0]].player == -1) {
-              // reinforce battle
-              notificationManager.post("Battle Reinforced", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
-              int overflow = ((Battle) parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, p.getUnitNumber());
-              LOGGER_GAME.fine(String.format("Battle reinforced at cell:(%d, %d). Merging party id:%s. Overflow:%d", (int)path.get(node)[0], (int)path.get(node)[1], p.getID(), overflow));
-              
-              if (cellFollow) {
-                selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
-                stillThere = false;
-              }
-              
-              if (splitting) {
-                splittedParty = null;
-                splitting = false;
-              } else {
-                parties[py][px] = null;
-              }
-              
-              if (overflow>0) {
-                if (parties[path.get(node-1)[1]][path.get(node-1)[0]]==null) {
-                  p.setUnitNumber(overflow);
-                  parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
-                  LOGGER_GAME.finer(String.format("Setting units in party with id:%s to %d as there was overflow", p.getID(), p.getUnitNumber()));
-                } else {
-                  parties[path.get(node-1)[1]][path.get(node-1)[0]].changeUnitNumber(overflow);
+              if (parties[path.get(node)[1]][path.get(node)[0]].containsPartyFromPlayer(turn) > 0) {
+                // reinforce battle
+                notificationManager.post("Battle Reinforced", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
+                int overflow = ((Battle) parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, p.getUnitNumber());
+                LOGGER_GAME.fine(String.format("Battle reinforced at cell:(%d, %d). Merging party id:%s. Overflow:%d", (int)path.get(node)[0], (int)path.get(node)[1], p.getID(), overflow));
+                
+                if (cellFollow) {
+                  selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
+                  stillThere = false;
                 }
+                
+                if (splitting) {
+                  splittedParty = null;
+                  splitting = false;
+                } else {
+                  parties[py][px] = null;
+                }
+                
+                if (overflow>0) {
+                  if (parties[path.get(node-1)[1]][path.get(node-1)[0]]==null) {
+                    p.setUnitNumber(overflow);
+                    parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
+                    LOGGER_GAME.finer(String.format("Setting units in party with id:%s to %d as there was overflow", p.getID(), p.getUnitNumber()));
+                  } else {
+                    parties[path.get(node-1)[1]][path.get(node-1)[0]].changeUnitNumber(overflow);
+                  }
+                }
+              } else {
+                if (splitting) {
+                  parties[path.get(node-1)[1]][path.get(node-1)[0]] = splittedParty;
+                  splittedParty = null;
+                  splitting = false;
+                }
+                break;
               }
             } else {
               int x, y;
@@ -2093,6 +2102,7 @@ class Game extends State {
                 LOGGER_GAME.fine(String.format("Building in constuction destroyed due to battle at cell: (%d, %d)", path.get(node)[0], path.get(node)[1]));
               }
             }
+            p.clearPath();
             break;
           }
           i++;
@@ -2177,6 +2187,7 @@ class Game extends State {
           }
           tooltip.show();
         } else if (map.mouseOver()) {
+          Cell[][] visibleCells = players[turn].visibleCells;
           map.doUpdateHoveringScale();
           int mapInterceptX = floor(map.scaleXInv()); 
           int mapInterceptY = floor(map.scaleYInv());
@@ -2189,7 +2200,7 @@ class Game extends State {
               if (parties[selectedCellY][selectedCellX] != null) {
                 map.updatePath(getPath(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, map.getMoveNodes()));
               }
-              if (parties[mapInterceptY][mapInterceptX]==null) {
+              if (visibleCells[mapInterceptY][mapInterceptX] == null || visibleCells[mapInterceptY][mapInterceptX].getParty() == null) {
                 //Moving into empty tile
                 int turns = getMoveTurns(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, nodes);
                 int cost = nodes[mapInterceptY][mapInterceptX].cost;
@@ -2197,19 +2208,22 @@ class Game extends State {
                 tooltip.setMoving(turns, splitting, parties[selectedCellY][selectedCellX], splitUnitsNum(), cost, jsManager.loadBooleanSetting("map is 3d"));
                 tooltip.show();
               } else {
-                if (parties[mapInterceptY][mapInterceptX].player == turn) {
+                if (visibleCells[mapInterceptY][mapInterceptX].getParty().player == turn) {
                   //merge parties
-                  tooltip.setMerging(parties[mapInterceptY][mapInterceptX], parties[selectedCellY][selectedCellX], splitUnitsNum());
+                  tooltip.setMerging(visibleCells[mapInterceptY][mapInterceptX].getParty(), visibleCells[selectedCellY][selectedCellX].getParty(), splitUnitsNum());
                   tooltip.show();
-                } else if (buildings[mapInterceptY][mapInterceptX] != null && buildings[mapInterceptY][mapInterceptX].getDefence() > 0) {
+                } else if (visibleCells[mapInterceptY][mapInterceptX].getBuilding() != null && visibleCells[mapInterceptY][mapInterceptX].getBuilding().getDefence() > 0) {
                   //Siege
                   tooltip.setSieging();
                   tooltip.show();
-                } else {
+                } else if (!(visibleCells[mapInterceptY][mapInterceptX].getParty() instanceof Battle) || visibleCells[mapInterceptY][mapInterceptX].getParty().containsPartyFromPlayer(turn) > 0) {
                   //Attack
                   BigDecimal chance = battleEstimateManager.getEstimate(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, splitUnitsNum());
                   tooltip.setAttacking(chance);
                   tooltip.show();
+                } else {
+                  tooltip.hide();
+                  map.cancelPath();
                 }
               }
             }
@@ -2219,7 +2233,7 @@ class Game extends State {
           }
   
           if (bombarding) {
-            if (0<=mapInterceptX&&mapInterceptX<mapWidth&&0<=mapInterceptY&&mapInterceptY<mapHeight && parties[mapInterceptY][mapInterceptX] != null && parties[mapInterceptY][mapInterceptX].player != turn) {
+            if (0<=mapInterceptX&&mapInterceptX<mapWidth&&0<=mapInterceptY&&mapInterceptY<mapHeight && visibleCells[mapInterceptY][mapInterceptX].getParty() != null && visibleCells[mapInterceptY][mapInterceptX].getParty().player != turn) {
               tooltip.setBombarding(getBombardmentDamage(parties[selectedCellY][selectedCellX], parties[mapInterceptY][mapInterceptX]));
               tooltip.show();
             }
