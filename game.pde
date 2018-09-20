@@ -192,6 +192,7 @@ class Game extends State {
       throw e;
     }
   }
+  
   void initialiseTasks() {
     try {
       LOGGER_MAIN.fine("Initializing tasks");
@@ -220,6 +221,7 @@ class Game extends State {
       throw e;
     }
   }
+  
   void initialiseResources() {
     try {
       JSONObject js;
@@ -273,6 +275,7 @@ class Game extends State {
       throw e;
     }
   }
+  
   int taskTurns(String task) {
     try {
       JSONObject jo = findJSONObject(gameData.getJSONArray("tasks"), task);
@@ -289,7 +292,6 @@ class Game extends State {
     }
   }
 
-
   Action taskAction(int task) {
     try {
       JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(task).getJSONObject("action");
@@ -302,7 +304,6 @@ class Game extends State {
       throw e;
     }
   }
-
 
   float[] JSONToCost(JSONArray ja) {
     try {
@@ -782,6 +783,7 @@ class Game extends State {
     }
     return false;
   }
+  
   void updateSidePanelElementsSizes() {
     // Update the size of elements on the party panel and cell management panel
     sidePanelX = round(width-450*jsManager.loadFloatSetting("gui scale"));
@@ -813,14 +815,15 @@ class Game extends State {
     ((HorizontalOptionsButton)getElement("resources pages button", "resource management")).transform(bezel, bezel, int(100*jsManager.loadFloatSetting("gui scale")), int(30*jsManager.loadFloatSetting("gui scale")));
   }
 
-
   void makeTaskAvailable(int task) {
     ((TaskManager)getElement("tasks", "party management")).makeAvailable(gameData.getJSONArray("tasks").getJSONObject(task).getString("id"));
   }
+  
   void resetAvailableTasks() {
     ((TaskManager)getElement("tasks", "party management")).resetAvailable();
     ((TaskManager)getElement("tasks", "party management")).resetAvailableButOverBudget();
   }
+  
   void makeAvailableButOverBudget(int task) {
     ((TaskManager)getElement("tasks", "party management")).makeAvailableButOverBudget(gameData.getJSONArray("tasks").getJSONObject(task).getString("id"));
   }
@@ -1137,7 +1140,6 @@ class Game extends State {
     return false;
   }
 
-
   void handlePartyExcessResources(int x, int y) {
     Party p = parties[y][x];
     int[][] excessResources = p.removeExcessEquipment();
@@ -1448,7 +1450,6 @@ class Game extends State {
     }
   }
 
-
   boolean checkForPlayerWin() {
     if (winner == -1) {
       boolean[] playersAlive = new boolean[players.length];
@@ -1491,7 +1492,6 @@ class Game extends State {
     winnerMessage.setText(winnerMessage.text.replace("/w", str(winner+1)));
     return true;
   }
-
 
   void drawPanels() {
     LOGGER_MAIN.fine("started drawing game panels");
@@ -1567,6 +1567,7 @@ class Game extends State {
       postEvent(players[turn].generateNextEvent());
     }
   }
+  
   void partyMovementPointsReset() {
     for (int y=0; y<mapHeight; y++) {
       for (int x=0; x<mapWidth; x++) {
@@ -1578,9 +1579,11 @@ class Game extends State {
       }
     }
   }
+  
   void changeTurn() {
     changeTurn = true;
   }
+  
   boolean sufficientResources(float[] available, float[] required) {
     for (int i=0; i<numResources; i++) {
       if (available[i] < required[i]) {
@@ -1589,6 +1592,7 @@ class Game extends State {
     }
     return true;
   }
+  
   boolean sufficientResources(float[] available, float[] required, boolean flash) {
     ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
     boolean t = true;
@@ -1600,12 +1604,14 @@ class Game extends State {
     }
     return t;
   }
+  
   void spendRes(Player player, float[] required) {
     for (int i=0; i<numResources; i++) {
       player.resources[i] -= required[i];
       LOGGER_GAME.fine(String.format("Player spending: %f %s", required[i], resourceNames[i]));
     }
   }
+  
   void reclaimRes(Player player, float[] required) {
     //reclaim half cost of building
     for (int i=0; i<numResources; i++) {
@@ -1613,6 +1619,7 @@ class Game extends State {
       LOGGER_GAME.fine(String.format("Player reclaiming (half of building cost): %d %s", required[i], resourceNames[i]));
     }
   }
+  
   int[] newPartyLoc() {
     // Unused
     try {
