@@ -32,7 +32,7 @@ class Map3D extends BaseMap implements Map {
   float hoveringX, hoveringY, oldHoveringX, oldHoveringY;
   float targetXOffset, targetYOffset;
   int selectedCellX, selectedCellY;
-  PShape tiles, flagPole, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid, drawPossibleMoves, drawPossibleBombards, obscuredCellsOverlay, unseenCellsOverlay, dangerousCellsOverlay, bombardArrow, fog, bandit;
+  PShape tiles, flagPole, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid, drawPossibleMoves, drawPossibleBombards, obscuredCellsOverlay, unseenCellsOverlay, dangerousCellsOverlay, bombardArrow, bandit;
   PShape[] flags;
   HashMap<String, PShape> taskObjs;
   HashMap<String, PShape[]> buildingObjs;
