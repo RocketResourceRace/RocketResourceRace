@@ -1458,7 +1458,7 @@ class Game extends State {
       for (int y=0; y<mapHeight; y++) {
         for (int x=0; x<mapWidth; x++) {
           if (parties[y][x] != null) {
-            if (parties[y][x].player != -1) {
+            if (parties[y][x].player >= 0) {
               playersAlive[parties[y][x].player] = true;
             } else if (parties[y][x] instanceof Battle) {
               playersAlive[((Battle)parties[y][x]).defender.player] = true;
@@ -2031,6 +2031,7 @@ class Game extends State {
                 parties[path.get(node-1)[1]][path.get(node-1)[0]] = p;
                 LOGGER_GAME.finer(String.format("Setting units in party with id:%s to %d as there was overflow", p.getID(), p.getUnitNumber()));
               }
+              
             } else if (parties[path.get(node)[1]][path.get(node)[0]].player == -1) {
               if (parties[path.get(node)[1]][path.get(node)[0]].containsPartyFromPlayer(turn) > 0) {
                 // reinforce battle
@@ -2068,38 +2069,71 @@ class Game extends State {
                 break;
               }
             } else {
+              // Attacking
               int x, y;
               x = path.get(node)[0];
               y = path.get(node)[1];
               int otherPlayer = parties[y][x].player;
-              LOGGER_GAME.fine(String.format("Battle started. Attacker party id:%s, defender party id:%s. Cell: (%d, %d)", p.getID(), parties[y][x].getID(), x, y));
-              notificationManager.post("Battle Started", x, y, turnNumber, turn);
-              notificationManager.post("Battle Started", x, y, turnNumber, otherPlayer);
-              p.subMovementPoints(cost);
-              parties[y][x] = new Battle(p, parties[y][x], ".battle");
-              parties[y][x] = ((Battle)parties[y][x]).doBattle();
-              
-              if (parties[y][x].player != -1) {
-                notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, turn);
-                notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
-                parties[y][x].trainParty("melee attack", "winning battle melee");
-                parties[y][x].trainParty("defence", "winning battle defence");
-                LOGGER_GAME.fine(String.format("Battle ended at cell: (%d, %d). Units remaining:", x, y, parties[y][x].getUnitNumber()));
-              }
-              if (cellFollow) {
-                selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
-                stillThere = false;
-              }
-              if (splitting) {
-                splittedParty = null;
-                splitting = false;
+              if (buildings[y][x] != null && buildings[y][x].isDefenceBuilding()) {
+                LOGGER_GAME.fine(String.format("Siege started. Attacker party id:%s, defender party id:%s. Cell: (%d, %d)", p.getID(), parties[y][x].getID(), x, y));
+                notificationManager.post("Siege Started", x, y, turnNumber, turn);
+                notificationManager.post("Siege Started", x, y, turnNumber, otherPlayer);
+                p.subMovementPoints(cost);
+                parties[y][x] = new Siege(p, buildings[y][x], parties[y][x], ".battle");
+                parties[y][x] = ((Siege)parties[y][x]).doBattle();
+                
+                if (parties[y][x].player != -2) {
+                  notificationManager.post("Siege Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, turn);
+                  notificationManager.post("Siege Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
+                  parties[y][x].trainParty("melee attack", "winning battle melee");
+                  parties[y][x].trainParty("defence", "winning battle defence");
+                  LOGGER_GAME.fine(String.format("Siege ended at cell: (%d, %d). Units remaining:", x, y, parties[y][x].getUnitNumber()));
+                }
+                if (cellFollow) {
+                  selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
+                  stillThere = false;
+                }
+                if (splitting) {
+                  splittedParty = null;
+                  splitting = false;
+                } else {
+                  parties[py][px] = null;
+                }
+                if (buildings[path.get(node)[1]][path.get(node)[0]]!=null&&buildings[path.get(node)[1]][path.get(node)[0]].type==0) {
+                  // If there is a building under constuction, then delete it when battle
+                  buildings[path.get(node)[1]][path.get(node)[0]] = null;
+                  LOGGER_GAME.fine(String.format("Building in constuction destroyed due to battle at cell: (%d, %d)", path.get(node)[0], path.get(node)[1]));
+                }
               } else {
-                parties[py][px] = null;
-              }
-              if (buildings[path.get(node)[1]][path.get(node)[0]]!=null&&buildings[path.get(node)[1]][path.get(node)[0]].type==0) {
-                // If there is a building under constuction, then delete it when battle
-                buildings[path.get(node)[1]][path.get(node)[0]] = null;
-                LOGGER_GAME.fine(String.format("Building in constuction destroyed due to battle at cell: (%d, %d)", path.get(node)[0], path.get(node)[1]));
+                LOGGER_GAME.fine(String.format("Battle started. Attacker party id:%s, defender party id:%s. Cell: (%d, %d)", p.getID(), parties[y][x].getID(), x, y));
+                notificationManager.post("Battle Started", x, y, turnNumber, turn);
+                notificationManager.post("Battle Started", x, y, turnNumber, otherPlayer);
+                p.subMovementPoints(cost);
+                parties[y][x] = new Battle(p, parties[y][x], ".battle");
+                parties[y][x] = ((Battle)parties[y][x]).doBattle();
+                
+                if (parties[y][x].player != -1) {
+                  notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, turn);
+                  notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
+                  parties[y][x].trainParty("melee attack", "winning battle melee");
+                  parties[y][x].trainParty("defence", "winning battle defence");
+                  LOGGER_GAME.fine(String.format("Battle ended at cell: (%d, %d). Units remaining:", x, y, parties[y][x].getUnitNumber()));
+                }
+                if (cellFollow) {
+                  selectCell((int)path.get(node)[0], (int)path.get(node)[1], false);
+                  stillThere = false;
+                }
+                if (splitting) {
+                  splittedParty = null;
+                  splitting = false;
+                } else {
+                  parties[py][px] = null;
+                }
+                if (buildings[path.get(node)[1]][path.get(node)[0]]!=null&&buildings[path.get(node)[1]][path.get(node)[0]].type==0) {
+                  // If there is a building under constuction, then delete it when battle
+                  buildings[path.get(node)[1]][path.get(node)[0]] = null;
+                  LOGGER_GAME.fine(String.format("Building in constuction destroyed due to battle at cell: (%d, %d)", path.get(node)[0], path.get(node)[1]));
+                }
               }
             }
             p.clearPath();
