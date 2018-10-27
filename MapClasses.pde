@@ -822,7 +822,7 @@ class Siege extends Battle {
       }
     }
     catch (Exception e) {
-      LOGGER_MAIN.log(Level.SEVERE, "Error doing battle", e);
+      LOGGER_MAIN.log(Level.SEVERE, "Error doing Siege", e);
       throw e;
     }
   }
@@ -837,8 +837,8 @@ int getBattleUnitChange(Party p1, Party p2) {
 
 // THIS NEEDS TO BE CHANGED FOR DIPLOMACY
 int getSiegeUnitChange(Party p1, Party p2, Building defence) {
-  float damageRating = p2.strength * p2.getEffectivenessMultiplier("melee attack") /
-  (p1.strength * p1.getEffectivenessMultiplier("defence"));
+  float damageRating = p2.strength * p2.getEffectivenessMultiplier("melee attack") * (1 + int(defence.getPlayerID() == p2.player) * gameData.getJSONArray("buildings").getJSONObject(defence.type).getFloat("defence"))/
+  (p1.strength * p1.getEffectivenessMultiplier("defence") * (1 + int(defence.getPlayerID() == p1.player) * defence.getHealth()));
   return floor(-0.2 * (p2.getUnitNumber() + pow(p2.getUnitNumber(), 2) / p1.getUnitNumber()) * random(0.75, 1.5) * damageRating);
 }
 
