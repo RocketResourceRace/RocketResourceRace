@@ -305,13 +305,13 @@ float sum(float[] l) {
 
 void settings() {
   System.setProperty("jogl.disable.openglcore", "true");
+  fullScreen(P3D);
 }
 
 
 float halfScreenWidth;
 float halfScreenHeight;
 void setup() {
-  fullScreen(P3D);
   try {
     // Set up loggers
     FileHandler mainHandler = new FileHandler(sketchPath("main_log.log"));
