@@ -17,3 +17,5 @@ data/settings.json
 *.log
 *.lck
 settings.json
+.idea
+*.blend1

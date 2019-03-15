@@ -205,7 +205,7 @@ class Map3D extends BaseMap implements Map {
     pathLine.endShape();
     drawPath = path;
   }
-  
+
   void loadUnseenCellsOverlay(Cell[][] visibleCells) {
     // For the shape that indicates cells that have not been seen
     try {
@@ -259,7 +259,7 @@ class Map3D extends BaseMap implements Map {
       throw e;
     }
   }
-  
+
   void updateUnseenCellsOverlay(Cell[][] visibleCells) {
     // For the shape that indicates cells that have not been seen
     try {
@@ -284,7 +284,7 @@ class Map3D extends BaseMap implements Map {
                     c++;
                     unseenCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
                     c++;
-    
+
                     unseenCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
                     c++;
                     unseenCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
@@ -301,7 +301,7 @@ class Map3D extends BaseMap implements Map {
                 trees.addChild(cellTree);
                 addTreeTile(x, y, numTreeTiles++);
               }
-              
+
               if (unseenCellsOverlay.getVertex(c).z != 0) {
                 for (int y1=0; y1 < jsManager.loadFloatSetting("terrain detail"); y1++) {
                   for (int x1=0; x1 < jsManager.loadFloatSetting("terrain detail"); x1++) {
@@ -311,7 +311,7 @@ class Map3D extends BaseMap implements Map {
                     c++;
                     unseenCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 0);
                     c++;
-    
+
                     unseenCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 0);
                     c++;
                     unseenCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, 0);
@@ -332,7 +332,7 @@ class Map3D extends BaseMap implements Map {
       throw e;
     }
   }
-  
+
   void loadObscuredCellsOverlay(Cell[][] visibleCells) {
     // For the shape that indicates cells that are not currently under party sight
     try {
@@ -377,7 +377,7 @@ class Map3D extends BaseMap implements Map {
       throw e;
     }
   }
-  
+
   void updateObscuredCellsOverlay(Cell[][] visibleCells) {
     // For the shape that indicates cells that are not currently under party sight
     try {
@@ -399,7 +399,7 @@ class Map3D extends BaseMap implements Map {
                     c++;
                     obscuredCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
                     c++;
-    
+
                     obscuredCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
                     c++;
                     obscuredCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
@@ -419,7 +419,7 @@ class Map3D extends BaseMap implements Map {
                     c++;
                     obscuredCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 0);
                     c++;
-    
+
                     obscuredCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, 0);
                     c++;
                     obscuredCellsOverlay.setVertex(c, x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, 0);
@@ -440,20 +440,20 @@ class Map3D extends BaseMap implements Map {
       throw e;
     }
   }
-  
-  
+
+
   void updateVisibleCells(Cell[][] visibleCells) {
     super.updateVisibleCells(visibleCells);
     updateOverlays(visibleCells);
   }
-  
+
   void updateOverlays(Cell[][] visibleCells) {
     if (jsManager.loadBooleanSetting("fog of war")) {
       updateObscuredCellsOverlay(visibleCells);
       updateUnseenCellsOverlay(visibleCells);
     }
   }
-  
+
   void updatePossibleMoves() {
     // For the shape that indicateds where a party can move
     try {
@@ -486,7 +486,7 @@ class Map3D extends BaseMap implements Map {
       throw e;
     }
   }
-  
+
   void updateDangerousCellsOverlay(Cell[][] visibleCells, Player[] players) {
     // For the shape that indicates cells that are dangerous
     try {
@@ -497,7 +497,7 @@ class Map3D extends BaseMap implements Map {
         dangerousCellsOverlay.beginShape(TRIANGLES);
         dangerousCellsOverlay.fill(255, 0, 0, 150);
         boolean[][] dangerousCells = new boolean[mapHeight][mapWidth];
-        
+
         for (int y=0; y<mapHeight; y++) {
           for (int x=0; x<mapWidth; x++) {
             if (visibleCells[y][x] != null && visibleCells[y][x].party != null && visibleCells[y][x].party.player != visibleCells[selectedCellY][selectedCellX].party.player && visibleCells[y][x].party.player >= 0) {
@@ -521,7 +521,7 @@ class Map3D extends BaseMap implements Map {
                   dangerousCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+y1*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
                   dangerousCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
                   dangerousCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
-  
+
                   dangerousCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+y1*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+y1/jsManager.loadFloatSetting("terrain detail")));
                   dangerousCellsOverlay.vertex(x*blockSize+(x1+1)*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+(x1+1)/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
                   dangerousCellsOverlay.vertex(x*blockSize+x1*smallSize, y*blockSize+(y1+1)*smallSize, getHeight(x+x1/jsManager.loadFloatSetting("terrain detail"), y+(y1+1)/jsManager.loadFloatSetting("terrain detail")));
@@ -896,7 +896,7 @@ class Map3D extends BaseMap implements Map {
       resetMatrix();
 
       LOGGER_MAIN.fine("Generating player flags");
-      
+
       flagPole = loadShape("obj/party/flagpole.obj");
       flagPole.rotateX(PI/2);
       flagPole.scale(2, 2.5, 2.5);
@@ -953,8 +953,8 @@ class Map3D extends BaseMap implements Map {
         unitNumberObjects[i].endShape();
         unitNumberObjects[i].rotateX(PI/2);
       }
-      
-      
+
+
       tileRect = createShape();
       tileRect.beginShape();
       tileRect.noFill();
@@ -1005,7 +1005,7 @@ class Map3D extends BaseMap implements Map {
           }
         }
       }
-      
+
       bombardArrow = createShape();
 
       popStyle();
@@ -1243,7 +1243,7 @@ class Map3D extends BaseMap implements Map {
   float getHeight(float x, float y) {
     //if (y<mapHeight && x<mapWidth && y+jsManager.loadFloatSetting("terrain detail")/blockSize<mapHeight && x+jsManager.loadFloatSetting("terrain detail")/blockSize<mapHeight && y-jsManager.loadFloatSetting("terrain detail")/blockSize>=0 && x-jsManager.loadFloatSetting("terrain detail")/blockSize>=0 &&
     //terrain[floor(y)][floor(x)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 &&
-    //terrain[floor(y+jsManager.loadFloatSetting("terrain detail")/blockSize)][floor(x+jsManager.loadFloatSetting("terrain detail")/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 && 
+    //terrain[floor(y+jsManager.loadFloatSetting("terrain detail")/blockSize)][floor(x+jsManager.loadFloatSetting("terrain detail")/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 &&
     //terrain[floor(y-jsManager.loadFloatSetting("terrain detail")/blockSize)][floor(x-jsManager.loadFloatSetting("terrain detail")/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1){
     //  return (max(noise(x*MAPNOISESCALE, y*MAPNOISESCALE), waterLevel)-waterLevel)*blockSize*GROUNDHEIGHT*HILLRAISE;
     //} else {
@@ -1512,7 +1512,7 @@ class Map3D extends BaseMap implements Map {
         canvas.shape(dangerousCellsOverlay);
         canvas.popMatrix();
       }
-      
+
       if (jsManager.loadBooleanSetting("fog of war")) {
         canvas.pushMatrix();
         canvas.translate(0, 0, verySmallSize);
@@ -1520,7 +1520,7 @@ class Map3D extends BaseMap implements Map {
         canvas.shape(unseenCellsOverlay);
         canvas.popMatrix();
       }
-      
+
       if (showingBombard) {
         drawBombard(canvas);
         canvas.pushMatrix();
@@ -1556,7 +1556,7 @@ class Map3D extends BaseMap implements Map {
                 canvas.translate((x+0.5)*blockSize, (y+0.5)*blockSize, 12+groundMaxHeightAt(x, y));
                 canvas.shape(battle);
                 canvas.popMatrix();
-                
+
                 // Defender
                 canvas.pushMatrix();
                 canvas.translate((x+0.5+0.1)*blockSize, (y+0.5)*blockSize, 30.5+groundMinHeightAt(x, y));
@@ -1571,7 +1571,7 @@ class Map3D extends BaseMap implements Map {
                   canvas.shape(flagPole);
                 }
                 canvas.popMatrix();
-                
+
                 // Attacker
                 canvas.pushMatrix();
                 canvas.translate((x+0.5-0.1)*blockSize, (y+0.5)*blockSize, 30.5+groundMinHeightAt(x, y));
@@ -1600,11 +1600,11 @@ class Map3D extends BaseMap implements Map {
                   canvas.popMatrix();
                 }
               }
-  
+
               if (drawingUnitBars&&!cinematicMode) {
                 drawUnitBar(x, y, canvas);
               }
-  
+
               JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(visibleCells[y][x].party.task);
               if (drawingTaskIcons && jo != null && !jo.isNull("img") && !cinematicMode) {
                 canvas.noLights();
@@ -1841,11 +1841,11 @@ class Map3D extends BaseMap implements Map {
     drawRocket = false;
     showingBombard = false;
   }
-  
+
   void drawBombard(PGraphics canvas) {
     canvas.shape(bombardArrow);
   }
-  
+
   void updateBombard() {
     PVector pos = getMousePosOnObject();
     int x = floor(pos.x/blockSize);
@@ -1882,37 +1882,37 @@ class Map3D extends BaseMap implements Map {
         currentPosA = nextPosA;
         currentPosB = nextPosB;
       }
-      
+
       PVector temp = PVector.add(currentPosA, thicknessAdder);
       bombardArrow.vertex(currentPosA.x, currentPosA.y, currentPosA.z);
       bombardArrow.vertex(temp.x, temp.y, temp.z);
       bombardArrow.vertex(endPos.x, endPos.y, endPos.z);
-      
+
       bombardArrow.vertex(currentPosA.x, currentPosA.y, currentPosA.z);
       bombardArrow.vertex(currentPosB.x, currentPosB.y, currentPosB.z);
       bombardArrow.vertex(endPos.x, endPos.y, endPos.z);
-      
+
       temp = PVector.sub(currentPosB, thicknessAdder);
       bombardArrow.vertex(currentPosB.x, currentPosB.y, currentPosB.z);
       bombardArrow.vertex(temp.x, temp.y, temp.z);
       bombardArrow.vertex(endPos.x, endPos.y, endPos.z);
-      
+
       bombardArrow.endShape();
       bombardArrow.setVisible(true);
     }
   }
-  
+
   void enableBombard(int range) {
     showingBombard = true;
     bombardRange = range;
     updateBombard();
     updatePossibleBombards();
   }
-  
+
   void disableBombard() {
     showingBombard = false;
   }
-  
+
   void setPlayerColours(color[] playerColours) {
     this.playerColours = playerColours;
   }
