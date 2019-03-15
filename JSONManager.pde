@@ -1,10 +1,12 @@
 class JSONManager {
   JSONObject menu, gameData, settings;
+  JSONArray defaultSettings;
 
   JSONManager() {
     try {
       LOGGER_MAIN.fine("Initializing JSON Manager");
       menu = loadJSONObject("json/menu.json");
+      defaultSettings = loadJSONObject("json/default_settings.json").getJSONArray("default settings");
       gameData = loadJSONObject("json/data.json");
       try {
         settings = loadJSONObject("settings.json");
@@ -28,7 +30,7 @@ class JSONManager {
       throw e;
     }
   }
-  
+
   float getRawProficiencyGain(String id){
    if (!gameData.getJSONObject("raw training gains").isNull(id)){
      return gameData.getJSONObject("raw training gains").getFloat(id);
@@ -38,7 +40,7 @@ class JSONManager {
      return 0;
    }
   }
-  
+
   int getMaxTerrainMovementCost(){
     // Find the maximum possible terrain cost
     int mx = 0;
@@ -47,7 +49,7 @@ class JSONManager {
     }
     return mx;
   }
-  
+
   int getMaxTerrainSightCost(){
     // Find the maximum possible terrain cost
     int mx = 0;
@@ -126,7 +128,7 @@ class JSONManager {
       return -1;
     }
   }
-  
+
   JSONObject getEquipmentObject(int classIndex, int typeIndex){
     try{
       return gameData.getJSONArray("equipment").getJSONObject(classIndex).getJSONArray("types").getJSONObject(typeIndex);
@@ -136,7 +138,7 @@ class JSONManager {
       throw e;
     }
   }
-  
+
   String[] getOtherClassBlocking(int classIndex, int typeIndex){
     try{
       JSONObject typeObject = gameData.getJSONArray("equipment").getJSONObject(classIndex).getJSONArray("types").getJSONObject(typeIndex);
@@ -156,7 +158,7 @@ class JSONManager {
       throw e;
     }
   }
-  
+
   String getEquipmentImageFileName(int classIndex, int typeIndex){
     try{
       if (!gameData.getJSONArray("equipment").getJSONObject(classIndex).getJSONArray("types").getJSONObject(typeIndex).isNull("img")){
@@ -172,7 +174,7 @@ class JSONManager {
       throw e;
     }
   }
-  
+
   int getNumEquipmentTypesFromClass(int classType){
     // type is the index of the type in data.json
     if (classType<0){
@@ -187,7 +189,7 @@ class JSONManager {
       throw e;
     }
   }
-  
+
   String[] getEquipmentFromClass(int type) {
     // type is the index of the type in data.json
     try {
@@ -244,7 +246,7 @@ class JSONManager {
       throw e;
     }
   }
-  
+
   String getEquipmentTypeID(int equipmentClass, int equipmentType){
     if (equipmentType == -1){
       LOGGER_MAIN.warning("No equipment type selected");
@@ -264,7 +266,7 @@ class JSONManager {
       throw e;
     }
   }
-  
+
   int getEquipmentClassFromID(String classID){
     for (int c=0; c < getNumEquipmentClasses(); c ++){
       if (getEquipmentClass(c).equals(classID)){
@@ -274,7 +276,7 @@ class JSONManager {
     LOGGER_MAIN.warning("Equipment class not found id:"+classID);
     return -1;
   }
-  
+
   int[] getEquipmentTypeClassFromID(String id){
     for (int c=0; c < getNumEquipmentClasses(); c ++){
       for (int t=0; t < getNumEquipmentTypesFromClass(c); t ++){
@@ -286,7 +288,7 @@ class JSONManager {
     LOGGER_MAIN.warning("Equipment type not found id:"+id);
     return null;
   }
-  
+
   String getEquipmentTypeDisplayName(int equipmentClass, int equipmentType){
     try {
       return gameData.getJSONArray("equipment").getJSONObject(equipmentClass).getJSONArray("types").getJSONObject(equipmentType).getString("display name");
@@ -321,7 +323,7 @@ class JSONManager {
       throw e;
     }
   }
-  
+
   boolean resourceIsEquipment(int r){
     // Check if a resource represents a type of equipment
     try {
@@ -336,7 +338,7 @@ class JSONManager {
       throw e;
     }
   }
-  
+
   float getEffectivenessConstant(String type){
     try{
       if (!gameData.getJSONObject("effectiveness constants").isNull(type)){
@@ -439,7 +441,6 @@ class JSONManager {
     // Reset all the settings to their default values
     LOGGER_MAIN.info("Loading default settings for all settings");
     try {
-      JSONArray defaultSettings = menu.getJSONArray("default settings");
       for (int i=0; i<defaultSettings.size(); i++) {
         JSONObject setting = defaultSettings.getJSONObject(i);
         if (setting.getString("type").equals("int")) {
@@ -465,7 +466,6 @@ class JSONManager {
     // Set all the settings to either the default value, or the value already set
     LOGGER_MAIN.info("Loading initial settings");
     try {
-      JSONArray defaultSettings = menu.getJSONArray("default settings");
       for (int i=0; i<defaultSettings.size(); i++) {
         JSONObject setting = defaultSettings.getJSONObject(i);
         if (settings.get(setting.getString("id")) == null) {
@@ -536,7 +536,6 @@ class JSONManager {
 
   void saveDefault(String id) {
     LOGGER_MAIN.info("Saving all default settings");
-    JSONArray defaultSettings = menu.getJSONArray("default settings");
     for (int i=0; i<defaultSettings.size(); i++) {
       if (defaultSettings.getJSONObject(i).getString("id").equals(id)) {
         JSONObject setting = defaultSettings.getJSONObject(i);
@@ -575,7 +574,7 @@ class JSONManager {
       throw e;
     }
   }
-  
+
   int findJSONObjectIndex(JSONArray j, String id) {
     // search for a json object in a json array with correct id
     try {
@@ -843,7 +842,7 @@ class JSONManager {
       throw e;
     }
   }
-  
+
   boolean resourceExists(String id) {
     for (int i = 0; i < gameData.getJSONArray("resources").size(); i++) {
       if (gameData.getJSONArray("resources").getJSONObject(i).getString("id").equals(id)) {
@@ -852,7 +851,7 @@ class JSONManager {
     }
     return false;
   }
-  
+
   int getTaskIndex(String id) {
     try {
       return JSONIndex(gameData.getJSONArray("tasks"), id);
