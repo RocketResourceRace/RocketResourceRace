@@ -44,7 +44,7 @@ public class Party {
         task = startingTask;
         this.player = player;
         this.movementPoints = movementPoints;
-        actions = new ArrayList<Action>();
+        actions = new ArrayList<>();
         strength = 1.5f;
         clearPath();
         target = null;
@@ -72,13 +72,13 @@ public class Party {
         updateMaxMovementPoints();
     }
 
-    Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float[] proficiencies, int trainingFocus, int[] equipment, int[] equipmentQuantities, int unitCap, boolean autoStockUp) {
+    private Party(int player, int startingUnits, int startingTask, int movementPoints, String id, float[] proficiencies, int trainingFocus, int[] equipment, int[] equipmentQuantities, int unitCap, boolean autoStockUp) {
         // For parties that already exist and are being splitted or loaded from save
         unitNumber = startingUnits;
         task = startingTask;
         this.player = player;
         this.movementPoints = movementPoints;
-        this.actions = new ArrayList<Action>();
+        this.actions = new ArrayList<>();
         this.strength = 1.5f;
         this.clearPath();
         this.target = null;
@@ -110,7 +110,7 @@ public class Party {
         return PApplet.parseInt(player == p);
     }
 
-    public float getTrainingRateMultiplier(float x){
+    private float getTrainingRateMultiplier(float x){
         // x is the current value of the proficiency
         return 4*exp(x-1)/pow(exp(x-1)+1, 2);  // This function is based on the derivative of the logisitics function. The factor of 4 is to make it start at 1.
     }
@@ -189,7 +189,7 @@ public class Party {
         return this.trainingFocus;
     }
 
-    public void setAllEquipment(int[] v) {
+    private void setAllEquipment(int[] v) {
         equipment = v;
     }
 
@@ -201,7 +201,7 @@ public class Party {
         return equipmentQuantities[classIndex];
     }
 
-    public void setEquipmentQuantity(int classIndex, int quantity){
+    private void setEquipmentQuantity(int classIndex, int quantity){
         equipmentQuantities[classIndex] = quantity;
     }
 
@@ -213,7 +213,7 @@ public class Party {
         return equipmentQuantities;
     }
 
-    public void setEquipmentQuantities(int[] v){
+    private void setEquipmentQuantities(int[] v){
         equipmentQuantities = v;
     }
 
@@ -230,7 +230,7 @@ public class Party {
     public int[] splittedQuantities(int numUnitsSplitted){
         int[] splittedEquipmentQuantities = new int[equipment.length];
         for (int i=0; i < equipment.length; i ++){
-            splittedEquipmentQuantities[i] = ceil(getEquipmentQuantity(i) * numUnitsSplitted / getUnitNumber());
+            splittedEquipmentQuantities[i] = ceil((getEquipmentQuantity(i) * numUnitsSplitted) / getUnitNumber());
         }
         return splittedEquipmentQuantities;
     }
@@ -339,7 +339,7 @@ public class Party {
         this.id = value;
     }
 
-    public float mergeAttribute(int units1, float attrib1, int units2, float attrib2) {
+    private float mergeAttribute(int units1, float attrib1, int units2, float attrib2) {
         // Calcaulate the attributes for merge weighted by units number
         return (units1 * attrib1 + units2 * attrib2) / (units1 + units2);
     }
@@ -391,7 +391,7 @@ public class Party {
 
     public void clearPath() {
         //LOGGER_GAME.finer("Clearing party path"); Removed as this is called too much for battle estimates
-        path = new ArrayList<int[]>();
+        path = new ArrayList<>();
         pathTurns=0;
     }
 
@@ -506,7 +506,7 @@ public class Party {
 
     public Party clone() {
         Party newParty = new Party(player, unitNumber, task, movementPoints, id);
-        newParty.actions = new ArrayList<Action>(actions);
+        newParty.actions = new ArrayList<>(actions);
         newParty.strength = strength;
         newParty.equipment = equipment.clone();
         newParty.equipmentQuantities = equipmentQuantities.clone();
@@ -517,17 +517,17 @@ public class Party {
         return newParty;
     }
 
-    public float getRawProficiency(int index) {
+    private float getRawProficiency(int index) {
         // index is index of proficiency in data.json
         return proficiencies[index];
     }
 
-    public void setRawProficiency(int index, float value) {
+    private void setRawProficiency(int index, float value) {
         // index is index of proficiency in data.json
         proficiencies[index] = value;
     }
 
-    public void resetRawProficiencies() {
+    private void resetRawProficiencies() {
         proficiencies = new float[JSONManager.getNumProficiencies()];
     }
 
@@ -535,7 +535,7 @@ public class Party {
         return proficiencies;
     }
 
-    public void setRawProficiencies(float[] values) {
+    private void setRawProficiencies(float[] values) {
         this.proficiencies = values;
     }
 
@@ -569,7 +569,7 @@ public class Party {
         // This method is for the breakdown used by tooltip of bonus
         JSONObject equipmentClassJO;
         JSONObject equipmentTypeJO;
-        ArrayList<String> returnMe = new ArrayList<String>();
+        ArrayList<String> returnMe = new ArrayList<>();
         String proficiencyID = JSONManager.indexToProficiencyID(index);
         for (int i = 0 ; i < getAllEquipment().length; i++){
             if (getEquipment(i) != -1){

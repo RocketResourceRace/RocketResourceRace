@@ -103,7 +103,7 @@ public class Button extends Element {
         panelCanvas.popStyle();
     }
 
-    public ArrayList<String> setLines(String s) {
+    private ArrayList<String> setLines(String s) {
         LOGGER_MAIN.finer("Setting lines to: " + s);
         lines = new ArrayList<String>();
         try {

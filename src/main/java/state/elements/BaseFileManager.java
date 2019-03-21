@@ -116,7 +116,7 @@ public class BaseFileManager extends Element {
 
     public ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event) {
         ArrayList<String> events = new ArrayList<String>();
-        if (eventType == "mouseWheel") {
+        if (eventType.equals("mouseWheel")) {
             float count = event.getCount();
             if (moveOver()) { // Check mouse over element
                 if (saveNames.length > numDisplayed) {

@@ -1,50 +1,31 @@
-import event.Action;
-import map.Building;
-import party.Party;
-import player.Player;
-import processing.core.*;
-import processing.data.*;
-import processing.event.*;
-import processing.opengl.*;
-
-import java.io.*;
-import java.math.BigDecimal;
-import processing.sound.*;
-
-import java.util.logging.*;
-
-import java.nio.ByteBuffer;
-
+import json.JSONManager;
+import processing.core.PApplet;
+import processing.event.MouseEvent;
 import state.Element;
 import state.Panel;
 import state.State;
 import states.Game;
+import states.Menu;
 import util.Image;
 import util.LoggerFormatter;
-import states.Menu;
-import json.JSONManager;
 import util.Util;
 
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.ArrayList;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
 
 import static util.Font.getFont;
 import static util.Logging.*;
-import static util.Util.*;
+import static util.Util.loadSounds;
+import static util.Util.setFrameRateCap;
 
 public class RocketResourceRace extends PApplet {
 
 
-    JSONObject gameData = JSONManager.gameData;
-
-    String activeState;
-    HashMap<String, State> states;
-    int lastClickTime = 0;
-    final int DOUBLECLICKWAIT = 500;
-    final String LETTERSNUMBERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890/\\_ ";
-    int prevT;
-    HashMap<Integer, PFont> fonts;
-    PShader toon;
+    private String activeState;
+    private HashMap<String, State> states;
+    private int lastClickTime = 0;
 
     // Event-driven methods
     public void mouseClicked() {
@@ -80,7 +61,8 @@ public class RocketResourceRace extends PApplet {
     /*
     Handles double clicks
     */
-    public void doubleClick() {
+    private void doubleClick() {
+        int DOUBLECLICKWAIT = 500;
         if (millis() - lastClickTime < DOUBLECLICKWAIT) {
             mouseEvent("mouseDoubleClicked", mouseButton);
             lastClickTime = 0;
@@ -89,17 +71,13 @@ public class RocketResourceRace extends PApplet {
         }
     }
 
-    public float sigmoid(float x) {
-        return 1-2/(exp(x)+1);
-    }
-
     public void mouseEvent(String eventType, int button) {
         getActiveState()._mouseEvent(eventType, button);
     }
     public void mouseEvent(String eventType, int button, MouseEvent event) {
         getActiveState()._mouseEvent(eventType, button, event);
     }
-    public void keyboardEvent(String eventType, char _key) {
+    private void keyboardEvent(String eventType, char _key) {
         if (key==ESC) {
             key = 0;
         }
@@ -118,8 +96,6 @@ public class RocketResourceRace extends PApplet {
     }
 
 
-    float halfScreenWidth;
-    float halfScreenHeight;
     public void setup() {
         try {
             Util.papplet = this;
@@ -145,7 +121,6 @@ public class RocketResourceRace extends PApplet {
             LOGGER_MAIN.fine("Starting setup");
 
             new JSONManager();
-            gameData = JSONManager.gameData;
             loadSounds();
             setFrameRateCap();
             textFont(createFont("GillSans", 32));
@@ -154,7 +129,7 @@ public class RocketResourceRace extends PApplet {
 
             LOGGER_MAIN.fine("Loading states");
 
-            states = new HashMap<String, State>();
+            states = new HashMap<>();
             addState("menu", new Menu());
             addState("map", new Game());
             activeState = "menu";
@@ -162,8 +137,6 @@ public class RocketResourceRace extends PApplet {
             smooth();
             noStroke();
             //hint(DISABLE_OPTIMIZED_STROKE);
-            halfScreenWidth = width/2;
-            halfScreenHeight= height/2;
             //toon = loadShader("ToonFrag.glsl", "ToonVert.glsl");
             //toon.set("fraction", 1.0);
 
@@ -178,12 +151,10 @@ public class RocketResourceRace extends PApplet {
             throw e;
         }
     }
-    boolean smoothed = false;
 
     public void draw() {
         try {
             background(0);
-            prevT = millis();
             String newState = getActiveState().update();
             if (!newState.equals("")) {
                 for (Panel panel : states.get(newState).panels) {
@@ -201,12 +172,6 @@ public class RocketResourceRace extends PApplet {
                 fill(255, 0, 0);
                 text(frameRate, 0, 0);
             }
-            if (JSONManager.loadBooleanSetting("show fps")) {
-                textFont(getFont(10));
-                textAlign(LEFT, TOP);
-                fill(255, 0, 0);
-                text(frameRate, 0, 0);
-            }
         }
         catch (Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, "Uncaught exception occured during draw", e);
@@ -214,7 +179,7 @@ public class RocketResourceRace extends PApplet {
         }
     }
 
-    public State getActiveState() {
+    private State getActiveState() {
         State state = states.get(activeState);
         if (state == null) {
             LOGGER_MAIN.severe("State not found "+activeState);
@@ -222,7 +187,7 @@ public class RocketResourceRace extends PApplet {
         return state;
     }
 
-    public void addState(String name, State state) {
+    private void addState(String name, State state) {
         states.put(name, state);
     }
 

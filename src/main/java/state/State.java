@@ -18,13 +18,13 @@ public class State {
     protected String activePanel;
 
     protected State() {
-        panels = new ArrayList<Panel>();
+        panels = new ArrayList<>();
         addPanel("default", 0, 0, papplet.width, papplet.height, true, true, papplet.color(255, 255), papplet.color(0));
         newState = "";
         activePanel = "default";
     }
 
-    public String getNewState() {
+    protected String getNewState() {
         // Once called, newState is cleared, so only for use states management code
         String t = newState;
         newState = "";
@@ -39,14 +39,14 @@ public class State {
     }
     public void leaveState() {
     }
-    public void hidePanels() {
+    protected void hidePanels() {
         for (Panel panel : panels) {
             panel.visible = false;
         }
         LOGGER_MAIN.finer("Panels hidden");
     }
 
-    public void resetPanels() {
+    protected void resetPanels() {
         panels.clear();
         LOGGER_MAIN.finer("Panels cleared");
     }
@@ -63,7 +63,7 @@ public class State {
         LOGGER_MAIN.finer("Panel added " + id);
         panelToTop(id);
     }
-    public void addElement(String id, Element elem) {
+    protected void addElement(String id, Element elem) {
         elem.setID(id);
         getPanel("default").elements.add(elem);
         elem.setOffset(getPanel("default").x, getPanel("default").y);
@@ -76,7 +76,7 @@ public class State {
         LOGGER_MAIN.finer("Elements added " + id);
     }
 
-    public Element getElement(String id, String panel) {
+    protected Element getElement(String id, String panel) {
         for (Element elem : getPanel(panel).elements) {
             if (elem.id.equals(id)) {
                 return  elem;
@@ -95,7 +95,7 @@ public class State {
         LOGGER_MAIN.finer("Panels removed " + id);
     }
 
-    public void panelToTop(String id) {
+    protected void panelToTop(String id) {
         Panel tempPanel = getPanel(id);
         for (int i=findPanel(id); i>0; i--) {
             panels.set(i, panels.get(i-1));
@@ -104,7 +104,7 @@ public class State {
         LOGGER_MAIN.finest("Panel sent to top " + id);
     }
 
-    public void elementToTop(String id, String panelID) {
+    protected void elementToTop(String id, String panelID) {
         Element tempElem = getElement(id, panelID);
         boolean found = false;
         for (int i=0; i<getPanel(panelID).elements.size()-1; i++) {
@@ -126,7 +126,7 @@ public class State {
         println();
     }
 
-    public int findPanel(String id) {
+    private int findPanel(String id) {
         for (int i=0; i<panels.size(); i++) {
             if (panels.get(i).id.equals(id)) {
                 return i;
@@ -135,7 +135,7 @@ public class State {
         LOGGER_MAIN.warning("Invalid panel " + id);
         return -1;
     }
-    public Panel getPanel(String id) {
+    protected Panel getPanel(String id) {
         Panel p = panels.get(findPanel(id));
         if (p == null) {
             LOGGER_MAIN.warning("Invalid panel " + id);
@@ -154,10 +154,10 @@ public class State {
     }
     // Empty method for use by children
     public ArrayList<String> mouseEvent(String eventType, int button) {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
     public ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event) {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
     public ArrayList<String> keyboardEvent(String eventType, char _key) {
         return new ArrayList<String>();
@@ -169,7 +169,7 @@ public class State {
         //}
     }
 
-    public void _elementEvent(ArrayList<Event> events) {
+    private void _elementEvent(ArrayList<Event> events) {
         for (Event event : events) {
             if (LOGGER_MAIN.isLoggable(Level.FINEST)) {
                 LOGGER_MAIN.finest(String.format("Element event id: '%s', Panel:'%s', Type:'%s'", event.id, event.panel, event.type));
@@ -182,9 +182,9 @@ public class State {
 
     public void _mouseEvent(String eventType, int button) {
         try {
-            ArrayList<Event> events = new ArrayList<Event>();
+            ArrayList<Event> events = new ArrayList<>();
             mouseEvent(eventType, button);
-            if (eventType == "mousePressed") {
+            if (eventType.equals("mousePressed")) {
                 for (int i=0; i<panels.size(); i++) {
                     if (panels.get(i).mouseOver()&& panels.get(i).visible&&panels.get(i).blockEvent) {
                         activePanel = panels.get(i).id;
@@ -193,7 +193,7 @@ public class State {
                 }
             }
             for (Panel panel : panels) {
-                if (activePanel == panel.id || eventType.equals("mouseMoved") || panel.overrideBlocking) {
+                if (activePanel.equals(panel.id) || eventType.equals("mouseMoved") || panel.overrideBlocking) {
                     // Iterate in reverse order
                     for (int i=panel.elements.size()-1; i>=0; i--) {
                         if (panel.elements.get(i).active && panel.visible) {
@@ -226,7 +226,7 @@ public class State {
         }
     }
 
-    public void checkElementOnTop(){
+    protected void checkElementOnTop(){
         String elemID = null;
         String panelID = null;
         boolean blocked = false;
@@ -260,9 +260,9 @@ public class State {
 
     public void _mouseEvent(String eventType, int button, MouseEvent event) {
         try {
-            ArrayList<Event> events = new ArrayList<Event>();
+            ArrayList<Event> events = new ArrayList<>();
             mouseEvent(eventType, button, event);
-            if (eventType == "mouseWheel") {
+            if (eventType.equals("mouseWheel")) {
                 for (int i=0; i<panels.size(); i++) {
                     if (panels.get(i).mouseOver()&& panels.get(i).visible&&panels.get(i).blockEvent) {
                         activePanel = panels.get(i).id;
@@ -271,7 +271,7 @@ public class State {
                 }
             }
             for (Panel panel : panels) {
-                if (activePanel == panel.id && panel.mouseOver() && panel.visible || panel.overrideBlocking) {
+                if (activePanel.equals(panel.id) && panel.mouseOver() && panel.visible || panel.overrideBlocking) {
                     // Iterate in reverse order
                     for (int i=panel.elements.size()-1; i>=0; i--) {
                         if (panel.elements.get(i).active) {

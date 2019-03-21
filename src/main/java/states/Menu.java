@@ -2,16 +2,14 @@ package states;
 
 import event.Event;
 import json.JSONManager;
-import processing.core.*;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.logging.Level;
-
-import processing.sound.SoundFile;
+import processing.core.PImage;
+import processing.core.PShape;
 import state.Element;
 import state.State;
 import state.elements.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import static json.JSONManager.gameData;
 import static processing.core.PApplet.*;
@@ -21,15 +19,14 @@ import static util.Logging.LOGGER_MAIN;
 import static util.Util.*;
 
 public class Menu extends State {
-    PImage BGimg;
-    PShape bg;
-    String currentPanel, newPanel;
-    HashMap<String, String[]> stateChangers, settingChangers;
+    private PShape bg;
+    private String currentPanel, newPanel;
+    private HashMap<String, String[]> stateChangers, settingChangers;
 
     public Menu() {
         super();
         LOGGER_MAIN.fine("Initialising menu");
-        BGimg = loadImage(RESOURCES_ROOT+"img/ui/menu_background.jpeg");
+        PImage BGimg = loadImage(RESOURCES_ROOT + "img/ui/menu_background.jpeg");
         bg = papplet.createShape(RECT, 0, 0, papplet.width, papplet.height);
         bg.setTexture(BGimg);
 
@@ -39,7 +36,7 @@ public class Menu extends State {
         activePanel = currentPanel;
     }
 
-    public void loadMenuPanels() {
+    private void loadMenuPanels() {
         LOGGER_MAIN.fine("Loading menu panels");
         resetPanels();
         JSONManager.loadMenuElements(this, JSONManager.loadFloatSetting("gui scale"));
@@ -75,17 +72,17 @@ public class Menu extends State {
         return getNewState();
     }
 
-    public void drawMenuTitle() {
+    private void drawMenuTitle() {
         // Draw menu states title
         if (JSONManager.menuStateTitle(currentPanel) != null) {
             papplet.fill(0);
             papplet.textFont(getFont(JSONManager.loadFloatSetting("text scale")*30));
             papplet.textAlign(CENTER, TOP);
-            papplet.text(JSONManager.menuStateTitle(currentPanel), papplet.width/2, 100);
+            papplet.text(JSONManager.menuStateTitle(currentPanel), papplet.width/2f, 100);
         }
     }
 
-    public void changeMenuPanel() {
+    private void changeMenuPanel() {
         LOGGER_MAIN.fine("Changing menu panel to: "+newPanel);
         panelToTop(newPanel);
         getPanel(newPanel).setVisible(true);
@@ -102,7 +99,7 @@ public class Menu extends State {
         newPanel = "startup";
     }
 
-    public void saveMenuSetting(String id, Event event) {
+    private void saveMenuSetting(String id, Event event) {
         if (settingChangers.get(id) != null) {
             LOGGER_MAIN.finer(String.format("Saving setting id:%s, event id:%s", id, event.id));
             String type = JSONManager.getElementType(event.panel, id);
@@ -139,7 +136,7 @@ public class Menu extends State {
         }
     }
 
-    public void revertChanges(String panel, boolean onlyAutosaving) {
+    private void revertChanges(String panel, boolean onlyAutosaving) {
         LOGGER_MAIN.fine("Reverting changes made to settings that are not autosaving");
         for (Element elem : getPanel(panel).elements) {
             if (elem.id.equals("loading manager") && ((onlyAutosaving || !JSONManager.hasFlag(panel, elem.id, "autosave")) && settingChangers.get(elem.id) != null)) {
@@ -224,7 +221,7 @@ public class Menu extends State {
                     JSONManager.saveDefault("starting wood");
                     JSONManager.saveDefault("starting stone");
                     JSONManager.saveDefault("starting metal");
-                    for (Integer i=1; i<gameData.getJSONArray("terrain").size()+1; i++) {
+                    for (int i = 1; i<gameData.getJSONArray("terrain").size()+1; i++) {
                         if (!gameData.getJSONArray("terrain").getJSONObject(i-1).isNull("weighting")) {
                             JSONManager.saveDefault(gameData.getJSONArray("terrain").getJSONObject(i-1).getString("id")+" weighting");
                         }

@@ -10,7 +10,7 @@ import static util.Util.papplet;
 public class Element {
     public boolean active = true;
     public boolean visible = true;
-    boolean elemOnTop;
+    private boolean elemOnTop;
     protected int x;
     public int y;
     protected int w;
@@ -19,10 +19,10 @@ public class Element {
     protected int yOffset;
     public String id;
 
-    public void setElemOnTop(boolean value){
+    void setElemOnTop(boolean value){
         elemOnTop = value;
     }
-    public boolean getElemOnTop(){
+    protected boolean getElemOnTop(){
         // For checking if hover highlighting is needed
         return elemOnTop;
     }
@@ -38,13 +38,13 @@ public class Element {
     public void draw(PGraphics panelCanvas) {
     }
     public ArrayList<String> mouseEvent(String eventType, int button) {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
     public ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event) {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
     public ArrayList<String> keyboardEvent(String eventType, char _key) {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
     public void transform(int x, int y, int w, int h) {
         this.x = x;
@@ -52,19 +52,19 @@ public class Element {
         this.w = w;
         this.h = h;
     }
-    public void setOffset(int xOffset, int yOffset) {
+    void setOffset(int xOffset, int yOffset) {
         this.xOffset = xOffset;
         this.yOffset = yOffset;
     }
 
-    public void setID(String id) {
+    void setID(String id) {
         this.id = id;
     }
 
     public ArrayList<String> _mouseEvent(String eventType, int button) {
         return mouseEvent(eventType, button);
     }
-    public ArrayList<String> _mouseEvent(String eventType, int button, MouseEvent event) {
+    ArrayList<String> _mouseEvent(String eventType, int button, MouseEvent event) {
         return mouseEvent(eventType, button, event);
     }
     public ArrayList<String> _keyboardEvent(String eventType, char _key) {

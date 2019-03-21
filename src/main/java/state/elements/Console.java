@@ -21,16 +21,14 @@ import static com.jogamp.newt.event.KeyEvent.VK_DELETE;
 import static jdk.nashorn.internal.objects.NativeArray.join;
 import static json.JSONManager.gameData;
 import static processing.core.PApplet.*;
-import static processing.core.PConstants.*;
 import static util.Logging.LOGGER_GAME;
 import static util.Logging.LOGGER_MAIN;
 import static util.Util.*;
 
 public class Console extends Element {
-    private int textSize, cursorX, maxLength=-1;
+    private int textSize;
+    private int cursorX;
     private ArrayList<StringBuilder> text;
-    private boolean drawCursor = false;
-    private String allowedChars;
     private Map map;
     private JSONObject commands;
     private Player[] players;
@@ -47,9 +45,9 @@ public class Console extends Element {
         this.w = w;
         this.h = h;
         this.textSize = textSize;
-        text = new ArrayList<StringBuilder>();
+        text = new ArrayList<>();
         text.add(new StringBuilder(LINESTART));
-        commandLog = new ArrayList<String>();
+        commandLog = new ArrayList<>();
         commandLogPosition = 0;
         cursorX = 3;
         commands = JSONManager.loadJSONObject(RESOURCES_ROOT+"json/commands.json");
@@ -68,10 +66,10 @@ public class Console extends Element {
     /*
     Converts lines of console into a single StringBuilding object
     */
-    public StringBuilder toStr() {
+    private StringBuilder toStr() {
         StringBuilder s = new StringBuilder();
         for (StringBuilder s1 : text) {
-            s.append(s1+"\n");
+            s.append(s1).append("\n");
         }
         s.deleteCharAt(s.length()-1);
         return s;
@@ -80,8 +78,8 @@ public class Console extends Element {
     /*
     Converts a String into an ArrayList of StringBuilders to be used when storing console text
     */
-    public ArrayList<StringBuilder> strToText(String s) {
-        ArrayList<StringBuilder> t = new ArrayList<StringBuilder>();
+    private ArrayList<StringBuilder> strToText(String s) {
+        ArrayList<StringBuilder> t = new ArrayList<>();
         t.add(new StringBuilder());
         char c;
         for (int i=0; i<s.length(); i++) {
@@ -105,14 +103,14 @@ public class Console extends Element {
         canvas.textFont(monoFont);
         canvas.textAlign(LEFT, BOTTOM);
         int time = papplet.millis();
-        drawCursor = (time/500)%2==0 || papplet.keyPressed;
+        boolean drawCursor = (time / 500) % 2 == 0 || papplet.keyPressed;
         canvas.fill(255);
         for (int i=0; i < text.size(); i++) {
-            canvas.text(""+text.get(i), x, papplet.height/2-((text.size()-i-1)*ts*1.2f));
+            canvas.text(""+text.get(i), x, papplet.height/2f-((text.size()-i-1)*ts*1.2f));
         }
         if (drawCursor) {
             canvas.stroke(255);
-            canvas.rect(x+canvas.textWidth(getInputString().substring(0, cursorX)), y+papplet.height/2-ts*1.2f, 1, ts*1.2f);
+            canvas.rect(x+canvas.textWidth(getInputString().substring(0, cursorX)), y+papplet.height/2f-ts*1.2f, 1, ts*1.2f);
         }
         canvas.popStyle();
     }
@@ -120,35 +118,35 @@ public class Console extends Element {
     /*
     Get the input text line of the console
     */
-    public StringBuilder getInputString() {
+    private StringBuilder getInputString() {
         return getInputString(text);
     }
 
     /*
     Gets the input text line of some console text t
     */
-    public StringBuilder getInputString(ArrayList<StringBuilder> t) {
+    private StringBuilder getInputString(ArrayList<StringBuilder> t) {
         return t.get(t.size()-1);
     }
 
     /*
     Sets the input text line to some String t
     */
-    public void setInputString(String t) {
+    private void setInputString(String t) {
         setInputString(text, t);
     }
 
     /*
     Sets the input text line of some console text t1 to some String t2
     */
-    public StringBuilder setInputString(ArrayList<StringBuilder> t1, String t2) {
-        return t1.set(t1.size()-1, new StringBuilder(t2));
+    private void setInputString(ArrayList<StringBuilder> t1, String t2) {
+        t1.set(t1.size() - 1, new StringBuilder(t2));
     }
 
     /*
     Finds position on a raw single String of the console text of some x and y
     */
-    public int cxyToC(int cx, int cy) {
+    private int cxyToC(int cx, int cy) {
         int a=0;
         for (int i=0; i<cy; i++) {
             a += text.get(i).length()+1;
@@ -159,7 +157,7 @@ public class Console extends Element {
     /*
     Gets the position of the mouse on the line cy
     */
-    public int getCurX(int cy) {
+    private int getCurX(int cy) {
         int i=0;
         float ts = textSize*JSONManager.loadFloatSetting("text scale");
         canvas.textSize(ts);
@@ -177,7 +175,7 @@ public class Console extends Element {
     }
 
     public ArrayList<String> _mouseEvent(String eventType, int button) {
-        ArrayList<String> events = new ArrayList<String>();
+        ArrayList<String> events = new ArrayList<>();
         if (eventType.equals("mousePressed") && button == LEFT) {
             cursorX = getCurX(text.size()-1);
         }
@@ -187,7 +185,7 @@ public class Console extends Element {
     /*
     Backspace is applied at the current cursor position
     */
-    public void clearTextAt() {
+    private void clearTextAt() {
         StringBuilder s = toStr();
         String s2 = s.substring(0, cxyToC(cursorX-1, text.size()-1)) + (s.substring(cxyToC(cursorX, text.size()-1), s.length()));
         text = strToText(s2);
@@ -196,28 +194,28 @@ public class Console extends Element {
     /*
     Add a line to the console just above the input line
     */
-    public void sendLine(String line) {
+    private void sendLine(String line) {
         text.add(text.size()-1, new StringBuilder(line));
     }
 
     /*
     Sends a line with "Invalid command. " at the start
     */
-    public void invalid(String message) {
+    private void invalid(String message) {
         sendLine("Invalid command. "+message);
     }
 
     /*
     Generic invalid message
     */
-    public void invalid() {
+    private void invalid() {
         invalid("");
     }
 
     /*
     Returns an array of all possible sub commands for a command
     */
-    public String[] getPossibleSubCommands(JSONObject command) {
+    private String[] getPossibleSubCommands(JSONObject command) {
         Iterable keys = command.getJSONObject("sub commands").keys();
         String[] commandsList = new String[command.getJSONObject("sub commands").size()];
         int i=0;
@@ -228,32 +226,32 @@ public class Console extends Element {
         return commandsList;
     }
 
-    public void invalidSubcommand(JSONObject command, String[] args, int position) {
+    private void invalidSubcommand(JSONObject command, String[] args, int position) {
         String[] commandsList = getPossibleSubCommands(command);
         invalid(String.format("Sub-command not found: %s. Possible sub-commands for command %s: %s", args[position], join(Arrays.copyOfRange(args, 0, position), " "), join(commandsList, " ")));
     }
 
-    public void invalidMissingSubCommand(JSONObject command, String[] args, int position) {
+    private void invalidMissingSubCommand(JSONObject command, String[] args, int position) {
         String[] commandsList = getPossibleSubCommands(command);
         getPossibleSubCommands(command);
         invalid(String.format("Sub-command required for %s. Possible sub-commands for command %s: %s", args[position], join(Arrays.copyOfRange(args, 0, position), " "), join(commandsList, " ")));
     }
 
-    public void invalidMissingValue(JSONObject command, String[] args, int position) {
+    private void invalidMissingValue(JSONObject command, String[] args, int position) {
         invalid(String.format("Value required for %s. Value type: %s", args[position], command.getString("value type")));
     }
 
-    public String getRequiredArgs(JSONObject command){
+    private String getRequiredArgs(JSONObject command){
         JSONArray requiredArgs = command.getJSONArray("args");
-        String requiredArgsString = "";
+        StringBuilder requiredArgsString = new StringBuilder();
         for (int i = 0; i < requiredArgs.size(); i++){
             JSONArray requiredArg = requiredArgs.getJSONArray(i);
-            requiredArgsString += String.format("%s (%s) ", requiredArg.getString(0), requiredArg.getString(1));
+            requiredArgsString.append(String.format("%s (%s) ", requiredArg.getString(0), requiredArg.getString(1)));
         }
-        return requiredArgsString;
+        return requiredArgsString.toString();
     }
 
-    public void invalidArg(JSONObject command, String[] args, int commandPosition, int argPosition) {
+    private void invalidArg(JSONObject command, String[] args, int commandPosition, int argPosition) {
         if (command.hasKey("args")) {
             String requiredArgsString = getRequiredArgs(command);
             invalid(String.format("Invalid Argument #%d (%s) for %s. Arguments required: %s", argPosition-commandPosition, args[argPosition], args[commandPosition], requiredArgsString));
@@ -262,7 +260,7 @@ public class Console extends Element {
         }
     }
 
-    public void invalidMissingArg(JSONObject command, String[] args, int position) {
+    private void invalidMissingArg(JSONObject command, String[] args, int position) {
         if (command.hasKey("args")) {
             String requiredArgsString = getRequiredArgs(command);
             invalid(String.format("Missing argument required for %s. Arguments required: %s", args[position], requiredArgsString));
@@ -271,20 +269,20 @@ public class Console extends Element {
         }
     }
 
-    public void invalidValue(JSONObject command, String[] args, int position) {
+    private void invalidValue(JSONObject command, String[] args, int position) {
         invalid(String.format("Invalid value for %s. Value type: %s", args[position], command.getString("value type")));
     }
 
-    public void invalidHelp(String command) {
+    private void invalidHelp(String command) {
         invalid(String.format("help: invalid command '%s'", command));
     }
 
-    public void commandFileError(String error) {
+    private void commandFileError(String error) {
         invalid(error);
         LOGGER_GAME.severe(error);
     }
 
-    public void getHelp(String[] splitCommand) {
+    private void getHelp(String[] splitCommand) {
         try {
             if (splitCommand.length == 1) {
                 sendLine("Command list:");
@@ -332,7 +330,7 @@ public class Console extends Element {
         }
     }
 
-    public String[] getSplitCommand(String rawCommand) {
+    private String[] getSplitCommand(String rawCommand) {
         String[] rawSplitCommand = rawCommand.split(" ");
         String[] tempSplitCommand = new String[rawSplitCommand.length];
         boolean connected = false;
@@ -371,13 +369,11 @@ public class Console extends Element {
             }
         }
         String[] splitCommand = new String[i];
-        for (int j = 0; j < i; j++) {
-            splitCommand[j] = tempSplitCommand[j];
-        }
+        System.arraycopy(tempSplitCommand, 0, splitCommand, 0, i);
         return splitCommand;
     }
 
-    public void doCommand(String rawCommand) {
+    private void doCommand(String rawCommand) {
         String[] splitCommand = getSplitCommand(rawCommand);
         if (splitCommand.length==0) {
             invalid();
@@ -395,7 +391,7 @@ public class Console extends Element {
         }
     }
 
-    public void handleCommand(JSONObject command, String[] arguments, int position) {
+    private void handleCommand(JSONObject command, String[] arguments, int position) {
         switch(command.getString("type")) {
             case "container":
                 if (arguments.length>position+1) {
@@ -412,33 +408,30 @@ public class Console extends Element {
             case "setting":
                 if (command.hasKey("value type")) {
                     if (arguments.length>position+1) {
-                        switch(command.getString("value type")) {
-                            case "boolean":
-                                String value = arguments[position+1].toLowerCase();
-                                Boolean setting;
-                                if (value.equals("true") || value.equals("t") || value.equals("1")) {
-                                    setting = true;
-                                } else if (value.equals("false") || value.equals("f")|| value.equals("0")) {
-                                    setting = false;
-                                } else {
-                                    invalidValue(command, arguments, position);
-                                    return;
-                                }
-                                sendLine(String.format("Changing %s setting", arguments[position]));
-                                JSONManager.saveSetting(command.getString("setting id"), setting);
-                                if (command.hasKey("regenerate map")&&command.getBoolean("regenerate map")&&map != null) {
-                                    sendLine("This requires regenerating the map. This might take a moment and will mean some randomised features will change");
-                                    map.generateShape();
-                                }
-                                if (command.hasKey("update cells")&&command.getBoolean("update cells")&&map != null) {
-                                    players[game.turn].updateVisibleCells(game.terrain, game.buildings, game.parties);
-                                    map.updateVisibleCells(players[game.turn].visibleCells);
-                                }
-                                sendLine(String.format("%s setting changed!", arguments[position]));
-                                break;
-                            default:
-                                commandFileError("Command defines invalid value type");
-                                break;
+                        if ("boolean".equals(command.getString("value type"))) {
+                            String value = arguments[position + 1].toLowerCase();
+                            boolean setting;
+                            if (value.equals("true") || value.equals("t") || value.equals("1")) {
+                                setting = true;
+                            } else if (value.equals("false") || value.equals("f") || value.equals("0")) {
+                                setting = false;
+                            } else {
+                                invalidValue(command, arguments, position);
+                                return;
+                            }
+                            sendLine(String.format("Changing %s setting", arguments[position]));
+                            JSONManager.saveSetting(command.getString("setting id"), setting);
+                            if (command.hasKey("regenerate map") && command.getBoolean("regenerate map") && map != null) {
+                                sendLine("This requires regenerating the map. This might take a moment and will mean some randomised features will change");
+                                map.generateShape();
+                            }
+                            if (command.hasKey("update cells") && command.getBoolean("update cells") && map != null) {
+                                players[game.turn].updateVisibleCells(game.terrain, game.buildings, game.parties);
+                                map.updateVisibleCells(players[game.turn].visibleCells);
+                            }
+                            sendLine(String.format("%s setting changed!", arguments[position]));
+                        } else {
+                            commandFileError("Command defines invalid value type");
                         }
                     } else {
                         invalidMissingValue(command, arguments, position);
@@ -478,7 +471,7 @@ public class Console extends Element {
                             break;
                         case "set":
                             if(arguments.length>position+3){
-                                String playerId = arguments[position+1];
+                                String playerId = arguments[position + 1];
                                 if (playerExists(players, playerId)) {
                                     p = getPlayer(players, playerId);
                                 } else {
@@ -598,40 +591,39 @@ public class Console extends Element {
         }
     }
 
-    public void saveCommandLog() {
+    private void saveCommandLog() {
         if (commandLog.size() == commandLogPosition) {
             commandLog.add("");
         }
         commandLog.set(commandLogPosition, getInputString().substring(LINESTART.length()));
     }
 
-    public void accessCommandLog() {
+    private void accessCommandLog() {
         setInputString(LINESTART+commandLog.get(commandLogPosition));
         cursorX = getInputString().length();
     }
 
     public ArrayList<String> _keyboardEvent(String eventType, char _key) {
         keyboardEvent(eventType, _key);
-        if (eventType == "keyTyped") {
-            if (maxLength == -1 || this.toStr().length() < maxLength) {
-                if (_key == '\n') {
-                    //clearTextAt();
-                    text.add(text.size(), new StringBuilder(getInputString().substring(cursorX, getInputString().length())));
-                    getInputString().replace(cursorX, text.get(text.size()-1).length(), "");
-                    cursorX=3;
-                } else if (_key == '\t') {
-                    for (int i=0; i<4-cursorX%4; i++) {
-                        getInputString().insert(cursorX, " ");
-                    }
-                    cursorX += 4-cursorX%4;
-                } else if (_key != 0 && (allowedChars == null || allowedChars.indexOf(_key) != -1)) {
-                    //clearTextAt();
-                    getInputString().insert(cursorX, _key);
-                    cursorX++;
+        if (eventType.equals("keyTyped")) {
+            String allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890/\\_ ";
+            if (_key == '\n') {
+                //clearTextAt();
+                text.add(text.size(), new StringBuilder(getInputString().substring(cursorX, getInputString().length())));
+                getInputString().replace(cursorX, text.get(text.size()-1).length(), "");
+                cursorX=3;
+            } else if (_key == '\t') {
+                for (int i=0; i<4-cursorX%4; i++) {
+                    getInputString().insert(cursorX, " ");
                 }
+                cursorX += 4-cursorX%4;
+            } else if (_key != 0 && allowedChars.indexOf(_key) != -1) {
+                //clearTextAt();
+                getInputString().insert(cursorX, _key);
+                cursorX++;
             }
         }
-        if (eventType == "keyPressed") {
+        if (eventType.equals("keyPressed")) {
             if (_key == CODED) {
                 if (papplet.keyCode == LEFT) {
                     cursorX = max(cursorX-1, 3);
@@ -683,6 +675,6 @@ public class Console extends Element {
         //    }
         //  }
         //}
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 }

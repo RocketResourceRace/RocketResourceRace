@@ -14,7 +14,7 @@ import static util.Util.papplet;
 public class Panel {
     public ArrayList<Element> elements;
     String id;
-    PImage img;
+    private PImage img;
     public Boolean visible;
     Boolean blockEvent;
     Boolean overrideBlocking;
@@ -23,7 +23,7 @@ public class Panel {
     private int w;
     private int h;
     private int bgColour, strokeColour;
-    PGraphics panelCanvas, elemGraphics;
+    private PGraphics panelCanvas, elemGraphics;
 
     Panel(String id, int x, int y, int w, int h, Boolean visible, Boolean blockEvent, int bgColour, int strokeColour) {
         this.x = x;
@@ -35,7 +35,7 @@ public class Panel {
         this.id = id;
         this.bgColour = bgColour;
         this.strokeColour = strokeColour;
-        elements = new ArrayList<Element>();
+        elements = new ArrayList<>();
         panelCanvas = papplet.createGraphics(w, h, P2D);
         overrideBlocking = false;
     }
@@ -49,7 +49,7 @@ public class Panel {
         this.id = id;
         this.img = loadImage(fileName);
         this.strokeColour = strokeColour;
-        elements = new ArrayList<Element>();
+        elements = new ArrayList<>();
         panelCanvas = papplet.createGraphics(w, h, P2D);
         overrideBlocking = false;
     }
@@ -58,7 +58,7 @@ public class Panel {
         overrideBlocking = v;
     }
 
-    public void setOffset() {
+    private void setOffset() {
         for (Element elem : elements) {
             elem.setOffset(x, y);
         }

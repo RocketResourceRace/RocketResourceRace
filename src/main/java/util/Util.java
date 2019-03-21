@@ -17,7 +17,7 @@ public class Util {
     public static PApplet papplet;
     public static String RESOURCES_ROOT = "data/";
     public static String loadingName;
-    public static HashMap<String, SoundFile> sfx;
+    private static HashMap<String, SoundFile> sfx;
 
     public static PImage loadImage(String s) {
         return papplet.loadImage(s);
@@ -53,10 +53,6 @@ public class Util {
 
     public static String roundDpTrailing(String val, int dps){
         return (new BigDecimal(""+val).divide(new BigDecimal("1"), dps, BigDecimal.ROUND_HALF_EVEN)).toPlainString();
-    }
-
-    public static float noise(float v) {
-        return papplet.noise(v);
     }
 
     public static float noise(float v1, float v2) {
@@ -106,8 +102,7 @@ public class Util {
 
     public static float sum(float[] l) {
         float c=0;
-        for (int i=0; i<l.length; i++)
-            c += l[i];
+        for (float v : l) c += v;
         return c;
     }
 
@@ -118,7 +113,7 @@ public class Util {
     public static void loadSounds() {
         try {
             if (JSONManager.loadBooleanSetting("sound on")) {
-                sfx = new HashMap<String, SoundFile>();
+                sfx = new HashMap<>();
                 sfx.put("click3", new SoundFile(papplet, RESOURCES_ROOT +"wav/click3.wav"));
             }
         }

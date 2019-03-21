@@ -9,23 +9,23 @@ import state.elements.Button;
 import state.elements.DropDown;
 import state.elements.Slider;
 import state.elements.Tickbox;
-import util.Logging;
 
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.logging.Level;
 
-import static processing.core.PApplet.*;
+import static processing.core.PApplet.CENTER;
+import static processing.core.PApplet.max;
 import static util.Logging.LOGGER_MAIN;
 import static util.Util.RESOURCES_ROOT;
 import static util.Util.papplet;
 
 public class JSONManager {
-    static JSONObject menu;
+    private static JSONObject menu;
     public static JSONObject gameData;
-    static JSONObject settings;
-    static JSONArray defaultSettings;
+    private static JSONObject settings;
+    private static JSONArray defaultSettings;
 
     public JSONManager() {
         try {
@@ -260,11 +260,7 @@ public class JSONManager {
         try {
             return gameData.getJSONArray("equipment").getJSONObject(index).getString("id");
         }
-        catch (NullPointerException e) {
-            LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
-            throw e;
-        }
-        catch (IndexOutOfBoundsException e) {
+        catch (NullPointerException | IndexOutOfBoundsException e) {
             LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
             throw e;
         }
@@ -274,11 +270,7 @@ public class JSONManager {
         try {
             return gameData.getJSONArray("equipment").getJSONObject(index).getString("display name");
         }
-        catch (NullPointerException e) {
-            LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
-            throw e;
-        }
-        catch (IndexOutOfBoundsException e) {
+        catch (NullPointerException | IndexOutOfBoundsException e) {
             LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
             throw e;
         }
@@ -294,11 +286,7 @@ public class JSONManager {
         try {
             return gameData.getJSONArray("equipment").getJSONObject(equipmentClass).getJSONArray("types").getJSONObject(equipmentType).getString("id");
         }
-        catch (NullPointerException e) {
-            LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
-            throw e;
-        }
-        catch (IndexOutOfBoundsException e) {
+        catch (NullPointerException | IndexOutOfBoundsException e) {
             LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
             throw e;
         }
@@ -330,11 +318,7 @@ public class JSONManager {
         try {
             return gameData.getJSONArray("equipment").getJSONObject(equipmentClass).getJSONArray("types").getJSONObject(equipmentType).getString("display name");
         }
-        catch (NullPointerException e) {
-            LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
-            throw e;
-        }
-        catch (IndexOutOfBoundsException e) {
+        catch (NullPointerException | IndexOutOfBoundsException e) {
             LOGGER_MAIN.log(Level.SEVERE, "Error loading equipment from data.json", e);
             throw e;
         }
@@ -474,22 +458,28 @@ public class JSONManager {
         return false;
     }
 
-    public void loadDefaultSettings() {
+    private void loadDefaultSettings() {
         // Reset all the settings to their default values
         LOGGER_MAIN.info("Loading default settings for all settings");
         try {
             for (int i=0; i<defaultSettings.size(); i++) {
                 JSONObject setting = defaultSettings.getJSONObject(i);
-                if (setting.getString("type").equals("int")) {
-                    saveSetting(setting.getString("id"), setting.getInt("value"));
-                } else if (setting.getString("type").equals("float")) {
-                    saveSetting(setting.getString("id"), setting.getFloat("value"));
-                } else if (setting.getString("type").equals("string")) {
-                    saveSetting(setting.getString("id"), setting.getString("value"));
-                } else if (setting.getString("type").equals("boolean")) {
-                    saveSetting(setting.getString("id"), setting.getBoolean("value"));
-                } else {
-                    LOGGER_MAIN.warning("Invalid setting type: " + setting.getString("id"));
+                switch (setting.getString("type")) {
+                    case "int":
+                        saveSetting(setting.getString("id"), setting.getInt("value"));
+                        break;
+                    case "float":
+                        saveSetting(setting.getString("id"), setting.getFloat("value"));
+                        break;
+                    case "string":
+                        saveSetting(setting.getString("id"), setting.getString("value"));
+                        break;
+                    case "boolean":
+                        saveSetting(setting.getString("id"), setting.getBoolean("value"));
+                        break;
+                    default:
+                        LOGGER_MAIN.warning("Invalid setting type: " + setting.getString("id"));
+                        break;
                 }
             }
         }
@@ -499,23 +489,29 @@ public class JSONManager {
         }
     }
 
-    public void loadInitialSettings() {
+    private void loadInitialSettings() {
         // Set all the settings to either the default value, or the value already set
         LOGGER_MAIN.info("Loading initial settings");
         try {
             for (int i=0; i<defaultSettings.size(); i++) {
                 JSONObject setting = defaultSettings.getJSONObject(i);
                 if (settings.get(setting.getString("id")) == null) {
-                    if (setting.getString("type").equals("int")) {
-                        saveSetting(setting.getString("id"), setting.getInt("value"));
-                    } else if (setting.getString("type").equals("float")) {
-                        saveSetting(setting.getString("id"), setting.getFloat("value"));
-                    } else if (setting.getString("type").equals("string")) {
-                        saveSetting(setting.getString("id"), setting.getString("value"));
-                    } else if (setting.getString("type").equals("boolean")) {
-                        saveSetting(setting.getString("id"), setting.getBoolean("value"));
-                    } else {
-                        LOGGER_MAIN.warning("Invalid setting type: "+setting.getString("type"));
+                    switch (setting.getString("type")) {
+                        case "int":
+                            saveSetting(setting.getString("id"), setting.getInt("value"));
+                            break;
+                        case "float":
+                            saveSetting(setting.getString("id"), setting.getFloat("value"));
+                            break;
+                        case "string":
+                            saveSetting(setting.getString("id"), setting.getString("value"));
+                            break;
+                        case "boolean":
+                            saveSetting(setting.getString("id"), setting.getBoolean("value"));
+                            break;
+                        default:
+                            LOGGER_MAIN.warning("Invalid setting type: " + setting.getString("type"));
+                            break;
                     }
                 }
             }
@@ -576,16 +572,22 @@ public class JSONManager {
         for (int i=0; i<defaultSettings.size(); i++) {
             if (defaultSettings.getJSONObject(i).getString("id").equals(id)) {
                 JSONObject setting = defaultSettings.getJSONObject(i);
-                if (setting.getString("type").equals("int")) {
-                    saveSetting(setting.getString("id"), setting.getInt("value"));
-                } else if (setting.getString("type").equals("float")) {
-                    saveSetting(setting.getString("id"), setting.getFloat("value"));
-                } else if (setting.getString("type").equals("string")) {
-                    saveSetting(setting.getString("id"), setting.getString("value"));
-                } else if (setting.getString("type").equals("boolean")) {
-                    saveSetting(setting.getString("id"), setting.getBoolean("value"));
-                } else {
-                    LOGGER_MAIN.warning("Invalid setting type: "+ setting.getString("type"));
+                switch (setting.getString("type")) {
+                    case "int":
+                        saveSetting(setting.getString("id"), setting.getInt("value"));
+                        break;
+                    case "float":
+                        saveSetting(setting.getString("id"), setting.getFloat("value"));
+                        break;
+                    case "string":
+                        saveSetting(setting.getString("id"), setting.getString("value"));
+                        break;
+                    case "boolean":
+                        saveSetting(setting.getString("id"), setting.getBoolean("value"));
+                        break;
+                    default:
+                        LOGGER_MAIN.warning("Invalid setting type: " + setting.getString("type"));
+                        break;
                 }
             }
         }
@@ -647,14 +649,14 @@ public class JSONManager {
         // Store all the buttons that when clicked change the states
         try {
             LOGGER_MAIN.fine("Loading buttons that change the states");
-            HashMap returnHash = new HashMap<String, String[]>();
+            HashMap<String, String[]> returnHash = new HashMap<>();
             JSONArray panels = menu.getJSONArray("states");
             for (int i=0; i<panels.size(); i++) {
                 JSONObject panel = panels.getJSONObject(i);
                 JSONArray panelElems = panel.getJSONArray("elements");
                 for (int j=0; j<panelElems.size(); j++) {
-                    if (!panelElems.getJSONObject(j).isNull("new states")) {
-                        returnHash.put(panelElems.getJSONObject(j).getString("id"), new String[]{panelElems.getJSONObject(j).getString("new states"), panel.getString("id")});
+                    if (!panelElems.getJSONObject(j).isNull("new state")) {
+                        returnHash.put(panelElems.getJSONObject(j).getString("id"), new String[]{panelElems.getJSONObject(j).getString("new state"), panel.getString("id")});
                     }
                 }
             }
@@ -670,7 +672,7 @@ public class JSONManager {
         // Store all the buttons that when clicked change a setting
         try {
             LOGGER_MAIN.fine("Loading buttons that change a setting");
-            HashMap returnHash = new HashMap<String, String[]>();
+            HashMap<String, String[]> returnHash = new HashMap<>();
             JSONArray panels = menu.getJSONArray("states");
             for (int i=0; i<panels.size(); i++) {
                 JSONObject panel = panels.getJSONObject(i);
@@ -730,7 +732,7 @@ public class JSONManager {
         }
     }
 
-    public static void loadPanelMenuElements(State state, String panelID, float guiScale) {
+    private static void loadPanelMenuElements(State state, String panelID, float guiScale) {
         // Load in the state.elements from JSON menu into panel
         // NOTE: "default value" in state.elements object means value is not saved to setting (and if not defined will be saved)
         try {
@@ -747,8 +749,8 @@ public class JSONManager {
                 JSONObject elem = elements.getJSONObject(i);
 
                 // Transform the normalised coordinates to screen coordinates
-                x = elem.getInt("x")*scale+papplet.width/2;
-                y = elem.getInt("y")*scale+papplet.height/2;
+                x = elem.getInt("x")*scale+papplet.width/2f;
+                y = elem.getInt("y")*scale+papplet.height/2f;
                 w = elem.getInt("w")*scale;
                 h = elem.getInt("h")*scale;
 
