@@ -19,3 +19,5 @@ data/settings.json
 settings.json
 .idea
 *.blend1
+out
+.idea
