@@ -17,7 +17,7 @@ public class Util {
     public static PApplet papplet;
     public static String RESOURCES_ROOT = "data/";
     public static String loadingName;
-    private static HashMap<String, SoundFile> sfx;
+    public static HashMap<String, SoundFile> sfx;
 
     public static PImage loadImage(String s) {
         return papplet.loadImage(s);

@@ -139,7 +139,7 @@ public class Button extends Element {
                 state = "on";
                 if (JSONManager.loadBooleanSetting("sound on")) {
                     try {
-//            sfx.get("click3").play();
+                        sfx.get("click3").play();
                     }
                     catch(Exception e) {
                         LOGGER_MAIN.log(Level.SEVERE, "Error playing sound click 3", e);
