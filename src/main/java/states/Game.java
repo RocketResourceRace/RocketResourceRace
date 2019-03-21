@@ -39,22 +39,22 @@ import static util.Logging.LOGGER_MAIN;
 import static util.Util.*;
 
 public class Game extends State {
-    final int buttonW = 120;
-    final int buttonH = 50;
-    final int bezel = 10;
-    final int mapElementWidth = round(papplet.width);
-    final int mapElementHeight = round(papplet.height);
-    final int CLICKHOLD = 500;
-    final int MOUSEPRESSTOLERANCE = 100;
-    PGraphics gameUICanvas;
-    String[] tasks;
-    String[] buildingTypes;
-    float[][] taskCosts;
-    float[][] taskOutcomes;
-    int numResources;
-    String[] resourceNames;
-    float [] startingResources;
-    int turnNumber;
+    private final int buttonW = 120;
+    private final int buttonH = 50;
+    private final int bezel = 10;
+    private final int mapElementWidth = round(papplet.width);
+    private final int mapElementHeight = round(papplet.height);
+    private final int CLICKHOLD = 500;
+    private final int MOUSEPRESSTOLERANCE = 100;
+    private PGraphics gameUICanvas;
+    private String[] tasks;
+    private String[] buildingTypes;
+    private float[][] taskCosts;
+    private float[][] taskOutcomes;
+    private int numResources;
+    private String[] resourceNames;
+    private float [] startingResources;
+    private int turnNumber;
     public int mapHeight = JSONManager.loadIntSetting("map size");
     public int mapWidth = JSONManager.loadIntSetting("map size");
     public int[][] terrain;
@@ -66,16 +66,14 @@ public class Game extends State {
     public int turn;
     private boolean changeTurn = false;
     private int winner = -1;
-    Map3D map3d;
-    Map2D map2d;
     private Map map;
     public Player[] players;
     private int selectedCellX, selectedCellY, sidePanelX, sidePanelY, sidePanelW, sidePanelH;
-    boolean cellSelected=false, moving=false;
-    int partyManagementColour;
-    ArrayList<Integer[]> prevIdle;
-    float[] totals;
-    Party splittedParty;
+    private boolean cellSelected=false, moving=false;
+    private int partyManagementColour;
+    private ArrayList<Integer[]> prevIdle;
+    private float[] totals;
+    private Party splittedParty;
     private int[] mapClickPos = null;
     private boolean cinematicMode;
     private boolean rocketLaunching;
@@ -113,7 +111,7 @@ public class Game extends State {
             addPanel("resource management", papplet.width/4, papplet.height/4, papplet.width/2, papplet.height/2, false, true, papplet.color(200), papplet.color(0));
             addPanel("end screen", 0, 0, papplet.width, papplet.height, false, true, papplet.color(50, 50, 50, 50), papplet.color(0));
             addPanel("pause screen", 0, 0, papplet.width, papplet.height, false, true, papplet.color(50, 50, 50, 50), papplet.color(0));
-            addPanel("save screen", (int)(papplet.width/2+JSONManager.loadFloatSetting("gui scale")*150+ (JSONManager.loadFloatSetting("gui scale")*20)), (int)(papplet.height/2-5*JSONManager.loadFloatSetting("gui scale")*40), (int)(JSONManager.loadFloatSetting("gui scale")*500), (int)(JSONManager.loadFloatSetting("gui scale")*500), false, false, papplet.color(50), papplet.color(0));
+            addPanel("save screen", (int)(papplet.width/2f+JSONManager.loadFloatSetting("gui scale")*150+ (JSONManager.loadFloatSetting("gui scale")*20)), (int)(papplet.height/2-5*JSONManager.loadFloatSetting("gui scale")*40), (int)(JSONManager.loadFloatSetting("gui scale")*500), (int)(JSONManager.loadFloatSetting("gui scale")*500), false, false, papplet.color(50), papplet.color(0));
             addPanel("overlay", 0, 0, papplet.width, papplet.height, true, false, papplet.color(255, 255), papplet.color(255, 255));
             addPanel("console", 0, papplet.height/2, papplet.width, papplet.height/2, false, true, papplet.color(0, 220), papplet.color(255, 0));
 
@@ -169,7 +167,7 @@ public class Game extends State {
             addElement("resources pages button", new HorizontalOptionsButton(bezel, bezel, 100, 30, papplet.color(150), 10, new String[]{"Resources", "Equipment"}), "resource management");
 
 
-            prevIdle = new ArrayList<Integer[]>();
+            prevIdle = new ArrayList<>();
         }
         catch (Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, "Error initializing game", e);
@@ -177,7 +175,7 @@ public class Game extends State {
         }
     }
 
-    public void initialiseBuildings() {
+    private void initialiseBuildings() {
         try {
             LOGGER_MAIN.fine("Initializing buildings");
             JSONObject js;
@@ -194,7 +192,7 @@ public class Game extends State {
         }
     }
 
-    public void initialiseTasks() {
+    private void initialiseTasks() {
         try {
             LOGGER_MAIN.fine("Initializing tasks");
             JSONObject js;
@@ -223,7 +221,7 @@ public class Game extends State {
         }
     }
 
-    public void initialiseResources() {
+    private void initialiseResources() {
         try {
             JSONObject js;
             numResources = gameData.getJSONArray("resources").size();
@@ -265,11 +263,10 @@ public class Game extends State {
         map.clearShape();
     }
 
-    public JSONArray taskInitialCost(int type) {
+    private JSONArray taskInitialCost(int type) {
         // Find initial cost for task (such as for buildings, 'Build Farm')
         try {
-            JSONArray ja = gameData.getJSONArray("tasks").getJSONObject(type).getJSONArray("initial cost");
-            return ja;
+            return gameData.getJSONArray("tasks").getJSONObject(type).getJSONArray("initial cost");
         }
         catch (Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, "Error getting task initial cost", e);
@@ -293,7 +290,7 @@ public class Game extends State {
         }
     }
 
-    public Action taskAction(int task) {
+    private Action taskAction(int task) {
         try {
             JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(task).getJSONObject("action");
             if (jo != null)
@@ -306,7 +303,7 @@ public class Game extends State {
         }
     }
 
-    public float[] JSONToCost(JSONArray ja) {
+    private float[] JSONToCost(JSONArray ja) {
         try {
             float[] costs = new float[numResources];
             if (ja == null) {
@@ -323,7 +320,7 @@ public class Game extends State {
         }
     }
 
-    public String terrainString(int terrainI) {
+    private String terrainString(int terrainI) {
         try {
             return gameData.getJSONArray("terrain").getJSONObject(terrainI).getString("id");
         }
@@ -333,7 +330,7 @@ public class Game extends State {
         }
     }
 
-    public String buildingString(int buildingI) {
+    private String buildingString(int buildingI) {
         try {
             if (gameData.getJSONArray("buildings").isNull(buildingI)) {
                 LOGGER_MAIN.warning("invalid building string "+(buildingI));
@@ -361,7 +358,7 @@ public class Game extends State {
         }
     }
 
-    public float[] buildingCost(int actionType) {
+    private float[] buildingCost(int actionType) {
         try {
             float[] a = JSONToCost(taskInitialCost(actionType));
             if (a == null)
@@ -379,12 +376,12 @@ public class Game extends State {
         }
     }
 
-    public int getBombardmentDamage(Party attacker, Party defender) {
+    private int getBombardmentDamage(Party attacker, Party defender) {
         return floor(attacker.getUnitNumber() * attacker.getEffectivenessMultiplier("ranged attack") /
                 (defender.getEffectivenessMultiplier("defence") * 3));
     }
 
-    public void postEvent(GameEvent event) {
+    private void postEvent(GameEvent event) {
         try {
             LOGGER_GAME.finer(String.format("Event triggered, player:%d. Cell in question:(%d, %d)", turn, selectedCellX, selectedCellY));
             boolean valid = true;
@@ -626,11 +623,11 @@ public class Game extends State {
                         otherBlocking = null;
                     }
                     if (otherBlocking != null) {
-                        for (int i=0; i < otherBlocking.length; i ++) {
-                            int classIndex = JSONManager.getEquipmentClassFromID(otherBlocking[i]);
-                            int otherResID=-1;
+                        for (String s : otherBlocking) {
+                            int classIndex = getEquipmentClassFromID(s);
+                            int otherResID = -1;
                             if (parties[selectedCellY][selectedCellX].getEquipment(classIndex) != -1) {
-                                otherResID = JSONManager.getResIndex(JSONManager.getEquipmentTypeID(classIndex, parties[selectedCellY][selectedCellX].getEquipment(classIndex)));
+                                otherResID = getResIndex(getEquipmentTypeID(classIndex, parties[selectedCellY][selectedCellX].getEquipment(classIndex)));
                             }
                             if (otherResID != -1 && parties[selectedCellY][selectedCellX].getEquipment(classIndex) != -1 && isEquipmentCollectionAllowed(selectedCellX, selectedCellY, classIndex, parties[selectedCellY][selectedCellX].getEquipment(classIndex))) {
                                 players[turn].resources[otherResID] += parties[selectedCellY][selectedCellX].getEquipmentQuantity(classIndex);
@@ -737,7 +734,7 @@ public class Game extends State {
         }
     }
 
-    public void updateThingsAfterGameStateChange() {
+    private void updateThingsAfterGameStateChange() {
         players[turn].updateVisibleCells(terrain, buildings, parties);
         if (players[turn].controllerType == 0){
             map.updateVisibleCells(players[turn].visibleCells);

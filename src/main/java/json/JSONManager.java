@@ -36,7 +36,7 @@ public class JSONManager {
             try {
                 settings = loadJSONObject("settings.json");
             }
-            catch (NullPointerException e) {
+            catch (RuntimeException e) {
                 // Create new settings.json
                 LOGGER_MAIN.info("creating new settings file");
                 PrintWriter w = createWriter("settings.json");

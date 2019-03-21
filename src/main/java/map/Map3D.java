@@ -26,49 +26,49 @@ import static util.Util.*;
 
 public class Map3D extends BaseMap implements Map {
     final int thickness = 10;
-    final float PANSPEED = 0.5f, ROTSPEED = 0.002f;
-    final float STUMPR = 1, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3f;
+    private final float PANSPEED = 0.5f, ROTSPEED = 0.002f;
+    private final float STUMPR = 1, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3f;
     final float HILLRAISE = 1.05f;
-    final float GROUNDHEIGHT = 5;
-    final float VERYSMALLSIZE = 0.01f;
+    private final float GROUNDHEIGHT = 5;
+    private final float VERYSMALLSIZE = 0.01f;
     private int numTreeTiles;
-    float panningSpeed = 0.05f;
-    int x, y, w, h, prevT, frameTime;
-    float hoveringX, hoveringY, oldHoveringX, oldHoveringY;
+    private float panningSpeed = 0.05f;
+    private int x, y, w, h, prevT, frameTime;
+    private float hoveringX, hoveringY, oldHoveringX, oldHoveringY;
     public float targetXOffset;
     public float targetYOffset;
-    int selectedCellX, selectedCellY;
-    PShape tiles, flagPole, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid, drawPossibleMoves, drawPossibleBombards, obscuredCellsOverlay, unseenCellsOverlay, dangerousCellsOverlay, bombardArrow, bandit;
-    PShape[] flags;
-    HashMap<String, PShape> taskObjs;
-    HashMap<String, PShape[]> buildingObjs;
-    PShape[] unitNumberObjects;
-    PImage[] tempTileImages;
-    float targetZoom;
+    private int selectedCellX, selectedCellY;
+    private PShape tiles, flagPole, battle, trees, selectTile, water, tileRect, pathLine, highlightingGrid, drawPossibleMoves, drawPossibleBombards, obscuredCellsOverlay, unseenCellsOverlay, dangerousCellsOverlay, bombardArrow, bandit;
+    private PShape[] flags;
+    private HashMap<String, PShape> taskObjs;
+    private HashMap<String, PShape[]> buildingObjs;
+    private PShape[] unitNumberObjects;
+    private PImage[] tempTileImages;
+    private float targetZoom;
     public float zoom;
-    float zoomv;
-    float tilt;
-    float tiltv;
-    float rot;
-    float rotv;
+    private float zoomv;
+    private float tilt;
+    private float tiltv;
+    private float rot;
+    private float rotv;
     public float focusedX;
     public float focusedY;
-    PVector focusedV, heldPos;
-    Boolean panning, zooming, mapActive, cellSelected, updateHoveringScale;
-    Node[][] moveNodes;
+    private PVector focusedV, heldPos;
+    private Boolean panning, zooming, mapActive, cellSelected, updateHoveringScale;
+    private Node[][] moveNodes;
     public float blockSize = 16;
-    ArrayList<int[]> drawPath;
-    HashMap<Integer, Integer> forestTiles;
-    PGraphics canvas, refractionCanvas;
-    HashMap<Integer, HashMap<Integer, Float>> downwardAngleCache;
-    PShape tempRow, tempSingleRow;
-    PGraphics tempTerrain;
-    boolean drawRocket;
-    PVector rocketPosition;
-    PVector rocketVelocity;
-    boolean showingBombard;
-    int bombardRange;
-    int[] playerColours;
+    private ArrayList<int[]> drawPath;
+    private HashMap<Integer, Integer> forestTiles;
+    private PGraphics canvas, refractionCanvas;
+    private HashMap<Integer, HashMap<Integer, Float>> downwardAngleCache;
+    private PShape tempRow, tempSingleRow;
+    private PGraphics tempTerrain;
+    private boolean drawRocket;
+    private PVector rocketPosition;
+    private PVector rocketVelocity;
+    private boolean showingBombard;
+    private int bombardRange;
+    private int[] playerColours;
 
     public Map3D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
         LOGGER_MAIN.fine("Initialising map 3d");
@@ -82,7 +82,7 @@ public class Map3D extends BaseMap implements Map {
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
         blockSize = 32;
-        zoom = papplet.height/2;
+        zoom = papplet.height/2f;
         tilt = PI/3;
         focusedX = round(mapWidth*blockSize/2);
         focusedY = round(mapHeight*blockSize/2);
@@ -91,26 +91,26 @@ public class Map3D extends BaseMap implements Map {
         cellSelected = false;
         panning = false;
         zooming = false;
-        buildingObjs = new HashMap<String, PShape[]>();
-        taskObjs = new HashMap<String, PShape>();
-        forestTiles = new HashMap<Integer, Integer>();
+        buildingObjs = new HashMap<>();
+        taskObjs = new HashMap<>();
+        forestTiles = new HashMap<>();
         canvas = papplet.createGraphics(papplet.width, papplet.height, P3D);
         refractionCanvas = papplet.createGraphics(papplet.width/4, papplet.height/4, P3D);
-        downwardAngleCache = new HashMap<Integer, HashMap<Integer, Float>>();
+        downwardAngleCache = new HashMap<>();
         heightMap = new float[PApplet.parseInt((mapWidth+1)*(mapHeight+1)*pow(JSONManager.loadFloatSetting("terrain detail"), 2))];
-        targetXOffset = mapWidth/2*blockSize;
-        targetYOffset = mapHeight/2*blockSize;
+        targetXOffset = mapWidth/2f*blockSize;
+        targetYOffset = mapHeight/2f*blockSize;
         updateHoveringScale = false;
-        this.keyState = new HashMap<Character, Boolean>();
+        this.keyState = new HashMap<>();
         showingBombard = false;
     }
 
 
 
-    public float getDownwardAngle(int x, int y) {
+    private float getDownwardAngle(int x, int y) {
         try {
             if (!downwardAngleCache.containsKey(y)) {
-                downwardAngleCache.put(y, new HashMap<Integer, Float>());
+                downwardAngleCache.put(y, new HashMap<>());
             }
             if (downwardAngleCache.get(y).containsKey(x)) {
                 return downwardAngleCache.get(y).get(x);
@@ -188,9 +188,9 @@ public class Map3D extends BaseMap implements Map {
         updateDangerousCellsOverlay(visibleCells, players);
     }
 
-    public void updatePath (ArrayList<int[]> path, int[] target) {
+    private void updatePath(ArrayList<int[]> path, int[] target) {
         // Use when updaing with a target node
-        ArrayList<int[]> tempPath = new ArrayList<int[]>(path);
+        ArrayList<int[]> tempPath = new ArrayList<>(path);
         tempPath.add(target);
         updatePath(tempPath);
     }
@@ -208,8 +208,8 @@ public class Map3D extends BaseMap implements Map {
         }
         for (int i=0; i<path.size()-1; i++) {
             for (int u=0; u<blockSize/8; u++) {
-                x0 = path.get(i)[0]+(path.get(i+1)[0]-path.get(i)[0])*u/8+0.5f;
-                y0 = path.get(i)[1]+(path.get(i+1)[1]-path.get(i)[1])*u/8+0.5f;
+                x0 = path.get(i)[0]+(path.get(i+1)[0]-path.get(i)[0])*u/8f+0.5f;
+                y0 = path.get(i)[1]+(path.get(i+1)[1]-path.get(i)[1])*u/8f+0.5f;
                 pathLine.vertex(x0*blockSize, y0*blockSize, 5+getHeight(x0, y0));
             }
         }
@@ -220,7 +220,7 @@ public class Map3D extends BaseMap implements Map {
         drawPath = path;
     }
 
-    public void loadUnseenCellsOverlay(Cell[][] visibleCells) {
+    private void loadUnseenCellsOverlay(Cell[][] visibleCells) {
         // For the shape that indicates cells that have not been seen
         try {
             LOGGER_MAIN.finer("Loading unseen cells overlay");
@@ -274,7 +274,7 @@ public class Map3D extends BaseMap implements Map {
         }
     }
 
-    public void updateUnseenCellsOverlay(Cell[][] visibleCells) {
+    private void updateUnseenCellsOverlay(Cell[][] visibleCells) {
         // For the shape that indicates cells that have not been seen
         try {
             LOGGER_MAIN.finer("Updating unseen cells overlay");
@@ -347,7 +347,7 @@ public class Map3D extends BaseMap implements Map {
         }
     }
 
-    public void loadObscuredCellsOverlay(Cell[][] visibleCells) {
+    private void loadObscuredCellsOverlay(Cell[][] visibleCells) {
         // For the shape that indicates cells that are not currently under party sight
         try {
             LOGGER_MAIN.finer("Loading obscured cells overlay");
@@ -392,7 +392,7 @@ public class Map3D extends BaseMap implements Map {
         }
     }
 
-    public void updateObscuredCellsOverlay(Cell[][] visibleCells) {
+    private void updateObscuredCellsOverlay(Cell[][] visibleCells) {
         // For the shape that indicates cells that are not currently under party sight
         try {
             LOGGER_MAIN.finer("Updating obscured cells overlay");
@@ -461,14 +461,14 @@ public class Map3D extends BaseMap implements Map {
         updateOverlays(visibleCells);
     }
 
-    public void updateOverlays(Cell[][] visibleCells) {
+    private void updateOverlays(Cell[][] visibleCells) {
         if (JSONManager.loadBooleanSetting("fog of war")) {
             updateObscuredCellsOverlay(visibleCells);
             updateUnseenCellsOverlay(visibleCells);
         }
     }
 
-    public void updatePossibleMoves() {
+    private void updatePossibleMoves() {
         // For the shape that indicateds where a party can move
         try {
             LOGGER_MAIN.finer("Updating possible move nodes");
@@ -501,7 +501,7 @@ public class Map3D extends BaseMap implements Map {
         }
     }
 
-    public void updateDangerousCellsOverlay(Cell[][] visibleCells, Player[] players) {
+    private void updateDangerousCellsOverlay(Cell[][] visibleCells, Player[] players) {
         // For the shape that indicates cells that are dangerous
         try {
             if (visibleCells[selectedCellY][selectedCellX] != null && visibleCells[selectedCellY][selectedCellX].party != null) {
@@ -553,7 +553,7 @@ public class Map3D extends BaseMap implements Map {
         }
     }
 
-    public void updatePossibleBombards() {
+    private void updatePossibleBombards() {
         // For the shape that indicateds where a party can bombard
         try {
             LOGGER_MAIN.finer("Updating possible bombards");
@@ -606,8 +606,8 @@ public class Map3D extends BaseMap implements Map {
     }
     public float[] targetCell(int x, int y, float zoom) {
         LOGGER_MAIN.finer(String.format("Targetting cell:%s, %s and zoom:%s", x, y, zoom));
-        targetXOffset = (x+0.5f)*blockSize-papplet.width/2;
-        targetYOffset = (y+0.5f)*blockSize-papplet.height/2;
+        targetXOffset = (x+0.5f)*blockSize-papplet.width/2f;
+        targetYOffset = (y+0.5f)*blockSize-papplet.height/2f;
         panning = true;
         return new float[]{targetXOffset, targetYOffset};
     }
@@ -645,7 +645,7 @@ public class Map3D extends BaseMap implements Map {
         updateHoveringScale = true;
     }
 
-    public void addTreeTile(int cellX, int cellY, int i) {
+    private void addTreeTile(int cellX, int cellY, int i) {
         forestTiles.put(cellX+cellY*mapWidth, i);
     }
     public void removeTreeTile(int cellX, int cellY) {
@@ -697,7 +697,7 @@ public class Map3D extends BaseMap implements Map {
     //  }
     //}
 
-    public PShape generateTrees(int num, int vertices, float x1, float y1) {
+    private PShape generateTrees(int num, int vertices, float x1, float y1) {
         try {
             //LOGGER_MAIN.info(String.format("Generating trees at %s, %s", x1, y1));
             PShape shapes = papplet.createShape(GROUP);
@@ -743,7 +743,7 @@ public class Map3D extends BaseMap implements Map {
         }
     }
 
-    public void loadMapStrip(int y, PShape tiles, boolean loading) {
+    private void loadMapStrip(int y, PShape tiles, boolean loading) {
         try {
             LOGGER_MAIN.finer("Loading map strip y:"+y+" loading: "+loading);
             tempTerrain = papplet.createGraphics(round((1+mapWidth)*JSONManager.loadIntSetting("terrain texture resolution")), round(JSONManager.loadIntSetting("terrain texture resolution")));
@@ -861,9 +861,9 @@ public class Map3D extends BaseMap implements Map {
             water = null;
             trees = null;
             tiles = null;
-            buildingObjs = new HashMap<String, PShape[]>();
-            taskObjs = new HashMap<String, PShape>();
-            forestTiles = new HashMap<Integer, Integer>();
+            buildingObjs = new HashMap<>();
+            taskObjs = new HashMap<>();
+            forestTiles = new HashMap<>();
         }
         catch(Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, "Error clearing shape", e);
@@ -1025,7 +1025,7 @@ public class Map3D extends BaseMap implements Map {
             papplet.popStyle();
             cinematicMode = false;
             drawRocket = false;
-            this.keyState = new HashMap<Character, Boolean>();
+            this.keyState = new HashMap<>();
             obscuredCellsOverlay = null;
             unseenCellsOverlay = null;
         }
@@ -1035,7 +1035,7 @@ public class Map3D extends BaseMap implements Map {
         }
     }
 
-    public void generateHighlightingGrid(int horizontals, int verticles) {
+    private void generateHighlightingGrid(int horizontals, int verticles) {
         try {
             LOGGER_MAIN.fine("Generating highlighting grid");
             PShape line;
@@ -1046,8 +1046,8 @@ public class Map3D extends BaseMap implements Map {
                 line.beginShape();
                 line.noFill();
                 for (int x1=0; x1<JSONManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++) {
-                    float x2 = -horizontals/2+0.5f+x1/JSONManager.loadFloatSetting("terrain detail");
-                    float y1 = -verticles/2+i+0.5f;
+                    float x2 = -horizontals/2f+0.5f+x1/JSONManager.loadFloatSetting("terrain detail");
+                    float y1 = -verticles/2f+i+0.5f;
                     line.stroke(255, 255, 255, 255-sqrt(pow(x2, 2)+pow(y1, 2))/3*255);
                     line.vertex(0, 0, 0);
                 }
@@ -1060,8 +1060,8 @@ public class Map3D extends BaseMap implements Map {
                 line.beginShape();
                 line.noFill();
                 for (int y1=0; y1<JSONManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++) {
-                    float y2 = -verticles/2+0.5f+y1/JSONManager.loadFloatSetting("terrain detail");
-                    float x1 = -horizontals/2+i+0.5f;
+                    float y2 = -verticles/2f+0.5f+y1/JSONManager.loadFloatSetting("terrain detail");
+                    float x1 = -horizontals/2f+i+0.5f;
                     line.stroke(255, 255, 255, 255-sqrt(pow(y2, 2)+pow(x1, 2))/3*255);
                     line.vertex(0, 0, 0);
                 }
@@ -1075,7 +1075,7 @@ public class Map3D extends BaseMap implements Map {
         }
     }
 
-    public void updateHighlightingGrid(float x, float y, int horizontals, int verticles) {
+    private void updateHighlightingGrid(float x, float y, int horizontals, int verticles) {
         // x, y are cell coordinates
         try {
             //LOGGER_MAIN.finer(String.format("Updating selection rect at:%s, %s", x, y));
@@ -1085,13 +1085,13 @@ public class Map3D extends BaseMap implements Map {
                 for (int i=0; i<horizontals; i++) {
                     line = highlightingGrid.getChild(i);
                     for (int x1=0; x1<JSONManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++) {
-                        float x2 = PApplet.parseInt(x)-horizontals/2+1+x1/JSONManager.loadFloatSetting("terrain detail");
-                        float y1 = PApplet.parseInt(y)-verticles/2+1+i;
-                        float x3 = -horizontals/2+x1/JSONManager.loadFloatSetting("terrain detail");
-                        float y3 = -verticles/2+i;
+                        float x2 = PApplet.parseInt(x)-horizontals/2f+1+x1/JSONManager.loadFloatSetting("terrain detail");
+                        float y1 = PApplet.parseInt(y)-verticles/2f+1+i;
+                        float x3 = -horizontals/2f+x1/JSONManager.loadFloatSetting("terrain detail");
+                        float y3 = -verticles/2f+i;
                         float dist = sqrt(pow(y3-y%1+1, 2)+pow(x3-x%1+1, 2));
                         if (0 < x2 && x2 < mapWidth && 0 < y1 && y1 < mapHeight) {
-                            alpha = 255-dist/(verticles/2-1)*255;
+                            alpha = 255-dist/(verticles/2f-1)*255;
                         } else {
                             alpha = 0;
                         }
@@ -1104,12 +1104,12 @@ public class Map3D extends BaseMap implements Map {
                     line = highlightingGrid.getChild(i+horizontals);
                     for (int y1=0; y1<JSONManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++) {
                         float x1 = PApplet.parseInt(x)-horizontals/2+1+i;
-                        float y2 = PApplet.parseInt(y)-verticles/2+1+y1/JSONManager.loadFloatSetting("terrain detail");
-                        float y3 = -verticles/2+y1/JSONManager.loadFloatSetting("terrain detail");
-                        float x3 = -horizontals/2+i;
+                        float y2 = PApplet.parseInt(y)-verticles/2f+1+y1/JSONManager.loadFloatSetting("terrain detail");
+                        float y3 = -verticles/2f+y1/JSONManager.loadFloatSetting("terrain detail");
+                        float x3 = -horizontals/2f+i;
                         float dist = sqrt(pow(y3-y%1+1, 2)+pow(x3-x%1+1, 2));
                         if (0 < x1 && x1 < mapWidth && 0 < y2 && y2 < mapHeight) {
-                            alpha = 255-dist/(horizontals/2-1)*255;
+                            alpha = 255-dist/(horizontals/2f-1)*255;
                         } else {
                             alpha = 0;
                         }
@@ -1121,7 +1121,7 @@ public class Map3D extends BaseMap implements Map {
                 for (int i=0; i<horizontals; i++) {
                     line = highlightingGrid.getChild(i);
                     for (int x1=0; x1<JSONManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++) {
-                        float x2 = PApplet.parseInt(x)-horizontals/2+1+x1/JSONManager.loadFloatSetting("terrain detail");
+                        float x2 = PApplet.parseInt(x)-horizontals/2f+1+x1/JSONManager.loadFloatSetting("terrain detail");
                         float y1 = PApplet.parseInt(y)-verticles/2+1+i;
                         line.setVertex(x1, x2*blockSize, y1*blockSize, 4.5f*VERYSMALLSIZE+getHeight(x2, y1));
                     }
@@ -1131,7 +1131,7 @@ public class Map3D extends BaseMap implements Map {
                     line = highlightingGrid.getChild(i+horizontals);
                     for (int y1=0; y1<JSONManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++) {
                         float x1 = PApplet.parseInt(x)-horizontals/2+1+i;
-                        float y2 = PApplet.parseInt(y)-verticles/2+1+y1/JSONManager.loadFloatSetting("terrain detail");
+                        float y2 = PApplet.parseInt(y)-verticles/2f+1+y1/JSONManager.loadFloatSetting("terrain detail");
                         line.setVertex(y1, x1*blockSize, y2*blockSize, 4.5f*VERYSMALLSIZE+getHeight(x1, y2));
                     }
                 }
@@ -1143,7 +1143,7 @@ public class Map3D extends BaseMap implements Map {
         }
     }
 
-    public void updateSelectionRect(int cellX, int cellY) {
+    private void updateSelectionRect(int cellX, int cellY) {
         try {
             //LOGGER_MAIN.finer(String.format("Updating selection rect at:%s, %s", cellX, cellY));
             int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
@@ -1163,10 +1163,10 @@ public class Map3D extends BaseMap implements Map {
         }
     }
 
-    public PVector getMousePosOnObject() {
+    private PVector getMousePosOnObject() {
         try {
             applyCameraPerspective();
-            PVector floorPos = new PVector(focusedX+papplet.width/2, focusedY+papplet.height/2, 0);
+            PVector floorPos = new PVector(focusedX+papplet.width/2f, focusedY+papplet.height/2f, 0);
             PVector floorDir = new PVector(0, 0, -1);
             PVector mousePos = getUnProjectedPointOnFloor(papplet.mouseX, papplet.mouseY, floorPos, floorDir);
             papplet.camera();
@@ -1178,24 +1178,24 @@ public class Map3D extends BaseMap implements Map {
         }
     }
 
-    public float getObjectWidth() {
+    private float getObjectWidth() {
         return mapWidth*blockSize;
     }
-    public float getObjectHeight() {
+    private float getObjectHeight() {
         return mapHeight*blockSize;
     }
-    public void setZoom(float zoom) {
-        this.zoom =  between(papplet.height/3, zoom, min(mapHeight*blockSize, papplet.height*4));
+    private void setZoom(float zoom) {
+        this.zoom =  between(papplet.height/3f, zoom, min(mapHeight*blockSize, papplet.height*4));
     }
-    public void setTilt(float tilt) {
+    private void setTilt(float tilt) {
         this.tilt = between(0.01f, tilt, 3*PI/8);
     }
-    public void setRot(float rot) {
+    private void setRot(float rot) {
         this.rot = rot;
     }
-    public void setFocused(float focusedX, float focusedY) {
-        this.focusedX = between(-papplet.width/2, focusedX, getObjectWidth()-papplet.width/2);
-        this.focusedY = between(-papplet.height/2, focusedY, getObjectHeight()-papplet.height/2);
+    private void setFocused(float focusedX, float focusedY) {
+        this.focusedX = between(-papplet.width/2f, focusedX, getObjectWidth()-papplet.width/2f);
+        this.focusedY = between(-papplet.height/2f, focusedY, getObjectHeight()-papplet.height/2f);
     }
 
     public ArrayList<String> mouseEvent(String eventType, int button) {
@@ -1233,7 +1233,7 @@ public class Map3D extends BaseMap implements Map {
         //    heldPos = null;
         //  }
         //}
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
 
@@ -1243,7 +1243,7 @@ public class Map3D extends BaseMap implements Map {
             float count = event.getCount();
             setZoom(zoom+zoom*count*0.15f);
         }
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
     public ArrayList<String> keyboardEvent(String eventType, char _key) {
         if (eventType.equals("keyPressed")) {
@@ -1252,9 +1252,9 @@ public class Map3D extends BaseMap implements Map {
         if (eventType.equals("keyReleased")) {
             keyState.put(_key, false);
         }
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
-    public float getHeight(float x, float y) {
+    private float getHeight(float x, float y) {
         //if (y<mapHeight && x<mapWidth && y+JSONManager.loadFloatSetting("terrain detail")/blockSize<mapHeight && x+JSONManager.loadFloatSetting("terrain detail")/blockSize<mapHeight && y-JSONManager.loadFloatSetting("terrain detail")/blockSize>=0 && x-JSONManager.loadFloatSetting("terrain detail")/blockSize>=0 &&
         //terrain[floor(y)][floor(x)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 &&
         //terrain[floor(y+JSONManager.loadFloatSetting("terrain detail")/blockSize)][floor(x+JSONManager.loadFloatSetting("terrain detail")/blockSize)] == JSONIndex(gameData.getJSONArray("terrain"), "hills")+1 &&
@@ -1266,18 +1266,18 @@ public class Map3D extends BaseMap implements Map {
         //return (max(h-(0.5+waterLevel/2.0), 0)*(1000)+h)*blockSize*GROUNDHEIGHT;
         //}
     }
-    public float groundMinHeightAt(int x1, int y1) {
+    private float groundMinHeightAt(int x1, int y1) {
         int x = floor(x1);
         int y = floor(y1);
         return min(new float[]{getHeight(x, y), getHeight(x+1, y), getHeight(x, y+1), getHeight(x+1, y+1)});
     }
-    public float groundMaxHeightAt(int x1, int y1) {
+    private float groundMaxHeightAt(int x1, int y1) {
         int x = floor(x1);
         int y = floor(y1);
         return max(new float[]{getHeight(x, y), getHeight(x+1, y), getHeight(x, y+1), getHeight(x+1, y+1)});
     }
 
-    public void applyCameraPerspective() {
+    private void applyCameraPerspective() {
         float fov = PI/3.0f;
         float cameraZ = (papplet.height/2.0f) / tan(fov/2.0f);
         papplet.perspective(fov, PApplet.parseFloat(papplet.width)/PApplet.parseFloat(papplet.height), cameraZ/100.0f, cameraZ*20.0f);
@@ -1285,7 +1285,7 @@ public class Map3D extends BaseMap implements Map {
     }
 
 
-    public void applyCameraPerspective(PGraphics canvas) {
+    private void applyCameraPerspective(PGraphics canvas) {
         float fov = PI/3.0f;
         float cameraZ = (papplet.height/2.0f) / tan(fov/2.0f);
         canvas.perspective(fov, PApplet.parseFloat(papplet.width)/PApplet.parseFloat(papplet.height), cameraZ/100.0f, cameraZ*20.0f);
@@ -1293,17 +1293,17 @@ public class Map3D extends BaseMap implements Map {
     }
 
 
-    public void applyCamera() {
-        papplet.camera(focusedX+papplet.width/2+zoom*sin(tilt)*sin(rot), focusedY+papplet.height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+papplet.width/2, focusedY+papplet.height/2, 0, 0, 0, -1);
+    private void applyCamera() {
+        papplet.camera(focusedX+papplet.width/2f+zoom*sin(tilt)*sin(rot), focusedY+papplet.height/2f+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+papplet.width/2f, focusedY+papplet.height/2f, 0, 0, 0, -1);
     }
 
 
-    public void applyCamera(PGraphics canvas) {
-        canvas.camera(focusedX+papplet.width/2+zoom*sin(tilt)*sin(rot), focusedY+papplet.height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+papplet.width/2, focusedY+papplet.height/2, 0, 0, 0, -1);
+    private void applyCamera(PGraphics canvas) {
+        canvas.camera(focusedX+papplet.width/2f+zoom*sin(tilt)*sin(rot), focusedY+papplet.height/2f+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), focusedX+papplet.width/2f, focusedY+papplet.height/2f, 0, 0, 0, -1);
     }
 
     public void applyInvCamera(PGraphics canvas) {
-        canvas.camera(focusedX+papplet.width/2+zoom*sin(tilt)*sin(rot), focusedY+papplet.height/2+zoom*sin(tilt)*cos(rot), -zoom*cos(tilt), focusedX+papplet.width/2, focusedY+papplet.height/2, 0, 0, 0, -1);
+        canvas.camera(focusedX+papplet.width/2f+zoom*sin(tilt)*sin(rot), focusedY+papplet.height/2f+zoom*sin(tilt)*cos(rot), -zoom*cos(tilt), focusedX+papplet.width/2f, focusedY+papplet.height/2f, 0, 0, 0, -1);
     }
 
     public void keyboardControls() {
@@ -1453,7 +1453,7 @@ public class Map3D extends BaseMap implements Map {
         }
     }
 
-    public void renderWater(PGraphics canvas) {
+    private void renderWater(PGraphics canvas) {
         //Draw water
         try {
             canvas.pushMatrix();
@@ -1466,7 +1466,7 @@ public class Map3D extends BaseMap implements Map {
         }
     }
 
-    public void drawPath(PGraphics canvas) {
+    private void drawPath(PGraphics canvas) {
         try {
             if (drawPath != null) {
                 canvas.shape(pathLine);
@@ -1478,7 +1478,7 @@ public class Map3D extends BaseMap implements Map {
         }
     }
 
-    public void renderScene(PGraphics canvas) {
+    private void renderScene(PGraphics canvas) {
 
         try {
             canvas.directionalLight(240, 255, 255, 0, -0.1f, -1);
@@ -1517,7 +1517,7 @@ public class Map3D extends BaseMap implements Map {
                 canvas.popMatrix();
             }
 
-            float verySmallSize = VERYSMALLSIZE*(400+(zoom-papplet.height/3)*(cos(tilt)+1))/10;
+            float verySmallSize = VERYSMALLSIZE*(400+(zoom-papplet.height/3f)*(cos(tilt)+1))/10;
             if (moveNodes != null) {
                 canvas.pushMatrix();
                 canvas.translate(0, 0, verySmallSize);
@@ -1651,7 +1651,7 @@ public class Map3D extends BaseMap implements Map {
 
     //}
 
-    public void drawUnitBar(int x, int y, PGraphics canvas) {
+    private void drawUnitBar(int x, int y, PGraphics canvas) {
         try {
             if (visibleCells[y][x].party instanceof Battle) {
                 Battle battle = (Battle) visibleCells[y][x].party;
@@ -1705,7 +1705,7 @@ public class Map3D extends BaseMap implements Map {
         }
     }
 
-    public String buildingString(int buildingI) {
+    private String buildingString(int buildingI) {
         if (gameData.getJSONArray("buildings").isNull(buildingI)) {
             LOGGER_MAIN.warning("invalid building string: "+(buildingI-1));
             return null;
@@ -1737,7 +1737,7 @@ public class Map3D extends BaseMap implements Map {
     // https://forum.processing.org/two/discussion/21644/picking-in-3d-through-ray-tracing-method
 
     // Function that calculates the coordinates on the floor surface corresponding to the screen coordinates
-    public PVector getUnProjectedPointOnFloor(float screen_x, float screen_y, PVector floorPosition, PVector floorDirection) {
+    private PVector getUnProjectedPointOnFloor(float screen_x, float screen_y, PVector floorPosition, PVector floorDirection) {
 
         try {
             PVector f = floorPosition.copy(); // Position of the floor
@@ -1780,14 +1780,14 @@ public class Map3D extends BaseMap implements Map {
     }
 
     // Function to get the position of the viewpoint in the current coordinate system
-    public PVector getEyePosition() {
+    private PVector getEyePosition() {
         applyCameraPerspective();
         PMatrix3D mat = (PMatrix3D)papplet.getMatrix(); //Get the model view matrix
         mat.invert();
         return new PVector( mat.m03, mat.m13, mat.m23 );
     }
     //Function to perform the conversion to the local coordinate system ( reverse projection ) from the window coordinate system
-    public PVector unProject(float winX, float winY, float winZ) {
+    private PVector unProject(float winX, float winY, float winZ) {
         PMatrix3D mat = getMatrixLocalToWindow();
         mat.invert();
 
@@ -1799,21 +1799,20 @@ public class Map3D extends BaseMap implements Map {
             return null;
         }
 
-        PVector result = new PVector(out[0]/out[3], out[1]/out[3], out[2]/out[3]);
-        return result;
+        return new PVector(out[0]/out[3], out[1]/out[3], out[2]/out[3]);
     }
 
     //Function to compute the transformation matrix to the window coordinate system from the local coordinate system
-    public PMatrix3D getMatrixLocalToWindow() {
+    private PMatrix3D getMatrixLocalToWindow() {
         try {
             PMatrix3D projection = ((PGraphics3D)papplet.g).projection;
             PMatrix3D modelview = ((PGraphics3D)papplet.g).modelview;
 
             // viewport transf matrix
             PMatrix3D viewport = new PMatrix3D();
-            viewport.m00 = viewport.m03 = papplet.width/2;
-            viewport.m11 = -papplet.height/2;
-            viewport.m13 =  papplet.height/2;
+            viewport.m00 = viewport.m03 = papplet.width/2f;
+            viewport.m11 = -papplet.height/2f;
+            viewport.m13 =  papplet.height/2f;
 
             // Calculate the transformation matrix to the window coordinate system from the local coordinate system
             viewport.apply(projection);
@@ -1835,7 +1834,7 @@ public class Map3D extends BaseMap implements Map {
         drawRocket = false;
     }
 
-    public void drawRocket(PGraphics canvas) {
+    private void drawRocket(PGraphics canvas) {
         try {
             canvas.lights();
             canvas.pushMatrix();
@@ -1856,11 +1855,11 @@ public class Map3D extends BaseMap implements Map {
         showingBombard = false;
     }
 
-    public void drawBombard(PGraphics canvas) {
+    private void drawBombard(PGraphics canvas) {
         canvas.shape(bombardArrow);
     }
 
-    public void updateBombard() {
+    private void updateBombard() {
         PVector pos = getMousePosOnObject();
         int x = floor(pos.x/blockSize);
         int y = floor(pos.y/blockSize);
