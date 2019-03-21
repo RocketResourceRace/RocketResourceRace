@@ -23,25 +23,16 @@ import util.Image;
 import util.LoggerFormatter;
 import states.Menu;
 import json.JSONManager;
+import util.Util;
 
 import java.util.HashMap;
 import java.util.ArrayList;
 
 import static util.Font.getFont;
 import static util.Logging.*;
-import static util.Util.RESOURCES_ROOT;
+import static util.Util.*;
 
 public class RocketResourceRace extends PApplet {
-
-
-
-
-
-
-
-
-
-
 
 
     JSONObject gameData = JSONManager.gameData;
@@ -131,6 +122,7 @@ public class RocketResourceRace extends PApplet {
     float halfScreenHeight;
     public void setup() {
         try {
+            Util.papplet = this;
             // Set up loggers
             FileHandler mainHandler = new FileHandler(sketchPath("main_log.log"));
             mainHandler.setFormatter(new LoggerFormatter());
@@ -154,16 +146,16 @@ public class RocketResourceRace extends PApplet {
 
             new JSONManager();
             gameData = JSONManager.gameData;
+            loadSounds();
+            setFrameRateCap();
             textFont(createFont("GillSans", 32));
 
+            Image.loadImages();
 
             LOGGER_MAIN.fine("Loading states");
 
             states = new HashMap<String, State>();
             addState("menu", new Menu());
-            ((Menu)states.get("menu")).loadSounds();
-            ((Menu)states.get("menu")).setFrameRateCap();
-            Image.loadImages();
             addState("map", new Game());
             activeState = "menu";
             //noSmooth();

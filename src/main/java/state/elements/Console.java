@@ -52,7 +52,7 @@ public class Console extends Element {
         commandLog = new ArrayList<String>();
         commandLogPosition = 0;
         cursorX = 3;
-        commands = JSONManager.loadJSONObject("json/commands.json");
+        commands = JSONManager.loadJSONObject(RESOURCES_ROOT+"json/commands.json");
         monoFont = papplet.createFont("Monospaced", textSize*JSONManager.loadFloatSetting("text scale"));
     }
 

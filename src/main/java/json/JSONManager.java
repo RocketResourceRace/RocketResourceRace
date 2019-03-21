@@ -454,7 +454,7 @@ public class JSONManager {
     public static boolean hasFlag(String panelID, String elemID, String flag) {
         try {
             JSONObject panel = findJSONObject(menu.getJSONArray("states"), panelID);
-            JSONObject elem = findJSONObject(panel.getJSONArray("state/elements"), elemID);
+            JSONObject elem = findJSONObject(panel.getJSONArray("elements"), elemID);
             JSONArray flags = elem.getJSONArray("flags");
             if (flags != null) {
                 for (int i=0; i<flags.size(); i++) {
@@ -634,7 +634,7 @@ public class JSONManager {
 
     public static String getElementType(String panel, String element) {
         try {
-            JSONArray elems = findJSONObject(menu.getJSONArray("states"), panel).getJSONArray("state/elements");
+            JSONArray elems = findJSONObject(menu.getJSONArray("states"), panel).getJSONArray("elements");
             return findJSONObject(elems, element).getString("type");
         }
         catch(Exception e) {
@@ -651,7 +651,7 @@ public class JSONManager {
             JSONArray panels = menu.getJSONArray("states");
             for (int i=0; i<panels.size(); i++) {
                 JSONObject panel = panels.getJSONObject(i);
-                JSONArray panelElems = panel.getJSONArray("state/elements");
+                JSONArray panelElems = panel.getJSONArray("elements");
                 for (int j=0; j<panelElems.size(); j++) {
                     if (!panelElems.getJSONObject(j).isNull("new states")) {
                         returnHash.put(panelElems.getJSONObject(j).getString("id"), new String[]{panelElems.getJSONObject(j).getString("new states"), panel.getString("id")});
@@ -674,7 +674,7 @@ public class JSONManager {
             JSONArray panels = menu.getJSONArray("states");
             for (int i=0; i<panels.size(); i++) {
                 JSONObject panel = panels.getJSONObject(i);
-                JSONArray panelElems = panel.getJSONArray("state/elements");
+                JSONArray panelElems = panel.getJSONArray("elements");
                 for (int j=0; j<panelElems.size(); j++) {
                     if (!panelElems.getJSONObject(j).isNull("setting")) {
                         returnHash.put(panelElems.getJSONObject(j).getString("id"), new String[]{panelElems.getJSONObject(j).getString("setting"), panel.getString("id")});
@@ -693,7 +693,7 @@ public class JSONManager {
         // Gets the name of the setting for an element or null if it doesnt have a settting
         try {
             JSONObject panel = findJSONObject(menu.getJSONArray("states"), panelID);
-            JSONObject element = findJSONObject(panel.getJSONArray("state/elements"), id);
+            JSONObject element = findJSONObject(panel.getJSONArray("elements"), id);
             return element.getString("setting");
         }
         catch(Exception e) {
@@ -738,7 +738,7 @@ public class JSONManager {
             float x, y, w, h, scale, lower, upper, step;
             String type, id, text, setting;
             String[] options;
-            JSONArray elements = findJSONObject(menu.getJSONArray("states"), panelID).getJSONArray("state/elements");
+            JSONArray elements = findJSONObject(menu.getJSONArray("states"), panelID).getJSONArray("elements");
 
 
             scale = 20 * guiScale;

@@ -25,7 +25,6 @@ public class Menu extends State {
     PShape bg;
     String currentPanel, newPanel;
     HashMap<String, String[]> stateChangers, settingChangers;
-    HashMap<String, SoundFile> sfx;
 
     public Menu() {
         super();
@@ -180,39 +179,7 @@ public class Menu extends State {
     }
 
 
-    public void loadSounds() {
-        try {
-            if (JSONManager.loadBooleanSetting("sound on")) {
-                sfx = new HashMap<String, SoundFile>();
-                sfx.put("click3", new SoundFile(papplet, RESOURCES_ROOT +"wav/click3.wav"));
-            }
-        }
-        catch (Exception e) {
-            LOGGER_MAIN.log(Level.SEVERE, "Something wrong with loading sounds", e);
-            throw e;
-        }
-    }
 
-    public void setFrameRateCap() {
-        LOGGER_MAIN.finer("Setting framerate cap");
-        if (JSONManager.loadBooleanSetting("framerate cap")) {
-            papplet.frameRate(60);
-        } else {
-            papplet.frameRate(1000);
-        }
-    }
-
-    public void setVolume() {
-        try {
-            for (SoundFile fect : sfx.values()) {
-                fect.amp(JSONManager.loadFloatSetting("volume"));
-            }
-        }
-        catch (Exception e) {
-            LOGGER_MAIN.log(Level.SEVERE, "Something wrong with setting volume", e);
-            throw e;
-        }
-    }
 
     public void elementEvent(ArrayList<Event> events) {
         for (Event event : events) {

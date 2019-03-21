@@ -1,20 +1,26 @@
 package util;
 
+import json.JSONManager;
 import player.Player;
 import processing.core.PApplet;
 import processing.core.PImage;
+import processing.sound.SoundFile;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.logging.Level;
 
 import static processing.core.PApplet.*;
 import static util.Logging.LOGGER_MAIN;
 
 public class Util {
-    public static PApplet papplet = new PApplet();
+    public static PApplet papplet;
     public static String RESOURCES_ROOT = "data/";
     public static String loadingName;
+    public static HashMap<String, SoundFile> sfx;
+
     public static PImage loadImage(String s) {
-        return (new PApplet()).loadImage(s);
+        return papplet.loadImage(s);
     }
 
     public static float between(float lower, float v, float upper) {
@@ -108,5 +114,38 @@ public class Util {
     public static void quitGame() {
         LOGGER_MAIN.info("Exitting game...");
         papplet.exit();
+    }
+    public static void loadSounds() {
+        try {
+            if (JSONManager.loadBooleanSetting("sound on")) {
+                sfx = new HashMap<String, SoundFile>();
+                sfx.put("click3", new SoundFile(papplet, RESOURCES_ROOT +"wav/click3.wav"));
+            }
+        }
+        catch (Exception e) {
+            LOGGER_MAIN.log(Level.SEVERE, "Something wrong with loading sounds", e);
+            throw e;
+        }
+    }
+
+    public static void setFrameRateCap() {
+        LOGGER_MAIN.finer("Setting framerate cap");
+        if (JSONManager.loadBooleanSetting("framerate cap")) {
+            papplet.frameRate(60);
+        } else {
+            papplet.frameRate(1000);
+        }
+    }
+
+    public static void setVolume() {
+        try {
+            for (SoundFile fect : sfx.values()) {
+                fect.amp(JSONManager.loadFloatSetting("volume"));
+            }
+        }
+        catch (Exception e) {
+            LOGGER_MAIN.log(Level.SEVERE, "Something wrong with setting volume", e);
+            throw e;
+        }
     }
 }
