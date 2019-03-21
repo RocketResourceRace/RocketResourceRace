@@ -7,13 +7,13 @@ import java.util.logging.Level;
 
 import static json.JSONManager.JSONIndex;
 import static json.JSONManager.gameData;
-import static processing.core.PApplet.floor;
-import static processing.core.PApplet.pow;
+import static processing.core.PApplet.*;
 import static util.Logging.LOGGER_MAIN;
+import static util.Util.between;
 import static util.Util.random;
 
 public class Siege extends Battle {
-    Building defence;
+    private Building defence;
     public Siege(Party attacker, Building defence, Party garrison, String id) {
         super(attacker, garrison, id);
         this.defence = defence;
@@ -22,13 +22,14 @@ public class Siege extends Battle {
 
     public Party doBattle() {
         try {
-            int changeInParty1 = getSiegeUnitChange(attacker, defender, defence);
-            int changeInParty2 = getSiegeUnitChange(defender, attacker, defence);
+            int changeInAttacker = getSiegeUnitChange(attacker, defender, defence);
+            int changeInDefender = getSiegeUnitChange(defender, attacker, defence);
             attacker.strength = 1;
             defender.strength = 1;
-            int newParty1Size = attacker.getUnitNumber()+changeInParty1;
-            int newParty2Size = defender.getUnitNumber()+changeInParty2;
+            int newParty1Size = attacker.getUnitNumber()+changeInAttacker;
+            int newParty2Size = defender.getUnitNumber()+changeInDefender;
             int endDifference = newParty1Size-newParty2Size;
+            defence.setHealth(between(0, defence.getHealth()-endDifference / (float) defender.getUnitNumber(), defence.getHealth()));
             attacker.setUnitNumber(newParty1Size);
             defender.setUnitNumber(newParty2Size);
             if (attacker.getUnitNumber()==0) {
@@ -53,6 +54,9 @@ public class Siege extends Battle {
                 attacker.changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
                 return attacker;
             } else {
+                if (defence.getHealth()==0) {
+                    return new Battle(attacker, defender, id);
+                }
                 return this;
             }
         }
@@ -61,9 +65,12 @@ public class Siege extends Battle {
             throw e;
         }
     }
-    public int getSiegeUnitChange(Party p1, Party p2, Building defence) {
-        float damageRating = p2.strength * p2.getEffectivenessMultiplier("melee attack") * (1 + PApplet.parseInt(defence.getPlayerID() == p2.player) * gameData.getJSONArray("buildings").getJSONObject(defence.type).getFloat("defence"))/
-                (p1.strength * p1.getEffectivenessMultiplier("defence") * (1 + PApplet.parseInt(defence.getPlayerID() == p1.player) * defence.getHealth()));
+
+    private int getSiegeUnitChange(Party p1, Party p2, Building defence) {
+        float d = defence.getHealth() * exp(gameData.getJSONArray("buildings").getJSONObject(defence.type).getFloat("defence"));
+        float defenceMultiplier = defence.getPlayerID() == p1.getPlayer() ? d : 1/d;
+        float damageRating = p2.strength * p2.getEffectivenessMultiplier("melee attack") * (1 + PApplet.parseInt(defence.getPlayerID() == p2.player) /
+                (p1.strength * p1.getEffectivenessMultiplier("defence") * (1 + PApplet.parseInt(defence.getPlayerID() == p1.player) * defenceMultiplier)));
         return floor(-0.2f * (p2.getUnitNumber() + pow(p2.getUnitNumber(), 2) / p1.getUnitNumber()) * random(0.75f, 1.5f) * damageRating);
     }
 }

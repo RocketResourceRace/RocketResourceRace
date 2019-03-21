@@ -2110,11 +2110,11 @@ public class Game extends State {
                                 parties[y][x] = ((Siege)parties[y][x]).doBattle();
 
                                 if (parties[y][x].player != -2) {
-                                    notificationManager.post("Siege Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, turn);
-                                    notificationManager.post("Siege Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
-                                    parties[y][x].trainParty("melee attack", "winning battle melee");
-                                    parties[y][x].trainParty("defence", "winning battle defence");
-                                    LOGGER_GAME.fine(String.format("Siege ended at cell: (%d, %d). Units remaining:", x, y, parties[y][x].getUnitNumber()));
+                                    if (parties[y][x].player == -1) {
+                                        notificationManager.post("Siege Ended. However the battle continues.", x, y, turnNumber, turn);
+                                        notificationManager.post("Siege Ended. However the battle continues.", x, y, turnNumber, otherPlayer);
+                                        LOGGER_GAME.fine(String.format("Siege ended at cell: (%d, %d). Battle remains", x, y));
+                                    }
                                 }
                                 if (cellFollow) {
                                     selectCell(path.get(node)[0], path.get(node)[1], false);
