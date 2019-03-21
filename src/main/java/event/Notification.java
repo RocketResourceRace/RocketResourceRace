@@ -6,9 +6,9 @@ public class Notification {
     public int y;
     public int turn;
     public Notification(String name, int x, int y, int turn) {
-      this.x = x;
-      this.y = y;
-      this.name = name;
-      this.turn = turn;
+        this.x = x;
+        this.y = y;
+        this.name = name;
+        this.turn = turn;
     }
 }

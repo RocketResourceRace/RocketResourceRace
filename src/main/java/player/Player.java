@@ -169,7 +169,7 @@ public class Player {
         LOGGER_MAIN.fine("Loading player camera settings");
         m.loadSettings(cameraCellX, cameraCellY, blockSize);
         if (cellSelected) {
-            g.selectCell((int)this.cellX, (int)this.cellY, false);
+            g.selectCell(this.cellX, this.cellY, false);
         } else {
             g.deselectCell();
         }

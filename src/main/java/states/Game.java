@@ -122,7 +122,7 @@ public class Game extends State {
             addElement("0tooltip", new Tooltip(), "overlay");
             tooltip = (Tooltip)getElement("0tooltip", "overlay");
 
-            addElement("end game button", new Button((int)(papplet.width/2-JSONManager.loadFloatSetting("gui scale")*papplet.width/16), (int)(papplet.height/2+papplet.height/8), (int)(JSONManager.loadFloatSetting("gui scale")*papplet.width/8), (int)(JSONManager.loadFloatSetting("gui scale")*papplet.height/16), papplet.color(70, 70, 220), papplet.color(50, 50, 200), papplet.color(255), 14, CENTER, "End Game"), "end screen");
+            addElement("end game button", new Button((int)(papplet.width/2-JSONManager.loadFloatSetting("gui scale")*papplet.width/16), (papplet.height/2+papplet.height/8), (int)(JSONManager.loadFloatSetting("gui scale")*papplet.width/8), (int)(JSONManager.loadFloatSetting("gui scale")*papplet.height/16), papplet.color(70, 70, 220), papplet.color(50, 50, 200), papplet.color(255), 14, CENTER, "End Game"), "end screen");
             addElement("winner", new Text(papplet.width/2, papplet.height/2, (int)(JSONManager.loadFloatSetting("text scale")*10), "", papplet.color(255), CENTER), "end screen");
 
             addElement("main menu button", new Button((int)(papplet.width/2-JSONManager.loadFloatSetting("gui scale")*150), (int)(papplet.height/2-JSONManager.loadFloatSetting("gui scale")*40), (int)(JSONManager.loadFloatSetting("gui scale")*300), (int)(JSONManager.loadFloatSetting("gui scale")*60), papplet.color(70, 70, 220), papplet.color(50, 50, 200), papplet.color(255), 14, CENTER, "Exit to Main util.Menu"), "pause screen");
@@ -701,7 +701,7 @@ public class Game extends State {
                         LOGGER_GAME.finer("Party movement points set to 0 because some equipment was topped up");
                         parties[y][x].setMovementPoints(0);
                     }
-                    ((Button)getElement("stock up button", "party management")).deactivate();
+                    getElement("stock up button", "party management").deactivate();
                     updatePartyManagementInterface();
                 }
             } else if (event instanceof SetAutoStockUp) {
@@ -791,29 +791,29 @@ public class Game extends State {
         sidePanelY = bezel;
         sidePanelW = papplet.width-sidePanelX-bezel;
         sidePanelH = round(mapElementHeight)-70;
-        ((NotificationManager)(getElement("notification manager", "default"))).transform(bezel, bezel, sidePanelW, round(sidePanelH*0.2f)-bezel*2);
-        ((Button)getElement("move button", "party management")).transform(bezel, round(13*JSONManager.loadFloatSetting("text scale")+bezel), 60, 36);
-        ((Button)getElement("bombardment button", "party management")).transform(bezel*2+60, round(13*JSONManager.loadFloatSetting("text scale")+bezel), 36, 36);
-        ((Slider)getElement("split units", "party management")).transform(round(10*JSONManager.loadFloatSetting("gui scale")+bezel), round(bezel*3+2*JSONManager.loadFloatSetting("text scale")*13), sidePanelW-2*bezel-round(20*JSONManager.loadFloatSetting("gui scale")), round(JSONManager.loadFloatSetting("text scale")*2*13));
-        ((Button)getElement("stock up button", "party management")).transform(bezel, round(bezel*4+4*JSONManager.loadFloatSetting("text scale")*13), 100, 30);
-        ((ToggleButton)getElement("auto stock up toggle", "party management")).transform(bezel*2+100, round(bezel*4+4*JSONManager.loadFloatSetting("text scale")*13+8*JSONManager.loadFloatSetting("text scale")), 100, PApplet.parseInt(30-JSONManager.loadFloatSetting("text scale")*8));
-        ((IncrementElement)getElement("unit cap incrementer", "party management")).transform(bezel*3+200, round(bezel*4+4*JSONManager.loadFloatSetting("text scale")*13), 100, 30);
+        getElement("notification manager", "default").transform(bezel, bezel, sidePanelW, round(sidePanelH*0.2f)-bezel*2);
+        getElement("move button", "party management").transform(bezel, round(13*JSONManager.loadFloatSetting("text scale")+bezel), 60, 36);
+        getElement("bombardment button", "party management").transform(bezel*2+60, round(13*JSONManager.loadFloatSetting("text scale")+bezel), 36, 36);
+        getElement("split units", "party management").transform(round(10*JSONManager.loadFloatSetting("gui scale")+bezel), round(bezel*3+2*JSONManager.loadFloatSetting("text scale")*13), sidePanelW-2*bezel-round(20*JSONManager.loadFloatSetting("gui scale")), round(JSONManager.loadFloatSetting("text scale")*2*13));
+        getElement("stock up button", "party management").transform(bezel, round(bezel*4+4*JSONManager.loadFloatSetting("text scale")*13), 100, 30);
+        getElement("auto stock up toggle", "party management").transform(bezel*2+100, round(bezel*4+4*JSONManager.loadFloatSetting("text scale")*13+8*JSONManager.loadFloatSetting("text scale")), 100, PApplet.parseInt(30-JSONManager.loadFloatSetting("text scale")*8));
+        getElement("unit cap incrementer", "party management").transform(bezel*3+200, round(bezel*4+4*JSONManager.loadFloatSetting("text scale")*13), 100, 30);
         ((EquipmentManager)getElement("equipment manager", "party management")).transform(bezel, round(bezel*5+4*JSONManager.loadFloatSetting("text scale")*13)+30, sidePanelW-bezel*2);
         int equipmentBoxHeight = PApplet.parseInt(((EquipmentManager)getElement("equipment manager", "party management")).getBoxHeight())+(30+bezel);
-        ((TaskManager)getElement("tasks", "party management")).transform(bezel, round(bezel*5+5*JSONManager.loadFloatSetting("text scale")*13+equipmentBoxHeight), sidePanelW/2-PApplet.parseInt(1.5f*bezel), 0);
+        getElement("tasks", "party management").transform(bezel, round(bezel*5+5*JSONManager.loadFloatSetting("text scale")*13+equipmentBoxHeight), sidePanelW/2-PApplet.parseInt(1.5f*bezel), 0);
         ((Text)getElement("task text", "party management")).translate(bezel, round(bezel*5+4*JSONManager.loadFloatSetting("text scale")*13+equipmentBoxHeight));
-        ((ProficiencySummary)getElement("proficiency summary", "party management")).transform(sidePanelW/2+PApplet.parseInt(bezel*0.5f), round(bezel*5+5*JSONManager.loadFloatSetting("text scale")*13)+equipmentBoxHeight, sidePanelW/2-PApplet.parseInt(1.5f*bezel), PApplet.parseInt(JSONManager.getNumProficiencies()*JSONManager.loadFloatSetting("text scale")*13));
+        getElement("proficiency summary", "party management").transform(sidePanelW/2+PApplet.parseInt(bezel*0.5f), round(bezel*5+5*JSONManager.loadFloatSetting("text scale")*13)+equipmentBoxHeight, sidePanelW/2-PApplet.parseInt(1.5f*bezel), PApplet.parseInt(JSONManager.getNumProficiencies()*JSONManager.loadFloatSetting("text scale")*13));
         ((Text)getElement("proficiencies", "party management")).translate(sidePanelW/2+PApplet.parseInt(bezel*0.5f), round(bezel*5+4*JSONManager.loadFloatSetting("text scale")*13)+equipmentBoxHeight);
         ((Text)getElement("turns remaining", "party management")).translate(100+bezel*2, round(13*JSONManager.loadFloatSetting("text scale")*2 + bezel*3));
-        ((DropDown)getElement("party training focus", "party management")).transform(sidePanelW/2+PApplet.parseInt(bezel*0.5f), round(bezel*6+5*JSONManager.loadFloatSetting("text scale")*13)+equipmentBoxHeight+PApplet.parseInt(JSONManager.getNumProficiencies()*JSONManager.loadFloatSetting("text scale")*13), sidePanelW/2-PApplet.parseInt(bezel*(1.5f)), PApplet.parseInt(JSONManager.loadFloatSetting("text scale")*13));
+        getElement("party training focus", "party management").transform(sidePanelW/2+PApplet.parseInt(bezel*0.5f), round(bezel*6+5*JSONManager.loadFloatSetting("text scale")*13)+equipmentBoxHeight+PApplet.parseInt(JSONManager.getNumProficiencies()*JSONManager.loadFloatSetting("text scale")*13), sidePanelW/2-PApplet.parseInt(bezel*(1.5f)), PApplet.parseInt(JSONManager.loadFloatSetting("text scale")*13));
 
         float taskRowHeight = ((TaskManager)getElement("tasks", "party management")).getH(new PGraphics());
 
         float partyManagementHeight = round(bezel*7+6*JSONManager.loadFloatSetting("text scale")*13+equipmentBoxHeight) + taskRowHeight*10 + JSONManager.loadFloatSetting("gui scale")*bezel*10;
         getPanel("land management").transform(sidePanelX, sidePanelY, sidePanelW, round(sidePanelH*0.15f));
         getPanel("party management").transform(sidePanelX, sidePanelY+round(sidePanelH*0.15f)+bezel, sidePanelW, round(partyManagementHeight)-bezel*3);
-        ((Button)getElement("disband button", "party management")).transform(sidePanelW-bezel-80, PApplet.parseInt(partyManagementHeight-bezel*4-30), 80, 30);
-        ((HorizontalOptionsButton)getElement("resources pages button", "resource management")).transform(bezel, bezel, PApplet.parseInt(100*JSONManager.loadFloatSetting("gui scale")), PApplet.parseInt(30*JSONManager.loadFloatSetting("gui scale")));
+        getElement("disband button", "party management").transform(sidePanelW-bezel-80, PApplet.parseInt(partyManagementHeight-bezel*4-30), 80, 30);
+        getElement("resources pages button", "resource management").transform(bezel, bezel, PApplet.parseInt(100*JSONManager.loadFloatSetting("gui scale")), PApplet.parseInt(30*JSONManager.loadFloatSetting("gui scale")));
     }
 
     public void makeTaskAvailable(int task) {
@@ -2029,7 +2029,7 @@ public class Game extends State {
 
                         if (parties[path.get(node)[1]][path.get(node)[0]].player == turn) {
                             // merge parties
-                            notificationManager.post("Parties Merged", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
+                            notificationManager.post("Parties Merged", path.get(node)[0], path.get(node)[1], turnNumber, turn);
                             int overflow = parties[path.get(node)[1]][path.get(node)[0]].mergeEntireFrom(p, cost, players[turn]);
 
                             LOGGER_GAME.fine(String.format("Parties merged at (%d, %d) from party with id: %s to party with id:%s. Overflow:%d",
@@ -2055,7 +2055,7 @@ public class Game extends State {
                         } else if (parties[path.get(node)[1]][path.get(node)[0]].player == -1) {
                             if (parties[path.get(node)[1]][path.get(node)[0]].containsPartyFromPlayer(turn) > 0) {
                                 // reinforce battle
-                                notificationManager.post("Battle Reinforced", (int)path.get(node)[0], (int)path.get(node)[1], turnNumber, turn);
+                                notificationManager.post("Battle Reinforced", path.get(node)[0], path.get(node)[1], turnNumber, turn);
                                 int overflow = ((Battle) parties[path.get(node)[1]][path.get(node)[0]]).changeUnitNumber(turn, p.getUnitNumber());
                                 LOGGER_GAME.fine(String.format("Battle reinforced at cell:(%d, %d). Merging party id:%s. Overflow:%d", path.get(node)[0], path.get(node)[1], p.getID(), overflow));
 
@@ -2430,19 +2430,19 @@ public class Game extends State {
     public void updatePartyManagementInterface() {
         if (parties[selectedCellY][selectedCellX] != null && (parties[selectedCellY][selectedCellX].isTurn(turn) || JSONManager.loadBooleanSetting("show all party managements"))) {
             if (parties[selectedCellY][selectedCellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle") && parties[selectedCellY][selectedCellX].isTurn(turn)) {
-                ((Slider)getElement("split units", "party management")).show();
+                getElement("split units", "party management").show();
                 ((TaskManager)getElement("tasks", "party management")).active = true;
-                ((TaskManager)getElement("tasks", "party management")).show();
-                ((Text)getElement("task text", "party management")).show();
+                getElement("tasks", "party management").show();
+                getElement("task text", "party management").show();
             } else {
-                ((Slider)getElement("split units", "party management")).hide();
+                getElement("split units", "party management").hide();
                 ((TaskManager)getElement("tasks", "party management")).active = false;
-                ((TaskManager)getElement("tasks", "party management")).hide();
-                ((Text)getElement("task text", "party management")).hide();
+                getElement("tasks", "party management").hide();
+                getElement("task text", "party management").hide();
             }
             getPanel("party management").setVisible(true);
             if (parties[selectedCellY][selectedCellX].getUnitNumber() <= 1) {
-                ((Slider)getElement("split units", "party management")).hide();
+                getElement("split units", "party management").hide();
             } else {
                 ((Slider)getElement("split units", "party management")).setScale(1, parties[selectedCellY][selectedCellX].getUnitNumber(), parties[selectedCellY][selectedCellX].getUnitNumber(), 1, parties[selectedCellY][selectedCellX].getUnitNumber()/2);
             }
@@ -2453,11 +2453,11 @@ public class Game extends State {
             if (isEquipmentCollectionAllowed(selectedCellX, selectedCellY)) {
                 ((Button)getElement("stock up button", "party management")).bgColour = papplet.color(150);
                 ((Button)getElement("stock up button", "party management")).textColour = papplet.color(0);
-                ((Button)getElement("stock up button", "party management")).activate();
+                getElement("stock up button", "party management").activate();
             } else {
                 ((Button)getElement("stock up button", "party management")).bgColour = papplet.color(210);
                 ((Button)getElement("stock up button", "party management")).textColour = papplet.color(100);
-                ((Button)getElement("stock up button", "party management")).deactivate();
+                getElement("stock up button", "party management").deactivate();
             }
             ((ToggleButton)getElement("auto stock up toggle", "party management")).setState(parties[selectedCellY][selectedCellX].getAutoStockUp());
             checkTasks();
@@ -2746,7 +2746,7 @@ public class Game extends State {
 
         clearPrevIdle();
         ((Text)getElement("turns remaining", "party management")).setText("");
-        ((Panel)getPanel("end screen")).visible = false;
+        getPanel("end screen").visible = false;
         getPanel("save screen").visible = false;
         // Enable map
         getElement("2dmap", "default").active = true;

@@ -17,27 +17,27 @@ public class TextBox extends Element {
     boolean autoSizing;
 
     public TextBox(int x, int y, int w, int h, int textSize, String text, int bgColour, int textColour) {
-      //w=-1 means get width from text
-      this.x = x;
-      this.y = y;
-      this.w = w;
-      this.h = h;
+        //w=-1 means get width from text
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
         autoSizing = this.w == -1;
-      this.textSize = textSize;
-      this.bgColour = bgColour;
-      this.textColour = textColour;
-      setText(text);
+        this.textSize = textSize;
+        this.bgColour = bgColour;
+        this.textColour = textColour;
+        setText(text);
     }
 
     public void setText(String text) {
-      this.text = text;
-      LOGGER_MAIN.finer("Text set to: " + text);
+        this.text = text;
+        LOGGER_MAIN.finer("Text set to: " + text);
     }
 
     public void updateWidth(PGraphics panelCanvas) {
-      if (autoSizing) {
-        this.w = ceil(panelCanvas.textWidth(text))+10;
-      }
+        if (autoSizing) {
+            this.w = ceil(panelCanvas.textWidth(text))+10;
+        }
     }
 
     public String getText() {
@@ -49,17 +49,17 @@ public class TextBox extends Element {
     }
 
     public void draw(PGraphics panelCanvas) {
-      panelCanvas.pushStyle();
-      panelCanvas.textFont(getFont(textSize* JSONManager.loadFloatSetting("text scale")));
-      panelCanvas.textAlign(CENTER, CENTER);
-      panelCanvas.rectMode(CORNER);
-      updateWidth(panelCanvas);
-      if (bgColour != papplet.color(255, 255)) {
-        panelCanvas.fill(bgColour);
-        panelCanvas.rect(x, y, w, h);
-      }
-      panelCanvas.fill(textColour);
-      panelCanvas.text(text, x+w/2, y+h/2);
-      panelCanvas.popStyle();
+        panelCanvas.pushStyle();
+        panelCanvas.textFont(getFont(textSize* JSONManager.loadFloatSetting("text scale")));
+        panelCanvas.textAlign(CENTER, CENTER);
+        panelCanvas.rectMode(CORNER);
+        updateWidth(panelCanvas);
+        if (bgColour != papplet.color(255, 255)) {
+            panelCanvas.fill(bgColour);
+            panelCanvas.rect(x, y, w, h);
+        }
+        panelCanvas.fill(textColour);
+        panelCanvas.text(text, x+w/2, y+h/2);
+        panelCanvas.popStyle();
     }
-  }
+}
