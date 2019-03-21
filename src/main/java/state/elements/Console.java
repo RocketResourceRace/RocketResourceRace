@@ -18,7 +18,6 @@ import java.util.Arrays;
 
 import static com.jogamp.newt.event.KeyEvent.VK_BACK_SPACE;
 import static com.jogamp.newt.event.KeyEvent.VK_DELETE;
-import static jdk.nashorn.internal.objects.NativeArray.join;
 import static json.JSONManager.gameData;
 import static processing.core.PApplet.*;
 import static util.Logging.LOGGER_GAME;
@@ -234,7 +233,11 @@ public class Console extends Element {
     private void invalidMissingSubCommand(JSONObject command, String[] args, int position) {
         String[] commandsList = getPossibleSubCommands(command);
         getPossibleSubCommands(command);
-        invalid(String.format("Sub-command required for %s. Possible sub-commands for command %s: %s", args[position], join(Arrays.copyOfRange(args, 0, position), " "), join(commandsList, " ")));
+        invalid(String.format(
+                "Sub-command required for %s. Possible sub-commands for command %s: %s",
+                args[position],
+                join(Arrays.copyOfRange(args, 0, position), " "),
+                join(commandsList, " ")));
     }
 
     private void invalidMissingValue(JSONObject command, String[] args, int position) {
@@ -606,7 +609,7 @@ public class Console extends Element {
     public ArrayList<String> _keyboardEvent(String eventType, char _key) {
         keyboardEvent(eventType, _key);
         if (eventType.equals("keyTyped")) {
-            String allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890/\\_ ";
+            String allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890/\\_\"' ";
             if (_key == '\n') {
                 //clearTextAt();
                 text.add(text.size(), new StringBuilder(getInputString().substring(cursorX, getInputString().length())));
