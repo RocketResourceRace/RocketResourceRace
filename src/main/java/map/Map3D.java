@@ -1547,18 +1547,18 @@ public class Map3D extends BaseMap implements Map {
                 for (int y=0; y<mapHeight; y++) {
                     if (visibleCells[y][x] != null) {
                         if (visibleCells[y][x].building != null) {
-                            if (buildingObjs.get(buildingString(visibleCells[y][x].getBuilding().type)) != null) {
+                            if (buildingObjs.get(buildingString(visibleCells[y][x].getBuilding().getType())) != null) {
                                 canvas.lights();
                                 canvas.pushMatrix();
-                                if (visibleCells[y][x].building.type==buildingIndex("Mine")) {
+                                if (visibleCells[y][x].building.getType()==buildingIndex("Mine")) {
                                     canvas.translate((x+0.5f)*blockSize, (y+0.5f)*blockSize, 16+groundMinHeightAt(x, y));
                                     canvas.rotateZ(getDownwardAngle(x, y));
-                                } else if (visibleCells[y][x].building.type==buildingIndex("Quarry")) {
+                                } else if (visibleCells[y][x].building.getType()==buildingIndex("Quarry")) {
                                     canvas.translate((x+0.5f)*blockSize, (y+0.5f)*blockSize, groundMinHeightAt(x, y));
                                 } else {
                                     canvas.translate((x+0.5f)*blockSize, (y+0.5f)*blockSize, 16+groundMaxHeightAt(x, y));
                                 }
-                                canvas.shape(buildingObjs.get(buildingString(visibleCells[y][x].building.type))[visibleCells[y][x].building.image_id]);
+                                canvas.shape(buildingObjs.get(buildingString(visibleCells[y][x].building.getType()))[visibleCells[y][x].building.getImageId()]);
                                 canvas.popMatrix();
                             }
                         }

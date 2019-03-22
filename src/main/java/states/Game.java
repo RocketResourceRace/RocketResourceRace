@@ -575,7 +575,7 @@ public class Game extends State {
                             parties[selectedCellY][selectedCellX].addAction(taskAction(parties[selectedCellY][selectedCellX].getTask()));
                             if (sum(co)>0) {
                                 spendRes(players[turn], co);
-                                buildings[selectedCellY][selectedCellX] = new Building(buildingIndex("Construction"));
+                                buildings[selectedCellY][selectedCellX] = new Building(buildingIndex("Construction"), 0, turn);
                                 LOGGER_GAME.fine(String.format("Changing building at cell:(%d, %d) to construction", selectedCellX, selectedCellY));
                             }
                         } else {
@@ -874,7 +874,7 @@ public class Game extends State {
                         } else {
                             if (js.getJSONArray("buildings").size() > 0) {
                                 if (buildings[selectedCellY][selectedCellX] != null)
-                                    if (buildings[selectedCellY][selectedCellX] != null && JSONContainsStr(js.getJSONArray("buildings"), buildingString(buildings[selectedCellY][selectedCellX].type)))
+                                    if (buildings[selectedCellY][selectedCellX] != null && JSONContainsStr(js.getJSONArray("buildings"), buildingString(buildings[selectedCellY][selectedCellX].getType())))
                                         correctBuilding = true;
                             } else if (buildings[selectedCellY][selectedCellX] == null) {
                                 correctBuilding = true;
@@ -1125,7 +1125,7 @@ public class Game extends State {
             JSONArray sites = gameData.getJSONArray("equipment").getJSONObject(c).getJSONArray("types").getJSONObject(t).getJSONArray("valid collection sites");
             if (sites != null) {
                 for (int j = 0; j < sites.size(); j++) {
-                    if (buildingIndex(sites.getString(j)) == buildings[y][x].type) {
+                    if (buildingIndex(sites.getString(j)) == buildings[y][x].getType()) {
                         return true;
                     }
                 }
@@ -1220,7 +1220,7 @@ public class Game extends State {
                             if (parties[y][x].getTask() == JSONIndex(gameData.getJSONArray("tasks"), "Produce Rocket")) {
                                 notificationManager.post("Rocket Produced", x, y, turnNumber, turn);
                                 parties[y][x].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
-                                buildings[y][x].image_id = 1;
+                                buildings[y][x].setImageId(1);
                             }
                         }
                     }
@@ -1263,14 +1263,14 @@ public class Game extends State {
                                     LOGGER_GAME.info(String.format("Building cleared at cell: (%d, %d)", x, y));
                                 } else {
                                     LOGGER_GAME.info(String.format("Action completed building %s, at cell (%d, %d)", action.building, x, y));
-                                    buildings[y][x] = new Building(buildingIndex(action.building));
+                                    buildings[y][x] = new Building(buildingIndex(action.building), 0, turn);
 
                                     if (parties[y][x] != null) {
                                         // Train party when completed building
                                         parties[y][x].trainParty("building speed", "constructing building");
                                     }
 
-                                    if (buildings[y][x].type == buildingIndex("Quarry")) {
+                                    if (buildings[y][x].getType() == buildingIndex("Quarry")) {
                                         LOGGER_GAME.fine("Quarry type detected so changing terrain...");
                                         //map.setHeightsForCell(x, y, JSONManager.loadFloatSetting("water level"));
                                         if (terrain[y][x] == terrainIndex("grass")) {
@@ -1295,11 +1295,11 @@ public class Game extends State {
                             }
                             if (action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction Mid")) {
                                 LOGGER_GAME.finer("Action reached mid phase so changing building to mid");
-                                buildings[y][x].image_id = 1;
+                                buildings[y][x].setImageId(1);
                                 action = null;
                             } else if (action.type==JSONIndex(gameData.getJSONArray("tasks"), "Construction End")) {
                                 LOGGER_GAME.finer("Action reached end phase so changing building to end");
-                                buildings[y][x].image_id = 2;
+                                buildings[y][x].setImageId(2);
                                 action = null;
                             }
                         }
@@ -2126,7 +2126,7 @@ public class Game extends State {
                                 } else {
                                     parties[py][px] = null;
                                 }
-                                if (buildings[path.get(node)[1]][path.get(node)[0]]!=null&&buildings[path.get(node)[1]][path.get(node)[0]].type==0) {
+                                if (buildings[path.get(node)[1]][path.get(node)[0]]!=null&&buildings[path.get(node)[1]][path.get(node)[0]].getType()==0) {
                                     // If there is a building under constuction, then delete it when battle
                                     buildings[path.get(node)[1]][path.get(node)[0]] = null;
                                     LOGGER_GAME.fine(String.format("Building in constuction destroyed due to battle at cell: (%d, %d)", path.get(node)[0], path.get(node)[1]));
@@ -2156,7 +2156,7 @@ public class Game extends State {
                                 } else {
                                     parties[py][px] = null;
                                 }
-                                if (buildings[path.get(node)[1]][path.get(node)[0]]!=null&&buildings[path.get(node)[1]][path.get(node)[0]].type==0) {
+                                if (buildings[path.get(node)[1]][path.get(node)[0]]!=null&&buildings[path.get(node)[1]][path.get(node)[0]].getType()==0) {
                                     // If there is a building under constuction, then delete it when battle
                                     buildings[path.get(node)[1]][path.get(node)[0]] = null;
                                     LOGGER_GAME.fine(String.format("Building in constuction destroyed due to battle at cell: (%d, %d)", path.get(node)[0], path.get(node)[1]));
@@ -2607,8 +2607,8 @@ public class Game extends State {
         panelCanvas.text("Cell Type: "+gameData.getJSONArray("terrain").getJSONObject(terrain[selectedCellY][selectedCellX]).getString("display name"), 5+sidePanelX, barY);
         barY += 13*JSONManager.loadFloatSetting("text scale");
         if (buildings[selectedCellY][selectedCellX] != null) {
-            if (buildings[selectedCellY][selectedCellX].type != 0)
-                panelCanvas.text("Building: "+buildingTypes[buildings[selectedCellY][selectedCellX].type], 5+sidePanelX, barY);
+            if (buildings[selectedCellY][selectedCellX].getType()!= 0)
+                panelCanvas.text("Building: "+buildingTypes[buildings[selectedCellY][selectedCellX].getType()], 5+sidePanelX, barY);
             else
                 panelCanvas.text("Building: Construction Site", 5+sidePanelX, barY);
             barY += 13*JSONManager.loadFloatSetting("text scale");
@@ -3054,7 +3054,7 @@ public class Game extends State {
         LOGGER_GAME.finer("Starting rocket launch");
         rocketVelocity = new PVector(0, 0, 0);
         rocketBehaviour = PApplet.parseInt(random(10));
-        buildings[selectedCellY][selectedCellX].image_id=0;
+        buildings[selectedCellY][selectedCellX].setImageId(0);
         rocketLaunching = true;
         rocketPosition = new PVector(selectedCellX, selectedCellY, 0);
         map.enableRocket(rocketPosition, rocketVelocity);

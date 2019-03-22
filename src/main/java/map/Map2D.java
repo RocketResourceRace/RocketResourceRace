@@ -423,9 +423,9 @@ public class Map2D extends BaseMap implements Map {
             int imgSize = round(blockSize*48/60);
             PImage p;
             if (JSONManager.loadBooleanSetting("fog of war") && visibleCells[y][x] != null && !visibleCells[y][x].getActiveSight()) {
-              p = tempBuildingImagesDark[buildings[y][x].type][buildings[y][x].image_id];
+              p = tempBuildingImagesDark[buildings[y][x].getType()][buildings[y][x].getImageId()];
             } else {
-              p = tempBuildingImages[buildings[y][x].type][buildings[y][x].image_id];
+              p = tempBuildingImages[buildings[y][x].getType()][buildings[y][x].getImageId()];
             }
             drawCroppedImage(round(c.x+border), round(c.y+border*2), imgSize, imgSize, p, panelCanvas);
           }

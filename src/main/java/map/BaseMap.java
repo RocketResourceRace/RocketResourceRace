@@ -60,8 +60,9 @@ public class BaseMap extends Element {
                     partiesByteCount++;
                 }
             }
-            int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+4*Integer.BYTES+Character.BYTES*10+1+mapWidth*mapHeight)*players.length;
-            ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*10+Long.BYTES+Integer.BYTES*mapWidth*mapHeight*4+partiesByteCount+playersByteCount+Float.BYTES);
+            int mapSize = mapWidth*mapHeight;
+            int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+4*Integer.BYTES+Character.BYTES*10+1+mapSize)*players.length;
+            ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*10+Long.BYTES+Integer.BYTES*mapSize*5+partiesByteCount+playersByteCount+Float.BYTES*(1+mapSize));
             buffer.putInt(-SAVEVERSION);
             LOGGER_MAIN.finer("Saving version: "+(-SAVEVERSION));
             buffer.putInt(mapWidth);
@@ -98,9 +99,13 @@ public class BaseMap extends Element {
                     if (buildings[y][x]==null) {
                         buffer.putInt(-1);
                         buffer.putInt(-1);
+                        buffer.putFloat(-1);
+                        buffer.putInt(-1);
                     } else {
-                        buffer.putInt(buildings[y][x].type);
-                        buffer.putInt(buildings[y][x].image_id);
+                        buffer.putInt(buildings[y][x].getType());
+                        buffer.putInt(buildings[y][x].getImageId());
+                        buffer.putFloat(buildings[y][x].getHealth());
+                        buffer.putInt(buildings[y][x].getPlayerId());
                     }
                 }
             }
@@ -235,9 +240,12 @@ public class BaseMap extends Element {
             for (int y=0; y<mapHeight; y++) {
                 for (int x=0; x<mapWidth; x++) {
                     int type = buffer.getInt();
-                    int image_id = buffer.getInt();
+                    int imageId = buffer.getInt();
+                    float health = buffer.getInt();
+                    int playerId= buffer.getInt();
                     if (type!=-1) {
-                        buildings[y][x] = new Building(type, image_id);
+                        buildings[y][x] = new Building(type, imageId, playerId);
+                        buildings[y][x].setHealth(health);
                     }
                     if (!versionCheckInt) {
                         if (type==9) {

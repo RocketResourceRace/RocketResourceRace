@@ -6,33 +6,33 @@ import processing.data.JSONObject;
 import static json.JSONManager.gameData;
 
 public class Building {
-    public int type;
-    public int image_id;
-    public Building(int type) {
-        this(type, 0, -1);
-    }
+    private int type;
+    private int imageId;
+    private float health;
+    private int playerId;
 
-    Building(int type, int image_id) {
-        this(type, image_id, -1);
-    }
-
-    Building(int type, int image_id, int player_id) {
+    public Building(int type, int imageId, int playerId) {
         this.type = type;
-        this.image_id = image_id + (player_id+1)*10000;
+        this.imageId = imageId;
+        this.playerId = playerId;
+        if (gameData.getJSONArray("buildings").getJSONObject(type).hasKey("defence")) {
+            this.health = 1;
+        } else {
+            this.health = 0;
+        }
     }
 
     public void setHealth(float health) {
-        this.image_id = PApplet.parseInt(this.image_id / 10000) * 10000 + PApplet.parseInt(health * 1000);
+        this.health = health;
     }
 
     public float getHealth() {
-        return this.image_id % 1000;
+        return health;
     }
 
     public int getDefence() {
-        JSONObject o = gameData.getJSONArray("buildings").getJSONObject(type);
-        if (o.hasKey("defence")) {
-            return o.getInt("defence");
+        if (health>0) {
+            return gameData.getJSONArray("buildings").getJSONObject(type).getInt("defence");
         } else {
             return 0;
         }
@@ -42,7 +42,23 @@ public class Building {
         return getDefence() > 0;
     }
 
-    public int getPlayerID() {
-        return (this.image_id / 10000) - 1;
+    public int getPlayerId() {
+        return playerId;
+    }
+
+    public int getImageId() {
+        return imageId;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setImageId(int imageId) {
+        this.imageId = imageId;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }

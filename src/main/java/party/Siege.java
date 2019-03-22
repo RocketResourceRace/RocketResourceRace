@@ -67,10 +67,10 @@ public class Siege extends Battle {
     }
 
     private int getSiegeUnitChange(Party p1, Party p2, Building defence) {
-        float d = defence.getHealth() * exp(gameData.getJSONArray("buildings").getJSONObject(defence.type).getFloat("defence"));
-        float defenceMultiplier = defence.getPlayerID() == p1.getPlayer() ? d : 1/d;
-        float damageRating = p2.strength * p2.getEffectivenessMultiplier("melee attack") * (1 + PApplet.parseInt(defence.getPlayerID() == p2.player) /
-                (p1.strength * p1.getEffectivenessMultiplier("defence") * (1 + PApplet.parseInt(defence.getPlayerID() == p1.player) * defenceMultiplier)));
+        float d = defence.getHealth() * exp(gameData.getJSONArray("buildings").getJSONObject(defence.getType()).getFloat("defence"));
+        float defenceMultiplier = defence.getPlayerId() == p1.getPlayer() ? d : 1/d;
+        float damageRating = p2.strength * p2.getEffectivenessMultiplier("melee attack") * (1 + PApplet.parseInt(defence.getPlayerId() == p2.player) /
+                (p1.strength * p1.getEffectivenessMultiplier("defence") * (1 + PApplet.parseInt(defence.getPlayerId() == p1.player) * defenceMultiplier)));
         return floor(-0.2f * (p2.getUnitNumber() + pow(p2.getUnitNumber(), 2) / p1.getUnitNumber()) * random(0.75f, 1.5f) * damageRating);
     }
 }
