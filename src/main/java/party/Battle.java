@@ -53,6 +53,10 @@ public class Battle extends Party {
         }
     }
 
+    public int getUnitNumber() {
+        return attacker.getUnitNumber()+defender.getUnitNumber();
+    }
+
     public int getUnitNumber(int turn) {
         if (turn==attacker.player) {
             return attacker.getUnitNumber();

@@ -51,6 +51,14 @@
         "value type": "string",
         "basic description": "Fills map with a building",
         "detailed description": "Place a building on every tile to test its performance"
+      },
+      "bandits": {
+        "type": "setting",
+        "setting id": "bandits",
+        "value type": "boolean",
+        "update cells": false,
+        "basic description": "toggles bandit processing",
+        "detailed description": "toggles bandit processing"
       }
     },
     "basic description": "unfinished features",

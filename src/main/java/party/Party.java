@@ -107,7 +107,7 @@ public class Party {
     }
 
     public int containsPartyFromPlayer(int p) {
-        return PApplet.parseInt(player == p);
+        return parseInt(player == p);
     }
 
     private float getTrainingRateMultiplier(float x){

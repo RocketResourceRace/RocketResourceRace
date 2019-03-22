@@ -104,7 +104,7 @@ public class Player {
         boolean[][] fogMap = new boolean[h][w];
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
-                if (parties[y][x] != null && (parties[y][x].player == id || parties[y][x].containsPartyFromPlayer(id) > 0) && parties[y][x].getUnitNumber() > 0) {
+                if (parties[y][x] != null && (parties[y][x].player == id || parties[y][x].containsPartyFromPlayer(id) > 0) && parties[y][x].getUnitNumber(id) > 0) {
                     Node[][] nodes = sightDijkstra(x, y, parties, terrain);
                     for (int y1 = max(0, y - parties[y][x].getSightUnitsRadius()); y1 < min(h, y + parties[y][x].getSightUnitsRadius()+1); y1++) {
                         for (int x1 = max(0, x - parties[y][x].getSightUnitsRadius()); x1 < min(w, x + parties[y][x].getSightUnitsRadius()+1); x1++) {

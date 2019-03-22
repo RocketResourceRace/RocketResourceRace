@@ -30,5 +30,6 @@
     {"id": "show cell coords", "value": false, "type": "boolean"},
     {"id": "show all party managements", "value": false, "type": "boolean"},
     {"id": "show party id", "value": false, "type": "boolean"},
+    {"id": "bandits", "value": true, "type": "boolean"}
   ]
 }

@@ -1384,7 +1384,7 @@ public class Game extends State {
             }
             players[turn].saveSettings(tempX, tempY, blockSize, selectedCellX, selectedCellY, cellSelected);
 
-            turn = (turn + 1)%players.length; // TURN CHANGE
+            turn = (turn + 1)%playerCount; // TURN CHANGE
 
             // If local player turn disable cinematic mode otherwise enable (e.g. bandits/AI turn)
             if (players[turn].controllerType == 0) {
@@ -1403,7 +1403,9 @@ public class Game extends State {
 
             if (turn==0) {
                 turnNumber++;
-                spawnBandits();
+                if (JSONManager.loadBooleanSetting("bandits")) {
+                    spawnBandits();
+                }
             }
 
             processBattles();
@@ -1468,7 +1470,7 @@ public class Game extends State {
 
     public boolean checkForPlayerWin() {
         if (winner == -1) {
-            boolean[] playersAlive = new boolean[players.length];
+            boolean[] playersAlive = new boolean[playerCount];
 
 
             for (int y=0; y<mapHeight; y++) {
@@ -1484,14 +1486,14 @@ public class Game extends State {
                 }
             }
             int numAlive = 0;
-            for (int p=0; p < players.length; p++) {
+            for (int p=0; p < playerCount; p++) {
                 players[p].isAlive = playersAlive[p];
-                if (playersAlive[p] && p < players.length-1) {
+                if (playersAlive[p]) {
                     numAlive ++;
                 }
             }
             if (numAlive == 1) {
-                for (int p=0; p < players.length; p++) {
+                for (int p=0; p < playerCount; p++) {
                     if (playersAlive[p]) {
                         winner = p;
                         LOGGER_GAME.info(players[p].name+" wins!");
@@ -2114,6 +2116,12 @@ public class Game extends State {
                                         notificationManager.post("Siege Ended. However the battle continues.", x, y, turnNumber, turn);
                                         notificationManager.post("Siege Ended. However the battle continues.", x, y, turnNumber, otherPlayer);
                                         LOGGER_GAME.fine(String.format("Siege ended at cell: (%d, %d). Battle remains", x, y));
+                                    } else {
+                                        notificationManager.post("Siege Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, turn);
+                                        notificationManager.post("Siege Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
+                                        parties[y][x].trainParty("melee attack", "winning battle melee");
+                                        parties[y][x].trainParty("defence", "winning battle defence");
+                                        LOGGER_GAME.fine(String.format("Siege ended at cell: (%d, %d). Units remaining: %d", x, y, parties[y][x].getUnitNumber()));
                                     }
                                 }
                                 if (cellFollow) {
@@ -2144,7 +2152,7 @@ public class Game extends State {
                                     notificationManager.post("Battle Ended. Player "+str(parties[y][x].player+1)+" won", x, y, turnNumber, otherPlayer);
                                     parties[y][x].trainParty("melee attack", "winning battle melee");
                                     parties[y][x].trainParty("defence", "winning battle defence");
-                                    LOGGER_GAME.fine(String.format("Battle ended at cell: (%d, %d). Units remaining:", x, y, parties[y][x].getUnitNumber()));
+                                    LOGGER_GAME.fine(String.format("Battle ended at cell: (%d, %d). Units remaining: %d", x, y, parties[y][x].getUnitNumber()));
                                 }
                                 if (cellFollow) {
                                     selectCell(path.get(node)[0], path.get(node)[1], false);
@@ -2647,9 +2655,9 @@ public class Game extends State {
         String progressMessage;
         int PROGRESSBARWIDTH = round(papplet.width*0.25f);
         int PROGRESSBARHEIGHT = round(papplet.height*0.03f);
-        int[] progresses = new int[players.length];
+        int[] progresses = new int[playerCount];
         int count = 0;
-        for (int i = 0; i < players.length; i++) {
+        for (int i = 0; i < playerCount; i++) {
             progresses[i] = PApplet.parseInt(players[i].resources[JSONManager.getResIndex(("rocket progress"))]);
             if (progresses[i] > 0) {
                 count++;
@@ -2671,7 +2679,7 @@ public class Game extends State {
         y = round(papplet.height*0.05f);
         w = PROGRESSBARWIDTH;
         h = round(PROGRESSBARHEIGHT/count);
-        for (int i = 0; i < players.length; i++) {
+        for (int i = 0; i < playerCount; i++) {
             if (progresses[i] > 0) {
                 panelCanvas.fill(200);
                 panelCanvas.stroke(100);
@@ -2746,7 +2754,11 @@ public class Game extends State {
         LOGGER_MAIN.fine("Reloading game...");
         mapWidth = JSONManager.loadIntSetting("map size");
         mapHeight = JSONManager.loadIntSetting("map size");
-        playerCount = players.length - 1; // THIS NEEDS TO BE CHANGED WHEN ADDING BANDIT TOGGLE
+        if (JSONManager.loadBooleanSetting("bandits")) {
+            playerCount = players.length - 1;
+        } else {
+            playerCount = players.length;
+        }
         updateSidePanelElementsSizes();
 
         // Default on for showing task icons and unit bars
@@ -2820,7 +2832,7 @@ public class Game extends State {
             float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, JSONManager.loadIntSetting("starting block size"));
             players[0] = new Player((int)playerStarts[0].x, (int)playerStarts[0].y, JSONManager.loadIntSetting("starting block size"), startingResources.clone(), papplet.color(0, 0, 255), "Player 1  ", 0, 0);
 
-            players[playerCount] = new Player(0, 0, JSONManager.loadIntSetting("starting block size"), startingResources.clone(), papplet.color(255, 0, 255), "Player 4  ", 1, 3);
+            players[players.length-1] = new Player(0, 0, JSONManager.loadIntSetting("starting block size"), startingResources.clone(), papplet.color(255, 0, 255), "Player 4  ", 1, 3);
 
             turn = 0;
             turnNumber = 0;
@@ -2865,7 +2877,7 @@ public class Game extends State {
 
         // If first turn start players looking at right places
         if (turnNumber == 0) {
-            for (int i = playerCount; i >= 0; i--) {
+            for (int i = playerCount-1; i >= 0; i--) {
                 int[] t1 = findIdle(i);
                 float[] targetOffsets = map.targetCell(t1[0], t1[1], 64);
                 players[i].saveSettings(t1[0], t1[1], 64, selectedCellX, selectedCellY, false);
