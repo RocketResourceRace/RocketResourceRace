@@ -5,7 +5,6 @@ import party.Party;
 import player.Player;
 
 public class MapSave {
-    float[] heightMap;
     public int mapWidth;
     public int mapHeight;
     public int[][] terrain;
@@ -14,8 +13,7 @@ public class MapSave {
     public int startTurn;
     public int startPlayer;
     public Player[] players;
-    MapSave(float[] heightMap, int mapWidth, int mapHeight, int[][] terrain, Party[][] parties, Building[][] buildings, int startTurn, int startPlayer, Player[] players) {
-        this.heightMap = heightMap;
+    MapSave(int mapWidth, int mapHeight, int[][] terrain, Party[][] parties, Building[][] buildings, int startTurn, int startPlayer, Player[] players) {
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
         this.terrain = terrain;
