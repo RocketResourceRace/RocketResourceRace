@@ -86,15 +86,6 @@ public class State {
         return null;
     }
 
-    public void removeElement(String elementID, String panelID) {
-        getPanel(panelID).elements.remove(elementID);
-        LOGGER_MAIN.finer("Elements removed " + elementID);
-    }
-    public void removePanel(String id) {
-        panels.remove(findPanel(id));
-        LOGGER_MAIN.finer("Panels removed " + id);
-    }
-
     protected void panelToTop(String id) {
         Panel tempPanel = getPanel(id);
         for (int i=findPanel(id); i>0; i--) {
@@ -185,9 +176,9 @@ public class State {
             ArrayList<Event> events = new ArrayList<>();
             mouseEvent(eventType, button);
             if (eventType.equals("mousePressed")) {
-                for (int i=0; i<panels.size(); i++) {
-                    if (panels.get(i).mouseOver()&& panels.get(i).visible&&panels.get(i).blockEvent) {
-                        activePanel = panels.get(i).id;
+                for (Panel panel : panels) {
+                    if (panel.mouseOver() && panel.visible && panel.blockEvent) {
+                        activePanel = panel.id;
                         break;
                     }
                 }
@@ -263,9 +254,9 @@ public class State {
             ArrayList<Event> events = new ArrayList<>();
             mouseEvent(eventType, button, event);
             if (eventType.equals("mouseWheel")) {
-                for (int i=0; i<panels.size(); i++) {
-                    if (panels.get(i).mouseOver()&& panels.get(i).visible&&panels.get(i).blockEvent) {
-                        activePanel = panels.get(i).id;
+                for (Panel panel : panels) {
+                    if (panel.mouseOver() && panel.visible && panel.blockEvent) {
+                        activePanel = panel.id;
                         break;
                     }
                 }

@@ -39,13 +39,8 @@ import static util.Logging.LOGGER_MAIN;
 import static util.Util.*;
 
 public class Game extends State {
-    private final int buttonW = 120;
-    private final int buttonH = 50;
     private final int bezel = 10;
-    private final int mapElementWidth = round(papplet.width);
     private final int mapElementHeight = round(papplet.height);
-    private final int CLICKHOLD = 500;
-    private final int MOUSEPRESSTOLERANCE = 100;
     private PGraphics gameUICanvas;
     private String[] tasks;
     private String[] buildingTypes;
@@ -99,6 +94,7 @@ public class Game extends State {
             initialiseBuildings();
             totals = new float[resourceNames.length];
 
+            int mapElementWidth = round(papplet.width);
             addElement("2dmap", new Map2D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight, players));
             addElement("3dmap", new Map3D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
             notificationManager = new NotificationManager(0, 0, 0, 0, papplet.color(100), papplet.color(255), 8, turn, players.length);
@@ -151,17 +147,19 @@ public class Game extends State {
             partyTrainingFocusDropdown.setOptions(JSONManager.getProficiencies());
             addElement("party training focus", partyTrainingFocusDropdown, "party management");
 
+            int buttonW = 120;
+            int buttonH = 50;
             addElement("end turn", new Button(bezel, bezel, buttonW, buttonH, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, CENTER, "Next Turn"), "bottom bar");
-            addElement("idle party finder", new Button(bezel*2+buttonW, bezel, buttonW, buttonH, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, CENTER, "Idle Party"), "bottom bar");
+            addElement("idle party finder", new Button(bezel*2+ buttonW, bezel, buttonW, buttonH, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, CENTER, "Idle Party"), "bottom bar");
             addElement("resource summary", new ResourceSummary(0, 0, 70, resourceNames, startingResources, totals), "bottom bar");
             int resSummaryX = papplet.width-((ResourceSummary)(getElement("resource summary", "bottom bar"))).totalWidth();
             addElement("resource detailed", new Button(resSummaryX-50, bezel, 30, 20, papplet.color(150), papplet.color(50), papplet.color(0), 13, CENTER, CENTER, "^"), "bottom bar");
             addElement("resource expander", new Button(resSummaryX-50, 2*bezel+20, 30, 20, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, TOP,"<"), "bottom bar");
 
-            addElement("turn number", new SingleLineTextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", 0, 0), "bottom bar");
-            addElement("2d 3d toggle", new ToggleButton(bezel*4+buttonW*3, bezel*2, buttonW/2, buttonH-bezel, papplet.color(100), papplet.color(0), JSONManager.loadBooleanSetting("map is 3d"), "3D View"), "bottom bar");
-            addElement("task icons toggle", new ToggleButton(round(bezel*5+buttonW*3.5f), bezel*2, buttonW/2, buttonH-bezel, papplet.color(100), papplet.color(0), true, "Task Icons"), "bottom bar");
-            addElement("unit number bars toggle", new ToggleButton(bezel*6+buttonW*4, bezel*2, buttonW/2, buttonH-bezel, papplet.color(100), papplet.color(0), true, "Unit Bars"), "bottom bar");
+            addElement("turn number", new SingleLineTextBox(bezel*3+ buttonW *2, bezel, -1, buttonH, 14, "Turn 0", 0, 0), "bottom bar");
+            addElement("2d 3d toggle", new ToggleButton(bezel*4+ buttonW *3, bezel*2, buttonW /2, buttonH -bezel, papplet.color(100), papplet.color(0), JSONManager.loadBooleanSetting("map is 3d"), "3D View"), "bottom bar");
+            addElement("task icons toggle", new ToggleButton(round(bezel*5+ buttonW *3.5f), bezel*2, buttonW /2, buttonH -bezel, papplet.color(100), papplet.color(0), true, "Task Icons"), "bottom bar");
+            addElement("unit number bars toggle", new ToggleButton(bezel*6+ buttonW *4, bezel*2, buttonW /2, buttonH -bezel, papplet.color(100), papplet.color(0), true, "Unit Bars"), "bottom bar");
             addElement("console", new Console(0, 0, papplet.width, papplet.height/2, 10), "console");
             addElement("resource management table", new ResourceManagementTable(bezel, bezel*2+30, papplet.width/2-bezel*2, papplet.height/2), "resource management");
             addElement("resources pages button", new HorizontalOptionsButton(bezel, bezel, 100, 30, papplet.color(150), 10, new String[]{"Resources", "Equipment"}), "resource management");
@@ -2399,7 +2397,9 @@ public class Game extends State {
                     }
                 }
             }
-            if (eventType.equals("mouseReleased") && mapClickPos != null && sqrt(pow(mapClickPos[0] - papplet.mouseX, 2) + pow(mapClickPos[1] - papplet.mouseY, 2))<MOUSEPRESSTOLERANCE && papplet.millis() - mapClickPos[2] < CLICKHOLD) { // Custom mouse click
+            int CLICKHOLD = 500;
+            int MOUSEPRESSTOLERANCE = 100;
+            if (eventType.equals("mouseReleased") && mapClickPos != null && sqrt(pow(mapClickPos[0] - papplet.mouseX, 2) + pow(mapClickPos[1] - papplet.mouseY, 2))< MOUSEPRESSTOLERANCE && papplet.millis() - mapClickPos[2] < CLICKHOLD) { // Custom mouse click
                 mapClickPos = null;
                 if (activePanel.equals("default") && UINotHovering()) {
                     if (map.mouseOver()) {
@@ -3023,7 +3023,7 @@ public class Game extends State {
                 return true;
             }
             for (int j=i+1; j < playerCount; j++) {
-                if (ps[i].dist(ps[j])<mapWidth/8) {
+                if (ps[i].dist(ps[j])<mapWidth/8f) {
                     // Check distances between all players
                     return true;
                 }
@@ -3070,7 +3070,7 @@ public class Game extends State {
         getPanel("party management").setVisible(false);
         ((BaseMap)map).cinematicMode = true;
     }
-    public void leaveCinematicMode() {
+    private void leaveCinematicMode() {
         LOGGER_GAME.finer("Leaving cinematic mode...");
         cinematicMode = false;
         getPanel("bottom bar").setVisible(true);

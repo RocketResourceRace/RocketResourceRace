@@ -52,17 +52,19 @@ public class Menu extends State {
         addElement("loading manager", new BaseFileManager(papplet.width/4, papplet.height/4, papplet.width/2, papplet.height/3, "saves"), "load game");
     }
 
+    /*
     public int currentColour() {
         float c = abs(((float)(hour()-12)+(float)minute()/60)/24);
         int day = papplet.color(255, 255, 255, 50);
         int night = papplet.color(0, 0, 50, 255);
         return papplet.lerpColor(day, night, c*2);
-    }
+    }*/
 
     private void refreshTooltip() {
-            LOGGER_MAIN.fine("refreshing tooltip");
-            tooltip.refresh();
+        LOGGER_MAIN.fine("refreshing tooltip");
+        tooltip.refresh();
     }
+
 
     public String update() {
         papplet.shape(bg);
@@ -184,9 +186,6 @@ public class Menu extends State {
         }
     }
 
-
-
-
     public void elementEvent(ArrayList<Event> events) {
         for (Event event : events) {
             if (event.type.equals("valueChanged") && settingChangers.get(event.id) != null && event.panel != null) {
@@ -249,5 +248,9 @@ public class Menu extends State {
                 }
             }
         }
+    }
+    public ArrayList<String> mouseEvent(String eventType, int button) {
+        refreshTooltip();
+        return new ArrayList<>();
     }
 }

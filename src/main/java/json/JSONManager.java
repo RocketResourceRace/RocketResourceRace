@@ -7,7 +7,6 @@ import processing.data.JSONObject;
 import state.State;
 import state.elements.*;
 
-import javax.tools.Tool;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -15,7 +14,6 @@ import java.util.logging.Level;
 
 import static processing.core.PApplet.CENTER;
 import static processing.core.PApplet.max;
-import static processing.core.PConstants.TOP;
 import static util.Logging.LOGGER_MAIN;
 import static util.Util.RESOURCES_ROOT;
 import static util.Util.papplet;
@@ -437,7 +435,9 @@ public class JSONManager {
     public static boolean hasFlag(String panelID, String elemID, String flag) {
         try {
             JSONObject panel = findJSONObject(menu.getJSONArray("states"), panelID);
+            assert panel != null;
             JSONObject elem = findJSONObject(panel.getJSONArray("elements"), elemID);
+            assert elem != null;
             JSONArray flags = elem.getJSONArray("flags");
             if (flags != null) {
                 for (int i=0; i<flags.size(); i++) {
@@ -694,7 +694,9 @@ public class JSONManager {
         // Gets the name of the setting for an element or null if it doesnt have a settting
         try {
             JSONObject panel = findJSONObject(menu.getJSONArray("states"), panelID);
+            assert panel != null;
             JSONObject element = findJSONObject(panel.getJSONArray("elements"), id);
+            assert element != null;
             return element.getString("setting");
         }
         catch(Exception e) {
@@ -706,6 +708,7 @@ public class JSONManager {
         // Gets the titiel for menu states. Reutnrs null if there is no title defined
         try {
             JSONObject panel = findJSONObject(menu.getJSONArray("states"), id);
+            assert panel != null;
             return panel.getString("title");
         }
         catch(Exception e) {
@@ -831,6 +834,10 @@ public class JSONManager {
                     options = new String[0];
                 } else {
                     options = elem.getJSONArray("options").getStringArray();
+                }
+
+                if (!elem.isNull("tooltip")) {
+                    tooltip.addElement(x, y, w, h, elem.getString("tooltip"));
                 }
 
                 // Check if there is a defualt value. If not try loading from settings

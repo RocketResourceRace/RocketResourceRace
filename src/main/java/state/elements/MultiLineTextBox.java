@@ -28,6 +28,7 @@ public class MultiLineTextBox extends Element {
     ArrayList<String> lines;
 
     MultiLineTextBox(int x, int y, int w, int h, int bgColour, int strokeColour, int textColour, int textSize, int textAlignx, int textAligny, String text) {
+        //w=-1 means get width from text
         this.x = x;
         this.y = y;
         this.w = w;
@@ -79,7 +80,7 @@ public class MultiLineTextBox extends Element {
             ArrayList<String> lines = getLines(text);
             panelCanvas.textFont(getFont(textSize* JSONManager.loadFloatSetting("text scale")));
             int tw = w;
-            if (w == 0) {
+            if (w == -1) {
                 tw = ceil(maxWidthLine(panelCanvas, lines)) + 4;
             }
             int gap = ceil(panelCanvas.textAscent()+panelCanvas.textDescent());
@@ -117,7 +118,7 @@ public class MultiLineTextBox extends Element {
     }
 
     private void drawColouredLine(PGraphics canvas, String line, float startX, float startY, int colour, char indicatingChar) {
-        int start=0, end=0;
+        int start, end=0;
         float tw=0;
         boolean coloured = false;
         try {
@@ -133,8 +134,9 @@ public class MultiLineTextBox extends Element {
                 if (end == -1) { // indexOf returns -1 when not found
                     end = line.length();
                 }
-                canvas.text(line.substring(start, end).replace("<"+indicatingChar+">", "").replace("</"+indicatingChar+">", ""), startX+tw, startY);
-                tw += canvas.textWidth(line.substring(start, end).replace("<"+indicatingChar+">", "").replace("</"+indicatingChar+">", ""));
+                String text = line.substring(start, end).replace("<" + indicatingChar + ">", "").replace("</" + indicatingChar + ">", "");
+                canvas.text(text, startX+tw, startY);
+                tw += canvas.textWidth(text);
                 coloured = !coloured;
             }
         }

@@ -33,4 +33,7 @@ public class Tooltip extends MultiLineTextBox {
     public void refresh() {
 
     }
+
+    public void addElement(float x, float y, float w, float h, String tooltip) {
+    }
 }
