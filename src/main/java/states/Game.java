@@ -62,7 +62,7 @@ public class Game extends State {
     public Building[][] buildings;
     private BattleEstimateManager battleEstimateManager;
     private NotificationManager notificationManager;
-    private Tooltip tooltip;
+    private AdvancedTooltip tooltip;
     public int turn;
     private boolean changeTurn = false;
     private int winner = -1;
@@ -101,9 +101,9 @@ public class Game extends State {
 
             addElement("2dmap", new Map2D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight, players));
             addElement("3dmap", new Map3D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
-            addElement("notification manager", new NotificationManager(0, 0, 0, 0, papplet.color(100), papplet.color(255), 8, turn, players.length));
+            notificationManager = new NotificationManager(0, 0, 0, 0, papplet.color(100), papplet.color(255), 8, turn, players.length);
+            addElement("notification manager", notificationManager);
 
-            notificationManager = (NotificationManager)getElement("notification manager", "default");
 
             addPanel("land management", 0, 0, papplet.width, papplet.height, false, true, papplet.color(50, 200, 50), papplet.color(0));
             addPanel("party management", 0, 0, papplet.width, papplet.height, false, true, papplet.color(110, 110, 255), papplet.color(0));
@@ -117,28 +117,28 @@ public class Game extends State {
 
             getPanel("save screen").setOverrideBlocking(true);
 
-            addElement("0tooltip", new Tooltip(), "overlay");
-            tooltip = (Tooltip)getElement("0tooltip", "overlay");
+            tooltip = new AdvancedTooltip();
+            addElement("0tooltip", tooltip, "overlay");
 
-            addElement("end game button", new Button((int)(papplet.width/2-JSONManager.loadFloatSetting("gui scale")*papplet.width/16), (papplet.height/2+papplet.height/8), (int)(JSONManager.loadFloatSetting("gui scale")*papplet.width/8), (int)(JSONManager.loadFloatSetting("gui scale")*papplet.height/16), papplet.color(70, 70, 220), papplet.color(50, 50, 200), papplet.color(255), 14, CENTER, "End Game"), "end screen");
+            addElement("end game button", new Button((int)(papplet.width/2-JSONManager.loadFloatSetting("gui scale")*papplet.width/16), (papplet.height/2+papplet.height/8), (int)(JSONManager.loadFloatSetting("gui scale")*papplet.width/8), (int)(JSONManager.loadFloatSetting("gui scale")*papplet.height/16), papplet.color(70, 70, 220), papplet.color(50, 50, 200), papplet.color(255), 14, CENTER, CENTER, "End Game"), "end screen");
             addElement("winner", new Text(papplet.width/2, papplet.height/2, (int)(JSONManager.loadFloatSetting("text scale")*10), "", papplet.color(255), CENTER), "end screen");
 
-            addElement("main menu button", new Button((int)(papplet.width/2-JSONManager.loadFloatSetting("gui scale")*150), (int)(papplet.height/2-JSONManager.loadFloatSetting("gui scale")*40), (int)(JSONManager.loadFloatSetting("gui scale")*300), (int)(JSONManager.loadFloatSetting("gui scale")*60), papplet.color(70, 70, 220), papplet.color(50, 50, 200), papplet.color(255), 14, CENTER, "Exit to Main Menu"), "pause screen");
-            addElement("desktop button", new Button((int)(papplet.width/2-JSONManager.loadFloatSetting("gui scale")*150), (int)(papplet.height/2+JSONManager.loadFloatSetting("gui scale")*40), (int)(JSONManager.loadFloatSetting("gui scale")*300), (int)(JSONManager.loadFloatSetting("gui scale")*60), papplet.color(70, 70, 220), papplet.color(50, 50, 200), papplet.color(255), 14, CENTER, "Exit to Desktop"), "pause screen");
-            addElement("save as button", new Button((int)(papplet.width/2-JSONManager.loadFloatSetting("gui scale")*150), (int)(papplet.height/2-3*JSONManager.loadFloatSetting("gui scale")*40), (int)(JSONManager.loadFloatSetting("gui scale")*300), (int)(JSONManager.loadFloatSetting("gui scale")*60), papplet.color(70, 70, 220), papplet.color(50, 50, 200), papplet.color(255), 14, CENTER, "Save As"), "pause screen");
-            addElement("resume button", new Button((int)(papplet.width/2-JSONManager.loadFloatSetting("gui scale")*150), (int)(papplet.height/2-5*JSONManager.loadFloatSetting("gui scale")*40), (int)(JSONManager.loadFloatSetting("gui scale")*300), (int)(JSONManager.loadFloatSetting("gui scale")*60), papplet.color(70, 70, 220), papplet.color(50, 50, 200), papplet.color(255), 14, CENTER, "Resume"), "pause screen");
+            addElement("main menu button", new Button((int)(papplet.width/2-JSONManager.loadFloatSetting("gui scale")*150), (int)(papplet.height/2-JSONManager.loadFloatSetting("gui scale")*40), (int)(JSONManager.loadFloatSetting("gui scale")*300), (int)(JSONManager.loadFloatSetting("gui scale")*60), papplet.color(70, 70, 220), papplet.color(50, 50, 200), papplet.color(255), 14, CENTER, CENTER, "Exit to Main Menu"), "pause screen");
+            addElement("desktop button", new Button((int)(papplet.width/2-JSONManager.loadFloatSetting("gui scale")*150), (int)(papplet.height/2+JSONManager.loadFloatSetting("gui scale")*40), (int)(JSONManager.loadFloatSetting("gui scale")*300), (int)(JSONManager.loadFloatSetting("gui scale")*60), papplet.color(70, 70, 220), papplet.color(50, 50, 200), papplet.color(255), 14, CENTER, CENTER, "Exit to Desktop"), "pause screen");
+            addElement("save as button", new Button((int)(papplet.width/2-JSONManager.loadFloatSetting("gui scale")*150), (int)(papplet.height/2-3*JSONManager.loadFloatSetting("gui scale")*40), (int)(JSONManager.loadFloatSetting("gui scale")*300), (int)(JSONManager.loadFloatSetting("gui scale")*60), papplet.color(70, 70, 220), papplet.color(50, 50, 200), papplet.color(255), 14, CENTER, CENTER, "Save As"), "pause screen");
+            addElement("resume button", new Button((int)(papplet.width/2-JSONManager.loadFloatSetting("gui scale")*150), (int)(papplet.height/2-5*JSONManager.loadFloatSetting("gui scale")*40), (int)(JSONManager.loadFloatSetting("gui scale")*300), (int)(JSONManager.loadFloatSetting("gui scale")*60), papplet.color(70, 70, 220), papplet.color(50, 50, 200), papplet.color(255), 14, CENTER, CENTER, "Resume"), "pause screen");
 
-            addElement("save button", new Button(bezel, bezel, (int)(JSONManager.loadFloatSetting("gui scale")*300)-2*bezel, (int)(JSONManager.loadFloatSetting("gui scale")*60), papplet.color(100), papplet.color(0), papplet.color(255), 14, CENTER, "Save"), "save screen");
+            addElement("save button", new Button(bezel, bezel, (int)(JSONManager.loadFloatSetting("gui scale")*300)-2*bezel, (int)(JSONManager.loadFloatSetting("gui scale")*60), papplet.color(100), papplet.color(0), papplet.color(255), 14, CENTER, CENTER, "Save"), "save screen");
             addElement("saving manager", new BaseFileManager(bezel, (int)(4*JSONManager.loadFloatSetting("gui scale")*40), (int)(JSONManager.loadFloatSetting("gui scale")*500)-2*bezel, (int)(JSONManager.loadFloatSetting("gui scale")*320), "saves"), "save screen");
             addElement("save namer", new TextEntry(bezel, (int)(2*JSONManager.loadFloatSetting("gui scale")*40)+bezel*2, (int)(JSONManager.loadFloatSetting("gui scale")*300), (int)(JSONManager.loadFloatSetting("gui scale")*50), LEFT, papplet.color(0), papplet.color(100), papplet.color(0), "", "Save Name"), "save screen");
 
             addElement("turns remaining", new Text(bezel*2+220, bezel*4+30+30, 8, "", papplet.color(255), LEFT), "party management");
-            addElement("move button", new Button(bezel, bezel*3, 100, 30, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, "Move"), "party management");
-            addElement("disband button", new Button(bezel, bezel*3, 100, 30, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, "Dispand"), "party management");
+            addElement("move button", new Button(bezel, bezel*3, 100, 30, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, CENTER, "Move"), "party management");
+            addElement("disband button", new Button(bezel, bezel*3, 100, 30, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, CENTER,"Dispand"), "party management");
             addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, papplet.color(255), papplet.color(150), papplet.color(0), papplet.color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
             addElement("tasks", new TaskManager(bezel, bezel*4+30+30, 220, 8, papplet.color(150), papplet.color(50), tasks, 10), "party management");
             addElement("task text", new Text(0, 0, 10, "Tasks", papplet.color(0), LEFT), "party management");
-            addElement("stock up button", new Button(bezel, bezel*3, 100, 30, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, "Stock Up"), "party management");
+            addElement("stock up button", new Button(bezel, bezel*3, 100, 30, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, CENTER,"Stock Up"), "party management");
             addElement("auto stock up toggle", new ToggleButton(bezel, bezel*3, 100, 30, papplet.color(100), papplet.color(0), false, "Auto Stock Up"), "party management");
             addElement("unit cap incrementer", new IncrementElement(bezel, bezel*3, 100, 30, JSONManager.loadIntSetting("party size"), 0, JSONManager.loadIntSetting("party size"), 1, 5), "party management");
 
@@ -151,14 +151,14 @@ public class Game extends State {
             partyTrainingFocusDropdown.setOptions(JSONManager.getProficiencies());
             addElement("party training focus", partyTrainingFocusDropdown, "party management");
 
-            addElement("end turn", new Button(bezel, bezel, buttonW, buttonH, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, "Next Turn"), "bottom bar");
-            addElement("idle party finder", new Button(bezel*2+buttonW, bezel, buttonW, buttonH, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, "Idle Party"), "bottom bar");
+            addElement("end turn", new Button(bezel, bezel, buttonW, buttonH, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, CENTER, "Next Turn"), "bottom bar");
+            addElement("idle party finder", new Button(bezel*2+buttonW, bezel, buttonW, buttonH, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, CENTER, "Idle Party"), "bottom bar");
             addElement("resource summary", new ResourceSummary(0, 0, 70, resourceNames, startingResources, totals), "bottom bar");
             int resSummaryX = papplet.width-((ResourceSummary)(getElement("resource summary", "bottom bar"))).totalWidth();
-            addElement("resource detailed", new Button(resSummaryX-50, bezel, 30, 20, papplet.color(150), papplet.color(50), papplet.color(0), 13, CENTER, "^"), "bottom bar");
-            addElement("resource expander", new Button(resSummaryX-50, 2*bezel+20, 30, 20, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, "<"), "bottom bar");
+            addElement("resource detailed", new Button(resSummaryX-50, bezel, 30, 20, papplet.color(150), papplet.color(50), papplet.color(0), 13, CENTER, CENTER, "^"), "bottom bar");
+            addElement("resource expander", new Button(resSummaryX-50, 2*bezel+20, 30, 20, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, TOP,"<"), "bottom bar");
 
-            addElement("turn number", new TextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", 0, 0), "bottom bar");
+            addElement("turn number", new SingleLineTextBox(bezel*3+buttonW*2, bezel, -1, buttonH, 14, "Turn 0", 0, 0), "bottom bar");
             addElement("2d 3d toggle", new ToggleButton(bezel*4+buttonW*3, bezel*2, buttonW/2, buttonH-bezel, papplet.color(100), papplet.color(0), JSONManager.loadBooleanSetting("map is 3d"), "3D View"), "bottom bar");
             addElement("task icons toggle", new ToggleButton(round(bezel*5+buttonW*3.5f), bezel*2, buttonW/2, buttonH-bezel, papplet.color(100), papplet.color(0), true, "Task Icons"), "bottom bar");
             addElement("unit number bars toggle", new ToggleButton(bezel*6+buttonW*4, bezel*2, buttonW/2, buttonH-bezel, papplet.color(100), papplet.color(0), true, "Unit Bars"), "bottom bar");
@@ -1400,7 +1400,7 @@ public class Game extends State {
 
             players[turn].loadSettings(this, map);
             changeTurn = false;
-            TextBox t = ((TextBox)(getElement("turn number", "bottom bar")));
+            SingleLineTextBox t = ((SingleLineTextBox)(getElement("turn number", "bottom bar")));
             t.setColour(players[turn].colour);
             t.setText("Turn "+turnNumber);
             updateResourcesSummary();
@@ -2886,7 +2886,7 @@ public class Game extends State {
         //}
         tooltip.hide();
         winner = -1;
-        TextBox t = ((TextBox)(getElement("turn number", "bottom bar")));
+        SingleLineTextBox t = ((SingleLineTextBox)(getElement("turn number", "bottom bar")));
         t.setColour(players[turn].colour);
         t.setText("Turn "+turnNumber);
 

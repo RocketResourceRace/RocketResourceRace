@@ -5,11 +5,9 @@ import processing.core.PApplet;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
 import state.State;
-import state.elements.Button;
-import state.elements.DropDown;
-import state.elements.Slider;
-import state.elements.Tickbox;
+import state.elements.*;
 
+import javax.tools.Tool;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -17,6 +15,7 @@ import java.util.logging.Level;
 
 import static processing.core.PApplet.CENTER;
 import static processing.core.PApplet.max;
+import static processing.core.PConstants.TOP;
 import static util.Logging.LOGGER_MAIN;
 import static util.Util.RESOURCES_ROOT;
 import static util.Util.papplet;
@@ -718,12 +717,15 @@ public class JSONManager {
     public static void loadMenuElements(State state, float guiScale) {
         // Load all the menu panels in to menu states
         LOGGER_MAIN.info("Loading in menu state.elements using JSON");
+        state.addPanel("overlay", 0, 0, papplet.width, papplet.height, true, false, papplet.color(255, 255), papplet.color(255, 255));
+        Tooltip tooltip = new Tooltip();
+        state.addElement("0tooltip", tooltip, "overlay");
         try {
             JSONArray panels = menu.getJSONArray("states");
             for (int i=0; i<panels.size(); i++) {
                 JSONObject panel = panels.getJSONObject(i);
                 state.addPanel(panel.getString("id"), 0, 0, papplet.width, papplet.height, true, true, papplet.color(255, 255, 255, 255), papplet.color(0));
-                loadPanelMenuElements(state, panel.getString("id"), guiScale);
+                loadPanelMenuElements(state, panel.getString("id"), guiScale, tooltip);
             }
         }
         catch(Exception e) {
@@ -732,7 +734,7 @@ public class JSONManager {
         }
     }
 
-    private static void loadPanelMenuElements(State state, String panelID, float guiScale) {
+    private static void loadPanelMenuElements(State state, String panelID, float guiScale, Tooltip tooltip) {
         // Load in the state.elements from JSON menu into panel
         // NOTE: "default value" in state.elements object means value is not saved to setting (and if not defined will be saved)
         try {
@@ -834,7 +836,7 @@ public class JSONManager {
                 // Check if there is a defualt value. If not try loading from settings
                 switch (type) {
                     case "button":
-                        state.addElement(id, new Button((int)x, (int)y, (int)w, (int)h, bgColour, strokeColour, textColour, textSize, CENTER, text), panelID);
+                        state.addElement(id, new Button((int)x, (int)y, (int)w, (int)h, bgColour, strokeColour, textColour, textSize, CENTER, CENTER, text), panelID);
                         break;
                     case "slider":
                         if (elem.isNull("default value")) {

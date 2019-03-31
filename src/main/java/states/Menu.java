@@ -22,6 +22,7 @@ public class Menu extends State {
     private PShape bg;
     private String currentPanel, newPanel;
     private HashMap<String, String[]> stateChangers, settingChangers;
+    private Tooltip tooltip;
 
     public Menu() {
         super();
@@ -39,7 +40,10 @@ public class Menu extends State {
     private void loadMenuPanels() {
         LOGGER_MAIN.fine("Loading menu panels");
         resetPanels();
+
+
         JSONManager.loadMenuElements(this, JSONManager.loadFloatSetting("gui scale"));
+        tooltip = (Tooltip)getElement("0tooltip", "overlay");
         hidePanels();
         getPanel(currentPanel).setVisible(true);
         stateChangers = JSONManager.getChangeStateButtons();
@@ -53,6 +57,11 @@ public class Menu extends State {
         int day = papplet.color(255, 255, 255, 50);
         int night = papplet.color(0, 0, 50, 255);
         return papplet.lerpColor(day, night, c*2);
+    }
+
+    private void refreshTooltip() {
+            LOGGER_MAIN.fine("refreshing tooltip");
+            tooltip.refresh();
     }
 
     public String update() {
