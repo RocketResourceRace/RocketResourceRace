@@ -29,6 +29,7 @@ public class MultiLineTextBox extends Element {
 
     MultiLineTextBox(int x, int y, int w, int h, int bgColour, int strokeColour, int textColour, int textSize, int textAlignx, int textAligny, String text) {
         //w=-1 means get width from text
+        //h=-1 means get height from text
         this.x = x;
         this.y = y;
         this.w = w;
@@ -83,6 +84,10 @@ public class MultiLineTextBox extends Element {
             if (w == -1) {
                 tw = ceil(maxWidthLine(panelCanvas, lines)) + 4;
             }
+            int th = h;
+            if (h == -1) {
+                th = ((int) (textSize*JSONManager.loadFloatSetting("text scale") + 4))*lines.size();
+            }
             int gap = ceil(panelCanvas.textAscent()+panelCanvas.textDescent());
 
             panelCanvas.fill(bgColour);
@@ -97,11 +102,11 @@ public class MultiLineTextBox extends Element {
                 tx = x + tw;
             }
             if (textAligny==CENTER) {
-                ty = y + h / 2;
+                ty = y + th / 2;
             } else if (textAligny==BOTTOM) {
-                ty = y + h;
+                ty = y + th;
             }
-            panelCanvas.rect(x, y, tw, h);
+            panelCanvas.rect(x, y, tw, th);
             panelCanvas.fill(textColour);
             panelCanvas.textAlign(textAlignx, textAligny);
             for (int i=0; i<lines.size(); i++) {
