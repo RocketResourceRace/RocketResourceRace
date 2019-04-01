@@ -31,21 +31,7 @@ public class MultiLineTextBox extends Element {
     MultiLineTextBox(int x, int y, int w, int h, int bgColour, int strokeColour, int textColour, int textSize, int textAlignx, int textAligny, String text) {
         //w=-1 means get width from text
         //h=-1 means get height from text
-        this.x = x;
-        this.y = y;
-        this.w = w;
-        this.h = h;
-        this.bgColour = bgColour;
-        this.strokeColour = strokeColour;
-        this.textColour = textColour;
-        this.textSize = textSize;
-        this.textAlignx = textAlignx;
-        this.textAligny = textAligny;
-        this.text = text;
-
-        this.strokeWeight = 3;
-
-        setLines(text);
+        this(x, y, w, h, bgColour, strokeColour, textColour, textSize, textAlignx, textAligny, text, 3);
     }
 
     MultiLineTextBox(int x, int y, int w, int h, int bgColour, int strokeColour, int textColour, int textSize, int textAlignx, int textAligny, String text, int strokeWeight) {
@@ -176,13 +162,17 @@ public class MultiLineTextBox extends Element {
         try {
             int j = 0;
             ArrayList<String> lines = new ArrayList<>();
-            for (int i=0; i<s.length(); i++) {
-                if (s.charAt(i) == '\n') {
-                    lines.add(s.substring(j, i));
-                    j=i+1;
+            if (s==null) {
+                lines.add("");
+            } else {
+                for (int i = 0; i < s.length(); i++) {
+                    if (s.charAt(i) == '\n') {
+                        lines.add(s.substring(j, i));
+                        j = i + 1;
+                    }
                 }
+                lines.add(s.substring(j));
             }
-            lines.add(s.substring(j));
             return lines;
         }
         catch (Exception e) {
