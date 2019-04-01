@@ -123,7 +123,6 @@ public class RocketResourceRace extends PApplet {
             new JSONManager();
             loadSounds();
             setFrameRateCap();
-            textFont(createFont("GillSans", 32));
 
             Image.loadImages();
 

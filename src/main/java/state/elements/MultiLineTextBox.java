@@ -108,7 +108,7 @@ public class MultiLineTextBox extends Element {
             }
             int th = h;
             if (h == -1) {
-                th = ((int) (textSize*JSONManager.loadFloatSetting("text scale") + 4))*lines.size();
+                th = (ceil(textSize*JSONManager.loadFloatSetting("text scale") + 4))*lines.size();
             }
             int gap = ceil(panelCanvas.textAscent()+panelCanvas.textDescent());
 
