@@ -13,7 +13,6 @@
           "h": 3,
           "text": "New Game",
           "new state": "game types",
-          "tooltip": "Start a new game"
         },
         {
           "id": "load game",
@@ -24,7 +23,6 @@
           "h": 3,
           "text": "Load Game",
           "new state": "load game",
-          "tooltip": "Load a previously saved game"
         },
         {
           "id": "settings",
@@ -35,7 +33,6 @@
           "h": 3,
           "text": "Settings",
           "new state": "settings",
-          "tooltip": "Configure the game"
         },
         {
           "id": "exit",
@@ -45,7 +42,6 @@
           "w": 12,
           "h": 3,
           "text": "Exit",
-          "tooltip": "Leave Rocket Resource Race"
         }
       ]
     },
@@ -63,7 +59,6 @@
           "h": 3,
           "text": "Graphics Options",
           "new state": "graphics options",
-          "tooltip": "Configure the graphics of the game"
         },
         {
           "id": "sound options",
@@ -74,7 +69,6 @@
           "h": 3,
           "text": "Sound Options",
           "new state": "sound options",
-          "tooltip": "Configure the sounds in the game"
         },
         {
           "id": "game options",
@@ -84,7 +78,6 @@
           "w": 12,
           "h": 3,
           "text": "Game Options",
-          "tooltip": "Configure the gameplay"
         },
         {
           "id": "back",
