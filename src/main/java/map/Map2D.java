@@ -373,11 +373,13 @@ public class Map2D extends BaseMap implements Map {
         }
         for (int i=0; i<gameData.getJSONArray("buildings").size(); i++) {
             JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
-            tempBuildingImages[i] = new PImage[buildingImages.get(buildingType.getString("id")).length];
-            for (int j=0; j<buildingImages.get(buildingType.getString("id")).length; j++) {
-                tempBuildingImages[i][j] = buildingImages.get(buildingType.getString("id"))[j].copy();
+            String buildingId = buildingType.getString("id");
+            tempBuildingImages[i] = new PImage[buildingImages.get(buildingId).length];
+            tempBuildingImagesDark[i] = new PImage[buildingImages.get(buildingId).length];
+            for (int j=0; j<buildingImages.get(buildingId).length; j++) {
+                tempBuildingImages[i][j] = buildingImages.get(buildingId)[j].copy();
                 tempBuildingImages[i][j].resize(ceil(blockSize*48/64), 0);
-                tempBuildingImagesDark[i][j] = buildingImages.get(buildingType.getString("id"))[j].copy();
+                tempBuildingImagesDark[i][j] = buildingImages.get(buildingId)[j].copy();
                 tempBuildingImagesDark[i][j].resize(ceil(blockSize), 0);
                 tempBuildingImagesDark[i][j].loadPixels();
                 for (int k = 0; k < tempBuildingImagesDark[i][j].pixels.length; k++) {
@@ -532,19 +534,6 @@ public class Map2D extends BaseMap implements Map {
                 }
             }
         }
-
-        //if (JSONManager.loadBooleanSetting("fog of war")) {
-        //  for (int y1=0; y1<mapHeight; y1++) {
-        //    for (int x=0; x<mapWidth; x++) {
-        //      if (!fogMap[y1][x]) {
-        //        c = new PVector(scaleX(x), scaleY(y1));
-        //        panelCanvas.fill(0, 50);
-        //        panelCanvas.noStroke();
-        //        panelCanvas.rect(max(c.x, xPos), max(c.y, yPos), min(blockSize, xPos+elementWidth-c.x, blockSize+c.x-xPos), min(blockSize, yPos+elementHeight-c.y, blockSize+c.y-yPos));
-        //      }
-        //    }
-        //  }
-        //}
 
         if (drawRocket) {
             drawRocket(panelCanvas, tempBuildingImages);
