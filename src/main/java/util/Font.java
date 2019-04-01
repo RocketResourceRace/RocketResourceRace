@@ -16,8 +16,8 @@ public class Font {
         try {
             PFont f=fonts.get(round(size));
             if (f == null) {
-                String[] allFonts = PFont.list();
-                System.out.println(Arrays.toString(allFonts));
+//                String[] allFonts = PFont.list();
+//                System.out.println(Arrays.toString(allFonts));
                 fonts.put(round(size), papplet.createFont("FreeSans", size));
                 return fonts.get(round(size));
             } else {
