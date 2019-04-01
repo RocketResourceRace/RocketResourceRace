@@ -604,12 +604,11 @@ public class Map3D extends BaseMap implements Map {
 
         panning = true;
     }
-    public float[] targetCell(int x, int y, float zoom) {
+    public void targetCell(int x, int y, float zoom) {
         LOGGER_MAIN.finer(String.format("Targetting cell:%s, %s and zoom:%s", x, y, zoom));
         targetXOffset = (x+0.5f)*blockSize-papplet.width/2f;
         targetYOffset = (y+0.5f)*blockSize-papplet.height/2f;
         panning = true;
-        return new float[]{targetXOffset, targetYOffset};
     }
 
 

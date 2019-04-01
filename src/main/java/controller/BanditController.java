@@ -18,8 +18,7 @@ import static util.Logging.LOGGER_GAME;
 
 public class BanditController implements PlayerController {
     public int[][] cellsTargetedWeightings;
-    Node[][] moveNodes;
-    int player;
+    private int player;
     public BanditController(int player, int mapWidth, int mapHeight) {
         this.player = player;
         cellsTargetedWeightings = new int[mapHeight][];
@@ -59,13 +58,13 @@ public class BanditController implements PlayerController {
         return new EndTurn();  // If no parties have events to do, end the turn
     }
 
-    public GameEvent getEventForParty(Cell[][] visibleCells, float[] resources, int px, int py) {
-        moveNodes = Dijkstra.LimitedKnowledgeDijkstra(px, py, visibleCells[0].length, visibleCells.length, visibleCells, 5);
+    private GameEvent getEventForParty(Cell[][] visibleCells, float[] resources, int px, int py) {
+        Node[][] moveNodes = Dijkstra.LimitedKnowledgeDijkstra(px, py, visibleCells[0].length, visibleCells.length, visibleCells, 5);
         Party p = visibleCells[py][px].getParty();
         cellsTargetedWeightings[py][px] = 0;
         int maximumWeighting = 0;
         if (p.getMovementPoints() > 0 && willMove(p, px, py, moveNodes)) {
-            ArrayList<int[]> cellsToAttack = new ArrayList<int[]>();
+            ArrayList<int[]> cellsToAttack = new ArrayList<>();
             for (int y = 0; y < visibleCells.length; y++) {
                 for (int x = 0; x < visibleCells[0].length; x++) {
                     if (visibleCells[y][x] != null && moveNodes[y][x] != null) {
@@ -83,7 +82,7 @@ public class BanditController implements PlayerController {
                         }
                         weighting += cellsTargetedWeightings[y][x];
                         if (weighting > 0) {
-                            LOGGER_GAME.fine(String.format("At least one cell has a positive weight for attacking, so will attack"));
+                            LOGGER_GAME.fine("At least one cell has a positive weight for attacking, so will attack");
                             maximumWeighting = max(maximumWeighting, weighting);
                             cellsToAttack.add(new int[]{x, y, weighting});
                         }
@@ -119,7 +118,7 @@ public class BanditController implements PlayerController {
                 }
             } else {
                 // Bandit searching for becuase no parties to attack in area
-                ArrayList<int[]> cellsToMoveTo = new ArrayList<int[]>();
+                ArrayList<int[]> cellsToMoveTo = new ArrayList<>();
                 for (int y = 0; y < visibleCells.length; y++) {
                     for (int x = 0; x < visibleCells[0].length; x++) {
                         if (moveNodes[y][x] != null) {  // Check in sight and within 1 turn movement

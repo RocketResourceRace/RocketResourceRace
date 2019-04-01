@@ -11,6 +11,7 @@ import state.elements.*;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.logging.Level;
 
 import static processing.core.PApplet.CENTER;
@@ -608,8 +609,8 @@ public class JSONManager {
 
     public static String getElementType(String panel, String element) {
         try {
-            JSONArray elems = findJSONObject(menu.getJSONArray("states"), panel).getJSONArray("elements");
-            return findJSONObject(elems, element).getString("type");
+            JSONArray elems = Objects.requireNonNull(findJSONObject(menu.getJSONArray("states"), panel)).getJSONArray("elements");
+            return Objects.requireNonNull(findJSONObject(elems, element)).getString("type");
         }
         catch(Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, "Error finding element type with id: "+ element + " on panel " + panel, e);
@@ -719,7 +720,7 @@ public class JSONManager {
             float x, y, w, h, scale, lower, upper, step;
             String type, id, text, setting;
             String[] options;
-            JSONArray elements = findJSONObject(menu.getJSONArray("states"), panelID).getJSONArray("elements");
+            JSONArray elements = Objects.requireNonNull(findJSONObject(menu.getJSONArray("states"), panelID)).getJSONArray("elements");
 
 
             scale = 20 * guiScale;

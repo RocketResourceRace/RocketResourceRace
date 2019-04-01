@@ -151,7 +151,7 @@ public class State {
         return new ArrayList<>();
     }
     public ArrayList<String> keyboardEvent(String eventType, char _key) {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     public void elementEvent(ArrayList<Event> events) {

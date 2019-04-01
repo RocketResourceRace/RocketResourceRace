@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.logging.Level;
 
 import static com.jogamp.newt.event.KeyEvent.VK_F12;
@@ -1573,7 +1574,7 @@ public class Game extends State {
         ResourceSummary resSum = ((ResourceSummary)getElement("resource summary", "bottom bar"));
         if (resSum.pointOver()) {
             String resource = resSum.getResourceAt(papplet.mouseX, papplet.mouseY);
-            HashMap<String, Float> tasksMap = new HashMap<String, Float>();
+            HashMap<String, Float> tasksMap = new HashMap<>();
             for (int y = 0; y < mapHeight; y++) {
                 for (int x = 0; x < mapWidth; x++) {
                     if (parties[y][x]!=null) {
@@ -1623,7 +1624,7 @@ public class Game extends State {
         ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
         boolean t = true;
         for (int i=0; i<numResources; i++) {
-            if (available[i] < required[i] && !buildingString(i).equals("rocket progress")) {
+            if (available[i] < required[i] && !Objects.equals(buildingString(i), "rocket progress")) {
                 t = false;
                 rs.flash(i);
             }
@@ -1841,9 +1842,6 @@ public class Game extends State {
                         break;
                     }
                     case "end game button":
-                        JSONManager.writeSettings();
-                        newState = "menu";
-                        break;
                     case "main menu button":
                         // old save place
                         JSONManager.writeSettings();
@@ -2264,16 +2262,16 @@ public class Game extends State {
                 } else if (tasks.moveOver() && getPanel("party management").isVisible() && !tasks.scrolling && !tasks.hovingOverScroll() && tasks.active) {
                     tooltip.setTask(((TaskManager)getElement("tasks", "party management")).findMouseOver(), players[turn].resources, parties[selectedCellY][selectedCellX].getMovementPoints());
                     tooltip.show();
-                } else if (((ProficiencySummary)getElement("proficiency summary", "party management")).mouseOver() && getPanel("party management").isVisible()) {
+                } else if (getElement("proficiency summary", "party management").mouseOver() && getPanel("party management").isVisible()) {
                     tooltip.setProficiencies(((ProficiencySummary)getElement("proficiency summary", "party management")).hoveringOption(), parties[selectedCellY][selectedCellX]);
                     tooltip.show();
-                } else if (((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").isVisible()) {
+                } else if (getElement("turns remaining", "party management").mouseOver()&& getPanel("party management").isVisible()) {
                     tooltip.setTurnsRemaining();
                     tooltip.show();
-                } else if (((Button)getElement("move button", "party management")).mouseOver()&& getPanel("party management").isVisible()) {
+                } else if (getElement("move button", "party management").mouseOver()&& getPanel("party management").isVisible()) {
                     tooltip.setMoveButton();
                     tooltip.show();
-                } else if (((Button)getElement("stock up button", "party management")).mouseOver() && getPanel("party management").isVisible()) {
+                } else if (getElement("stock up button", "party management").mouseOver() && getPanel("party management").isVisible()) {
                     if (((Button)getElement("stock up button", "party management")).active) {
                         tooltip.setStockUpAvailable(parties[selectedCellY][selectedCellX], players[turn].resources);
                     } else {
@@ -2661,7 +2659,7 @@ public class Game extends State {
         if (!cl.equals("Nothing/Unknown")) {
             panelCanvas.fill(255, 0, 0);
             panelCanvas.text("Consuming: "+cl, 5+sidePanelX, barY);
-            barY += 13*JSONManager.loadFloatSetting("text scale");
+            //barY += 13*JSONManager.loadFloatSetting("text scale");
         }
     }
 
@@ -2797,8 +2795,8 @@ public class Game extends State {
         if (JSONManager.loadBooleanSetting("map is 3d")) {
             LOGGER_MAIN.finer("Map is 3d");
             map = (Map3D)getElement("3dmap", "default");
-            ((Map3D) getElement("3dmap", "default")).setVisible(true);
-            ((Map2D) getElement("2dmap", "default")).setVisible(false);
+            getElement("3dmap", "default").setVisible(true);
+            getElement("2dmap", "default").setVisible(false);
             getElement("unit number bars toggle", "bottom bar").setVisible(true);
             getElement("task icons toggle", "bottom bar").setVisible(true);
             getElement("unit number bars toggle", "bottom bar").active = true;
@@ -2807,8 +2805,8 @@ public class Game extends State {
         } else {
             LOGGER_MAIN.finer("Map is 2d");
             map = (Map2D)getElement("2dmap", "default");
-            ((Map3D) getElement("3dmap", "default")).setVisible(false);
-            ((Map2D) getElement("2dmap", "default")).setVisible(true);
+            getElement("3dmap", "default").setVisible(false);
+            getElement("2dmap", "default").setVisible(true);
             getElement("unit number bars toggle", "bottom bar").setVisible(false);
             getElement("task icons toggle", "bottom bar").setVisible(false);
             getElement("unit number bars toggle", "bottom bar").active = false;
@@ -2847,9 +2845,9 @@ public class Game extends State {
             PVector[] playerStarts = generateStartingParties();
             // THIS NEEDS TO BE CHANGED WHEN ADDING PLAYER INPUT SELECTOR
             players[2] = new Player((int)playerStarts[2].x, (int)playerStarts[2].y, JSONManager.loadIntSetting("starting block size"), startingResources.clone(), papplet.color(0, 255, 0), "Player 3  ", 0, 2);
-            float[] conditions2 = map.targetCell((int)playerStarts[1].x, (int)playerStarts[1].y, JSONManager.loadIntSetting("starting block size"));
+            map.targetCell((int) playerStarts[1].x, (int) playerStarts[1].y, JSONManager.loadIntSetting("starting block size"));
             players[1] = new Player((int)playerStarts[1].x, (int)playerStarts[1].y, JSONManager.loadIntSetting("starting block size"), startingResources.clone(), papplet.color(255, 0, 0), "Player 2  ", 0, 1);
-            float[] conditions1 = map.targetCell((int)playerStarts[0].x, (int)playerStarts[0].y, JSONManager.loadIntSetting("starting block size"));
+            map.targetCell((int) playerStarts[0].x, (int) playerStarts[0].y, JSONManager.loadIntSetting("starting block size"));
             players[0] = new Player((int)playerStarts[0].x, (int)playerStarts[0].y, JSONManager.loadIntSetting("starting block size"), startingResources.clone(), papplet.color(0, 0, 255), "Player 1  ", 0, 0);
 
             players[players.length-1] = new Player(0, 0, JSONManager.loadIntSetting("starting block size"), startingResources.clone(), papplet.color(255, 0, 255), "Player 4  ", 1, 3);
@@ -2900,7 +2898,7 @@ public class Game extends State {
             for (int i = playerCount-1; i >= 0; i--) {
                 int[] t1 = findIdle(i);
                 assert t1 != null;
-                float[] targetOffsets = map.targetCell(t1[0], t1[1], 64);
+                map.targetCell(t1[0], t1[1], 64);
                 players[i].saveSettings(t1[0], t1[1], 64, selectedCellX, selectedCellY, false);
             }
         }

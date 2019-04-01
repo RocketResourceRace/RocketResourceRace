@@ -24,7 +24,7 @@ public interface Map {
     float getTargetOffsetX();
     float getTargetOffsetY();
     float getTargetBlockSize();
-    float[] targetCell(int x, int y, float zoom);
+    void targetCell(int x, int y, float zoom);
     void loadSettings(float x, float y, float bs);
     void unselectCell();
     boolean mouseOver();
