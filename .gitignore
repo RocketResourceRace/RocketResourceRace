@@ -21,3 +21,4 @@ settings.json
 *.blend1
 out
 .idea
+*.iml
