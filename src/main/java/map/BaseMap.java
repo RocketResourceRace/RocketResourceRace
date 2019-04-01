@@ -6,6 +6,7 @@ import event.Action;
 import json.JSONManager;
 import party.Battle;
 import party.Party;
+import party.Siege;
 import player.Player;
 import processing.core.PApplet;
 import state.Element;
@@ -32,10 +33,10 @@ public class BaseMap extends Element {
     public int[][] terrain;
     public Party[][] parties;
     public Building[][] buildings;
-    boolean updateHoveringScale, drawingTaskIcons, drawingUnitBars;
+    boolean drawingTaskIcons;
+    boolean drawingUnitBars;
     public boolean cinematicMode;
     HashMap<Character, Boolean> keyState;
-    boolean[][] fogMap;
     Cell[][] visibleCells;
 
     public void updateVisibleCells(Cell[][] visibleCells){
@@ -103,6 +104,7 @@ public class BaseMap extends Element {
                         buffer.putFloat(-1);
                         buffer.putInt(-1);
                     } else {
+                        LOGGER_MAIN.finer("Saving a building");
                         buffer.putInt(buildings[y][x].getType());
                         buffer.putInt(buildings[y][x].getImageId());
                         buffer.putFloat(buildings[y][x].getHealth());
@@ -115,6 +117,23 @@ public class BaseMap extends Element {
                 for (int x=0; x<mapWidth; x++) {
                     if (parties[y][x]==null) {
                         buffer.put(PApplet.parseByte(0));
+                    } else if (parties[y][x] instanceof Siege) {
+                        buffer.put(PApplet.parseByte(3));
+                        for (int i=0; i<16; i++) {
+                            if (i<parties[y][x].id.length()) {
+                                buffer.putChar(parties[y][x].id.charAt(i));
+                            } else {
+                                buffer.putChar(' ');
+                            }
+                        }
+                        saveParty(buffer, ((Battle)parties[y][x]).attacker);
+                        saveParty(buffer, ((Battle)parties[y][x]).defender);
+                        Building defence = ((Siege)parties[y][x]).getDefence();
+                        buffer.putInt(defence.getType());
+                        buffer.putInt(defence.getImageId());
+                        buffer.putFloat(defence.getHealth());
+                        buffer.putInt(defence.getPlayerId());
+
                     } else if (parties[y][x] instanceof Battle) {
                         buffer.put(PApplet.parseByte(2));
                         for (int i=0; i<16; i++) {
@@ -127,6 +146,7 @@ public class BaseMap extends Element {
                         saveParty(buffer, ((Battle)parties[y][x]).attacker);
                         saveParty(buffer, ((Battle)parties[y][x]).defender);
                     } else {
+                        LOGGER_MAIN.finer("Saving a party");
                         buffer.put(PApplet.parseByte(1));
                         saveParty(buffer, parties[y][x]);
                     }
@@ -208,7 +228,8 @@ public class BaseMap extends Element {
             mapHeight = headerBuffer.getInt();
             int partiesByteCount = headerBuffer.getInt();
             int playersByteCount = headerBuffer.getInt();
-            int dataSize = Long.BYTES+partiesByteCount+playersByteCount+(4+mapWidth*mapHeight*4)*Integer.BYTES+Float.BYTES+versionSpecificData;
+            int mapSize = mapHeight*mapHeight;
+            int dataSize = Integer.BYTES*10+Long.BYTES+Integer.BYTES*mapSize*5+partiesByteCount+playersByteCount+Float.BYTES*(1+mapSize)+versionSpecificData;
             ByteBuffer buffer = ByteBuffer.allocate(dataSize);
             if (versionCheckInt) {
                 buffer.put(Arrays.copyOfRange(tempBuffer, headerSize, headerSize+dataSize));
@@ -262,7 +283,7 @@ public class BaseMap extends Element {
             for (int y=0; y<mapHeight; y++) {
                 for (int x=0; x<mapWidth; x++) {
                     byte partyType = buffer.get();
-                    if (partyType == 2) {
+                    if (partyType == 2 || partyType == 3) {
                         char[] rawid;
                         char[] p1id;
                         char[] p2id;
@@ -293,9 +314,22 @@ public class BaseMap extends Element {
                         }
                         Party p2 = loadParty(buffer, new String(p2id));
                         float savedStrength = p1.strength;
-                        Battle b = new Battle(p1, p2, new String(rawid));
-                        b.attacker.strength = savedStrength;
-                        parties[y][x] = b;
+                        if (partyType == 3) {
+                            int type = buffer.getInt();
+                            int imageId = buffer.getInt();
+                            float health = buffer.getFloat();
+                            int playerId= buffer.getInt();
+                            Building defence = new Building(type, imageId, playerId);
+                            defence.setHealth(health);
+
+                            Siege s = new Siege(p1, defence, p2, new String(rawid));
+                            s.attacker.strength = savedStrength;
+                            parties[y][x] = s;
+                        } else {
+                            Battle b = new Battle(p1, p2, new String(rawid));
+                            b.attacker.strength = savedStrength;
+                            parties[y][x] = b;
+                        }
                     } else if (partyType == 1) {
                         char[] rawid;
                         if (versionCheck>1) {

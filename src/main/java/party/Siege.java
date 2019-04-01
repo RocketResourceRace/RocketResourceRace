@@ -66,6 +66,10 @@ public class Siege extends Battle {
         }
     }
 
+    public Building getDefence() {
+        return defence;
+    }
+
     private int getSiegeUnitChange(Party p1, Party p2, Building defence) {
         float d = defence.getHealth() * exp(gameData.getJSONArray("buildings").getJSONObject(defence.getType()).getFloat("defence"));
         float defenceMultiplier = defence.getPlayerId() == p1.getPlayer() ? d : 1/d;
