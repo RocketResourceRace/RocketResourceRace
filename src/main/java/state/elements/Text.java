@@ -13,9 +13,9 @@ import static util.Util.papplet;
 public class Text extends Element {
     int x;
     public int y;
-    int size;
-    int colour;
-    int align;
+    private int size;
+    private int colour;
+    private int align;
     PFont font;
     public String text;
 
@@ -34,7 +34,7 @@ public class Text extends Element {
     public void setText(String text) {
         this.text = text;
     }
-    public void calcSize(PGraphics panelCanvas) {
+    private void calcSize(PGraphics panelCanvas) {
         panelCanvas.textFont(getFont(size* JSONManager.loadFloatSetting("text scale")));
         this.w = ceil(panelCanvas.textWidth(text));
         this.h = ceil(panelCanvas.textAscent()+panelCanvas.textDescent());

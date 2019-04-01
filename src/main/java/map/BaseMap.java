@@ -63,6 +63,7 @@ public class BaseMap extends Element {
             int mapSize = mapWidth*mapHeight;
             int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+4*Integer.BYTES+Character.BYTES*10+1+mapSize)*players.length;
             ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*10+Long.BYTES+Integer.BYTES*mapSize*5+partiesByteCount+playersByteCount+Float.BYTES*(1+mapSize));
+            int SAVEVERSION = 2;
             buffer.putInt(-SAVEVERSION);
             LOGGER_MAIN.finer("Saving version: "+(-SAVEVERSION));
             buffer.putInt(mapWidth);
@@ -839,9 +840,6 @@ public class BaseMap extends Element {
             throw e;
         }
     }
-
-    private int SAVEVERSION = 2;
-
 
 
     private int getPartySize(Party p) {

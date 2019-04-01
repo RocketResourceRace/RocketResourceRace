@@ -13,13 +13,10 @@ import static util.Util.between;
 import static util.Util.papplet;
 
 public class IncrementElement extends Element {
-    final int TEXTSIZE = 8;
-    final int SIDEBOXESWIDTH = 15;
-    final int ARROWOFFSET = 4;
-    final float FULLPANPROPORTION = 0.25f;  // Adjusts how much mouse dragging movement is needed to change value as propotion of screen width
+    private final int SIDEBOXESWIDTH = 15;
     private int upper, lower, value, step, bigStep;
-    int startingX, startingValue, pressing;
-    boolean grabbed;
+    private int startingX, startingValue, pressing;
+    private boolean grabbed;
 
     public IncrementElement(int x, int y, int w, int h, int upper, int lower, int startingValue, int step, int bigStep){
         this.x = x;
@@ -33,7 +30,6 @@ public class IncrementElement extends Element {
         this.bigStep = bigStep;
         grabbed = false;
         startingX = 0;
-        startingValue = value;
         pressing = -1;
     }
 
@@ -61,12 +57,12 @@ public class IncrementElement extends Element {
         return this.value;
     }
 
-    public void setValueWithinBounds(){
+    private void setValueWithinBounds(){
         value = PApplet.parseInt(between(lower, value, upper));
     }
 
     public ArrayList<String> mouseEvent(String eventType, int button) {
-        ArrayList<String> events = new ArrayList<String>();
+        ArrayList<String> events = new ArrayList<>();
         if (eventType.equals("mouseClicked")){
             int change = 0;
             if (button == PConstants.LEFT){
@@ -108,7 +104,9 @@ public class IncrementElement extends Element {
         }
         if (eventType.equals("mouseDragged")){
             if (grabbed){
-                int change = PApplet.floor((papplet.mouseX-startingX)*(upper-lower)/(papplet.width*FULLPANPROPORTION));
+                // Adjusts how much mouse dragging movement is needed to change value as propotion of screen width
+                float FULLPANPROPORTION = 0.25f;
+                int change = PApplet.floor((papplet.mouseX-startingX)*(upper-lower)/(papplet.width* FULLPANPROPORTION));
                 if (change != 0){
                     setValue(startingValue+change);
                     setValueWithinBounds();
@@ -146,8 +144,9 @@ public class IncrementElement extends Element {
         panelCanvas.rect(x, y, SIDEBOXESWIDTH, h-1);
         panelCanvas.fill(0);
         panelCanvas.strokeWeight(2);
-        panelCanvas.line(x-ARROWOFFSET+SIDEBOXESWIDTH, y+ARROWOFFSET, x+ARROWOFFSET, y+h/2);
-        panelCanvas.line(x+ARROWOFFSET, y+h/2, x-ARROWOFFSET+SIDEBOXESWIDTH, y+h-ARROWOFFSET);
+        int ARROWOFFSET = 4;
+        panelCanvas.line(x- ARROWOFFSET +SIDEBOXESWIDTH, y+ ARROWOFFSET, x+ ARROWOFFSET, y+h/2);
+        panelCanvas.line(x+ ARROWOFFSET, y+h/2, x- ARROWOFFSET +SIDEBOXESWIDTH, y+h- ARROWOFFSET);
 
         //draw right side box
         if (getElemOnTop() && mouseOverRightBox()){
@@ -162,27 +161,28 @@ public class IncrementElement extends Element {
         panelCanvas.rect(x+w-SIDEBOXESWIDTH, y, SIDEBOXESWIDTH, h-1);
         panelCanvas.fill(0);
         panelCanvas.strokeWeight(2);
-        panelCanvas.line(x+w+ARROWOFFSET-SIDEBOXESWIDTH, y+ARROWOFFSET, x+w-ARROWOFFSET, y+h/2);
-        panelCanvas.line(x+w-ARROWOFFSET, y+h/2, x+w+ARROWOFFSET-SIDEBOXESWIDTH, y-ARROWOFFSET+h);
+        panelCanvas.line(x+w+ ARROWOFFSET -SIDEBOXESWIDTH, y+ ARROWOFFSET, x+w- ARROWOFFSET, y+h/2);
+        panelCanvas.line(x+w- ARROWOFFSET, y+h/2, x+w+ ARROWOFFSET -SIDEBOXESWIDTH, y- ARROWOFFSET +h);
 
         // Draw value
         panelCanvas.fill(0);
-        panelCanvas.textFont(getFont(TEXTSIZE* JSONManager.loadFloatSetting("text scale")));
+        int TEXTSIZE = 8;
+        panelCanvas.textFont(getFont(TEXTSIZE * JSONManager.loadFloatSetting("text scale")));
         panelCanvas.textAlign(PConstants.CENTER, PConstants.CENTER);
         panelCanvas.text(value, x+w/2, y+h/2);
 
         panelCanvas.popStyle();
     }
 
-    public boolean mouseOverMiddleBox(){
+    private boolean mouseOverMiddleBox(){
         return mouseOver() && !mouseOverRightBox() && !mouseOverLeftBox();
     }
 
-    public boolean mouseOverRightBox() {
+    private boolean mouseOverRightBox() {
         return papplet.mouseX-xOffset >= x+w-SIDEBOXESWIDTH && papplet.mouseX-xOffset <= x+w && papplet.mouseY-yOffset >= y && papplet.mouseY-yOffset <= y+h;
     }
 
-    public boolean mouseOverLeftBox() {
+    private boolean mouseOverLeftBox() {
         return papplet.mouseX-xOffset >= x && papplet.mouseX-xOffset <= x+SIDEBOXESWIDTH && papplet.mouseY-yOffset >= y && papplet.mouseY-yOffset <= y+h;
     }
 

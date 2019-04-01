@@ -66,7 +66,7 @@ public class HorizontalOptionsButton extends DropDown {
     }
 
     public ArrayList<String> mouseEvent(String eventType, int button) {
-        ArrayList<String> events = new ArrayList<String>();
+        ArrayList<String> events = new ArrayList<>();
         if (eventType.equals("mouseClicked")) {
             int hovering = hoveringOption();
             if (moveOver()) {

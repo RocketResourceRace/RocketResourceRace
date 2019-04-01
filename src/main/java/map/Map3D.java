@@ -26,14 +26,15 @@ import static util.Util.*;
 
 public class Map3D extends BaseMap implements Map {
     final int thickness = 10;
-    private final float PANSPEED = 0.5f, ROTSPEED = 0.002f;
-    private final float STUMPR = 1, STUMPH = 4, LEAVESR = 5, LEAVESH = 15, TREERANDOMNESS=0.3f;
     final float HILLRAISE = 1.05f;
     private final float GROUNDHEIGHT = 5;
     private final float VERYSMALLSIZE = 0.01f;
     private int numTreeTiles;
-    private float panningSpeed = 0.05f;
-    private int x, y, w, h, prevT, frameTime;
+    private int x;
+    private int y;
+    private int w;
+    private int h;
+    private int prevT;
     private float hoveringX, hoveringY, oldHoveringX, oldHoveringY;
     public float targetXOffset;
     public float targetYOffset;
@@ -46,23 +47,21 @@ public class Map3D extends BaseMap implements Map {
     private PImage[] tempTileImages;
     private float targetZoom;
     public float zoom;
-    private float zoomv;
     private float tilt;
-    private float tiltv;
     private float rot;
-    private float rotv;
     public float focusedX;
     public float focusedY;
-    private PVector focusedV, heldPos;
-    private Boolean panning, zooming, mapActive, cellSelected, updateHoveringScale;
+    private PVector focusedV;
+    private Boolean panning;
+    private Boolean zooming;
+    private Boolean cellSelected;
+    private Boolean updateHoveringScale;
     private Node[][] moveNodes;
-    public float blockSize = 16;
+    public float blockSize;
     private ArrayList<int[]> drawPath;
     private HashMap<Integer, Integer> forestTiles;
-    private PGraphics canvas, refractionCanvas;
+    private PGraphics canvas;
     private HashMap<Integer, HashMap<Integer, Float>> downwardAngleCache;
-    private PShape tempRow, tempSingleRow;
-    private PGraphics tempTerrain;
     private boolean drawRocket;
     private PVector rocketPosition;
     private PVector rocketVelocity;
@@ -87,7 +86,7 @@ public class Map3D extends BaseMap implements Map {
         focusedX = round(mapWidth*blockSize/2);
         focusedY = round(mapHeight*blockSize/2);
         focusedV = new PVector(0, 0);
-        heldPos = null;
+        PVector heldPos = null;
         cellSelected = false;
         panning = false;
         zooming = false;
@@ -95,7 +94,7 @@ public class Map3D extends BaseMap implements Map {
         taskObjs = new HashMap<>();
         forestTiles = new HashMap<>();
         canvas = papplet.createGraphics(papplet.width, papplet.height, P3D);
-        refractionCanvas = papplet.createGraphics(papplet.width/4, papplet.height/4, P3D);
+        PGraphics refractionCanvas = papplet.createGraphics(papplet.width / 4, papplet.height / 4, P3D);
         downwardAngleCache = new HashMap<>();
         heightMap = new float[PApplet.parseInt((mapWidth+1)*(mapHeight+1)*pow(JSONManager.loadFloatSetting("terrain detail"), 2))];
         targetXOffset = mapWidth/2f*blockSize;
@@ -179,7 +178,7 @@ public class Map3D extends BaseMap implements Map {
         return focusedY;
     }
     public void setActive(boolean a) {
-        this.mapActive = a;
+        Boolean mapActive = a;
     }
     public void updateMoveNodes(Node[][] nodes, Player[] players) {
         LOGGER_MAIN.finer("Updating move nodes");
@@ -519,6 +518,7 @@ public class Map3D extends BaseMap implements Map {
                             Node[][] tempMoveNodes = LimitedKnowledgeDijkstra(x, y, mapWidth, mapHeight, players[visibleCells[y][x].party.player].visibleCells, 1);
                             for (int x1=0; x1<mapWidth; x1++) {
                                 for (int y1=0; y1<mapHeight; y1++) {
+                                    assert visibleCells[y][x] != null;
                                     if (tempMoveNodes[y1][x1] != null && tempMoveNodes[y1][x1].cost <= visibleCells[y][x].party.getMaxMovementPoints() && visibleCells[y1][x1] != null) {
                                         dangerousCells[y1][x1] = true;
                                     }
@@ -705,7 +705,9 @@ public class Map3D extends BaseMap implements Map {
             for (int i=0; i<num; i++) {
                 float x = random(0, blockSize), y = random(0, blockSize);
                 float h = getHeight((x1+x)/blockSize, (y1+y)/blockSize);
-                float randHeight = LEAVESH*random(1-TREERANDOMNESS, 1+TREERANDOMNESS);
+                float LEAVESH = 15;
+                float TREERANDOMNESS = 0.3f;
+                float randHeight = LEAVESH *random(1- TREERANDOMNESS, 1+ TREERANDOMNESS);
                 if (h <= JSONManager.loadFloatSetting("water level")*blockSize*GROUNDHEIGHT) continue; // Don't put trees underwater
                 int leafColour = color(random(35, 40), random(90, 100), random(30, 60));
                 int stumpColour = color(random(100, 125), random(100, 125), random(50, 30));
@@ -715,9 +717,11 @@ public class Map3D extends BaseMap implements Map {
                 leaves.fill(leafColour);
                 int tempVertices = round(random(4, vertices));
                 // create leaves
-                leaves.vertex(x, y, STUMPH+randHeight+h);
+                float STUMPH = 4;
+                leaves.vertex(x, y, STUMPH +randHeight+h);
                 for (int j=0; j<tempVertices+1; j++) {
-                    leaves.vertex(x+cos(j*TWO_PI/tempVertices)*LEAVESR, y+sin(j*TWO_PI/tempVertices)*LEAVESR, STUMPH+h);
+                    float LEAVESR = 5;
+                    leaves.vertex(x+cos(j*TWO_PI/tempVertices)* LEAVESR, y+sin(j*TWO_PI/tempVertices)* LEAVESR, STUMPH +h);
                 }
                 leaves.endShape(CLOSE);
                 shapes.addChild(leaves);
@@ -727,8 +731,9 @@ public class Map3D extends BaseMap implements Map {
                 stump.beginShape(QUAD_STRIP);
                 stump.fill(stumpColour);
                 for (int j=0; j<4; j++) {
-                    stump.vertex(x+cos(j*TWO_PI/3)*STUMPR, y+sin(j*TWO_PI/3)*STUMPR, h);
-                    stump.vertex(x+cos(j*TWO_PI/3)*STUMPR, y+sin(j*TWO_PI/3)*STUMPR, STUMPH+h);
+                    float STUMPR = 1;
+                    stump.vertex(x+cos(j*TWO_PI/3)* STUMPR, y+sin(j*TWO_PI/3)* STUMPR, h);
+                    stump.vertex(x+cos(j*TWO_PI/3)* STUMPR, y+sin(j*TWO_PI/3)* STUMPR, STUMPH +h);
                 }
                 stump.endShape();
                 shapes.addChild(stump);
@@ -745,9 +750,9 @@ public class Map3D extends BaseMap implements Map {
     private void loadMapStrip(int y, PShape tiles, boolean loading) {
         try {
             LOGGER_MAIN.finer("Loading map strip y:"+y+" loading: "+loading);
-            tempTerrain = papplet.createGraphics(round((1+mapWidth)*JSONManager.loadIntSetting("terrain texture resolution")), round(JSONManager.loadIntSetting("terrain texture resolution")));
-            tempSingleRow = papplet.createShape();
-            tempRow = papplet.createShape(GROUP);
+            PGraphics tempTerrain = papplet.createGraphics(round((1 + mapWidth) * JSONManager.loadIntSetting("terrain texture resolution")), round(JSONManager.loadIntSetting("terrain texture resolution")));
+            PShape tempSingleRow;
+            PShape tempRow = papplet.createShape(GROUP);
             tempTerrain.beginDraw();
             for (int x=0; x<mapWidth; x++) {
                 tempTerrain.image(tempTileImages[terrain[y][x]], x*JSONManager.loadIntSetting("terrain texture resolution"), 0);
@@ -829,11 +834,6 @@ public class Map3D extends BaseMap implements Map {
             } else {
                 tiles.addChild(tempRow, y);
             }
-
-            // Clean up for garbage collector
-            tempRow = null;
-            tempTerrain = null;
-            tempSingleRow = null;
         }
         catch (Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, String.format("Error loading mao strip: y:%s", y), e);
@@ -1102,7 +1102,7 @@ public class Map3D extends BaseMap implements Map {
                 for (int i=0; i<verticles; i++) {
                     line = highlightingGrid.getChild(i+horizontals);
                     for (int y1=0; y1<JSONManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++) {
-                        float x1 = PApplet.parseInt(x)-horizontals/2+1+i;
+                        float x1 = PApplet.parseInt(x)-horizontals/2f+1+i;
                         float y2 = PApplet.parseInt(y)-verticles/2f+1+y1/JSONManager.loadFloatSetting("terrain detail");
                         float y3 = -verticles/2f+y1/JSONManager.loadFloatSetting("terrain detail");
                         float x3 = -horizontals/2f+i;
@@ -1121,7 +1121,7 @@ public class Map3D extends BaseMap implements Map {
                     line = highlightingGrid.getChild(i);
                     for (int x1=0; x1<JSONManager.loadFloatSetting("terrain detail")*(verticles-1)+1; x1++) {
                         float x2 = PApplet.parseInt(x)-horizontals/2f+1+x1/JSONManager.loadFloatSetting("terrain detail");
-                        float y1 = PApplet.parseInt(y)-verticles/2+1+i;
+                        float y1 = PApplet.parseInt(y)-verticles/2f+1+i;
                         line.setVertex(x1, x2*blockSize, y1*blockSize, 4.5f*VERYSMALLSIZE+getHeight(x2, y1));
                     }
                 }
@@ -1129,7 +1129,7 @@ public class Map3D extends BaseMap implements Map {
                 for (int i=0; i<verticles; i++) {
                     line = highlightingGrid.getChild(i+horizontals);
                     for (int y1=0; y1<JSONManager.loadFloatSetting("terrain detail")*(horizontals-1)+1; y1++) {
-                        float x1 = PApplet.parseInt(x)-horizontals/2+1+i;
+                        float x1 = PApplet.parseInt(x)-horizontals/2f+1+i;
                         float y2 = PApplet.parseInt(y)-verticles/2f+1+y1/JSONManager.loadFloatSetting("terrain detail");
                         line.setVertex(y1, x1*blockSize, y2*blockSize, 4.5f*VERYSMALLSIZE+getHeight(x1, y2));
                     }
@@ -1199,7 +1199,7 @@ public class Map3D extends BaseMap implements Map {
 
     public ArrayList<String> mouseEvent(String eventType, int button) {
         if (eventType.equals("mouseDragged")) {
-            if (papplet.mouseButton == LEFT) {
+            //if (papplet.mouseButton == LEFT) {
                 //if (heldPos != null){
 
                 //camera(prevFx+papplet.width/2+zoom*sin(tilt)*sin(rot), prevFy+papplet.height/2+zoom*sin(tilt)*cos(rot), zoom*cos(tilt), prevFy+papplet.width/2, focusedY+papplet.height/2, 0, 0, 0, -1);
@@ -1212,7 +1212,8 @@ public class Map3D extends BaseMap implements Map {
                 //heldPos.x = newHeldPos.x;
                 //heldPos.y = newHeldPos.y;
                 //}
-            } else if (papplet.mouseButton != RIGHT) {
+            //} else
+            if (papplet.mouseButton != RIGHT) {
                 setTilt(tilt-(papplet.mouseY-papplet.pmouseY)*0.01f);
                 setRot(rot-(papplet.mouseX-papplet.pmouseX)*0.01f);
                 doUpdateHoveringScale();
@@ -1312,13 +1313,14 @@ public class Map3D extends BaseMap implements Map {
     public void draw(PGraphics panelCanvas) {
         try {
             // Update camera position and orientation
-            frameTime = papplet.millis()-prevT;
+            int frameTime = papplet.millis() - prevT;
             prevT = papplet.millis();
             focusedV.x=0;
             focusedV.y=0;
-            rotv = 0;
-            tiltv = 0;
-            zoomv = 0;
+            float rotv = 0;
+            float tiltv = 0;
+            float zoomv = 0;
+            float PANSPEED = 0.5f;
             if (keyState.containsKey('w')&&keyState.get('w')) {
                 focusedV.y -= PANSPEED;
                 panning = false;
@@ -1335,6 +1337,7 @@ public class Map3D extends BaseMap implements Map {
                 focusedV.x += PANSPEED;
                 panning = false;
             }
+            float ROTSPEED = 0.002f;
             if (keyState.containsKey('q')&&keyState.get('q')) {
                 rotv -= ROTSPEED;
             }
@@ -1358,17 +1361,18 @@ public class Map3D extends BaseMap implements Map {
             rotv = between(-ROTSPEED, rotv, ROTSPEED);
             tiltv = between(-ROTSPEED, tiltv, ROTSPEED);
             zoomv = between(-PANSPEED, zoomv, PANSPEED);
-            PVector p = focusedV.copy().rotate(-rot).mult(frameTime*pow(zoom, 0.5f)/20);
+            PVector p = focusedV.copy().rotate(-rot).mult(frameTime *pow(zoom, 0.5f)/20);
             focusedX += p.x;
             focusedY += p.y;
-            rot += rotv*frameTime;
-            tilt += tiltv*frameTime;
-            zoom += zoomv*frameTime;
+            rot += rotv * frameTime;
+            tilt += tiltv * frameTime;
+            zoom += zoomv * frameTime;
 
 
             if (panning) {
-                focusedX -= (focusedX-targetXOffset)*panningSpeed*frameTime*60/1000;
-                focusedY -= (focusedY-targetYOffset)*panningSpeed*frameTime*60/1000;
+                float panningSpeed = 0.05f;
+                focusedX -= (focusedX-targetXOffset)* panningSpeed * frameTime *60/1000;
+                focusedY -= (focusedY-targetYOffset)* panningSpeed * frameTime *60/1000;
                 // Stop panning when very close
                 if (abs(focusedX-targetXOffset) < 1 && abs(focusedY-targetYOffset) < 1) {
                     panning = false;
@@ -1746,6 +1750,7 @@ public class Map3D extends BaseMap implements Map {
 
             // Computing the intersection of
             f.sub(e);
+            assert w != null;
             w.sub(e);
             w.mult( n.dot(f)/n.dot(w) );
             PVector ray = w.copy();

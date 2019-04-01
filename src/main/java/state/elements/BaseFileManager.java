@@ -17,12 +17,11 @@ import static util.Util.papplet;
 
 public class BaseFileManager extends Element {
     // Basic file manager that scans a folder and makes a selectable list for all the files
-    final int TEXTSIZE = 14, SCROLLWIDTH = 30;
-    String folderString;
-    String[] saveNames;
-    int selected, rowHeight, numDisplayed, scroll;
-    boolean scrolling;
-    float fakeHeight;
+    private final int TEXTSIZE = 14, SCROLLWIDTH = 30;
+    private String[] saveNames;
+    private int selected, rowHeight, numDisplayed, scroll;
+    private boolean scrolling;
+    private float fakeHeight;
 
 
     public BaseFileManager(int x, int y, int w, int h, String folderString) {
@@ -30,7 +29,6 @@ public class BaseFileManager extends Element {
         super.y = y;
         super.w = w;
         super.h = h;
-        this.folderString = folderString;
         saveNames = new String[0];
         selected = 0;
         rowHeight = PApplet.ceil(TEXTSIZE * JSONManager.loadFloatSetting("text scale"))+5;
@@ -39,7 +37,7 @@ public class BaseFileManager extends Element {
         updateFakeHeight();
     }
 
-    public void updateFakeHeight() {
+    private void updateFakeHeight() {
         fakeHeight = rowHeight * numDisplayed;
     }
 
@@ -47,16 +45,14 @@ public class BaseFileManager extends Element {
         // Find the next automatic name for save
         loadSaveNames();
         int mx = 1;
-        for (int i=0; i<saveNames.length; i++) {
-            if (saveNames[i].length() > 8) {// 'Untitled is 8 characters
-                if (saveNames[i].substring(0, 8).equals("Untitled")) {
+        for (String saveName : saveNames) {
+            if (saveName.length() > 8) {// 'Untitled is 8 characters
+                if (saveName.substring(0, 8).equals("Untitled")) {
                     try {
-                        mx = PApplet.max(mx, Integer.parseInt(saveNames[i].substring(8)));
-                    }
-                    catch(NumberFormatException e) {
+                        mx = PApplet.max(mx, Integer.parseInt(saveName.substring(8)));
+                    } catch (NumberFormatException e) {
                         LOGGER_MAIN.log(Level.WARNING, "Save name confusing becuase in autogen format", e);
-                    }
-                    catch(Exception e) {
+                    } catch (Exception e) {
                         LOGGER_MAIN.log(Level.SEVERE, "An error occured with finding autogen name", e);
                         throw e;
                     }
@@ -73,7 +69,8 @@ public class BaseFileManager extends Element {
             File dir = new File(papplet.sketchPath("saves"));
             if (!dir.exists()) {
                 LOGGER_MAIN.info("Creating new 'saves' directory");
-                dir.mkdir();
+                boolean mkdirReturn = dir.mkdir();
+                assert mkdirReturn;
             }
             saveNames = dir.list();
         }
@@ -83,39 +80,44 @@ public class BaseFileManager extends Element {
     }
 
     public ArrayList<String> mouseEvent(String eventType, int button) {
-        ArrayList<String> events = new ArrayList<String>();
+        ArrayList<String> events = new ArrayList<>();
         int d = saveNames.length - numDisplayed;
-        if (eventType.equals("mouseClicked")) {
-            if (moveOver()) {
-                if (d <= 0 || papplet.mouseX-xOffset<x+w-SCROLLWIDTH) {
-                    // If not hovering over scroll bar, then select item
-                    selected = hoveringOption();
-                    events.add("valueChanged");
+        switch (eventType) {
+            case "mouseClicked":
+                if (moveOver()) {
+                    if (d <= 0 || papplet.mouseX - xOffset < x + w - SCROLLWIDTH) {
+                        // If not hovering over scroll bar, then select item
+                        selected = hoveringOption();
+                        events.add("valueChanged");
+                        scrolling = false;
+                    }
+                }
+                break;
+            case "mousePressed":
+                if (d > 0 && moveOver() && papplet.mouseX - xOffset > x + w - SCROLLWIDTH) {
+                    // If hovering over scroll bar, set scroll to mouse pos
+                    scrolling = true;
+                    scroll = PApplet.round(between(0, (papplet.mouseY - y - yOffset) * (d + 1) / h, d));
+                } else {
                     scrolling = false;
                 }
-            }
-        } else if (eventType.equals("mousePressed")) {
-            if (d > 0 && moveOver() && papplet.mouseX-xOffset>x+w-SCROLLWIDTH) {
-                // If hovering over scroll bar, set scroll to mouse pos
-                scrolling = true;
-                scroll = PApplet.round(between(0, (papplet.mouseY-y-yOffset)*(d+1)/h, d));
-            } else {
+                break;
+            case "mouseDragged":
+                if (scrolling && d > 0) {
+                    // If scrolling, set scroll to mouse pos
+                    scroll = PApplet.round(between(0, (papplet.mouseY - y - yOffset) * (d + 1) / h, d));
+                }
+                break;
+            case "mouseReleased":
                 scrolling = false;
-            }
-        } else if (eventType.equals("mouseDragged")) {
-            if (scrolling && d > 0) {
-                // If scrolling, set scroll to mouse pos
-                scroll = PApplet.round(between(0, (papplet.mouseY-y-yOffset)*(d+1)/h, d));
-            }
-        } else if (eventType.equals("mouseReleased")) {
-            scrolling = false;
+                break;
         }
 
         return events;
     }
 
     public ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event) {
-        ArrayList<String> events = new ArrayList<String>();
+        ArrayList<String> events = new ArrayList<>();
         if (eventType.equals("mouseWheel")) {
             float count = event.getCount();
             if (moveOver()) { // Check mouse over element
@@ -179,14 +181,14 @@ public class BaseFileManager extends Element {
         panelCanvas.popStyle();
     }
 
-    public boolean moveOver() {
+    private boolean moveOver() {
         return papplet.mouseX-xOffset >= x && papplet.mouseX-xOffset <= x+w && papplet.mouseY-yOffset >= y && papplet.mouseY-yOffset <= y+fakeHeight;
     }
     public boolean pointOver() {
         return moveOver();
     }
 
-    public int hoveringOption() {
+    private int hoveringOption() {
         int s = (papplet.mouseY-yOffset-y)/rowHeight;
         if (!(0 <= s && s < numDisplayed)) {
             return selected;

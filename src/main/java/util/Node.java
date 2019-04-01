@@ -1,13 +1,11 @@
 package util;
 
 
-import java.util.Comparator;
-
 public class Node {
     public int cost;
     public boolean fixed;
-    public int prevX = -1;
-    public int prevY = -1;
+    public int prevX;
+    public int prevY;
     public int x;
     public int y;
 
