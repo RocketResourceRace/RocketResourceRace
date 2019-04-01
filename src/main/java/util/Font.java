@@ -8,6 +8,7 @@ import java.util.logging.Level;
 
 import static processing.core.PApplet.round;
 import static util.Logging.LOGGER_MAIN;
+import static util.Util.RESOURCES_ROOT;
 import static util.Util.papplet;
 
 public class Font {
@@ -16,9 +17,7 @@ public class Font {
         try {
             PFont f=fonts.get(round(size));
             if (f == null) {
-//                String[] allFonts = PFont.list();
-//                System.out.println(Arrays.toString(allFonts));
-                fonts.put(round(size), papplet.createFont("FreeSans", size));
+                fonts.put(round(size), papplet.createFont(RESOURCES_ROOT+"fonts/FreeSans.ttf", size));
                 return fonts.get(round(size));
             } else {
                 return f;
