@@ -626,13 +626,15 @@ public class Game extends State {
                         for (String s : otherBlocking) {
                             int classIndex = getEquipmentClassFromID(s);
                             int otherResID = -1;
-                            if (parties[selectedCellY][selectedCellX].getEquipment(classIndex) != -1) {
-                                otherResID = getResIndex(getEquipmentTypeID(classIndex, parties[selectedCellY][selectedCellX].getEquipment(classIndex)));
+                            if (classIndex != -1) {
+                                if (parties[selectedCellY][selectedCellX].getEquipment(classIndex) != -1) {
+                                    otherResID = getResIndex(getEquipmentTypeID(classIndex, parties[selectedCellY][selectedCellX].getEquipment(classIndex)));
+                                }
+                                if (otherResID != -1 && parties[selectedCellY][selectedCellX].getEquipment(classIndex) != -1 && isEquipmentCollectionAllowed(selectedCellX, selectedCellY, classIndex, parties[selectedCellY][selectedCellX].getEquipment(classIndex))) {
+                                    players[turn].resources[otherResID] += parties[selectedCellY][selectedCellX].getEquipmentQuantity(classIndex);
+                                }
+                                parties[selectedCellY][selectedCellX].setEquipment(classIndex, -1, 0);  // Set it to empty after
                             }
-                            if (otherResID != -1 && parties[selectedCellY][selectedCellX].getEquipment(classIndex) != -1 && isEquipmentCollectionAllowed(selectedCellX, selectedCellY, classIndex, parties[selectedCellY][selectedCellX].getEquipment(classIndex))) {
-                                players[turn].resources[otherResID] += parties[selectedCellY][selectedCellX].getEquipmentQuantity(classIndex);
-                            }
-                            parties[selectedCellY][selectedCellX].setEquipment(classIndex, -1, 0);  // Set it to empty after
                         }
                     } else {
                         // Recycle equipment if unequipping
@@ -1908,7 +1910,8 @@ public class Game extends State {
                         break;
                     case "equipment manager":
                         for (int[] equipmentChange : ((EquipmentManager) getElement("equipment manager", "party management")).getEquipmentToChange()) {
-                            postEvent(new ChangeEquipment(equipmentChange[0], equipmentChange[1]));
+                            if (equipmentChange[0] >= 0)
+                                postEvent(new ChangeEquipment(equipmentChange[0], equipmentChange[1]));
                         }
                         updatePartyManagementProficiencies();
                         break;

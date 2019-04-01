@@ -218,13 +218,22 @@ public class Party {
     }
 
     public void setEquipment(int classIndex, int equipmentIndex, int quantity) {
-        equipment[classIndex] = equipmentIndex;
-        equipmentQuantities[classIndex] = quantity;
-        LOGGER_GAME.finer(String.format("changing equipment for party with id:'%s' which now has equipment:%s", id, Arrays.toString(equipment)));
+        if (classIndex >= 0) {
+            equipment[classIndex] = equipmentIndex;
+            equipmentQuantities[classIndex] = quantity;
+            LOGGER_GAME.finer(String.format("changing equipment for party with id:'%s' which now has equipment:%s", id, Arrays.toString(equipment)));
+        } else {
+            LOGGER_GAME.warning("Attempted to set equipment for invalid class: " + classIndex);
+        }
     }
 
     public int getEquipment(int classIndex) {
-        return equipment[classIndex];
+        if (classIndex >= 0) {
+            return equipment[classIndex];
+        } else {
+            LOGGER_GAME.warning("Attempted to get equipment for invalid class: " + classIndex);
+            return -1;
+        }
     }
 
     public int[] splittedQuantities(int numUnitsSplitted){
