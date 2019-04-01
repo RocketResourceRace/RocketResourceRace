@@ -21,7 +21,7 @@ public class DropDown extends Element {
     int textSize;
     String name;
     public String optionTypes;
-    protected boolean expanded;
+    boolean expanded;
     private boolean postExpandedEvent;
 
     public DropDown(int x, int y, int w, int h, int bgColour, String name, String optionTypes, int textSize) {
