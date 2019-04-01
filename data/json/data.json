@@ -70,7 +70,7 @@
       "movement cost": 28,
       "sight cost": 6,
       "sight bonus": -8
-    },
+    }
   ],
 
   "tasks":[
@@ -136,7 +136,7 @@
         "turns": 5,
         "building": "Sawmill",
         "terrain": "grass"
-      },
+      }
     },
     {
       "id": "Build Homes",
@@ -442,7 +442,7 @@
         {"id": "wood","quantity":0.2}
       ],
       "consumption":[
-        {"id": "food","quantity":0.2},
+        {"id": "food","quantity":0.2}
       ],
       "buildings":["Sawmill"]
     },
@@ -483,7 +483,7 @@
       ],
       "consumption":[
         {"id": "food","quantity":0.2},
-        {"id": "wood","quantity":1},
+        {"id": "wood","quantity":1}
       ],
       "buildings":["Blacksmith"]
     },
@@ -496,7 +496,7 @@
       ],
       "consumption":[
         {"id": "food","quantity":0.2},
-        {"id": "metal","quantity":1},
+        {"id": "metal","quantity":1}
       ],
       "buildings":["Blacksmith"]
     },
@@ -510,7 +510,7 @@
       "consumption":[
         {"id": "food","quantity":0.2},
         {"id": "wood","quantity":2},
-        {"id": "metal","quantity":2},
+        {"id": "metal","quantity":2}
       ],
       "buildings":["Blacksmith"]
     },
@@ -524,7 +524,7 @@
       "consumption":[
         {"id": "food","quantity":0.2},
         {"id": "wood","quantity":0.5},
-        {"id": "metal","quantity":0.2},
+        {"id": "metal","quantity":0.2}
       ],
       "buildings":["Blacksmith"]
     },
@@ -537,7 +537,7 @@
       ],
       "consumption":[
         {"id": "food","quantity":0.2},
-        {"id": "wood","quantity":0.5},
+        {"id": "wood","quantity":0.5}
       ],
       "buildings":["Blacksmith"]
     },
@@ -551,7 +551,7 @@
       "consumption":[
         {"id": "food","quantity":0.2},
         {"id": "wood","quantity":0.5},
-        {"id": "metal","quantity":0.02},
+        {"id": "metal","quantity":0.02}
       ],
       "buildings":["Blacksmith"]
     },
@@ -565,7 +565,7 @@
       "consumption":[
         {"id": "food","quantity":0.2},
         {"id": "wood","quantity":1},
-        {"id": "metal","quantity":0.05},
+        {"id": "metal","quantity":0.05}
       ],
       "buildings":["Blacksmith"]
     },
@@ -581,7 +581,7 @@
         {"id": "stone","quantity":0.01},
         {"id": "gunpowder","quantity":0.1},
         {"id": "wood","quantity":1.5},
-        {"id": "metal","quantity":0.5},
+        {"id": "metal","quantity":0.5}
       ],
       "buildings":["Blacksmith"]
     },
@@ -597,7 +597,7 @@
         {"id": "stone","quantity":0.02},
         {"id": "gunpowder","quantity":0.2},
         {"id": "wood","quantity":2},
-        {"id": "metal","quantity":1.5},
+        {"id": "metal","quantity":1.5}
       ],
       "buildings":["Blacksmith"]
     },
@@ -612,7 +612,7 @@
         {"id": "food","quantity":0.2},
         {"id": "gunpowder","quantity":0.5},
         {"id": "wood","quantity":1},
-        {"id": "metal","quantity":4},
+        {"id": "metal","quantity":4}
       ],
       "buildings":["Factory"]
     },
@@ -628,7 +628,7 @@
         {"id": "gunpowder","quantity":2},
         {"id": "wood","quantity":1},
         {"id": "metal","quantity":10},
-        {"id": "gears","quantity":2},
+        {"id": "gears","quantity":2}
       ],
       "buildings":["Factory"]
     },
@@ -640,7 +640,7 @@
         {"id": "horse","quantity":0.05}
       ],
       "consumption":[
-        {"id": "food","quantity":1},
+        {"id": "food","quantity":1}
       ],
       "buildings":["Stable"]
     },
@@ -653,7 +653,7 @@
       ],
       "consumption":[
         {"id": "food","quantity":2},
-        {"id": "wood","quantity":0.2},
+        {"id": "wood","quantity":0.2}
       ],
       "buildings":["Stable"]
     },
@@ -667,7 +667,7 @@
       "consumption":[
         {"id": "food","quantity":0.2},
         {"id": "metal","quantity":3},
-        {"id": "gears","quantity":1},
+        {"id": "gears","quantity":1}
       ],
       "buildings":["Factory"]
     },
@@ -681,7 +681,7 @@
       "consumption":[
         {"id": "food","quantity":0.2},
         {"id": "metal","quantity":2},
-        {"id": "gears","quantity":0.5},
+        {"id": "gears","quantity":0.5}
       ],
       "buildings":["Factory"]
     },
@@ -695,7 +695,7 @@
       "consumption":[
         {"id": "food","quantity":0.2},
         {"id": "metal","quantity":0.1},
-        {"id": "wood","quantity":0.2},
+        {"id": "wood","quantity":0.2}
       ],
       "buildings":["Blacksmith"]
     },
@@ -710,7 +710,7 @@
         {"id": "food","quantity":0.2},
         {"id": "metal","quantity":0.5},
         {"id": "wood","quantity":0.5},
-        {"id": "gears","quantity":0.2},
+        {"id": "gears","quantity":0.2}
       ],
       "buildings":["Factory"]
     },
@@ -723,7 +723,7 @@
       ],
       "consumption":[
         {"id": "food","quantity":0.2},
-        {"id": "wood","quantity":0.11},
+        {"id": "wood","quantity":0.11}
       ],
       "buildings":["Kiln"]
     },
@@ -736,7 +736,7 @@
       ],
       "consumption":[
         {"id": "food","quantity":0.2},
-        {"id": "metal","quantity":0.5},
+        {"id": "metal","quantity":0.5}
       ],
       "buildings":["Factory"]
     },
@@ -749,7 +749,7 @@
       ],
       "consumption":[
         {"id": "food","quantity":0.2},
-        {"id": "wood","quantity":0.01},
+        {"id": "wood","quantity":0.01}
       ],
       "terrain": ["quarry site clay"],
       "buildings":["Quarry"]
@@ -763,7 +763,7 @@
       ],
       "consumption":[
         {"id": "food","quantity":0.2},
-        {"id": "clay","quantity":0.1},
+        {"id": "clay","quantity":0.1}
       ],
       "buildings":["Kiln"]
     },
@@ -777,7 +777,7 @@
       "consumption":[
         {"id": "food","quantity":0.2},
         {"id": "sulphur","quantity":0.5},
-        {"id": "saltpeter","quantity":0.5},
+        {"id": "saltpeter","quantity":0.5}
       ],
       "buildings":["Factory"]
     },
@@ -785,13 +785,13 @@
       "id": "Produce Sulphur",
       "img": "produce.png",
       "obj": "produce.obj",
-      "description" : "Produce sulphur from urine",
+      "description" : "Produce sulphur",
       "production":[
         {"id": "sulphur","quantity":0.05}
       ],
       "consumption":[
-        {"id": "food","quantity":0.2},
-      ],
+        {"id": "food","quantity":0.2}
+      ]
     },
     {
       "id": "Produce Saltpeter",
@@ -802,7 +802,7 @@
       ],
       "consumption":[
         {"id": "food","quantity":0.2},
-        {"id": "wood","quantity":0.01},
+        {"id": "wood","quantity":0.01}
       ],
       "buildings":["Mine"]
     },
@@ -815,17 +815,17 @@
       "buildings":["Rocket Factory"],
       "consumption":[
         {"id": "food","quantity":0.2}
-      ],
+      ]
     },
     {
       "id": "Construction Mid",
       "img": "construction.png",
-      "terrain": [],
+      "terrain": []
     },
     {
       "id": "Construction End",
       "img": "construction.png",
-      "terrain": [],
+      "terrain": []
     },
     {
       "id": "Build Wooden Tower",
@@ -995,7 +995,7 @@
     {
       "id": "Mine",
       "img": ["mine.png"],
-      "obj": ["mine.obj"],
+      "obj": ["mine.obj"]
     },
     {
       "id": "Smelter",
@@ -1070,7 +1070,7 @@
       "id": "Stable",
       "img": ["stable.png"],
       "obj": ["stables.obj"]
-    },
+    }
   ],
 
   "resources":[
@@ -1230,7 +1230,7 @@
       "id": "power tools",
       "resource manager": 0,
       "is equipment": true
-    },
+    }
   ],
 
   "proficiencies":[
@@ -1281,7 +1281,7 @@
     "ranged bombardment defence": 0.1,
     "constructing building": 0.1,
     "moving": 0.001,
-    "training": 0.02,
+    "training": 0.02
   },
 
   "equipment":[
@@ -1313,7 +1313,7 @@
           "speed": -0.5,
           "defence": 4,
           "valid collection sites": ["Armoury", "Blacksmith"]
-        },
+        }
       ]
     },
 
@@ -1394,8 +1394,8 @@
           "speed": 1.5,
           "ranged attack": 10,
           "valid collection sites": ["Armoury", "Factory"],
-          "other class blocking": ["mount", "armour"],
-        },
+          "other class blocking": ["mount", "armour"]
+        }
       ]
     },
 
@@ -1433,8 +1433,8 @@
           "speed": 3,
           "defence": 5,
           "valid collection sites": ["Armoury", "Factory"],
-          "other class blocking": ["armour"],
-        },
+          "other class blocking": ["armour"]
+        }
       ]
     },
 
@@ -1456,9 +1456,9 @@
           "img": "power tools.png",
           "building speed": 2,
           "valid collection sites": ["Armoury", "Factory"]
-        },
+        }
       ]
-    },
+    }
   ],
 
   "tooltips":{
