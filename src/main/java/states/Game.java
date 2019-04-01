@@ -2275,11 +2275,14 @@ public class Game extends State {
                     tooltip.setMoveButton();
                     tooltip.show();
                 } else if (getElement("stock up button", "party management").mouseOver() && getPanel("party management").isVisible()) {
-                    if (((Button)getElement("stock up button", "party management")).active) {
+                    if (((Button) getElement("stock up button", "party management")).active) {
                         tooltip.setStockUpAvailable(parties[selectedCellY][selectedCellX], players[turn].resources);
                     } else {
                         tooltip.setStockUpUnavailable(parties[selectedCellY][selectedCellX]);
                     }
+                    tooltip.show();
+                } else if (getElement("resource summary", "bottom bar").mouseOver()) {
+                    tooltip.setText(((ResourceSummary)getElement("resource summary", "bottom bar")).getResourceUnderMouse());
                     tooltip.show();
                 } else if (map.mouseOver()) {
                     Cell[][] visibleCells = players[turn].visibleCells;

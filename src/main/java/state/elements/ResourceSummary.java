@@ -141,19 +141,21 @@ public class ResourceSummary extends Element {
     public void draw(PGraphics panelCanvas) {
         int cw = 0;
         int w, yLevel, tw = totalWidth();
+        this.w = tw;
+        this.x=papplet.width-tw;
         panelCanvas.pushStyle();
         panelCanvas.textAlign(LEFT, TOP);
         panelCanvas.fill(120);
-        panelCanvas.rect(papplet.width-tw-x-GAP/2f, y, tw, h);
+        panelCanvas.rect(x-GAP/2f, y, tw, h);
         panelCanvas.rectMode(CORNERS);
         for (int i=numRes-1; i>=0; i--) {
             if (gameData.getJSONArray("resources").getJSONObject(i).getInt("resource manager") <= ((expanded) ? 0:1)) continue;
             w = columnWidth(i);
             panelCanvas.fill(getFill(i));
             panelCanvas.textFont(getFont(10*JSONManager.loadFloatSetting("text scale")));
-            panelCanvas.rect(papplet.width-cw+x-GAP/2, y, papplet.width-cw+x-GAP/2f-(w+GAP), y+panelCanvas.textAscent()+panelCanvas.textDescent());
+            panelCanvas.rect(papplet.width-cw-GAP/2f, y, papplet.width-cw-GAP/2f-(w+GAP), y+panelCanvas.textAscent()+panelCanvas.textDescent());
             cw += w+GAP;
-            panelCanvas.line(papplet.width-cw+x-GAP/2, y, papplet.width-cw+x-GAP/2, y+h);
+            panelCanvas.line(papplet.width-cw-GAP/2f, y, papplet.width-cw-GAP/2f, y+h);
             panelCanvas.fill(0);
 
             yLevel=0;
@@ -179,5 +181,20 @@ public class ResourceSummary extends Element {
             //yLevel += panelCanvas.textAscent()+panelCanvas.textDescent();
         }
         panelCanvas.popStyle();
+    }
+
+    public String getResourceUnderMouse() {
+        int cw = 0;
+        int w;
+        for (int i=numRes-1; i>=0; i--) {
+            if (gameData.getJSONArray("resources").getJSONObject(i).getInt("resource manager") <= ((expanded) ? 0 : 1))
+                continue;
+            w = columnWidth(i);
+            cw += w+GAP;
+            if (papplet.width-cw+x-GAP/2<papplet.mouseX) {
+                return getResString(i);
+            }
+        }
+        return getResString(0);
     }
 }
