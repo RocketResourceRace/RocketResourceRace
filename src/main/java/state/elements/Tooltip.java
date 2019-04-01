@@ -16,7 +16,7 @@ import static util.Util.papplet;
 public class Tooltip extends MultiLineTextBox {
     ArrayList<TooltipElement> elements;
     public Tooltip() {
-        super(0, 0, -1, -1, papplet.color(200, 240), 0, 0, (int)(8* JSONManager.loadFloatSetting("text scale")), LEFT, TOP, "");
+        super(0, 0, -1, -1, papplet.color(200, 240), 0, 0, (int)(6 * JSONManager.loadFloatSetting("text scale")), LEFT, TOP, "", 2);
         hide();
         elements = new ArrayList<>();
     }

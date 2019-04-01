@@ -26,6 +26,7 @@ public class MultiLineTextBox extends Element {
     public int textColour;
     private String text;
     ArrayList<String> lines;
+    private int strokeWeight;
 
     MultiLineTextBox(int x, int y, int w, int h, int bgColour, int strokeColour, int textColour, int textSize, int textAlignx, int textAligny, String text) {
         //w=-1 means get width from text
@@ -41,6 +42,27 @@ public class MultiLineTextBox extends Element {
         this.textAlignx = textAlignx;
         this.textAligny = textAligny;
         this.text = text;
+
+        this.strokeWeight = 3;
+
+        setLines(text);
+    }
+
+    MultiLineTextBox(int x, int y, int w, int h, int bgColour, int strokeColour, int textColour, int textSize, int textAlignx, int textAligny, String text, int strokeWeight) {
+        //w=-1 means get width from text
+        //h=-1 means get height from text
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.bgColour = bgColour;
+        this.strokeColour = strokeColour;
+        this.textColour = textColour;
+        this.textSize = textSize;
+        this.textAlignx = textAlignx;
+        this.textAligny = textAligny;
+        this.text = text;
+        this.strokeWeight = strokeWeight;
 
         setLines(text);
     }
@@ -93,7 +115,7 @@ public class MultiLineTextBox extends Element {
             panelCanvas.fill(bgColour);
 
             panelCanvas.stroke(strokeColour);
-            panelCanvas.strokeWeight(3);
+            panelCanvas.strokeWeight(strokeWeight);
             int tx = x;
             int ty = y;
             if (textAlignx==CENTER) {
