@@ -46,7 +46,7 @@
           "h": 3,
           "text": "Exit",
           "tooltip": "Leave Rocket Resource Race"
-        },
+        }
       ]
     },
 
@@ -95,7 +95,7 @@
           "h": 3,
           "text": "Back",
           "new state": "startup"
-        },
+        }
       ]
     },
 
@@ -120,7 +120,7 @@
           "y": 4,
           "w": 12,
           "h": 3,
-          "text": "Local Network",
+          "text": "Local Network"
         },
         {
           "id": "back",
@@ -131,7 +131,7 @@
           "h": 3,
           "text": "Back",
           "new state": "startup"
-        },
+        }
       ]
     },
 
@@ -146,7 +146,7 @@
           "y": 0,
           "w": 12,
           "h": 3,
-          "text": "Start Game",
+          "text": "Start Game"
         },
         {
           "id": "game options",
@@ -157,7 +157,7 @@
           "h": 3,
           "text": "Game Options",
           "new state": "new game settings"
-        },
+        }
       ]
     },
 
@@ -172,7 +172,7 @@
           "y": -4,
           "w": 12,
           "h": 3,
-          "text": "Start Game",
+          "text": "Start Game"
         },
         {
           "id": "reset default map settings",
@@ -181,7 +181,7 @@
           "y": -8,
           "w": 10,
           "h": 2,
-          "text": "Default Settings",
+          "text": "Default Settings"
         },
         {
           "id": "party size",
@@ -197,7 +197,7 @@
           "upper": 300,
           "step": 20,
           "minor": 10,
-          "major": 5,
+          "major": 5
         },
         {
           "id": "starting food",
@@ -210,7 +210,7 @@
           "text": "Starting Food",
           "setting": "starting food",
           "options": ["300", "500", "800", "1200", "10000"],
-          "options type": "ints",
+          "options type": "ints"
         },
         {
           "id": "starting wood",
@@ -223,7 +223,7 @@
           "text": "Starting Wood",
           "setting": "starting wood",
           "options": ["200", "300", "500", "1000", "5000"],
-          "options type": "ints",
+          "options type": "ints"
         },
         {
           "id": "starting stone",
@@ -236,7 +236,7 @@
           "text": "Starting Stone",
           "setting": "starting stone",
           "options": ["0", "200", "500", "2000"],
-          "options type": "ints",
+          "options type": "ints"
         },
         {
           "id": "starting metal",
@@ -249,7 +249,7 @@
           "text": "Starting Metal",
           "setting": "starting metal",
           "options": ["0", "100", "300", "1000"],
-          "options type": "ints",
+          "options type": "ints"
         },
         {
           "id": "water level",
@@ -265,7 +265,7 @@
           "upper": 1.0,
           "step": 0.05,
           "minor": 20,
-          "major": 5,
+          "major": 5
         },
         {
           "id": "hills height",
@@ -281,7 +281,7 @@
           "upper": 1.0,
           "step": 0.02,
           "minor": 25,
-          "major": 5,
+          "major": 5
         },
         {
           "id": "forest weighting",
@@ -297,7 +297,7 @@
           "upper": 1,
           "step": 0.05,
           "minor": 20,
-          "major": 5,
+          "major": 5
         },
         {
           "id": "grass weighting",
@@ -313,7 +313,7 @@
           "upper": 1,
           "step": 0.05,
           "minor": 20,
-          "major": 5,
+          "major": 5
         },
         {
           "id": "sand weighting",
@@ -329,7 +329,7 @@
           "upper": 1,
           "step": 0.05,
           "minor": 20,
-          "major": 5,
+          "major": 5
         },
         {
           "id": "map size",
@@ -345,7 +345,7 @@
           "upper": 200,
           "step": 10,
           "minor": 20,
-          "major": 5,
+          "major": 5
         },
         {
           "id": "new game back",
@@ -356,7 +356,7 @@
           "h": 3,
           "text": "Back",
           "new state": "game types"
-        },
+        }
       ]
     },
 
@@ -372,7 +372,7 @@
           "w": 12,
           "h": 3,
           "text": "Back",
-          "new state": "startup",
+          "new state": "startup"
         },
         {
           "id": "load",
@@ -381,8 +381,8 @@
           "y": 6,
           "w": 12,
           "h": 3,
-          "text": "Load Game",
-        },
+          "text": "Load Game"
+        }
       ]
     },
 
@@ -418,7 +418,7 @@
           "upper": 2,
           "step": 0.05,
           "minor": 20,
-          "major": 5,
+          "major": 5
         },
         {
           "id": "forest density",
@@ -430,7 +430,7 @@
           "text": "Forest Density",
           "setting": "forest density",
           "options": ["3", "5", "10", "20"],
-          "options type": "ints",
+          "options type": "ints"
         },
         {
           "id": "terrain texture res",
@@ -442,7 +442,7 @@
           "text": "Terrain Texture Res",
           "setting": "terrain texture resolution",
           "options": ["16", "32", "64"],
-          "options type": "ints",
+          "options type": "ints"
         },
         {
           "id": "terrain detail",
@@ -454,7 +454,7 @@
           "text": "Terrain Detail",
           "setting": "terrain detail",
           "options": ["1", "2", "4"],
-          "options type": "ints",
+          "options type": "ints"
         },
         {
           "id": "framerate cap",
@@ -496,7 +496,7 @@
           "y": 12,
           "w": 12,
           "h": 3,
-          "text": "Apply",
+          "text": "Apply"
         },
         {
           "id": "revert",
@@ -505,7 +505,7 @@
           "y": 12,
           "w": 12,
           "h": 3,
-          "text": "Revert",
+          "text": "Revert"
         },
         {
           "id": "settings back",
@@ -515,8 +515,8 @@
           "w": 12,
           "h": 3,
           "text": "Back",
-          "new state": "settings",
-        },
+          "new state": "settings"
+        }
       ]
     },
 
@@ -549,7 +549,7 @@
           "upper": 1,
           "step": 0.05,
           "minor": 20,
-          "major": 5,
+          "major": 5
         },
         {
           "id": "settings back",
@@ -559,9 +559,9 @@
           "w": 12,
           "h": 3,
           "text": "Back",
-          "new state": "settings",
-        },
+          "new state": "settings"
+        }
       ]
-    },
+    }
   ]
 }
