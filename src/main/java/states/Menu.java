@@ -46,6 +46,7 @@ public class Menu extends State {
         tooltip = (Tooltip)getElement("0tooltip", "overlay");
         hidePanels();
         getPanel(currentPanel).setVisible(true);
+        getPanel("overlay").setVisible(true);
         stateChangers = JSONManager.getChangeStateButtons();
         settingChangers = JSONManager.getChangeSettingButtons();
 

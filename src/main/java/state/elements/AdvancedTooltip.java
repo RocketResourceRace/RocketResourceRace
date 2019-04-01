@@ -445,11 +445,6 @@ public class AdvancedTooltip extends Tooltip {
             throw e;
         }
     }
-
-
-
-    public void refresh() {
-    }
 }
 
 

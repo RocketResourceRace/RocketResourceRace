@@ -80,4 +80,8 @@ public class Element {
     public boolean pointOver() {
         return papplet.mouseX >= x && papplet.mouseX <= x+w && papplet.mouseY >= y && papplet.mouseY <= y+h;
     }
+
+    public boolean mouseOver() {
+        return papplet.mouseX >= x+xOffset && papplet.mouseX <= x+xOffset+w && papplet.mouseY >= y+yOffset && papplet.mouseY <= y+yOffset+h;
+    }
 }

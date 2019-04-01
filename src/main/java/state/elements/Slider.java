@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 
 import static processing.core.PApplet.*;
-import static processing.core.PConstants.*;
 import static util.Font.getFont;
 import static util.Logging.LOGGER_MAIN;
 import static util.Util.*;
@@ -19,51 +18,39 @@ public class Slider extends Element {
     public int y;
     private int w;
     public int h;
-    private int cx;
-    private int cy;
     private int major;
     private int minor;
-    private int lw;
-    private int lx;
-    private int padding = 20;
     private BigDecimal value, step, upper, lower;
     private float knobSize;
-    private int KnobColour, bgColour, strokeColour, scaleColour;
-    private boolean horizontal, pressed=false;
-    final int boxHeight = 20, boxWidth = 10;
-    private final int PRESSEDOFFSET = 50;
+    private int KnobColour;
+    private int strokeColour;
+    private int scaleColour;
+    private boolean pressed=false;
     private String name;
-    boolean visible = true;
 
     public Slider(int x, int y, int w, int h, int KnobColour, int bgColour, int strokeColour, int scaleColour, float lower, float value, float upper, int major, int minor, float step, boolean horizontal, String name) {
-        this.lx = x;
         this.x = x;
         this.y = y;
-        this.lw = w;
         this.w = w;
         this.h = h;
         this.KnobColour = KnobColour;
-        this.bgColour = bgColour;
         this.strokeColour = strokeColour;
         this.scaleColour = scaleColour;
         this.major = major;
         this.minor = minor;
         this.upper = new BigDecimal(""+upper);
         this.lower = new BigDecimal(""+lower);
-        this.horizontal = horizontal;
         this.step = new BigDecimal(""+step);
         this.value = new BigDecimal(""+value);
         this.name = name;
     }
 
-    public void scaleKnob(PGraphics panelCanvas, BigDecimal value) {
+    private void scaleKnob(PGraphics panelCanvas, BigDecimal value) {
         panelCanvas.textFont(getFont(8*JSONManager.loadFloatSetting("text scale")));
         this.knobSize = max(this.knobSize, panelCanvas.textWidth(""+getInc(value)));
     }
     public void transform(int x, int y, int w, int h) {
-        this.lx = x;
         this.x = x;
-        this.lw = w;
         this.w = w;
         this.y = y;
         this.h = h;
@@ -99,16 +86,16 @@ public class Slider extends Element {
     }
 
     public ArrayList<String> mouseEvent(String eventType, int button) {
-        ArrayList<String> events = new ArrayList<String>();
+        ArrayList<String> events = new ArrayList<>();
         if (button == LEFT) {
-            if (mouseOver() && eventType == "mousePressed") {
+            if (mouseOver() && eventType.equals("mousePressed")) {
                 pressed = true;
                 setValue((new BigDecimal(papplet.mouseX-xOffset-x)).divide(new BigDecimal(w), 15, BigDecimal.ROUND_HALF_EVEN).multiply(upper.subtract(lower)).add(lower));
                 events.add("valueChanged");
-            } else if (eventType == "mouseReleased") {
+            } else if (eventType.equals("mouseReleased")) {
                 pressed = false;
             }
-            if (eventType == "mouseDragged" && pressed) {
+            if (eventType.equals("mouseDragged") && pressed) {
                 setValue((new BigDecimal(papplet.mouseX-xOffset-x)).divide(new BigDecimal(w), 15, BigDecimal.ROUND_HALF_EVEN).multiply(upper.subtract(lower)).add(lower));
                 events.add("valueChanged");
             }
@@ -116,7 +103,7 @@ public class Slider extends Element {
         return events;
     }
 
-    public Boolean mouseOver() {
+    public boolean mouseOver() {
         try {
             BigDecimal range = upper.subtract(lower);
             int xKnobPos = round(x+(value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue())-knobSize/2);
@@ -132,7 +119,7 @@ public class Slider extends Element {
       return mouseOver();
     }
 
-    public BigDecimal getInc(BigDecimal i) {
+    private BigDecimal getInc(BigDecimal i) {
       return i.stripTrailingZeros();
     }
 
@@ -148,20 +135,22 @@ public class Slider extends Element {
         panelCanvas.stroke(strokeColour);
 
 
-        for (int i=0; i<=minor; i++) {
+        int padding = 20;
+        for (int i = 0; i<=minor; i++) {
             panelCanvas.fill(scaleColour);
-            panelCanvas.line(x+w*i/minor, y+padding+(h-padding)/6, x+w*i/minor, y+5*(h-padding)/6+padding);
+            panelCanvas.line(x+w*i/minor, y+ padding +(h- padding)/6f, x+w*i/minor, y+5*(h- padding)/6f+ padding);
         }
         for (int i=0; i<=major; i++) {
             panelCanvas.fill(scaleColour);
             panelCanvas.textFont(getFont(10*JSONManager.loadFloatSetting("text scale")));
             panelCanvas.textAlign(CENTER);
-            panelCanvas.text(getInc((new BigDecimal(""+i).multiply(range).divide(new BigDecimal(""+major), 15, BigDecimal.ROUND_HALF_EVEN).add(lower))).toPlainString(), x+w*i/major, y+padding);
-            panelCanvas.line(x+w*i/major, y+padding, x+w*i/major, y+h);
+            panelCanvas.text(getInc((new BigDecimal(""+i).multiply(range).divide(new BigDecimal(""+major), 15, BigDecimal.ROUND_HALF_EVEN).add(lower))).toPlainString(), x+w*i/major, y+ padding);
+            panelCanvas.line(x+w*i/major, y+ padding, x+w*i/major, y+h);
         }
 
         if (pressed) {
-            panelCanvas.fill(min(r-PRESSEDOFFSET, 255), min(g-PRESSEDOFFSET, 255), min(b+PRESSEDOFFSET, 255));
+            int PRESSEDOFFSET = 50;
+            panelCanvas.fill(min(r- PRESSEDOFFSET, 255), min(g- PRESSEDOFFSET, 255), min(b+ PRESSEDOFFSET, 255));
         } else {
             panelCanvas.fill(KnobColour);
         }
@@ -170,14 +159,15 @@ public class Slider extends Element {
         panelCanvas.textAlign(CENTER);
         panelCanvas.rectMode(CENTER);
         scaleKnob(panelCanvas, value);
-        panelCanvas.rect(x+value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue(), y+h/2+padding/2, knobSize, boxHeight);
+        int boxHeight = 20;
+        panelCanvas.rect(x+value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue(), y+h/2f+ padding /2f, knobSize, boxHeight);
         panelCanvas.rectMode(CORNER);
         panelCanvas.fill(scaleColour);
-        panelCanvas.text(getInc(value).toPlainString(), x+value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue(), y+h/2+boxHeight/4+padding/2);
+        panelCanvas.text(getInc(value).toPlainString(), x+value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue(), y+h/2f+ boxHeight /4f+ padding /2f);
         panelCanvas.stroke(0);
         panelCanvas.textAlign(CENTER);
         panelCanvas.stroke(255, 0, 0);
-        panelCanvas.line(x+value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight/2+padding/2, x+value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue(), y+h/2-boxHeight+padding/2);
+        panelCanvas.line(x+value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue(), y+h/2- boxHeight /2+ padding /2, x+value.floatValue()/range.floatValue()*w-lower.floatValue()*w/range.floatValue(), y+h/2- boxHeight + padding /2);
         panelCanvas.stroke(0);
         panelCanvas.fill(0);
         panelCanvas.textFont(getFont(10* JSONManager.loadFloatSetting("text scale")));

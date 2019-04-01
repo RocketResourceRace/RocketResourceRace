@@ -64,7 +64,7 @@ public class Button extends MultiLineTextBox {
         return events;
     }
 
-    public Boolean mouseOver() {
+    public boolean mouseOver() {
         return papplet.mouseX-xOffset >= x && papplet.mouseX-xOffset <= x+w && papplet.mouseY-yOffset >= y && papplet.mouseY-yOffset <= y+h;
     }
     public boolean pointOver() {

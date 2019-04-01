@@ -4,6 +4,7 @@ package json;
 import processing.core.PApplet;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
+import state.Element;
 import state.State;
 import state.elements.*;
 
@@ -836,27 +837,26 @@ public class JSONManager {
                     options = elem.getJSONArray("options").getStringArray();
                 }
 
-                if (!elem.isNull("tooltip")) {
-                    tooltip.addElement(x, y, w, h, elem.getString("tooltip"));
-                }
+
+                Element element;
 
                 // Check if there is a defualt value. If not try loading from settings
                 switch (type) {
                     case "button":
-                        state.addElement(id, new Button((int)x, (int)y, (int)w, (int)h, bgColour, strokeColour, textColour, textSize, CENTER, CENTER, text), panelID);
+                        element = new Button((int)x, (int)y, (int)w, (int)h, bgColour, strokeColour, textColour, textSize, CENTER, CENTER, text);
                         break;
                     case "slider":
                         if (elem.isNull("default value")) {
-                            state.addElement(id, new Slider((int)x, (int)y, (int)w, (int)h, papplet.color(150), bgColour, strokeColour, papplet.color(0), lower, loadFloatSetting(setting), upper, major, minor, step, true, text), panelID);
+                            element = new Slider((int)x, (int)y, (int)w, (int)h, papplet.color(150), bgColour, strokeColour, papplet.color(0), lower, loadFloatSetting(setting), upper, major, minor, step, true, text);
                         } else {
-                            state.addElement(id, new Slider((int)x, (int)y, (int)w, (int)h, papplet.color(150), bgColour, strokeColour, papplet.color(0), lower, elem.getFloat("default value"), upper, major, minor, step, true, text), panelID);
+                            element = new Slider((int)x, (int)y, (int)w, (int)h, papplet.color(150), bgColour, strokeColour, papplet.color(0), lower, elem.getFloat("default value"), upper, major, minor, step, true, text);
                         }
                         break;
                     case "tickbox":
                         if (elem.isNull("default value")) {
-                            state.addElement(id, new Tickbox((int)x, (int)y, (int)w, (int)h, loadBooleanSetting(setting), text), panelID);
+                            element = new Tickbox((int)x, (int)y, (int)w, (int)h, loadBooleanSetting(setting), text);
                         } else {
-                            state.addElement(id, new Tickbox((int)x, (int)y, (int)w, (int)h, elem.getBoolean("default value"), text), panelID);
+                            element = new Tickbox((int)x, (int)y, (int)w, (int)h, elem.getBoolean("default value"), text);
                         }
                         break;
                     case "dropdown":
@@ -877,11 +877,15 @@ public class JSONManager {
                         } else {
                             dd.setValue(elem.getString("default value"));
                         }
-                        state.addElement(id, dd, panelID);
+                        element = dd;
                         break;
                     default:
-                        LOGGER_MAIN.warning("Invalid element type: "+ type);
-                        break;
+                        LOGGER_MAIN.severe("Invalid element type: "+ type);
+                        throw new RuntimeException();
+                }
+                state.addElement(id, element, panelID);
+                if (!elem.isNull("tooltip")) {
+                    tooltip.addElement(element, elem.getString("tooltip"));
                 }
             }
         }

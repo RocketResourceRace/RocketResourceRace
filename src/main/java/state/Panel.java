@@ -23,7 +23,7 @@ public class Panel {
     private int w;
     private int h;
     private int bgColour, strokeColour;
-    private PGraphics panelCanvas, elemGraphics;
+    private PGraphics panelCanvas;
 
     Panel(String id, int x, int y, int w, int h, Boolean visible, Boolean blockEvent, int bgColour, int strokeColour) {
         this.x = x;
