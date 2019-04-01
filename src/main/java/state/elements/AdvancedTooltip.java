@@ -19,7 +19,6 @@ import static util.Util.roundDp;
 import static util.Util.roundDpTrailing;
 
 public class AdvancedTooltip extends Tooltip {
-    public boolean visible;
     public boolean attacking;
 
 
@@ -434,11 +433,13 @@ public class AdvancedTooltip extends Tooltip {
             StringBuilder t = new StringBuilder();
             for (String building : buildings.keySet()) {
                 if (buildings.get(resource)>0) {
-                    t.append(String.format("%s: +%f", building, buildings.get(resource)));
+                    t.append(String.format("%s: <g>+%f</g>", building, buildings.get(resource)));
                 } else {
-                    t.append(String.format("%s: %f", building, buildings.get(resource)));
+                    t.append(String.format("%s: <r>%f</r>", building, buildings.get(resource)));
                 }
             }
+            setText(t.toString());
+            show();
         }
         catch (Exception e) {
             LOGGER_MAIN.log(Level.WARNING, "Error changing tooltip to resource: "+resource, e);

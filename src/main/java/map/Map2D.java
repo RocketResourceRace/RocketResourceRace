@@ -360,16 +360,16 @@ public class Map2D extends BaseMap implements Map {
                 for (int j = 0; j < partyImages[i].pixels.length; j++) {
                     tempTileImagesDark[i].pixels[j] = brighten(tempTileImagesDark[i].pixels[j], -20);
                 }
-          } else {
-              tempTileImages[i] = tileImages.get(tileType.getString("id")).copy();
-              tempTileImages[i].resize(ceil(blockSize), 0);
-              tempTileImagesDark[i] = tileImages.get(tileType.getString("id")).copy();
-              tempTileImagesDark[i].resize(ceil(blockSize), 0);
-              tempTileImagesDark[i].loadPixels();
-              for (int j = 0; j < tempTileImagesDark[i].pixels.length; j++) {
-                  tempTileImagesDark[i].pixels[j] = brighten(tempTileImagesDark[i].pixels[j], -100);
-              }
-          }
+            } else {
+                tempTileImages[i] = tileImages.get(tileType.getString("id")).copy();
+                tempTileImages[i].resize(ceil(blockSize), 0);
+                tempTileImagesDark[i] = tileImages.get(tileType.getString("id")).copy();
+                tempTileImagesDark[i].resize(ceil(blockSize), 0);
+                tempTileImagesDark[i].loadPixels();
+                for (int j = 0; j < tempTileImagesDark[i].pixels.length; j++) {
+                    tempTileImagesDark[i].pixels[j] = brighten(tempTileImagesDark[i].pixels[j], -100);
+                }
+            }
         }
         for (int i=0; i<gameData.getJSONArray("buildings").size(); i++) {
             JSONObject buildingType = gameData.getJSONArray("buildings").getJSONObject(i);
