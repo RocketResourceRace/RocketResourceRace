@@ -2294,6 +2294,7 @@ public class Game extends State {
                         } else if (mapInterceptX < mapWidth && mapInterceptY<mapHeight && mapInterceptX>=0 && mapInterceptY>=0 && nodes[mapInterceptY][mapInterceptX] != null) {
                             if (parties[selectedCellY][selectedCellX] != null) {
                                 map.updatePath(getPath(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, map.getMoveNodes()));
+                                map.updatePath(getPath(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, map.getMoveNodes()));
                             }
                             if (visibleCells[mapInterceptY][mapInterceptX] == null || visibleCells[mapInterceptY][mapInterceptX].getParty() == null) {
                                 //Moving into empty tile
