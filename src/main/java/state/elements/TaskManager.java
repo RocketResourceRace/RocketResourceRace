@@ -7,6 +7,7 @@ import processing.event.MouseEvent;
 import state.Element;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.logging.Level;
 
 import static processing.core.PApplet.*;
@@ -17,19 +18,18 @@ import static util.Logging.LOGGER_MAIN;
 import static util.Util.*;
 
 public class TaskManager extends Element {
-    ArrayList<String> options;
-    ArrayList<Integer> availableOptions;
-    ArrayList<Integer> availableButOverBudgetOptions;
+    private ArrayList<String> options;
+    private ArrayList<Integer> availableOptions;
+    private ArrayList<Integer> availableButOverBudgetOptions;
     int textSize;
-    int scroll;
-    int numDisplayed;
-    int oldH;
-    boolean taskMActive;
+    private int scroll;
+    private int numDisplayed;
+    private int oldH;
+    private boolean taskMActive;
     public boolean scrolling;
-    int bgColour, strokeColour;
-    private final int HOVERINGOFFSET = 80, ONOFFSET = -50;
-    final int SCROLLWIDTH = 20;
-    PImage[] resizedImages;
+    private int bgColour, strokeColour;
+    private final int SCROLLWIDTH = 20;
+    private PImage[] resizedImages;
 
     public TaskManager(int x, int y, int w, int textSize, int bgColour, int strokeColour, String[] options, int numDisplayed) {
         this.x = x;
@@ -39,13 +39,11 @@ public class TaskManager extends Element {
         this.h = 10;
         this.bgColour = bgColour;
         this.strokeColour = strokeColour;
-        this.options = new ArrayList<String>();
-        this.availableOptions = new ArrayList<Integer>();
-        this.availableButOverBudgetOptions = new ArrayList<Integer>();
+        this.options = new ArrayList<>();
+        this.availableOptions = new ArrayList<>();
+        this.availableButOverBudgetOptions = new ArrayList<>();
         removeAllOptions();
-        for (String option : options) {
-            this.options.add(option);
-        }
+        Collections.addAll(this.options, options);
         resetAvailable();
         taskMActive = true;
         resetScroll();
@@ -53,7 +51,7 @@ public class TaskManager extends Element {
         oldH = -1;
     }
 
-    public void updateImages(){
+    private void updateImages(){
         LOGGER_MAIN.finer("Resizing task images, h="+h);
         resizedImages = new PImage[taskImages.length];
         for (int i=0; i < taskImages.length; i ++){
@@ -64,7 +62,7 @@ public class TaskManager extends Element {
         }
     }
 
-    public void resetScroll(){
+    private void resetScroll(){
         scroll = 0;
         scrolling = false;
     }
@@ -81,14 +79,14 @@ public class TaskManager extends Element {
     }
     public void removeOption(String option) {
         LOGGER_MAIN.finer("Option removed: " + option);
-        for (int i=0; i <options.size(); i++) {
-            if (option.equals(options.get(i))) {
-                options.remove(i);
+        for (String option1: options) {
+            if (option.equals(option1)) {
+                options.remove(option1);
             }
         }
         resetScroll();
     }
-    public void removeAllOptions() {
+    private void removeAllOptions() {
         LOGGER_MAIN.finer("Options all removed");
         this.options.clear();
         resetScroll();
@@ -109,8 +107,8 @@ public class TaskManager extends Element {
     public void makeAvailable(String option) {
         try {
             LOGGER_MAIN.finer("Making option availalbe: " + option);
-            for (int i=0; i<availableOptions.size(); i++) {
-                if (options.get(availableOptions.get(i)).equals(option)) {
+            for (Integer availableOption : availableOptions) {
+                if (options.get(availableOption).equals(option)) {
                     return;
                 }
             }
@@ -130,8 +128,8 @@ public class TaskManager extends Element {
     public void makeAvailableButOverBudget(String option) {
         try {
             LOGGER_MAIN.finer("Making option available but over buject: " + option);
-            for (int i=0; i<availableButOverBudgetOptions.size(); i++) {
-                if (options.get(availableButOverBudgetOptions.get(i)).equals(option)) {
+            for (Integer availableButOverBudgetOption : availableButOverBudgetOptions) {
+                if (options.get(availableButOverBudgetOption).equals(option)) {
                     return;
                 }
             }
@@ -169,7 +167,7 @@ public class TaskManager extends Element {
         }
         resetScroll();
     }
-    public void selectAt(int j) {
+    private void selectAt(int j) {
         LOGGER_MAIN.finer("Selecting based on position, " + j);
         if (j < availableOptions.size()) {
             int temp = availableOptions.get(0);
@@ -215,6 +213,7 @@ public class TaskManager extends Element {
 
         // Draw current task box
         panelCanvas.strokeWeight(1);
+        int ONOFFSET = -50;
         panelCanvas.fill(brighten(bgColour, ONOFFSET));
         panelCanvas.stroke(strokeColour);
         panelCanvas.rect(x, y, w, h);
@@ -227,6 +226,7 @@ public class TaskManager extends Element {
 
         // Draw other tasks
         int j;
+        int HOVERINGOFFSET = 80;
         for (j=1; j < min(availableOptions.size()-scroll, numDisplayed); j++) {
             if (taskMActive && mouseOver(j) && getElemOnTop()) {
                 panelCanvas.fill(brighten(bgColour, HOVERINGOFFSET));
@@ -241,7 +241,7 @@ public class TaskManager extends Element {
             }
         }
         for (; j < min(availableButOverBudgetOptions.size()+availableOptions.size()-scroll, numDisplayed); j++) {
-            panelCanvas.fill(brighten(bgColour, HOVERINGOFFSET/2));
+            panelCanvas.fill(brighten(bgColour, HOVERINGOFFSET /2));
             panelCanvas.rect(x, y+h*j, w, h);
             panelCanvas.fill(120);
             panelCanvas.text(options.get(availableButOverBudgetOptions.get(j-min(availableOptions.size()-scroll, numDisplayed))), x+5+h, y+h*j);
@@ -265,12 +265,12 @@ public class TaskManager extends Element {
     }
 
     public ArrayList<String> mouseEvent(String eventType, int button) {
-        ArrayList<String> events = new ArrayList<String>();
+        ArrayList<String> events = new ArrayList<>();
         int d = availableOptions.size() + availableButOverBudgetOptions.size() - numDisplayed;
-        if (eventType == "mouseMoved") {
+        if (eventType.equals("mouseMoved")) {
             taskMActive = moveOver();
         }
-        if (eventType == "mouseClicked" && button == LEFT) {
+        if (eventType.equals("mouseClicked") && button == LEFT) {
             for (int j=1; j < availableOptions.size(); j++) {
                 if (mouseOver(j)) {
                     if (d <= 0 || papplet.mouseX-xOffset<x+w-SCROLLWIDTH) {
@@ -300,8 +300,8 @@ public class TaskManager extends Element {
     }
 
     public ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event) {
-        ArrayList<String> events = new ArrayList<String>();
-        if (eventType == "mouseWheel") {
+        ArrayList<String> events = new ArrayList<>();
+        if (eventType.equals("mouseWheel")) {
             float count = event.getCount();
             if (moveOver()) { // Check mouse over element
                 if (availableOptions.size() + availableButOverBudgetOptions.size() > numDisplayed) {

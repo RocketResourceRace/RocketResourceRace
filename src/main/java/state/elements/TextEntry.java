@@ -15,27 +15,11 @@ import static util.Util.*;
 
 public class TextEntry extends Element {
     StringBuilder text;
-    int x, y, w, h, textSize, textAlign, cursor, selected;
-    int textColour, boxColour, borderColour, selectionColour;
-    String allowedChars, name;
-    final int BLINKTIME = 500;
-    boolean texActive;
+    private int x, y, w, h, textSize, textAlign, cursor, selected;
+    private int textColour, boxColour, borderColour, selectionColour;
+    private String allowedChars, name;
+    private boolean texActive;
 
-    TextEntry(int x, int y, int w, int h, int textAlign, int textColour, int boxColour, int borderColour, String allowedChars) {
-        this.x = x;
-        this.y = y;
-        this.h = h;
-        this.w = w;
-        this.textColour = textColour;
-        this.textSize = 10;
-        this.textAlign = textAlign;
-        this.boxColour = boxColour;
-        this.borderColour = borderColour;
-        this.allowedChars = allowedChars;
-        text = new StringBuilder();
-        selectionColour = brighten(selectionColour, 150);
-        texActive = false;
-    }
     public TextEntry(int x, int y, int w, int h, int textAlign, int textColour, int boxColour, int borderColour, String allowedChars, String name) {
         this.x = x;
         this.y = y;
@@ -62,7 +46,8 @@ public class TextEntry extends Element {
     }
 
     public void draw(PGraphics panelCanvas) {
-        boolean showCursor = ((papplet.millis()/BLINKTIME)%2==0 || papplet.keyPressed) && texActive;
+        int BLINKTIME = 500;
+        boolean showCursor = ((papplet.millis()/ BLINKTIME)%2==0 || papplet.keyPressed) && texActive;
         panelCanvas.pushStyle();
 
         // Draw a box behind the text
@@ -99,7 +84,7 @@ public class TextEntry extends Element {
         panelCanvas.popStyle();
     }
 
-    public void resetSelection() {
+    private void resetSelection() {
         selected = cursor;
     }
     public void transform(int x, int y, int w, int h) {
@@ -109,7 +94,7 @@ public class TextEntry extends Element {
         this.h = h;
     }
 
-    public int getCursorPos(int mx, int my) {
+    private int getCursorPos(int mx, int my) {
         try {
             int i=0;
             for (; i<text.length(); i++) {
@@ -128,7 +113,7 @@ public class TextEntry extends Element {
         }
     }
 
-    public void doubleSelectWord() {
+    private void doubleSelectWord() {
         try {
             if (!(y <= papplet.mouseY-yOffset && papplet.mouseY-yOffset <= y+h)) {
                 return;
@@ -157,35 +142,40 @@ public class TextEntry extends Element {
     }
 
     public ArrayList<String> mouseEvent(String eventType, int button) {
-        ArrayList<String> events = new ArrayList<String>();
-        if (eventType.equals("mouseClicked")) {
-            if (button == LEFT) {
-                if (mouseOver()) {
-                    texActive = true;
+        ArrayList<String> events = new ArrayList<>();
+        switch (eventType) {
+            case "mouseClicked":
+                if (button == LEFT) {
+                    if (mouseOver()) {
+                        texActive = true;
+                    }
                 }
-            }
-        } else if (eventType.equals("mousePressed")) {
-            if (button == LEFT) {
-                cursor = round(between(0, getCursorPos(papplet.mouseX-xOffset, papplet.mouseY-yOffset), text.length()));
-                selected = getCursorPos(papplet.mouseX-xOffset, papplet.mouseY-yOffset);
-            }
-            if (!mouseOver()) {
-                texActive = false;
-            }
-        } else if (eventType.equals("mouseDragged")) {
-            if (button == LEFT) {
-                selected = getCursorPos(papplet.mouseX-xOffset, papplet.mouseY-yOffset);
-            }
-        } else if (eventType.equals("mouseDoubleClicked")) {
-            doubleSelectWord();
+                break;
+            case "mousePressed":
+                if (button == LEFT) {
+                    cursor = round(between(0, getCursorPos(papplet.mouseX - xOffset, papplet.mouseY - yOffset), text.length()));
+                    selected = getCursorPos(papplet.mouseX - xOffset, papplet.mouseY - yOffset);
+                }
+                if (!mouseOver()) {
+                    texActive = false;
+                }
+                break;
+            case "mouseDragged":
+                if (button == LEFT) {
+                    selected = getCursorPos(papplet.mouseX - xOffset, papplet.mouseY - yOffset);
+                }
+                break;
+            case "mouseDoubleClicked":
+                doubleSelectWord();
+                break;
         }
         return events;
     }
 
     public ArrayList<String> keyboardEvent(String eventType, char _key) {
-        ArrayList<String> events = new ArrayList<String>();
+        ArrayList<String> events = new ArrayList<>();
         if (texActive) {
-            if (eventType == "keyTyped") {
+            if (eventType.equals("keyTyped")) {
                 if (allowedChars.equals("") || allowedChars.contains(""+_key)) {
                     if (cursor != selected) {
                         text = new StringBuilder(text.substring(0, min(cursor, selected)) + text.substring(max(cursor, selected), text.length()));
@@ -227,7 +217,7 @@ public class TextEntry extends Element {
         return events;
     }
 
-    public Boolean mouseOver() {
+    public boolean mouseOver() {
         return papplet.mouseX-xOffset >= x && papplet.mouseX-xOffset <= x+w && papplet.mouseY-yOffset >= y && papplet.mouseY-yOffset <= y+h;
     }
     public boolean pointOver() {

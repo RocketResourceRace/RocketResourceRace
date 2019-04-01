@@ -10,7 +10,7 @@ import static util.Logging.LOGGER_MAIN;
 import static util.Util.papplet;
 
 public class Font {
-    public static HashMap<Integer, PFont> fonts = new HashMap<>();
+    private static HashMap<Integer, PFont> fonts = new HashMap<>();
     public static PFont getFont(float size) {
         try {
             PFont f=fonts.get(round(size));

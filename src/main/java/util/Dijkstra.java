@@ -18,7 +18,7 @@ public class Dijkstra {
         Node currentHeadNode;
         Node[][] nodes = new Node[h][w];
         nodes[y][x] = new Node(0, false, x, y, x, y);
-        PriorityQueue<Node> curMinNodes = new PriorityQueue<Node>(new NodeComparator());
+        PriorityQueue<Node> curMinNodes = new PriorityQueue<>(new NodeComparator());
         curMinNodes.add(nodes[y][x]);
         while (curMinNodes.size() > 0) {
             currentHeadNode = curMinNodes.poll();
@@ -58,7 +58,7 @@ public class Dijkstra {
     }
 
 
-    public static int movementCost(int x, int y, int prevX, int prevY, Cell[][] visibleCells, int maxCost) {
+    private static int movementCost(int x, int y, int prevX, int prevY, Cell[][] visibleCells, int maxCost) {
         float mult = 1;
         if (x!=prevX && y!=prevY) {
             mult = 1.42f;

@@ -13,9 +13,9 @@ import static util.Logging.LOGGER_MAIN;
 import static util.Util.papplet;
 
 public class ToggleButton extends Element {
-    int bgColour, strokeColour;
+    private int bgColour, strokeColour;
     String name;
-    boolean on;
+    private boolean on;
     public ToggleButton(int x, int y, int w, int h, int bgColour, int strokeColour, boolean value, String name) {
         this.x = x;
         this.y = y;
@@ -27,8 +27,8 @@ public class ToggleButton extends Element {
         this.on = value;
     }
     public ArrayList<String> mouseEvent(String eventType, int button) {
-        ArrayList<String> events = new ArrayList<String>();
-        if (eventType == "mouseClicked"&&mouseOver()) {
+        ArrayList<String> events = new ArrayList<>();
+        if (eventType.equals("mouseClicked") &&mouseOver()) {
             events.add("valueChanged");
             on = !on;
         }
@@ -65,7 +65,7 @@ public class ToggleButton extends Element {
         panelCanvas.text(name, x, y);
         panelCanvas.popStyle();
     }
-    public Boolean mouseOver() {
+    public boolean mouseOver() {
         return papplet.mouseX-xOffset >= x && papplet.mouseX-xOffset <= x+w && papplet.mouseY-yOffset >= y && papplet.mouseY-yOffset <= y+h;
     }
     public boolean pointOver() {

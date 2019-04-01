@@ -17,15 +17,15 @@ import static util.Logging.LOGGER_MAIN;
 import static util.Util.papplet;
 
 public class ResourceSummary extends Element {
-    float[] stockPile, net;
-    String[] resNames;
-    int numRes, scroll;
-    boolean expanded;
-    int[] timings;
-    byte[] warnings;
+    private float[] stockPile, net;
+    private String[] resNames;
+    private int numRes, scroll;
+    private boolean expanded;
+    private int[] timings;
+    private byte[] warnings;
 
-    final int GAP = 10;
-    final int FLASHTIMES = 500;
+    private final int GAP = 10;
+    private final int FLASHTIMES = 500;
 
     public ResourceSummary(int x, int y, int h, String[] resNames, float[] stockPile, float[] net) {
       this.x = x;
@@ -76,7 +76,7 @@ public class ResourceSummary extends Element {
       expanded = !expanded;
       LOGGER_MAIN.finest("Expanded changed to: " + expanded);
     }
-    public String prefix(String v) {
+    private String prefix(String v) {
       try {
         float i = Float.parseFloat(v);
         if (i >= 1000000)
@@ -92,21 +92,20 @@ public class ResourceSummary extends Element {
       }
     }
 
-    public String getResString(int i) {
+    private String getResString(int i) {
       return resNames[i];
     }
-    public String getStockString(int i) {
-      String tempString = prefix(""+stockPile[i]);
-      return tempString;
+    private String getStockString(int i) {
+        return prefix(""+stockPile[i]);
     }
-    public String getNetString(int i) {
+    private String getNetString(int i) {
       String tempString = prefix(""+net[i]);
       if (net[i] >= 0) {
         return "+"+tempString;
       }
       return tempString;
     }
-    public int columnWidth(int i) {
+    private int columnWidth(int i) {
       int m=0;
         papplet.textFont(getFont(10*JSONManager.loadFloatSetting("text scale")));
       m = max(m, ceil(papplet.textWidth(getResString(i))));
@@ -128,7 +127,7 @@ public class ResourceSummary extends Element {
     public void flash(int i) {
       timings[i] = papplet.millis()+FLASHTIMES;
     }
-    public int getFill(int i) {
+    private int getFill(int i) {
       if (timings[i] < papplet.millis()) {
         return papplet.color(100);
       }
@@ -145,14 +144,14 @@ public class ResourceSummary extends Element {
       panelCanvas.pushStyle();
       panelCanvas.textAlign(LEFT, TOP);
       panelCanvas.fill(120);
-      panelCanvas.rect(papplet.width-tw-x-GAP/2, y, tw, h);
+      panelCanvas.rect(papplet.width-tw-x-GAP/2f, y, tw, h);
       panelCanvas.rectMode(CORNERS);
       for (int i=numRes-1; i>=0; i--) {
         if (gameData.getJSONArray("resources").getJSONObject(i).getInt("resource manager") <= ((expanded) ? 0:1)) continue;
         w = columnWidth(i);
         panelCanvas.fill(getFill(i));
         panelCanvas.textFont(getFont(10*JSONManager.loadFloatSetting("text scale")));
-        panelCanvas.rect(papplet.width-cw+x-GAP/2, y, papplet.width-cw+x-GAP/2-(w+GAP), y+panelCanvas.textAscent()+panelCanvas.textDescent());
+        panelCanvas.rect(papplet.width-cw+x-GAP/2, y, papplet.width-cw+x-GAP/2f-(w+GAP), y+panelCanvas.textAscent()+panelCanvas.textDescent());
         cw += w+GAP;
         panelCanvas.line(papplet.width-cw+x-GAP/2, y, papplet.width-cw+x-GAP/2, y+h);
         panelCanvas.fill(0);
@@ -177,7 +176,7 @@ public class ResourceSummary extends Element {
           panelCanvas.fill(0, 255, 0);
         panelCanvas.textFont(getFont(8*JSONManager.loadFloatSetting("text scale")));
         panelCanvas.text(getNetString(i), papplet.width-cw, y+yLevel);
-        yLevel += panelCanvas.textAscent()+panelCanvas.textDescent();
+        //yLevel += panelCanvas.textAscent()+panelCanvas.textDescent();
       }
       panelCanvas.popStyle();
     }

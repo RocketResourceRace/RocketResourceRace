@@ -28,7 +28,7 @@ import static util.Util.*;
 public class BaseMap extends Element {
     float[] heightMap;
     int mapWidth, mapHeight;
-    long heightMapSeed;
+    private long heightMapSeed;
     public int[][] terrain;
     public Party[][] parties;
     public Building[][] buildings;
@@ -63,6 +63,7 @@ public class BaseMap extends Element {
             int mapSize = mapWidth*mapHeight;
             int playersByteCount = ((3+players[0].resources.length)*Float.BYTES+4*Integer.BYTES+Character.BYTES*10+1+mapSize)*players.length;
             ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES*10+Long.BYTES+Integer.BYTES*mapSize*5+partiesByteCount+playersByteCount+Float.BYTES*(1+mapSize));
+            int SAVEVERSION = 2;
             buffer.putInt(-SAVEVERSION);
             LOGGER_MAIN.finer("Saving version: "+(-SAVEVERSION));
             buffer.putInt(mapWidth);
@@ -241,7 +242,7 @@ public class BaseMap extends Element {
                 for (int x=0; x<mapWidth; x++) {
                     int type = buffer.getInt();
                     int imageId = buffer.getInt();
-                    float health = buffer.getInt();
+                    float health = buffer.getFloat();
                     int playerId= buffer.getInt();
                     if (type!=-1) {
                         buildings[y][x] = new Building(type, imageId, playerId);
@@ -260,7 +261,7 @@ public class BaseMap extends Element {
             int partyCount = 0;
             for (int y=0; y<mapHeight; y++) {
                 for (int x=0; x<mapWidth; x++) {
-                    Byte partyType = buffer.get();
+                    byte partyType = buffer.get();
                     if (partyType == 2) {
                         char[] rawid;
                         char[] p1id;
@@ -363,7 +364,7 @@ public class BaseMap extends Element {
             noiseSeed(heightMapSeed);
             generateNoiseMaps();
             LOGGER_MAIN.fine("Finished loading save");
-            return new MapSave(heightMap, mapWidth, mapHeight, terrain, parties, buildings, turnNumber, turnPlayer, players);
+            return new MapSave(mapWidth, mapHeight, terrain, parties, buildings, turnNumber, turnPlayer, players);
         }
 
         catch (Exception e) {
@@ -373,7 +374,7 @@ public class BaseMap extends Element {
     }
 
 
-    public int toMapIndex(int x, int y, int x1, int y1) {
+    private int toMapIndex(int x, int y, int x1, int y1) {
         try {
             return PApplet.parseInt(x1+x*JSONManager.loadFloatSetting("terrain detail")+y1*JSONManager.loadFloatSetting("terrain detail")*(mapWidth+1/JSONManager.loadFloatSetting("terrain detail"))+y*pow(JSONManager.loadFloatSetting("terrain detail"), 2)*(mapWidth+1/JSONManager.loadFloatSetting("terrain detail")));
         }
@@ -451,12 +452,12 @@ public class BaseMap extends Element {
     //  }
     //  return newMap;
     //}
-    public void generateTerrain() {
+    private void generateTerrain() {
         try {
             LOGGER_MAIN.info("Generating terrain");
             noiseDetail(3, 0.25f);
-            HashMap<Integer, Float> groundWeightings = new HashMap();
-            for (Integer i=0; i<gameData.getJSONArray("terrain").size(); i++) {
+            HashMap<Integer, Float> groundWeightings = new HashMap<>();
+            for (int i = 0; i<gameData.getJSONArray("terrain").size(); i++) {
                 if (gameData.getJSONArray("terrain").getJSONObject(i).isNull("weighting")) {
                     groundWeightings.put(i, JSONManager.loadFloatSetting(gameData.getJSONArray("terrain").getJSONObject(i).getString("id")+" weighting"));
                 } else {
@@ -479,26 +480,20 @@ public class BaseMap extends Element {
             //  }
             //}
             class TempTerrainDetail implements Comparable<TempTerrainDetail> {
-                int x;
-                int y;
-                float noiseValue;
-                TempTerrainDetail(int x, int y, float noiseValue) {
+                private int x;
+                private int y;
+                private float noiseValue;
+                private TempTerrainDetail(int x, int y, float noiseValue) {
                     super();
                     this.x = x;
                     this.y = y;
                     this.noiseValue = noiseValue;
                 }
                 public int compareTo(TempTerrainDetail otherDetail) {
-                    if (this.noiseValue>otherDetail.noiseValue) {
-                        return 1;
-                    } else if (this.noiseValue<otherDetail.noiseValue) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
+                    return Float.compare(this.noiseValue, otherDetail.noiseValue);
                 }
             }
-            ArrayList<TempTerrainDetail> cells = new ArrayList<TempTerrainDetail>();
+            ArrayList<TempTerrainDetail> cells = new ArrayList<>();
             for (int y=0; y<mapHeight; y++) {
                 for (int x=0; x<mapWidth; x++) {
                     if (isWater(x, y)) {
@@ -613,7 +608,7 @@ public class BaseMap extends Element {
             throw e;
         }
     }
-    public void generateNoiseMaps() {
+    private void generateNoiseMaps() {
         try {
             LOGGER_MAIN.info("Generating noise map");
             noiseDetail(4, 0.5f);
@@ -656,7 +651,7 @@ public class BaseMap extends Element {
             throw e;
         }
     }
-    public float getRawHeight(int x, int y, int x1, int y1) {
+    private float getRawHeight(int x, int y, int x1, int y1) {
         try {
             if ((x>=0&&y>=0)&&((x<mapWidth||(x==mapWidth&&x1==0))&&(y<mapHeight||(y==mapHeight&&y1==0)))) {
                 return max(heightMap[toMapIndex(x, y, x1, y1)], JSONManager.loadFloatSetting("water level"));
@@ -670,7 +665,7 @@ public class BaseMap extends Element {
             return JSONManager.loadFloatSetting("water level");
         }
     }
-    public float getRawHeight(int x, int y, float x1, float y1) {
+    private float getRawHeight(int x, int y, float x1, float y1) {
         try {
             if ((x>=0&&y>=0)&&((x<mapWidth||(x==mapWidth&&x1==0))&&(y<mapHeight||(y==mapHeight&&y1==0)))) {
                 float x2 = x1*JSONManager.loadFloatSetting("terrain detail");
@@ -689,10 +684,10 @@ public class BaseMap extends Element {
             return JSONManager.loadFloatSetting("water level");
         }
     }
-    public float getRawHeight(int x, int y) {
+    private float getRawHeight(int x, int y) {
         return getRawHeight(x, y, 0, 0);
     }
-    public float getRawHeight(float x, float y) {
+    float getRawHeight(float x, float y) {
         if (x<0||y<0) {
             return JSONManager.loadFloatSetting("water level");
         }
@@ -709,7 +704,7 @@ public class BaseMap extends Element {
             throw e;
         }
     }
-    public float groundMaxRawHeightAt(int x1, int y1) {
+    private float groundMaxRawHeightAt(int x1, int y1) {
         try {
             int x = floor(x1);
             int y = floor(y1);
@@ -724,7 +719,7 @@ public class BaseMap extends Element {
         return groundMaxRawHeightAt(x, y) == JSONManager.loadFloatSetting("water level");
     }
 
-    public float getMaxSteepness(int x, int y) {
+    private float getMaxSteepness(int x, int y) {
         try {
             float maxZ, minZ;
             maxZ = 0;
@@ -747,7 +742,7 @@ public class BaseMap extends Element {
         }
     }
 
-    public void saveParty(ByteBuffer b, Party p) {
+    private void saveParty(ByteBuffer b, Party p) {
         try {
             b.put(p.byteRep);
         }
@@ -756,11 +751,11 @@ public class BaseMap extends Element {
             throw e;
         }
     }
-    public Party loadParty(ByteBuffer b, String id) {
+    private Party loadParty(ByteBuffer b, String id) {
         LOGGER_MAIN.finer("Loading party from save: "+id);
         try {
             int actionCount = b.getInt();
-            ArrayList<Action> actions = new ArrayList<Action>();
+            ArrayList<Action> actions = new ArrayList<>();
             for (int i=0; i<actionCount; i++) {
                 String notification;
                 String terrain;
@@ -768,7 +763,7 @@ public class BaseMap extends Element {
                 int notificationTextSize = b.getInt();
                 int terrainTextSize = b.getInt();
                 int buildingTextSize = b.getInt();
-                Float turns = b.getFloat();
+                float turns = b.getFloat();
                 Float initialTurns = b.getFloat();
                 int type = b.getInt();
                 if (notificationTextSize>0) {
@@ -796,7 +791,7 @@ public class BaseMap extends Element {
                 actions.get(i).initialTurns = initialTurns;
             }
             int pathSize = b.getInt();
-            ArrayList<int[]> path = new ArrayList<int[]>();
+            ArrayList<int[]> path = new ArrayList<>();
             for (int i=0; i<pathSize; i++) {
                 path.add(new int[]{b.getInt(), b.getInt()});
             }
@@ -846,11 +841,8 @@ public class BaseMap extends Element {
         }
     }
 
-    int SAVEVERSION = 2;
 
-
-
-    public int getPartySize(Party p) {
+    private int getPartySize(Party p) {
         LOGGER_MAIN.finer("Getting party size for save");
         try {
             int totalSize = 0;

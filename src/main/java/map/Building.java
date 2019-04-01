@@ -1,8 +1,5 @@
 package map;
 
-import processing.core.PApplet;
-import processing.data.JSONObject;
-
 import static json.JSONManager.gameData;
 
 public class Building {
@@ -46,7 +43,7 @@ public class Building {
         return playerId;
     }
 
-    public int getImageId() {
+    int getImageId() {
         return imageId;
     }
 

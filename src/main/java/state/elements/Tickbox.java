@@ -11,7 +11,7 @@ import static util.Logging.LOGGER_MAIN;
 import static util.Util.papplet;
 
 public class Tickbox extends Element {
-    boolean val;
+    private boolean val;
     String name;
 
     public Tickbox(int x, int y, int w, int h, boolean defaultVal, String name) {
@@ -23,12 +23,12 @@ public class Tickbox extends Element {
         this.name = name;
     }
 
-    public void toggle() {
+    private void toggle() {
         val = !val;
     }
 
     public ArrayList<String> mouseEvent(String eventType, int button) {
-        ArrayList<String> events = new ArrayList<String>();
+        ArrayList<String> events = new ArrayList<>();
         if (eventType.equals("mouseClicked")) {
             if (moveOver()) {
                 toggle();
@@ -46,7 +46,7 @@ public class Tickbox extends Element {
         val = state;
     }
 
-    public boolean moveOver() {
+    private boolean moveOver() {
         return papplet.mouseX-xOffset >= x && papplet.mouseX-xOffset <= x+h && papplet.mouseY-yOffset >= y && papplet.mouseY-yOffset <= y+h;
     }
     public boolean pointOver() {

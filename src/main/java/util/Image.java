@@ -27,11 +27,11 @@ public class Image {
     public static void loadImages() {
         try {
             LOGGER_MAIN.fine("Loading images");
-            tileImages = new HashMap<String, PImage>();
-            lowImages = new HashMap<String, PImage>();
-            tile3DImages = new HashMap<String, PImage>();
-            buildingImages = new HashMap<String, PImage[]>();
-            equipmentImages = new HashMap<String, PImage>();
+            tileImages = new HashMap<>();
+            lowImages = new HashMap<>();
+            tile3DImages = new HashMap<>();
+            buildingImages = new HashMap<>();
+            equipmentImages = new HashMap<>();
 
             partyBaseImages = new PImage[]{
                     loadImage(RESOURCES_ROOT +"img/party/battle.png"),

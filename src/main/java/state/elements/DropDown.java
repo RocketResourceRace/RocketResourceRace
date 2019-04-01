@@ -21,7 +21,8 @@ public class DropDown extends Element {
     int textSize;
     String name;
     public String optionTypes;
-    boolean expanded, postExpandedEvent;
+    boolean expanded;
+    private boolean postExpandedEvent;
 
     public DropDown(int x, int y, int w, int h, int bgColour, String name, String optionTypes, int textSize) {
         // h here means the height of one dropper box
@@ -103,7 +104,7 @@ public class DropDown extends Element {
     }
 
     public ArrayList<String> mouseEvent(String eventType, int button) {
-        ArrayList<String> events = new ArrayList<String>();
+        ArrayList<String> events = new ArrayList<>();
         if (eventType.equals("mouseClicked")) {
             int hovering = hoveringOption();
             if (moveOver()) {
@@ -136,7 +137,7 @@ public class DropDown extends Element {
         LOGGER_MAIN.warning("Invalid selected:"+s);
     }
 
-    public void contract() {
+    void contract() {
         expanded = false;
     }
 
@@ -145,7 +146,7 @@ public class DropDown extends Element {
         expanded = true;
     }
 
-    public void toggleExpanded() {
+    private void toggleExpanded() {
         expanded = !expanded;
         if (expanded) {
             postExpandedEvent = true;

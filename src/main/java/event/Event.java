@@ -9,7 +9,7 @@ public class Event {
         this.type = type;
         this.panel = panel;
     }
-    public String info() {
+    public String toString() {
         return "id:"+id+", type:"+type+", panel:"+panel;
     }
 }

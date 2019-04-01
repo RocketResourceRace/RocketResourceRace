@@ -9,7 +9,7 @@ import static util.Util.papplet;
 
 public class Element {
     public boolean active = true;
-    public boolean visible = true;
+    protected boolean visible = true;
     private boolean elemOnTop;
     protected int x;
     public int y;
@@ -79,5 +79,17 @@ public class Element {
 
     public boolean pointOver() {
         return papplet.mouseX >= x && papplet.mouseX <= x+w && papplet.mouseY >= y && papplet.mouseY <= y+h;
+    }
+
+    public boolean mouseOver() {
+        return papplet.mouseX >= x+xOffset && papplet.mouseX <= x+xOffset+w && papplet.mouseY >= y+yOffset && papplet.mouseY <= y+yOffset+h;
+    }
+
+    public void setVisible(boolean a) {
+        visible = a;
+    }
+
+    public boolean isVisible() {
+        return visible;
     }
 }

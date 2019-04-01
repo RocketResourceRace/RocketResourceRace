@@ -17,10 +17,10 @@ import static util.Logging.LOGGER_MAIN;
 import static util.Util.*;
 
 public class NotificationManager extends Element {
-    ArrayList<ArrayList<Notification>> notifications;
-    int bgColour, textColour, displayNots, notHeight, topOffset, scroll, turn, numPlayers;
+    private ArrayList<ArrayList<Notification>> notifications;
+    private int bgColour, textColour, displayNots, notHeight, topOffset, scroll, turn, numPlayers;
     public Notification lastSelected;
-    boolean scrolling;
+    private boolean scrolling;
 
     public NotificationManager(int x, int y, int w, int h, int bgColour, int textColour, int displayNots, int turn, int numPlayers) {
         this.x = x;
@@ -32,10 +32,10 @@ public class NotificationManager extends Element {
         this.textColour = textColour;
         this.displayNots = displayNots;
         this.notHeight = h/displayNots;
-        this.notifications = new ArrayList<ArrayList<Notification>>();
+        this.notifications = new ArrayList<>();
         this.numPlayers = numPlayers;
         for (int i = 0; i < numPlayers; i ++){
-            notifications.add(new ArrayList<Notification>());
+            notifications.add(new ArrayList<>());
         }
         this.scroll = 0;
         lastSelected = null;
@@ -53,7 +53,7 @@ public class NotificationManager extends Element {
         return papplet.mouseX-xOffset >= x && papplet.mouseX-xOffset <= x+w && papplet.mouseY-yOffset >= y+notHeight*i+topOffset && papplet.mouseY-yOffset <= y+notHeight*(i+1)+topOffset;
     }
 
-    public int findMouseOver() {
+    private int findMouseOver() {
         if (!moveOver()) {
             return -1;
         }
@@ -64,7 +64,7 @@ public class NotificationManager extends Element {
         }
         return -1;
     }
-    public boolean hoveringDismissAll() {
+    private boolean hoveringDismissAll() {
         return x<papplet.mouseX-xOffset&&papplet.mouseX-xOffset<x+notHeight&&y<papplet.mouseY-yOffset&&papplet.mouseY-yOffset<y+topOffset;
     }
 
@@ -73,7 +73,7 @@ public class NotificationManager extends Element {
         this.scroll = 0;
     }
 
-    public void dismiss(int i) {
+    private void dismiss(int i) {
         LOGGER_MAIN.fine(String.format("Dismissing notification at index: %d which equates to:%s", i, notifications.get(turn).get(i)));
         try {
             notifications.get(turn).remove(i);
@@ -96,7 +96,7 @@ public class NotificationManager extends Element {
         LOGGER_MAIN.fine("Dismissing notifications for all players");
         notifications.clear();
         for (int i = 0; i < numPlayers; i ++){
-            notifications.add(new ArrayList<Notification>());
+            notifications.add(new ArrayList<>());
         }
     }
 
@@ -123,8 +123,8 @@ public class NotificationManager extends Element {
     }
 
     public ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event) {
-        ArrayList<String> events = new ArrayList<String>();
-        if (eventType == "mouseWheel") {
+        ArrayList<String> events = new ArrayList<>();
+        if (eventType.equals("mouseWheel")) {
             float count = event.getCount();
             if (moveOver()) {
                 scroll = round(between(0, scroll+count, notifications.get(turn).size()-displayNots));
@@ -138,8 +138,8 @@ public class NotificationManager extends Element {
     }
 
     public ArrayList<String> mouseEvent(String eventType, int button) {
-        ArrayList<String> events = new ArrayList<String>();
-        if (eventType == "mousePressed") {
+        ArrayList<String> events = new ArrayList<>();
+        if (eventType.equals("mousePressed")) {
             if (moveOver() && papplet.mouseX-xOffset>x+w-20* JSONManager.loadFloatSetting("gui scale") && papplet.mouseY-yOffset > topOffset && notifications.get(turn).size() > displayNots) {
                 scrolling = true;
                 scroll = round(between(0, (papplet.mouseY-yOffset-y-topOffset)*(notifications.get(turn).size()-displayNots+1)/(h-topOffset), notifications.get(turn).size()-displayNots));
@@ -147,12 +147,12 @@ public class NotificationManager extends Element {
                 scrolling = false;
             }
         }
-        if (eventType == "mouseDragged") {
+        if (eventType.equals("mouseDragged")) {
             if (scrolling && notifications.get(turn).size() > displayNots) {
                 scroll = round(between(0, (papplet.mouseY-yOffset-y-topOffset)*(notifications.get(turn).size()-displayNots+1)/(h-topOffset), notifications.get(turn).size()-displayNots));
             }
         }
-        if (eventType == "mouseClicked") {
+        if (eventType.equals("mouseClicked")) {
             int hovering = findMouseOver();
             if (hovering >=0) {
                 if (papplet.mouseX-xOffset<x+notHeight) {
@@ -225,9 +225,9 @@ public class NotificationManager extends Element {
             panelCanvas.fill(textColour);
             panelCanvas.textFont(getFont(8*JSONManager.loadFloatSetting("text scale")));
             panelCanvas.textAlign(LEFT, CENTER);
-            panelCanvas.text(notifications.get(turn).get(i+scroll).name, x+notHeight+5, y+topOffset+i*notHeight+notHeight/2);
+            panelCanvas.text(notifications.get(turn).get(i+scroll).name, x+notHeight+5, y+topOffset+i*notHeight+notHeight/2f);
             panelCanvas.textAlign(RIGHT, CENTER);
-            panelCanvas.text("Turn "+notifications.get(turn).get(i+scroll).turn, x-notHeight+w, y+topOffset+i*notHeight+notHeight/2);
+            panelCanvas.text("Turn "+notifications.get(turn).get(i+scroll).turn, x-notHeight+w, y+topOffset+i*notHeight+notHeight/2f);
         }
 
         //draw scroll
@@ -236,7 +236,7 @@ public class NotificationManager extends Element {
             panelCanvas.fill(brighten(bgColour, 100));
             panelCanvas.rect(x-20*JSONManager.loadFloatSetting("gui scale")+w, y+topOffset, 20*JSONManager.loadFloatSetting("gui scale"), h-topOffset);
             panelCanvas.fill(brighten(bgColour, -20));
-            panelCanvas.rect(x-20*JSONManager.loadFloatSetting("gui scale")+w, y+(h-topOffset-(h-topOffset)/(d+1))*scroll/d+topOffset, 20*JSONManager.loadFloatSetting("gui scale"), (h-topOffset)/(d+1));
+            panelCanvas.rect(x-20*JSONManager.loadFloatSetting("gui scale")+w, y+(h-topOffset-(h-topOffset)/(float)(d+1))*scroll/(float)d+topOffset, 20*JSONManager.loadFloatSetting("gui scale"), (h-topOffset)/(d+1));
         }
         panelCanvas.popStyle();
     }

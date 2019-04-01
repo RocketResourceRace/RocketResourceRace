@@ -9,7 +9,7 @@ import java.util.logging.LogRecord;
 public class LoggerFormatter extends Formatter {
 
     public String format(LogRecord rec) {
-        StringBuffer buffer = new StringBuffer(1000);
+        StringBuilder buffer = new StringBuilder(1000);
         buffer.append(rec.getSequenceNumber());
         buffer.append(" | ");
         buffer.append(rec.getLevel());
@@ -33,7 +33,7 @@ public class LoggerFormatter extends Formatter {
         return buffer.toString();
     }
 
-    public String calcDate(long millisecs) {
+    private String calcDate(long millisecs) {
         SimpleDateFormat date_format = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss:SS");
         Date date = new Date(millisecs);
         return date_format.format(date);

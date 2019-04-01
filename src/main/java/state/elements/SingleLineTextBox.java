@@ -11,12 +11,12 @@ import static util.Font.getFont;
 import static util.Logging.LOGGER_MAIN;
 import static util.Util.papplet;
 
-public class TextBox extends Element {
-    int textSize, bgColour, textColour;
+public class SingleLineTextBox extends Element {
+    private int textSize, bgColour, textColour;
     String text;
-    boolean autoSizing;
+    private boolean autoSizing;
 
-    public TextBox(int x, int y, int w, int h, int textSize, String text, int bgColour, int textColour) {
+    public SingleLineTextBox(int x, int y, int w, int h, int textSize, String text, int bgColour, int textColour) {
         //w=-1 means get width from text
         this.x = x;
         this.y = y;
@@ -34,7 +34,7 @@ public class TextBox extends Element {
         LOGGER_MAIN.finer("Text set to: " + text);
     }
 
-    public void updateWidth(PGraphics panelCanvas) {
+    private void updateWidth(PGraphics panelCanvas) {
         if (autoSizing) {
             this.w = ceil(panelCanvas.textWidth(text))+10;
         }

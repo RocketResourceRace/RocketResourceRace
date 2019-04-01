@@ -4,15 +4,14 @@ package json;
 import processing.core.PApplet;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
+import state.Element;
 import state.State;
-import state.elements.Button;
-import state.elements.DropDown;
-import state.elements.Slider;
-import state.elements.Tickbox;
+import state.elements.*;
 
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.logging.Level;
 
 import static processing.core.PApplet.CENTER;
@@ -438,7 +437,9 @@ public class JSONManager {
     public static boolean hasFlag(String panelID, String elemID, String flag) {
         try {
             JSONObject panel = findJSONObject(menu.getJSONArray("states"), panelID);
+            assert panel != null;
             JSONObject elem = findJSONObject(panel.getJSONArray("elements"), elemID);
+            assert elem != null;
             JSONArray flags = elem.getJSONArray("flags");
             if (flags != null) {
                 for (int i=0; i<flags.size(); i++) {
@@ -464,23 +465,7 @@ public class JSONManager {
         try {
             for (int i=0; i<defaultSettings.size(); i++) {
                 JSONObject setting = defaultSettings.getJSONObject(i);
-                switch (setting.getString("type")) {
-                    case "int":
-                        saveSetting(setting.getString("id"), setting.getInt("value"));
-                        break;
-                    case "float":
-                        saveSetting(setting.getString("id"), setting.getFloat("value"));
-                        break;
-                    case "string":
-                        saveSetting(setting.getString("id"), setting.getString("value"));
-                        break;
-                    case "boolean":
-                        saveSetting(setting.getString("id"), setting.getBoolean("value"));
-                        break;
-                    default:
-                        LOGGER_MAIN.warning("Invalid setting type: " + setting.getString("id"));
-                        break;
-                }
+                saveSettingFromJSONObject(setting);
             }
         }
         catch (Exception e) {
@@ -496,23 +481,7 @@ public class JSONManager {
             for (int i=0; i<defaultSettings.size(); i++) {
                 JSONObject setting = defaultSettings.getJSONObject(i);
                 if (settings.get(setting.getString("id")) == null) {
-                    switch (setting.getString("type")) {
-                        case "int":
-                            saveSetting(setting.getString("id"), setting.getInt("value"));
-                            break;
-                        case "float":
-                            saveSetting(setting.getString("id"), setting.getFloat("value"));
-                            break;
-                        case "string":
-                            saveSetting(setting.getString("id"), setting.getString("value"));
-                            break;
-                        case "boolean":
-                            saveSetting(setting.getString("id"), setting.getBoolean("value"));
-                            break;
-                        default:
-                            LOGGER_MAIN.warning("Invalid setting type: " + setting.getString("type"));
-                            break;
-                    }
+                    saveSettingFromJSONObject(setting);
                 }
             }
             writeSettings();
@@ -520,6 +489,26 @@ public class JSONManager {
         catch (Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, "Error loading initial settings", e);
             throw e;
+        }
+    }
+
+    private static void saveSettingFromJSONObject(JSONObject setting) {
+        switch (setting.getString("type")) {
+            case "int":
+                saveSetting(setting.getString("id"), setting.getInt("value"));
+                break;
+            case "float":
+                saveSetting(setting.getString("id"), setting.getFloat("value"));
+                break;
+            case "string":
+                saveSetting(setting.getString("id"), setting.getString("value"));
+                break;
+            case "boolean":
+                saveSetting(setting.getString("id"), setting.getBoolean("value"));
+                break;
+            default:
+                LOGGER_MAIN.warning("Invalid setting type: " + setting.getString("type"));
+                break;
         }
     }
 
@@ -572,23 +561,7 @@ public class JSONManager {
         for (int i=0; i<defaultSettings.size(); i++) {
             if (defaultSettings.getJSONObject(i).getString("id").equals(id)) {
                 JSONObject setting = defaultSettings.getJSONObject(i);
-                switch (setting.getString("type")) {
-                    case "int":
-                        saveSetting(setting.getString("id"), setting.getInt("value"));
-                        break;
-                    case "float":
-                        saveSetting(setting.getString("id"), setting.getFloat("value"));
-                        break;
-                    case "string":
-                        saveSetting(setting.getString("id"), setting.getString("value"));
-                        break;
-                    case "boolean":
-                        saveSetting(setting.getString("id"), setting.getBoolean("value"));
-                        break;
-                    default:
-                        LOGGER_MAIN.warning("Invalid setting type: " + setting.getString("type"));
-                        break;
-                }
+                saveSettingFromJSONObject(setting);
             }
         }
         writeSettings();
@@ -636,8 +609,8 @@ public class JSONManager {
 
     public static String getElementType(String panel, String element) {
         try {
-            JSONArray elems = findJSONObject(menu.getJSONArray("states"), panel).getJSONArray("elements");
-            return findJSONObject(elems, element).getString("type");
+            JSONArray elems = Objects.requireNonNull(findJSONObject(menu.getJSONArray("states"), panel)).getJSONArray("elements");
+            return Objects.requireNonNull(findJSONObject(elems, element)).getString("type");
         }
         catch(Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, "Error finding element type with id: "+ element + " on panel " + panel, e);
@@ -695,7 +668,9 @@ public class JSONManager {
         // Gets the name of the setting for an element or null if it doesnt have a settting
         try {
             JSONObject panel = findJSONObject(menu.getJSONArray("states"), panelID);
+            assert panel != null;
             JSONObject element = findJSONObject(panel.getJSONArray("elements"), id);
+            assert element != null;
             return element.getString("setting");
         }
         catch(Exception e) {
@@ -707,6 +682,7 @@ public class JSONManager {
         // Gets the titiel for menu states. Reutnrs null if there is no title defined
         try {
             JSONObject panel = findJSONObject(menu.getJSONArray("states"), id);
+            assert panel != null;
             return panel.getString("title");
         }
         catch(Exception e) {
@@ -718,13 +694,17 @@ public class JSONManager {
     public static void loadMenuElements(State state, float guiScale) {
         // Load all the menu panels in to menu states
         LOGGER_MAIN.info("Loading in menu state.elements using JSON");
+        state.addPanel("overlay", 0, 0, papplet.width, papplet.height, true, false, papplet.color(255, 255), papplet.color(255, 255));
+        Tooltip tooltip = new Tooltip();
+        state.addElement("0tooltip", tooltip, "overlay");
         try {
             JSONArray panels = menu.getJSONArray("states");
             for (int i=0; i<panels.size(); i++) {
                 JSONObject panel = panels.getJSONObject(i);
                 state.addPanel(panel.getString("id"), 0, 0, papplet.width, papplet.height, true, true, papplet.color(255, 255, 255, 255), papplet.color(0));
-                loadPanelMenuElements(state, panel.getString("id"), guiScale);
+                loadPanelMenuElements(state, panel.getString("id"), guiScale, tooltip);
             }
+            state.panelToTop("overlay");
         }
         catch(Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, "Error loading menu state.elements", e);
@@ -732,7 +712,7 @@ public class JSONManager {
         }
     }
 
-    private static void loadPanelMenuElements(State state, String panelID, float guiScale) {
+    private static void loadPanelMenuElements(State state, String panelID, float guiScale, Tooltip tooltip) {
         // Load in the state.elements from JSON menu into panel
         // NOTE: "default value" in state.elements object means value is not saved to setting (and if not defined will be saved)
         try {
@@ -740,7 +720,7 @@ public class JSONManager {
             float x, y, w, h, scale, lower, upper, step;
             String type, id, text, setting;
             String[] options;
-            JSONArray elements = findJSONObject(menu.getJSONArray("states"), panelID).getJSONArray("elements");
+            JSONArray elements = Objects.requireNonNull(findJSONObject(menu.getJSONArray("states"), panelID)).getJSONArray("elements");
 
 
             scale = 20 * guiScale;
@@ -831,23 +811,26 @@ public class JSONManager {
                     options = elem.getJSONArray("options").getStringArray();
                 }
 
+
+                Element element;
+
                 // Check if there is a defualt value. If not try loading from settings
                 switch (type) {
                     case "button":
-                        state.addElement(id, new Button((int)x, (int)y, (int)w, (int)h, bgColour, strokeColour, textColour, textSize, CENTER, text), panelID);
+                        element = new Button((int)x, (int)y, (int)w, (int)h, bgColour, strokeColour, textColour, textSize, CENTER, CENTER, text);
                         break;
                     case "slider":
                         if (elem.isNull("default value")) {
-                            state.addElement(id, new Slider((int)x, (int)y, (int)w, (int)h, papplet.color(150), bgColour, strokeColour, papplet.color(0), lower, loadFloatSetting(setting), upper, major, minor, step, true, text), panelID);
+                            element = new Slider((int)x, (int)y, (int)w, (int)h, papplet.color(150), bgColour, strokeColour, papplet.color(0), lower, loadFloatSetting(setting), upper, major, minor, step, true, text);
                         } else {
-                            state.addElement(id, new Slider((int)x, (int)y, (int)w, (int)h, papplet.color(150), bgColour, strokeColour, papplet.color(0), lower, elem.getFloat("default value"), upper, major, minor, step, true, text), panelID);
+                            element = new Slider((int)x, (int)y, (int)w, (int)h, papplet.color(150), bgColour, strokeColour, papplet.color(0), lower, elem.getFloat("default value"), upper, major, minor, step, true, text);
                         }
                         break;
                     case "tickbox":
                         if (elem.isNull("default value")) {
-                            state.addElement(id, new Tickbox((int)x, (int)y, (int)w, (int)h, loadBooleanSetting(setting), text), panelID);
+                            element = new Tickbox((int)x, (int)y, (int)w, (int)h, loadBooleanSetting(setting), text);
                         } else {
-                            state.addElement(id, new Tickbox((int)x, (int)y, (int)w, (int)h, elem.getBoolean("default value"), text), panelID);
+                            element = new Tickbox((int)x, (int)y, (int)w, (int)h, elem.getBoolean("default value"), text);
                         }
                         break;
                     case "dropdown":
@@ -868,11 +851,15 @@ public class JSONManager {
                         } else {
                             dd.setValue(elem.getString("default value"));
                         }
-                        state.addElement(id, dd, panelID);
+                        element = dd;
                         break;
                     default:
-                        LOGGER_MAIN.warning("Invalid element type: "+ type);
-                        break;
+                        LOGGER_MAIN.severe("Invalid element type: "+ type);
+                        throw new RuntimeException();
+                }
+                state.addElement(id, element, panelID);
+                if (!elem.isNull("tooltip")) {
+                    tooltip.addElement(element, elem.getString("tooltip"));
                 }
             }
         }

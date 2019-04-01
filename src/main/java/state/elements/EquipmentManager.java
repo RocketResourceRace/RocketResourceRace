@@ -21,20 +21,16 @@ import static util.Util.between;
 import static util.Util.papplet;
 
 public class EquipmentManager extends Element {
-    final int TEXTSIZE = 8;
-    final float BOXWIDTHHEIGHTRATIO = 0.75f;
-    final int SHADOWSIZE = 20;
-    final float EXTRATYPEWIDTH = 1.5f;
-    final float BIGIMAGESIZE = 0.5f;
-    String[] equipmentClassDisplayNames;
-    int[] currentEquipment, currentEquipmentQuantities;
-    int currentUnitNumber;
-    float boxWidth, boxHeight;
-    int selectedClass;
-    float dropX, dropY, dropW, dropH, oldDropH;
-    ArrayList<int[]> equipmentToChange;
-    HashMap<String, PImage> tempEquipmentImages;
-    HashMap<String, PImage> bigTempEquipmentImages;
+    private final float BIGIMAGESIZE = 0.5f;
+    private String[] equipmentClassDisplayNames;
+    private int[] currentEquipment, currentEquipmentQuantities;
+    private int currentUnitNumber;
+    private float boxWidth, boxHeight;
+    private int selectedClass;
+    private float dropX, dropY, dropW, dropH, oldDropH;
+    private ArrayList<int[]> equipmentToChange;
+    private HashMap<String, PImage> tempEquipmentImages;
+    private HashMap<String, PImage> bigTempEquipmentImages;
 
     public EquipmentManager(int x, int y, int w) {
         this.x = x;
@@ -58,28 +54,30 @@ public class EquipmentManager extends Element {
         updateSizes();
 
         selectedClass = -1;  // -1 represents nothing being selected
-        equipmentToChange = new ArrayList<int[]>();
-        tempEquipmentImages = new HashMap<String, PImage>();
-        bigTempEquipmentImages = new HashMap<String, PImage>();
+        equipmentToChange = new ArrayList<>();
+        tempEquipmentImages = new HashMap<>();
+        bigTempEquipmentImages = new HashMap<>();
         oldDropH = 0;
     }
 
-    public void updateSizes(){
+    private void updateSizes(){
 
         boxWidth = w/ JSONManager.getNumEquipmentClasses();
-        boxHeight = boxWidth*BOXWIDTHHEIGHTRATIO;
+        float BOXWIDTHHEIGHTRATIO = 0.75f;
+        boxHeight = boxWidth* BOXWIDTHHEIGHTRATIO;
         updateDropDownPositionAndSize();
     }
 
-    public void updateDropDownPositionAndSize(){
+    private void updateDropDownPositionAndSize(){
         dropY = y+boxHeight;
+        float EXTRATYPEWIDTH = 1.5f;
         dropW = boxWidth * EXTRATYPEWIDTH;
         dropH = JSONManager.loadFloatSetting("gui scale") * 32;
         dropX = between(x, x+boxWidth*selectedClass-(dropW-boxWidth)/2, x+w-dropW);
     }
 
 
-    public void resizeImages(){
+    private void resizeImages(){
         // Resize equipment icons
         for (int c = 0; c < JSONManager.getNumEquipmentClasses(); c++){
             for (int t = 0; t < JSONManager.getNumEquipmentTypesFromClass(c); t++){
@@ -119,13 +117,13 @@ public class EquipmentManager extends Element {
 
     public ArrayList<int[]> getEquipmentToChange(){
         // Also clears equipmentToChange
-        ArrayList<int[]> temp = new ArrayList<int[]>(equipmentToChange);
+        ArrayList<int[]> temp = new ArrayList<>(equipmentToChange);
         equipmentToChange.clear();
         return temp;
     }
 
     public ArrayList<String> mouseEvent(String eventType, int button) {
-        ArrayList<String> events = new ArrayList<String>();
+        ArrayList<String> events = new ArrayList<>();
         if (eventType.equals("mouseClicked")) {
             boolean[] blockedClasses = getBlockedClasses();
             if (mouseOverClasses()) {
@@ -174,20 +172,21 @@ public class EquipmentManager extends Element {
 
     public void drawShadow(PGraphics panelCanvas, float shadowX, float shadowY, float shadowW, float shadowH){
         panelCanvas.noStroke();
+        int SHADOWSIZE = 20;
         for (int i = SHADOWSIZE; i > 0; i --){
-            panelCanvas.fill(0, 255-255* PApplet.pow(((float)i/SHADOWSIZE), 0.1f));
+            panelCanvas.fill(0, 255-255* PApplet.pow(((float)i/ SHADOWSIZE), 0.1f));
             //panelCanvas.rect(shadowX-i, shadowY-i, shadowW+i*2, shadowH+i*2, i);
         }
     }
 
-    public boolean[] getBlockedClasses(){
+    private boolean[] getBlockedClasses(){
         boolean[] blockedClasses = new boolean[JSONManager.getNumEquipmentClasses()];
         for (int i = 0; i < blockedClasses.length; i ++) {
             if (currentEquipment[i] != -1){
                 String[] otherBlocking = JSONManager.getOtherClassBlocking(i, currentEquipment[i]);
                 if (otherBlocking != null){
-                    for (int j=0; j < otherBlocking.length; j ++){
-                        int classIndex = JSONManager.getEquipmentClassFromID(otherBlocking[j]);
+                    for (String s : otherBlocking) {
+                        int classIndex = JSONManager.getEquipmentClassFromID(s);
                         blockedClasses[classIndex] = true;
                     }
                 }
@@ -196,14 +195,14 @@ public class EquipmentManager extends Element {
         return blockedClasses;
     }
 
-    public boolean[] getHoveringBlockedClasses(){
+    private boolean[] getHoveringBlockedClasses(){
         boolean[] blockedClasses = new boolean[JSONManager.getNumEquipmentClasses()];
         if (selectedClass != -1){
             if (hoveringOverType() != -1 && hoveringOverType() < JSONManager.getNumEquipmentTypesFromClass(selectedClass)){
                 String[] otherBlocking = JSONManager.getOtherClassBlocking(selectedClass, hoveringOverType());
                 if (otherBlocking != null){
-                    for (int j=0; j < otherBlocking.length; j ++){
-                        int classIndex = JSONManager.getEquipmentClassFromID(otherBlocking[j]);
+                    for (String s : otherBlocking) {
+                        int classIndex = JSONManager.getEquipmentClassFromID(s);
                         blockedClasses[classIndex] = true;
                     }
                 }
@@ -229,6 +228,7 @@ public class EquipmentManager extends Element {
         boolean[] blockedClasses = getBlockedClasses();
         boolean[] potentialBlockedClasses = getHoveringBlockedClasses();
 
+        int TEXTSIZE = 8;
         for (int i = 0; i < JSONManager.getNumEquipmentClasses(); i ++) {
             if (!blockedClasses[i]){
                 if (selectedClass == i){
@@ -252,16 +252,16 @@ public class EquipmentManager extends Element {
                 }
                 panelCanvas.fill(0);
                 panelCanvas.textAlign(PConstants.CENTER, PConstants.TOP);
-                panelCanvas.textFont(getFont(TEXTSIZE* JSONManager.loadFloatSetting("text scale")));
+                panelCanvas.textFont(getFont(TEXTSIZE * JSONManager.loadFloatSetting("text scale")));
                 panelCanvas.text(equipmentClassDisplayNames[i], x+boxWidth*(i+0.5f), y);
                 if (currentEquipment[i] != -1){
-                    panelCanvas.textFont(getFont((TEXTSIZE-1)* JSONManager.loadFloatSetting("text scale")));
+                    panelCanvas.textFont(getFont((TEXTSIZE -1)* JSONManager.loadFloatSetting("text scale")));
                     panelCanvas.textAlign(PConstants.CENTER, PConstants.BOTTOM);
                     panelCanvas.text(JSONManager.getEquipmentTypeDisplayName(i, currentEquipment[i]), x+boxWidth*(i+0.5f), y+boxHeight);
                     if (currentEquipmentQuantities[i] < currentUnitNumber){
                         panelCanvas.fill(255, 0, 0);
                     }
-                    panelCanvas.text(String.format("%d/%d", currentEquipmentQuantities[i], currentUnitNumber), x+boxWidth*(i+0.5f), y+boxHeight-TEXTSIZE* JSONManager.loadFloatSetting("text scale")+5);
+                    panelCanvas.text(String.format("%d/%d", currentEquipmentQuantities[i], currentUnitNumber), x+boxWidth*(i+0.5f), y+boxHeight- TEXTSIZE * JSONManager.loadFloatSetting("text scale")+5);
                 }
             }
             else{
@@ -270,7 +270,7 @@ public class EquipmentManager extends Element {
                 panelCanvas.rect(x+boxWidth*i, y, boxWidth, boxHeight);
                 panelCanvas.fill(0);
                 panelCanvas.textAlign(PConstants.CENTER, PConstants.TOP);
-                panelCanvas.textFont(getFont(TEXTSIZE* JSONManager.loadFloatSetting("text scale")));
+                panelCanvas.textFont(getFont(TEXTSIZE * JSONManager.loadFloatSetting("text scale")));
                 panelCanvas.text(equipmentClassDisplayNames[i], x+boxWidth*(i+0.5f), y);
             }
         }
@@ -279,7 +279,7 @@ public class EquipmentManager extends Element {
         panelCanvas.stroke(0);
         if (selectedClass != -1){
             panelCanvas.textAlign(PConstants.LEFT, PConstants.TOP);
-            panelCanvas.textFont(getFont(TEXTSIZE* JSONManager.loadFloatSetting("text scale")));
+            panelCanvas.textFont(getFont(TEXTSIZE * JSONManager.loadFloatSetting("text scale")));
             String[] equipmentTypes = JSONManager.getEquipmentFromClass(selectedClass);
             for (int i = 0; i < JSONManager.getNumEquipmentTypesFromClass(selectedClass); i ++){
                 panelCanvas.strokeWeight(1);
@@ -329,7 +329,7 @@ public class EquipmentManager extends Element {
         panelCanvas.popStyle();
     }
 
-    public boolean mouseOverClasses() {
+    private boolean mouseOverClasses() {
         return papplet.mouseX-xOffset >= x && papplet.mouseX-xOffset <= x+w && papplet.mouseY-yOffset >= y && papplet.mouseY-yOffset <= y+boxHeight;
     }
 
@@ -353,7 +353,7 @@ public class EquipmentManager extends Element {
         return -1;
     }
 
-    public int hoveringOverClass() {
+    private int hoveringOverClass() {
         for (int i = 0; i < JSONManager.getNumEquipmentClasses(); i ++) {
             if (papplet.mouseX-xOffset >= x+boxWidth*i && papplet.mouseX-xOffset <= x+boxWidth*(i+1) && papplet.mouseY-yOffset >= y && papplet.mouseY-yOffset <= y+boxHeight){
                 return i;

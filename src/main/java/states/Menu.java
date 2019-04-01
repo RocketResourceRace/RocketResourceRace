@@ -22,6 +22,7 @@ public class Menu extends State {
     private PShape bg;
     private String currentPanel, newPanel;
     private HashMap<String, String[]> stateChangers, settingChangers;
+    private Tooltip tooltip;
 
     public Menu() {
         super();
@@ -39,20 +40,30 @@ public class Menu extends State {
     private void loadMenuPanels() {
         LOGGER_MAIN.fine("Loading menu panels");
         resetPanels();
+
+
         JSONManager.loadMenuElements(this, JSONManager.loadFloatSetting("gui scale"));
+        tooltip = (Tooltip)getElement("0tooltip", "overlay");
         hidePanels();
         getPanel(currentPanel).setVisible(true);
+        getPanel("overlay").setVisible(true);
         stateChangers = JSONManager.getChangeStateButtons();
         settingChangers = JSONManager.getChangeSettingButtons();
 
         addElement("loading manager", new BaseFileManager(papplet.width/4, papplet.height/4, papplet.width/2, papplet.height/3, "saves"), "load game");
     }
 
+    /*
     public int currentColour() {
         float c = abs(((float)(hour()-12)+(float)minute()/60)/24);
         int day = papplet.color(255, 255, 255, 50);
         int night = papplet.color(0, 0, 50, 255);
         return papplet.lerpColor(day, night, c*2);
+    }*/
+
+    private void refreshTooltip() {
+        LOGGER_MAIN.fine("refreshing tooltip");
+        tooltip.refresh();
     }
 
     public String update() {
@@ -85,12 +96,15 @@ public class Menu extends State {
     private void changeMenuPanel() {
         LOGGER_MAIN.fine("Changing menu panel to: "+newPanel);
         panelToTop(newPanel);
+        panelToTop("overlay");
         getPanel(newPanel).setVisible(true);
         getPanel(currentPanel).setVisible(false);
         currentPanel = newPanel;
         for (Element elem : getPanel(newPanel).elements) {
             elem.mouseEvent("mouseMoved", LEFT);
+            tooltip.enableElement(elem);
         }
+        refreshTooltip();
         activePanel = newPanel;
     }
 
@@ -175,9 +189,6 @@ public class Menu extends State {
         }
     }
 
-
-
-
     public void elementEvent(ArrayList<Event> events) {
         for (Event event : events) {
             if (event.type.equals("valueChanged") && settingChangers.get(event.id) != null && event.panel != null) {
@@ -240,5 +251,9 @@ public class Menu extends State {
                 }
             }
         }
+    }
+    public ArrayList<String> mouseEvent(String eventType, int button) {
+        refreshTooltip();
+        return new ArrayList<>();
     }
 }
