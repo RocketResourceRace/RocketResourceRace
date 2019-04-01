@@ -464,23 +464,7 @@ public class JSONManager {
         try {
             for (int i=0; i<defaultSettings.size(); i++) {
                 JSONObject setting = defaultSettings.getJSONObject(i);
-                switch (setting.getString("type")) {
-                    case "int":
-                        saveSetting(setting.getString("id"), setting.getInt("value"));
-                        break;
-                    case "float":
-                        saveSetting(setting.getString("id"), setting.getFloat("value"));
-                        break;
-                    case "string":
-                        saveSetting(setting.getString("id"), setting.getString("value"));
-                        break;
-                    case "boolean":
-                        saveSetting(setting.getString("id"), setting.getBoolean("value"));
-                        break;
-                    default:
-                        LOGGER_MAIN.warning("Invalid setting type: " + setting.getString("id"));
-                        break;
-                }
+                saveSettingFromJSONObject(setting);
             }
         }
         catch (Exception e) {
@@ -496,23 +480,7 @@ public class JSONManager {
             for (int i=0; i<defaultSettings.size(); i++) {
                 JSONObject setting = defaultSettings.getJSONObject(i);
                 if (settings.get(setting.getString("id")) == null) {
-                    switch (setting.getString("type")) {
-                        case "int":
-                            saveSetting(setting.getString("id"), setting.getInt("value"));
-                            break;
-                        case "float":
-                            saveSetting(setting.getString("id"), setting.getFloat("value"));
-                            break;
-                        case "string":
-                            saveSetting(setting.getString("id"), setting.getString("value"));
-                            break;
-                        case "boolean":
-                            saveSetting(setting.getString("id"), setting.getBoolean("value"));
-                            break;
-                        default:
-                            LOGGER_MAIN.warning("Invalid setting type: " + setting.getString("type"));
-                            break;
-                    }
+                    saveSettingFromJSONObject(setting);
                 }
             }
             writeSettings();
@@ -520,6 +488,26 @@ public class JSONManager {
         catch (Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, "Error loading initial settings", e);
             throw e;
+        }
+    }
+
+    private static void saveSettingFromJSONObject(JSONObject setting) {
+        switch (setting.getString("type")) {
+            case "int":
+                saveSetting(setting.getString("id"), setting.getInt("value"));
+                break;
+            case "float":
+                saveSetting(setting.getString("id"), setting.getFloat("value"));
+                break;
+            case "string":
+                saveSetting(setting.getString("id"), setting.getString("value"));
+                break;
+            case "boolean":
+                saveSetting(setting.getString("id"), setting.getBoolean("value"));
+                break;
+            default:
+                LOGGER_MAIN.warning("Invalid setting type: " + setting.getString("type"));
+                break;
         }
     }
 
@@ -572,23 +560,7 @@ public class JSONManager {
         for (int i=0; i<defaultSettings.size(); i++) {
             if (defaultSettings.getJSONObject(i).getString("id").equals(id)) {
                 JSONObject setting = defaultSettings.getJSONObject(i);
-                switch (setting.getString("type")) {
-                    case "int":
-                        saveSetting(setting.getString("id"), setting.getInt("value"));
-                        break;
-                    case "float":
-                        saveSetting(setting.getString("id"), setting.getFloat("value"));
-                        break;
-                    case "string":
-                        saveSetting(setting.getString("id"), setting.getString("value"));
-                        break;
-                    case "boolean":
-                        saveSetting(setting.getString("id"), setting.getBoolean("value"));
-                        break;
-                    default:
-                        LOGGER_MAIN.warning("Invalid setting type: " + setting.getString("type"));
-                        break;
-                }
+                saveSettingFromJSONObject(setting);
             }
         }
         writeSettings();
@@ -731,6 +703,7 @@ public class JSONManager {
                 state.addPanel(panel.getString("id"), 0, 0, papplet.width, papplet.height, true, true, papplet.color(255, 255, 255, 255), papplet.color(0));
                 loadPanelMenuElements(state, panel.getString("id"), guiScale, tooltip);
             }
+            state.panelToTop("overlay");
         }
         catch(Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, "Error loading menu state.elements", e);

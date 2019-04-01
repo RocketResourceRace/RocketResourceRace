@@ -39,9 +39,13 @@ public class Tooltip extends MultiLineTextBox {
     public void refresh() {
         for (TooltipElement te: elements) {
             if (te.isEnabled() && te.mouseOver()) {
-                setText(te.getText());
-                show();
-                return;
+                if (te.getElement().isVisible()) {
+                    setText(te.getText());
+                    show();
+                    return;
+                } else {
+                    te.setEnabled(false);
+                }
             }
         }
         hide();

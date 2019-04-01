@@ -66,7 +66,6 @@ public class Menu extends State {
         tooltip.refresh();
     }
 
-
     public String update() {
         papplet.shape(bg);
         //if(((ToggleButton)getElement("background dimming", "settings")).getState()){
@@ -97,12 +96,15 @@ public class Menu extends State {
     private void changeMenuPanel() {
         LOGGER_MAIN.fine("Changing menu panel to: "+newPanel);
         panelToTop(newPanel);
+        panelToTop("overlay");
         getPanel(newPanel).setVisible(true);
         getPanel(currentPanel).setVisible(false);
         currentPanel = newPanel;
         for (Element elem : getPanel(newPanel).elements) {
             elem.mouseEvent("mouseMoved", LEFT);
+            tooltip.enableElement(elem);
         }
+        refreshTooltip();
         activePanel = newPanel;
     }
 

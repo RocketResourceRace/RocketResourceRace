@@ -15,7 +15,7 @@ public class Panel {
     public ArrayList<Element> elements;
     String id;
     private PImage img;
-    public Boolean visible;
+    private Boolean visible;
     Boolean blockEvent;
     Boolean overrideBlocking;
     protected int x;
@@ -69,9 +69,13 @@ public class Panel {
     }
 
     public void setVisible(boolean a) {
+        // Sets the visibility of all elements within the panel as well (this may be changed)
+
         visible = a;
         for (Element elem : elements) {
+            elem.setVisible(a);
             elem.mouseEvent("mouseMoved", papplet.mouseButton);
+
         }
         LOGGER_MAIN.finest("Visiblity changed to " + a);
     }
@@ -102,7 +106,7 @@ public class Panel {
         panelCanvas.popStyle();
 
         for (Element elem : elements) {
-            if (elem.visible) {
+            if (elem.isVisible()) {
                 elem.draw(panelCanvas);
             }
         }
@@ -119,5 +123,9 @@ public class Panel {
 
     public Boolean mouseOver() {
         return papplet.mouseX >= x && papplet.mouseX <= x+w && papplet.mouseY >= y && papplet.mouseY <= y+h;
+    }
+
+    public Boolean isVisible() {
+        return visible;
     }
 }

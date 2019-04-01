@@ -76,7 +76,7 @@ public class MultiLineTextBox extends Element {
     }
 
     public void draw(PGraphics panelCanvas) {
-        if (visible) {
+        if (isVisible()) {
             panelCanvas.pushStyle();
             ArrayList<String> lines = getLines(text);
             panelCanvas.textFont(getFont(textSize* JSONManager.loadFloatSetting("text scale")));

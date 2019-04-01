@@ -902,7 +902,7 @@ public class Game extends State {
     private boolean UINotHovering() {
         //To avoid doing things while hoving over important stuff
         NotificationManager nm = ((NotificationManager)(getElement("notification manager", "default")));
-        return (!getPanel("party management").mouseOver() || !getPanel("party management").visible) && (!getPanel("land management").mouseOver() || !getPanel("land management").visible) &&
+        return (!getPanel("party management").mouseOver() || !getPanel("party management").isVisible()) && (!getPanel("land management").mouseOver() || !getPanel("land management").isVisible()) &&
                 (!nm.moveOver() || nm.empty());
     }
 
@@ -1421,7 +1421,7 @@ public class Game extends State {
                 ((Button)getElement("idle party finder", "bottom bar")).setColour(papplet.color(150));
             }
             if (checkForPlayerWin()) {
-                this.getPanel("end screen").visible = true;
+                this.getPanel("end screen").setVisible(true);
             } else if (!players[turn].isAlive) {
                 turnChange();
                 return;
@@ -1527,7 +1527,7 @@ public class Game extends State {
         }
         // Draw the panels in reverse order (highest in the list are drawn last so appear on top)
         for (int i=panels.size()-1; i>=0; i--) {
-            if (panels.get(i).visible) {
+            if (panels.get(i).isVisible()) {
                 panels.get(i).draw();
             }
         }
@@ -1544,7 +1544,7 @@ public class Game extends State {
         gameUICanvas.clear();
         gameUICanvas.pushStyle();
 
-        if (tooltip.visible&&tooltip.attacking) {
+        if (tooltip.isVisible()&&tooltip.attacking) {
             int x = floor(map.scaleXInv());
             int y = floor(map.scaleYInv());
             if (0<=x&&x<mapWidth&&0<=y&&y<mapHeight && parties[y][x] != null && parties[selectedCellY][selectedCellX] != null && parties[y][x].player != parties[selectedCellY][selectedCellX].player && map.mouseOver() && UINotHovering()) {
@@ -1559,10 +1559,10 @@ public class Game extends State {
             drawRocketProgressBar(gameUICanvas);
         }
         if (cellSelected) {
-            if (getPanel("land management").visible) {
+            if (getPanel("land management").isVisible()) {
                 drawCellManagement(gameUICanvas);
             }
-            if (parties[selectedCellY][selectedCellX] != null && getPanel("party management").visible)
+            if (parties[selectedCellY][selectedCellX] != null && getPanel("party management").isVisible())
                 drawPartyManagement(gameUICanvas);
         }
         gameUICanvas.endDraw();
@@ -1585,7 +1585,7 @@ public class Game extends State {
         // to here
 
         if (checkForPlayerWin()) {
-            this.getPanel("end screen").visible = true;
+            this.getPanel("end screen").setVisible(true);
         }
 
         // Process AI and bandits turns
@@ -1792,7 +1792,7 @@ public class Game extends State {
                         break;
                     }
                     case "resource detailed": {
-                        getPanel("resource management").setVisible(!getPanel("resource management").visible);
+                        getPanel("resource management").setVisible(!getPanel("resource management").isVisible());
                         ResourceManagementTable r = ((ResourceManagementTable) (getElement("resource management table", "resource management")));
                         Button b = ((Button) (getElement("resource detailed", "bottom bar")));
                         ArrayList<ArrayList<String>> names = new ArrayList<>();
@@ -1854,15 +1854,15 @@ public class Game extends State {
                         quitGame();
                         break;
                     case "resume button":
-                        getPanel("pause screen").visible = false;
-                        getPanel("save screen").visible = false;
+                        getPanel("pause screen").setVisible(false);
+                        getPanel("save screen").setVisible(false);
                         // Enable map
                         getElement("2dmap", "default").active = true;
                         getElement("3dmap", "default").active = true;
                         break;
                     case "save as button":
                         // Show the save menu
-                        getPanel("save screen").visible = !getPanel("save screen").visible;
+                        getPanel("save screen").setVisible(!getPanel("save screen").isVisible());
                         if (loadingName == null) {
                             loadingName = ((BaseFileManager) getElement("saving manager", "save screen")).getNextAutoName(); // Autogen name
                         }
@@ -2254,26 +2254,26 @@ public class Game extends State {
     private void refreshTooltip() {
         if (players[turn].controllerType != 1) {
             LOGGER_MAIN.fine("refreshing tooltip");
-            if (!getPanel("pause screen").visible) {
+            if (!getPanel("pause screen").isVisible()) {
                 TaskManager tasks = ((TaskManager)getElement("tasks", "party management"));
-                if (((EquipmentManager)getElement("equipment manager", "party management")).mouseOverTypes() && getPanel("party management").visible) {
+                if (((EquipmentManager)getElement("equipment manager", "party management")).mouseOverTypes() && getPanel("party management").isVisible()) {
                     int hoveringType = ((EquipmentManager)getElement("equipment manager", "party management")).hoveringOverType();
                     int equipmentClass = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
                     tooltip.setEquipment(equipmentClass, hoveringType, players[turn].resources, parties[selectedCellY][selectedCellX], isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, parties[selectedCellY][selectedCellX].getEquipment(equipmentClass)));
                     tooltip.show();
-                } else if (tasks.moveOver() && getPanel("party management").visible && !tasks.scrolling && !tasks.hovingOverScroll() && tasks.active) {
+                } else if (tasks.moveOver() && getPanel("party management").isVisible() && !tasks.scrolling && !tasks.hovingOverScroll() && tasks.active) {
                     tooltip.setTask(((TaskManager)getElement("tasks", "party management")).findMouseOver(), players[turn].resources, parties[selectedCellY][selectedCellX].getMovementPoints());
                     tooltip.show();
-                } else if (((ProficiencySummary)getElement("proficiency summary", "party management")).mouseOver() && getPanel("party management").visible) {
+                } else if (((ProficiencySummary)getElement("proficiency summary", "party management")).mouseOver() && getPanel("party management").isVisible()) {
                     tooltip.setProficiencies(((ProficiencySummary)getElement("proficiency summary", "party management")).hoveringOption(), parties[selectedCellY][selectedCellX]);
                     tooltip.show();
-                } else if (((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").visible) {
+                } else if (((Text)getElement("turns remaining", "party management")).mouseOver()&& getPanel("party management").isVisible()) {
                     tooltip.setTurnsRemaining();
                     tooltip.show();
-                } else if (((Button)getElement("move button", "party management")).mouseOver()&& getPanel("party management").visible) {
+                } else if (((Button)getElement("move button", "party management")).mouseOver()&& getPanel("party management").isVisible()) {
                     tooltip.setMoveButton();
                     tooltip.show();
-                } else if (((Button)getElement("stock up button", "party management")).mouseOver() && getPanel("party management").visible) {
+                } else if (((Button)getElement("stock up button", "party management")).mouseOver() && getPanel("party management").isVisible()) {
                     if (((Button)getElement("stock up button", "party management")).active) {
                         tooltip.setStockUpAvailable(parties[selectedCellY][selectedCellX], players[turn].resources);
                     } else {
@@ -2516,9 +2516,9 @@ public class Game extends State {
     }
 
     private void updateBombardment() {
-        getElement("bombardment button", "party management").visible = parties[selectedCellY][selectedCellX].equipment[1] != -1 &&
+        getElement("bombardment button", "party management").setVisible(parties[selectedCellY][selectedCellX].equipment[1] != -1 &&
                 gameData.getJSONArray("equipment").getJSONObject(1).getJSONArray("types").getJSONObject(parties[selectedCellY][selectedCellX].equipment[1]).hasKey("range") &&
-                parties[selectedCellY][selectedCellX].equipmentQuantities[1] > 0 && parties[selectedCellY][selectedCellX].getMovementPoints() > 0;
+                parties[selectedCellY][selectedCellX].equipmentQuantities[1] > 0 && parties[selectedCellY][selectedCellX].getMovementPoints() > 0);
     }
 
     private void updateUnitCapIncrementer() {
@@ -2731,26 +2731,26 @@ public class Game extends State {
 
     public ArrayList<String> keyboardEvent(String eventType, char _key) {
         if (eventType.equals("keyPressed") && _key==0 && papplet.keyCode == VK_F12) {
-            getPanel("console").visible = !getPanel("console").visible;
-            getElement("2dmap", "default").active = !getPanel("console").visible;
-            getElement("3dmap", "default").active = !getPanel("console").visible;
+            getPanel("console").setVisible(!getPanel("console").isVisible());
+            getElement("2dmap", "default").active = !getPanel("console").isVisible();
+            getElement("3dmap", "default").active = !getPanel("console").isVisible();
         }
         if (eventType.equals("keyPressed") && _key == ESC) {
-            getPanel("pause screen").visible = !getPanel("pause screen").visible;
+            getPanel("pause screen").setVisible(!getPanel("pause screen").isVisible());
             tooltip.hide();
-            if (getPanel("pause screen").visible) {
+            if (getPanel("pause screen").isVisible()) {
                 ((BaseFileManager)getElement("saving manager", "save screen")).loadSaveNames();
                 // Disable map
                 getElement("2dmap", "default").active = false;
                 getElement("3dmap", "default").active = false;
             } else {
-                getPanel("save screen").visible = false;
+                getPanel("save screen").setVisible(false);
                 // Enable map
                 getElement("2dmap", "default").active = true;
                 getElement("3dmap", "default").active = true;
             }
         }
-        if (!getPanel("pause screen").visible&&!getPanel("console").visible) {
+        if (!getPanel("pause screen").isVisible()&&!getPanel("console").isVisible()) {
             refreshTooltip();
             if (eventType.equals("keyTyped")) {
                 if (_key == ' '&&!cinematicMode) {
@@ -2785,8 +2785,8 @@ public class Game extends State {
 
         clearPrevIdle();
         ((Text)getElement("turns remaining", "party management")).setText("");
-        getPanel("end screen").visible = false;
-        getPanel("save screen").visible = false;
+        getPanel("end screen").setVisible(false);
+        getPanel("save screen").setVisible(false);
         // Enable map
         getElement("2dmap", "default").active = true;
         getElement("3dmap", "default").active = true;
@@ -2797,20 +2797,20 @@ public class Game extends State {
         if (JSONManager.loadBooleanSetting("map is 3d")) {
             LOGGER_MAIN.finer("Map is 3d");
             map = (Map3D)getElement("3dmap", "default");
-            ((Map3D)getElement("3dmap", "default")).visible = true;
-            ((Map2D)getElement("2dmap", "default")).visible = false;
-            getElement("unit number bars toggle", "bottom bar").visible = true;
-            getElement("task icons toggle", "bottom bar").visible = true;
+            ((Map3D) getElement("3dmap", "default")).setVisible(true);
+            ((Map2D) getElement("2dmap", "default")).setVisible(false);
+            getElement("unit number bars toggle", "bottom bar").setVisible(true);
+            getElement("task icons toggle", "bottom bar").setVisible(true);
             getElement("unit number bars toggle", "bottom bar").active = true;
             getElement("task icons toggle", "bottom bar").active = true;
             ((Map3D)map).reset();
         } else {
             LOGGER_MAIN.finer("Map is 2d");
             map = (Map2D)getElement("2dmap", "default");
-            ((Map3D)getElement("3dmap", "default")).visible = false;
-            ((Map2D)getElement("2dmap", "default")).visible = true;
-            getElement("unit number bars toggle", "bottom bar").visible = false;
-            getElement("task icons toggle", "bottom bar").visible = false;
+            ((Map3D) getElement("3dmap", "default")).setVisible(false);
+            ((Map2D) getElement("2dmap", "default")).setVisible(true);
+            getElement("unit number bars toggle", "bottom bar").setVisible(false);
+            getElement("task icons toggle", "bottom bar").setVisible(false);
             getElement("unit number bars toggle", "bottom bar").active = false;
             getElement("task icons toggle", "bottom bar").active = false;
             ((Map2D)map).reset();
@@ -2891,7 +2891,7 @@ public class Game extends State {
         t.setText("Turn "+turnNumber);
 
         updateResourcesSummary();
-        getPanel("pause screen").visible = false;
+        getPanel("pause screen").setVisible(false);
 
         notificationManager.reset();
 

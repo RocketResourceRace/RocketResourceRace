@@ -41,7 +41,7 @@ public class State {
     }
     protected void hidePanels() {
         for (Panel panel : panels) {
-            panel.visible = false;
+            panel.setVisible(false);
         }
         LOGGER_MAIN.finer("Panels hidden");
     }
@@ -86,7 +86,7 @@ public class State {
         return null;
     }
 
-    protected void panelToTop(String id) {
+    public void panelToTop(String id) {
         Panel tempPanel = getPanel(id);
         for (int i=findPanel(id); i>0; i--) {
             panels.set(i, panels.get(i-1));
@@ -138,7 +138,7 @@ public class State {
         checkElementOnTop();
         // Draw the panels in reverse order (highest in the list are drawn last so appear on top)
         for (int i=panels.size()-1; i>=0; i--) {
-            if (panels.get(i).visible) {
+            if (panels.get(i).isVisible()) {
                 panels.get(i).draw();
             }
         }
@@ -177,7 +177,7 @@ public class State {
             mouseEvent(eventType, button);
             if (eventType.equals("mousePressed")) {
                 for (Panel panel : panels) {
-                    if (panel.mouseOver() && panel.visible && panel.blockEvent) {
+                    if (panel.mouseOver() && panel.isVisible() && panel.blockEvent) {
                         activePanel = panel.id;
                         break;
                     }
@@ -187,7 +187,7 @@ public class State {
                 if (activePanel.equals(panel.id) || eventType.equals("mouseMoved") || panel.overrideBlocking) {
                     // Iterate in reverse order
                     for (int i=panel.elements.size()-1; i>=0; i--) {
-                        if (panel.elements.get(i).active && panel.visible) {
+                        if (panel.elements.get(i).active && panel.isVisible()) {
                             try {
                                 for (String eventName : panel.elements.get(i)._mouseEvent(eventType, button)) {
                                     events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
@@ -224,12 +224,12 @@ public class State {
         //Find panel and elem on top
         for (int i=panels.size()-1; i>=0; i--) {
             Panel panel = panels.get(i);
-            if (panel.mouseOver() && panel.visible) {
+            if (panel.mouseOver() && panel.isVisible()) {
                 if (panel.blockEvent){
                     blocked = true;
                 }
                 for (Element elem : panel.elements) {
-                    if (elem.pointOver() && elem.visible){
+                    if (elem.pointOver() && elem.isVisible()){
                         elemID = elem.id;
                         panelID = panel.id;
                         blocked = false;
@@ -255,14 +255,14 @@ public class State {
             mouseEvent(eventType, button, event);
             if (eventType.equals("mouseWheel")) {
                 for (Panel panel : panels) {
-                    if (panel.mouseOver() && panel.visible && panel.blockEvent) {
+                    if (panel.mouseOver() && panel.isVisible() && panel.blockEvent) {
                         activePanel = panel.id;
                         break;
                     }
                 }
             }
             for (Panel panel : panels) {
-                if (activePanel.equals(panel.id) && panel.mouseOver() && panel.visible || panel.overrideBlocking) {
+                if (activePanel.equals(panel.id) && panel.mouseOver() && panel.isVisible() || panel.overrideBlocking) {
                     // Iterate in reverse order
                     for (int i=panel.elements.size()-1; i>=0; i--) {
                         if (panel.elements.get(i).active) {
@@ -298,7 +298,7 @@ public class State {
             keyboardEvent(eventType, _key);
             for (Panel panel : panels) {
                 for (int i=panel.elements.size()-1; i>=0; i--) {
-                    if (panel.elements.get(i).active && panel.visible) {
+                    if (panel.elements.get(i).active && panel.isVisible()) {
                         for (String eventName : panel.elements.get(i)._keyboardEvent(eventType, _key)) {
                             events.add(new Event(panel.elements.get(i).id, panel.id, eventName));
                         }
