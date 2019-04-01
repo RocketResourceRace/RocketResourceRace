@@ -111,7 +111,8 @@
           "w": 12,
           "h": 3,
           "text": "Local Machine",
-          "new state": "new game settings"
+          "new state": "new game settings",
+          "tooltip": "Create a game where players take turns on the same computer"
         },
         {
           "id": "local network button",
@@ -120,7 +121,8 @@
           "y": 4,
           "w": 12,
           "h": 3,
-          "text": "Local Network"
+          "text": "Local Network",
+          "tooltip": "Create a game where players play on the network"
         },
         {
           "id": "back",
@@ -197,7 +199,8 @@
           "upper": 300,
           "step": 20,
           "minor": 10,
-          "major": 5
+          "major": 5,
+          "tooltip": "The max size of a party"
         },
         {
           "id": "starting food",
@@ -265,7 +268,8 @@
           "upper": 1.0,
           "step": 0.05,
           "minor": 20,
-          "major": 5
+          "major": 5,
+          "tooltip": "This adjusts the amount of water on the map"
         },
         {
           "id": "hills height",
@@ -281,7 +285,8 @@
           "upper": 1.0,
           "step": 0.02,
           "minor": 25,
-          "major": 5
+          "major": 5,
+          "tooltip": "This adjusts the threshold for hills on the map, \nlarger value means fewer hills"
         },
         {
           "id": "forest weighting",
@@ -297,7 +302,8 @@
           "upper": 1,
           "step": 0.05,
           "minor": 20,
-          "major": 5
+          "major": 5,
+          "tooltip": "Adjusts the amount of forest on the map"
         },
         {
           "id": "grass weighting",
@@ -313,7 +319,8 @@
           "upper": 1,
           "step": 0.05,
           "minor": 20,
-          "major": 5
+          "major": 5,
+          "tooltip": "Adjusts the amount of grass on the map"
         },
         {
           "id": "sand weighting",
@@ -329,7 +336,8 @@
           "upper": 1,
           "step": 0.05,
           "minor": 20,
-          "major": 5
+          "major": 5,
+          "tooltip": "Adjusts the amount of sand on the map"
         },
         {
           "id": "map size",
@@ -345,7 +353,8 @@
           "upper": 200,
           "step": 10,
           "minor": 20,
-          "major": 5
+          "major": 5,
+          "tooltip": "Adjusts the dimensions of the map"
         },
         {
           "id": "new game back",
@@ -403,7 +412,8 @@
           "upper": 1.5,
           "step": 0.05,
           "minor": 16,
-          "major": 4
+          "major": 4,
+          "tooltip": "Change the scaling of the map"
         },
         {
           "id": "text scale",
@@ -418,7 +428,8 @@
           "upper": 2,
           "step": 0.05,
           "minor": 20,
-          "major": 5
+          "major": 5,
+          "tooltip": "Change the size of the text"
         },
         {
           "id": "forest density",
@@ -430,7 +441,8 @@
           "text": "Forest Density",
           "setting": "forest density",
           "options": ["3", "5", "10", "20"],
-          "options type": "ints"
+          "options type": "ints",
+          "tooltip": "Adjust the number of trees on each tile.\nHaving more trees can reduce performance and/or increase memory usage"
         },
         {
           "id": "terrain texture res",
@@ -442,7 +454,8 @@
           "text": "Terrain Texture Res",
           "setting": "terrain texture resolution",
           "options": ["16", "32", "64"],
-          "options type": "ints"
+          "options type": "ints",
+          "tooltip": "Adjust the resolution of the terrain.\nHigher resolutions will increase memory usage drastically"
         },
         {
           "id": "terrain detail",
@@ -454,7 +467,8 @@
           "text": "Terrain Detail",
           "setting": "terrain detail",
           "options": ["1", "2", "4"],
-          "options type": "ints"
+          "options type": "ints",
+          "tooltip": "Adjusts number of vertices used to draw the terrain.\nHigher values will increase memory usage and decrease performance"
         },
         {
           "id": "framerate cap",
@@ -465,7 +479,8 @@
           "w": 12,
           "h": 1,
           "text": "Framerate Cap",
-          "setting" : "framerate cap"
+          "setting" : "framerate cap",
+          "tooltip": "Turn on the framerate cap to 60 fps"
         },
         {
           "id": "active cell highlighting",
@@ -476,7 +491,8 @@
           "w": 12,
           "h": 1,
           "text": "Active Cell Highlighting",
-          "setting" : "active cell highlighting"
+          "setting" : "active cell highlighting",
+          "tooltip": "Highlight boundaries between cells near cursor"
         },
         {
           "id": "show fps",
