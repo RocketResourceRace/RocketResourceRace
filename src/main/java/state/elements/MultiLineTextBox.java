@@ -18,7 +18,7 @@ public class MultiLineTextBox extends Element {
     public int y;
     protected int w;
     public int h;
-    private int textSize;
+    protected int textSize;
     private int textAlignx;
     private int textAligny;
     public int bgColour;

@@ -30,7 +30,7 @@ public class Tooltip extends MultiLineTextBox {
 
     public void draw(PGraphics panelCanvas) {
         int tw = ceil(maxWidthLine(panelCanvas, lines))+4;
-        x = round(between(0, papplet.mouseX-xOffset-tw/2f, papplet.width-tw));
+        x = round(between(0, papplet.mouseX-xOffset-tw/2f, (float) (papplet.width-tw*1.1)));
         int th = ceil(panelCanvas.textAscent()+panelCanvas.textDescent())*lines.size();
         y = round(between(0, papplet.mouseY-yOffset, papplet.height-th-20)+20);
         super.draw(panelCanvas);

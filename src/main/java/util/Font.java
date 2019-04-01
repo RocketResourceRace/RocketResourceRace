@@ -2,6 +2,7 @@ package util;
 
 import processing.core.PFont;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.logging.Level;
 
@@ -15,7 +16,9 @@ public class Font {
         try {
             PFont f=fonts.get(round(size));
             if (f == null) {
-                fonts.put(round(size), papplet.createFont("GillSans", size));
+                String[] allFonts = PFont.list();
+                System.out.println(Arrays.toString(allFonts));
+                fonts.put(round(size), papplet.createFont("FreeSans", size));
                 return fonts.get(round(size));
             } else {
                 return f;
