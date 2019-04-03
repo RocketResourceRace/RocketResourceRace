@@ -4,9 +4,9 @@ package json;
 import processing.core.PApplet;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
-import state.Element;
-import state.State;
-import state.elements.*;
+import ui.Element;
+import ui.State;
+import ui.element.*;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -953,6 +953,20 @@ public class JSONManager {
         catch (Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, "Error getting building index for:"+building, e);
             throw e;
+        }
+    }
+
+    public static String buildingString(int buildingI) {
+        try {
+            if (gameData.getJSONArray("buildings").isNull(buildingI)) {
+                LOGGER_MAIN.warning("invalid building string "+(buildingI));
+                return null;
+            }
+            return gameData.getJSONArray("buildings").getJSONObject(buildingI).getString("id");
+        }
+        catch (NullPointerException e) {
+            LOGGER_MAIN.log(Level.SEVERE, "Error due to JSON being incorrectly formatted for building string", e);
+            return null;
         }
     }
 }

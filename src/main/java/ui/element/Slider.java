@@ -1,8 +1,8 @@
-package state.elements;
+package ui.element;
 
 import json.JSONManager;
 import processing.core.PGraphics;
-import state.Element;
+import ui.Element;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

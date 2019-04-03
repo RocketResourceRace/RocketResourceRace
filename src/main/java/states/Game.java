@@ -1,6 +1,8 @@
 package states;
 
 
+import control.ProductionManager;
+import control.TaskManager;
 import event.*;
 import json.JSONManager;
 import map.*;
@@ -14,9 +16,10 @@ import processing.core.PImage;
 import processing.core.PVector;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
-import state.Panel;
-import state.State;
-import state.elements.*;
+import control.ResourceManager;
+import ui.Panel;
+import ui.State;
+import ui.element.*;
 import util.BattleEstimateManager;
 import util.Cell;
 import util.Node;
@@ -25,14 +28,16 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.logging.Level;
 
 import static com.jogamp.newt.event.KeyEvent.VK_F12;
 import static json.JSONManager.*;
 import static processing.core.PApplet.*;
+import static util.Constants.BEZEL;
 import static util.Dijkstra.LimitedKnowledgeDijkstra;
 import static util.Font.getFont;
+import static util.GameInfo.turnNumber;
+import static util.GameInfo.turn;
 import static util.Image.partyBaseImages;
 import static util.Image.partyImages;
 import static util.Logging.LOGGER_GAME;
@@ -40,17 +45,9 @@ import static util.Logging.LOGGER_MAIN;
 import static util.Util.*;
 
 public class Game extends State {
-    private final int bezel = 10;
     private final int mapElementHeight = round(papplet.height);
     private PGraphics gameUICanvas;
-    private String[] tasks;
     private String[] buildingTypes;
-    private float[][] taskCosts;
-    private float[][] taskOutcomes;
-    private int numResources;
-    private String[] resourceNames;
-    private float [] startingResources;
-    private int turnNumber;
     public int mapHeight = JSONManager.loadIntSetting("map size");
     public int mapWidth = JSONManager.loadIntSetting("map size");
     public int[][] terrain;
@@ -58,8 +55,10 @@ public class Game extends State {
     public Building[][] buildings;
     private BattleEstimateManager battleEstimateManager;
     private NotificationManager notificationManager;
+    private ResourceManager resourceManager;
+    private ProductionManager productionManager;
+    private TaskManager taskManager;
     private AdvancedTooltip tooltip;
-    public int turn;
     private boolean changeTurn = false;
     private int winner = -1;
     private Map map;
@@ -68,7 +67,6 @@ public class Game extends State {
     private boolean cellSelected=false, moving=false;
     private int partyManagementColour;
     private ArrayList<Integer[]> prevIdle;
-    private float[] totals;
     private Party splittedParty;
     private int[] mapClickPos = null;
     private boolean cinematicMode;
@@ -90,10 +88,11 @@ public class Game extends State {
             players = new Player[4];
             //
 
-            initialiseResources();
-            initialiseTasks();
+            resourceManager = new ResourceManager(players);
+            resourceManager.initialiseResources();
+            taskManager = new TaskManager();
+            taskManager.initialiseTasks(resourceManager.getNumResources());
             initialiseBuildings();
-            totals = new float[resourceNames.length];
 
             int mapElementWidth = round(papplet.width);
             addElement("2dmap", new Map2D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight, players));
@@ -125,24 +124,24 @@ public class Game extends State {
             addElement("save as button", new Button((int)(papplet.width/2-JSONManager.loadFloatSetting("gui scale")*150), (int)(papplet.height/2-3*JSONManager.loadFloatSetting("gui scale")*40), (int)(JSONManager.loadFloatSetting("gui scale")*300), (int)(JSONManager.loadFloatSetting("gui scale")*60), papplet.color(70, 70, 220), papplet.color(50, 50, 200), papplet.color(255), 14, CENTER, CENTER, "Save As"), "pause screen");
             addElement("resume button", new Button((int)(papplet.width/2-JSONManager.loadFloatSetting("gui scale")*150), (int)(papplet.height/2-5*JSONManager.loadFloatSetting("gui scale")*40), (int)(JSONManager.loadFloatSetting("gui scale")*300), (int)(JSONManager.loadFloatSetting("gui scale")*60), papplet.color(70, 70, 220), papplet.color(50, 50, 200), papplet.color(255), 14, CENTER, CENTER, "Resume"), "pause screen");
 
-            addElement("save button", new Button(bezel, bezel, (int)(JSONManager.loadFloatSetting("gui scale")*300)-2*bezel, (int)(JSONManager.loadFloatSetting("gui scale")*60), papplet.color(100), papplet.color(0), papplet.color(255), 14, CENTER, CENTER, "Save"), "save screen");
-            addElement("saving manager", new BaseFileManager(bezel, (int)(4*JSONManager.loadFloatSetting("gui scale")*40), (int)(JSONManager.loadFloatSetting("gui scale")*500)-2*bezel, (int)(JSONManager.loadFloatSetting("gui scale")*320), "saves"), "save screen");
-            addElement("save namer", new TextEntry(bezel, (int)(2*JSONManager.loadFloatSetting("gui scale")*40)+bezel*2, (int)(JSONManager.loadFloatSetting("gui scale")*300), (int)(JSONManager.loadFloatSetting("gui scale")*50), LEFT, papplet.color(0), papplet.color(100), papplet.color(0), "", "Save Name"), "save screen");
+            addElement("save button", new Button(BEZEL, BEZEL, (int)(JSONManager.loadFloatSetting("gui scale")*300)-2*BEZEL, (int)(JSONManager.loadFloatSetting("gui scale")*60), papplet.color(100), papplet.color(0), papplet.color(255), 14, CENTER, CENTER, "Save"), "save screen");
+            addElement("saving manager", new BaseFileManager(BEZEL, (int)(4*JSONManager.loadFloatSetting("gui scale")*40), (int)(JSONManager.loadFloatSetting("gui scale")*500)-2*BEZEL, (int)(JSONManager.loadFloatSetting("gui scale")*320), "saves"), "save screen");
+            addElement("save namer", new TextEntry(BEZEL, (int)(2*JSONManager.loadFloatSetting("gui scale")*40)+BEZEL*2, (int)(JSONManager.loadFloatSetting("gui scale")*300), (int)(JSONManager.loadFloatSetting("gui scale")*50), LEFT, papplet.color(0), papplet.color(100), papplet.color(0), "", "Save Name"), "save screen");
 
-            addElement("turns remaining", new Text(bezel*2+220, bezel*4+30+30, 8, "", papplet.color(255), LEFT), "party management");
-            addElement("move button", new Button(bezel, bezel*3, 100, 30, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, CENTER, "Move"), "party management");
-            addElement("disband button", new Button(bezel, bezel*3, 100, 30, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, CENTER,"Dispand"), "party management");
-            addElement("split units", new Slider(bezel+10, bezel*3+30, 220, 30, papplet.color(255), papplet.color(150), papplet.color(0), papplet.color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
-            addElement("tasks", new TaskManager(bezel, bezel*4+30+30, 220, 8, papplet.color(150), papplet.color(50), tasks, 10), "party management");
+            addElement("turns remaining", new Text(BEZEL*2+220, BEZEL*4+30+30, 8, "", papplet.color(255), LEFT), "party management");
+            addElement("move button", new Button(BEZEL, BEZEL*3, 100, 30, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, CENTER, "Move"), "party management");
+            addElement("disband button", new Button(BEZEL, BEZEL*3, 100, 30, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, CENTER,"Dispand"), "party management");
+            addElement("split units", new Slider(BEZEL+10, BEZEL*3+30, 220, 30, papplet.color(255), papplet.color(150), papplet.color(0), papplet.color(0), 0, 0, 0, 1, 1, 1, true, ""), "party management");
+            addElement("tasks", taskManager.getTaskChooser(), "party management");
             addElement("task text", new Text(0, 0, 10, "Tasks", papplet.color(0), LEFT), "party management");
-            addElement("stock up button", new Button(bezel, bezel*3, 100, 30, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, CENTER,"Stock Up"), "party management");
-            addElement("auto stock up toggle", new ToggleButton(bezel, bezel*3, 100, 30, papplet.color(100), papplet.color(0), false, "Auto Stock Up"), "party management");
-            addElement("unit cap incrementer", new IncrementElement(bezel, bezel*3, 100, 30, JSONManager.loadIntSetting("party size"), 0, JSONManager.loadIntSetting("party size"), 1, 5), "party management");
+            addElement("stock up button", new Button(BEZEL, BEZEL*3, 100, 30, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, CENTER,"Stock Up"), "party management");
+            addElement("auto stock up toggle", new ToggleButton(BEZEL, BEZEL*3, 100, 30, papplet.color(100), papplet.color(0), false, "Auto Stock Up"), "party management");
+            addElement("unit cap incrementer", new IncrementElement(BEZEL, BEZEL*3, 100, 30, JSONManager.loadIntSetting("party size"), 0, JSONManager.loadIntSetting("party size"), 1, 5), "party management");
 
-            addElement("proficiency summary", new ProficiencySummary(bezel, bezel*5+30+200, 220, 100), "party management");
+            addElement("proficiency summary", new ProficiencySummary(BEZEL, BEZEL*5+30+200, 220, 100), "party management");
             addElement("proficiencies", new Text(0, 0, 10, "Proficiencies", papplet.color(0), LEFT), "party management");
             addElement("equipment manager", new EquipmentManager(0, 0, 1), "party management");
-            addElement("bombardment button", new BombardButton(bezel+100, bezel*3, 32, papplet.color(150)), "party management");
+            addElement("bombardment button", new BombardButton(BEZEL+100, BEZEL*3, 32, papplet.color(150)), "party management");
 
             DropDown partyTrainingFocusDropdown = new DropDown(0, 0, 1, 1, papplet.color(150), "Training Focus", "strings", 8);
             partyTrainingFocusDropdown.setOptions(JSONManager.getProficiencies());
@@ -150,20 +149,20 @@ public class Game extends State {
 
             int buttonW = 120;
             int buttonH = 50;
-            addElement("end turn", new Button(bezel, bezel, buttonW, buttonH, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, CENTER, "Next Turn"), "bottom bar");
-            addElement("idle party finder", new Button(bezel*2+ buttonW, bezel, buttonW, buttonH, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, CENTER, "Idle Party"), "bottom bar");
-            addElement("resource summary", new ResourceSummary(0, 0, 70, resourceNames, startingResources, totals), "bottom bar");
+            addElement("end turn", new Button(BEZEL, BEZEL, buttonW, buttonH, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, CENTER, "Next Turn"), "bottom bar");
+            addElement("idle party finder", new Button(BEZEL*2+ buttonW, BEZEL, buttonW, buttonH, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, CENTER, "Idle Party"), "bottom bar");
+            addElement("resource summary", resourceManager.getResourceSummary(), "bottom bar");
             int resSummaryX = papplet.width-((ResourceSummary)(getElement("resource summary", "bottom bar"))).totalWidth();
-            addElement("resource detailed", new Button(resSummaryX-50, bezel, 30, 20, papplet.color(150), papplet.color(50), papplet.color(0), 13, CENTER, CENTER, "^"), "bottom bar");
-            addElement("resource expander", new Button(resSummaryX-50, 2*bezel+20, 30, 20, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, TOP,"<"), "bottom bar");
+            addElement("resource detailed", new Button(resSummaryX-50, BEZEL, 30, 20, papplet.color(150), papplet.color(50), papplet.color(0), 13, CENTER, CENTER, "^"), "bottom bar");
+            addElement("resource expander", new Button(resSummaryX-50, 2*BEZEL+20, 30, 20, papplet.color(150), papplet.color(50), papplet.color(0), 10, CENTER, TOP,"<"), "bottom bar");
 
-            addElement("turn number", new SingleLineTextBox(bezel*3+ buttonW *2, bezel, -1, buttonH, 14, "Turn 0", 0, 0), "bottom bar");
-            addElement("2d 3d toggle", new ToggleButton(bezel*4+ buttonW *3, bezel*2, buttonW /2, buttonH -bezel, papplet.color(100), papplet.color(0), JSONManager.loadBooleanSetting("map is 3d"), "3D View"), "bottom bar");
-            addElement("task icons toggle", new ToggleButton(round(bezel*5+ buttonW *3.5f), bezel*2, buttonW /2, buttonH -bezel, papplet.color(100), papplet.color(0), true, "Task Icons"), "bottom bar");
-            addElement("unit number bars toggle", new ToggleButton(bezel*6+ buttonW *4, bezel*2, buttonW /2, buttonH -bezel, papplet.color(100), papplet.color(0), true, "Unit Bars"), "bottom bar");
+            addElement("turn number", new SingleLineTextBox(BEZEL*3+ buttonW *2, BEZEL, -1, buttonH, 14, "Turn 0", 0, 0), "bottom bar");
+            addElement("2d 3d toggle", new ToggleButton(BEZEL*4+ buttonW *3, BEZEL*2, buttonW /2, buttonH -BEZEL, papplet.color(100), papplet.color(0), JSONManager.loadBooleanSetting("map is 3d"), "3D View"), "bottom bar");
+            addElement("task icons toggle", new ToggleButton(round(BEZEL*5+ buttonW *3.5f), BEZEL*2, buttonW /2, buttonH -BEZEL, papplet.color(100), papplet.color(0), true, "Task Icons"), "bottom bar");
+            addElement("unit number bars toggle", new ToggleButton(BEZEL*6+ buttonW *4, BEZEL*2, buttonW /2, buttonH -BEZEL, papplet.color(100), papplet.color(0), true, "Unit Bars"), "bottom bar");
             addElement("console", new Console(0, 0, papplet.width, papplet.height/2, 10), "console");
-            addElement("resource management table", new ResourceManagementTable(bezel, bezel*2+30, papplet.width/2-bezel*2, papplet.height/2), "resource management");
-            addElement("resources pages button", new HorizontalOptionsButton(bezel, bezel, 100, 30, papplet.color(150), 10, new String[]{"Resources", "Equipment"}), "resource management");
+            addElement("resource management table", new ResourceManagementTable(BEZEL, BEZEL*2+30, papplet.width/2-BEZEL*2, papplet.height/2), "resource management");
+            addElement("resources pages button", new HorizontalOptionsButton(BEZEL, BEZEL, 100, 30, papplet.color(150), 10, new String[]{"Resources", "Equipment"}), "resource management");
 
 
             prevIdle = new ArrayList<>();
@@ -187,73 +186,6 @@ public class Game extends State {
         }
         catch (Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, "Error initializing buildings", e);
-            throw e;
-        }
-    }
-
-    private void initialiseTasks() {
-        try {
-            LOGGER_MAIN.fine("Initializing tasks");
-            JSONObject js;
-            int numTasks = gameData.getJSONArray("tasks").size();
-            taskOutcomes = new float[numTasks][numResources];
-            taskCosts = new float[numTasks][numResources];
-            tasks = new String[numTasks];
-            for (int i=0; i<numTasks; i++) {
-                js = gameData.getJSONArray("tasks").getJSONObject(i);
-                tasks[i] = js.getString("id");
-                if (!js.isNull("production")) {
-                    for (int r=0; r<js.getJSONArray("production").size(); r++) {
-                        taskOutcomes[i][JSONManager.getResIndex((js.getJSONArray("production").getJSONObject(r).getString("id")))] = js.getJSONArray("production").getJSONObject(r).getFloat("quantity");
-                    }
-                }
-                if (!js.isNull("consumption")) {
-                    for (int r=0; r<js.getJSONArray("consumption").size(); r++) {
-                        taskCosts[i][JSONManager.getResIndex((js.getJSONArray("consumption").getJSONObject(r).getString("id")))] = js.getJSONArray("consumption").getJSONObject(r).getFloat("quantity");
-                    }
-                }
-            }
-        }
-        catch (Exception e) {
-            LOGGER_MAIN.log(Level.SEVERE, "Error initializing tasks", e);
-            throw e;
-        }
-    }
-
-    private void initialiseResources() {
-        try {
-            JSONObject js;
-            numResources = gameData.getJSONArray("resources").size();
-            resourceNames = new String[numResources];
-            startingResources = new float[numResources];
-            for (int i=0; i<numResources; i++) {
-                js = gameData.getJSONArray("resources").getJSONObject(i);
-                resourceNames[i] = js.getString("id");
-                JSONObject sr = findJSONObject(gameData.getJSONObject("game options").getJSONArray("starting resources"), resourceNames[i]);
-                if (sr != null) {
-                    startingResources[i] = sr.getFloat("quantity");
-                }
-
-                // If resource has specified starting resource on menu
-                else if (resourceNames[i].equals("food")) {
-                    startingResources[i] = JSONManager.loadFloatSetting("starting food");
-                } else if (resourceNames[i].equals("wood")) {
-                    startingResources[i] = JSONManager.loadFloatSetting("starting wood");
-                } else if (resourceNames[i].equals("stone")) {
-                    startingResources[i] = JSONManager.loadFloatSetting("starting stone");
-                } else if (resourceNames[i].equals("metal")) {
-                    startingResources[i] = JSONManager.loadFloatSetting("starting metal");
-                } else {
-                    startingResources[i] = 0;
-                }
-                LOGGER_GAME.fine(String.format("Starting resource: %s = %f", resourceNames[i], startingResources[i]));
-            }
-        }
-        catch (NullPointerException e) {
-            LOGGER_MAIN.log(Level.WARNING, "Error most likely due to modified resources in data.json", e);
-        }
-        catch (Exception e) {
-            LOGGER_MAIN.log(Level.SEVERE, "Error initializing resources", e);
             throw e;
         }
     }
@@ -304,7 +236,7 @@ public class Game extends State {
 
     private float[] JSONToCost(JSONArray ja) {
         try {
-            float[] costs = new float[numResources];
+            float[] costs = new float[resourceManager.getNumResources()];
             if (ja == null) {
                 return null;
             }
@@ -329,19 +261,6 @@ public class Game extends State {
         }
     }
 
-    private String buildingString(int buildingI) {
-        try {
-            if (gameData.getJSONArray("buildings").isNull(buildingI)) {
-                LOGGER_MAIN.warning("invalid building string "+(buildingI));
-                return null;
-            }
-            return gameData.getJSONArray("buildings").getJSONObject(buildingI).getString("id");
-        }
-        catch (NullPointerException e) {
-            LOGGER_MAIN.log(Level.SEVERE, "Error due to JSON being incorrectly formatted for building string", e);
-            return null;
-        }
-    }
 
     public String taskString(int task) {
         try {
@@ -361,7 +280,7 @@ public class Game extends State {
         try {
             float[] a = JSONToCost(taskInitialCost(actionType));
             if (a == null)
-                return new float[numResources];
+                return new float[resourceManager.getNumResources()];
             else
                 return a;
         }
@@ -490,7 +409,7 @@ public class Game extends State {
                             if (dist(x1, y1, x2, y2) <= range) {
                                 int damage = getBombardmentDamage(attacker, defender);
                                 defender.changeUnitNumber(-damage);
-                                handlePartyExcessResources(x2, y2);
+                                productionManager.handlePartyExcessResources(x2, y2);
                                 if (defender.getUnitNumber() == 0) {
                                     parties[y2][x2] = null;
                                 }
@@ -567,13 +486,13 @@ public class Game extends State {
                     if (a != null) {
                         LOGGER_GAME.fine("Adding task action"+a.type);
                         float[] co = buildingCost(parties[selectedCellY][selectedCellX].getTask());
-                        if (sufficientResources(players[turn].resources, co, true)) {
+                        if (resourceManager.sufficientResources(players[turn].resources, co, true)) {
                             LOGGER_GAME.finer("Party has sufficient resources to change task to:"+parties[selectedCellY][selectedCellX].getTask());
                             parties[selectedCellY][selectedCellX].clearActions();
                             ((Text)getElement("turns remaining", "party management")).setText("");
                             parties[selectedCellY][selectedCellX].addAction(taskAction(parties[selectedCellY][selectedCellX].getTask()));
                             if (sum(co)>0) {
-                                spendRes(players[turn], co);
+                                resourceManager.spendRes(players[turn], co);
                                 buildings[selectedCellY][selectedCellX] = new Building(buildingIndex("Construction"), 0, turn);
                                 LOGGER_GAME.fine(String.format("Changing building at cell:(%d, %d) to construction", selectedCellX, selectedCellY));
                             }
@@ -629,7 +548,7 @@ public class Game extends State {
                                 if (parties[selectedCellY][selectedCellX].getEquipment(classIndex) != -1) {
                                     otherResID = getResIndex(getEquipmentTypeID(classIndex, parties[selectedCellY][selectedCellX].getEquipment(classIndex)));
                                 }
-                                if (otherResID != -1 && parties[selectedCellY][selectedCellX].getEquipment(classIndex) != -1 && isEquipmentCollectionAllowed(selectedCellX, selectedCellY, classIndex, parties[selectedCellY][selectedCellX].getEquipment(classIndex))) {
+                                if (otherResID != -1 && parties[selectedCellY][selectedCellX].getEquipment(classIndex) != -1 && productionManager.isEquipmentCollectionAllowed(selectedCellX, selectedCellY, classIndex, parties[selectedCellY][selectedCellX].getEquipment(classIndex))) {
                                     players[turn].resources[otherResID] += parties[selectedCellY][selectedCellX].getEquipmentQuantity(classIndex);
                                 }
                                 parties[selectedCellY][selectedCellX].setEquipment(classIndex, -1, 0);  // Set it to empty after
@@ -637,13 +556,13 @@ public class Game extends State {
                         }
                     } else {
                         // Recycle equipment if unequipping
-                        if (oldResID != -1 && parties[selectedCellY][selectedCellX].getEquipment(equipmentClass) != -1 && isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, newEquipmentType)) {
+                        if (oldResID != -1 && parties[selectedCellY][selectedCellX].getEquipment(equipmentClass) != -1 && productionManager.isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, newEquipmentType)) {
                             players[turn].resources[oldResID] += parties[selectedCellY][selectedCellX].getEquipmentQuantity(equipmentClass);
                         }
                     }
 
                     int quantity;
-                    if (newResID == -1 || !isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, newEquipmentType)) {
+                    if (newResID == -1 || !productionManager.isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, newEquipmentType)) {
                         quantity = 0;
                     } else {
                         quantity = floor(min(parties[selectedCellY][selectedCellX].getUnitNumber(), players[turn].resources[newResID]));
@@ -741,7 +660,7 @@ public class Game extends State {
             map.updateVisibleCells(players[turn].visibleCells);
         }
         if (!changeTurn) {
-            updateResourcesSummary();
+            productionManager.updateResourcesSummary(players[turn].resources[getResIndex("food")] == 0);
             updatePartyManagementInterface();
 
             if (anyIdle(turn)) {
@@ -785,45 +704,45 @@ public class Game extends State {
     private void updateSidePanelElementsSizes() {
         // Update the size of state.elements on the party panel and cell management panel
         sidePanelX = round(papplet.width-450*JSONManager.loadFloatSetting("gui scale"));
-        sidePanelY = bezel;
-        sidePanelW = papplet.width-sidePanelX-bezel;
+        sidePanelY = BEZEL;
+        sidePanelW = papplet.width-sidePanelX-BEZEL;
         sidePanelH = round(mapElementHeight)-70;
-        getElement("notification manager", "default").transform(bezel, bezel, sidePanelW, round(sidePanelH*0.2f)-bezel*2);
-        getElement("move button", "party management").transform(bezel, round(13*JSONManager.loadFloatSetting("text scale")+bezel), 60, 36);
-        getElement("bombardment button", "party management").transform(bezel*2+60, round(13*JSONManager.loadFloatSetting("text scale")+bezel), 36, 36);
-        getElement("split units", "party management").transform(round(10*JSONManager.loadFloatSetting("gui scale")+bezel), round(bezel*3+2*JSONManager.loadFloatSetting("text scale")*13), sidePanelW-2*bezel-round(20*JSONManager.loadFloatSetting("gui scale")), round(JSONManager.loadFloatSetting("text scale")*2*13));
-        getElement("stock up button", "party management").transform(bezel, round(bezel*4+4*JSONManager.loadFloatSetting("text scale")*13), 100, 30);
-        getElement("auto stock up toggle", "party management").transform(bezel*2+100, round(bezel*4+4*JSONManager.loadFloatSetting("text scale")*13+8*JSONManager.loadFloatSetting("text scale")), 100, PApplet.parseInt(30-JSONManager.loadFloatSetting("text scale")*8));
-        getElement("unit cap incrementer", "party management").transform(bezel*3+200, round(bezel*4+4*JSONManager.loadFloatSetting("text scale")*13), 100, 30);
-        ((EquipmentManager)getElement("equipment manager", "party management")).transform(bezel, round(bezel*5+4*JSONManager.loadFloatSetting("text scale")*13)+30, sidePanelW-bezel*2);
-        int equipmentBoxHeight = PApplet.parseInt(((EquipmentManager)getElement("equipment manager", "party management")).getBoxHeight())+(30+bezel);
-        getElement("tasks", "party management").transform(bezel, round(bezel*5+5*JSONManager.loadFloatSetting("text scale")*13+equipmentBoxHeight), sidePanelW/2-PApplet.parseInt(1.5f*bezel), 0);
-        ((Text)getElement("task text", "party management")).translate(bezel, round(bezel*5+4*JSONManager.loadFloatSetting("text scale")*13+equipmentBoxHeight));
-        getElement("proficiency summary", "party management").transform(sidePanelW/2+PApplet.parseInt(bezel*0.5f), round(bezel*5+5*JSONManager.loadFloatSetting("text scale")*13)+equipmentBoxHeight, sidePanelW/2-PApplet.parseInt(1.5f*bezel), PApplet.parseInt(JSONManager.getNumProficiencies()*JSONManager.loadFloatSetting("text scale")*13));
-        ((Text)getElement("proficiencies", "party management")).translate(sidePanelW/2+PApplet.parseInt(bezel*0.5f), round(bezel*5+4*JSONManager.loadFloatSetting("text scale")*13)+equipmentBoxHeight);
-        ((Text)getElement("turns remaining", "party management")).translate(100+bezel*2, round(13*JSONManager.loadFloatSetting("text scale")*2 + bezel*3));
-        getElement("party training focus", "party management").transform(sidePanelW/2+PApplet.parseInt(bezel*0.5f), round(bezel*6+5*JSONManager.loadFloatSetting("text scale")*13)+equipmentBoxHeight+PApplet.parseInt(JSONManager.getNumProficiencies()*JSONManager.loadFloatSetting("text scale")*13), sidePanelW/2-PApplet.parseInt(bezel*(1.5f)), PApplet.parseInt(JSONManager.loadFloatSetting("text scale")*13));
+        getElement("notification manager", "default").transform(BEZEL, BEZEL, sidePanelW, round(sidePanelH*0.2f)-BEZEL*2);
+        getElement("move button", "party management").transform(BEZEL, round(13*JSONManager.loadFloatSetting("text scale")+BEZEL), 60, 36);
+        getElement("bombardment button", "party management").transform(BEZEL*2+60, round(13*JSONManager.loadFloatSetting("text scale")+BEZEL), 36, 36);
+        getElement("split units", "party management").transform(round(10*JSONManager.loadFloatSetting("gui scale")+BEZEL), round(BEZEL*3+2*JSONManager.loadFloatSetting("text scale")*13), sidePanelW-2*BEZEL-round(20*JSONManager.loadFloatSetting("gui scale")), round(JSONManager.loadFloatSetting("text scale")*2*13));
+        getElement("stock up button", "party management").transform(BEZEL, round(BEZEL*4+4*JSONManager.loadFloatSetting("text scale")*13), 100, 30);
+        getElement("auto stock up toggle", "party management").transform(BEZEL*2+100, round(BEZEL*4+4*JSONManager.loadFloatSetting("text scale")*13+8*JSONManager.loadFloatSetting("text scale")), 100, PApplet.parseInt(30-JSONManager.loadFloatSetting("text scale")*8));
+        getElement("unit cap incrementer", "party management").transform(BEZEL*3+200, round(BEZEL*4+4*JSONManager.loadFloatSetting("text scale")*13), 100, 30);
+        ((EquipmentManager)getElement("equipment manager", "party management")).transform(BEZEL, round(BEZEL*5+4*JSONManager.loadFloatSetting("text scale")*13)+30, sidePanelW-BEZEL*2);
+        int equipmentBoxHeight = PApplet.parseInt(((EquipmentManager)getElement("equipment manager", "party management")).getBoxHeight())+(30+BEZEL);
+        getElement("tasks", "party management").transform(BEZEL, round(BEZEL*5+5*JSONManager.loadFloatSetting("text scale")*13+equipmentBoxHeight), sidePanelW/2-PApplet.parseInt(1.5f*BEZEL), 0);
+        ((Text)getElement("task text", "party management")).translate(BEZEL, round(BEZEL*5+4*JSONManager.loadFloatSetting("text scale")*13+equipmentBoxHeight));
+        getElement("proficiency summary", "party management").transform(sidePanelW/2+PApplet.parseInt(BEZEL*0.5f), round(BEZEL*5+5*JSONManager.loadFloatSetting("text scale")*13)+equipmentBoxHeight, sidePanelW/2-PApplet.parseInt(1.5f*BEZEL), PApplet.parseInt(JSONManager.getNumProficiencies()*JSONManager.loadFloatSetting("text scale")*13));
+        ((Text)getElement("proficiencies", "party management")).translate(sidePanelW/2+PApplet.parseInt(BEZEL*0.5f), round(BEZEL*5+4*JSONManager.loadFloatSetting("text scale")*13)+equipmentBoxHeight);
+        ((Text)getElement("turns remaining", "party management")).translate(100+BEZEL*2, round(13*JSONManager.loadFloatSetting("text scale")*2 + BEZEL*3));
+        getElement("party training focus", "party management").transform(sidePanelW/2+PApplet.parseInt(BEZEL*0.5f), round(BEZEL*6+5*JSONManager.loadFloatSetting("text scale")*13)+equipmentBoxHeight+PApplet.parseInt(JSONManager.getNumProficiencies()*JSONManager.loadFloatSetting("text scale")*13), sidePanelW/2-PApplet.parseInt(BEZEL*(1.5f)), PApplet.parseInt(JSONManager.loadFloatSetting("text scale")*13));
 
-        float taskRowHeight = ((TaskManager)getElement("tasks", "party management")).getH(new PGraphics());
+        float taskRowHeight = ((TaskChooser)getElement("tasks", "party management")).getH(new PGraphics());
 
-        float partyManagementHeight = round(bezel*7+6*JSONManager.loadFloatSetting("text scale")*13+equipmentBoxHeight) + taskRowHeight*10 + JSONManager.loadFloatSetting("gui scale")*bezel*10;
+        float partyManagementHeight = round(BEZEL*7+6*JSONManager.loadFloatSetting("text scale")*13+equipmentBoxHeight) + taskRowHeight*10 + JSONManager.loadFloatSetting("gui scale")*BEZEL*10;
         getPanel("land management").transform(sidePanelX, sidePanelY, sidePanelW, round(sidePanelH*0.15f));
-        getPanel("party management").transform(sidePanelX, sidePanelY+round(sidePanelH*0.15f)+bezel, sidePanelW, round(partyManagementHeight)-bezel*3);
-        getElement("disband button", "party management").transform(sidePanelW-bezel-80, PApplet.parseInt(partyManagementHeight-bezel*4-30), 80, 30);
-        getElement("resources pages button", "resource management").transform(bezel, bezel, PApplet.parseInt(100*JSONManager.loadFloatSetting("gui scale")), PApplet.parseInt(30*JSONManager.loadFloatSetting("gui scale")));
+        getPanel("party management").transform(sidePanelX, sidePanelY+round(sidePanelH*0.15f)+BEZEL, sidePanelW, round(partyManagementHeight)-BEZEL*3);
+        getElement("disband button", "party management").transform(sidePanelW-BEZEL-80, PApplet.parseInt(partyManagementHeight-BEZEL*4-30), 80, 30);
+        getElement("resources pages button", "resource management").transform(BEZEL, BEZEL, PApplet.parseInt(100*JSONManager.loadFloatSetting("gui scale")), PApplet.parseInt(30*JSONManager.loadFloatSetting("gui scale")));
     }
 
     private void makeTaskAvailable(int task) {
-        ((TaskManager)getElement("tasks", "party management")).makeAvailable(gameData.getJSONArray("tasks").getJSONObject(task).getString("id"));
+        ((TaskChooser)getElement("tasks", "party management")).makeAvailable(gameData.getJSONArray("tasks").getJSONObject(task).getString("id"));
     }
 
     private void resetAvailableTasks() {
-        ((TaskManager)getElement("tasks", "party management")).resetAvailable();
-        ((TaskManager)getElement("tasks", "party management")).resetAvailableButOverBudget();
+        ((TaskChooser)getElement("tasks", "party management")).resetAvailable();
+        ((TaskChooser)getElement("tasks", "party management")).resetAvailableButOverBudget();
     }
 
     private void makeAvailableButOverBudget(int task) {
-        ((TaskManager)getElement("tasks", "party management")).makeAvailableButOverBudget(gameData.getJSONArray("tasks").getJSONObject(task).getString("id"));
+        ((TaskChooser)getElement("tasks", "party management")).makeAvailableButOverBudget(gameData.getJSONArray("tasks").getJSONObject(task).getString("id"));
     }
 
     private void checkTasks() {
@@ -894,7 +813,7 @@ public class Game extends State {
             } else {
                 makeTaskAvailable(parties[selectedCellY][selectedCellX].getTask());
             }
-            ((TaskManager)getElement("tasks", "party management")).select(gameData.getJSONArray("tasks").getJSONObject(parties[selectedCellY][selectedCellX].getTask()).getString("id"));
+            ((TaskChooser)getElement("tasks", "party management")).select(gameData.getJSONArray("tasks").getJSONObject(parties[selectedCellY][selectedCellX].getTask()).getString("id"));
         }
         catch (Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, "Error checking tasks", e);
@@ -909,326 +828,7 @@ public class Game extends State {
                 (!nm.moveOver() || nm.empty());
     }
 
-    private float getResourceRequirementsAtCell(int x, int y, int resource) {
-        float resourceRequirements = 0;
-        for (int i = 0; i < tasks.length; i++) {
-            if (parties[y][x].getTask() == i) {
-                if (resource == JSONManager.getResIndex("food") && gameData.getJSONArray("tasks").getJSONObject(i).getString("id").equals("Super Rest") && parties[y][x].capped()) {
-                    resourceRequirements += taskCosts[JSONManager.getTaskIndex("Rest")][resource] * parties[y][x].getUnitNumber();
-                } else {
-                    resourceRequirements += taskCosts[i][resource] * parties[y][x].getUnitNumber();
-                }
-            }
-        }
-        return resourceRequirements;
-    }
 
-    private float[] getTotalResourceRequirements() {
-        float[] totalResourceRequirements = new float[numResources];
-        for (int y = 0; y < mapHeight; y++) {
-            for (int x = 0; x < mapWidth; x++) {
-                if (parties[y][x] != null) {
-                    if (parties[y][x].player == turn) {
-                        for (int resource = 0; resource < numResources; resource++) {
-                            totalResourceRequirements[resource] += getResourceRequirementsAtCell(x, y, resource);
-                        }
-                    }
-                }
-            }
-        }
-        return totalResourceRequirements;
-    }
-
-    private float[] getResourceProductivities(float[] totalResourceRequirements) {
-        float [] resourceProductivities = new float[numResources];
-        for (int i=0; i<numResources; i++) {
-            if (totalResourceRequirements[i]==0) {
-                resourceProductivities[i] = 1;
-            } else {
-                resourceProductivities[i] = min(1, players[turn].resources[i]/totalResourceRequirements[i]);
-            }
-        }
-        return resourceProductivities;
-    }
-
-    public float[] getResourceProductivities() {
-        return getResourceProductivities(getTotalResourceRequirements());
-    }
-
-    private float getProductivityAtCell(int x, int y, float[] resourceProductivities) {
-        float productivity = 1;
-        for (int task = 0; task<tasks.length; task++) {
-            if (parties[y][x].getTask() == task) {
-                for (int resource = 0; resource < numResources; resource++) {
-                    if (getResourceRequirementsAtCell(x, y, resource) > 0) {
-                        if (resource == 0 && players[turn].resources[resource] == 0) {
-                            productivity = min(productivity, resourceProductivities[resource] + 0.5f);
-                        } else {
-                            productivity = min(productivity, resourceProductivities[resource]);
-                        }
-                    }
-                }
-            }
-        }
-        return productivity;
-    }
-
-    public float getProductivityAtCell(int x, int y) {
-        return getProductivityAtCell(x, y, getResourceProductivities(getTotalResourceRequirements()));
-    }
-
-    private float[] resourceProductionAtCell(int x, int y, float[] resourceProductivities) {
-        float [] production = new float[numResources];
-        if (parties[y][x] != null) {
-            if (parties[y][x].player == turn) {
-                float productivity = getProductivityAtCell(x, y, resourceProductivities);
-                for (int task = 0; task < tasks.length; task++) {
-                    if (parties[y][x].getTask()==task) {
-                        for (int resource = 0; resource < numResources; resource++) {
-                            if (resource == JSONManager.getResIndex("units") && resourceProductivities[JSONManager.getResIndex(("food"))] < 1) {
-                                production[resource] = 0;
-                            } else if (resource == JSONManager.getResIndex("units")) {
-                                production[resource] = min(parties[y][x].getUnitCap() - parties[y][x].getUnitNumber(), taskOutcomes[task][resource] * productivity * (float) parties[y][x].getUnitNumber());
-                            } else {
-                                production[resource] = taskOutcomes[task][resource] * productivity * (float) parties[y][x].getUnitNumber();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return production;
-    }
-
-    public float[] resourceProductionAtCell(int x, int y) {
-        return resourceProductionAtCell(x, y, getResourceProductivities(getTotalResourceRequirements()));
-    }
-
-    private float[] getTotalResourceProductions(float[] resourceProductivities) {
-        float[] amount = new float[resourceNames.length];
-        for (int x = 0; x < mapWidth; x++) {
-            for (int y = 0; y < mapHeight; y++) {
-                for (int res = 0; res < numResources; res++) {
-                    amount[res]+=resourceProductionAtCell(x, y, resourceProductivities)[res];
-                }
-            }
-        }
-        return amount;
-    }
-
-    public float[] getTotalResourceProductions() {
-        return getTotalResourceProductions(getResourceProductivities(getTotalResourceRequirements()));
-    }
-
-    private float[] getResourceConsumptionAtCell(int x, int y, float[] resourceProductivities) {
-        float [] consumption = new float[numResources];
-        if (parties[y][x] != null) {
-            if (parties[y][x].player == turn) {
-                float productivity = getProductivityAtCell(x, y, resourceProductivities);
-                for (int task = 0; task <tasks.length; task++) {
-                    if (parties[y][x].getTask() == task) {
-                        for (int resource = 0; resource < numResources; resource++) {
-                            if (resource == JSONManager.getResIndex("units") && resourceProductivities[JSONManager.getResIndex(("food"))] < 1) {
-                                consumption[resource] += (1-resourceProductivities[JSONManager.getResIndex(("food"))]) * (0.01f+taskOutcomes[task][resource]) * parties[y][x].getUnitNumber();
-                            } else {
-                                consumption[resource] += getResourceRequirementsAtCell(x, y, resource) * productivity;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return consumption;
-    }
-
-    public float[] getResourceConsumptionAtCell(int x, int y) {
-        return getResourceConsumptionAtCell(x, y, getResourceProductivities(getTotalResourceRequirements()));
-    }
-
-    private float[] getTotalResourceConsumptions(float[] resourceProductivities) {
-        float[] amount = new float[resourceNames.length];
-        for (int x = 0; x < mapWidth; x++) {
-            for (int y = 0; y < mapHeight; y++) {
-                for (int res = 0; res < numResources; res++) {
-                    amount[res] += getResourceConsumptionAtCell(x, y, resourceProductivities)[res];
-                }
-            }
-        }
-        return amount;
-    }
-
-    public float[] getTotalResourceConsumptions() {
-        return getTotalResourceConsumptions(getResourceProductivities(getTotalResourceRequirements()));
-    }
-
-    private float[] getTotalResourceChanges(float[] grossResources, float[] costsResources) {
-        float[] amount = new float[resourceNames.length];
-        for (int res = 0; res < numResources; res++) {
-            amount[res] = grossResources[res] - costsResources[res];
-        }
-        return amount;
-    }
-
-    private float[] getResourceChangesAtCell(int x, int y, float[] resourceProductivities) {
-        float[] amount = new float[resourceNames.length];
-        for (int res = 0; res < numResources; res++) {
-            amount[res] = resourceProductionAtCell(x, y, resourceProductivities)[res] - getResourceConsumptionAtCell(x, y, resourceProductivities)[res];
-        }
-        return amount;
-    }
-
-    public float[] getResourceChangesAtCell(int x, int y) {
-        return getResourceChangesAtCell(x, y, getResourceProductivities(getTotalResourceRequirements()));
-    }
-
-    public byte[] getResourceWarnings() {
-        return getResourceWarnings(getResourceProductivities(getTotalResourceRequirements()));
-    }
-
-    private byte[] getResourceWarnings(float[] productivities) {
-        byte[] warnings = new byte[productivities.length];
-        for (int i = 0; i < productivities.length; i++) {
-            if (productivities[i] == 0) {
-                warnings[i] = 2;
-            } else if (productivities[i] < 1) {
-                warnings[i] = 1;
-            }
-        }
-        return warnings;
-    }
-
-    public void updateResourcesSummary() {
-        float[] totalResourceRequirements = getTotalResourceRequirements();
-        float[] resourceProductivities = getResourceProductivities(totalResourceRequirements);
-
-        float[] gross = getTotalResourceProductions(resourceProductivities);
-        float[] costs = getTotalResourceConsumptions(resourceProductivities);
-        this.totals = getTotalResourceChanges(gross, costs);
-
-        ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
-        rs.updateNet(totals);
-        rs.updateStockpile(players[turn].resources);
-        rs.updateWarnings(getResourceWarnings(resourceProductivities));
-    }
-
-    private boolean isEquipmentCollectionAllowed(int x, int y) {
-        int[] equipmentTypes = parties[y][x].equipment;
-        for (int c = 0; c < equipmentTypes.length; c++) {
-            if (isEquipmentCollectionAllowed(x, y, c, equipmentTypes[c])) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean isEquipmentCollectionAllowed(int x, int y, int c, int t) {
-        if (buildings[y][x] != null && c != -1 && t != -1) {
-            JSONArray sites = gameData.getJSONArray("equipment").getJSONObject(c).getJSONArray("types").getJSONObject(t).getJSONArray("valid collection sites");
-            if (sites != null) {
-                for (int j = 0; j < sites.size(); j++) {
-                    if (buildingIndex(sites.getString(j)) == buildings[y][x].getType()) {
-                        return true;
-                    }
-                }
-            } else {
-                // If no valid collection sites specified, then stockup can occur anywhere
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void handlePartyExcessResources(int x, int y) {
-        Party p = parties[y][x];
-        int[][] excessResources = p.removeExcessEquipment();
-        for (int i = 0; i < excessResources.length; i++) {
-            if (excessResources[i] != null) {
-                int type = excessResources[i][0];
-                int quantity = excessResources[i][1];
-                if (type != -1) {
-                    if (isEquipmentCollectionAllowed(x, y, i, type)) {
-                        LOGGER_GAME.fine(String.format("Recovering %d %s from party decreasing in size", quantity, JSONManager.getEquipmentTypeID(i, type)));
-                        players[parties[y][x].player].resources[JSONManager.getResIndex(JSONManager.getEquipmentTypeID(i, type))] += quantity;
-                    }
-                }
-            }
-        }
-    }
-
-    private void updateResources(float[] resourceProductivities) {
-        for (int y = 0; y < mapHeight; y++) {
-            for (int x = 0; x < mapWidth; x++) {
-                if (parties[y][x] != null) {
-                    if (parties[y][x].player == turn) {
-                        for (int task = 0; task < tasks.length; task++) {
-                            if (parties[y][x].getTask()==task) {
-                                for (int resource = 0; resource < numResources; resource++) {
-                                    if (resource != JSONManager.getResIndex(("units"))) {
-                                        if (tasks[task].equals("Produce Rocket")) {
-                                            resource = JSONManager.getResIndex(("rocket progress"));
-                                        }
-
-                                        players[turn].resources[resource] += max(getResourceChangesAtCell(x, y, resourceProductivities)[resource], -players[turn].resources[resource]);
-                                        if (tasks[task].equals("Produce Rocket")) {
-                                            break;
-                                        }
-                                    } else if (resourceProductivities[JSONManager.getResIndex(("food"))] < 1 && players[parties[y][x].player].controllerType != 1) {
-                                        float lost = (1 - resourceProductivities[JSONManager.getResIndex(("food"))]) * (0.01f+taskOutcomes[task][resource]) * parties[y][x].getUnitNumber();
-                                        int totalLost = floor(lost);
-                                        if (random(1) < lost-floor(lost)) {
-                                            totalLost++;
-                                        }
-                                        parties[y][x].changeUnitNumber(-totalLost);
-                                        handlePartyExcessResources(x, y);
-                                        if (parties[y][x].getUnitNumber() == 0) {
-                                            notificationManager.post("Party Starved", x, y, turnNumber, turn);
-                                            LOGGER_GAME.info(String.format("Party starved at cell:(%d, %d) player:%s", x, y, turn));
-                                        } else {
-                                            notificationManager.post(String.format("Party Starving - %d lost", totalLost), x, y, turnNumber, turn);
-                                            LOGGER_GAME.fine(String.format("Party Starving - %d lost at  cell: (%d, %d) player:%s", totalLost, x, y, turn));
-                                        }
-                                    } else {
-                                        int prev = parties[y][x].getUnitNumber();
-                                        float gained = getResourceChangesAtCell(x, y, resourceProductivities)[resource];
-                                        int totalGained = floor(gained);
-                                        if (random(1) < gained-floor(gained)) {
-                                            totalGained++;
-                                        }
-                                        parties[y][x].changeUnitNumber(totalGained);
-                                        if (prev != JSONManager.loadIntSetting("party size") && parties[y][x].getUnitNumber() == JSONManager.loadIntSetting("party size") && parties[y][x].task == JSONIndex(gameData.getJSONArray("tasks"), "Super Rest")) {
-                                            notificationManager.post("Party Full", x, y, turnNumber, turn);
-                                            LOGGER_GAME.fine(String.format("Party full at  cell: (%d, %d) player:%s", x, y, turn));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        if (parties[y][x].getUnitNumber() == 0) {
-                            parties[y][x] = null;
-                            LOGGER_GAME.finest(String.format("Setting party at cell:(%s, %s) to null becuase it has no units left in it", x, y));
-                        }
-                    }
-                }
-            }
-        }
-        if (players[turn].resources[JSONManager.getResIndex(("rocket progress"))] > 1000) {
-            //display indicator saying rocket produced
-            LOGGER_GAME.info("Rocket produced");
-            for (int y = 0; y < mapHeight; y++) {
-                for (int x = 0; x < mapWidth; x++) {
-                    if (parties[y][x] != null) {
-                        if (parties[y][x].player == turn) {
-                            if (parties[y][x].getTask() == JSONIndex(gameData.getJSONArray("tasks"), "Produce Rocket")) {
-                                notificationManager.post("Rocket Produced", x, y, turnNumber, turn);
-                                parties[y][x].changeTask(JSONIndex(gameData.getJSONArray("tasks"), "Rest"));
-                                buildings[y][x].setImageId(1);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     private void autoMoveParties() {
         for (int y=0; y<mapHeight; y++) {
@@ -1366,7 +966,8 @@ public class Game extends State {
             notificationManager.dismissAll();
             autoMoveParties();
             processParties();
-            updateResources(getResourceProductivities(getTotalResourceRequirements()));
+            boolean starving = players[turn].resources[getResIndex("food")] == 0;
+            productionManager.updateResources(productionManager.getResourceProductivities(productionManager.getTotalResourceRequirements()), starving);
             partyMovementPointsReset();
             LOGGER_GAME.finer("Loading other player camera positions");
             float blockSize;
@@ -1404,7 +1005,7 @@ public class Game extends State {
             SingleLineTextBox t = ((SingleLineTextBox)(getElement("turn number", "bottom bar")));
             t.setColour(players[turn].colour);
             t.setText("Turn "+turnNumber);
-            updateResourcesSummary();
+            productionManager.updateResourcesSummary(players[turn].resources[getResIndex("food")] == 0);
             notificationManager.turnChange(turn);
 
             if (turn==0) {
@@ -1613,42 +1214,6 @@ public class Game extends State {
         changeTurn = true;
     }
 
-    public boolean sufficientResources(float[] available, float[] required) {
-        for (int i=0; i<numResources; i++) {
-            if (available[i] < required[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean sufficientResources(float[] available, float[] required, boolean flash) {
-        ResourceSummary rs = ((ResourceSummary)(getElement("resource summary", "bottom bar")));
-        boolean t = true;
-        for (int i=0; i<numResources; i++) {
-            if (available[i] < required[i] && !Objects.equals(buildingString(i), "rocket progress")) {
-                t = false;
-                rs.flash(i);
-            }
-        }
-        return t;
-    }
-
-    private void spendRes(Player player, float[] required) {
-        for (int i=0; i<numResources; i++) {
-            player.resources[i] -= required[i];
-            LOGGER_GAME.fine(String.format("Player spending: %f %s", required[i], resourceNames[i]));
-        }
-    }
-
-    public void reclaimRes(Player player, float[] required) {
-        //reclaim half cost of building
-        for (int i=0; i<numResources; i++) {
-            player.resources[i] += required[i]/2;
-            LOGGER_GAME.fine(String.format("Player reclaiming (half of building cost): %f %s", required[i], resourceNames[i]));
-        }
-    }
-
     public int[] newPartyLoc() {
         // Unused
         try {
@@ -1751,7 +1316,7 @@ public class Game extends State {
             y = (papplet.height/2f-map.getFocusedY()-((Map2D)map).yPos)/((Map2D)map).blockSize;
         }
         players[turn].saveSettings(x, y, blockSize, selectedCellX, selectedCellY, cellSelected);
-        ((BaseMap)map).saveMap("saves/"+loadingName, this.turnNumber, this.turn, this.players);
+        ((BaseMap)map).saveMap("saves/"+loadingName, turnNumber, turn, this.players);
     }
 
     public void elementEvent(ArrayList<Event> events) {
@@ -1786,8 +1351,8 @@ public class Game extends State {
                         Button b1 = ((Button) (getElement("resource expander", "bottom bar")));
                         Button b2 = ((Button) (getElement("resource detailed", "bottom bar")));
                         r.toggleExpand();
-                        b1.transform(papplet.width - r.totalWidth() - 50, bezel * 2 + 25, 30, 25);
-                        b2.transform(papplet.width - r.totalWidth() - 50, bezel, 30, 25);
+                        b1.transform(papplet.width - r.totalWidth() - 50, BEZEL * 2 + 25, 30, 25);
+                        b2.transform(papplet.width - r.totalWidth() - 50, BEZEL, 30, 25);
                         if (b1.getText().equals(">"))
                             b1.setText("<");
                         else
@@ -1813,12 +1378,12 @@ public class Game extends State {
                         ArrayList<ArrayList<Float>> storage = new ArrayList<>();
                         storage.add(new ArrayList<>());
                         storage.add(new ArrayList<>());
-                        float[] totalResourceRequirements = getTotalResourceRequirements();
-                        float[] resourceProductivities = getResourceProductivities(totalResourceRequirements);
-
-                        float[] gross = getTotalResourceProductions(resourceProductivities);
-                        float[] costs = getTotalResourceConsumptions(resourceProductivities);
-                        float[] totals = getTotalResourceChanges(gross, costs);
+                        float[] totalResourceRequirements = productionManager.getTotalResourceRequirements();
+                        float[] resourceProductivities = productionManager.getResourceProductivities(totalResourceRequirements);
+                        boolean starving = players[turn].resources[getResIndex("food")] == 0;
+                        float[] gross = productionManager.getTotalResourceProductions(resourceProductivities, starving);
+                        float[] costs = productionManager.getTotalResourceConsumptions(resourceProductivities, starving);
+                        float[] totals = productionManager.getTotalResourceChanges(gross, costs);
                         for (int i = 0; i < players[turn].resources.length; i++) {
                             if (players[turn].resources[i] > 0) {
                                 int page;
@@ -1894,7 +1459,7 @@ public class Game extends State {
             if (event.type.equals("valueChanged")) {
                 switch (event.id) {
                     case "tasks":
-                        postEvent(new ChangeTask(selectedCellX, selectedCellY, JSONIndex(gameData.getJSONArray("tasks"), ((TaskManager) getElement("tasks", "party management")).getSelected())));
+                        postEvent(new ChangeTask(selectedCellX, selectedCellY, JSONIndex(gameData.getJSONArray("tasks"), ((TaskChooser) getElement("tasks", "party management")).getSelected())));
                         break;
                     case "unit number bars toggle":
                         map.setDrawingUnitBars(((ToggleButton) (getElement("unit number bars toggle", "bottom bar"))).getState());
@@ -1977,7 +1542,7 @@ public class Game extends State {
         map.cancelMoveNodes();
         moving = false;
         bombarding = false;
-        //map.setWidth(round(papplet.width-bezel*2));
+        //map.setWidth(round(papplet.width-BEZEL*2));
         ((Text)getElement("turns remaining", "party management")).setText("");
     }
 
@@ -2256,13 +1821,13 @@ public class Game extends State {
         if (players[turn].controllerType != 1) {
             LOGGER_MAIN.fine("refreshing tooltip");
             if (!getPanel("pause screen").isVisible()) {
-                TaskManager tasks = ((TaskManager)getElement("tasks", "party management"));
+                TaskChooser tasks = ((TaskChooser)getElement("tasks", "party management"));
                 if (((EquipmentManager)getElement("equipment manager", "party management")).mouseOverTypes() && getPanel("party management").isVisible()) {
                     int hoveringType = ((EquipmentManager)getElement("equipment manager", "party management")).hoveringOverType();
                     int equipmentClass = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
-                    tooltip.setEquipment(equipmentClass, hoveringType, players[turn].resources, parties[selectedCellY][selectedCellX], isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, parties[selectedCellY][selectedCellX].getEquipment(equipmentClass)));
+                    tooltip.setEquipment(equipmentClass, hoveringType, players[turn].resources, parties[selectedCellY][selectedCellX], productionManager.isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, parties[selectedCellY][selectedCellX].getEquipment(equipmentClass)));
                 } else if (tasks.moveOver() && getPanel("party management").isVisible() && !tasks.scrolling && !tasks.hovingOverScroll() && tasks.active) {
-                    tooltip.setTask(((TaskManager)getElement("tasks", "party management")).findMouseOver(), players[turn].resources, parties[selectedCellY][selectedCellX].getMovementPoints());
+                    tooltip.setTask(((TaskChooser)getElement("tasks", "party management")).findMouseOver(), players[turn].resources, parties[selectedCellY][selectedCellX].getMovementPoints());
                     tooltip.show();
                 } else if (getElement("proficiency summary", "party management").mouseOver() && getPanel("party management").isVisible()) {
                     tooltip.setProficiencies(((ProficiencySummary)getElement("proficiency summary", "party management")).hoveringOption(), parties[selectedCellY][selectedCellX]);
@@ -2452,7 +2017,7 @@ public class Game extends State {
             selectedCellY = y;
             cellSelected = true;
             map.selectCell(selectedCellX, selectedCellY);
-            //map.setWidth(round(papplet.width-bezel*2-400));
+            //map.setWidth(round(papplet.width-BEZEL*2-400));
             if (players[turn].visibleCells[y][x] != null){
                 getPanel("land management").setVisible(true);
             } else {
@@ -2467,12 +2032,12 @@ public class Game extends State {
         if (parties[selectedCellY][selectedCellX] != null && (parties[selectedCellY][selectedCellX].isTurn(turn) || JSONManager.loadBooleanSetting("show all party managements"))) {
             if (parties[selectedCellY][selectedCellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle") && parties[selectedCellY][selectedCellX].isTurn(turn)) {
                 getElement("split units", "party management").show();
-                ((TaskManager)getElement("tasks", "party management")).active = true;
+                ((TaskChooser)getElement("tasks", "party management")).active = true;
                 getElement("tasks", "party management").show();
                 getElement("task text", "party management").show();
             } else {
                 getElement("split units", "party management").hide();
-                ((TaskManager)getElement("tasks", "party management")).active = false;
+                ((TaskChooser)getElement("tasks", "party management")).active = false;
                 getElement("tasks", "party management").hide();
                 getElement("task text", "party management").hide();
             }
@@ -2486,7 +2051,7 @@ public class Game extends State {
             partyManagementColour = brighten(playerColours[turn], -80); // Top
             getPanel("party management").setColour(brighten(playerColours[turn], 70)); // Background
 
-            if (isEquipmentCollectionAllowed(selectedCellX, selectedCellY)) {
+            if (productionManager.isEquipmentCollectionAllowed(selectedCellX, selectedCellY)) {
                 ((Button)getElement("stock up button", "party management")).bgColour = papplet.color(150);
                 ((Button)getElement("stock up button", "party management")).textColour = papplet.color(0);
                 getElement("stock up button", "party management").activate();
@@ -2545,7 +2110,7 @@ public class Game extends State {
         panelCanvas.fill(0);
         panelCanvas.textAlign(LEFT, CENTER);
         panelCanvas.textFont(getFont(8*JSONManager.loadFloatSetting("text scale")));
-        float barY = sidePanelY + 13*JSONManager.loadFloatSetting("text scale") + sidePanelH*0.15f + bezel*2;
+        float barY = sidePanelY + 13*JSONManager.loadFloatSetting("text scale") + sidePanelH*0.15f + BEZEL*2;
         if (JSONManager.loadBooleanSetting("show party id")) {
             panelCanvas.text("Party id: "+parties[selectedCellY][selectedCellX].id, 120+sidePanelX, barY);
             barY += 13*JSONManager.loadFloatSetting("text scale");
@@ -2586,7 +2151,7 @@ public class Game extends State {
         ((Button)getElement("stock up button", "party management")).y = PApplet.parseInt(barY) - getPanel("party management").y;
         ((ToggleButton)getElement("auto stock up toggle", "party management")).y = PApplet.parseInt(barY) - getPanel("party management").y;
         ((IncrementElement)getElement("unit cap incrementer", "party management")).y = PApplet.parseInt(barY) - getPanel("party management").y;
-        barY += ((Button)getElement("stock up button", "party management")).h + bezel;
+        barY += ((Button)getElement("stock up button", "party management")).h + BEZEL;
 
         ((EquipmentManager)getElement("equipment manager", "party management")).y = PApplet.parseInt(barY) - getPanel("party management").y;
         barY += ((EquipmentManager)getElement("equipment manager", "party management")).getBoxHeight();
@@ -2595,26 +2160,10 @@ public class Game extends State {
         ((Text)getElement("proficiencies", "party management")).y = PApplet.parseInt(barY) - getPanel("party management").y;
         barY += ((Text)getElement("proficiencies", "party management")).h;
 
-        ((TaskManager)getElement("tasks", "party management")).y = PApplet.parseInt(barY) - getPanel("party management").y;
+        ((TaskChooser)getElement("tasks", "party management")).y = PApplet.parseInt(barY) - getPanel("party management").y;
         ((ProficiencySummary)getElement("proficiency summary", "party management")).y = PApplet.parseInt(barY) - getPanel("party management").y;
         barY += ((ProficiencySummary)getElement("proficiency summary", "party management")).h;
         ((DropDown)getElement("party training focus", "party management")).y = PApplet.parseInt(barY) - getPanel("party management").y;
-    }
-
-    private String resourcesList(float[] resources) {
-        StringBuilder returnString = new StringBuilder();
-        boolean notNothing = false;
-        for (int i=0; i<numResources; i++) {
-            if (resources[i]>0) {
-                returnString.append(roundDp("" + resources[i], 1)).append(" ").append(resourceNames[i]).append(", ");
-                notNothing = true;
-            }
-        }
-        if (!notNothing)
-            returnString.append("Nothing/Unknown");
-        else if (returnString.length()-2 > 0)
-            returnString = new StringBuilder(returnString.substring(0, returnString.length() - 2));
-        return returnString.toString();
     }
 
     private void drawCellManagement(PGraphics panelCanvas) {
@@ -2642,11 +2191,12 @@ public class Game extends State {
                 panelCanvas.text("Building: Construction Site", 5+sidePanelX, barY);
             barY += 13*JSONManager.loadFloatSetting("text scale");
         }
-        float[] resourceProductivities = getResourceProductivities(getTotalResourceRequirements());
-        float[] production = resourceProductionAtCell(selectedCellX, selectedCellY, resourceProductivities);
-        float[] consumption = getResourceConsumptionAtCell(selectedCellX, selectedCellY, resourceProductivities);
-        String pl = resourcesList(production);
-        String cl = resourcesList(consumption);
+        boolean starving = players[turn].resources[getResIndex("food")] == 0;
+        float[] resourceProductivities = productionManager.getResourceProductivities(productionManager.getTotalResourceRequirements());
+        float[] production = productionManager.resourceProductionAtCell(selectedCellX, selectedCellY, resourceProductivities, starving);
+        float[] consumption = productionManager.getResourceConsumptionAtCell(selectedCellX, selectedCellY, resourceProductivities, starving);
+        String pl = resourceManager.resourcesList(production);
+        String cl = resourceManager.resourcesList(consumption);
         panelCanvas.fill(0);
         if (!pl.equals("Nothing/Unknown")) {
             panelCanvas.text("Producing: "+pl, 5+sidePanelX, barY);
@@ -2763,7 +2313,7 @@ public class Game extends State {
         return new ArrayList<>();
     }
     public void enterState() {
-        initialiseResources();
+        resourceManager.initialiseResources();
         reloadGame();
     }
 
@@ -2811,14 +2361,14 @@ public class Game extends State {
         }
         if (loadingName != null) {
             LOGGER_MAIN.finer("Loading save");
-            MapSave mapSave = ((BaseMap)map).loadMap("saves/"+loadingName, resourceNames.length);
+            MapSave mapSave = ((BaseMap)map).loadMap("saves/"+loadingName, resourceManager.getNumResources());
             terrain = mapSave.terrain;
             buildings = mapSave.buildings;
             parties = mapSave.parties;
             mapWidth = mapSave.mapWidth;
             mapHeight = mapSave.mapHeight;
-            this.turnNumber = mapSave.startTurn;
-            this.turn = mapSave.startPlayer;
+            turnNumber = mapSave.startTurn;
+            turn = mapSave.startPlayer;
             this.players = mapSave.players;
             checkForPlayerWin();
             if (JSONManager.loadBooleanSetting("map is 3d")) {
@@ -2840,14 +2390,14 @@ public class Game extends State {
             parties = ((BaseMap)map).parties;
             PVector[] playerStarts = generateStartingParties();
             // THIS NEEDS TO BE CHANGED WHEN ADDING PLAYER INPUT SELECTOR
-            players[2] = new Player((int)playerStarts[2].x, (int)playerStarts[2].y, JSONManager.loadIntSetting("starting block size"), startingResources.clone(), papplet.color(0, 255, 0), "Player 3  ", 0, 2);
+            players[2] = new Player((int)playerStarts[2].x, (int)playerStarts[2].y, JSONManager.loadIntSetting("starting block size"), resourceManager.getStartingResourcesClone(), papplet.color(0, 255, 0), "Player 3  ", 0, 2);
             map.targetCell((int) playerStarts[1].x, (int) playerStarts[1].y, JSONManager.loadIntSetting("starting block size"));
-            players[1] = new Player((int)playerStarts[1].x, (int)playerStarts[1].y, JSONManager.loadIntSetting("starting block size"), startingResources.clone(), papplet.color(255, 0, 0), "Player 2  ", 0, 1);
+            players[1] = new Player((int)playerStarts[1].x, (int)playerStarts[1].y, JSONManager.loadIntSetting("starting block size"), resourceManager.getStartingResourcesClone(), papplet.color(255, 0, 0), "Player 2  ", 0, 1);
             map.targetCell((int) playerStarts[0].x, (int) playerStarts[0].y, JSONManager.loadIntSetting("starting block size"));
-            players[0] = new Player((int)playerStarts[0].x, (int)playerStarts[0].y, JSONManager.loadIntSetting("starting block size"), startingResources.clone(), papplet.color(0, 0, 255), "Player 1  ", 0, 0);
+            players[0] = new Player((int)playerStarts[0].x, (int)playerStarts[0].y, JSONManager.loadIntSetting("starting block size"), resourceManager.getStartingResourcesClone(), papplet.color(0, 0, 255), "Player 1  ", 0, 0);
 
-            players[players.length-1] = new Player(0, 0, JSONManager.loadIntSetting("starting block size"), startingResources.clone(), papplet.color(255, 0, 255), "Player 4  ", 1, 3);
-
+            players[players.length-1] = new Player(0, 0, JSONManager.loadIntSetting("starting block size"), resourceManager.getStartingResourcesClone(), papplet.color(255, 0, 255), "Player 4  ", 1, 3);
+            players[players.length-1].resources[getResIndex("food")] = -1;
             turn = 0;
             turnNumber = 0;
             deselectCell();
@@ -2884,7 +2434,9 @@ public class Game extends State {
         t.setColour(players[turn].colour);
         t.setText("Turn "+turnNumber);
 
-        updateResourcesSummary();
+        productionManager = new ProductionManager(resourceManager, taskManager, parties, buildings, mapWidth, notificationManager);
+        boolean starving = players[turn].resources[getResIndex("food")] == 0;
+        productionManager.updateResourcesSummary(starving);
         getPanel("pause screen").setVisible(false);
 
         notificationManager.reset();
@@ -3133,5 +2685,9 @@ public class Game extends State {
             }
         }
         return String.format("%s #%d", playerName, maxN+1);
+    }
+
+    public void updateResourcesSummary() {
+        productionManager.updateResourcesSummary(players[turn].resources[getResIndex("food")] == 0);
     }
 }

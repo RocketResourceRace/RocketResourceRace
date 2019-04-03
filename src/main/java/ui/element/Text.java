@@ -1,9 +1,9 @@
-package state.elements;
+package ui.element;
 
 import json.JSONManager;
 import processing.core.PFont;
 import processing.core.PGraphics;
-import state.Element;
+import ui.Element;
 
 import static processing.core.PApplet.ceil;
 import static processing.core.PConstants.TOP;

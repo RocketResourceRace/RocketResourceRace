@@ -1,4 +1,4 @@
-package state.elements;
+package ui.element;
 
 import json.JSONManager;
 import party.Party;
@@ -6,7 +6,7 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
 import processing.core.PImage;
-import state.Element;
+import ui.Element;
 
 import java.util.ArrayList;
 import java.util.Arrays;

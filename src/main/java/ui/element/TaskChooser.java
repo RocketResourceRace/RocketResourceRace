@@ -1,10 +1,10 @@
-package state.elements;
+package ui.element;
 
 import json.JSONManager;
 import processing.core.PGraphics;
 import processing.core.PImage;
 import processing.event.MouseEvent;
-import state.Element;
+import ui.Element;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,7 +17,7 @@ import static util.Image.taskImages;
 import static util.Logging.LOGGER_MAIN;
 import static util.Util.*;
 
-public class TaskManager extends Element {
+public class TaskChooser extends Element {
     private ArrayList<String> options;
     private ArrayList<Integer> availableOptions;
     private ArrayList<Integer> availableButOverBudgetOptions;
@@ -31,7 +31,7 @@ public class TaskManager extends Element {
     private final int SCROLLWIDTH = 20;
     private PImage[] resizedImages;
 
-    public TaskManager(int x, int y, int w, int textSize, int bgColour, int strokeColour, String[] options, int numDisplayed) {
+    public TaskChooser(int x, int y, int w, int textSize, int bgColour, int strokeColour, String[] options, int numDisplayed) {
         this.x = x;
         this.y = y;
         this.w = w;

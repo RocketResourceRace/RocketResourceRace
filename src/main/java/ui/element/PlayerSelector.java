@@ -1,5 +1,5 @@
-package state.elements;
-import state.Element;
+package ui.element;
+import ui.Element;
 
 public class PlayerSelector extends Element {
     PlayerSelector(int x, int y, int w, int h) {

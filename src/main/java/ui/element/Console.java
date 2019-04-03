@@ -1,4 +1,4 @@
-package state.elements;
+package ui.element;
 
 
 import json.JSONManager;
@@ -10,7 +10,7 @@ import processing.core.PFont;
 import processing.core.PGraphics;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
-import state.Element;
+import ui.Element;
 import states.Game;
 
 import java.util.ArrayList;
@@ -20,6 +20,7 @@ import static com.jogamp.newt.event.KeyEvent.VK_BACK_SPACE;
 import static com.jogamp.newt.event.KeyEvent.VK_DELETE;
 import static json.JSONManager.gameData;
 import static processing.core.PApplet.*;
+import static util.GameInfo.turn;
 import static util.Logging.LOGGER_GAME;
 import static util.Logging.LOGGER_MAIN;
 import static util.Util.*;
@@ -429,8 +430,8 @@ public class Console extends Element {
                                 map.generateShape();
                             }
                             if (command.hasKey("update cells") && command.getBoolean("update cells") && map != null) {
-                                players[game.turn].updateVisibleCells(game.terrain, game.buildings, game.parties);
-                                map.updateVisibleCells(players[game.turn].visibleCells);
+                                players[turn].updateVisibleCells(game.terrain, game.buildings, game.parties);
+                                map.updateVisibleCells(players[turn].visibleCells);
                             }
                             sendLine(String.format("%s setting changed!", arguments[position]));
                         } else {
@@ -457,7 +458,7 @@ public class Console extends Element {
                                     break;
                                 }
                             } else if (position == 1 && arguments.length > position+1) {
-                                p = game.players[game.turn];
+                                p = game.players[turn];
                                 position--;
                             } else {
                                 invalidMissingArg(command, arguments, position);
@@ -482,7 +483,7 @@ public class Console extends Element {
                                     break;
                                 }
                             } else if (position == 1 && arguments.length > position+2) {
-                                p = game.players[game.turn];
+                                p = game.players[turn];
                                 position--;
                             } else {
                                 invalidMissingArg(command, arguments, position);
@@ -512,7 +513,7 @@ public class Console extends Element {
                                     break;
                                 }
                             } else if (position == 1 && arguments.length > position+2) {
-                                p = game.players[game.turn];
+                                p = game.players[turn];
                                 position--;
                             } else {
                                 invalidMissingArg(command, arguments, position);
@@ -542,7 +543,7 @@ public class Console extends Element {
                                     break;
                                 }
                             } else if (position == 1 && arguments.length > position+2) {
-                                p = game.players[game.turn];
+                                p = game.players[turn];
                                 position--;
                             } else {
                                 invalidMissingArg(command, arguments, position);

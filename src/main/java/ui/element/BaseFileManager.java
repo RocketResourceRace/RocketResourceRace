@@ -1,11 +1,11 @@
-package state.elements;
+package ui.element;
 
 import json.JSONManager;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
-import state.Element;
+import ui.Element;
 
 import java.io.File;
 import java.util.ArrayList;

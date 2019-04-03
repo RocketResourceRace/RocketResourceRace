@@ -4,9 +4,9 @@ import event.Event;
 import json.JSONManager;
 import processing.core.PImage;
 import processing.core.PShape;
-import state.Element;
-import state.State;
-import state.elements.*;
+import ui.Element;
+import ui.State;
+import ui.element.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;

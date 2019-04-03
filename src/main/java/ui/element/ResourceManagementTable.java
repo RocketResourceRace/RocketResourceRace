@@ -1,10 +1,10 @@
-package state.elements;
+package ui.element;
 
 import json.JSONManager;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
-import state.Element;
+import ui.Element;
 
 import java.util.ArrayList;
 import java.util.HashMap;

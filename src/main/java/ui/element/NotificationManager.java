@@ -1,10 +1,10 @@
-package state.elements;
+package ui.element;
 
 import event.Notification;
 import json.JSONManager;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
-import state.Element;
+import ui.Element;
 
 import java.util.ArrayList;
 import java.util.logging.Level;

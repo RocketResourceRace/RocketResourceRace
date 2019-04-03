@@ -1,4 +1,4 @@
-package state.elements;
+package ui.element;
 
 import json.JSONManager;
 import party.Party;

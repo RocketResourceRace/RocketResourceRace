@@ -1,9 +1,9 @@
 import json.JSONManager;
 import processing.core.PApplet;
 import processing.event.MouseEvent;
-import state.Element;
-import state.Panel;
-import state.State;
+import ui.Element;
+import ui.Panel;
+import ui.State;
 import states.Game;
 import states.Menu;
 import util.Image;
@@ -21,7 +21,6 @@ import static util.Util.loadSounds;
 import static util.Util.setFrameRateCap;
 
 public class RocketResourceRace extends PApplet {
-
 
     private String activeState;
     private HashMap<String, State> states;
@@ -57,7 +56,6 @@ public class RocketResourceRace extends PApplet {
         keyboardEvent("keyTyped", key);
     }
 
-
     /*
     Handles double clicks
     */
@@ -84,17 +82,10 @@ public class RocketResourceRace extends PApplet {
         getActiveState()._keyboardEvent(eventType, _key);
     }
 
-
-
-
-
-
-
     public void settings() {
         System.setProperty("jogl.disable.openglcore", "true");
         fullScreen(P3D);
     }
-
 
     public void setup() {
         try {
@@ -140,12 +131,9 @@ public class RocketResourceRace extends PApplet {
             //toon.set("fraction", 1.0);
 
             LOGGER_MAIN.fine("Setup finished");
-        }
-
-        catch(IOException e) {
+        } catch(IOException e) {
             LOGGER_MAIN.log(Level.SEVERE, "IO exception occured duing setup", e);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, "Error occured during setup", e);
             throw e;
         }
@@ -171,8 +159,7 @@ public class RocketResourceRace extends PApplet {
                 fill(255, 0, 0);
                 text(frameRate, 0, 0);
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, "Uncaught exception occured during draw", e);
             throw e;
         }
@@ -189,28 +176,6 @@ public class RocketResourceRace extends PApplet {
     private void addState(String name, State state) {
         states.put(name, state);
     }
-
-
-    //boolean isWater(int x, int y) {
-    //  //return max(new float[]{
-    //  //  noise(x*MAPNOISESCALE, y*MAPNOISESCALE),
-    //  //  noise((x+1)*MAPNOISESCALE, y*MAPNOISESCALE),
-    //  //  noise(x*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
-    //  //  noise((x+1)*MAPNOISESCALE, (y+1)*MAPNOISESCALE),
-    //  //  })<JSONManager.loadFloatSetting("water level");
-    //  for (float y1 = y; y1<=y+1;y1+=1.0/JSONManager.loadFloatSetting("terrain detail")){
-    //    for (float x1 = x; x1<=x+1;x1+=1.0/JSONManager.loadFloatSetting("terrain detail")){
-    //      if(noise(x1*MAPHEIGHTNOISESCALE, y1*MAPHEIGHTNOISESCALE)>JSONManager.loadFloatSetting("water level")){
-    //        return false;
-    //      }
-    //    }
-    //  }
-    //  return true;
-    //}
-
-
-
-
 
 
 

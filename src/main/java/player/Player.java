@@ -57,6 +57,10 @@ public class Player {
         }
     }
 
+    public int getId() {
+        return id;
+    }
+
     public Node[][] sightDijkstra(int x, int y, Party[][] parties, int[][] terrain) {
         int w = visibleCells[0].length;
         int h = visibleCells.length;

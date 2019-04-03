@@ -9,7 +9,7 @@ import party.Party;
 import party.Siege;
 import player.Player;
 import processing.core.PApplet;
-import state.Element;
+import ui.Element;
 import util.Cell;
 
 import java.io.File;
