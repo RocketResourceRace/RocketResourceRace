@@ -2261,29 +2261,24 @@ public class Game extends State {
                     int hoveringType = ((EquipmentManager)getElement("equipment manager", "party management")).hoveringOverType();
                     int equipmentClass = ((EquipmentManager)getElement("equipment manager", "party management")).getSelectedClass();
                     tooltip.setEquipment(equipmentClass, hoveringType, players[turn].resources, parties[selectedCellY][selectedCellX], isEquipmentCollectionAllowed(selectedCellX, selectedCellY, equipmentClass, parties[selectedCellY][selectedCellX].getEquipment(equipmentClass)));
-                    tooltip.show();
                 } else if (tasks.moveOver() && getPanel("party management").isVisible() && !tasks.scrolling && !tasks.hovingOverScroll() && tasks.active) {
                     tooltip.setTask(((TaskManager)getElement("tasks", "party management")).findMouseOver(), players[turn].resources, parties[selectedCellY][selectedCellX].getMovementPoints());
                     tooltip.show();
                 } else if (getElement("proficiency summary", "party management").mouseOver() && getPanel("party management").isVisible()) {
                     tooltip.setProficiencies(((ProficiencySummary)getElement("proficiency summary", "party management")).hoveringOption(), parties[selectedCellY][selectedCellX]);
-                    tooltip.show();
                 } else if (getElement("turns remaining", "party management").mouseOver()&& getPanel("party management").isVisible()) {
                     tooltip.setTurnsRemaining();
-                    tooltip.show();
                 } else if (getElement("move button", "party management").mouseOver()&& getPanel("party management").isVisible()) {
                     tooltip.setMoveButton();
-                    tooltip.show();
                 } else if (getElement("stock up button", "party management").mouseOver() && getPanel("party management").isVisible()) {
                     if (((Button) getElement("stock up button", "party management")).active) {
                         tooltip.setStockUpAvailable(parties[selectedCellY][selectedCellX], players[turn].resources);
                     } else {
                         tooltip.setStockUpUnavailable(parties[selectedCellY][selectedCellX]);
                     }
-                    tooltip.show();
                 } else if (getElement("resource summary", "bottom bar").mouseOver()) {
-                    tooltip.setText(((ResourceSummary)getElement("resource summary", "bottom bar")).getResourceUnderMouse());
-                    tooltip.show();
+                    String resource = ((ResourceSummary)getElement("resource summary", "bottom bar")).getResourceUnderMouse();
+                    tooltip.setResource(new HashMap<>(), resource);
                 } else if (map.mouseOver()) {
                     Cell[][] visibleCells = players[turn].visibleCells;
                     map.doUpdateHoveringScale();
@@ -2305,21 +2300,17 @@ public class Game extends State {
                                 int cost = nodes[mapInterceptY][mapInterceptX].cost;
                                 boolean splitting = splitUnitsNum()!=parties[selectedCellY][selectedCellX].getUnitNumber();
                                 tooltip.setMoving(turns, splitting, parties[selectedCellY][selectedCellX], splitUnitsNum(), cost, JSONManager.loadBooleanSetting("map is 3d"));
-                                tooltip.show();
                             } else {
                                 if (visibleCells[mapInterceptY][mapInterceptX].getParty().player == turn) {
                                     //merge parties
                                     tooltip.setMerging(visibleCells[mapInterceptY][mapInterceptX].getParty(), visibleCells[selectedCellY][selectedCellX].getParty(), splitUnitsNum());
-                                    tooltip.show();
                                 } else if (visibleCells[mapInterceptY][mapInterceptX].getBuilding() != null && visibleCells[mapInterceptY][mapInterceptX].getBuilding().getDefence() > 0) {
                                     //Siege
                                     tooltip.setSieging();
-                                    tooltip.show();
                                 } else if (!(visibleCells[mapInterceptY][mapInterceptX].getParty() instanceof Battle) || visibleCells[mapInterceptY][mapInterceptX].getParty().containsPartyFromPlayer(turn) > 0) {
                                     //Attack
                                     BigDecimal chance = battleEstimateManager.getEstimate(selectedCellX, selectedCellY, mapInterceptX, mapInterceptY, splitUnitsNum());
                                     tooltip.setAttacking(chance);
-                                    tooltip.show();
                                 } else {
                                     tooltip.hide();
                                     map.cancelPath();
@@ -2334,13 +2325,11 @@ public class Game extends State {
                     if (bombarding) {
                         if (0<=mapInterceptX&&mapInterceptX<mapWidth&&0<=mapInterceptY&&mapInterceptY<mapHeight && visibleCells[mapInterceptY][mapInterceptX].getParty() != null && visibleCells[mapInterceptY][mapInterceptX].getParty().player != turn) {
                             tooltip.setBombarding(getBombardmentDamage(parties[selectedCellY][selectedCellX], parties[mapInterceptY][mapInterceptX]));
-                            tooltip.show();
                         }
                     } else if (!moving && 0 < mapInterceptY && mapInterceptY < mapHeight && 0 < mapInterceptX && mapInterceptX < mapWidth && !(parties[mapInterceptY][mapInterceptX] instanceof Battle) && parties[mapInterceptY][mapInterceptX] != null) {
                         if (!JSONManager.loadBooleanSetting("fog of war") || (players[turn].visibleCells[mapInterceptY][mapInterceptX] != null && players[turn].visibleCells[mapInterceptY][mapInterceptX].party != null)) {
                             // Hovering over party
                             tooltip.setHoveringParty(parties[mapInterceptY][mapInterceptX]);
-                            tooltip.show();
                         }
                     }
                 } else {

@@ -191,7 +191,7 @@ public class ResourceSummary extends Element {
                 continue;
             w = columnWidth(i);
             cw += w+GAP;
-            if (papplet.width-cw+x-GAP/2<papplet.mouseX) {
+            if (papplet.width-cw-GAP/2<papplet.mouseX) {
                 return getResString(i);
             }
         }

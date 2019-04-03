@@ -104,30 +104,36 @@ public class AdvancedTooltip extends Tooltip {
             t.append(String.format(jo.getString("moving turns"), turns));
         }
         setText(t.toString());
+        show();
     }
 
     public void setSieging() {
         JSONObject jo = gameData.getJSONObject("tooltips");
         setText(jo.getString("siege"));
+        show();
     }
 
     public void setAttacking(BigDecimal chance) {
         attacking = true;
         JSONObject jo = gameData.getJSONObject("tooltips");
         setText(String.format(jo.getString("attacking"), chance.toString()));
+        show();
     }
 
     public void setBombarding(int damage) {
         setText(String.format("Perform a ranged attack on the party.\nThis will eliminate %d units of the other party", damage));
+        show();
     }
 
     public void setTurnsRemaining() {
         JSONObject jo = gameData.getJSONObject("tooltips");
         setText(jo.getString("turns remaining"));
+        show();
     }
     public void setMoveButton() {
         JSONObject jo = gameData.getJSONObject("tooltips");
         setText(jo.getString("move button"));
+        show();
     }
     public void setMerging(Party p1, Party p2, int unitsTransfered) {
         // p1 is being merged into
@@ -177,6 +183,7 @@ public class AdvancedTooltip extends Tooltip {
         }
 
         setText(t.toString());
+        show();
     }
 
     public void setStockUpAvailable(Party p, float[] resources) {
@@ -193,6 +200,7 @@ public class AdvancedTooltip extends Tooltip {
             }
         }
         setText("Stock up equipment. This will use all of the party's movement points."+text);
+        show();
     }
 
     public void setStockUpUnavailable(Party p) {
@@ -218,6 +226,7 @@ public class AdvancedTooltip extends Tooltip {
             text += "\nThis party has no equipment selected so it cannot be stocked up.";
         }
         setText(text);
+        show();
     }
 
     public void setTask(String task, float[] availibleResources, int movementPoints) {
@@ -255,6 +264,7 @@ public class AdvancedTooltip extends Tooltip {
             }
             //Strip
             setText(t.replaceAll("\\s+$", ""));
+            show();
         }
         catch (Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, "Error changing tooltip to task: "+task, e);
@@ -381,6 +391,7 @@ public class AdvancedTooltip extends Tooltip {
             }
 
             setText(t.toString().replaceAll("\\s+$", ""));
+            show();
         }
         catch (Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, String.format("Error changing tooltip to equipment class:%dk, type:%d", equipmentClass, equipmentType), e);
@@ -413,6 +424,7 @@ public class AdvancedTooltip extends Tooltip {
             }
 
             setText(t.toString().replaceAll("\\s+$", ""));
+            show();
         }
         catch (Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, String.format("Error changing tooltip to proficiencies index:%d", proficiencyIndex), e);
@@ -426,6 +438,7 @@ public class AdvancedTooltip extends Tooltip {
             t.append(String.format("\n%s=%s", JSONManager.indexToProficiencyDisplayName(i), roundDpTrailing("" + p.getTotalProficiency(i), 2)));
         }
         setText(t.toString());
+        show();
     }
 
     public void setResource(HashMap<String, Float> buildings, String resource) {
@@ -439,7 +452,7 @@ public class AdvancedTooltip extends Tooltip {
                 }
             }
             setText(t.toString());
-            show();
+            showFlipped();
         }
         catch (Exception e) {
             LOGGER_MAIN.log(Level.WARNING, "Error changing tooltip to resource: "+resource, e);

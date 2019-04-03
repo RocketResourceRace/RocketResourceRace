@@ -15,6 +15,7 @@ import static util.Util.papplet;
 
 public class Tooltip extends MultiLineTextBox {
     ArrayList<TooltipElement> elements;
+    private boolean flipped = false;
     public Tooltip() {
         super(0, 0, -1, -1, papplet.color(200, 240), 0, 0, (int)(6 * JSONManager.loadFloatSetting("text scale")), LEFT, TOP, "", 2);
         hide();
@@ -23,6 +24,11 @@ public class Tooltip extends MultiLineTextBox {
 
     public void show() {
         visible = true;
+        flipped = false;
+    }
+    void showFlipped() {
+        visible = true;
+        flipped = true;
     }
     public void hide() {
         visible = false;
@@ -32,7 +38,11 @@ public class Tooltip extends MultiLineTextBox {
         int tw = ceil(maxWidthLine(panelCanvas, lines))+4;
         x = round(between(0, papplet.mouseX-xOffset-tw/2f, (float) (papplet.width-tw*1.1)));
         int th = ceil(panelCanvas.textAscent()+panelCanvas.textDescent())*lines.size();
-        y = round(between(0, papplet.mouseY-yOffset, papplet.height-th-20)+20);
+        if (flipped) {
+            y = round(between(th, papplet.mouseY - yOffset - th-8, papplet.height));
+        } else {
+            y = round(between(0, papplet.mouseY - yOffset, papplet.height - th - 25) + 20);
+        }
         super.draw(panelCanvas);
     }
 
