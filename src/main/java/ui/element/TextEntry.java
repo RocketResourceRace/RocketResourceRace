@@ -8,13 +8,12 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 
 import static processing.core.PApplet.*;
-import static processing.core.PConstants.LEFT;
 import static util.Font.getFont;
 import static util.Logging.LOGGER_MAIN;
 import static util.Util.*;
 
 public class TextEntry extends Element {
-    StringBuilder text;
+    private StringBuilder text;
     private int x, y, w, h, textSize, textAlign, cursor, selected;
     private int textColour, boxColour, borderColour, selectionColour;
     private String allowedChars, name;

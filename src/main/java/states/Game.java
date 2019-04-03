@@ -2466,7 +2466,7 @@ public class Game extends State {
         map.setDrawingUnitBars(true);
         LOGGER_MAIN.finer("Finished reloading game");
     }
-    public int cost(int x, int y, int prevX, int prevY) {
+    private int cost(int x, int y, int prevX, int prevY) {
         float mult = 1;
         if (x!=prevX && y!=prevY) {
             mult = 1.41f;

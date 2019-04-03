@@ -18,7 +18,7 @@ public class Panel {
     private Boolean visible;
     Boolean blockEvent;
     Boolean overrideBlocking;
-    protected int x;
+    int x;
     public int y;
     private int w;
     private int h;

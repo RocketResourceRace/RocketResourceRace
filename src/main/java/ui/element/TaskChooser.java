@@ -11,8 +11,6 @@ import java.util.Collections;
 import java.util.logging.Level;
 
 import static processing.core.PApplet.*;
-import static processing.core.PConstants.LEFT;
-import static processing.core.PConstants.TOP;
 import static util.Image.taskImages;
 import static util.Logging.LOGGER_MAIN;
 import static util.Util.*;
@@ -21,7 +19,7 @@ public class TaskChooser extends Element {
     private ArrayList<String> options;
     private ArrayList<Integer> availableOptions;
     private ArrayList<Integer> availableButOverBudgetOptions;
-    int textSize;
+    private int textSize;
     private int scroll;
     private int numDisplayed;
     private int oldH;
@@ -347,7 +345,7 @@ public class TaskChooser extends Element {
     public boolean pointOver() {
         return moveOver();
     }
-    public boolean mouseOver(int j) {
+    private boolean mouseOver(int j) {
         return papplet.mouseX-xOffset >= x && papplet.mouseX-xOffset <= x+w && papplet.mouseY-yOffset > y+h*j && papplet.mouseY-yOffset <= y+h*(j+1);
     }
 }

@@ -11,12 +11,12 @@ import static util.Font.getFont;
 import static util.Util.papplet;
 
 public class Text extends Element {
-    int x;
+    private int x;
     public int y;
     private int size;
     private int colour;
     private int align;
-    PFont font;
+    private PFont font;
     public String text;
 
     public Text(int x, int y, int size, String text, int colour, int align) {

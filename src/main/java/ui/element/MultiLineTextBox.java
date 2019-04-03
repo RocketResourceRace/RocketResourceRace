@@ -8,17 +8,16 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 
 import static processing.core.PApplet.*;
-import static processing.core.PConstants.CENTER;
 import static util.Font.getFont;
 import static util.Logging.LOGGER_MAIN;
 import static util.Util.papplet;
 
 public class MultiLineTextBox extends Element {
-    protected int x;
+    int x;
     public int y;
-    protected int w;
+    int w;
     public int h;
-    protected int textSize;
+    private int textSize;
     private int textAlignx;
     private int textAligny;
     public int bgColour;

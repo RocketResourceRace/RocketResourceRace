@@ -12,7 +12,7 @@ import static util.Util.papplet;
 
 public class Tickbox extends Element {
     private boolean val;
-    String name;
+    private String name;
 
     public Tickbox(int x, int y, int w, int h, boolean defaultVal, String name) {
         this.x = x;

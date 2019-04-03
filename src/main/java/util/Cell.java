@@ -4,7 +4,7 @@ import map.Building;
 import party.Party;
 
 public class Cell {
-    protected int terrain;
+    int terrain;
     public Building building;
     public Party party;
     public boolean activeSight;

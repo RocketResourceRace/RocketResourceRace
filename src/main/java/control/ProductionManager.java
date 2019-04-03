@@ -7,9 +7,7 @@ import processing.data.JSONArray;
 import ui.element.NotificationManager;
 
 import static json.JSONManager.*;
-import static json.JSONManager.gameData;
 import static processing.core.PApplet.*;
-import static processing.core.PApplet.min;
 import static util.GameInfo.turn;
 import static util.GameInfo.turnNumber;
 import static util.Logging.LOGGER_GAME;

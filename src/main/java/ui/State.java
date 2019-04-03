@@ -134,7 +134,7 @@ public class State {
         return p;
     }
 
-    public void drawPanels() {
+    protected void drawPanels() {
         checkElementOnTop();
         // Draw the panels in reverse order (highest in the list are drawn last so appear on top)
         for (int i=panels.size()-1; i>=0; i--) {
@@ -144,17 +144,17 @@ public class State {
         }
     }
     // Empty method for use by children
-    public ArrayList<String> mouseEvent(String eventType, int button) {
+    protected ArrayList<String> mouseEvent(String eventType, int button) {
         return new ArrayList<>();
     }
-    public ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event) {
+    private ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event) {
         return new ArrayList<>();
     }
-    public ArrayList<String> keyboardEvent(String eventType, char _key) {
+    protected ArrayList<String> keyboardEvent(String eventType, char _key) {
         return new ArrayList<>();
     }
 
-    public void elementEvent(ArrayList<Event> events) {
+    protected void elementEvent(ArrayList<Event> events) {
         //for (Event event : events){
         //  println(event.info(), 1);
         //}

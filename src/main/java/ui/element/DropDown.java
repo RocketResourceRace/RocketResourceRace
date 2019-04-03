@@ -19,7 +19,7 @@ public class DropDown extends Element {
     public int selected;
     int bgColour;
     int textSize;
-    String name;
+    private String name;
     public String optionTypes;
     boolean expanded;
     private boolean postExpandedEvent;
@@ -193,7 +193,7 @@ public class DropDown extends Element {
         return selected;
     }
 
-    public boolean moveOver() {
+    boolean moveOver() {
         if (expanded) {
             return papplet.mouseX-xOffset >= x && papplet.mouseX-xOffset <= x+w && papplet.mouseY-yOffset >= y && papplet.mouseY-yOffset < y+h*(options.length+1);
         } else {
@@ -204,7 +204,7 @@ public class DropDown extends Element {
         return moveOver();
     }
 
-    public int hoveringOption() {
+    int hoveringOption() {
         if (!expanded) {
             return -1;
         }

@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 
 import static processing.core.PApplet.*;
-import static processing.core.PConstants.CENTER;
-import static processing.core.PConstants.TOP;
 import static util.Font.getFont;
 import static util.Logging.LOGGER_MAIN;
 import static util.Util.*;
@@ -49,7 +47,7 @@ public class NotificationManager extends Element {
         return moveOver();
     }
 
-    public boolean mouseOver(int i) {
+    private boolean mouseOver(int i) {
         return papplet.mouseX-xOffset >= x && papplet.mouseX-xOffset <= x+w && papplet.mouseY-yOffset >= y+notHeight*i+topOffset && papplet.mouseY-yOffset <= y+notHeight*(i+1)+topOffset;
     }
 

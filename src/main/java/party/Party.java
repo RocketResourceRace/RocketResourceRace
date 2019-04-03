@@ -3,7 +3,6 @@ package party;
 import event.Action;
 import json.JSONManager;
 import player.Player;
-import processing.core.PApplet;
 import processing.data.JSONObject;
 
 import java.util.ArrayList;
@@ -308,7 +307,7 @@ public class Party {
         return mergeFrom(other, other.getUnitNumber(), moveCost, player);
     }
 
-    public int mergeFrom(Party other, int unitsTransfered, int moveCost, Player player) {
+    int mergeFrom(Party other, int unitsTransfered, int moveCost, Player player) {
         // Take units from other party into this party and merge attributes, weighted by unit number
         LOGGER_GAME.fine(String.format("Merging %d units from party with id:%s into party with id:%s", unitsTransfered, other.id, this.id));
 
@@ -454,7 +453,7 @@ public class Party {
     }
 
     public void clearActions() {
-        actions = new ArrayList<Action>();
+        actions = new ArrayList<>();
     }
 
     public int currentAction() {
@@ -610,7 +609,7 @@ public class Party {
         return getRawProficiency(index) * (1+getProficiencyBonusMultiplier(index));
     }
 
-    public float getRawBonusProficiency(int index){
+    private float getRawBonusProficiency(int index){
         // For getting bonus amount
         return getProficiencyBonusMultiplier(index) * getRawProficiency(index);
     }

@@ -14,7 +14,7 @@ import static util.Util.between;
 import static util.Util.papplet;
 
 public class Tooltip extends MultiLineTextBox {
-    ArrayList<TooltipElement> elements;
+    private ArrayList<TooltipElement> elements;
     private boolean flipped = false;
     public Tooltip() {
         super(0, 0, -1, -1, papplet.color(200, 240), 0, 0, (int)(6 * JSONManager.loadFloatSetting("text scale")), LEFT, TOP, "", 2);
@@ -93,11 +93,11 @@ public class Tooltip extends MultiLineTextBox {
             enabled = true;
         }
 
-        public boolean mouseOver() {
+        boolean mouseOver() {
             return e.mouseOver();
         }
 
-        public String getText() {
+        String getText() {
             return s;
         }
 
@@ -113,7 +113,7 @@ public class Tooltip extends MultiLineTextBox {
             this.enabled = enabled;
         }
 
-        public Element getElement() {
+        Element getElement() {
             return e;
         }
     }

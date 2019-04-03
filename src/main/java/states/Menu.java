@@ -13,7 +13,6 @@ import java.util.HashMap;
 
 import static json.JSONManager.gameData;
 import static processing.core.PApplet.*;
-import static processing.core.PConstants.RECT;
 import static util.Font.getFont;
 import static util.Logging.LOGGER_MAIN;
 import static util.Util.*;

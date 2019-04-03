@@ -47,13 +47,10 @@ public class Player {
 
         this.visibleCells = new Cell[JSONManager.loadIntSetting("map size")][JSONManager.loadIntSetting("map size")];
         this.controllerType = controllerType;
-        switch(controllerType){
-            case 1:
-                playerController = new BanditController(id, JSONManager.loadIntSetting("map size"), JSONManager.loadIntSetting("map size"));
-                break;
-            default:
-                playerController = null;
-                break;
+        if (controllerType == 1) {
+            playerController = new BanditController(id, JSONManager.loadIntSetting("map size"), JSONManager.loadIntSetting("map size"));
+        } else {
+            playerController = null;
         }
     }
 
@@ -61,14 +58,14 @@ public class Player {
         return id;
     }
 
-    public Node[][] sightDijkstra(int x, int y, Party[][] parties, int[][] terrain) {
+    private Node[][] sightDijkstra(int x, int y, Party[][] parties, int[][] terrain) {
         int w = visibleCells[0].length;
         int h = visibleCells.length;
         int[][] mvs = {{1, 0}, {0, 1}, {1, 1}, {-1, 0}, {0, -1}, {-1, -1}, {1, -1}, {-1, 1}};
         Node currentHeadNode;
         Node[][] nodes = new Node[h][w];
         nodes[y][x] = new Node(gameData.getJSONArray("terrain").getJSONObject(terrain[y][x]).getInt("sight bonus"), false, x, y, x, y);
-        PriorityQueue<Node> curMinNodes = new PriorityQueue<Node>(new NodeComparator());
+        PriorityQueue<Node> curMinNodes = new PriorityQueue<>(new NodeComparator());
         curMinNodes.add(nodes[y][x]);
         while (curMinNodes.size() > 0) {
             currentHeadNode = curMinNodes.poll();
@@ -102,7 +99,7 @@ public class Player {
         return nodes;
     }
 
-    public boolean[][] generateFogMap(Party[][] parties, int[][] terrain) {
+    private boolean[][] generateFogMap(Party[][] parties, int[][] terrain) {
         int w = parties[0].length;
         int h = parties.length;
         boolean[][] fogMap = new boolean[h][w];
@@ -184,7 +181,7 @@ public class Player {
         return playerController.generateNextEvent(visibleCells, resources);
     }
 
-    public int sightCost(int x, int y, int prevX, int prevY, int[][] terrain) {
+    private int sightCost(int x, int y, int prevX, int prevY, int[][] terrain) {
         float mult = 1;
         if (x!=prevX && y!=prevY) {
             mult = 1.42f;

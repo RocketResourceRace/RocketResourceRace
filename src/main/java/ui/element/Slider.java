@@ -67,7 +67,7 @@ public class Slider extends Element {
         setValue(new BigDecimal(""+value));
     }
 
-    public void setValue(BigDecimal value) {
+    private void setValue(BigDecimal value) {
         LOGGER_MAIN.finer("Setting value to: " + value.toString());
         if (value.compareTo(lower) < 0) {
             this.value = lower;

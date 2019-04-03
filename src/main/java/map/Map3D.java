@@ -17,8 +17,6 @@ import java.util.logging.Level;
 
 import static json.JSONManager.*;
 import static processing.core.PApplet.*;
-import static processing.core.PConstants.P3D;
-import static processing.core.PConstants.PI;
 import static util.Dijkstra.LimitedKnowledgeDijkstra;
 import static util.Image.*;
 import static util.Logging.LOGGER_MAIN;

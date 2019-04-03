@@ -13,11 +13,12 @@ import static util.Util.papplet;
 import static util.Util.roundDpTrailing;
 
 public class ProficiencySummary extends Element {
-    final int TEXTSIZE = 8;
-    final int DECIMALPLACES = 2;
-    String[] proficiencyDisplayNames;
-    float[] proficiencies, bonuses;
-    int rowHeight;
+    private final int TEXTSIZE = 8;
+    private final int DECIMALPLACES = 2;
+    private String[] proficiencyDisplayNames;
+    private float[] proficiencies;
+    private float[] bonuses;
+    private int rowHeight;
 
     public ProficiencySummary(int x, int y, int w, int h) {
         this.x = x;
@@ -46,7 +47,7 @@ public class ProficiencySummary extends Element {
         this.bonuses = bonuses;
     }
 
-    public void updateProficiencyDisplayNames() {
+    private void updateProficiencyDisplayNames() {
         proficiencyDisplayNames = new String[JSONManager.getNumProficiencies()];
         for (int i = 0; i < JSONManager.getNumProficiencies(); i ++) {
             proficiencyDisplayNames[i] = JSONManager.indexToProficiencyDisplayName(i);
@@ -54,7 +55,7 @@ public class ProficiencySummary extends Element {
         LOGGER_MAIN.finer("Updated proficiency display names to: "+ Arrays.toString(proficiencyDisplayNames));
     }
 
-    public void updateRowHeight() {
+    private void updateRowHeight() {
         rowHeight = h/proficiencyDisplayNames.length;
     }
 

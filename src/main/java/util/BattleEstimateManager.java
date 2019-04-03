@@ -10,15 +10,15 @@ import java.util.logging.Level;
 import static util.Logging.LOGGER_MAIN;
 
 public class BattleEstimateManager {
-    int currentWins = 0;
-    int currentTrials = 0;
-    int attackerX;
-    int attackerY;
-    int defenderX;
-    int defenderY;
-    int attackerUnits;
-    boolean cached = false;
-    Party[][] parties;
+    private int currentWins = 0;
+    private int currentTrials = 0;
+    private int attackerX;
+    private int attackerY;
+    private int defenderX;
+    private int defenderY;
+    private int attackerUnits;
+    private boolean cached = false;
+    private Party[][] parties;
     public BattleEstimateManager(Party[][] parties) {
         this.parties = parties;
     }
@@ -50,8 +50,7 @@ public class BattleEstimateManager {
                 }
                 currentTrials = TRIALS;
             }
-            BigDecimal chance = new BigDecimal(""+currentWins).multiply(new BigDecimal(100)).divide(new BigDecimal(""+currentTrials), 1, BigDecimal.ROUND_HALF_UP);
-            return chance;
+            return new BigDecimal(""+currentWins).multiply(new BigDecimal(100)).divide(new BigDecimal(""+currentTrials), 1, BigDecimal.ROUND_HALF_UP);
         }
         catch (Exception e) {
             LOGGER_MAIN.log(Level.SEVERE, String.format("Error getting estimate for battle between party at (%s, %s) and (%s, %s)", x1, y1, x2, y2));
@@ -64,7 +63,7 @@ public class BattleEstimateManager {
     public void refresh() {
         cached = false;
     }
-    public int runTrial(Party attacker, Party defender) {
+    private int runTrial(Party attacker, Party defender) {
         try {
             Battle battle;
             Party clone1;

@@ -40,10 +40,10 @@ public class Element {
     public ArrayList<String> mouseEvent(String eventType, int button) {
         return new ArrayList<>();
     }
-    public ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event) {
+    protected ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event) {
         return new ArrayList<>();
     }
-    public ArrayList<String> keyboardEvent(String eventType, char _key) {
+    protected ArrayList<String> keyboardEvent(String eventType, char _key) {
         return new ArrayList<>();
     }
     public void transform(int x, int y, int w, int h) {

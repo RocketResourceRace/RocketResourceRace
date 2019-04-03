@@ -13,7 +13,7 @@ import static util.Util.papplet;
 
 public class SingleLineTextBox extends Element {
     private int textSize, bgColour, textColour;
-    String text;
+    private String text;
     private boolean autoSizing;
 
     public SingleLineTextBox(int x, int y, int w, int h, int textSize, String text, int bgColour, int textColour) {

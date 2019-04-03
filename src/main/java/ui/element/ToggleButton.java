@@ -14,7 +14,7 @@ import static util.Util.papplet;
 
 public class ToggleButton extends Element {
     private int bgColour, strokeColour;
-    String name;
+    private String name;
     private boolean on;
     public ToggleButton(int x, int y, int w, int h, int bgColour, int strokeColour, boolean value, String name) {
         this.x = x;

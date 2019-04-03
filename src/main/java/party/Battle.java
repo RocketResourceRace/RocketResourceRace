@@ -121,8 +121,7 @@ public class Battle extends Party {
     }
 
     public Battle clone() {
-        Battle newParty = new Battle(this.attacker.clone(), this.defender.clone(), id);
-        return newParty;
+        return new Battle(this.attacker.clone(), this.defender.clone(), id);
     }
 
     public int mergeEntireFrom(Party other, int moveCost, Player player) {
@@ -144,7 +143,7 @@ public class Battle extends Party {
         }
         //
     }
-    public int getBattleUnitChange(Party p1, Party p2) {
+    private int getBattleUnitChange(Party p1, Party p2) {
         float damageRating = p2.strength * p2.getEffectivenessMultiplier("melee attack") /
                 (p1.strength * p1.getEffectivenessMultiplier("defence"));
         return floor(-0.2f * (p2.getUnitNumber() + pow(p2.getUnitNumber(), 2) / p1.getUnitNumber()) * random(0.75f, 1.5f) * damageRating);
