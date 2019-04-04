@@ -1620,7 +1620,7 @@ public class Map3D extends BaseMap implements Map {
                                 drawUnitBar(x, y, canvas);
                             }
 
-                            JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(visibleCells[y][x].party.task);
+                            JSONObject jo = gameData.getJSONArray("tasks").getJSONObject(visibleCells[y][x].party.getTask());
                             if (drawingTaskIcons && jo != null && !jo.isNull("img") && !cinematicMode) {
                                 canvas.noLights();
                                 canvas.pushMatrix();

@@ -441,14 +441,16 @@ public class AdvancedTooltip extends Tooltip {
         show();
     }
 
-    public void setResource(HashMap<String, Float> buildings, String resource) {
+    public void setResource(HashMap<String, Float> taskProductions, HashMap<String, Float> taskConsumptions, String resource) {
         try {
             StringBuilder t = new StringBuilder();
-            for (String building : buildings.keySet()) {
-                if (buildings.get(resource)>0) {
-                    t.append(String.format("%s: <g>+%f</g>", building, buildings.get(resource)));
-                } else {
-                    t.append(String.format("%s: <r>%f</r>", building, buildings.get(resource)));
+            t.append(String.format("%s:\n", resource));
+            for (String task : taskProductions.keySet()) {
+                if (taskProductions.get(task)>0) {
+                    t.append(String.format("\n%s: <g>+%f</g>", task, taskProductions.get(task)));
+                }
+                if (taskConsumptions.get(task)>0) {
+                    t.append(String.format("\n%s: <r>-%f</r>", task, taskConsumptions.get(task)));
                 }
             }
             setText(t.toString());

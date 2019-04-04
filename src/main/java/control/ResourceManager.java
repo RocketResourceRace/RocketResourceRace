@@ -143,4 +143,12 @@ public class ResourceManager {
     public float[] getStartingResourcesClone() {
         return startingResources.clone();
     }
+
+    public void setPlayers(Player[] players) {
+        this.players = players;
+    }
+
+    public Player[] getPlayers() {
+        return players;
+    }
 }

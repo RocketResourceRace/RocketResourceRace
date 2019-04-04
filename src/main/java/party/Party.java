@@ -24,7 +24,7 @@ public class Party {
     public int movementPoints;
     private int maxMovementPoints;
     public float[] proficiencies;
-    public int task;
+    private int task;
     public int[] equipment;
     public int [] equipmentQuantities;
     public String id;

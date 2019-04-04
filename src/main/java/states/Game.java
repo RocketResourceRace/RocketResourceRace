@@ -251,31 +251,6 @@ public class Game extends State {
         }
     }
 
-    private String terrainString(int terrainI) {
-        try {
-            return gameData.getJSONArray("terrain").getJSONObject(terrainI).getString("id");
-        }
-        catch (NullPointerException e) {
-            LOGGER_MAIN.log(Level.SEVERE, "Error due to JSON being incorrectly formatted for terrain string", e);
-            return null;
-        }
-    }
-
-
-    public String taskString(int task) {
-        try {
-            if (gameData.getJSONArray("tasks").isNull(task)) {
-                LOGGER_MAIN.warning("invalid building string "+(task));
-                return null;
-            }
-            return gameData.getJSONArray("buildings").getJSONObject(task).getString("id");
-        }
-        catch (NullPointerException e) {
-            LOGGER_MAIN.log(Level.SEVERE, "Error due to JSON being incorrectly formatted for building string", e);
-            return null;
-        }
-    }
-
     private float[] buildingCost(int actionType) {
         try {
             float[] a = JSONToCost(taskInitialCost(actionType));
@@ -754,7 +729,7 @@ public class Game extends State {
             JSONObject js;
 
             if (parties[selectedCellY][selectedCellX].player == -1) {
-                makeTaskAvailable(parties[selectedCellY][selectedCellX].task);
+                makeTaskAvailable(parties[selectedCellY][selectedCellX].getTask());
             }
 
             if (parties[selectedCellY][selectedCellX].hasActions()) {
@@ -966,7 +941,7 @@ public class Game extends State {
             notificationManager.dismissAll();
             autoMoveParties();
             processParties();
-            boolean starving = players[turn].resources[getResIndex("food")] == 0;
+            boolean starving = isStarving();
             productionManager.updateResources(productionManager.getResourceProductivities(productionManager.getTotalResourceRequirements()), starving);
             partyMovementPointsReset();
             LOGGER_GAME.finer("Loading other player camera positions");
@@ -1263,7 +1238,7 @@ public class Game extends State {
     }
     private boolean isIdle(int x, int y) {
         try {
-            return (parties[y][x].task == JSONIndex(gameData.getJSONArray("tasks"), "Rest") && canMove(x, y) && (parties[y][x].path==null||parties[y][x].path!=null&&parties[y][x].path.size()==0));
+            return (parties[y][x].getTask() == JSONIndex(gameData.getJSONArray("tasks"), "Rest") && canMove(x, y) && (parties[y][x].path==null||parties[y][x].path!=null&&parties[y][x].path.size()==0));
         }
         catch (IndexOutOfBoundsException e) {
             LOGGER_MAIN.log(Level.WARNING, "Error with indices in new party loc", e);
@@ -1380,7 +1355,7 @@ public class Game extends State {
                         storage.add(new ArrayList<>());
                         float[] totalResourceRequirements = productionManager.getTotalResourceRequirements();
                         float[] resourceProductivities = productionManager.getResourceProductivities(totalResourceRequirements);
-                        boolean starving = players[turn].resources[getResIndex("food")] == 0;
+                        boolean starving = isStarving();
                         float[] gross = productionManager.getTotalResourceProductions(resourceProductivities, starving);
                         float[] costs = productionManager.getTotalResourceConsumptions(resourceProductivities, starving);
                         float[] totals = productionManager.getTotalResourceChanges(gross, costs);
@@ -1843,7 +1818,18 @@ public class Game extends State {
                     }
                 } else if (getElement("resource summary", "bottom bar").mouseOver()) {
                     String resource = ((ResourceSummary)getElement("resource summary", "bottom bar")).getResourceUnderMouse();
-                    tooltip.setResource(new HashMap<>(), resource);
+                    float[] taskProductions= productionManager.getProductionFromTasks(getResIndex(resource), isStarving());
+                    HashMap<String, Float> tasksProdMap =  new HashMap<>();
+                    for (int i=0; i<taskProductions.length; i++) {
+                        tasksProdMap.put(taskString(i), taskProductions[i]);
+                    }
+
+                    float[] taskConsumptions= productionManager.getConsumptionFromTasks(getResIndex(resource), isStarving());
+                    HashMap<String, Float> tasksConsMap =  new HashMap<>();
+                    for (int i=0; i<taskProductions.length; i++) {
+                        tasksConsMap.put(taskString(i), taskConsumptions[i]);
+                    }
+                    tooltip.setResource(tasksProdMap, tasksConsMap, resource);
                 } else if (map.mouseOver()) {
                     Cell[][] visibleCells = players[turn].visibleCells;
                     map.doUpdateHoveringScale();
@@ -1904,6 +1890,10 @@ public class Game extends State {
                 map.setActive(UINotHovering());
             }
         }
+    }
+
+    private boolean isStarving() {
+        return players[turn].resources[getResIndex("food")] == 0;
     }
 
     public ArrayList<String> mouseEvent(String eventType, int button) {
@@ -2191,9 +2181,9 @@ public class Game extends State {
                 panelCanvas.text("Building: Construction Site", 5+sidePanelX, barY);
             barY += 13*JSONManager.loadFloatSetting("text scale");
         }
-        boolean starving = players[turn].resources[getResIndex("food")] == 0;
+        boolean starving = isStarving();
         float[] resourceProductivities = productionManager.getResourceProductivities(productionManager.getTotalResourceRequirements());
-        float[] production = productionManager.resourceProductionAtCell(selectedCellX, selectedCellY, resourceProductivities, starving);
+        float[] production = productionManager.getResourceProductionAtCell(selectedCellX, selectedCellY, resourceProductivities, starving);
         float[] consumption = productionManager.getResourceConsumptionAtCell(selectedCellX, selectedCellY, resourceProductivities, starving);
         String pl = resourceManager.resourcesList(production);
         String cl = resourceManager.resourcesList(consumption);
@@ -2370,6 +2360,7 @@ public class Game extends State {
             turnNumber = mapSave.startTurn;
             turn = mapSave.startPlayer;
             this.players = mapSave.players;
+            resourceManager.setPlayers(this.players);
             checkForPlayerWin();
             if (JSONManager.loadBooleanSetting("map is 3d")) {
                 map.targetCell(PApplet.parseInt(this.players[turn].cameraCellX), PApplet.parseInt(this.players[turn].cameraCellY), this.players[turn].blockSize);
@@ -2417,6 +2408,7 @@ public class Game extends State {
         playerColours[players.length-1] = players[players.length-1].colour;
         partyImages[players.length-1] = partyBaseImages[2].copy();
 
+        productionManager = new ProductionManager(resourceManager, taskManager, parties, buildings, mapWidth, notificationManager);
         if (players[turn].cellSelected) {
             selectCell(players[turn].cellX, players[turn].cellY, false);
         }
@@ -2434,8 +2426,7 @@ public class Game extends State {
         t.setColour(players[turn].colour);
         t.setText("Turn "+turnNumber);
 
-        productionManager = new ProductionManager(resourceManager, taskManager, parties, buildings, mapWidth, notificationManager);
-        boolean starving = players[turn].resources[getResIndex("food")] == 0;
+        boolean starving = isStarving();
         productionManager.updateResourcesSummary(starving);
         getPanel("pause screen").setVisible(false);
 

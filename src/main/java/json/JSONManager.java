@@ -969,4 +969,39 @@ public class JSONManager {
             return null;
         }
     }
+    public static int numBuildingTypes() {
+        try {
+            return gameData.getJSONArray("buildings").size();
+        }
+        catch (NullPointerException e) {
+            LOGGER_MAIN.log(Level.SEVERE, "Error due to JSON being incorrectly formatted for building string", e);
+            return 0;
+        }
+    }
+
+
+    public static String terrainString(int terrainI) {
+        try {
+            return gameData.getJSONArray("terrain").getJSONObject(terrainI).getString("id");
+        }
+        catch (NullPointerException e) {
+            LOGGER_MAIN.log(Level.SEVERE, "Error due to JSON being incorrectly formatted for terrain string", e);
+            return null;
+        }
+    }
+
+    public static String taskString(int task) {
+        try {
+            if (gameData.getJSONArray("tasks").isNull(task)) {
+                LOGGER_MAIN.warning("invalid task string "+(task));
+                return null;
+            }
+            return gameData.getJSONArray("tasks").getJSONObject(task).getString("id");
+        }
+        catch (NullPointerException e) {
+            LOGGER_MAIN.log(Level.SEVERE, "Error due to JSON being incorrectly formatted for task string", e);
+            return null;
+        }
+    }
+
 }

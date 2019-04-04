@@ -144,7 +144,7 @@ public class ProductionManager {
                                             totalGained++;
                                         }
                                         parties[y][x].changeUnitNumber(totalGained);
-                                        if (prev != JSONManager.loadIntSetting("party size") && parties[y][x].getUnitNumber() == JSONManager.loadIntSetting("party size") && parties[y][x].task == JSONIndex(gameData.getJSONArray("tasks"), "Super Rest")) {
+                                        if (prev != JSONManager.loadIntSetting("party size") && parties[y][x].getUnitNumber() == JSONManager.loadIntSetting("party size") && parties[y][x].getTask() == JSONIndex(gameData.getJSONArray("tasks"), "Super Rest")) {
                                             notificationManager.post("Party Full", x, y, turnNumber, turn);
                                             LOGGER_GAME.fine(String.format("Party full at  cell: (%d, %d) player:%s", x, y, turn));
                                         }
@@ -255,7 +255,7 @@ public class ProductionManager {
         return getProductivityAtCell(x, y, getResourceProductivities(getTotalResourceRequirements()), starving);
     }
 
-    public float[] resourceProductionAtCell(int x, int y, float[] resourceProductivities, boolean starving) {
+    public float[] getResourceProductionAtCell(int x, int y, float[] resourceProductivities, boolean starving) {
         float[][] taskOutcomes = taskManager.getTaskOutcomes();
         float [] production = new float[resourceManager.getNumResources()];
         if (parties[y][x] != null) {
@@ -279,8 +279,8 @@ public class ProductionManager {
         return production;
     }
 
-    public float[] resourceProductionAtCell(int x, int y, boolean starving) {
-        return resourceProductionAtCell(x, y, getResourceProductivities(getTotalResourceRequirements()), starving);
+    private float[] getResourceProductionAtCell(int x, int y, boolean starving) {
+        return getResourceProductionAtCell(x, y, getResourceProductivities(getTotalResourceRequirements()), starving);
     }
 
     public float[] getTotalResourceProductions(float[] resourceProductivities, boolean starving) {
@@ -288,7 +288,7 @@ public class ProductionManager {
         for (int x = 0; x < mapSize; x++) {
             for (int y = 0; y < mapSize; y++) {
                 for (int res = 0; res < resourceManager.getNumResources(); res++) {
-                    amount[res]+=resourceProductionAtCell(x, y, resourceProductivities, starving)[res];
+                    amount[res]+= getResourceProductionAtCell(x, y, resourceProductivities, starving)[res];
                 }
             }
         }
@@ -353,8 +353,32 @@ public class ProductionManager {
     private float[] getResourceChangesAtCell(int x, int y, float[] resourceProductivities, boolean starving) {
         float[] amount = new float[resourceManager.getNumResources()];
         for (int res = 0; res < resourceManager.getNumResources(); res++) {
-            amount[res] = resourceProductionAtCell(x, y, resourceProductivities, starving)[res] - getResourceConsumptionAtCell(x, y, resourceProductivities, starving)[res];
+            amount[res] = getResourceProductionAtCell(x, y, resourceProductivities, starving)[res] - getResourceConsumptionAtCell(x, y, resourceProductivities, starving)[res];
         }
         return amount;
+    }
+
+    public float[] getProductionFromTasks(int resource, boolean starving) {
+        float[] tasks = new float[taskManager.getTasks().length];
+        float[] resourceProductivities = getResourceProductivities(getTotalResourceRequirements());
+        for (int y=0;y<mapSize;y++) {
+            for (int x=0;x<mapSize;x++) {
+                if (parties[y][x]!=null)
+                    tasks[parties[y][x].getTask()]+=getResourceProductionAtCell(x, y, resourceProductivities, starving)[resource];
+            }
+        }
+        return tasks;
+    }
+
+    public float[] getConsumptionFromTasks(int resource, boolean starving) {
+        float[] tasks = new float[taskManager.getTasks().length];
+        float[] resourceProductivities = getResourceProductivities(getTotalResourceRequirements());
+        for (int y=0;y<mapSize;y++) {
+            for (int x=0;x<mapSize;x++) {
+                if (parties[y][x]!=null)
+                    tasks[parties[y][x].getTask()]+=getResourceConsumptionAtCell(x, y, resourceProductivities, starving)[resource];
+            }
+        }
+        return tasks;
     }
 }
