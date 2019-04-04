@@ -143,4 +143,30 @@ public class Util {
             throw e;
         }
     }
+
+    public static String metricPrefix(String v) {
+        try {
+            float i = Float.parseFloat(v);
+            return metricPrefix(i);
+        }
+        catch (Exception e) {
+            LOGGER_MAIN.log(Level.SEVERE, "Error creating prefix", e);
+            throw e;
+        }
+    }
+
+    public static String metricPrefix(float f) {
+        try {
+            if (f >= 1000000)
+                return (new BigDecimal(f).divide(new BigDecimal("1000000"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString()+"M";
+            else if (f >= 1000)
+                return (new BigDecimal(f).divide(new BigDecimal("1000"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString()+"K";
+
+            return (new BigDecimal(f).divide(new BigDecimal("1"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
+        }
+        catch (Exception e) {
+            LOGGER_MAIN.log(Level.SEVERE, "Error creating prefix", e);
+            throw e;
+        }
+    }
 }

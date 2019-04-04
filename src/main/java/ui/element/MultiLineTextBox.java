@@ -17,7 +17,7 @@ public class MultiLineTextBox extends Element {
     public int y;
     int w;
     public int h;
-    private int textSize;
+    protected int textSize;
     private int textAlignx;
     private int textAligny;
     public int bgColour;
@@ -122,7 +122,7 @@ public class MultiLineTextBox extends Element {
                 } else if (lines.get(i).contains("<g>")) {
                     drawColouredLine(panelCanvas, lines.get(i), tx+2, ty+i*gap, papplet.color(0,150,0), 'g');
                 } else {
-                    panelCanvas.text(lines.get(i), tx+2, ty+i*gap);
+                    drawText(panelCanvas, tx+2, ty+i*gap, lines.get(i));
                 }
             }
             panelCanvas.popStyle();
@@ -147,13 +147,30 @@ public class MultiLineTextBox extends Element {
                     end = line.length();
                 }
                 String text = line.substring(start, end).replace("<" + indicatingChar + ">", "").replace("</" + indicatingChar + ">", "");
-                canvas.text(text, startX+tw, startY);
-                tw += canvas.textWidth(text);
+                tw += drawText(canvas, startX+tw, startY, text);
                 coloured = !coloured;
             }
         }
         catch (IndexOutOfBoundsException e) {
             LOGGER_MAIN.log(Level.SEVERE, "Invalid index used drawing line", e);
+        }
+    }
+
+    private float drawText(PGraphics canvas, float x, float y, String text) {
+        String hiddenOpen = "<h>";
+        String hiddenClose = "</h>";
+        if (text.contains(hiddenOpen)&&text.contains(hiddenClose)) {
+            int indexOpen = text.indexOf(hiddenOpen);
+            int indexClose = text.indexOf(hiddenClose);
+            String before = text.substring(0, indexOpen);
+            drawText(canvas, x, y, before);
+            float gapWidth = canvas.textWidth(text.substring(indexOpen+hiddenOpen.length(), indexClose));
+            String after = text.substring(indexClose+hiddenClose.length());
+            drawText(canvas, x+gapWidth, y, after);
+            return canvas.textWidth(before)+gapWidth+canvas.textWidth(after);
+        } else {
+            canvas.text(text, x, y);
+            return canvas.textWidth(text);
         }
     }
 

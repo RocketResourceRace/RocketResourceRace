@@ -12,11 +12,9 @@ import java.util.logging.Level;
 
 import static json.JSONManager.findJSONObject;
 import static json.JSONManager.gameData;
-import static processing.core.PApplet.floor;
-import static processing.core.PApplet.min;
+import static processing.core.PApplet.*;
 import static util.Logging.LOGGER_MAIN;
-import static util.Util.roundDp;
-import static util.Util.roundDpTrailing;
+import static util.Util.*;
 
 public class AdvancedTooltip extends Tooltip {
     public boolean attacking;
@@ -446,11 +444,13 @@ public class AdvancedTooltip extends Tooltip {
             StringBuilder t = new StringBuilder();
             t.append(String.format("%s:\n", resource));
             for (String task : taskProductions.keySet()) {
-                if (taskProductions.get(task)>0) {
-                    t.append(String.format("\n%s: <g>+%f</g>", task, taskProductions.get(task)));
-                }
-                if (taskConsumptions.get(task)>0) {
-                    t.append(String.format("\n%s: <r>-%f</r>", task, taskConsumptions.get(task)));
+                if (taskProductions.get(task)>0 | taskConsumptions.get(task)>0) {
+                    StringBuilder taskString = new StringBuilder();
+                    taskString.append(String.format("\n%s: <g>+%s</g>", task, metricPrefix(taskProductions.get(task))));
+                    taskString.append(String.format("\n<h>%s:</h> <r>-%s</r>", task, metricPrefix(taskConsumptions.get(task))));
+                    float total = taskProductions.get(task) - taskConsumptions.get(task);
+                    taskString.append(String.format("\n<h>%s:</h>=%s", task, metricPrefix(total)));
+                    t.append(taskString);
                 }
             }
             setText(t.toString());

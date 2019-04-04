@@ -14,6 +14,7 @@ import static processing.core.PApplet.max;
 import static processing.core.PConstants.*;
 import static util.Font.getFont;
 import static util.Logging.LOGGER_MAIN;
+import static util.Util.metricPrefix;
 import static util.Util.papplet;
 
 public class ResourceSummary extends Element {
@@ -76,30 +77,15 @@ public class ResourceSummary extends Element {
         expanded = !expanded;
         LOGGER_MAIN.finest("Expanded changed to: " + expanded);
     }
-    private String prefix(String v) {
-        try {
-            float i = Float.parseFloat(v);
-            if (i >= 1000000)
-                return (new BigDecimal(v).divide(new BigDecimal("1000000"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString()+"M";
-            else if (i >= 1000)
-                return (new BigDecimal(v).divide(new BigDecimal("1000"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString()+"K";
-
-            return (new BigDecimal(v).divide(new BigDecimal("1"), 1, BigDecimal.ROUND_HALF_EVEN).stripTrailingZeros()).toPlainString();
-        }
-        catch (Exception e) {
-            LOGGER_MAIN.log(Level.SEVERE, "Error creating prefix", e);
-            throw e;
-        }
-    }
 
     private String getResString(int i) {
       return resNames[i];
     }
     private String getStockString(int i) {
-        return prefix(""+stockPile[i]);
+        return metricPrefix(""+stockPile[i]);
     }
     private String getNetString(int i) {
-        String tempString = prefix(""+net[i]);
+        String tempString = metricPrefix(""+net[i]);
         if (net[i] >= 0) {
             return "+"+tempString;
         }
