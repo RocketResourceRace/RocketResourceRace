@@ -80,7 +80,16 @@ public class PlayerSelector extends Element {
             if (papplet.mouseY-yOffset > y+rowHeight*(playersToDisplay-1) && papplet.mouseY-yOffset < y+rowHeight*playersToDisplay &&
             papplet.mouseX-xOffset > x+xOffset && papplet.mouseX-xOffset < x+xOffset+w) {
                 playerContainers.add(new PlayerContainer(getNextPlayerName(), PlayerType.LOCAL));
-                System.out.println("123");
+            }
+            for (int i = 0; i < Math.min(playerContainers.size(), playersToDisplay-1); i ++) {
+                // If clicked on player
+                if (papplet.mouseY-yOffset > y+rowHeight*i && papplet.mouseY-yOffset < y+rowHeight*(i+1) &&
+                        papplet.mouseX-xOffset > x+xOffset && papplet.mouseX-xOffset < x+xOffset+w) {
+                    // If clicked on player type box then toggle player type
+                    if (papplet.mouseX-xOffset > x+xOffset+w/2) {
+                        playerContainers.get(i).togglePlayerType();
+                    }
+                }
             }
         }
         return events;
@@ -102,6 +111,17 @@ class PlayerContainer {
 
     public void setPlayerType(PlayerType playerType) {
         this.playerType = playerType;
+    }
+
+    public void togglePlayerType() {
+        switch (playerType) {
+            case LOCAL:
+                setPlayerType(PlayerType.AI);
+                break;
+            case AI:
+                setPlayerType(PlayerType.LOCAL);
+                break;
+        }
     }
 
     public String getName() {
