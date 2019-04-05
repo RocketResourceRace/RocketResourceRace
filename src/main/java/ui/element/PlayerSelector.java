@@ -1,4 +1,5 @@
 package ui.element;
+import json.JSONManager;
 import player.PlayerType;
 import processing.core.PConstants;
 import processing.core.PGraphics;
@@ -9,9 +10,12 @@ import util.Util;
 import java.util.ArrayList;
 import java.util.List;
 
+import static util.Util.brighten;
 import static util.Util.papplet;
 
 public class PlayerSelector extends Element {
+    private static final int SCROLL_WIDTH = 20;
+
     private int rowHeight, playersToDisplay;
     private int bgColour;
     private int scroll = 0;
@@ -47,13 +51,23 @@ public class PlayerSelector extends Element {
             panelCanvas.rect(x, y+rowHeight*i, w, rowHeight);
             panelCanvas.fill(papplet.color(0));
             panelCanvas.textAlign(PConstants.LEFT, PConstants.CENTER);
-            panelCanvas.text(playerContainers.get(i + scroll).getName(), x, (float) (y+rowHeight*(i+0.5)));
+            panelCanvas.text(playerContainers.get(i + scroll).getName(), x+5, (float) (y+rowHeight*(i+0.5)));
 
             panelCanvas.fill(papplet.color(150));
             panelCanvas.rect((float) (x+w/2.0), y+rowHeight*i, (float) (w/2.0), rowHeight);
             panelCanvas.fill(papplet.color(0));
             panelCanvas.textAlign(PConstants.RIGHT, PConstants.CENTER);
-            panelCanvas.text(playerContainers.get(i + scroll).getPlayerType().id, x+w, (float) (y+rowHeight*(i+0.5)));
+            panelCanvas.text(playerContainers.get(i + scroll).getPlayerType().id, x+w-SCROLL_WIDTH-5, (float) (y+rowHeight*(i+0.5)));
+        }
+
+
+        //draw scroll
+        int d = playerContainers.size() - playersToDisplay+1;
+        if (d > 0) {
+            panelCanvas.fill(brighten(bgColour, 100));
+            panelCanvas.rect(x- SCROLL_WIDTH * JSONManager.loadFloatSetting("gui scale")+w, y, 20*JSONManager.loadFloatSetting("gui scale"), h);
+            panelCanvas.fill(brighten(bgColour, -20));
+            panelCanvas.rect(x- SCROLL_WIDTH *JSONManager.loadFloatSetting("gui scale")+w, y+(h-h/(float)(d+1))*scroll/(float)d, 20*JSONManager.loadFloatSetting("gui scale"), h/(float)(d+1));
         }
 
         panelCanvas.popStyle();
@@ -79,18 +93,34 @@ public class PlayerSelector extends Element {
     public ArrayList<String> mouseEvent(String eventType, int button) {
         ArrayList<String> events = new ArrayList<>();
         if (eventType.equals("mousePressed")) {
-            if (papplet.mouseY-yOffset > y+rowHeight*(playersToDisplay-1) && papplet.mouseY-yOffset < y+rowHeight*playersToDisplay &&
-            papplet.mouseX-xOffset > x+xOffset && papplet.mouseX-xOffset < x+xOffset+w) {
-                playerContainers.add(new PlayerContainer(getNextPlayerName(), PlayerType.LOCAL));
-            }
-            for (int i = 0; i < Math.min(playerContainers.size(), playersToDisplay-1); i ++) {
-                // If clicked on player
-                if (papplet.mouseY-yOffset > y+rowHeight*i && papplet.mouseY-yOffset < y+rowHeight*(i+1) &&
-                        papplet.mouseX-xOffset > x+xOffset && papplet.mouseX-xOffset < x+xOffset+w) {
-                    // If clicked on player type box then toggle player type
-                    if (papplet.mouseX-xOffset > x+xOffset+w/2) {
-                        playerContainers.get(i + scroll).togglePlayerType();
+            if (moveOver()) {
+                // If hovering over scroll bar and scrolling
+                if (playersToDisplay-1 < playerContainers.size() && papplet.mouseX - xOffset > x + w - SCROLL_WIDTH) {
+                    scroll = (int) ((papplet.mouseY-(y-yOffset)) / (float)(h) * (playerContainers.size() - (playersToDisplay-2)));
+                }
+                else {
+                    // If hovering over add player button add new player
+                    if (papplet.mouseY - yOffset > y + rowHeight * (playersToDisplay - 1) && papplet.mouseY - yOffset < y + rowHeight * playersToDisplay &&
+                            papplet.mouseX - xOffset > x + xOffset && papplet.mouseX - xOffset < x + xOffset + w) {
+                        playerContainers.add(new PlayerContainer(getNextPlayerName(), PlayerType.LOCAL));
                     }
+                    for (int i = 0; i < Math.min(playerContainers.size(), playersToDisplay - 1); i++) {
+                        // If clicked on player
+                        if (papplet.mouseY - yOffset > y + rowHeight * i && papplet.mouseY - yOffset < y + rowHeight * (i + 1) &&
+                                papplet.mouseX - xOffset > x + xOffset && papplet.mouseX - xOffset < x + xOffset + w) {
+                            // If clicked on player type box then toggle player type
+                            if (papplet.mouseX - xOffset > x + xOffset + w / 2) {
+                                playerContainers.get(i + scroll).togglePlayerType();
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (eventType.equals("mouseDragged")) {
+            if (moveOver()) {
+                // If hovering over scroll bar and scrolling
+                if (playersToDisplay - 1 < playerContainers.size() && papplet.mouseX - xOffset > x + w - SCROLL_WIDTH) {
+                    scroll = (int) ((papplet.mouseY - (y - yOffset)) / (float) (h) * (playerContainers.size() - (playersToDisplay - 2)));
                 }
             }
         }
@@ -106,6 +136,10 @@ public class PlayerSelector extends Element {
         }
 
         return events;
+    }
+
+    public boolean moveOver() {
+        return papplet.mouseX-xOffset >= x && papplet.mouseX-xOffset <= x+w && papplet.mouseY-yOffset >= y && papplet.mouseY-yOffset <= y+rowHeight*(playersToDisplay);
     }
 }
 
