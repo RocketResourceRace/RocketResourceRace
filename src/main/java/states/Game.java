@@ -2410,7 +2410,6 @@ public class Game extends State {
         playerColours = new int[players.length];
         partyImages = new PImage[players.length];
         for (int i=0; i < players.length-1; i++) {
-            System.out.println(i);
             playerColours[i] = players[i].colour;
             partyImages[i] = partyBaseImages[1].copy();
             partyImages[i].loadPixels();

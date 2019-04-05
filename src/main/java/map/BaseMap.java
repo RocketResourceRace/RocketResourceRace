@@ -377,13 +377,17 @@ public class BaseMap extends Element {
                 } else {
                     playerName = String.format("Player %d", i).toCharArray();
                 }
+
+                // Find the player type
+                PlayerType pt = null;
                 for (PlayerType playerType : PlayerType.values()) {
                     if (playerType.intID == controllerType) {
-                        players[i] = new Player(new String(playerName), playerType, colour);
-                        players[i].setupPlayer(cameraCellX, cameraCellY, blockSize, resources, i);
+                        pt = playerType;
                     }
                 }
 
+                players[i] = new Player(new String(playerName), pt, colour);
+                players[i].setupPlayer(cameraCellX, cameraCellY, blockSize, resources, i);
                 players[i].updateVisibleCells(terrain, buildings, parties, seenCells);
                 players[i].cellSelected = cellSelected;
                 players[i].cellX = selectedCellX;
