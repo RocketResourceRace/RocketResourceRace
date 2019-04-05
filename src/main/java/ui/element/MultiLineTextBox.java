@@ -121,6 +121,8 @@ public class MultiLineTextBox extends Element {
                     drawColouredLine(panelCanvas, lines.get(i), tx+2, ty+i*gap, papplet.color(255,0,0), 'r');
                 } else if (lines.get(i).contains("<g>")) {
                     drawColouredLine(panelCanvas, lines.get(i), tx+2, ty+i*gap, papplet.color(0,150,0), 'g');
+                } else if (lines.get(i).contains("<o>")) {
+                    drawColouredLine(panelCanvas, lines.get(i), tx+2, ty+i*gap, papplet.color(121, 75, 0), 'o');
                 } else {
                     drawText(panelCanvas, tx+2, ty+i*gap, lines.get(i));
                 }

@@ -1829,7 +1829,7 @@ public class Game extends State {
                     for (int i=0; i<taskProductions.length; i++) {
                         tasksConsMap.put(taskString(i), taskConsumptions[i]);
                     }
-                    tooltip.setResource(tasksProdMap, tasksConsMap, resource);
+                    tooltip.setResource(tasksProdMap, tasksConsMap, resource, productionManager.hasWarning(getResIndex(resource), isStarving()));
                 } else if (map.mouseOver()) {
                     Cell[][] visibleCells = players[turn].visibleCells;
                     map.doUpdateHoveringScale();

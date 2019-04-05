@@ -439,7 +439,7 @@ public class AdvancedTooltip extends Tooltip {
         show();
     }
 
-    public void setResource(HashMap<String, Float> taskProductions, HashMap<String, Float> taskConsumptions, String resource) {
+    public void setResource(HashMap<String, Float> taskProductions, HashMap<String, Float> taskConsumptions, String resource, boolean warning) {
         try {
             StringBuilder t = new StringBuilder();
             t.append(String.format("%s:\n", resource));
@@ -452,6 +452,10 @@ public class AdvancedTooltip extends Tooltip {
                     taskString.append(String.format("\n<h>%s:</h>=%s", task, metricPrefix(total)));
                     t.append(taskString);
                 }
+            }
+            if (warning) {
+                t.append(String.format("\n<o>There is more %s needed this turn than is currently in the stockpile.</o>", resource));
+                t.append(              "\n<o>This means that any tasks using this resource will be performed at a lower</o>\n<o>rate this turn, in order to consume only as much of this resource as is available.</o>");
             }
             setText(t.toString());
             showFlipped();

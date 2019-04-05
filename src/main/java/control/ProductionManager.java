@@ -381,4 +381,9 @@ public class ProductionManager {
         }
         return tasks;
     }
+
+    public boolean hasWarning(int resource, boolean starving) {
+        float[] resourceProductivities = getResourceProductivities(getTotalResourceRequirements());
+        return resourceProductivities[resource]<1;
+    }
 }
