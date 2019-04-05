@@ -1,9 +1,10 @@
 package ui.element;
-import player.Player;
 import player.PlayerType;
 import processing.core.PConstants;
 import processing.core.PGraphics;
+import processing.event.MouseEvent;
 import ui.Element;
+import util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,7 @@ import static util.Util.papplet;
 public class PlayerSelector extends Element {
     private int rowHeight, playersToDisplay;
     private int bgColour;
+    private int scroll = 0;
     private List<PlayerContainer> playerContainers = new ArrayList<>();
 
     public PlayerSelector(int x, int y, int w, int h, int bgColour, int playersToDisplay) {
@@ -45,13 +47,13 @@ public class PlayerSelector extends Element {
             panelCanvas.rect(x, y+rowHeight*i, w, rowHeight);
             panelCanvas.fill(papplet.color(0));
             panelCanvas.textAlign(PConstants.LEFT, PConstants.CENTER);
-            panelCanvas.text(playerContainers.get(i).getName(), x, (float) (y+rowHeight*(i+0.5)));
+            panelCanvas.text(playerContainers.get(i + scroll).getName(), x, (float) (y+rowHeight*(i+0.5)));
 
             panelCanvas.fill(papplet.color(150));
             panelCanvas.rect((float) (x+w/2.0), y+rowHeight*i, (float) (w/2.0), rowHeight);
             panelCanvas.fill(papplet.color(0));
             panelCanvas.textAlign(PConstants.RIGHT, PConstants.CENTER);
-            panelCanvas.text(playerContainers.get(i).getPlayerType().id, x+w, (float) (y+rowHeight*(i+0.5)));
+            panelCanvas.text(playerContainers.get(i + scroll).getPlayerType().id, x+w, (float) (y+rowHeight*(i+0.5)));
         }
 
         panelCanvas.popStyle();
@@ -87,11 +89,22 @@ public class PlayerSelector extends Element {
                         papplet.mouseX-xOffset > x+xOffset && papplet.mouseX-xOffset < x+xOffset+w) {
                     // If clicked on player type box then toggle player type
                     if (papplet.mouseX-xOffset > x+xOffset+w/2) {
-                        playerContainers.get(i).togglePlayerType();
+                        playerContainers.get(i + scroll).togglePlayerType();
                     }
                 }
             }
         }
+        return events;
+    }
+
+    public ArrayList<String> mouseEvent(String eventType, int button, MouseEvent event) {
+        ArrayList<String> events = new ArrayList<>();
+
+        if (eventType.equals("mouseWheel")) {
+            float count = event.getCount();
+            scroll = (int)Util.between(0, scroll+count, Math.max(playerContainers.size() - (playersToDisplay-1), 0));
+        }
+
         return events;
     }
 }
@@ -100,20 +113,20 @@ class PlayerContainer {
     private PlayerType playerType;
     private String name;
 
-    public PlayerContainer(String name, PlayerType playerType) {
+    PlayerContainer(String name, PlayerType playerType) {
         this.playerType = playerType;
         this.name = name;
     }
 
-    public PlayerType getPlayerType() {
+    PlayerType getPlayerType() {
         return playerType;
     }
 
-    public void setPlayerType(PlayerType playerType) {
+    private void setPlayerType(PlayerType playerType) {
         this.playerType = playerType;
     }
 
-    public void togglePlayerType() {
+    void togglePlayerType() {
         switch (playerType) {
             case LOCAL:
                 setPlayerType(PlayerType.AI);
