@@ -10,6 +10,7 @@ import party.Battle;
 import party.Party;
 import party.Siege;
 import player.Player;
+import player.PlayerType;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
@@ -17,6 +18,7 @@ import processing.core.PVector;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
 import control.ResourceManager;
+import ui.Element;
 import ui.Panel;
 import ui.State;
 import ui.element.*;
@@ -28,6 +30,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 
 import static com.jogamp.newt.event.KeyEvent.VK_F12;
@@ -45,6 +48,8 @@ import static util.Logging.LOGGER_MAIN;
 import static util.Util.*;
 
 public class Game extends State {
+    public static List<Player> newGamePlayers = new ArrayList<>();
+
     private final int mapElementHeight = round(papplet.height);
     private PGraphics gameUICanvas;
     private String[] buildingTypes;
@@ -85,7 +90,7 @@ public class Game extends State {
             gameUICanvas = papplet.createGraphics(papplet.width, papplet.height, P2D);
 
             // THIS NEEDS TO BE CHANGED WHEN ADDING PLAYER INPUT SELECTOR
-            players = new Player[4];
+            players = new Player[newGamePlayers.size()];
             //
 
             resourceManager = new ResourceManager(players);
@@ -305,7 +310,7 @@ public class Game extends State {
                 if (canMove(selectedCellX, selectedCellY)) {
                     int sliderVal = m.num;
                     if (sliderVal > 0 && parties[selectedCellY][selectedCellX].getUnitNumber() >= 1 && parties[selectedCellY][selectedCellX].getTask() != JSONIndex(gameData.getJSONArray("tasks"), "Battle")) {
-                        if (players[turn].controllerType != 1) {
+                        if (players[turn].controllerType != PlayerType.BANDIT) {
                             map.updateMoveNodes(nodes, players);
                         }
                         moving = true;
@@ -631,7 +636,7 @@ public class Game extends State {
 
     private void updateThingsAfterGameStateChange() {
         players[turn].updateVisibleCells(terrain, buildings, parties);
-        if (players[turn].controllerType == 0){
+        if (players[turn].controllerType == PlayerType.LOCAL){
             map.updateVisibleCells(players[turn].visibleCells);
         }
         if (!changeTurn) {
@@ -969,7 +974,7 @@ public class Game extends State {
             turn = (turn + 1)%tempPlayerCount; // TURN CHANGE
 
             // If local player turn disable cinematic mode otherwise enable (e.g. bandits/AI turn)
-            if (players[turn].controllerType == 0) {
+            if (players[turn].controllerType == PlayerType.LOCAL) {
                 leaveCinematicMode(); // Leave cinematic mode as player turn
             } else {
                 enterCinematicMode(); // Leave cinematic mode as player turn
@@ -1037,7 +1042,7 @@ public class Game extends State {
                     }
                     boolean seenTile = false;
                     for (Player p: players) {
-                        if (p.controllerType != 1 && p.visibleCells[y][x] != null && p.visibleCells[y][x].activeSight) {
+                        if (p.controllerType != PlayerType.BANDIT && p.visibleCells[y][x] != null && p.visibleCells[y][x].activeSight) {
                             seenTile = true;
                         }
                     }
@@ -1063,7 +1068,7 @@ public class Game extends State {
             for (int y=0; y<mapHeight; y++) {
                 for (int x=0; x<mapWidth; x++) {
                     if (parties[y][x] != null) {
-                        if (parties[y][x].player >= 0) {
+                        if (parties[y][x].player >= 0 && parties[y][x].player < playerCount) {
                             playersAlive[parties[y][x].player] = true;
                         } else if (parties[y][x] instanceof Battle) {
                             playersAlive[((Battle)parties[y][x]).defender.player] = true;
@@ -1577,7 +1582,7 @@ public class Game extends State {
 
                     players[turn].updateVisibleCells(terrain, buildings, parties);
 
-                    if (players[turn].controllerType == 0){
+                    if (players[turn].controllerType == PlayerType.LOCAL){
                         map.updateVisibleCells(players[turn].visibleCells);
                     }
 
@@ -1793,7 +1798,7 @@ public class Game extends State {
     }
 
     private void refreshTooltip() {
-        if (players[turn].controllerType != 1) {
+        if (players[turn].controllerType != PlayerType.BANDIT) {
             LOGGER_MAIN.fine("refreshing tooltip");
             if (!getPanel("pause screen").isVisible()) {
                 TaskChooser tasks = ((TaskChooser)getElement("tasks", "party management"));
@@ -2379,16 +2384,25 @@ public class Game extends State {
             terrain = ((BaseMap)map).terrain;
             buildings = ((BaseMap)map).buildings;
             parties = ((BaseMap)map).parties;
-            PVector[] playerStarts = generateStartingParties();
-            // THIS NEEDS TO BE CHANGED WHEN ADDING PLAYER INPUT SELECTOR
-            players[2] = new Player((int)playerStarts[2].x, (int)playerStarts[2].y, JSONManager.loadIntSetting("starting block size"), resourceManager.getStartingResourcesClone(), papplet.color(0, 255, 0), "Player 3  ", 0, 2);
-            map.targetCell((int) playerStarts[1].x, (int) playerStarts[1].y, JSONManager.loadIntSetting("starting block size"));
-            players[1] = new Player((int)playerStarts[1].x, (int)playerStarts[1].y, JSONManager.loadIntSetting("starting block size"), resourceManager.getStartingResourcesClone(), papplet.color(255, 0, 0), "Player 2  ", 0, 1);
-            map.targetCell((int) playerStarts[0].x, (int) playerStarts[0].y, JSONManager.loadIntSetting("starting block size"));
-            players[0] = new Player((int)playerStarts[0].x, (int)playerStarts[0].y, JSONManager.loadIntSetting("starting block size"), resourceManager.getStartingResourcesClone(), papplet.color(0, 0, 255), "Player 1  ", 0, 0);
 
-            players[players.length-1] = new Player(0, 0, JSONManager.loadIntSetting("starting block size"), resourceManager.getStartingResourcesClone(), papplet.color(255, 0, 255), "Player 4  ", 1, 3);
+            playerCount = newGamePlayers.size();
+            players = new Player[playerCount+1]; // Adding bandit also
+            PVector[] playerStarts = generateStartingParties();
+            // Add players
+            for (int i = playerCount-1; i >= 0; i --) {
+                if (i < playerCount-1)
+                    map.targetCell((int) playerStarts[i].x, (int) playerStarts[i].y, JSONManager.loadIntSetting("starting block size"));
+                players[i] = newGamePlayers.get(i);
+                players[i].setupPlayer((int)playerStarts[i].x, (int)playerStarts[i].y, JSONManager.loadIntSetting("starting block size"), resourceManager.getStartingResourcesClone(), 2);
+            }
+
+            // Add bandit
+            players[players.length-1] = new Player("Bandits", PlayerType.BANDIT, papplet.color(255, 0, 255));
+            players[players.length-1].setupPlayer(0, 0, JSONManager.loadIntSetting("starting block size"), resourceManager.getStartingResourcesClone(), 3);
             players[players.length-1].resources[getResIndex("food")] = -1;
+            resourceManager.setPlayers(players);
+            notificationManager.setNumPlayers(players.length);
+
             turn = 0;
             turnNumber = 0;
             deselectCell();
@@ -2396,6 +2410,7 @@ public class Game extends State {
         playerColours = new int[players.length];
         partyImages = new PImage[players.length];
         for (int i=0; i < players.length-1; i++) {
+            System.out.println(i);
             playerColours[i] = players[i].colour;
             partyImages[i] = partyBaseImages[1].copy();
             partyImages[i].loadPixels();
@@ -2449,7 +2464,7 @@ public class Game extends State {
         }
         map.generateShape();
         players[turn].updateVisibleCells(terrain, buildings, parties);
-        if (players[turn].controllerType == 0){
+        if (players[turn].controllerType == PlayerType.LOCAL){
             map.updateVisibleCells(players[turn].visibleCells);
         }
 

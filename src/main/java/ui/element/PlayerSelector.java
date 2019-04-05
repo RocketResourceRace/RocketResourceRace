@@ -1,5 +1,7 @@
 package ui.element;
 import json.JSONManager;
+import player.Player;
+import player.PlayerContainer;
 import player.PlayerType;
 import processing.core.PConstants;
 import processing.core.PGraphics;
@@ -30,6 +32,12 @@ public class PlayerSelector extends Element {
 
         this.playersToDisplay = playersToDisplay;
         rowHeight = h/playersToDisplay;
+
+        reset();
+    }
+
+    public void reset() {
+        playerContainers.add(new PlayerContainer(getNextPlayerName(), PlayerType.LOCAL, Util.randColour()));
     }
 
     public void draw(PGraphics panelCanvas) {
@@ -47,7 +55,7 @@ public class PlayerSelector extends Element {
 
         // Draw players
         for (int i = 0; i < Math.min(playerContainers.size(), playersToDisplay-1); i ++) {
-            panelCanvas.fill(papplet.color(200));
+            panelCanvas.fill(playerContainers.get(i).getColour());
             panelCanvas.rect(x, y+rowHeight*i, w, rowHeight);
             panelCanvas.fill(papplet.color(0));
             panelCanvas.textAlign(PConstants.LEFT, PConstants.CENTER);
@@ -102,7 +110,7 @@ public class PlayerSelector extends Element {
                     // If hovering over add player button add new player
                     if (papplet.mouseY - yOffset > y + rowHeight * (playersToDisplay - 1) && papplet.mouseY - yOffset < y + rowHeight * playersToDisplay &&
                             papplet.mouseX - xOffset > x + xOffset && papplet.mouseX - xOffset < x + xOffset + w) {
-                        playerContainers.add(new PlayerContainer(getNextPlayerName(), PlayerType.LOCAL));
+                        playerContainers.add(new PlayerContainer(getNextPlayerName(), PlayerType.LOCAL, Util.randColour()));
                     }
                     for (int i = 0; i < Math.min(playerContainers.size(), playersToDisplay - 1); i++) {
                         // If clicked on player
@@ -141,41 +149,13 @@ public class PlayerSelector extends Element {
     public boolean moveOver() {
         return papplet.mouseX-xOffset >= x && papplet.mouseX-xOffset <= x+w && papplet.mouseY-yOffset >= y && papplet.mouseY-yOffset <= y+rowHeight*(playersToDisplay);
     }
-}
 
-class PlayerContainer {
-    private PlayerType playerType;
-    private String name;
-
-    PlayerContainer(String name, PlayerType playerType) {
-        this.playerType = playerType;
-        this.name = name;
-    }
-
-    PlayerType getPlayerType() {
-        return playerType;
-    }
-
-    private void setPlayerType(PlayerType playerType) {
-        this.playerType = playerType;
-    }
-
-    void togglePlayerType() {
-        switch (playerType) {
-            case LOCAL:
-                setPlayerType(PlayerType.AI);
-                break;
-            case AI:
-                setPlayerType(PlayerType.LOCAL);
-                break;
+    public List<Player> getPlayers() {
+        List<Player> players = new ArrayList<>();
+        for (PlayerContainer playerContainer : playerContainers) {
+            players.add(new Player(playerContainer.getName(), playerContainer.getPlayerType(), playerContainer.getColour()));
         }
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+        return players;
     }
 }
+

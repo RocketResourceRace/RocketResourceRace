@@ -40,6 +40,14 @@ public class NotificationManager extends Element {
         scrolling = false;
     }
 
+    public void setNumPlayers(int numPlayers) {
+        this.numPlayers = numPlayers;
+        notifications.clear();
+        for (int i = 0; i < numPlayers; i ++){
+            notifications.add(new ArrayList<>());
+        }
+    }
+
     public boolean moveOver() {
         return papplet.mouseX-xOffset >= x && papplet.mouseX-xOffset <= x+w && papplet.mouseY-yOffset >= y && papplet.mouseY-yOffset <= y+notHeight*(notifications.get(turn).size()+1);
     }
