@@ -119,6 +119,8 @@ public class PlayerSelector extends Element {
                             // If clicked on player type box then toggle player type
                             if (papplet.mouseX - xOffset > x + xOffset + w / 2) {
                                 playerContainers.get(i + scroll).togglePlayerType();
+                            } else {
+                                playerContainers.get(i + scroll).setColour(Util.randColour());
                             }
                         }
                     }
