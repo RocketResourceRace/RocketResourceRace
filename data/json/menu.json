@@ -358,6 +358,16 @@
           "h": 3,
           "text": "Back",
           "new state": "game types"
+        },
+        {
+          "id": "player selector",
+          "type": "player selector",
+          "x": 20,
+          "y": -3,
+          "w": 24,
+          "h": 18,
+          "text": "Back",
+          "new state": "game types"
         }
       ]
     },

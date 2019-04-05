@@ -853,6 +853,9 @@ public class JSONManager {
                         }
                         element = dd;
                         break;
+                    case "player selector":
+                        element = new PlayerSelector((int)x, (int)y, (int)w, (int)h, papplet.color(150));
+                        break;
                     default:
                         LOGGER_MAIN.severe("Invalid element type: "+ type);
                         throw new RuntimeException();
