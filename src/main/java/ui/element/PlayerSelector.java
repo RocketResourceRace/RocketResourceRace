@@ -27,14 +27,34 @@ public class PlayerSelector extends Element {
     }
 
     public void draw(PGraphics panelCanvas) {
+        panelCanvas.pushStyle();
+
         panelCanvas.fill(bgColour);
         panelCanvas.rect(x, y, w, h);
 
-        panelCanvas.fill(papplet.color(255));
+        // Draw add player button
+        panelCanvas.fill(papplet.color(220));
         panelCanvas.rect(x, y+rowHeight*(playersToDisplay-1), w, rowHeight);
         panelCanvas.fill(papplet.color(0));
         panelCanvas.textAlign(PConstants.LEFT, PConstants.TOP);
         panelCanvas.text( "Add Player", x, y+rowHeight*(playersToDisplay-1));
+
+        // Draw players
+        for (int i = 0; i < Math.min(playerContainers.size(), playersToDisplay-1); i ++) {
+            panelCanvas.fill(papplet.color(200));
+            panelCanvas.rect(x, y+rowHeight*i, w, rowHeight);
+            panelCanvas.fill(papplet.color(0));
+            panelCanvas.textAlign(PConstants.LEFT, PConstants.CENTER);
+            panelCanvas.text(playerContainers.get(i).getName(), x, (float) (y+rowHeight*(i+0.5)));
+
+            panelCanvas.fill(papplet.color(150));
+            panelCanvas.rect((float) (x+w/2.0), y+rowHeight*i, (float) (w/2.0), rowHeight);
+            panelCanvas.fill(papplet.color(0));
+            panelCanvas.textAlign(PConstants.RIGHT, PConstants.CENTER);
+            panelCanvas.text(playerContainers.get(i).getPlayerType().id, x+w, (float) (y+rowHeight*(i+0.5)));
+        }
+
+        panelCanvas.popStyle();
     }
 
     private String getNextPlayerName() {
