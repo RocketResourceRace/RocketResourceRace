@@ -2,6 +2,7 @@ package states;
 
 
 import control.ProductionManager;
+import control.ResourceManager;
 import control.TaskManager;
 import event.*;
 import json.JSONManager;
@@ -17,8 +18,6 @@ import processing.core.PImage;
 import processing.core.PVector;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
-import control.ResourceManager;
-import ui.Element;
 import ui.Panel;
 import ui.State;
 import ui.element.*;
@@ -39,8 +38,8 @@ import static processing.core.PApplet.*;
 import static util.Constants.BEZEL;
 import static util.Dijkstra.LimitedKnowledgeDijkstra;
 import static util.Font.getFont;
-import static util.GameInfo.turnNumber;
 import static util.GameInfo.turn;
+import static util.GameInfo.turnNumber;
 import static util.Image.partyBaseImages;
 import static util.Image.partyImages;
 import static util.Logging.LOGGER_GAME;
@@ -984,7 +983,6 @@ public class Game extends State {
             changeTurn = false;
             SingleLineTextBox t = ((SingleLineTextBox)(getElement("turn number", "bottom bar")));
             t.setColour(players[turn].colour);
-            t.setText("Turn "+turnNumber);
             productionManager.updateResourcesSummary(players[turn].resources[getResIndex("food")] == 0);
             notificationManager.turnChange(turn);
 
@@ -994,6 +992,7 @@ public class Game extends State {
                     spawnBandits();
                 }
             }
+            t.setText("Turn "+turnNumber);
 
             processBattles();
 
