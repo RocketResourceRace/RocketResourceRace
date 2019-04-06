@@ -2393,7 +2393,7 @@ public class Game extends State {
                 if (i < playerCount-1)
                     map.targetCell((int) playerStarts[i].x, (int) playerStarts[i].y, JSONManager.loadIntSetting("starting block size"));
                 players[i] = newGamePlayers.get(i);
-                players[i].setupPlayer((int)playerStarts[i].x, (int)playerStarts[i].y, JSONManager.loadIntSetting("starting block size"), resourceManager.getStartingResourcesClone(), 2);
+                players[i].setupPlayer((int)playerStarts[i].x, (int)playerStarts[i].y, JSONManager.loadIntSetting("starting block size"), resourceManager.getStartingResourcesClone(), i);
             }
 
             // Add bandit
