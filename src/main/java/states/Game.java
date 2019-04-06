@@ -2310,6 +2310,7 @@ public class Game extends State {
     public void enterState() {
         resourceManager.initialiseResources();
         reloadGame();
+        leaveCinematicMode();
     }
 
     private void reloadGame() {
