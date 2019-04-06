@@ -57,9 +57,8 @@ public class Map2D extends BaseMap implements Map {
     private boolean showingBombard;
     private int bombardRange;
     private int[] playerColours;
-    private Player[] players;
 
-    public Map2D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight, Player[] players) {
+    public Map2D(int x, int y, int w, int h, int[][] terrain, Party[][] parties, Building[][] buildings, int mapWidth, int mapHeight) {
         LOGGER_MAIN.fine("Initialsing map");
         xPos = x;
         yPos = y;
@@ -79,7 +78,6 @@ public class Map2D extends BaseMap implements Map {
         cancelPath();
         heightMap = new float[PApplet.parseInt((mapWidth+1)*(mapHeight+1)*pow(JSONManager.loadFloatSetting("terrain detail"), 2))];
         this.keyState = new HashMap<>();
-        this.players = players;
     }
 
 
@@ -291,7 +289,7 @@ public class Map2D extends BaseMap implements Map {
         PImage[] tempTileImagesDark = new PImage[gameData.getJSONArray("terrain").size()];
         PImage[][] tempBuildingImages = new PImage[gameData.getJSONArray("buildings").size()][];
         PImage[][] tempBuildingImagesDark = new PImage[gameData.getJSONArray("buildings").size()][];
-        PImage[] tempPartyImages = new PImage[players.length+1]; // Index 0 is battle
+        PImage[] tempPartyImages = new PImage[playerColours.length+1]; // Index 0 is battle
         PImage[] tempTaskImages = new PImage[taskImages.length];
         if (frameStartTime == 0) {
             frameStartTime = papplet.millis();

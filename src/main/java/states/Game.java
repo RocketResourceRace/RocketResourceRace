@@ -99,7 +99,7 @@ public class Game extends State {
             initialiseBuildings();
 
             int mapElementWidth = round(papplet.width);
-            addElement("2dmap", new Map2D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight, players));
+            addElement("2dmap", new Map2D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
             addElement("3dmap", new Map3D(0, 0, mapElementWidth, mapElementHeight, terrain, parties, buildings, mapWidth, mapHeight));
             notificationManager = new NotificationManager(0, 0, 0, 0, papplet.color(100), papplet.color(255), 8, turn, players.length);
             addElement("notification manager", notificationManager);
@@ -2316,7 +2316,7 @@ public class Game extends State {
         LOGGER_MAIN.fine("Reloading game...");
         mapWidth = JSONManager.loadIntSetting("map size");
         mapHeight = JSONManager.loadIntSetting("map size");
-        playerCount = players.length;
+        playerCount = players.length-1;
 
         updateSidePanelElementsSizes();
 
