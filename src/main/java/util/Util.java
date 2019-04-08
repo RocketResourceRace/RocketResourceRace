@@ -31,6 +31,10 @@ public class Util {
         return papplet.color(r, g, b);
     }
 
+    public static int randColour() {
+        return Util.color((float)Math.random()*255, (float)Math.random()*255, (float)Math.random()*255);
+    }
+
     public static int brighten(int old, int off) {
         return color(between(0, red(old)+off, 255), between(0, green(old)+off, 255), between(0, blue(old)+off, 255));
     }

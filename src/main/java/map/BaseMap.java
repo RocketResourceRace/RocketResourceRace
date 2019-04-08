@@ -8,6 +8,7 @@ import party.Battle;
 import party.Party;
 import party.Siege;
 import player.Player;
+import player.PlayerType;
 import processing.core.PApplet;
 import ui.Element;
 import util.Cell;
@@ -167,7 +168,7 @@ public class BaseMap extends Element {
                 buffer.putInt(p.cellX);
                 buffer.putInt(p.cellY);
                 buffer.putInt(p.colour);
-                buffer.putInt(p.controllerType);
+                buffer.putInt(p.controllerType.intID);
                 for (int y = 0; y < mapHeight; y++) {
                     for (int x = 0; x < mapWidth; x++) {
                         if (p.visibleCells[y][x] == null) {
@@ -376,7 +377,17 @@ public class BaseMap extends Element {
                 } else {
                     playerName = String.format("Player %d", i).toCharArray();
                 }
-                players[i] = new Player(cameraCellX, cameraCellY, blockSize, resources, colour, new String(playerName), controllerType, i);
+
+                // Find the player type
+                PlayerType pt = null;
+                for (PlayerType playerType : PlayerType.values()) {
+                    if (playerType.intID == controllerType) {
+                        pt = playerType;
+                    }
+                }
+
+                players[i] = new Player(new String(playerName), pt, colour);
+                players[i].setupPlayer(cameraCellX, cameraCellY, blockSize, resources, i);
                 players[i].updateVisibleCells(terrain, buildings, parties, seenCells);
                 players[i].cellSelected = cellSelected;
                 players[i].cellX = selectedCellX;
