@@ -198,7 +198,7 @@ public class JSONManager {
     public static String getEquipmentImageFileName(int classIndex, int typeIndex){
         try{
             if (!gameData.getJSONArray("equipment").getJSONObject(classIndex).getJSONArray("types").getJSONObject(typeIndex).isNull("img")){
-                return "data/img/equipment/"+gameData.getJSONArray("equipment").getJSONObject(classIndex).getJSONArray("types").getJSONObject(typeIndex).getString("img");
+                return "data/img/resource/equipment/"+gameData.getJSONArray("equipment").getJSONObject(classIndex).getJSONArray("types").getJSONObject(typeIndex).getString("img");
             }
             else{
                 LOGGER_MAIN.warning(String.format("Could not find img file for equipment class:%d, type:%d, id:%s", classIndex, typeIndex, getEquipmentTypeID(classIndex, typeIndex)));
