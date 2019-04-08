@@ -241,6 +241,7 @@ public class Menu extends State {
                     LOGGER_MAIN.info("Starting states change to a new game");
                     newState = "map";
                     loadingName = null;
+                    Game.newGamePlayers = ((PlayerSelector)getElement("player selector", event.panel)).getPlayers();
                 } else if (event.id.equals("load")) {
                     loadingName = ((BaseFileManager)getElement("loading manager", "load game")).selectedSaveName();
                     LOGGER_MAIN.info("Starting states change to game via loading with file name"+loadingName);

@@ -11,12 +11,13 @@ import java.util.logging.Level;
 
 import static processing.core.PApplet.*;
 import static util.Font.getFont;
+import static util.GameInfo.turn;
 import static util.Logging.LOGGER_MAIN;
 import static util.Util.*;
 
 public class NotificationManager extends Element {
     private ArrayList<ArrayList<Notification>> notifications;
-    private int bgColour, textColour, displayNots, notHeight, topOffset, scroll, turn, numPlayers;
+    private int bgColour, textColour, displayNots, notHeight, topOffset, scroll, numPlayers;
     public Notification lastSelected;
     private boolean scrolling;
 
@@ -25,7 +26,6 @@ public class NotificationManager extends Element {
         this.y = y;
         this.w = w;
         this.h = h;
-        this.turn = turn;
         this.bgColour = bgColour;
         this.textColour = textColour;
         this.displayNots = displayNots;
@@ -38,6 +38,14 @@ public class NotificationManager extends Element {
         this.scroll = 0;
         lastSelected = null;
         scrolling = false;
+    }
+
+    public void setNumPlayers(int numPlayers) {
+        this.numPlayers = numPlayers;
+        notifications.clear();
+        for (int i = 0; i < numPlayers; i ++){
+            notifications.add(new ArrayList<>());
+        }
     }
 
     public boolean moveOver() {
@@ -67,7 +75,6 @@ public class NotificationManager extends Element {
     }
 
     public void turnChange(int turn) {
-        this.turn = turn;
         this.scroll = 0;
     }
 

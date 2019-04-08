@@ -32,26 +32,28 @@ public class Player {
     public String name;
     public boolean isAlive = true;
     public PlayerController playerController;
-    public int controllerType;  // 0 for local, 1 for bandits
+    public PlayerType controllerType;
     public Cell[][] visibleCells;
 
-    // Resources: food wood metal energy concrete cable spaceship_parts ore people
-    public Player(float x, float y, float blockSize, float[] resources, int colour, String name, int controllerType, int id) {
-        this.cameraCellX = x;
-        this.cameraCellY = y;
-        this.blockSize = blockSize;
-        this.resources = resources;
-        this.colour = colour;
+    public Player(String name, PlayerType controllerType, int colour) {
         this.name = name;
-        this.id = id;
-
         this.visibleCells = new Cell[JSONManager.loadIntSetting("map size")][JSONManager.loadIntSetting("map size")];
         this.controllerType = controllerType;
-        if (controllerType == 1) {
+        if (controllerType == PlayerType.BANDIT) {
             playerController = new BanditController(id, JSONManager.loadIntSetting("map size"), JSONManager.loadIntSetting("map size"));
         } else {
             playerController = null;
         }
+        this.colour = colour;
+    }
+
+    // Resources: food wood metal energy concrete cable spaceship_parts ore people
+    public void setupPlayer(float x, float y, float blockSize, float[] resources, int id) {
+        this.cameraCellX = x;
+        this.cameraCellY = y;
+        this.blockSize = blockSize;
+        this.resources = resources;
+        this.id = id;
     }
 
     public int getId() {
