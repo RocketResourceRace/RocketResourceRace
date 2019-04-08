@@ -55,6 +55,16 @@ public class JSONManager {
         }
     }
 
+    public static int getNumResourceTypes() {
+        try {
+            return gameData.getJSONArray("resources").size();
+        }
+        catch (NullPointerException e) {
+            LOGGER_MAIN.log(Level.SEVERE, "Error due to JSON being incorrectly formatted for resource string", e);
+            return 0;
+        }
+    }
+
     private PrintWriter createWriter(String s) {
         return PApplet.createWriter(new File(s));
     }
@@ -195,18 +205,22 @@ public class JSONManager {
         }
     }
 
-    public static String getEquipmentImageFileName(int classIndex, int typeIndex){
+    public static String getResourceImageFileName(int resource){
         try{
-            if (!gameData.getJSONArray("equipment").getJSONObject(classIndex).getJSONArray("types").getJSONObject(typeIndex).isNull("img")){
-                return "data/img/resource/equipment/"+gameData.getJSONArray("equipment").getJSONObject(classIndex).getJSONArray("types").getJSONObject(typeIndex).getString("img");
+            if (!gameData.getJSONArray("resources").getJSONObject(resource).isNull("img")){
+                String equipment = "";
+                if (resourceIsEquipment(resource)) {
+                    equipment = "equipment/";
+                }
+                return "data/img/resource/"+equipment+gameData.getJSONArray("resources").getJSONObject(resource).getString("img");
             }
             else{
-                LOGGER_MAIN.warning(String.format("Could not find img file for equipment class:%d, type:%d, id:%s", classIndex, typeIndex, getEquipmentTypeID(classIndex, typeIndex)));
+                LOGGER_MAIN.warning(String.format("Could not find img file for resource :%d", resource));
                 return "";
             }
         }
         catch (NullPointerException e) {
-            LOGGER_MAIN.log(Level.SEVERE, String.format("Error loading equipment file name from data.json. Class:%d, type:%d id:%s", classIndex, typeIndex, getEquipmentTypeID(classIndex, typeIndex)), e);
+            LOGGER_MAIN.log(Level.SEVERE, String.format("Error loading resource file name from data.json. id:%s", resource), e);
             throw e;
         }
     }
@@ -972,7 +986,7 @@ public class JSONManager {
             return null;
         }
     }
-    public static int numBuildingTypes() {
+    public static int getNumBuildingTypes() {
         try {
             return gameData.getJSONArray("buildings").size();
         }

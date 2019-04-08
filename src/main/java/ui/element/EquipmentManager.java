@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.logging.Level;
 
 import static util.Font.getFont;
-import static util.Image.equipmentImages;
+import static util.Image.resourceImages;
 import static util.Logging.LOGGER_GAME;
 import static util.Logging.LOGGER_MAIN;
 import static util.Util.between;
@@ -79,19 +79,17 @@ public class EquipmentManager extends Element {
 
     private void resizeImages(){
         // Resize equipment icons
-        for (int c = 0; c < JSONManager.getNumEquipmentClasses(); c++){
-            for (int t = 0; t < JSONManager.getNumEquipmentTypesFromClass(c); t++){
-                try{
-                    String id = JSONManager.getEquipmentTypeID(c, t);
-                    tempEquipmentImages.put(id, equipmentImages.get(id).copy());
-                    tempEquipmentImages.get(id).resize(PApplet.parseInt(dropH/0.75f), PApplet.parseInt(dropH-1));
-                    bigTempEquipmentImages.put(id, equipmentImages.get(id).copy());
-                    bigTempEquipmentImages.get(id).resize(PApplet.parseInt(boxWidth*BIGIMAGESIZE), PApplet.parseInt(boxHeight*BIGIMAGESIZE));
-                }
-                catch (NullPointerException e){
-                    LOGGER_MAIN.log(Level.SEVERE, String.format("Error resizing image for equipment icon class:%d, type:%d, id:%s", c, t, JSONManager.getEquipmentTypeID(c, t)), e);
-                    throw e;
-                }
+        // Resize icons
+        for (int r=0; r < JSONManager.getNumResourceTypes(); r++) {
+            String id = JSONManager.getResString(r);
+            try {
+                tempEquipmentImages.put(id, resourceImages.get(id).copy());
+                tempEquipmentImages.get(id).resize(PApplet.parseInt(dropH / 0.75f), PApplet.parseInt(dropH - 1));
+                bigTempEquipmentImages.put(id, resourceImages.get(id).copy());
+                bigTempEquipmentImages.get(id).resize(PApplet.parseInt(boxWidth * BIGIMAGESIZE), PApplet.parseInt(boxHeight * BIGIMAGESIZE));
+            } catch (NullPointerException e) {
+                LOGGER_MAIN.log(Level.SEVERE, String.format("Error resizing image for resource icon id:%s", id), e);
+                throw e;
             }
         }
     }

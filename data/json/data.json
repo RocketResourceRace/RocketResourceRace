@@ -777,7 +777,7 @@
       "consumption":[
         {"id": "food","quantity":0.2},
         {"id": "sulphur","quantity":0.5},
-        {"id": "saltpeter","quantity":0.5}
+        {"id": "saltpetre","quantity":0.5}
       ],
       "buildings":["Factory"]
     },
@@ -798,7 +798,7 @@
       "img": "produce.png",
       "obj": "produce.obj",
       "production":[
-        {"id": "saltpeter","quantity":0.05}
+        {"id": "saltpetre","quantity":0.05}
       ],
       "consumption":[
         {"id": "food","quantity":0.2},
@@ -1076,7 +1076,8 @@
   "resources":[
     {
       "id": "food",
-      "resource manager": 2
+      "resource manager": 2,
+      "img": "food.png"
     },
     {
       "id": "wood",
@@ -1143,92 +1144,109 @@
       "resource manager": 1
     },
     {
-      "id": "saltpeter",
+      "id": "saltpetre",
       "resource manager": 1
     },
     {
       "id": "wooden armour",
       "resource manager": 0,
+      "img": "wooden armour.png",
       "is equipment": true
     },
     {
       "id": "iron armour",
       "resource manager": 0,
+      "img": "iron armour.png",
       "is equipment": true
     },
     {
       "id": "reinforced armour",
       "resource manager": 0,
+      "img": "reinforced armour.png",
       "is equipment": true
     },
     {
       "id": "sword and shield",
       "resource manager": 0,
+      "img": "sword and shield.png",
       "is equipment": true
     },
     {
       "id": "bow",
       "resource manager": 0,
+      "img": "bow.png",
       "is equipment": true
     },
     {
       "id": "javelin",
       "resource manager": 0,
+      "img": "javelin.png",
       "is equipment": true
     },
     {
       "id": "pike",
       "resource manager": 0,
+      "img": "pike.png",
       "is equipment": true
     },
     {
       "id": "musket",
       "resource manager": 0,
+      "img": "musket.png",
       "is equipment": true
     },
     {
       "id": "rifle",
       "resource manager": 0,
+      "img": "rifle.png",
       "is equipment": true
     },
     {
       "id": "machine gun",
       "resource manager": 0,
+      "img": "machine gun.png",
       "is equipment": true
     },
     {
       "id": "tank",
       "resource manager": 2,
+      "img": "tank.png",
       "is equipment": true
     },
     {
       "id": "horse",
       "resource manager": 0,
+      "img": "horse.png",
       "is equipment": true
     },
     {
       "id": "chariot",
       "resource manager": 0,
+      "img": "chariot.png",
       "is equipment": true
     },
     {
       "id": "offroader",
       "resource manager": 0,
+      "img": "offroader.png",
       "is equipment": true
     },
     {
       "id": "apc",
       "resource manager": 0,
+      "img": "apc.png",
       "is equipment": true
     },
     {
       "id": "hand tools",
       "resource manager": 0,
+      "img": "hand tools.png",
       "is equipment": true
     },
     {
       "id": "power tools",
       "resource manager": 0,
+      "img": "power tools.png",
       "is equipment": true
     }
   ],
@@ -1293,7 +1311,6 @@
         {
           "id": "wooden armour",
           "display name": "Wooden Armour",
-          "img": "wooden armour.png",
           "speed": -0.25,
           "defence": 1,
           "valid collection sites": ["Armoury", "Blacksmith"]
@@ -1301,7 +1318,6 @@
         {
           "id": "iron armour",
           "display name": "Iron Armour",
-          "img": "iron armour.png",
           "speed": -0.4,
           "defence": 2.5,
           "valid collection sites": ["Armoury", "Blacksmith"]
@@ -1309,7 +1325,6 @@
         {
           "id": "reinforced armour",
           "display name": "Reinforced Armour",
-          "img": "reinforced armour.png",
           "speed": -0.5,
           "defence": 4,
           "valid collection sites": ["Armoury", "Blacksmith"]
@@ -1326,7 +1341,6 @@
         {
           "id": "sword and shield",
           "display name": "Sword and Shield",
-          "img": "sword and shield.png",
           "melee attack": 1,
           "speed": -0.1,
           "defence": 0.5,
@@ -1335,7 +1349,6 @@
         {
           "id": "bow",
           "display name": "Bow",
-          "img": "bow.png",
           "range": 2,
           "ranged attack": 0.25,
           "valid collection sites": ["Armoury", "Blacksmith"]
@@ -1343,7 +1356,6 @@
         {
           "id": "javelin",
           "display name": "Javlin",
-          "img": "javelin.png",
           "range": 1,
           "ranged attack": 1,
           "valid collection sites": ["Armoury", "Blacksmith"]
@@ -1351,7 +1363,6 @@
         {
           "id": "pike",
           "display name": "Pike",
-          "img": "pike.png",
           "speed": -0.3,
           "melee attack": 1.5,
           "valid collection sites": ["Armoury", "Blacksmith"]
@@ -1359,7 +1370,6 @@
         {
           "id": "musket",
           "display name": "Musket",
-          "img": "musket.png",
           "range": 3,
           "speed": -0.1,
           "ranged attack": 4,
@@ -1369,7 +1379,6 @@
         {
           "id": "rifle",
           "display name": "Rifle",
-          "img": "rifle.png",
           "range": 4,
           "speed": -0.1,
           "ranged attack": 6,
@@ -1379,7 +1388,6 @@
         {
           "id": "machine gun",
           "display name": "Machine Gun",
-          "img": "machine gun.png",
           "range": 3,
           "speed": -0.5,
           "ranged attack": 8,
@@ -1389,7 +1397,6 @@
         {
           "id": "tank",
           "display name": "Tank",
-          "img": "tank.png",
           "range": 5,
           "speed": 1.5,
           "ranged attack": 10,
@@ -1407,14 +1414,12 @@
         {
           "id": "horse",
           "display name": "Horse",
-          "img": "horse.png",
           "speed": 1,
           "valid collection sites": ["Stable"]
         },
         {
           "id": "chariot",
           "display name": "Chariot",
-          "img": "chariot.png",
           "speed": 2,
           "melee attack": 0.1,
           "valid collection sites": ["Stable"]
@@ -1422,14 +1427,12 @@
         {
           "id": "offroader",
           "display name": "Offroader",
-          "img": "offroader.png",
           "speed": 5,
           "valid collection sites": ["Armoury", "Factory"]
         },
         {
           "id": "apc",
           "display name": "APC",
-          "img": "apc.png",
           "speed": 3,
           "defence": 5,
           "valid collection sites": ["Armoury", "Factory"],
@@ -1446,14 +1449,12 @@
         {
           "id": "hand tools",
           "display name": "Hand tools",
-          "img": "hand tools.png",
           "building speed": 1,
           "valid collection sites": ["Armoury", "Blacksmith"]
         },
         {
           "id": "power tools",
           "display name": "Power Tools",
-          "img": "power tools.png",
           "building speed": 2,
           "valid collection sites": ["Armoury", "Factory"]
         }

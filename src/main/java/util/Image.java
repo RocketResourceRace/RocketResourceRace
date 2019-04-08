@@ -20,7 +20,7 @@ public class Image {
     public static PImage[] taskImages;
     public static HashMap<String, PImage> lowImages;
     public static HashMap<String, PImage> tile3DImages;
-    public static HashMap<String, PImage> equipmentImages;
+    public static HashMap<String, PImage> resourceImages;
     public static PImage bombardImage;
 
 
@@ -31,7 +31,7 @@ public class Image {
             lowImages = new HashMap<>();
             tile3DImages = new HashMap<>();
             buildingImages = new HashMap<>();
-            equipmentImages = new HashMap<>();
+            resourceImages = new HashMap<>();
 
             partyBaseImages = new PImage[]{
                     loadImage(RESOURCES_ROOT +"img/party/battle.png"),
@@ -67,19 +67,19 @@ public class Image {
                     taskImages[i] = loadImage(RESOURCES_ROOT +"img/task/"+task.getString("img"));
                 }
             }
-            LOGGER_MAIN.finer("Loading equipment images");
 
-            // Load equipment icons
-            for (int c = 0; c < JSONManager.getNumEquipmentClasses(); c++){
-                for (int t=0; t < JSONManager.getNumEquipmentTypesFromClass(c); t++){
-                    String fn = JSONManager.getEquipmentImageFileName(c, t);
-                    if (!fn.equals("")){
-                        equipmentImages.put(JSONManager.getEquipmentTypeID(c, t), loadImage(fn));
-                        LOGGER_MAIN.finest("Loading equipment image id:"+JSONManager.getEquipmentTypeID(c, t));
-                    } else {
-                        equipmentImages.put(JSONManager.getEquipmentTypeID(c, t), papplet.createImage(1, 1, ALPHA));
-                        LOGGER_MAIN.finest("Loading empty image for equipment id:"+JSONManager.getEquipmentTypeID(c, t));
-                    }
+            LOGGER_MAIN.finer("Loading resource images");
+
+            // Load resource icons
+            for (int r = 0; r < JSONManager.getNumResourceTypes(); r++){
+                String fn = JSONManager.getResourceImageFileName(r);
+                String name = JSONManager.getResString(r);
+                if (!fn.equals("")){
+                    resourceImages.put(name, loadImage(fn));
+                    LOGGER_MAIN.finest("Loading resource image id:"+name);
+                } else {
+                    resourceImages.put(name, papplet.createImage(1, 1, ALPHA));
+                    LOGGER_MAIN.finest("Loading empty image for resource id:"+name);
                 }
             }
 

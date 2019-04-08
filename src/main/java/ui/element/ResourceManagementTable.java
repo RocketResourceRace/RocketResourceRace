@@ -14,7 +14,7 @@ import java.util.logging.Level;
 import static processing.core.PApplet.ceil;
 import static processing.core.PConstants.BOTTOM;
 import static processing.core.PConstants.LEFT;
-import static util.Image.equipmentImages;
+import static util.Image.resourceImages;
 import static util.Logging.LOGGER_MAIN;
 
 public class ResourceManagementTable extends Element {
@@ -24,7 +24,7 @@ public class ResourceManagementTable extends Element {
     private ArrayList<ArrayList<Float>> production, consumption, net, storage;
     private int rows;
     private int TEXTSIZE = 13;
-    private HashMap<String, PImage> tempEquipmentImages;
+    private HashMap<String, PImage> tempResourceImages;
     private int rowThickness;
     private int rowGap;
     private int columnGap;
@@ -39,7 +39,7 @@ public class ResourceManagementTable extends Element {
         int pages = 2;
         names = new ArrayList<>();
         headings = new String[pages][];
-        tempEquipmentImages = new HashMap<>();
+        tempResourceImages = new HashMap<>();
         rowThickness = ceil(TEXTSIZE*1.6f*JSONManager.loadFloatSetting("text scale"));
         imgHeight = rowThickness;
         rowGap = ceil(TEXTSIZE/4f*JSONManager.loadFloatSetting("text scale"));
@@ -103,15 +103,20 @@ public class ResourceManagementTable extends Element {
             canvas.rect(x, yPos+i*(rowThickness+rowGap), w, rowThickness);
             canvas.fill(0);
             canvas.textSize(TEXTSIZE*JSONManager.loadFloatSetting("text scale"));
-            int offset = 0;
+            int offset;
             int startColumn = 0;
+            String name  = names.get(page).get(i);
+            if (tempResourceImages.containsKey(name)) {
+                canvas.image(tempResourceImages.get(name), x+2, yPos+i*(rowThickness+rowGap));
+            }
             if (page == 1) {
-                canvas.image(tempEquipmentImages.get(names.get(page).get(i)), x+2, yPos+i*(rowThickness+rowGap));
                 offset = PApplet.parseInt(imgHeight/0.75f);
                 canvas.text(
                         JSONManager.getEquipmentClass(Objects.requireNonNull(JSONManager.getEquipmentTypeClassFromID(names.get(page).get(i)))[0]),
                         headingXs[1], yPos+(i+1)*(rowThickness+rowGap) - rowGap);
                 startColumn = 1;
+            } else {
+                offset = imgHeight;
             }
             canvas.text(names.get(page).get(i), x+offset+columnGap, yPos+(i+1)*(rowThickness+rowGap) - rowGap);
             canvas.fill(0, 255, 0);
@@ -125,18 +130,18 @@ public class ResourceManagementTable extends Element {
     }
 
     private void resizeImages(){
-        // Resize equipment icons
-        for (int c=0; c < JSONManager.getNumEquipmentClasses(); c++){
-            for (int t=0; t < JSONManager.getNumEquipmentTypesFromClass(c); t++){
-                try{
-                    String id = JSONManager.getEquipmentTypeID(c, t);
-                    tempEquipmentImages.put(id, equipmentImages.get(id).copy());
-                    tempEquipmentImages.get(id).resize(ceil(PApplet.parseFloat(imgHeight)/0.75f), imgHeight);
-                }
-                catch (NullPointerException e){
-                    LOGGER_MAIN.log(Level.SEVERE, String.format("Error resizing image for equipment icon class:%d, type:%d, id:%s", c, t, JSONManager.getEquipmentTypeID(c, t)), e);
-                    throw e;
-                }
+        // Resize icons
+        for (int r=0; r < JSONManager.getNumResourceTypes(); r++) {
+            String id = JSONManager.getResString(r);
+            try {
+                int imgWidth = imgHeight;
+                if (JSONManager.resourceIsEquipment(r))
+                    imgWidth = ceil(PApplet.parseFloat(imgHeight)/0.75f);
+                tempResourceImages.put(id, resourceImages.get(id).copy());
+                tempResourceImages.get(id).resize(imgWidth, imgHeight);
+            } catch (NullPointerException e) {
+                LOGGER_MAIN.log(Level.SEVERE, String.format("Error resizing image for resource icon id:%s", id), e);
+                throw e;
             }
         }
     }
