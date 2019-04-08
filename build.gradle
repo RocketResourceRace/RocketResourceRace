@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main'
+        }
+    }
+    test {
+        java {
+            srcDir 'src/test'
+        }
+    }
+}
+
+mainClassName = "RocketResourceRace"
+
+dependencies {
+    compile fileTree(dir: 'lib')
+    testImplementation 'junit:junit:4.12'
+}
+
+repositories {
+    jcenter()
+}
