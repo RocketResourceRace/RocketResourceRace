@@ -2316,7 +2316,6 @@ public class Game extends State {
         LOGGER_MAIN.fine("Reloading game...");
         mapWidth = JSONManager.loadIntSetting("map size");
         mapHeight = JSONManager.loadIntSetting("map size");
-        playerCount = players.length-1;
 
         updateSidePanelElementsSizes();
 
@@ -2365,6 +2364,7 @@ public class Game extends State {
             turnNumber = mapSave.startTurn;
             turn = mapSave.startPlayer;
             this.players = mapSave.players;
+            playerCount = players.length-1;
             resourceManager.setPlayers(this.players);
             checkForPlayerWin();
             if (JSONManager.loadBooleanSetting("map is 3d")) {
@@ -2401,12 +2401,12 @@ public class Game extends State {
             players[players.length-1].setupPlayer(0, 0, JSONManager.loadIntSetting("starting block size"), resourceManager.getStartingResourcesClone(), 3);
             players[players.length-1].resources[getResIndex("food")] = -1;
             resourceManager.setPlayers(players);
-            notificationManager.setNumPlayers(players.length);
 
             turn = 0;
             turnNumber = 0;
             deselectCell();
         }
+        notificationManager.setNumPlayers(players.length);
         playerColours = new int[players.length];
         partyImages = new PImage[players.length];
         for (int i=0; i < players.length-1; i++) {
